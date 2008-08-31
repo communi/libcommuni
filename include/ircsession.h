@@ -42,7 +42,7 @@ public:
 
 public slots:
     void disconnectFromServer();
-    bool run();
+    bool exec();
 
 public:
     QStringList autoJoinChannels() const;

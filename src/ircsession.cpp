@@ -45,6 +45,8 @@ public:
     static void event_dcc_chat_req(irc_session_t* session, const char* nick, const char* addr, irc_dcc_t dccid);    
     static void event_dcc_send_req(irc_session_t* session, const char* nick, const char* addr, const char* filename, ulong size, irc_dcc_t dccid);
 
+    static QStringList listFromParams(const char** params, uint count);
+
     irc_session_t* _session;
     QStringList _channels;
 };
@@ -88,7 +90,7 @@ void IrcSessionPrivate::event_connect(irc_session_t* session, const char* event,
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << "wtf" << event << origin;
+        qDebug() << "connect:" << event << origin;
         emit context->connected();
 
         foreach (const QString& channel, context->autoJoinChannels())
@@ -111,8 +113,9 @@ void IrcSessionPrivate::event_nick(irc_session_t* session, const char* event, co
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0];
-        emit context->nickChanged(origin, params[0]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "nick:" << event << origin << list;
+        emit context->nickChanged(origin, list.value(0));
     }
 }
 
@@ -128,8 +131,9 @@ void IrcSessionPrivate::event_quit(irc_session_t* session, const char* event, co
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0];
-        emit context->quit(origin, params[0]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "quit:" << event << origin << list;
+        emit context->quit(origin, list.value(0));
     }
 }
 
@@ -147,8 +151,9 @@ void IrcSessionPrivate::event_join(irc_session_t* session, const char* event, co
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0];
-        emit context->joined(origin, params[0]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "join:" << event << origin << list;
+        emit context->joined(origin, list.value(0));
     }
 }
 
@@ -167,8 +172,9 @@ void IrcSessionPrivate::event_part(irc_session_t* session, const char* event, co
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0] << params[1];
-        emit context->parted(origin, params[0], params[1]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "part:" << event << origin << list;
+        emit context->parted(origin, list.value(0), list.value(1));
     }
 }
 
@@ -190,8 +196,9 @@ void IrcSessionPrivate::event_mode(irc_session_t* session, const char* event, co
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0] << params[1] << params[2];
-        emit context->channelModeChanged(origin, params[0], params[1], params[2]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "mode:" << event << origin << list;
+        emit context->channelModeChanged(origin, list.value(0), list.value(1), list.value(2));
     }
 }
 
@@ -208,8 +215,9 @@ void IrcSessionPrivate::event_umode(irc_session_t* session, const char* event, c
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0];
-        emit context->userModeChanged(origin, params[0]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "umode:" << event << origin << list;
+        emit context->userModeChanged(origin, list.value(0));
     }
 }
 
@@ -227,8 +235,9 @@ void IrcSessionPrivate::event_topic(irc_session_t* session, const char* event, c
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0] << params[1];
-        emit context->topicChanged(origin, params[0], params[1]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "topic:" << event << origin << list;
+        emit context->topicChanged(origin, list.value(0), list.value(1));
     }
 }
 
@@ -247,8 +256,9 @@ void IrcSessionPrivate::event_kick(irc_session_t* session, const char* event, co
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0] << params[1] << params[2];
-        emit context->kicked(origin, params[0], params[1], params[2]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "kick:" << event << origin << list;
+        emit context->kicked(origin, list.value(0), list.value(1), list.value(2));
     }
 }
 
@@ -267,8 +277,9 @@ void IrcSessionPrivate::event_channel(irc_session_t* session, const char* event,
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0] << params[1];
-        emit context->channelMessageReceived(origin, params[0], params[1]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "channel:" << event << origin << list;
+        emit context->channelMessageReceived(origin, list.value(0), list.value(1));
     }
 }
 
@@ -286,8 +297,9 @@ void IrcSessionPrivate::event_privmsg(irc_session_t* session, const char* event,
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0] << params[1];
-        emit context->privateMessageReceived(origin, params[0], params[1]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "privmsg:" << event << origin << list;
+        emit context->privateMessageReceived(origin, list.value(0), list.value(1));
     }
 }
 
@@ -309,8 +321,9 @@ void IrcSessionPrivate::event_notice(irc_session_t* session, const char* event, 
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0] << params[1];
-        emit context->noticeReceived(origin, params[0], params[1]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "notice:" << event << origin << list;
+        emit context->noticeReceived(origin, list.value(0), list.value(1));
     }
 }
 
@@ -330,8 +343,9 @@ void IrcSessionPrivate::event_invite(irc_session_t* session, const char* event, 
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0] << params[1];
-        emit context->invited(origin, params[0], params[1]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "invite:" << event << origin << list;
+        emit context->invited(origin, list.value(0), list.value(1));
     }
 }
 
@@ -355,8 +369,9 @@ void IrcSessionPrivate::event_ctcp_req(irc_session_t* session, const char* event
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0];
-        emit context->ctcpRequestReceived(origin, params[0]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "ctcp_req:" << event << origin << list;
+        emit context->ctcpRequestReceived(origin, list.value(0));
     }
 }
 
@@ -371,8 +386,9 @@ void IrcSessionPrivate::event_ctcp_rep(irc_session_t* session, const char* event
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0];
-        emit context->ctcpReplyReceived(origin, params[0]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "ctcp_rep:" << event << origin << list;
+        emit context->ctcpReplyReceived(origin, list.value(0));
     }
 }
 
@@ -391,8 +407,9 @@ void IrcSessionPrivate::event_ctcp_action(irc_session_t* session, const char* ev
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        qDebug() << event << origin << params[0];
-        emit context->ctcpActionReceived(origin, params[0]);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "ctcp_action:" << event << origin << list;
+        emit context->ctcpActionReceived(origin, list.value(0));
     }
 }
 
@@ -406,11 +423,9 @@ void IrcSessionPrivate::event_unknown(irc_session_t* session, const char* event,
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList tmp;
-        for (uint i = 0; i < count; ++i)
-            tmp += params[i];
-        qDebug() << event << origin << tmp;
-        emit context->unknownMessageReceived(origin, tmp);
+        QStringList list = listFromParams(params, count);
+        qDebug() << "unknown:" << event << origin << list;
+        emit context->unknownMessageReceived(origin, list);
     }
 }
 
@@ -423,6 +438,8 @@ void IrcSessionPrivate::event_unknown(irc_session_t* session, const char* event,
 */
 void IrcSessionPrivate::event_numeric(irc_session_t* session, uint event, const char* origin, const char** params, uint count)
 {
+    QStringList list = listFromParams(params, count);
+    qDebug() << "numeric:" << event << origin << list;
 }
 
 /*!
@@ -443,6 +460,14 @@ void IrcSessionPrivate::event_dcc_chat_req(irc_session_t* session, const char* n
 */
 void IrcSessionPrivate::event_dcc_send_req(irc_session_t* session, const char* nick, const char* addr, const char* filename, ulong size, irc_dcc_t dccid)
 {
+}
+
+QStringList IrcSessionPrivate::listFromParams(const char** params, uint count)
+{
+    QStringList list;
+    for (uint i = 0; i < count; ++i)
+        list += QString::fromUtf8(params[i]);
+    return list;
 }
 
 IrcSession::IrcSession(QObject* parent)
@@ -482,7 +507,7 @@ void IrcSession::disconnectFromServer()
     irc_disconnect(d->_session);
 }
 
-bool IrcSession::run()
+bool IrcSession::exec()
 {
     return irc_run(d->_session) == 0;
 }
