@@ -6,8 +6,8 @@ TEMPLATE = lib
 DESTDIR = ../lib
 TARGET = ircclient-qt
 DEPENDPATH += . ../include
-INCLUDEPATH += . ../include ../thirdparty/libircclient/include
-LIBS += -L../thirdparty/libircclient/lib -lircclient
+INCLUDEPATH += . ../include ../3rdparty/libircclient/include
+LIBS += -L../3rdparty/libircclient/lib -lircclient
 win32:LIBS += -lWs2_32
 QT = core
 

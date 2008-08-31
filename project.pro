@@ -4,4 +4,4 @@
 
 TEMPLATE = subdirs
 CONFIG  += ordered
-SUBDIRS += thirdparty src
+SUBDIRS += 3rdparty src
