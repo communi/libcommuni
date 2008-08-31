@@ -22,7 +22,7 @@ static void libirc_add_to_set (int fd, fd_set *set, int * maxfd)
 		*maxfd = fd;
 }
 
-#if defined (ENABLE_DEBUG)
+#if !defined (QT_NO_DEBUG)
 static void libirc_dump_data (const char * prefix, const char * buf, unsigned int length)
 {
 	printf ("%s: ", prefix);
