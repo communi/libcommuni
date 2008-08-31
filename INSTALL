@@ -1,0 +1,3 @@
+1. qmake -config [debug|release]
+2. (g|n)make
+3. enjoy
