@@ -9,6 +9,7 @@ DEPENDPATH += . ../include
 INCLUDEPATH += . ../include ../thirdparty/libircclient/include
 LIBS += -L../thirdparty/libircclient/lib -lircclient
 win32:LIBS += -lWs2_32
+QT = core
 
 # Input
 HEADERS += irc.h irchandler.h ircsession.h
