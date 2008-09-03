@@ -23,6 +23,7 @@ class IrcSessionPrivate
 {
 public:
     IrcSessionPrivate(IrcSession* session);
+    ~IrcSessionPrivate();
 
     static void event_connect(irc_session_t* session, const char* event, const char *origin, const char** params, uint count);
     static void event_nick(irc_session_t* session, const char* event, const char *origin, const char** params, uint count);
@@ -49,7 +50,10 @@ public:
 
     irc_session_t* _session;
     QStringList _channels;
+    static int _count;
 };
+
+int IrcSessionPrivate::_count = 0;
 
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session)
     : _session(0)
@@ -78,6 +82,26 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session)
     _session = irc_create_session(&callbacks);
 
     irc_set_ctx(_session, session);
+
+#ifdef Q_OS_WIN32
+    if (!_count++)
+    {
+        WSAData data;
+        WSAStartup(MAKEWORD(2, 2), &data);
+    }
+#endif
+}
+
+IrcSessionPrivate::~IrcSessionPrivate()
+{
+    irc_destroy_session(_session);
+
+#ifdef Q_OS_WIN32
+    if (!--_count)
+    {
+        WSACleanup();
+    }
+#endif
 }
 
 /*!
@@ -477,7 +501,6 @@ IrcSession::IrcSession(QObject* parent)
 
 IrcSession::~IrcSession()
 {
-    irc_destroy_session(d->_session);
     delete d;
 }
 
