@@ -17,12 +17,13 @@
 #ifndef IRCSESSION_H
 #define IRCSESSION_H
 
+#include "global.h"
 #include <QObject>
 #include <QStringList>
 
 class IrcSessionPrivate;
 
-class IrcSession : public QObject
+class LIBIRCCLIENT_QT_EXPORT IrcSession : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool connected READ isConnected)

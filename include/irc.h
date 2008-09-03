@@ -17,10 +17,11 @@
 #ifndef IRC_H
 #define IRC_H
 
+#include "global.h"
 #include <QtGlobal>
 #include <QString>
 
-class Irc
+class LIBIRCCLIENT_QT_EXPORT Irc
 {
 public:
     static uint libVersion();

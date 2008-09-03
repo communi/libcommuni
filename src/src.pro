@@ -8,9 +8,10 @@ TARGET = ircclient-qt
 DEPENDPATH += . ../include
 INCLUDEPATH += . ../include ../3rdparty/libircclient/include
 LIBS += -L../3rdparty/libircclient/lib -lircclient
+DEFINES += BUILD_LIBIRCCLIENT_QT
 win32:LIBS += -lWs2_32
 QT = core
 
 # Input
-HEADERS += irc.h irchandler.h ircsession.h
+HEADERS += global.h irc.h irchandler.h ircsession.h
 SOURCES += irc.cpp irchandler.cpp ircsession.cpp

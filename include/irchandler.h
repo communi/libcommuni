@@ -17,11 +17,12 @@
 #ifndef IRCHANDLER_H
 #define IRCHANDLER_H
 
+#include "global.h"
 #include <QObject>
 
 class IrcHandlerPrivate;
 
-class IrcHandler : public QObject
+class LIBIRCCLIENT_QT_EXPORT IrcHandler : public QObject
 {
     Q_OBJECT
 
