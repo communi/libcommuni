@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QStringList>
 
+class IrcHandler;
 class IrcSessionPrivate;
 
 class LIBIRCCLIENT_QT_EXPORT IrcSession : public QObject
@@ -50,6 +51,11 @@ public:
     void addAutoJoinChannel(const QString& channel);
     void removeAutoJoinChannel(const QString& channel);
     void setAutoJoinChannels(const QStringList& channels);
+
+    QList<IrcHandler*> handlers() const;
+    void addHandler(IrcHandler* handler);
+    void removeHandler(IrcHandler* handler);
+    void removeAllHandlers();
 
     bool sendRaw(const char* format, ...);
 
@@ -111,6 +117,7 @@ signals:
     void ctcpReplyReceived(const QString& origin, const QString& message);
     void ctcpActionReceived(const QString& origin, const QString& message);
     void unknownMessageReceived(const QString& origin, const QStringList& params);
+    void numericMessageReceived(const QString& origin, const QStringList& params);
 
 private:
     IrcSessionPrivate* d;

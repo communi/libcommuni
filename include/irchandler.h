@@ -18,21 +18,37 @@
 #define IRCHANDLER_H
 
 #include "global.h"
-#include <QObject>
+#include <QString>
+#include <QStringList>
 
 class IrcHandlerPrivate;
 
-class LIBIRCCLIENT_QT_EXPORT IrcHandler : public QObject
+class LIBIRCCLIENT_QT_EXPORT IrcHandler
 {
-    Q_OBJECT
+    friend class IrcSessionPrivate;
 
 public:
-    IrcHandler(QObject* parent = 0);
-    ~IrcHandler();
+    virtual ~IrcHandler();
 
-private:
-    IrcHandlerPrivate* d;
-    friend class IrcHandlerPrivate;
+protected:
+    virtual void connected();
+    virtual void nickChanged(const QString& origin, const QString& nick);
+    virtual void quit(const QString& origin, const QString& message);
+    virtual void joined(const QString& origin, const QString& channel);
+    virtual void parted(const QString& origin, const QString& channel, const QString& message);
+    virtual void channelModeChanged(const QString& origin, const QString& channel, const QString& mode, const QString& args);
+    virtual void userModeChanged(const QString& origin, const QString& mode);
+    virtual void topicChanged(const QString& origin, const QString& channel, const QString& topic);
+    virtual void kicked(const QString& origin, const QString& channel, const QString& nick, const QString& message);
+    virtual void channelMessageReceived(const QString& origin, const QString& channel, const QString& message);
+    virtual void privateMessageReceived(const QString& origin, const QString& receiver, const QString& message);
+    virtual void noticeReceived(const QString& origin, const QString& receiver, const QString& message);
+    virtual void invited(const QString& origin, const QString& nick, const QString& channel);
+    virtual void ctcpRequestReceived(const QString& origin, const QString& message);
+    virtual void ctcpReplyReceived(const QString& origin, const QString& message);
+    virtual void ctcpActionReceived(const QString& origin, const QString& message);
+    virtual void unknownMessageReceived(const QString& origin, const QStringList& params);
+    virtual void numericMessageReceived(const QString& origin, const QStringList& params);
 };
 
 #endif // IRCHANDLER_H
