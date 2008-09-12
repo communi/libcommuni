@@ -15,7 +15,6 @@
 */
 
 #include "ircsession.h"
-#include "irchandler.h"
 #include <libircclient.h>
 #include <QtDebug>
 #include <QHash>
@@ -51,8 +50,9 @@ public:
 
     irc_session_t* _session;
     QStringList _channels;
-    QList<IrcHandler*> _handlers;
+#ifdef Q_OS_WIN32
     static int _count;
+#endif // Q_OS_WIN32
 };
 
 int IrcSessionPrivate::_count = 0;
@@ -91,19 +91,18 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session)
         WSAData data;
         WSAStartup(MAKEWORD(2, 2), &data);
     }
-#endif
+#endif // Q_OS_WIN32
 }
 
 IrcSessionPrivate::~IrcSessionPrivate()
 {
     irc_destroy_session(_session);
-
 #ifdef Q_OS_WIN32
     if (!--_count)
     {
         WSACleanup();
     }
-#endif
+#endif // Q_OS_WIN32
 }
 
 /*!
@@ -115,15 +114,13 @@ void IrcSessionPrivate::event_connect(irc_session_t* session, const char* event,
 {
     Q_UNUSED(count);
     Q_UNUSED(params);
+    Q_UNUSED(event);
+    Q_UNUSED(origin);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         emit context->connected();
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->connected();
-        }
+        //QMetaObject::invokeMethod(context, "connected", Qt::QueuedConnection);
 
         foreach (const QString& channel, context->autoJoinChannels())
         {
@@ -142,16 +139,13 @@ void IrcSessionPrivate::event_connect(irc_session_t* session, const char* event,
 */
 void IrcSessionPrivate::event_nick(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->nickChanged(origin, list.value(0));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->nickChanged(origin, list.value(0));
-        }
+        //QMetaObject::invokeMethod(context, "nickChanged", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -164,16 +158,13 @@ void IrcSessionPrivate::event_nick(irc_session_t* session, const char* event, co
 */
 void IrcSessionPrivate::event_quit(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->quit(origin, list.value(0));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->quit(origin, list.value(0));
-        }
+        //QMetaObject::invokeMethod(context, "quit", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -188,16 +179,13 @@ void IrcSessionPrivate::event_quit(irc_session_t* session, const char* event, co
 */
 void IrcSessionPrivate::event_join(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->joined(origin, list.value(0));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->joined(origin, list.value(0));
-        }
+        //QMetaObject::invokeMethod(context, "joined", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -213,16 +201,13 @@ void IrcSessionPrivate::event_join(irc_session_t* session, const char* event, co
 */
 void IrcSessionPrivate::event_part(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->parted(origin, list.value(0), list.value(1));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->parted(origin, list.value(0), list.value(1));
-        }
+        //QMetaObject::invokeMethod(context, "parted", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -241,16 +226,13 @@ void IrcSessionPrivate::event_part(irc_session_t* session, const char* event, co
 */
 void IrcSessionPrivate::event_mode(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->channelModeChanged(origin, list.value(0), list.value(1), list.value(2));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->channelModeChanged(origin, list.value(0), list.value(1), list.value(2));
-        }
+        //QMetaObject::invokeMethod(context, "channelModeChanged", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)), Q_ARG(QString, list.value(2)));
     }
 }
 
@@ -264,16 +246,13 @@ void IrcSessionPrivate::event_mode(irc_session_t* session, const char* event, co
 */
 void IrcSessionPrivate::event_umode(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->userModeChanged(origin, list.value(0));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->userModeChanged(origin, list.value(0));
-        }
+        //QMetaObject::invokeMethod(context, "userModeChanged", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -288,16 +267,13 @@ void IrcSessionPrivate::event_umode(irc_session_t* session, const char* event, c
 */
 void IrcSessionPrivate::event_topic(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->topicChanged(origin, list.value(0), list.value(1));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->topicChanged(origin, list.value(0), list.value(1));
-        }
+        //QMetaObject::invokeMethod(context, "topicChanged", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -313,16 +289,13 @@ void IrcSessionPrivate::event_topic(irc_session_t* session, const char* event, c
 */
 void IrcSessionPrivate::event_kick(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->kicked(origin, list.value(0), list.value(1), list.value(2));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->kicked(origin, list.value(0), list.value(1), list.value(2));
-        }
+        //QMetaObject::invokeMethod(context, "kicked", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)), Q_ARG(QString, list.value(2)));
     }
 }
 
@@ -338,16 +311,13 @@ void IrcSessionPrivate::event_kick(irc_session_t* session, const char* event, co
 */
 void IrcSessionPrivate::event_channel(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->channelMessageReceived(origin, list.value(0), list.value(1));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->channelMessageReceived(origin, list.value(0), list.value(1));
-        }
+        //QMetaObject::invokeMethod(context, "channelMessageReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -362,16 +332,13 @@ void IrcSessionPrivate::event_channel(irc_session_t* session, const char* event,
 */
 void IrcSessionPrivate::event_privmsg(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->privateMessageReceived(origin, list.value(0), list.value(1));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->privateMessageReceived(origin, list.value(0), list.value(1));
-        }
+        //QMetaObject::invokeMethod(context, "privateMessageReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -390,16 +357,13 @@ void IrcSessionPrivate::event_privmsg(irc_session_t* session, const char* event,
 */
 void IrcSessionPrivate::event_notice(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->noticeReceived(origin, list.value(0), list.value(1));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->noticeReceived(origin, list.value(0), list.value(1));
-        }
+        //QMetaObject::invokeMethod(context, "noticeReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -416,16 +380,13 @@ void IrcSessionPrivate::event_notice(irc_session_t* session, const char* event, 
 */
 void IrcSessionPrivate::event_invite(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->invited(origin, list.value(0), list.value(1));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->invited(origin, list.value(0), list.value(1));
-        }
+        //QMetaObject::invokeMethod(context, "invited", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -446,16 +407,13 @@ void IrcSessionPrivate::event_invite(irc_session_t* session, const char* event, 
 */
 void IrcSessionPrivate::event_ctcp_req(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->ctcpRequestReceived(origin, list.value(0));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->ctcpRequestReceived(origin, list.value(0));
-        }
+        //QMetaObject::invokeMethod(context, "ctcpRequestReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -467,16 +425,13 @@ void IrcSessionPrivate::event_ctcp_req(irc_session_t* session, const char* event
 */
 void IrcSessionPrivate::event_ctcp_rep(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->ctcpReplyReceived(origin, list.value(0));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->ctcpReplyReceived(origin, list.value(0));
-        }
+        //QMetaObject::invokeMethod(context, "ctcpReplyReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -492,16 +447,13 @@ void IrcSessionPrivate::event_ctcp_rep(irc_session_t* session, const char* event
 */
 void IrcSessionPrivate::event_ctcp_action(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->ctcpActionReceived(origin, list.value(0));
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->ctcpActionReceived(origin, list.value(0));
-        }
+        //QMetaObject::invokeMethod(context, "ctcpActionReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -512,16 +464,13 @@ void IrcSessionPrivate::event_ctcp_action(irc_session_t* session, const char* ev
 */
 void IrcSessionPrivate::event_unknown(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
+    Q_UNUSED(event);
     IrcSession* context = (IrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
         emit context->unknownMessageReceived(origin, list);
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->unknownMessageReceived(origin, list);
-        }
+        //QMetaObject::invokeMethod(context, "unknownMessageReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QStringList, list));
     }
 }
 
@@ -538,12 +487,8 @@ void IrcSessionPrivate::event_numeric(irc_session_t* session, uint event, const 
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->numericMessageReceived(origin, list);
-
-        foreach (IrcHandler* handler, context->handlers())
-        {
-            handler->numericMessageReceived(origin, list);
-        }
+        emit context->numericMessageReceived(origin, event, list);
+        //QMetaObject::invokeMethod(context, "numericMessageReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QStringList, list));
     }
 }
 
@@ -590,20 +535,20 @@ bool IrcSession::isConnected() const
     return irc_is_connected(d->_session);
 }
 
-bool IrcSession::connectToServer(const QString& server,
-                        quint16 port,
-                        const QString& password,
-                        const QString& nick,
-                        const QString& username,
-                        const QString& realname)
+bool IrcSession::connectToServer(const QString& host,
+                                 quint16 port,
+                                 const QString& nickName,
+                                 const QString& userName,
+                                 const QString& realName,
+                                 const QString& password)
 {
     return irc_connect(d->_session,
-                       server.toUtf8(),
+                       host.toUtf8(),
                        port,
-                       password.toUtf8(),
-                       nick.toUtf8(),
-                       username.toUtf8(),
-                       realname.toUtf8()) == 0;
+                       password.isEmpty() ? 0 : password.toUtf8(),
+                       nickName.toUtf8(),
+                       userName.toUtf8(),
+                       realName.toUtf8()) == 0;
 }
 
 void IrcSession::disconnectFromServer()
@@ -641,26 +586,6 @@ void IrcSession::removeAutoJoinChannel(const QString& channel)
 void IrcSession::setAutoJoinChannels(const QStringList& channels)
 {
     d->_channels = channels;
-}
-
-QList<IrcHandler*> IrcSession::handlers() const
-{
-    return d->_handlers;
-}
-
-void IrcSession::addHandler(IrcHandler* handler)
-{
-    d->_handlers.append(handler);
-}
-
-void IrcSession::removeHandler(IrcHandler* handler)
-{
-    d->_handlers.removeAll(handler);
-}
-
-void IrcSession::removeAllHandlers()
-{
-    d->_handlers.clear();
 }
 
 bool IrcSession::sendRaw(const char* format, ...)

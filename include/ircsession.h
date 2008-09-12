@@ -21,7 +21,6 @@
 #include <QObject>
 #include <QStringList>
 
-class IrcHandler;
 class IrcSessionPrivate;
 
 class LIBIRCCLIENT_QT_EXPORT IrcSession : public QObject
@@ -29,18 +28,19 @@ class LIBIRCCLIENT_QT_EXPORT IrcSession : public QObject
     Q_OBJECT
     Q_PROPERTY(bool connected READ isConnected)
     Q_PROPERTY(QStringList autoJoinChannels READ autoJoinChannels WRITE setAutoJoinChannels)
+    friend class IrcSessionPrivate;
 
 public:
     IrcSession(QObject* parent = 0);
     ~IrcSession();
 
     bool isConnected() const;
-    bool connectToServer(const QString& server,
+    bool connectToServer(const QString& host,
                          quint16 port,
-                         const QString& password,
-                         const QString& nick,
-                         const QString& username,
-                         const QString& realname);
+                         const QString& nickName,
+                         const QString& userName,
+                         const QString& realName,
+                         const QString& password = QString());
 
 public slots:
     void disconnectFromServer();
@@ -51,11 +51,6 @@ public:
     void addAutoJoinChannel(const QString& channel);
     void removeAutoJoinChannel(const QString& channel);
     void setAutoJoinChannels(const QStringList& channels);
-
-    QList<IrcHandler*> handlers() const;
-    void addHandler(IrcHandler* handler);
-    void removeHandler(IrcHandler* handler);
-    void removeAllHandlers();
 
     bool sendRaw(const char* format, ...);
 
@@ -101,6 +96,7 @@ public:
 
 signals:
     void connected();
+    void disconnected();
     void nickChanged(const QString& origin, const QString& nick);
     void quit(const QString& origin, const QString& message);
     void joined(const QString& origin, const QString& channel);
@@ -117,11 +113,10 @@ signals:
     void ctcpReplyReceived(const QString& origin, const QString& message);
     void ctcpActionReceived(const QString& origin, const QString& message);
     void unknownMessageReceived(const QString& origin, const QStringList& params);
-    void numericMessageReceived(const QString& origin, const QStringList& params);
+    void numericMessageReceived(const QString& origin, uint event, const QStringList& params);
 
 private:
     IrcSessionPrivate* d;
-    friend class IrcSessionPrivate;
 };
 
 #endif // IRCSESSION_H
