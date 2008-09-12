@@ -12,8 +12,8 @@ DEFINES += BUILD_LIBIRCCLIENT_QT
 win32:LIBS += -lWs2_32
 QT = core
 
-HEADERS += ../include/global.h ../include/irc.h ../include/irchandler.h ../include/ircsession.h
-SOURCES += irc.cpp irchandler.cpp ircsession.cpp
+HEADERS += ../include/global.h ../include/irc.h ../include/ircsession.h
+SOURCES += irc.cpp ircsession.cpp
 
 headers.files = $$HEADERS
 headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
