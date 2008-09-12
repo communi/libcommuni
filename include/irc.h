@@ -33,6 +33,7 @@ public:
     static QString colorStripFromMirc(const QString& message);
     static QString colorConvertFromMirc(const QString& message);
     static QString colorConvertToMirc(const QString& message);
+    static QString colorConvertToHtml(const QString& message);
 };
 
 #endif // IRC_H

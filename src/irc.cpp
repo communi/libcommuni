@@ -16,6 +16,7 @@
 
 #include "irc.h"
 #include <libircclient.h>
+#include <QRegExp>
 
 static const size_t BUFLEN = 8096;
 
@@ -74,4 +75,11 @@ QString Irc::colorConvertToMirc(const QString& message)
 {
     char* tmp = irc_color_convert_to_mirc(message.toUtf8());
     return irc_colorStringHelper(tmp);
+}
+
+QString Irc::colorConvertToHtml(const QString& message)
+{
+    QString tmp = colorConvertToMirc(message);
+    tmp.replace(QRegExp("\\[([^\\]]+)\\]([^\\[]*)\\(/[^\\]]+)\\]"), "<\\1>\\2<\\3>");
+    return tmp;
 }
