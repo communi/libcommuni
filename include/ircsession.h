@@ -55,7 +55,7 @@ public:
     bool sendRaw(const char* format, ...);
 
 public slots:
-    bool cmdQuit(const QString& reason);
+    bool cmdQuit(const QString& reason = QString());
     bool cmdJoin(const QString& channel, const QString& key = QString());
     bool cmdPart(const QString& channel);
     bool cmdInvite(const QString& nick, const QString& channel);
