@@ -50,9 +50,7 @@ public:
 
     irc_session_t* _session;
     QStringList _channels;
-#ifdef Q_OS_WIN32
     static int _count;
-#endif // Q_OS_WIN32
 };
 
 int IrcSessionPrivate::_count = 0;
@@ -545,7 +543,7 @@ bool IrcSession::connectToServer(const QString& host,
     return irc_connect(d->_session,
                        host.toUtf8(),
                        port,
-                       password.isEmpty() ? 0 : password.toUtf8(),
+                       password.toUtf8(),
                        nickName.toUtf8(),
                        userName.toUtf8(),
                        realName.toUtf8()) == 0;
