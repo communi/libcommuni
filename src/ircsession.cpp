@@ -452,7 +452,7 @@ void IrcSessionPrivate::event_ctcp_action(irc_session_t* session, const char* ev
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->ctcpActionReceived(origin, list.value(0));
+        emit context->ctcpActionReceived(origin, list.value(0), list.value(1));
         //QMetaObject::invokeMethod(context, "ctcpActionReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }

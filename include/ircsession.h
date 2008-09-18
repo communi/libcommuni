@@ -111,7 +111,7 @@ signals:
     void invited(const QString& origin, const QString& nick, const QString& channel);
     void ctcpRequestReceived(const QString& origin, const QString& message);
     void ctcpReplyReceived(const QString& origin, const QString& message);
-    void ctcpActionReceived(const QString& origin, const QString& message);
+    void ctcpActionReceived(const QString& origin, const QString& receiver, const QString& message);
     void unknownMessageReceived(const QString& origin, const QStringList& params);
     void numericMessageReceived(const QString& origin, uint event, const QStringList& params);
 
