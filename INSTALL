@@ -1,3 +1,4 @@
 1. qmake -config [debug|release]
-2. (g|n)make
+2. make
+3. sudo make install
 3. enjoy
