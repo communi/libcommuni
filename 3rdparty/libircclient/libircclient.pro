@@ -31,3 +31,7 @@ SOURCES += src/colors.c \
            src/utils.c
 
 DEF_FILE = src/libircclient.def
+
+headers.files = $$HEADERS
+headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
+INSTALLS += headers
