@@ -627,7 +627,10 @@ bool IrcSession::cmdList(const QString& channel)
 
 bool IrcSession::cmdTopic(const QString& channel, const QString& topic)
 {
-    return irc_cmd_topic(d->_session, channel.toUtf8(), topic.toUtf8()) == 0;
+    if (topic.isEmpty())
+        return irc_cmd_topic(d->_session, channel.toUtf8(), 0);
+    else
+        return irc_cmd_topic(d->_session, channel.toUtf8(), topic.toUtf8());
 }
 
 bool IrcSession::cmdChannelMode(const QString& channel, const QString& mode)

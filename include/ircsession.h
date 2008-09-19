@@ -61,7 +61,7 @@ public slots:
     bool cmdInvite(const QString& nick, const QString& channel);
     bool cmdNames(const QString& channel);
     bool cmdList(const QString& channel);
-    bool cmdTopic(const QString& channel, const QString& topic);
+    bool cmdTopic(const QString& channel, const QString& topic = QString());
     bool cmdChannelMode(const QString& channel, const QString& mode);
     bool cmdUserMode(const QString& mode);
     bool cmdNick(const QString& newnick);
