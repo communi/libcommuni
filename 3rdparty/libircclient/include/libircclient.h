@@ -128,6 +128,7 @@ typedef void (*irc_dcc_callback_t) (irc_session_t * session, irc_dcc_t id, int s
 #include "libirc_errors.h"
 #include "libirc_events.h"
 #include "libirc_options.h"
+#include "libirc_rfcnumeric.h"
 
 #if defined (IN_BUILDING_LIBIRC)
 	#include "libirc_session.h"
