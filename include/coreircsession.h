@@ -65,9 +65,9 @@ public slots:
     bool cmdUserMode(const QString& mode);
     bool cmdNick(const QString& nick);
     bool cmdWhois(const QString& nick);
-    bool cmdMsg(const QString& nch, const QString& text);
-    bool cmdMe(const QString& nch, const QString& text);
-    bool cmdNotice(const QString& nch, const QString& text);
+    bool cmdMsg(const QString& receiver, const QString& message);
+    bool cmdMe(const QString& receiver, const QString& message);
+    bool cmdNotice(const QString& receiver, const QString& message);
     bool cmdKick(const QString& nick, const QString& channel, const QString& reason = QString());
     bool cmdCtcpRequest(const QString& nick, const QString& request);
     bool cmdCtcpReply(const QString& nick, const QString& reply);
@@ -94,9 +94,9 @@ signals:
     void privateMessageReceived(const QString& origin, const QString& receiver, const QString& message);
     void noticeReceived(const QString& origin, const QString& receiver, const QString& message);
     void invited(const QString& origin, const QString& nick, const QString& channel);
-    void ctcpRequestReceived(const QString& origin, const QString& message);
-    void ctcpReplyReceived(const QString& origin, const QString& message);
-    void ctcpActionReceived(const QString& origin, const QString& receiver, const QString& message);
+    void ctcpRequestReceived(const QString& origin, const QString& request);
+    void ctcpReplyReceived(const QString& origin, const QString& reply);
+    void ctcpActionReceived(const QString& origin, const QString& receiver, const QString& action);
     void unknownMessageReceived(const QString& origin, const QStringList& params);
     void numericMessageReceived(const QString& origin, uint event, const QStringList& params);
 

@@ -17,12 +17,23 @@
 #include "ircsession.h"
 #include <QThread>
 
+/*!
+    \class IrcSession ircsession.h
+    \ingroup LibIrcClient-Qt
+    \brief A threaded IRC session.
+
+    The IrcSession class provides a threaded IRC session.
+ */
+
 class IrcSessionPrivate
 {
 public:
     QThread thread;
 };
 
+/*!
+    Constructs a new IrcSession.
+ */
 IrcSession::IrcSession()
     : CoreIrcSession(0), d(new IrcSessionPrivate)
 {
@@ -30,6 +41,14 @@ IrcSession::IrcSession()
     d->thread.start();
 }
 
+/*!
+    Destructs the IRC session.
+
+    This function
+    \li quits the session by calling CoreIrcSession::cmdQuit()
+    \li quits the thread
+    \li waits for the thread to quit
+ */
 IrcSession::~IrcSession()
 {
     cmdQuit();
@@ -38,6 +57,11 @@ IrcSession::~IrcSession()
     delete d;
 }
 
+/*!
+    Starts a threaded IRC session.
+
+    \sa CoreIrcSession::exec()
+ */
 bool IrcSession::start()
 {
     return QMetaObject::invokeMethod(this, "exec");

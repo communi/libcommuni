@@ -20,6 +20,122 @@
 #include <QMetaMethod>
 #include <QHash>
 
+/*!
+    \class CoreIrcSession coreircsession.h
+    \ingroup LibIrcClient-Qt
+    \brief CoreIrcSession provides core IRC session functionality.
+
+    \sa IrcSession
+ */
+
+/*!
+    \fn void CoreIrcSession::connected()
+
+    This signal is emitted when the session has been connected.
+ */
+
+/*!
+    \fn void CoreIrcSession::nickChanged (const QString &origin, const QString &nick)
+
+    This signal is emitted when \a origin has changed \a nick.
+ */
+
+/*!
+    \fn void CoreIrcSession::quit(const QString &origin, const QString &message)
+
+    This signal is emitted when \a origin has quit with \a message.
+ */
+
+/*!
+    \fn void CoreIrcSession::joined(const QString &origin, const QString &channel)
+
+    This signal is emitted when \a origin has joined \a channel.
+ */
+
+/*!
+    \fn void CoreIrcSession::parted(const QString &origin, const QString &channel, const QString &message)
+
+    This signal is emitted when \a origin has parted \a channel with \a message.
+ */
+
+/*!
+    \fn void CoreIrcSession::channelModeChanged(const QString &origin, const QString &channel, const QString &mode, const QString &args)
+
+    This signal is emitted when \a origin has changed \a channel \a mode with \a args.
+ */
+
+/*!
+    \fn void CoreIrcSession::userModeChanged(const QString &origin, const QString &mode)
+
+    This signal is emitted when \a origin has changed user \a mode.
+ */
+
+/*!
+    \fn void CoreIrcSession::topicChanged(const QString &origin, const QString &channel, const QString &topic)
+
+    This signal is emitted when \a origin has changed \a topic of \a channel.
+ */
+
+/*!
+    \fn void CoreIrcSession::kicked(const QString &origin, const QString &channel, const QString &nick, const QString &message)
+
+    This signal is emitted when \a origin has kicked \a nick from \a channel with \a message.
+ */
+
+/*!
+    \fn void CoreIrcSession::channelMessageReceived(const QString &origin, const QString &channel, const QString &message)
+
+    This signal is emitted when \a origin has sent a channel \a message to \a channel.
+ */
+
+/*!
+    \fn void CoreIrcSession::privateMessageReceived(const QString &origin, const QString &receiver, const QString &message)
+
+    This signal is emitted when \a origin has sent a private \a message to \a receiver.
+ */
+
+/*!
+    \fn void CoreIrcSession::noticeReceived(const QString &origin, const QString &receiver, const QString &message)
+
+    This signal is emitted when \a origin has sent a notice \a message to \a receiver.
+ */
+
+/*!
+    \fn void CoreIrcSession::invited(const QString &origin, const QString &nick, const QString &channel)
+
+    This signal is emitted when \a origin has invited \a nick to \a channel.
+ */
+
+/*!
+    \fn void CoreIrcSession::ctcpRequestReceived(const QString &origin, const QString &request)
+
+    This signal is emitted when \a origin has sent a CTCP \a request.
+ */
+
+/*!
+    \fn void CoreIrcSession::ctcpReplyReceived(const QString &origin, const QString &reply)
+
+    This signal is emitted when \a origin has sent a CTCP \a reply.
+ */
+
+/*!
+    \fn void CoreIrcSession::ctcpActionReceived(const QString &origin, const QString &receiver, const QString &action)
+
+    This signal is emitted when \a origin has sent a CTCP \a action to \a receiver.
+ */
+
+/*!
+    \fn void CoreIrcSession::unknownMessageReceived(const QString &origin, const QStringList &params)
+
+    This signal is emitted when \a origin has sent an unknown message with \a params.
+ */
+
+/*!
+    \fn void CoreIrcSession::numericMessageReceived(const QString &origin, uint event, const QStringList &params)
+
+    This signal is emitted when a numeric \a event has been receiver from \a origin with \a params.
+ */
+
 class CoreIrcSessionPrivate
 {
 public:
@@ -104,11 +220,6 @@ CoreIrcSessionPrivate::~CoreIrcSessionPrivate()
 #endif // Q_OS_WIN32
 }
 
-/*!
-* The "on_connect" event is triggered when the client successfully
-* connects to the server, and could send commands to the server.
-* No extra params supplied; \a params is 0.
-*/
 void CoreIrcSessionPrivate::event_connect(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(count);
@@ -128,14 +239,6 @@ void CoreIrcSessionPrivate::event_connect(irc_session_t* session, const char* ev
     }
 }
 
-/*!
-* The "nick" event is triggered when the client receives a NICK message,
-* meaning that someone (including you) on a channel with the client has
-* changed their nickname.
-*
-* \param origin the person, who changes the nick. Note that it can be you!
-* \param params[0] mandatory, contains the new nick.
-*/
 void CoreIrcSessionPrivate::event_nick(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -148,13 +251,6 @@ void CoreIrcSessionPrivate::event_nick(irc_session_t* session, const char* event
     }
 }
 
-/*!
-* The "quit" event is triggered upon receipt of a QUIT message, which
-* means that someone on a channel with the client has disconnected.
-*
-* \param origin the person, who is disconnected
-* \param params[0] optional, contains the reason message (user-specified).
-*/
 void CoreIrcSessionPrivate::event_quit(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -167,15 +263,6 @@ void CoreIrcSessionPrivate::event_quit(irc_session_t* session, const char* event
     }
 }
 
-/*!
-* The "join" event is triggered upon receipt of a JOIN message, which
-* means that someone has entered a channel that the client is on.
-*
-* \param origin the person, who joins the channel. By comparing it with
-*               your own nickname, you can check whether your JOIN
-*               command succeed.
-* \param params[0] mandatory, contains the channel name.
-*/
 void CoreIrcSessionPrivate::event_join(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -188,16 +275,6 @@ void CoreIrcSessionPrivate::event_join(irc_session_t* session, const char* event
     }
 }
 
-/*!
-* The "part" event is triggered upon receipt of a PART message, which
-* means that someone has left a channel that the client is on.
-*
-* \param origin the person, who leaves the channel. By comparing it with
-*               your own nickname, you can check whether your PART
-*               command succeed.
-* \param params[0] mandatory, contains the channel name.
-* \param params[1] optional, contains the reason message (user-defined).
-*/
 void CoreIrcSessionPrivate::event_part(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -210,19 +287,6 @@ void CoreIrcSessionPrivate::event_part(irc_session_t* session, const char* event
     }
 }
 
-/*!
-* The "mode" event is triggered upon receipt of a channel MODE message,
-* which means that someone on a channel with the client has changed the
-* channel's parameters.
-*
-* \param origin the person, who changed the channel mode.
-* \param params[0] mandatory, contains the channel name.
-* \param params[1] mandatory, contains the changed channel mode, like
-*        '+t', '-i' and so on.
-* \param params[2] optional, contains the mode argument (for example, a
-*      key for +k mode, or user who got the channel operator status for
-*      +o mode)
-*/
 void CoreIrcSessionPrivate::event_mode(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -235,14 +299,6 @@ void CoreIrcSessionPrivate::event_mode(irc_session_t* session, const char* event
     }
 }
 
-/*!
-* The "umode" event is triggered upon receipt of a user MODE message,
-* which means that your user mode has been changed.
-*
-* \param origin the person, who changed the channel mode.
-* \param params[0] mandatory, contains the user changed mode, like
-*        '+t', '-i' and so on.
-*/
 void CoreIrcSessionPrivate::event_umode(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -255,15 +311,6 @@ void CoreIrcSessionPrivate::event_umode(irc_session_t* session, const char* even
     }
 }
 
-/*!
-* The "topic" event is triggered upon receipt of a TOPIC message, which
-* means that someone on a channel with the client has changed the
-* channel's topic.
-*
-* \param origin the person, who changes the channel topic.
-* \param params[0] mandatory, contains the channel name.
-* \param params[1] optional, contains the new topic.
-*/
 void CoreIrcSessionPrivate::event_topic(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -276,16 +323,6 @@ void CoreIrcSessionPrivate::event_topic(irc_session_t* session, const char* even
     }
 }
 
-/*!
-* The "kick" event is triggered upon receipt of a KICK message, which
-* means that someone on a channel with the client (or possibly the
-* client itself!) has been forcibly ejected.
-*
-* \param origin the person, who kicked the poor.
-* \param params[0] mandatory, contains the channel name.
-* \param params[0] optional, contains the nick of kicked person.
-* \param params[1] optional, contains the kick text
-*/
 void CoreIrcSessionPrivate::event_kick(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -298,16 +335,6 @@ void CoreIrcSessionPrivate::event_kick(irc_session_t* session, const char* event
     }
 }
 
-/*!
-* The "channel" event is triggered upon receipt of a PRIVMSG message
-* to an entire channel, which means that someone on a channel with
-* the client has said something aloud. Your own messages don't trigger
-* PRIVMSG event.
-*
-* \param origin the person, who generates the message.
-* \param params[0] mandatory, contains the channel name.
-* \param params[1] optional, contains the message text
-*/
 void CoreIrcSessionPrivate::event_channel(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -320,15 +347,6 @@ void CoreIrcSessionPrivate::event_channel(irc_session_t* session, const char* ev
     }
 }
 
-/*!
-* The "privmsg" event is triggered upon receipt of a PRIVMSG message
-* which is addressed to one or more clients, which means that someone
-* is sending the client a private message.
-*
-* \param origin the person, who generates the message.
-* \param params[0] mandatory, contains your nick.
-* \param params[1] optional, contains the message text
-*/
 void CoreIrcSessionPrivate::event_privmsg(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -341,19 +359,6 @@ void CoreIrcSessionPrivate::event_privmsg(irc_session_t* session, const char* ev
     }
 }
 
-/*!
-* The "notice" event is triggered upon receipt of a NOTICE message
-* which means that someone has sent the client a public or private
-* notice. According to RFC 1459, the only difference between NOTICE
-* and PRIVMSG is that you should NEVER automatically reply to NOTICE
-* messages. Unfortunately, this rule is frequently violated by IRC
-* servers itself - for example, NICKSERV messages require reply, and
-* are NOTICEs.
-*
-* \param origin the person, who generates the message.
-* \param params[0] mandatory, contains the channel name.
-* \param params[1] optional, contains the message text
-*/
 void CoreIrcSessionPrivate::event_notice(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -366,17 +371,6 @@ void CoreIrcSessionPrivate::event_notice(irc_session_t* session, const char* eve
     }
 }
 
-/*!
-* The "invite" event is triggered upon receipt of an INVITE message,
-* which means that someone is permitting the client's entry into a +i
-* channel.
-*
-* \param origin the person, who INVITEs you.
-* \param params[0] mandatory, contains your nick.
-* \param params[1] mandatory, contains the channel name you're invited into.
-*
-* \sa irc_cmd_invite irc_cmd_chanmode_invite
-*/
 void CoreIrcSessionPrivate::event_invite(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -389,21 +383,6 @@ void CoreIrcSessionPrivate::event_invite(irc_session_t* session, const char* eve
     }
 }
 
-/*!
-* The "ctcp" event is triggered when the client receives the CTCP
-* request. By default, the built-in CTCP est handler is used. The
-* build-in handler automatically replies on most CTCP messages, so you
-* will rarely need to override it.
-*
-* \param origin the person, who generates the message.
-* \param params[0] mandatory, the complete CTCP message, including its
-*                  arguments.
-*
-* Mirc generates PING, FINGER, VERSION, TIME and ACTION messages,
-* check the source code of \c libirc_event_ctcp_internal function to
-* see how to write your own CTCP request handler. Also you may find
-* useful this question in FAQ: \ref faq4
-*/
 void CoreIrcSessionPrivate::event_ctcp_req(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -416,12 +395,6 @@ void CoreIrcSessionPrivate::event_ctcp_req(irc_session_t* session, const char* e
     }
 }
 
-/*!
-* The "ctcp" event is triggered when the client receives the CTCP reply.
-*
-* \param origin the person, who generates the message.
-* \param params[0] mandatory, the CTCP message itself with its arguments.
-*/
 void CoreIrcSessionPrivate::event_ctcp_rep(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -434,16 +407,6 @@ void CoreIrcSessionPrivate::event_ctcp_rep(irc_session_t* session, const char* e
     }
 }
 
-/*!
-* The "action" event is triggered when the client receives the CTCP
-* ACTION message. These messages usually looks like:\n
-* \code
-* [23:32:55] * Tim gonna sleep.
-* \endcode
-*
-* \param origin the person, who generates the message.
-* \param params[0] mandatory, the ACTION message.
-*/
 void CoreIrcSessionPrivate::event_ctcp_action(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -456,11 +419,6 @@ void CoreIrcSessionPrivate::event_ctcp_action(irc_session_t* session, const char
     }
 }
 
-/*!
-* The "unknown" event is triggered upon receipt of any number of
-* unclassifiable miscellaneous messages, which aren't handled by the
-* library.
-*/
 void CoreIrcSessionPrivate::event_unknown(irc_session_t* session, const char* event, const char *origin, const char** params, uint count)
 {
     Q_UNUSED(event);
@@ -473,13 +431,6 @@ void CoreIrcSessionPrivate::event_unknown(irc_session_t* session, const char* ev
     }
 }
 
-/*!
-* The "numeric" event is triggered upon receipt of any numeric response
-* from the server. There is a lot of such responses, see the full list
-* here: \ref rfcnumbers.
-*
-* See the params in ::irc_eventcode_callback_t specification.
-*/
 void CoreIrcSessionPrivate::event_numeric(irc_session_t* session, uint event, const char* origin, const char** params, uint count)
 {
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
@@ -491,12 +442,6 @@ void CoreIrcSessionPrivate::event_numeric(irc_session_t* session, uint event, co
     }
 }
 
-/*!
-* The "dcc chat" event is triggered when someone requests a DCC CHAT from
-* you.
-*
-* See the params in ::irc_event_dcc_chat_t specification.
-*/
 void CoreIrcSessionPrivate::event_dcc_chat_req(irc_session_t* session, const char* nick, const char* addr, irc_dcc_t dccid)
 {
     Q_UNUSED(nick);
@@ -508,12 +453,6 @@ void CoreIrcSessionPrivate::event_dcc_chat_req(irc_session_t* session, const cha
     }
 }
 
-/*!
-* The "dcc chat" event is triggered when someone wants to send a file
-* to you via DCC SEND request.
-*
-* See the params in ::irc_event_dcc_send_t specification.
-*/
 void CoreIrcSessionPrivate::event_dcc_send_req(irc_session_t* session, const char* nick, const char* addr, const char* filename, ulong size, irc_dcc_t dccid)
 {
     Q_UNUSED(nick);
@@ -535,21 +474,33 @@ QStringList CoreIrcSessionPrivate::listFromParams(const char** params, uint coun
     return list;
 }
 
+/*!
+    Constructs a CoreIrcSession with \a parent.
+ */
 CoreIrcSession::CoreIrcSession(QObject* parent)
     : QObject(parent), d(new CoreIrcSessionPrivate(this))
 {
 }
 
+/*!
+    Destructs the IRC session.
+ */
 CoreIrcSession::~CoreIrcSession()
 {
     delete d;
 }
 
+/*!
+    Returns the list of auto-join channels.
+ */
 QStringList CoreIrcSession::autoJoinChannels() const
 {
     return d->_channels;
 }
 
+/*!
+    Adds \a channel to the list of auto-join channels.
+ */
 void CoreIrcSession::addAutoJoinChannel(const QString& channel)
 {
     if (!d->_channels.contains(channel, Qt::CaseInsensitive))
@@ -558,6 +509,9 @@ void CoreIrcSession::addAutoJoinChannel(const QString& channel)
     }
 }
 
+/*!
+    Removes \a channels from the list of auto-join channels.
+ */
 void CoreIrcSession::removeAutoJoinChannel(const QString& channel)
 {
     int index = d->_channels.indexOf(QRegExp(channel, Qt::CaseInsensitive));
@@ -567,32 +521,59 @@ void CoreIrcSession::removeAutoJoinChannel(const QString& channel)
     }
 }
 
+/*!
+    Sets the list of auto-join \a channels.
+ */
 void CoreIrcSession::setAutoJoinChannels(const QStringList& channels)
 {
     d->_channels = channels;
 }
 
+/*!
+    Returns the error number.
+
+    \sa errorString()
+ */
 int CoreIrcSession::error() const
 {
     return irc_errno(d->_session);
 }
 
+/*!
+    Returns the error string.
+
+    \sa error()
+ */
 QString CoreIrcSession::errorString() const
 {
     const char* str = irc_strerror(error());
     return QString::fromAscii(str);
 }
 
+/*!
+    This functions sets the libircclient \a option.
+ */
 void CoreIrcSession::setOption(uint option)
 {
     irc_option_set(d->_session, option);
 }
 
+/*!
+    This functions resets the libircclient \a option.
+ */
 void CoreIrcSession::resetOption(uint option)
 {
     irc_option_reset(d->_session, option);
 }
 
+/*!
+    Connects CoreIrcSession signals to matching slots of the \a receiver.
+
+    Receiver slots must follow the following syntax:
+    \code
+    void on_<signal name>(<signal parameters>);
+    \endcode
+ */
 void CoreIrcSession::connectSlotsByName(QObject* receiver)
 {
     if (!receiver)
@@ -619,11 +600,19 @@ void CoreIrcSession::connectSlotsByName(QObject* receiver)
     }
 }
 
+/*!
+    Returns \c true if the session is connected to the server.
+ */
 bool CoreIrcSession::isConnected() const
 {
     return irc_is_connected(d->_session);
 }
 
+/*!
+    Connects to the server.
+
+    \sa exec()
+ */
 bool CoreIrcSession::connectToServer(const QString& host,
                                  quint16 port,
                                  const QString& nickName,
@@ -640,52 +629,82 @@ bool CoreIrcSession::connectToServer(const QString& host,
                        realName.toUtf8()) == 0;
 }
 
+/*!
+    Disconnects from the server.
+ */
 void CoreIrcSession::disconnectFromServer()
 {
     irc_disconnect(d->_session);
 }
 
+/*!
+    Starts an event loop, processing IRC events and emitting signals.
+ */
 bool CoreIrcSession::exec()
 {
     return irc_run(d->_session) == 0;
 }
 
+/*!
+    Sends a raw \a message to the server.
+ */
 bool CoreIrcSession::sendRaw(const QString& message)
 {
     int res = irc_send_raw(d->_session, message.toUtf8());
     return res == 0;
 }
 
+/*!
+    Quits the session with \a reason.
+ */
 bool CoreIrcSession::cmdQuit(const QString& reason)
 {
     return irc_cmd_quit(d->_session, reason.toUtf8()) == 0;
 }
 
+/*!
+    Joins a \a channel with \a key.
+ */
 bool CoreIrcSession::cmdJoin(const QString& channel, const QString& key)
 {
     return irc_cmd_join(d->_session, channel.toUtf8(), key.toUtf8()) == 0;
 }
 
+/*!
+    Parts the \a channel.
+ */
 bool CoreIrcSession::cmdPart(const QString& channel)
 {
     return irc_cmd_part(d->_session, channel.toUtf8()) == 0;
 }
 
+/*!
+    Invites \a nick to \a channel.
+ */
 bool CoreIrcSession::cmdInvite(const QString& nick, const QString& channel)
 {
     return irc_cmd_invite(d->_session, nick.toUtf8(), channel.toUtf8()) == 0;
 }
 
+/*!
+    Lists names on \a channel.
+ */
 bool CoreIrcSession::cmdNames(const QString& channel)
 {
     return irc_cmd_names(d->_session, channel.toUtf8()) == 0;
 }
 
+/*!
+    Lists channels.
+ */
 bool CoreIrcSession::cmdList(const QString& channel)
 {
     return irc_cmd_list(d->_session, channel.toUtf8()) == 0;
 }
 
+/*!
+    Obtains or sets \a topic on \a channel.
+ */
 bool CoreIrcSession::cmdTopic(const QString& channel, const QString& topic)
 {
     if (topic.isEmpty())
@@ -694,51 +713,81 @@ bool CoreIrcSession::cmdTopic(const QString& channel, const QString& topic)
         return irc_cmd_topic(d->_session, channel.toUtf8(), topic.toUtf8());
 }
 
+/*!
+    Sets \a mode on \a channel.
+ */
 bool CoreIrcSession::cmdChannelMode(const QString& channel, const QString& mode)
 {
     return irc_cmd_channel_mode(d->_session, channel.toUtf8(), mode.toUtf8()) == 0;
 }
 
+/*!
+    Sets user \a mode.
+ */
 bool CoreIrcSession::cmdUserMode(const QString& mode)
 {
     return irc_cmd_user_mode(d->_session, mode.toUtf8()) == 0;
 }
 
+/*!
+    Sets \a nick.
+ */
 bool CoreIrcSession::cmdNick(const QString& nick)
 {
     return irc_cmd_nick(d->_session, nick.toUtf8()) == 0;
 }
 
+/*!
+    Who is \a nick.
+ */
 bool CoreIrcSession::cmdWhois(const QString& nick)
 {
     return irc_cmd_whois(d->_session, nick.toUtf8()) == 0;
 }
 
-bool CoreIrcSession::cmdMsg(const QString& nch, const QString& text)
+/*!
+    Sends \a message to \a receiver.
+ */
+bool CoreIrcSession::cmdMsg(const QString& receiver, const QString& message)
 {
-    return irc_cmd_msg(d->_session, nch.toUtf8(), text.toUtf8()) == 0;
+    return irc_cmd_msg(d->_session, receiver.toUtf8(), message.toUtf8()) == 0;
 }
 
-bool CoreIrcSession::cmdMe(const QString& nch, const QString& text)
+/*!
+    Sends an action \a message to \a receiver.
+ */
+bool CoreIrcSession::cmdMe(const QString& receiver, const QString& message)
 {
-    return irc_cmd_me(d->_session, nch.toUtf8(), text.toUtf8()) == 0;
+    return irc_cmd_me(d->_session, receiver.toUtf8(), message.toUtf8()) == 0;
 }
 
-bool CoreIrcSession::cmdNotice(const QString& nch, const QString& text)
+/*!
+    Sends a notice \a message to \a receiver.
+ */
+bool CoreIrcSession::cmdNotice(const QString& receiver, const QString& message)
 {
-    return irc_cmd_notice(d->_session, nch.toUtf8(), text.toUtf8()) == 0;
+    return irc_cmd_notice(d->_session, receiver.toUtf8(), message.toUtf8()) == 0;
 }
 
+/*!
+    Kicks \a nick from \a channel with \a reason.
+ */
 bool CoreIrcSession::cmdKick(const QString& nick, const QString& channel, const QString& reason)
 {
     return irc_cmd_kick(d->_session, nick.toUtf8(), channel.toUtf8(), reason.toUtf8()) == 0;
 }
 
+/*!
+    Sends a CTCP \a request to \a nick.
+ */
 bool CoreIrcSession::cmdCtcpRequest(const QString& nick, const QString& request)
 {
     return irc_cmd_ctcp_request(d->_session, nick.toUtf8(), request.toUtf8()) == 0;
 }
 
+/*!
+    Sends a CTCP \a reply to \a nick.
+ */
 bool CoreIrcSession::cmdCtcpReply(const QString& nick, const QString& reply)
 {
     return irc_cmd_ctcp_reply(d->_session, nick.toUtf8(), reply.toUtf8()) == 0;
