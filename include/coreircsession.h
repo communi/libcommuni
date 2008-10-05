@@ -27,35 +27,33 @@ class LIBIRCCLIENT_QT_EXPORT CoreIrcSession : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList autoJoinChannels READ autoJoinChannels WRITE setAutoJoinChannels)
-    friend class CoreIrcSessionPrivate;
 
 public:
-    CoreIrcSession(QObject* parent = 0);
-    ~CoreIrcSession();
+    explicit CoreIrcSession(QObject* parent = 0);
+    virtual ~CoreIrcSession();
 
-    void connectSlotsByName(QObject* receiver);
-
-    bool isConnected() const;
-    bool connectToServer(const QString& host,
-                         quint16 port,
-                         const QString& nickName,
-                         const QString& userName,
-                         const QString& realName,
-                         const QString& password = QString());
-
-public slots:
-    void disconnectFromServer();
-    bool exec();
-
-public:
     QStringList autoJoinChannels() const;
     void addAutoJoinChannel(const QString& channel);
     void removeAutoJoinChannel(const QString& channel);
     void setAutoJoinChannels(const QStringList& channels);
 
-    bool sendRaw(const QString& message);
+    int error() const;
+    QString errorString() const;
+
+    void setOption(uint option);
+    void resetOption(uint option);
+
+    void connectSlotsByName(QObject* receiver);
+
+    bool isConnected() const;
+    bool connectToServer(const QString& host, quint16 port, const QString& nickName, const QString& userName, const QString& realName, const QString& password = QString());
 
 public slots:
+    void disconnectFromServer();
+    bool exec();
+
+    bool sendRaw(const QString& message);
+
     bool cmdQuit(const QString& reason = QString());
     bool cmdJoin(const QString& channel, const QString& key = QString());
     bool cmdPart(const QString& channel);
@@ -73,31 +71,17 @@ public slots:
     bool cmdKick(const QString& nick, const QString& channel, const QString& reason = QString());
     bool cmdCtcpRequest(const QString& nick, const QString& request);
     bool cmdCtcpReply(const QString& nick, const QString& reply);
-
-public:
 /*
-    int dcc_chat(void* ctx, const QString& nick, irc_dcc_callback_t callback, irc_dcc_t * dccid);
-    int dcc_msg(irc_dcc_t dccid, const QString& text);
-    int dcc_accept(irc_dcc_t dccid, void * ctx, irc_dcc_callback_t callback);
-    int dcc_decline(irc_dcc_t dccid);
-    int dcc_sendfile(void * ctx, const QString& nick, const QString& filename, irc_dcc_callback_t callback, irc_dcc_t * dccid);
-    int dcc_destroy(irc_dcc_t dccid);
-*/
-
-    int error() const;
-    QString errorString() const;
-
-    void setOption(uint option);
-    void resetOption(uint option);
-
-/*
-    int addSelectDescriptors(fd_set* in_set, fd_set* out_set, int* maxfd);
-    int processSelectDescriptors(fd_set* in_set, fd_set* out_set);
+    bool dccChat(void* ctx, const QString& nick, irc_dcc_callback_t callback, irc_dcc_t * dccid);
+    bool dccMsg(irc_dcc_t dccid, const QString& text);
+    bool dccAccept(irc_dcc_t dccid, void * ctx, irc_dcc_callback_t callback);
+    bool dccDecline(irc_dcc_t dccid);
+    bool dccSendFile(void * ctx, const QString& nick, const QString& filename, irc_dcc_callback_t callback, irc_dcc_t * dccid);
+    bool dccDestroy(irc_dcc_t dccid);
 */
 
 signals:
     void connected();
-    void disconnected();
     void nickChanged(const QString& origin, const QString& nick);
     void quit(const QString& origin, const QString& message);
     void joined(const QString& origin, const QString& channel);

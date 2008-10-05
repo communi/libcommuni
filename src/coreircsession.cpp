@@ -16,6 +16,8 @@
 
 #include "coreircsession.h"
 #include <libircclient.h>
+#include <QMetaObject>
+#include <QMetaMethod>
 #include <QHash>
 
 class CoreIrcSessionPrivate
@@ -116,8 +118,8 @@ void CoreIrcSessionPrivate::event_connect(irc_session_t* session, const char* ev
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        emit context->connected();
-        //QMetaObject::invokeMethod(context, "connected", Qt::QueuedConnection);
+        //emit context->connected();
+        QMetaObject::invokeMethod(context, "connected", Qt::DirectConnection);
 
         foreach (const QString& channel, context->autoJoinChannels())
         {
@@ -141,8 +143,8 @@ void CoreIrcSessionPrivate::event_nick(irc_session_t* session, const char* event
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->nickChanged(origin, list.value(0));
-        //QMetaObject::invokeMethod(context, "nickChanged", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
+        //emit context->nickChanged(origin, list.value(0));
+        QMetaObject::invokeMethod(context, "nickChanged", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -160,8 +162,8 @@ void CoreIrcSessionPrivate::event_quit(irc_session_t* session, const char* event
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->quit(origin, list.value(0));
-        //QMetaObject::invokeMethod(context, "quit", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
+        //emit context->quit(origin, list.value(0));
+        QMetaObject::invokeMethod(context, "quit", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -181,8 +183,8 @@ void CoreIrcSessionPrivate::event_join(irc_session_t* session, const char* event
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->joined(origin, list.value(0));
-        //QMetaObject::invokeMethod(context, "joined", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
+        //emit context->joined(origin, list.value(0));
+        QMetaObject::invokeMethod(context, "joined", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -203,8 +205,8 @@ void CoreIrcSessionPrivate::event_part(irc_session_t* session, const char* event
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->parted(origin, list.value(0), list.value(1));
-        //QMetaObject::invokeMethod(context, "parted", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
+        //emit context->parted(origin, list.value(0), list.value(1));
+        QMetaObject::invokeMethod(context, "parted", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -228,8 +230,8 @@ void CoreIrcSessionPrivate::event_mode(irc_session_t* session, const char* event
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->channelModeChanged(origin, list.value(0), list.value(1), list.value(2));
-        //QMetaObject::invokeMethod(context, "channelModeChanged", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)), Q_ARG(QString, list.value(2)));
+        //emit context->channelModeChanged(origin, list.value(0), list.value(1), list.value(2));
+        QMetaObject::invokeMethod(context, "channelModeChanged", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)), Q_ARG(QString, list.value(2)));
     }
 }
 
@@ -248,8 +250,8 @@ void CoreIrcSessionPrivate::event_umode(irc_session_t* session, const char* even
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->userModeChanged(origin, list.value(0));
-        //QMetaObject::invokeMethod(context, "userModeChanged", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
+        //emit context->userModeChanged(origin, list.value(0));
+        QMetaObject::invokeMethod(context, "userModeChanged", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -269,8 +271,8 @@ void CoreIrcSessionPrivate::event_topic(irc_session_t* session, const char* even
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->topicChanged(origin, list.value(0), list.value(1));
-        //QMetaObject::invokeMethod(context, "topicChanged", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
+        //emit context->topicChanged(origin, list.value(0), list.value(1));
+        QMetaObject::invokeMethod(context, "topicChanged", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -291,8 +293,8 @@ void CoreIrcSessionPrivate::event_kick(irc_session_t* session, const char* event
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->kicked(origin, list.value(0), list.value(1), list.value(2));
-        //QMetaObject::invokeMethod(context, "kicked", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)), Q_ARG(QString, list.value(2)));
+        //emit context->kicked(origin, list.value(0), list.value(1), list.value(2));
+        QMetaObject::invokeMethod(context, "kicked", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)), Q_ARG(QString, list.value(2)));
     }
 }
 
@@ -313,8 +315,8 @@ void CoreIrcSessionPrivate::event_channel(irc_session_t* session, const char* ev
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->channelMessageReceived(origin, list.value(0), list.value(1));
-        //QMetaObject::invokeMethod(context, "channelMessageReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
+        //emit context->channelMessageReceived(origin, list.value(0), list.value(1));
+        QMetaObject::invokeMethod(context, "channelMessageReceived", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -334,8 +336,8 @@ void CoreIrcSessionPrivate::event_privmsg(irc_session_t* session, const char* ev
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->privateMessageReceived(origin, list.value(0), list.value(1));
-        //QMetaObject::invokeMethod(context, "privateMessageReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
+        //emit context->privateMessageReceived(origin, list.value(0), list.value(1));
+        QMetaObject::invokeMethod(context, "privateMessageReceived", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -359,8 +361,8 @@ void CoreIrcSessionPrivate::event_notice(irc_session_t* session, const char* eve
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->noticeReceived(origin, list.value(0), list.value(1));
-        //QMetaObject::invokeMethod(context, "noticeReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
+        //emit context->noticeReceived(origin, list.value(0), list.value(1));
+        QMetaObject::invokeMethod(context, "noticeReceived", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -382,8 +384,8 @@ void CoreIrcSessionPrivate::event_invite(irc_session_t* session, const char* eve
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->invited(origin, list.value(0), list.value(1));
-        //QMetaObject::invokeMethod(context, "invited", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
+        //emit context->invited(origin, list.value(0), list.value(1));
+        QMetaObject::invokeMethod(context, "invited", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
 
@@ -409,8 +411,8 @@ void CoreIrcSessionPrivate::event_ctcp_req(irc_session_t* session, const char* e
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->ctcpRequestReceived(origin, list.value(0));
-        //QMetaObject::invokeMethod(context, "ctcpRequestReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
+        //emit context->ctcpRequestReceived(origin, list.value(0));
+        QMetaObject::invokeMethod(context, "ctcpRequestReceived", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -427,8 +429,8 @@ void CoreIrcSessionPrivate::event_ctcp_rep(irc_session_t* session, const char* e
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->ctcpReplyReceived(origin, list.value(0));
-        //QMetaObject::invokeMethod(context, "ctcpReplyReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
+        //emit context->ctcpReplyReceived(origin, list.value(0));
+        QMetaObject::invokeMethod(context, "ctcpReplyReceived", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -449,8 +451,8 @@ void CoreIrcSessionPrivate::event_ctcp_action(irc_session_t* session, const char
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->ctcpActionReceived(origin, list.value(0), list.value(1));
-        //QMetaObject::invokeMethod(context, "ctcpActionReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
+        //emit context->ctcpActionReceived(origin, list.value(0), list.value(1));
+        QMetaObject::invokeMethod(context, "ctcpActionReceived", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
 
@@ -466,8 +468,8 @@ void CoreIrcSessionPrivate::event_unknown(irc_session_t* session, const char* ev
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        emit context->unknownMessageReceived(origin, list);
-        //QMetaObject::invokeMethod(context, "unknownMessageReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QStringList, list));
+        //emit context->unknownMessageReceived(origin, list);
+        QMetaObject::invokeMethod(context, "unknownMessageReceived", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(QStringList, list));
     }
 }
 
@@ -478,16 +480,14 @@ void CoreIrcSessionPrivate::event_unknown(irc_session_t* session, const char* ev
 *
 * See the params in ::irc_eventcode_callback_t specification.
 */
-#include <QtDebug>
 void CoreIrcSessionPrivate::event_numeric(irc_session_t* session, uint event, const char* origin, const char** params, uint count)
 {
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
         QStringList list = listFromParams(params, count);
-        qDebug() << list;
-        emit context->numericMessageReceived(origin, event, list);
-        //QMetaObject::invokeMethod(context, "numericMessageReceived", Qt::QueuedConnection, Q_ARG(QString, origin), Q_ARG(QStringList, list));
+        //emit context->numericMessageReceived(origin, event, list);
+        QMetaObject::invokeMethod(context, "numericMessageReceived", Qt::DirectConnection, Q_ARG(QString, origin), Q_ARG(uint, event), Q_ARG(QStringList, list));
     }
 }
 
@@ -499,6 +499,13 @@ void CoreIrcSessionPrivate::event_numeric(irc_session_t* session, uint event, co
 */
 void CoreIrcSessionPrivate::event_dcc_chat_req(irc_session_t* session, const char* nick, const char* addr, irc_dcc_t dccid)
 {
+    Q_UNUSED(nick);
+    Q_UNUSED(addr);
+    Q_UNUSED(dccid);
+    CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
+    if (context)
+    {
+    }
 }
 
 /*!
@@ -509,6 +516,15 @@ void CoreIrcSessionPrivate::event_dcc_chat_req(irc_session_t* session, const cha
 */
 void CoreIrcSessionPrivate::event_dcc_send_req(irc_session_t* session, const char* nick, const char* addr, const char* filename, ulong size, irc_dcc_t dccid)
 {
+    Q_UNUSED(nick);
+    Q_UNUSED(addr);
+    Q_UNUSED(filename);
+    Q_UNUSED(size);
+    Q_UNUSED(dccid);
+    CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
+    if (context)
+    {
+    }
 }
 
 QStringList CoreIrcSessionPrivate::listFromParams(const char** params, uint count)
@@ -529,7 +545,54 @@ CoreIrcSession::~CoreIrcSession()
     delete d;
 }
 
-#include <QMetaMethod>
+QStringList CoreIrcSession::autoJoinChannels() const
+{
+    return d->_channels;
+}
+
+void CoreIrcSession::addAutoJoinChannel(const QString& channel)
+{
+    if (!d->_channels.contains(channel, Qt::CaseInsensitive))
+    {
+        d->_channels.append(channel);
+    }
+}
+
+void CoreIrcSession::removeAutoJoinChannel(const QString& channel)
+{
+    int index = d->_channels.indexOf(QRegExp(channel, Qt::CaseInsensitive));
+    if (index != -1)
+    {
+        d->_channels.removeAt(index);
+    }
+}
+
+void CoreIrcSession::setAutoJoinChannels(const QStringList& channels)
+{
+    d->_channels = channels;
+}
+
+int CoreIrcSession::error() const
+{
+    return irc_errno(d->_session);
+}
+
+QString CoreIrcSession::errorString() const
+{
+    const char* str = irc_strerror(error());
+    return QString::fromAscii(str);
+}
+
+void CoreIrcSession::setOption(uint option)
+{
+    irc_option_set(d->_session, option);
+}
+
+void CoreIrcSession::resetOption(uint option)
+{
+    irc_option_reset(d->_session, option);
+}
+
 void CoreIrcSession::connectSlotsByName(QObject* receiver)
 {
     if (!receiver)
@@ -568,7 +631,6 @@ bool CoreIrcSession::connectToServer(const QString& host,
                                  const QString& realName,
                                  const QString& password)
 {
-    qDebug() << "connect" << host << port << nickName << userName << realName << password;
     return irc_connect(d->_session,
                        host.toUtf8(),
                        port,
@@ -586,33 +648,6 @@ void CoreIrcSession::disconnectFromServer()
 bool CoreIrcSession::exec()
 {
     return irc_run(d->_session) == 0;
-}
-
-QStringList CoreIrcSession::autoJoinChannels() const
-{
-    return d->_channels;
-}
-
-void CoreIrcSession::addAutoJoinChannel(const QString& channel)
-{
-    if (!d->_channels.contains(channel, Qt::CaseInsensitive))
-    {
-        d->_channels.append(channel);
-    }
-}
-
-void CoreIrcSession::removeAutoJoinChannel(const QString& channel)
-{
-    int index = d->_channels.indexOf(QRegExp(channel, Qt::CaseInsensitive));
-    if (index != -1)
-    {
-        d->_channels.removeAt(index);
-    }
-}
-
-void CoreIrcSession::setAutoJoinChannels(const QStringList& channels)
-{
-    d->_channels = channels;
 }
 
 bool CoreIrcSession::sendRaw(const QString& message)
@@ -707,25 +742,4 @@ bool CoreIrcSession::cmdCtcpRequest(const QString& nick, const QString& request)
 bool CoreIrcSession::cmdCtcpReply(const QString& nick, const QString& reply)
 {
     return irc_cmd_ctcp_reply(d->_session, nick.toUtf8(), reply.toUtf8()) == 0;
-}
-
-int CoreIrcSession::error() const
-{
-    return irc_errno(d->_session);
-}
-
-QString CoreIrcSession::errorString() const
-{
-    const char* str = irc_strerror(error());
-    return QString::fromAscii(str);
-}
-
-void CoreIrcSession::setOption(uint option)
-{
-    irc_option_set(d->_session, option);
-}
-
-void CoreIrcSession::resetOption(uint option)
-{
-    irc_option_reset(d->_session, option);
 }
