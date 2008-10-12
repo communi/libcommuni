@@ -168,6 +168,13 @@ public:
     irc_session_t* _session;
     QStringList _channels;
     static int _count;
+
+    QString host;
+    quint16 port;
+    QString nick;
+    QString user;
+    QString real;
+    QString pass;
 };
 
 int CoreIrcSessionPrivate::_count = 0;
@@ -600,6 +607,36 @@ void CoreIrcSession::connectSlotsByName(QObject* receiver)
     }
 }
 
+QString CoreIrcSession::host() const
+{
+    return d->host;
+}
+
+quint16 CoreIrcSession::port() const
+{
+    return d->port;
+}
+
+QString CoreIrcSession::nickName() const
+{
+    return d->nick;
+}
+
+QString CoreIrcSession::userName() const
+{
+    return d->user;
+}
+
+QString CoreIrcSession::realName() const
+{
+    return d->real;
+}
+
+QString CoreIrcSession::password() const
+{
+    return d->pass;
+}
+
 /*!
     Returns \c true if the session is connected to the server.
  */
@@ -620,6 +657,13 @@ bool CoreIrcSession::connectToServer(const QString& host,
                                  const QString& realName,
                                  const QString& password)
 {
+    d->host = host;
+    d->port = port;
+    d->nick = nickName;
+    d->user = userName;
+    d->real = realName;
+    d->pass = password;
+
     return irc_connect(d->_session,
                        host.toUtf8(),
                        port,

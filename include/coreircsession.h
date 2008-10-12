@@ -45,6 +45,13 @@ public:
 
     void connectSlotsByName(QObject* receiver);
 
+    QString host() const;
+    quint16 port() const;
+    QString nickName() const;
+    QString userName() const;
+    QString realName() const;
+    QString password() const;
+
     bool isConnected() const;
     bool connectToServer(const QString& host, quint16 port, const QString& nickName, const QString& userName, const QString& realName, const QString& password = QString());
 
