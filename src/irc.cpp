@@ -15,6 +15,7 @@
 */
 
 #include "irc.h"
+#include <cstdlib>
 #include <libircclient.h>
 #include <QRegExp>
 
