@@ -167,8 +167,10 @@ public:
 
     irc_session_t* _session;
     QStringList _channels;
-    static int _count;
+    static int _staticCount;
+    static int _staticId;
 
+    int id;
     QString host;
     quint16 port;
     QString nick;
@@ -177,10 +179,11 @@ public:
     QString pass;
 };
 
-int CoreIrcSessionPrivate::_count = 0;
+int CoreIrcSessionPrivate::_staticCount = 0;
+int CoreIrcSessionPrivate::_staticId = 0;
 
 CoreIrcSessionPrivate::CoreIrcSessionPrivate(CoreIrcSession* session)
-    : _session(0)
+    : _session(0), id(_staticId++)
 {
     irc_callbacks_t callbacks;
     callbacks.event_connect      = event_connect;
@@ -208,7 +211,7 @@ CoreIrcSessionPrivate::CoreIrcSessionPrivate(CoreIrcSession* session)
     irc_set_ctx(_session, session);
 
 #ifdef Q_OS_WIN32
-    if (!_count++)
+    if (!_staticCount++)
     {
         WSAData data;
         WSAStartup(MAKEWORD(2, 2), &data);
@@ -220,7 +223,7 @@ CoreIrcSessionPrivate::~CoreIrcSessionPrivate()
 {
     irc_destroy_session(_session);
 #ifdef Q_OS_WIN32
-    if (!--_count)
+    if (!--_staticCount)
     {
         WSACleanup();
     }
@@ -495,6 +498,14 @@ CoreIrcSession::CoreIrcSession(QObject* parent)
 CoreIrcSession::~CoreIrcSession()
 {
     delete d;
+}
+
+/*!
+    Returns the session id.
+ */
+int CoreIrcSession::id() const
+{
+    return d->id;
 }
 
 /*!
