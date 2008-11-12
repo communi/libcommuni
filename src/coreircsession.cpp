@@ -773,7 +773,10 @@ bool CoreIrcSession::cmdTopic(const QString& channel, const QString& topic)
  */
 bool CoreIrcSession::cmdChannelMode(const QString& channel, const QString& mode)
 {
-    return irc_cmd_channel_mode(d->_session, channel.toUtf8(), mode.toUtf8()) == 0;
+    if (mode.isEmpty())
+        return irc_cmd_channel_mode(d->_session, channel.toUtf8(), 0) == 0;
+    else
+        return irc_cmd_channel_mode(d->_session, channel.toUtf8(), mode.toUtf8()) == 0;
 }
 
 /*!
