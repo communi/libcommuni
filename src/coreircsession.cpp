@@ -806,17 +806,9 @@ bool CoreIrcSession::cmdWhois(const QString& nick)
 /*!
     Sends \a message to \a receiver.
  */
-bool CoreIrcSession::cmdMsg(const QString& receiver, const QString& message)
+bool CoreIrcSession::cmdMessage(const QString& receiver, const QString& message)
 {
     return irc_cmd_msg(d->_session, receiver.toUtf8(), message.toUtf8()) == 0;
-}
-
-/*!
-    Sends an action \a message to \a receiver.
- */
-bool CoreIrcSession::cmdMe(const QString& receiver, const QString& message)
-{
-    return irc_cmd_me(d->_session, receiver.toUtf8(), message.toUtf8()) == 0;
 }
 
 /*!
@@ -833,6 +825,14 @@ bool CoreIrcSession::cmdNotice(const QString& receiver, const QString& message)
 bool CoreIrcSession::cmdKick(const QString& nick, const QString& channel, const QString& reason)
 {
     return irc_cmd_kick(d->_session, nick.toUtf8(), channel.toUtf8(), reason.toUtf8()) == 0;
+}
+
+/*!
+    Sends an action \a message to \a receiver.
+ */
+bool CoreIrcSession::cmdCtcpAction(const QString& receiver, const QString& message)
+{
+    return irc_cmd_me(d->_session, receiver.toUtf8(), message.toUtf8()) == 0;
 }
 
 /*!

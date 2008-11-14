@@ -75,10 +75,10 @@ public slots:
     bool cmdUserMode(const QString& mode);
     bool cmdNick(const QString& nick);
     bool cmdWhois(const QString& nick);
-    bool cmdMsg(const QString& receiver, const QString& message);
-    bool cmdMe(const QString& receiver, const QString& message);
+    bool cmdMessage(const QString& receiver, const QString& message);
     bool cmdNotice(const QString& receiver, const QString& message);
     bool cmdKick(const QString& nick, const QString& channel, const QString& reason = QString());
+    bool cmdCtcpAction(const QString& receiver, const QString& message);
     bool cmdCtcpRequest(const QString& nick, const QString& request);
     bool cmdCtcpReply(const QString& nick, const QString& reply);
 /*
