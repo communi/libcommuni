@@ -268,6 +268,8 @@ void CoreIrcSessionPrivate::event_quit(irc_session_t* session, const char* event
     if (context)
     {
         QStringList list = listFromParams(params, count);
+        if (origin == context->d->nick)
+            context->d->nick = list.value(0);
         //emit context->quit(origin, list.value(0));
         QMetaObject::invokeMethod(context, "quit", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
