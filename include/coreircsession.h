@@ -112,6 +112,7 @@ signals:
 
 private:
     CoreIrcSessionPrivate* d;
+    friend class CoreIrcSessionPrivate;
 };
 
 #endif // COREIRCSESSION_H

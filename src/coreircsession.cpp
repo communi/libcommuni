@@ -446,6 +446,16 @@ void CoreIrcSessionPrivate::event_numeric(irc_session_t* session, uint event, co
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
+        switch (event)
+        {
+            case LIBIRC_RFC_RPL_WELCOME:
+                context->d->host = origin;
+                break;
+
+            default:
+                break;
+        }
+
         QStringList list = listFromParams(params, count);
         //emit context->numericMessageReceived(origin, event, list);
         QMetaObject::invokeMethod(context, "numericMessageReceived", Q_ARG(QString, origin), Q_ARG(uint, event), Q_ARG(QStringList, list));
