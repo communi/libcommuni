@@ -18,7 +18,11 @@
 #include <libircclient.h>
 #include <QMetaObject>
 #include <QMetaMethod>
+#include <QTextCodec>
 #include <QHash>
+#ifdef HAVE_ICU
+#include <unicode/ucsdet.h>
+#endif // HAVE_ICU
 
 /*!
     \class CoreIrcSession coreircsession.h
@@ -136,6 +140,32 @@
     This signal is emitted when a numeric \a event has been receiver from \a origin with \a params.
  */
 
+static QByteArray detectEncoding(const QByteArray& text)
+{
+    QByteArray encoding;
+#ifdef HAVE_ICU
+    UErrorCode status = U_ZERO_ERROR;
+    UCharsetDetector* detector = ucsdet_open(&status);
+    if (!U_FAILURE(status))
+    {
+        ucsdet_setText(detector, text.constData(), text.length(), &status);
+        if (!U_FAILURE(status))
+        {
+            const UCharsetMatch* match = ucsdet_detect(detector, &status);
+            if (!U_FAILURE(status))
+                encoding = ucsdet_getName(match, &status);
+        }
+    }
+
+    if (U_FAILURE(status)) {
+        qWarning("detectEncoding() failed: %s", u_errorName(status));
+    }
+
+    ucsdet_close(detector);
+#endif // HAVE_ICU
+    return encoding;
+}
+
 class CoreIrcSessionPrivate
 {
 public:
@@ -160,7 +190,7 @@ public:
     static void event_ctcp_action(irc_session_t* session, const char* event, const char *origin, const char** params, uint count);
     static void event_unknown(irc_session_t* session, const char* event, const char *origin, const char** params, uint count);
     static void event_numeric(irc_session_t* session, uint event, const char* origin, const char** params, uint count);
-    static void event_dcc_chat_req(irc_session_t* session, const char* nick, const char* addr, irc_dcc_t dccid);    
+    static void event_dcc_chat_req(irc_session_t* session, const char* nick, const char* addr, irc_dcc_t dccid);
     static void event_dcc_send_req(irc_session_t* session, const char* nick, const char* addr, const char* filename, ulong size, irc_dcc_t dccid);
 
     static QStringList listFromParams(const char** params, uint count);
@@ -474,7 +504,13 @@ QStringList CoreIrcSessionPrivate::listFromParams(const char** params, uint coun
 {
     QStringList list;
     for (uint i = 0; i < count; ++i)
-        list += QString::fromUtf8(params[i]);
+    {
+        QByteArray encoding = detectEncoding(params[i]);
+        QTextCodec *codec = QTextCodec::codecForName(encoding);
+        if (!codec)
+            codec = QTextCodec::codecForLocale(); // TODO: or utf8?
+        list += codec->toUnicode(params[i]);
+    }
     return list;
 }
 
