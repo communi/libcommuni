@@ -26,14 +26,11 @@ class CoreIrcSessionPrivate;
 class LIBIRCCLIENT_QT_EXPORT CoreIrcSession : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int id READ id)
     Q_PROPERTY(QStringList autoJoinChannels READ autoJoinChannels WRITE setAutoJoinChannels)
 
 public:
     explicit CoreIrcSession(QObject* parent = 0);
     virtual ~CoreIrcSession();
-
-    int id() const;
 
     QStringList autoJoinChannels() const;
     void addAutoJoinChannel(const QString& channel);

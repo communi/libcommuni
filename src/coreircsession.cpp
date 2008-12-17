@@ -198,9 +198,7 @@ public:
     irc_session_t* _session;
     QStringList _channels;
     static int _staticCount;
-    static int _staticId;
 
-    int id;
     QString host;
     quint16 port;
     QString nick;
@@ -210,10 +208,9 @@ public:
 };
 
 int CoreIrcSessionPrivate::_staticCount = 0;
-int CoreIrcSessionPrivate::_staticId = 0;
 
 CoreIrcSessionPrivate::CoreIrcSessionPrivate(CoreIrcSession* session)
-    : _session(0), id(_staticId++)
+    : _session(0)
 {
     irc_callbacks_t callbacks;
     callbacks.event_connect      = event_connect;
@@ -528,14 +525,6 @@ CoreIrcSession::CoreIrcSession(QObject* parent)
 CoreIrcSession::~CoreIrcSession()
 {
     delete d;
-}
-
-/*!
-    Returns the session id.
- */
-int CoreIrcSession::id() const
-{
-    return d->id;
 }
 
 /*!
