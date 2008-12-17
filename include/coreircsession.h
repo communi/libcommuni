@@ -27,6 +27,7 @@ class LIBIRCCLIENT_QT_EXPORT CoreIrcSession : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList autoJoinChannels READ autoJoinChannels WRITE setAutoJoinChannels)
+    Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
 
 public:
     explicit CoreIrcSession(QObject* parent = 0);
@@ -36,6 +37,9 @@ public:
     void addAutoJoinChannel(const QString& channel);
     void removeAutoJoinChannel(const QString& channel);
     void setAutoJoinChannels(const QStringList& channels);
+
+    QByteArray encoding() const;
+    void setEncoding(const QByteArray& encoding);
 
     int error() const;
     QString errorString() const;

@@ -193,7 +193,7 @@ public:
     static void event_dcc_chat_req(irc_session_t* session, const char* nick, const char* addr, irc_dcc_t dccid);
     static void event_dcc_send_req(irc_session_t* session, const char* nick, const char* addr, const char* filename, ulong size, irc_dcc_t dccid);
 
-    static QStringList listFromParams(const char** params, uint count);
+    QStringList listFromParams(const char** params, uint count);
 
     irc_session_t* _session;
     QStringList _channels;
@@ -205,6 +205,7 @@ public:
     QString user;
     QString real;
     QString pass;
+    QByteArray encoding;
 };
 
 int CoreIrcSessionPrivate::_staticCount = 0;
@@ -281,7 +282,7 @@ void CoreIrcSessionPrivate::event_nick(irc_session_t* session, const char* event
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "nickChanged", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
@@ -292,7 +293,7 @@ void CoreIrcSessionPrivate::event_quit(irc_session_t* session, const char* event
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         if (origin == context->d->nick)
             context->d->nick = list.value(0);
         QMetaObject::invokeMethod(context, "quit", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
@@ -305,7 +306,7 @@ void CoreIrcSessionPrivate::event_join(irc_session_t* session, const char* event
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "joined", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
@@ -316,7 +317,7 @@ void CoreIrcSessionPrivate::event_part(irc_session_t* session, const char* event
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "parted", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
@@ -327,7 +328,7 @@ void CoreIrcSessionPrivate::event_mode(irc_session_t* session, const char* event
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "channelModeChanged", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)), Q_ARG(QString, list.value(2)));
     }
 }
@@ -338,7 +339,7 @@ void CoreIrcSessionPrivate::event_umode(irc_session_t* session, const char* even
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "userModeChanged", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
@@ -349,7 +350,7 @@ void CoreIrcSessionPrivate::event_topic(irc_session_t* session, const char* even
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "topicChanged", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
@@ -360,7 +361,7 @@ void CoreIrcSessionPrivate::event_kick(irc_session_t* session, const char* event
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "kicked", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)), Q_ARG(QString, list.value(2)));
     }
 }
@@ -371,7 +372,7 @@ void CoreIrcSessionPrivate::event_channel(irc_session_t* session, const char* ev
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "channelMessageReceived", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
@@ -382,7 +383,7 @@ void CoreIrcSessionPrivate::event_privmsg(irc_session_t* session, const char* ev
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "privateMessageReceived", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
@@ -393,7 +394,7 @@ void CoreIrcSessionPrivate::event_notice(irc_session_t* session, const char* eve
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "noticeReceived", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
@@ -404,7 +405,7 @@ void CoreIrcSessionPrivate::event_invite(irc_session_t* session, const char* eve
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "invited", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
@@ -415,7 +416,7 @@ void CoreIrcSessionPrivate::event_ctcp_req(irc_session_t* session, const char* e
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "ctcpRequestReceived", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
@@ -426,7 +427,7 @@ void CoreIrcSessionPrivate::event_ctcp_rep(irc_session_t* session, const char* e
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "ctcpReplyReceived", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)));
     }
 }
@@ -437,7 +438,7 @@ void CoreIrcSessionPrivate::event_ctcp_action(irc_session_t* session, const char
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "ctcpActionReceived", Q_ARG(QString, origin), Q_ARG(QString, list.value(0)), Q_ARG(QString, list.value(1)));
     }
 }
@@ -448,7 +449,7 @@ void CoreIrcSessionPrivate::event_unknown(irc_session_t* session, const char* ev
     CoreIrcSession* context = (CoreIrcSession*) irc_get_ctx(session);
     if (context)
     {
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "unknownMessageReceived", Q_ARG(QString, origin), Q_ARG(QStringList, list));
     }
 }
@@ -468,7 +469,7 @@ void CoreIrcSessionPrivate::event_numeric(irc_session_t* session, uint event, co
                 break;
         }
 
-        QStringList list = listFromParams(params, count);
+        QStringList list = context->d->listFromParams(params, count);
         QMetaObject::invokeMethod(context, "numericMessageReceived", Q_ARG(QString, origin), Q_ARG(uint, event), Q_ARG(QStringList, list));
     }
 }
@@ -502,10 +503,12 @@ QStringList CoreIrcSessionPrivate::listFromParams(const char** params, uint coun
     QStringList list;
     for (uint i = 0; i < count; ++i)
     {
-        QByteArray encoding = detectEncoding(params[i]);
+        QByteArray enc = encoding;
+        if (enc.isNull())
+            enc = detectEncoding(params[i]);
         QTextCodec *codec = QTextCodec::codecForName(encoding);
         if (!codec)
-            codec = QTextCodec::codecForLocale(); // TODO: or utf8?
+            codec = QTextCodec::codecForLocale();
         list += codec->toUnicode(params[i]);
     }
     return list;
@@ -564,6 +567,30 @@ void CoreIrcSession::removeAutoJoinChannel(const QString& channel)
 void CoreIrcSession::setAutoJoinChannels(const QStringList& channels)
 {
     d->_channels = channels;
+}
+
+/*!
+    Returns the encoding.
+
+    The default value is a null QByteArray.
+ */
+QByteArray CoreIrcSession::encoding() const
+{
+    return d->encoding;
+}
+
+/*!
+    Sets the \a encoding.
+
+    See QTextCodec documentation for supported encodings.
+    
+    Encoding auto-detection can be turned on by passing a null QByteArray.
+
+    The fallback locale is QTextCodec::codecForLocale().
+ */
+void CoreIrcSession::setEncoding(const QByteArray& encoding)
+{
+    d->encoding = encoding;
 }
 
 /*!
