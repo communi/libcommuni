@@ -14,11 +14,11 @@ QT = core
 
 DEFINES += HAVE_ICU
 contains(DEFINES, HAVE_ICU) {
-    win32:INCLUDEPATH += C:\Temp\ICU\include
-    win32:LIBS += -LC:\Temp\ICU\lib
-    win32:LIBS += -licuin
+    win32:INCLUDEPATH += C:\ICU\include
+    win32:LIBS += -LC:\ICU\lib
+    win32:LIBS += -l$$qtLibraryTarget(icuin)
     unix:LIBS += -licui18n
-    LIBS += -licuuc
+    LIBS += -l$$qtLibraryTarget(icuuc)
 }
 
 HEADERS += ../include/coreircsession.h ../include/global.h ../include/irc.h ../include/ircsession.h
