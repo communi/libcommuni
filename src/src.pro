@@ -10,7 +10,7 @@ INCLUDEPATH += . ../include ../3rdparty/libircclient/include
 LIBS += -L../3rdparty/libircclient/lib -lircclient
 DEFINES += BUILD_LIBIRCCLIENT_QT
 win32:LIBS += -lWs2_32
-QT = core
+QT = core network
 
 DEFINES += HAVE_ICU
 contains(DEFINES, HAVE_ICU) {
@@ -21,8 +21,8 @@ contains(DEFINES, HAVE_ICU) {
     LIBS += -l$$qtLibraryTarget(icuuc)
 }
 
-HEADERS += ../include/coreircsession.h ../include/global.h ../include/irc.h ../include/ircsession.h
-SOURCES += coreircsession.cpp irc.cpp ircsession.cpp
+HEADERS += ../include/coreircsession.h ../include/global.h ../include/irc.h ../include/ircsession.h ../include/session.h
+SOURCES += coreircsession.cpp irc.cpp ircsession.cpp session.cpp
 
 headers.files = $$HEADERS
 headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
