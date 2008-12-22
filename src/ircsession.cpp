@@ -15,6 +15,7 @@
 */
 
 #include "ircsession.h"
+#include "ircutil.h"
 #include <QBuffer>
 #include <QTcpSocket>
 #include <QTextCodec>
@@ -213,6 +214,18 @@ namespace Irc
         {
             prefix = line.mid(1, line.indexOf(' ') - 1);
             line.remove(0, prefix.length() + 2);
+
+            if (options & Session::StripNicks)
+            {
+                for (int i = 0; i < prefix.size(); ++i)
+                {
+                    if (prefix.at(i) == '@' || prefix.at(i) == '!')
+                    {
+                        prefix.truncate(i);
+                        break;
+                    }
+                }
+            }
         }
 
         // parse <command>
@@ -259,11 +272,10 @@ namespace Irc
         {
             if (!qstrcmp(command, "NICK"))
             {
-                QString nick = readString(params.value(0));
-                // TODO: irc_target_get_nick(prefix)
-                if (this->nick == prefix)
-                    this->nick = nick;
-                emit q->msgNickChanged(prefix, nick);
+                QString newNick = readString(params.value(0));
+                if (nick == Util::nickFromTarget(prefix))
+                    nick = newNick;
+                emit q->msgNickChanged(prefix, newNick);
             }
             else if (!qstrcmp(command, "QUIT"))
             {
