@@ -17,14 +17,19 @@
 #ifndef IRC_H
 #define IRC_H
 
-#include "global.h"
 #include <QtGlobal>
 #include <QString>
 
+#if BUILD_LIBIRCCLIENT_QT
+#    define LIBIRCCLIENT_QT_EXPORT Q_DECL_EXPORT
+#else
+#    define LIBIRCCLIENT_QT_EXPORT Q_DECL_IMPORT
+#endif // BUILD_LIBIRCCLIENT_QT
+
 namespace Irc
 {
-    LIBIRCCLIENT_QT_EXPORT uint libVersion();
-    LIBIRCCLIENT_QT_EXPORT QString libVersionString();
+    LIBIRCCLIENT_QT_EXPORT uint version();
+    LIBIRCCLIENT_QT_EXPORT QString versionString();
 
     LIBIRCCLIENT_QT_EXPORT QString nickFromTarget(const QString& target);
     LIBIRCCLIENT_QT_EXPORT QString hostFromTarget(const QString& target);

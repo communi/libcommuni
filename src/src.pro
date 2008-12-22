@@ -3,13 +3,11 @@
 ######################################################################
 
 TEMPLATE = lib
-DESTDIR = ../lib
+DESTDIR = lib
 TARGET = $$qtLibraryTarget(ircclient-qt)
-DEPENDPATH += . ../include
-INCLUDEPATH += . ../include ../3rdparty/libircclient/include
-LIBS += -L../3rdparty/libircclient/lib -lircclient
+DEPENDPATH += include src
+INCLUDEPATH += include
 DEFINES += BUILD_LIBIRCCLIENT_QT
-win32:LIBS += -lWs2_32
 QT = core network
 
 DEFINES += HAVE_ICU
@@ -21,12 +19,16 @@ contains(DEFINES, HAVE_ICU) {
     LIBS += -l$$qtLibraryTarget(icuuc)
 }
 
-HEADERS += ../include/coreircsession.h ../include/global.h ../include/irc.h ../include/ircsession.h ../include/session.h
-SOURCES += coreircsession.cpp irc.cpp ircsession.cpp session.cpp
+HEADERS += irc.h ircsession.h ircutil.h
+SOURCES += ircsession.cpp ircutil.cpp
 
 headers.files = $$HEADERS
 headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
 INSTALLS += headers
+
+mkspecs.files = ircclient-qt.prf
+mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
+INSTALLS += mkspecs
 
 target.path = $$[QT_INSTALL_LIBS]
 INSTALLS += target
