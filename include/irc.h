@@ -21,19 +21,18 @@
 #include <QtGlobal>
 #include <QString>
 
-class LIBIRCCLIENT_QT_EXPORT Irc
+namespace Irc
 {
-public:
-    static uint libVersion();
-    static QString libVersionString();
+    LIBIRCCLIENT_QT_EXPORT uint libVersion();
+    LIBIRCCLIENT_QT_EXPORT QString libVersionString();
 
-    static QString nickFromTarget(const QString& target);
-    static QString hostFromTarget(const QString& target);
+    LIBIRCCLIENT_QT_EXPORT QString nickFromTarget(const QString& target);
+    LIBIRCCLIENT_QT_EXPORT QString hostFromTarget(const QString& target);
 
-    static QString colorStripFromMirc(const QString& message);
-    static QString colorConvertFromMirc(const QString& message);
-    static QString colorConvertToMirc(const QString& message);
-    static QString colorConvertToHtml(const QString& message);
-};
+    LIBIRCCLIENT_QT_EXPORT QString colorStripFromMirc(const QString& message);
+    LIBIRCCLIENT_QT_EXPORT QString colorConvertFromMirc(const QString& message);
+    LIBIRCCLIENT_QT_EXPORT QString colorConvertToMirc(const QString& message);
+    LIBIRCCLIENT_QT_EXPORT QString colorConvertToHtml(const QString& message);
+}
 
 #endif // IRC_H
