@@ -17,42 +17,6 @@
 #include "ircutil.h"
 #include <QRegExp>
 
-static const int BUFLEN = 256;
-
-static void irc_target_get_nick (const char * target, char *nick, size_t size)
-{
-	const char *p = strstr (target, "!");
-	unsigned int len;
-
-	if ( p )
-		len = p - target;
-	else
-		len = strlen (target);
-
-	if ( len > size-1 )
-		len = size - 1;
-
-	memcpy (nick, target, len);
-	nick[len] = '\0';
-}
-
-static void irc_target_get_host (const char * target, char *host, size_t size)
-{
-	unsigned int len;
-	const char *p = strstr (target, "!");
-
-	if ( !p )
-		p = target;
-
-	len = strlen (p);
-
-	if ( len > size-1 )
-		len = size - 1;
-
-	memcpy (host, p, len);
-	host[len] = '\0';
-}
-
 namespace Irc
 {
     /*!
@@ -60,9 +24,8 @@ namespace Irc
     */
     QString Irc::Util::nickFromTarget(const QString& target)
     {
-        char buffer[BUFLEN-1];
-        irc_target_get_nick(target.toUtf8(), buffer, BUFLEN);
-        return QString::fromUtf8(buffer);
+        int index = target.indexOf(QLatin1Char('!'));
+        return target.left(index);
     }
 
     /*!
@@ -70,9 +33,8 @@ namespace Irc
     */
     QString Irc::Util::hostFromTarget(const QString& target)
     {
-        char buffer[BUFLEN-1];
-        irc_target_get_host(target.toUtf8(), buffer, BUFLEN);
-        return QString::fromUtf8(buffer);
+        int index = target.indexOf(QLatin1Char('!'));
+        return target.mid(index + 1);
     }
 
     /*
