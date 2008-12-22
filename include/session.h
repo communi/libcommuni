@@ -17,6 +17,7 @@
 #ifndef SESSION_H
 #define SESSION_H
 
+#include <global.h>
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QHostAddress)
@@ -27,7 +28,7 @@ namespace Irc
 {
     class SessionPrivate;
 
-    class Session : public QObject
+    class LIBIRCCLIENT_QT_EXPORT Session : public QObject
     {
         Q_OBJECT
         Q_PROPERTY(QStringList autoJoinChannels READ autoJoinChannels WRITE setAutoJoinChannels)
@@ -65,6 +66,9 @@ namespace Irc
         QString realName() const;
         void setRealName(const QString& realName);
 
+        QString host() const;
+        quint16 port() const;
+
         enum Option
         {
             StripNicks = 0x1
@@ -73,6 +77,8 @@ namespace Irc
 
         Options options() const;
         void setOptions(Options options);
+
+        void connectSlotsByName(QObject* receiver);
 
         bool isConnected() const;
 
@@ -128,6 +134,7 @@ namespace Irc
         Q_DISABLE_COPY(Session)
         
         Q_PRIVATE_SLOT(d_func(), void _q_connected())
+        Q_PRIVATE_SLOT(d_func(), void _q_disconnected())
         Q_PRIVATE_SLOT(d_func(), void _q_error())
         Q_PRIVATE_SLOT(d_func(), void _q_state())
         Q_PRIVATE_SLOT(d_func(), void _q_readData())

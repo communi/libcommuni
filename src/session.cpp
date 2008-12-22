@@ -19,6 +19,8 @@
 #include <QTcpSocket>
 #include <QTextCodec>
 #include <QStringList>
+#include <QMetaMethod>
+#include <QHostAddress>
 #ifdef HAVE_ICU
 #include <unicode/ucsdet.h>
 #endif // HAVE_ICU
@@ -95,6 +97,7 @@ namespace Irc
         void init(Session* session);
 
         void _q_connected();
+        void _q_disconnected();
         void _q_error();
         void _q_state();
         void _q_readData();
@@ -113,6 +116,8 @@ namespace Irc
         QString password;
         QString nick;
         QString realName;
+        QString host;
+        quint16 port;
         bool motdReceived;
         QStringList channels;
         QByteArray encoding;
@@ -128,6 +133,8 @@ namespace Irc
         password(),
         nick(),
         realName(),
+        host(),
+        port(6667),
         motdReceived(false),
         channels(),
         encoding(),
@@ -142,9 +149,8 @@ namespace Irc
         buffer.open(QIODevice::ReadWrite);
 
         Q_Q(Session);
-        q->connect(&socket, SIGNAL(connected()), q, SIGNAL(connected()));
-        q->connect(&socket, SIGNAL(disconnected()), q, SIGNAL(disconnected()));
         q->connect(&socket, SIGNAL(connected()), q, SLOT(_q_connected()));
+        q->connect(&socket, SIGNAL(connected()), q, SLOT(_q_disconnected()));
         q->connect(&socket, SIGNAL(readyRead()), q, SLOT(_q_readData()));
         q->connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(_q_error()));
         q->connect(&socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), q, SLOT(_q_state()));
@@ -152,6 +158,8 @@ namespace Irc
 
     void SessionPrivate::_q_connected()
     {
+        Q_Q(Session);
+
         if (!password.isEmpty())
             socket.write(QString("PASS %1\r\n").arg(password).toLocal8Bit());
 
@@ -162,6 +170,17 @@ namespace Irc
         // a directly connected client (for security reasons)", therefore 
         // we don't need them.
         socket.write(QString("USER %1 unknown unknown :%2\r\n").arg(ident).arg(realName).toLocal8Bit());
+
+        emit q->connected();
+    }
+
+    void SessionPrivate::_q_disconnected()
+    {
+        Q_Q(Session);
+        emit q->disconnected();
+
+        if (reconnect)
+            q->connectToServer(host, port);
     }
 
     void SessionPrivate::_q_error()
@@ -181,6 +200,8 @@ namespace Irc
         while (buffer.canReadLine())
         {
             QByteArray line = buffer.readLine();
+            while (line.endsWith('\r') || line.endsWith('\n'))
+                line.remove(line.length() - 1, 1);
             processLine(line);
         }
     }
@@ -328,7 +349,7 @@ namespace Irc
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
                     message.remove(0, 1);
-                    message.remove(message.length() - 2, 1);
+                    message.remove(message.length() - 1, 1);
 
                     if (message.startsWith(QLatin1String("ACTION ")))
                         emit q->msgCtcpActionReceived(prefix, receiver, message.mid(7));
@@ -349,7 +370,7 @@ namespace Irc
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
                     message.remove(0, 1);
-                    message.remove(message.length() - 2, 1);
+                    message.remove(message.length() - 1, 1);
 
                     // TODO: check params
                     emit q->msgCtcpReplyReceived(prefix, /*receiver,*/ message);
@@ -538,6 +559,18 @@ namespace Irc
         d->realName = realName;
     }
 
+    QString Session::host() const
+    {
+        Q_D(const Session);
+        return d->host;
+    }
+
+    quint16 Session::port() const
+    {
+        Q_D(const Session);
+        return d->port;
+    }
+
     Session::Options Session::options() const
     {
         Q_D(const Session);
@@ -557,10 +590,46 @@ namespace Irc
             || d->socket.state() == QAbstractSocket::ConnectedState;
     }
 
+    /*!
+        Connects CoreIrcSession signals to matching slots of the \a receiver.
+
+        Receiver slots must follow the following syntax:
+        \code
+        void on_<signal name>(<signal parameters>);
+        \endcode
+    */
+    void Session::connectSlotsByName(QObject* receiver)
+    {
+        if (!receiver)
+            return;
+        const QMetaObject *thisMo = metaObject();
+        const QMetaObject *thatMo = receiver->metaObject();
+        Q_ASSERT(thisMo && thatMo);
+        for (int j = 0; j < thatMo->methodCount(); ++j) {
+            QMetaMethod slot = thatMo->method(j);
+            const char* slotSignature = slot.signature();
+            Q_ASSERT(slotSignature);
+            if (qstrncmp(slotSignature, "on_", 3))
+                continue;
+            for (int i = 0; i < thisMo->methodCount(); ++i) {
+                QMetaMethod signal = thisMo->method(i);
+                if (signal.methodType() == QMetaMethod::Signal) {
+                    const char* signalSignature = signal.signature();
+                    Q_ASSERT(signalSignature);
+                    if (qstrcmp(slotSignature + 3, signalSignature))
+                        continue;
+                    QMetaObject::connect(this, i, receiver, j);
+                }
+            }
+        }
+    }
+
     void Session::connectToServer(const QString& hostName, quint16 port)
     {
         Q_D(Session);
         d->motdReceived = false;
+        d->host = hostName;
+        d->port = port;
         d->socket.connectToHost(hostName, port);
     }
 
@@ -568,6 +637,8 @@ namespace Irc
     {
         Q_D(Session);
         d->motdReceived = false;
+        d->host = address.toString();
+        d->port = port;
         d->socket.connectToHost(address, port);
     }
 
