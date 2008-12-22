@@ -14,10 +14,10 @@
 * $Id$
 */
 
-#ifndef SESSION_H
-#define SESSION_H
+#ifndef IRC_SESSION_H
+#define IRC_SESSION_H
 
-#include <global.h>
+#include <irc.h>
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QHostAddress)
@@ -143,4 +143,4 @@ namespace Irc
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Irc::Session::Options)
 
-#endif // SESSION_H
+#endif // IRC_SESSION_H

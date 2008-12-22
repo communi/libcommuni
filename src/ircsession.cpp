@@ -14,7 +14,7 @@
 * $Id$
 */
 
-#include "session.h"
+#include "ircsession.h"
 #include <QBuffer>
 #include <QTcpSocket>
 #include <QTextCodec>
@@ -24,40 +24,6 @@
 #ifdef HAVE_ICU
 #include <unicode/ucsdet.h>
 #endif // HAVE_ICU
-
-static void irc_target_get_nick (const char * target, char *nick, size_t size)
-{
-	const char *p = strstr (target, "!");
-	unsigned int len;
-
-	if ( p )
-		len = p - target;
-	else
-		len = strlen (target);
-
-	if ( len > size-1 )
-		len = size - 1;
-
-	memcpy (nick, target, len);
-	nick[len] = '\0';
-}
-
-static void irc_target_get_host (const char * target, char *host, size_t size)
-{
-	unsigned int len;
-	const char *p = strstr (target, "!");
-
-	if ( !p )
-		p = target;
-
-	len = strlen (p);
-
-	if ( len > size-1 )
-		len = size - 1;
-
-	memcpy (host, p, len);
-	host[len] = '\0';
-}
 
 static QByteArray detectEncoding(const QByteArray& text)
 {
@@ -746,4 +712,4 @@ namespace Irc
     }
 }
 
-#include "moc_session.cpp"
+#include "moc_ircsession.cpp"
