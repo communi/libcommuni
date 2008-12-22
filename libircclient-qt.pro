@@ -20,7 +20,7 @@ contains(DEFINES, HAVE_ICU) {
 }
 
 HEADERS += irc.h ircsession.h ircutil.h
-SOURCES += ircsession.cpp ircutil.cpp
+SOURCES += irc.cpp ircsession.cpp ircutil.cpp
 
 headers.files = $$HEADERS
 headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
