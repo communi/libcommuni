@@ -32,7 +32,7 @@ namespace Irc
     {
         Q_OBJECT
         Q_PROPERTY(QStringList autoJoinChannels READ autoJoinChannels WRITE setAutoJoinChannels)
-        Q_PROPERTY(bool autoReconnectEnabled READ isAutoReconnectEnabled WRITE setAutoReconnectEnabled)
+        Q_PROPERTY(int autoReconnectDelay READ autoReconnectDelay WRITE setAutoReconnectDelay)
         Q_PROPERTY(bool connected READ isConnected)
         Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
         Q_PROPERTY(QString ident READ ident WRITE setIdent)
@@ -49,8 +49,8 @@ namespace Irc
         void removeAutoJoinChannel(const QString& channel);
         void setAutoJoinChannels(const QStringList& channels);
 
-        bool isAutoReconnectEnabled() const;
-        void setAutoReconnectEnabled(bool enabled);
+        int autoReconnectDelay() const;
+        void setAutoReconnectDelay(int seconds);
 
         QByteArray encoding() const;
         void setEncoding(const QByteArray& encoding);
@@ -135,6 +135,7 @@ namespace Irc
         
         Q_PRIVATE_SLOT(d_func(), void _q_connected())
         Q_PRIVATE_SLOT(d_func(), void _q_disconnected())
+        Q_PRIVATE_SLOT(d_func(), void _q_reconnect())
         Q_PRIVATE_SLOT(d_func(), void _q_error())
         Q_PRIVATE_SLOT(d_func(), void _q_state())
         Q_PRIVATE_SLOT(d_func(), void _q_readData())

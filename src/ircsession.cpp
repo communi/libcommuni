@@ -16,6 +16,7 @@
 
 #include "ircsession.h"
 #include "ircutil.h"
+#include <QTimer>
 #include <QBuffer>
 #include <QTcpSocket>
 #include <QTextCodec>
@@ -65,6 +66,7 @@ namespace Irc
 
         void _q_connected();
         void _q_disconnected();
+        void _q_reconnect();
         void _q_error();
         void _q_state();
         void _q_readData();
@@ -76,7 +78,7 @@ namespace Irc
         Session* q_ptr;
 
         QBuffer buffer;
-        QTcpSocket socket;
+        QTcpSocket* socket;
         Session::Options options;
 
         QString ident;
@@ -88,13 +90,14 @@ namespace Irc
         bool motdReceived;
         QStringList channels;
         QByteArray encoding;
-        bool reconnect;
+        int delay;
+        QTimer timer;
     };
 
     SessionPrivate::SessionPrivate() :
         q_ptr(0),
         buffer(),
-        socket(),
+        socket(0),
         options(0),
         ident(),
         password(),
@@ -105,7 +108,8 @@ namespace Irc
         motdReceived(false),
         channels(),
         encoding(),
-        reconnect(false)
+        delay(-1),
+        timer()
     {
     }
 
@@ -116,27 +120,27 @@ namespace Irc
         buffer.open(QIODevice::ReadWrite);
 
         Q_Q(Session);
-        q->connect(&socket, SIGNAL(connected()), q, SLOT(_q_connected()));
-        q->connect(&socket, SIGNAL(connected()), q, SLOT(_q_disconnected()));
-        q->connect(&socket, SIGNAL(readyRead()), q, SLOT(_q_readData()));
-        q->connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(_q_error()));
-        q->connect(&socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), q, SLOT(_q_state()));
+        q->connect(&timer, SIGNAL(timeout()), q, SLOT(_q_reconnect()));
     }
 
     void SessionPrivate::_q_connected()
     {
         Q_Q(Session);
 
-        if (!password.isEmpty())
-            socket.write(QString("PASS %1\r\n").arg(password).toLocal8Bit());
+        // stop autoreconnecting...
+        if (timer.isActive())
+            timer.stop();
 
-        socket.write(QString("NICK %1\r\n").arg(nick).toLocal8Bit());
+        if (!password.isEmpty())
+            socket->write(QString("PASS %1\r\n").arg(password).toLocal8Bit());
+
+        socket->write(QString("NICK %1\r\n").arg(nick).toLocal8Bit());
 
 		// RFC 1459 states that "hostname and servername are normally 
         // ignored by the IRC server when the USER command comes from 
         // a directly connected client (for security reasons)", therefore 
         // we don't need them.
-        socket.write(QString("USER %1 unknown unknown :%2\r\n").arg(ident).arg(realName).toLocal8Bit());
+        socket->write(QString("USER %1 unknown unknown :%2\r\n").arg(ident).arg(realName).toLocal8Bit());
 
         emit q->connected();
     }
@@ -145,24 +149,45 @@ namespace Irc
     {
         Q_Q(Session);
         emit q->disconnected();
+    }
 
-        if (reconnect)
-            q->connectToServer(host, port);
+    void SessionPrivate::_q_reconnect()
+    {
+        Q_Q(Session);
+
+        if (socket)
+            socket->deleteLater();
+
+        socket = new QTcpSocket(q);
+        q->connect(socket, SIGNAL(connected()), q, SLOT(_q_connected()));
+        q->connect(socket, SIGNAL(connected()), q, SLOT(_q_disconnected()));
+        q->connect(socket, SIGNAL(readyRead()), q, SLOT(_q_readData()));
+        q->connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(_q_error()));
+        q->connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), q, SLOT(_q_state()));
+        socket->connectToHost(host, port);
+
+        // stop autoreconnecting...
+        if (timer.isActive())
+            timer.stop();
     }
 
     void SessionPrivate::_q_error()
     {
-        qDebug("ERROR %i", socket.error());
+        qDebug("ERROR %i", socket->error());
+
+        // start reconnecting...
+        if (delay >= 0)
+            timer.start(delay * 1000);
     }
 
     void SessionPrivate::_q_state()
     {
-        qDebug("STATE %i", socket.state());
+        qDebug("STATE %i", socket->state());
     }
 
     void SessionPrivate::_q_readData()
     {
-        qint64 bytes = buffer.write(socket.readAll());
+        qint64 bytes = buffer.write(socket->readAll());
         buffer.seek(buffer.pos() - bytes);
         while (buffer.canReadLine())
         {
@@ -262,11 +287,18 @@ namespace Irc
         // and dump
         if (isNumeric)
         {
+            static const QList<int> MOTD_LIST = 
+                QList<int>() << RPL_MOTDSTART << RPL_MOTD << RPL_ENDOFMOTD << ERR_NOMOTD;
+
+            if (!motdReceived || (code >= 300 && !MOTD_LIST.contains(code)))
+            {
+                QStringList strings = readStrings(params);
+                emit q->msgNumericMessageReceived(prefix, code, strings);
+            }
+
             // check whether it is the first RPL_ENDOFMOTD or ERR_NOMOTD after the connection
-            if ((code == 376 || code == 422) && !motdReceived)
+            if (!motdReceived && (code == RPL_ENDOFMOTD || code == ERR_NOMOTD))
                 motdReceived = true;
-            QStringList strings = readStrings(params);
-            emit q->msgNumericMessageReceived(prefix, code, strings);
         }
         else
         {
@@ -388,7 +420,7 @@ namespace Irc
     Session::~Session()
     {
         Q_D(Session);
-        d->socket.close();
+        d->socket->close();
         delete d;
     }
 
@@ -434,23 +466,25 @@ namespace Irc
     }
 
     /*!
-        Returns \c true if auto-reconnecting is enabled.    
+        Returns the auto-reconnecting delay.
 
-        The default value is \c false.
+        A negative value means no auto-reconnecting.
+
+        The default value is \c -1.
      */
-    bool Session::isAutoReconnectEnabled() const
+    int Session::autoReconnectDelay() const
     {
         Q_D(const Session);
-        return d->reconnect;
+        return d->delay;
     }
 
     /*!
-        Sets auto-reconnecting \a enabled.
+        Sets auto-reconnecting delay in \a seconds.
      */
-    void Session::setAutoReconnectEnabled(bool enabled)
+    void Session::setAutoReconnectDelay(int seconds)
     {
         Q_D(Session);
-        d->reconnect = enabled;
+        d->delay = seconds;
     }
 
     /*!
@@ -505,7 +539,8 @@ namespace Irc
         if (d->nick != nick)
         {
             d->nick = nick;
-        	sendRaw(QString(QLatin1String("NICK %1")).arg(nick));
+            if (d->socket)
+            	sendRaw(QString(QLatin1String("NICK %1")).arg(nick));
         }
     }
 
@@ -564,8 +599,9 @@ namespace Irc
     bool Session::isConnected() const
     {
         Q_D(const Session);
-        return d->socket.state() == QAbstractSocket::ConnectingState
-            || d->socket.state() == QAbstractSocket::ConnectedState;
+        return d->socket &&
+            (d->socket->state() == QAbstractSocket::ConnectingState
+            || d->socket->state() == QAbstractSocket::ConnectedState);
     }
 
     /*!
@@ -608,7 +644,7 @@ namespace Irc
         d->motdReceived = false;
         d->host = hostName;
         d->port = port;
-        d->socket.connectToHost(hostName, port);
+        d->_q_reconnect();
     }
 
     void Session::connectToServer(const QHostAddress& address, quint16 port)
@@ -617,19 +653,19 @@ namespace Irc
         d->motdReceived = false;
         d->host = address.toString();
         d->port = port;
-        d->socket.connectToHost(address, port);
+        d->socket->connectToHost(address, port);
     }
 
     void Session::disconnectFromServer()
     {
         Q_D(Session);
-        d->socket.disconnectFromHost();
+        d->socket->disconnectFromHost();
     }
 
     bool Session::sendRaw(const QString& message)
     {
         Q_D(Session);
-        qint64 bytes = d->socket.write(message.toUtf8() + QByteArray("\r\n"));
+        qint64 bytes = d->socket->write(message.toUtf8() + QByteArray("\r\n"));
         return bytes != -1;
     }
 
