@@ -19,6 +19,10 @@
 
 #include <QtGlobal>
 
+/*!
+    \file ircglobal.h
+ */
+
 #if BUILD_IRC
 #    define IRC_EXPORT Q_DECL_EXPORT
 #else
@@ -26,16 +30,35 @@
 #endif // BUILD_IRC
 
 /*!
-    \relates Irc::Session
+    \def IRC_VERSION
 
-    Blaa
+    This macro expands a numeric value of the form 0xMMNNPP (MM = major, NN = minor, PP = patch) that specifies LibIrcClient-Qt's version number.
+    For example, if you compile your application against LibIrcClient-Qt 1.2.3, the IRC_VERSION macro will expand to 0x010203.
+
+    You can use IRC_VERSION to use the latest LibIrcClient-Qt features where available. For example:
+    \code
+#if IRC_VERSION >= 0x000200
+    session->setNick(nick);
+    session->setIdent(ident);
+    session->setRealName(realName);
+    session->setPassword(password);
+    session->connectToServer(host, port);
+#else
+    session->connectToServer(host, port, nick, ident, realName, password);
+#endif
+    \endcode
+    
+    \sa IRC_VERSION_STR and Irc::version().
  */
 #define IRC_VERSION 0x000200
 
 /*!
-    \relates Irc::Session
+    \def IRC_VERSION_STR
 
-    Blee
+    This macro expands to a string that specifies LibIrcClient-Qt's version number (for example, "1.2.3").
+    This is the version against which the application is compiled.
+
+    \sa Irc::version() and IRC_VERSION.
  */
 #define IRC_VERSION_STR "0.2.0"
 

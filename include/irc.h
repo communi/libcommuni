@@ -23,167 +23,170 @@ namespace Irc
 {
     IRC_EXPORT const char* version();
 
-    static const uint RPL_WELCOME	= 001;
-    static const uint RPL_YOURHOST	= 002;
-    static const uint RPL_CREATED	= 003;
-    static const uint RPL_MYINFO	= 004;
-    static const uint RPL_BOUNCE	= 005;
+    enum RfcNumeric
+    {
+        RPL_WELCOME	            = 001,
+        RPL_YOURHOST	        = 002,
+        RPL_CREATED	            = 003,
+        RPL_MYINFO	            = 004,
+        RPL_BOUNCE	            = 005,
 
-    static const uint RPL_USERHOST	= 302;
-    static const uint RPL_ISON	    = 303;
-    static const uint RPL_AWAY	    = 301;
-    static const uint RPL_UNAWAY	= 305;
-    static const uint RPL_NOWAWAY	= 306;
+        RPL_USERHOST	        = 302,
+        RPL_ISON	            = 303,
+        RPL_AWAY	            = 301,
+        RPL_UNAWAY	            = 305,
+        RPL_NOWAWAY	            = 306,
 
-    static const uint RPL_WHOISUSER	    = 311;
-    static const uint RPL_WHOISSERVER	= 312;
-    static const uint RPL_WHOISOPERATOR	= 313;
-    static const uint RPL_WHOISIDLE	    = 317;
-    static const uint RPL_ENDOFWHOIS	= 318;
-    static const uint RPL_WHOISCHANNELS	= 319;
-    static const uint RPL_WHOWASUSER	= 314;
-    static const uint RPL_ENDOFWHOWAS	= 369;
+        RPL_WHOISUSER	        = 311,
+        RPL_WHOISSERVER	        = 312,
+        RPL_WHOISOPERATOR	    = 313,
+        RPL_WHOISIDLE	        = 317,
+        RPL_ENDOFWHOIS	        = 318,
+        RPL_WHOISCHANNELS	    = 319,
+        RPL_WHOWASUSER	        = 314,
+        RPL_ENDOFWHOWAS	        = 369,
 
-    static const uint RPL_LIST	    = 322;
-    static const uint RPL_LISTEND	= 323;
+        RPL_LIST	            = 322,
+        RPL_LISTEND	            = 323,
 
-    static const uint RPL_UNIQOPIS	    = 325;
-    static const uint RPL_CHANNELMODEIS	= 324;
+        RPL_UNIQOPIS	        = 325,
+        RPL_CHANNELMODEIS	    = 324,
 
-    static const uint RPL_NOTOPIC	= 331;
-    static const uint RPL_TOPIC	    = 332;
+        RPL_NOTOPIC	            = 331,
+        RPL_TOPIC	            = 332,
 
-    static const uint RPL_INVITING	= 341;
-    static const uint RPL_SUMMONING	= 342;
+        RPL_INVITING	        = 341,
+        RPL_SUMMONING	        = 342,
 
-    static const uint RPL_INVITELIST	    = 346;
-    static const uint RPL_ENDOFINVITELIST	= 347;
+        RPL_INVITELIST	        = 346,
+        RPL_ENDOFINVITELIST	    = 347,
 
-    static const uint RPL_EXCEPTLIST	    = 348;
-    static const uint RPL_ENDOFEXCEPTLIST	= 349;
+        RPL_EXCEPTLIST	        = 348,
+        RPL_ENDOFEXCEPTLIST	    = 349,
 
-    static const uint RPL_VERSION	= 351;
+        RPL_VERSION	            = 351,
 
-    static const uint RPL_WHOREPLY	= 352;
-    static const uint RPL_ENDOFWHO	= 315;
+        RPL_WHOREPLY	        = 352,
+        RPL_ENDOFWHO	        = 315,
 
-    static const uint RPL_NAMREPLY	= 353;
-    static const uint RPL_ENDOFNAMES	= 366;
+        RPL_NAMREPLY	        = 353,
+        RPL_ENDOFNAMES	        = 366,
 
-    static const uint RPL_LINKS	= 364;
-    static const uint RPL_ENDOFLINKS	= 365;
+        RPL_LINKS	            = 364,
+        RPL_ENDOFLINKS	        = 365,
 
-    static const uint RPL_BANLIST	= 367;
-    static const uint RPL_ENDOFBANLIST	= 368;
+        RPL_BANLIST	            = 367,
+        RPL_ENDOFBANLIST	    = 368,
 
-    static const uint RPL_INFO	= 371;
-    static const uint RPL_ENDOFINFO	= 374;
+        RPL_INFO	            = 371,
+        RPL_ENDOFINFO	        = 374,
 
-    static const uint RPL_MOTDSTART	= 375;
-    static const uint RPL_MOTD	= 372;
-    static const uint RPL_ENDOFMOTD	= 376;
+        RPL_MOTDSTART	        = 375,
+        RPL_MOTD	            = 372,
+        RPL_ENDOFMOTD	        = 376,
 
-    static const uint RPL_YOUREOPER	= 381;
-    static const uint RPL_REHASHING	= 382;
-    static const uint RPL_YOURESERVICE	= 383;
+        RPL_YOUREOPER	        = 381,
+        RPL_REHASHING	        = 382,
+        RPL_YOURESERVICE	    = 383,
 
-    static const uint RPL_TIME	= 391;
-    static const uint RPL_USERSSTART	= 392;
+        RPL_TIME	            = 391,
+        RPL_USERSSTART	        = 392,
 
-    static const uint RPL_USERS	= 393;
-    static const uint RPL_ENDOFUSERS	= 394;
-    static const uint RPL_NOUSERS	= 395;
+        RPL_USERS	            = 393,
+        RPL_ENDOFUSERS	        = 394,
+        RPL_NOUSERS	            = 395,
 
-    static const uint RPL_TRACELINK	= 200;
-    static const uint RPL_TRACECONNECTING	= 201;
-    static const uint RPL_TRACEHANDSHAKE	= 202;
-    static const uint RPL_TRACEUNKNOWN	= 203;
-    static const uint RPL_TRACEOPERATOR	= 204;
-    static const uint RPL_TRACEUSER	= 205;
-    static const uint RPL_TRACESERVER	= 206;
-    static const uint RPL_TRACESERVICE	= 207;
-    static const uint RPL_TRACENEWTYPE	= 208;
-    static const uint RPL_TRACECLASS	= 209;
-    static const uint RPL_TRACELOG	= 261;
-    static const uint RPL_TRACEEND	= 262;
+        RPL_TRACELINK	        = 200,
+        RPL_TRACECONNECTING	    = 201,
+        RPL_TRACEHANDSHAKE	    = 202,
+        RPL_TRACEUNKNOWN	    = 203,
+        RPL_TRACEOPERATOR	    = 204,
+        RPL_TRACEUSER	        = 205,
+        RPL_TRACESERVER	        = 206,
+        RPL_TRACESERVICE	    = 207,
+        RPL_TRACENEWTYPE	    = 208,
+        RPL_TRACECLASS	        = 209,
+        RPL_TRACELOG	        = 261,
+        RPL_TRACEEND	        = 262,
 
-    static const uint RPL_STATSLINKINFO	= 211;
-    static const uint RPL_STATSCOMMANDS	= 212;
-    static const uint RPL_ENDOFSTATS	= 219;
-    static const uint RPL_STATSUPTIME	= 242;
-    static const uint RPL_STATSOLINE	= 243;
+        RPL_STATSLINKINFO	    = 211,
+        RPL_STATSCOMMANDS	    = 212,
+        RPL_ENDOFSTATS	        = 219,
+        RPL_STATSUPTIME	        = 242,
+        RPL_STATSOLINE	        = 243,
 
-    static const uint RPL_UMODEIS	= 221;
+        RPL_UMODEIS	            = 221,
 
-    static const uint RPL_SERVLIST	= 234;
-    static const uint RPL_SERVLISTEND	= 235;
+        RPL_SERVLIST	        = 234,
+        RPL_SERVLISTEND	        = 235,
 
-    static const uint RPL_LUSERCLIENT	= 251;
-    static const uint RPL_LUSEROP	= 252;
-    static const uint RPL_LUSERUNKNOWN	= 253;
-    static const uint RPL_LUSERCHANNELS	= 254;
-    static const uint RPL_LUSERME	= 255;
+        RPL_LUSERCLIENT	        = 251,
+        RPL_LUSEROP	            = 252,
+        RPL_LUSERUNKNOWN	    = 253,
+        RPL_LUSERCHANNELS	    = 254,
+        RPL_LUSERME	            = 255,
 
-    static const uint RPL_ADMINME	= 256;
-    static const uint RPL_ADMINLOC1	= 257;
-    static const uint RPL_ADMINLOC2	= 258;
-    static const uint RPL_ADMINEMAIL	= 259;
+        RPL_ADMINME	            = 256,
+        RPL_ADMINLOC1	        = 257,
+        RPL_ADMINLOC2	        = 258,
+        RPL_ADMINEMAIL	        = 259,
 
-    static const uint RPL_TRYAGAIN	= 263;
+        RPL_TRYAGAIN	        = 263,
 
-    static const uint ERR_NOSUCHNICK	= 401;
-    static const uint ERR_NOSUCHSERVER	= 402;
-    static const uint ERR_NOSUCHCHANNEL	= 403;
-    static const uint ERR_CANNOTSENDTOCHAN	= 404;
-    static const uint ERR_TOOMANYCHANNELS	= 405;
-    static const uint ERR_WASNOSUCHNICK	= 406;
-    static const uint ERR_TOOMANYTARGETS	= 407;
-    static const uint ERR_NOSUCHSERVICE	= 408;
-    static const uint ERR_NOORIGIN	= 409;
-    static const uint ERR_NORECIPIENT	= 411;
-    static const uint ERR_NOTEXTTOSEND	= 412;
-    static const uint ERR_NOTOPLEVEL	= 413;
-    static const uint ERR_WILDTOPLEVEL	= 414;
-    static const uint ERR_BADMASK	= 415;
-    static const uint ERR_UNKNOWNCOMMAND	= 421;
-    static const uint ERR_NOMOTD	= 422;
-    static const uint ERR_NOADMININFO	= 423;
-    static const uint ERR_FILEERROR	= 424;
-    static const uint ERR_NONICKNAMEGIVEN	= 431;
-    static const uint ERR_ERRONEUSNICKNAME	= 432;
-    static const uint ERR_NICKNAMEINUSE	= 433;
-    static const uint ERR_NICKCOLLISION	= 436;
-    static const uint ERR_UNAVAILRESOURCE	= 437;
-    static const uint ERR_USERNOTINCHANNEL	= 441;
-    static const uint ERR_NOTONCHANNEL	= 442;
-    static const uint ERR_USERONCHANNEL	= 443;
-    static const uint ERR_NOLOGIN	= 444;
-    static const uint ERR_SUMMONDISABLED	= 445;
-    static const uint ERR_USERSDISABLED	= 446;
-    static const uint ERR_NOTREGISTERED	= 451;
-    static const uint ERR_NEEDMOREPARAMS	= 461;
-    static const uint ERR_ALREADYREGISTRED	= 462;
-    static const uint ERR_NOPERMFORHOST	= 463;
-    static const uint ERR_PASSWDMISMATCH	= 464;
-    static const uint ERR_YOUREBANNEDCREEP	= 465;
-    static const uint ERR_YOUWILLBEBANNED	= 466;
-    static const uint ERR_KEYSET	= 467;
-    static const uint ERR_CHANNELISFULL	= 471;
-    static const uint ERR_UNKNOWNMODE	= 472;
-    static const uint ERR_INVITEONLYCHAN	= 473;
-    static const uint ERR_BANNEDFROMCHAN	= 474;
-    static const uint ERR_BADCHANNELKEY	= 475;
-    static const uint ERR_BADCHANMASK	= 476;
-    static const uint ERR_NOCHANMODES	= 477;
-    static const uint ERR_BANLISTFULL	= 478;
-    static const uint ERR_NOPRIVILEGES	= 481;
-    static const uint ERR_CHANOPRIVSNEEDED	= 482;
-    static const uint ERR_CANTKILLSERVER	= 483;
-    static const uint ERR_RESTRICTED	= 484;
-    static const uint ERR_UNIQOPPRIVSNEEDED	= 485;
-    static const uint ERR_NOOPERHOST	= 491;
-    static const uint ERR_UMODEUNKNOWNFLAG	= 501;
-    static const uint ERR_USERSDONTMATCH	= 502;
+        ERR_NOSUCHNICK	        = 401,
+        ERR_NOSUCHSERVER	    = 402,
+        ERR_NOSUCHCHANNEL	    = 403,
+        ERR_CANNOTSENDTOCHAN    = 404,
+        ERR_TOOMANYCHANNELS	    = 405,
+        ERR_WASNOSUCHNICK       = 406,
+        ERR_TOOMANYTARGETS      = 407,
+        ERR_NOSUCHSERVICE       = 408,
+        ERR_NOORIGIN            = 409,
+        ERR_NORECIPIENT	        = 411,
+        ERR_NOTEXTTOSEND        = 412,
+        ERR_NOTOPLEVEL          = 413,
+        ERR_WILDTOPLEVEL        = 414,
+        ERR_BADMASK	            = 415,
+        ERR_UNKNOWNCOMMAND	    = 421,
+        ERR_NOMOTD	            = 422,
+        ERR_NOADMININFO	        = 423,
+        ERR_FILEERROR	        = 424,
+        ERR_NONICKNAMEGIVEN	    = 431,
+        ERR_ERRONEUSNICKNAME    = 432,
+        ERR_NICKNAMEINUSE	    = 433,
+        ERR_NICKCOLLISION	    = 436,
+        ERR_UNAVAILRESOURCE	    = 437,
+        ERR_USERNOTINCHANNEL    = 441,
+        ERR_NOTONCHANNEL	    = 442,
+        ERR_USERONCHANNEL	    = 443,
+        ERR_NOLOGIN	            = 444,
+        ERR_SUMMONDISABLED	    = 445,
+        ERR_USERSDISABLED	    = 446,
+        ERR_NOTREGISTERED	    = 451,
+        ERR_NEEDMOREPARAMS	    = 461,
+        ERR_ALREADYREGISTRED    = 462,
+        ERR_NOPERMFORHOST	    = 463,
+        ERR_PASSWDMISMATCH	    = 464,
+        ERR_YOUREBANNEDCREEP    = 465,
+        ERR_YOUWILLBEBANNED	    = 466,
+        ERR_KEYSET	            = 467,
+        ERR_CHANNELISFULL	    = 471,
+        ERR_UNKNOWNMODE	        = 472,
+        ERR_INVITEONLYCHAN	    = 473,
+        ERR_BANNEDFROMCHAN	    = 474,
+        ERR_BADCHANNELKEY	    = 475,
+        ERR_BADCHANMASK	        = 476,
+        ERR_NOCHANMODES	        = 477,
+        ERR_BANLISTFULL	        = 478,
+        ERR_NOPRIVILEGES	    = 481,
+        ERR_CHANOPRIVSNEEDED    = 482,
+        ERR_CANTKILLSERVER	    = 483,
+        ERR_RESTRICTED	        = 484,
+        ERR_UNIQOPPRIVSNEEDED   = 485,
+        ERR_NOOPERHOST	        = 491,
+        ERR_UMODEUNKNOWNFLAG    = 501,
+        ERR_USERSDONTMATCH	    = 502
+    };
 }
 
 #endif // IRC_H
