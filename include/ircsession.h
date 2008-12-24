@@ -17,7 +17,7 @@
 #ifndef IRC_SESSION_H
 #define IRC_SESSION_H
 
-#include <irc.h>
+#include <ircglobal.h>
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QHostAddress)
@@ -28,7 +28,7 @@ namespace Irc
 {
     class SessionPrivate;
 
-    class LIBIRCCLIENT_QT_EXPORT Session : public QObject
+    class IRC_EXPORT Session : public QObject
     {
         Q_OBJECT
         Q_PROPERTY(QStringList autoJoinChannels READ autoJoinChannels WRITE setAutoJoinChannels)

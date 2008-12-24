@@ -14,24 +14,29 @@
 * $Id$
 */
 
-#ifndef IRC_UTIL_H
-#define IRC_UTIL_H
+#ifndef IRC_GLOBAL_H
+#define IRC_GLOBAL_H
 
-#include <irc.h>
+#include <QtGlobal>
 
-namespace Irc
-{
-    class IRC_EXPORT Util
-    {
-    public:
-        static QString nickFromTarget(const QString& target);
-        static QString hostFromTarget(const QString& target);
+#if BUILD_IRC
+#    define IRC_EXPORT Q_DECL_EXPORT
+#else
+#    define IRC_EXPORT Q_DECL_IMPORT
+#endif // BUILD_IRC
 
-        //static QString colorStripFromMirc(const QString& message);
-        //static QString colorConvertFromMirc(const QString& message);
-        //static QString colorConvertToMirc(const QString& message);
-        //static QString colorConvertToHtml(const QString& message);
-    };
-}
+/*!
+    \relates Irc
 
-#endif // IRC_UTIL_H
+    Blaa
+ */
+#define IRC_VERSION 0x000200
+
+/*!
+    \relates Irc
+
+    Blee
+ */
+#define IRC_VERSION_STR "0.2.0"
+
+#endif // IRC_GLOBAL_H

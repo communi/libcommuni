@@ -17,10 +17,17 @@
 #include "ircutil.h"
 #include <QRegExp>
 
+/*!
+    \class Irc::Util ircutil.h
+    \brief Brief description.
+
+    Detailed description.
+ */
+
 namespace Irc
 {
     /*!
-        Parses and returns the nick part from target.
+        Parses and returns the nick part from \a target.
     */
     QString Irc::Util::nickFromTarget(const QString& target)
     {
@@ -29,7 +36,7 @@ namespace Irc
     }
 
     /*!
-        Parses and returns the host part from target.
+        Parses and returns the host part from \a target.
     */
     QString Irc::Util::hostFromTarget(const QString& target)
     {

@@ -7,7 +7,7 @@ DESTDIR = lib
 TARGET = $$qtLibraryTarget(ircclient-qt)
 DEPENDPATH += include src
 INCLUDEPATH += include
-DEFINES += BUILD_LIBIRCCLIENT_QT
+DEFINES += BUILD_IRC
 QT = core network
 
 DEFINES += HAVE_ICU
@@ -19,7 +19,7 @@ contains(DEFINES, HAVE_ICU) {
     LIBS += -l$$qtLibraryTarget(icuuc)
 }
 
-HEADERS += irc.h ircsession.h ircutil.h
+HEADERS += irc.h ircglobal.h ircsession.h ircutil.h
 SOURCES += irc.cpp ircsession.cpp ircutil.cpp
 
 headers.files = $$HEADERS

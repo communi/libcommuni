@@ -28,7 +28,8 @@
 #endif // HAVE_ICU
 
 /*!
-    \class Irc::Session <IrcSession>
+    \class Irc::Session ircsession.h
+    \brief Brief description.
 
     Detailed description.
  */
@@ -44,105 +45,105 @@
  */
 
 /*!
-        \fn void Irc::Session::connected()
+    \fn void Irc::Session::connected()
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::disconnected()
+    \fn void Irc::Session::disconnected()
 
-        This signal is emitted
+    This signal is emitted
 */
 
 /*!
-        \fn void Irc::Session::msgJoined(const QString& origin, const QString& channel)
+    \fn void Irc::Session::msgJoined(const QString& origin, const QString& channel)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgParted(const QString& origin, const QString& channel, const QString& message)
+    \fn void Irc::Session::msgParted(const QString& origin, const QString& channel, const QString& message)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgQuit(const QString& origin, const QString& message)
+    \fn void Irc::Session::msgQuit(const QString& origin, const QString& message)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgNickChanged(const QString& origin, const QString& nick)
+    \fn void Irc::Session::msgNickChanged(const QString& origin, const QString& nick)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgModeChanged(const QString& origin, const QString& receiver, const QString& mode, const QString& args)
+    \fn void Irc::Session::msgModeChanged(const QString& origin, const QString& receiver, const QString& mode, const QString& args)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgTopicChanged(const QString& origin, const QString& channel, const QString& topic)
+    \fn void Irc::Session::msgTopicChanged(const QString& origin, const QString& channel, const QString& topic)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgInvited(const QString& origin, const QString& receiver, const QString& channel)
+    \fn void Irc::Session::msgInvited(const QString& origin, const QString& receiver, const QString& channel)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgKicked(const QString& origin, const QString& channel, const QString& nick, const QString& message)
+    \fn void Irc::Session::msgKicked(const QString& origin, const QString& channel, const QString& nick, const QString& message)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgMessageReceived(const QString& origin, const QString& receiver, const QString& message)
+    \fn void Irc::Session::msgMessageReceived(const QString& origin, const QString& receiver, const QString& message)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgNoticeReceived(const QString& origin, const QString& receiver, const QString& notice)
+    \fn void Irc::Session::msgNoticeReceived(const QString& origin, const QString& receiver, const QString& notice)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgCtcpRequestReceived(const QString& origin, const QString& request)
+    \fn void Irc::Session::msgCtcpRequestReceived(const QString& origin, const QString& request)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgCtcpReplyReceived(const QString& origin, const QString& reply)
+    \fn void Irc::Session::msgCtcpReplyReceived(const QString& origin, const QString& reply)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgCtcpActionReceived(const QString& origin, const QString& receiver, const QString& action)
+    \fn void Irc::Session::msgCtcpActionReceived(const QString& origin, const QString& receiver, const QString& action)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgNumericMessageReceived(const QString& origin, uint code, const QStringList& params)
+    \fn void Irc::Session::msgNumericMessageReceived(const QString& origin, uint code, const QStringList& params)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 /*!
-        \fn void Irc::Session::msgUnknownMessageReceived(const QString& origin, const QStringList& params)
+    \fn void Irc::Session::msgUnknownMessageReceived(const QString& origin, const QStringList& params)
 
-        This signal is emitted
+    This signal is emitted
  */
 
 static QByteArray detectEncoding(const QByteArray& text)
