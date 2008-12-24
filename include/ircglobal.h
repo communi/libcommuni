@@ -26,14 +26,14 @@
 #endif // BUILD_IRC
 
 /*!
-    \relates Irc
+    \relates Irc::Session
 
     Blaa
  */
 #define IRC_VERSION 0x000200
 
 /*!
-    \relates Irc
+    \relates Irc::Session
 
     Blee
  */

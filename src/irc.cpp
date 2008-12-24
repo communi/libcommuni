@@ -369,7 +369,7 @@ const char* Irc::version()
  */
 
 /*! 
-    \var static const uint Irc::RPL_USERSTART
+    \var static const uint Irc::RPL_USERSSTART
     \brief 392 :UserID   Terminal  Host
 
     No description available in RFC
