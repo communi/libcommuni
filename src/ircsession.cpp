@@ -397,7 +397,7 @@ namespace Irc
         if (!qstrcmp(command, "PING"))
         {
             QString arg = readString(params.value(0));
-            q->sendRaw(QString(QLatin1String("PONG %s")).arg(arg));
+            q->sendRaw(QString(QLatin1String("PONG %1")).arg(arg));
             return;
         }
 
