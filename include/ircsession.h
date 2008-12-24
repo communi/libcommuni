@@ -101,8 +101,8 @@ namespace Irc
         bool cmdInvite(const QString& nick, const QString& channel);
         bool cmdKick(const QString& nick, const QString& channel, const QString& reason = QString());
         bool cmdMessage(const QString& receiver, const QString& message);
-        bool cmdNotice(const QString& receiver, const QString& message);
-        bool cmdCtcpAction(const QString& receiver, const QString& message);
+        bool cmdNotice(const QString& receiver, const QString& notice);
+        bool cmdCtcpAction(const QString& receiver, const QString& action);
         bool cmdCtcpRequest(const QString& nick, const QString& request);
         bool cmdCtcpReply(const QString& nick, const QString& reply);
 
@@ -119,17 +119,15 @@ namespace Irc
         void msgInvited(const QString& origin, const QString& receiver, const QString& channel);
         void msgKicked(const QString& origin, const QString& channel, const QString& nick, const QString& message);
         void msgMessageReceived(const QString& origin, const QString& receiver, const QString& message);
-        void msgNoticeReceived(const QString& origin, const QString& receiver, const QString& message);
+        void msgNoticeReceived(const QString& origin, const QString& receiver, const QString& notice);
         void msgCtcpRequestReceived(const QString& origin, const QString& request);
         void msgCtcpReplyReceived(const QString& origin, const QString& reply);
         void msgCtcpActionReceived(const QString& origin, const QString& receiver, const QString& action);
         void msgNumericMessageReceived(const QString& origin, uint code, const QStringList& params);
         void msgUnknownMessageReceived(const QString& origin, const QStringList& params);
 
-    protected:
-        SessionPrivate* const d_ptr;
-
     private:
+        SessionPrivate* const d_ptr;
         Q_DECLARE_PRIVATE(Session)
         Q_DISABLE_COPY(Session)
         

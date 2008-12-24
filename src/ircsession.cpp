@@ -27,6 +27,124 @@
 #include <unicode/ucsdet.h>
 #endif // HAVE_ICU
 
+/*!
+    \class Irc::Session <IrcSession>
+
+    Detailed description.
+ */
+
+/*! \enum Irc::Session::Option
+
+    Foo
+ */
+
+/*! \var Irc::Session::StripNicks
+
+    Bar
+ */
+
+/*!
+        \fn void Irc::Session::connected()
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::disconnected()
+
+        This signal is emitted
+*/
+
+/*!
+        \fn void Irc::Session::msgJoined(const QString& origin, const QString& channel)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgParted(const QString& origin, const QString& channel, const QString& message)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgQuit(const QString& origin, const QString& message)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgNickChanged(const QString& origin, const QString& nick)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgModeChanged(const QString& origin, const QString& receiver, const QString& mode, const QString& args)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgTopicChanged(const QString& origin, const QString& channel, const QString& topic)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgInvited(const QString& origin, const QString& receiver, const QString& channel)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgKicked(const QString& origin, const QString& channel, const QString& nick, const QString& message)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgMessageReceived(const QString& origin, const QString& receiver, const QString& message)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgNoticeReceived(const QString& origin, const QString& receiver, const QString& notice)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgCtcpRequestReceived(const QString& origin, const QString& request)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgCtcpReplyReceived(const QString& origin, const QString& reply)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgCtcpActionReceived(const QString& origin, const QString& receiver, const QString& action)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgNumericMessageReceived(const QString& origin, uint code, const QStringList& params)
+
+        This signal is emitted
+ */
+
+/*!
+        \fn void Irc::Session::msgUnknownMessageReceived(const QString& origin, const QStringList& params)
+
+        This signal is emitted
+ */
+
 static QByteArray detectEncoding(const QByteArray& text)
 {
     Q_UNUSED(text);
@@ -192,9 +310,7 @@ namespace Irc
         while (buffer.canReadLine())
         {
             QByteArray line = buffer.readLine();
-            while (line.endsWith('\r') || line.endsWith('\n'))
-                line.remove(line.length() - 1, 1);
-            processLine(line);
+            processLine(line.trimmed());
         }
     }
 
@@ -513,12 +629,20 @@ namespace Irc
         d->encoding = encoding;
     }
 
+    /*!
+        Returns the ident.
+     */
     QString Session::ident() const
     {
         Q_D(const Session);
         return d->ident;
     }
 
+    /*!
+        Sets the \a ident.
+
+        \note setIdent() has no effect on already established connection.
+     */
     void Session::setIdent(const QString& ident)
     {
         Q_D(Session);
@@ -527,12 +651,18 @@ namespace Irc
         d->ident = ident;
     }
 
+    /*!
+        Returns the nick.
+     */
     QString Session::nick() const
     {
         Q_D(const Session);
         return d->nick;
     }
 
+    /*!
+        Sets the \a nick.
+     */
     void Session::setNick(const QString& nick)
     {
         Q_D(Session);
@@ -544,12 +674,20 @@ namespace Irc
         }
     }
 
+    /*!
+        Returns the password.
+     */
     QString Session::password() const
     {
         Q_D(const Session);
         return d->password;
     }
 
+    /*!
+        Sets the \a password.
+
+        \note setPassword() has no effect on already established connection.
+     */
     void Session::setPassword(const QString& password)
     {
         Q_D(Session);
@@ -558,12 +696,20 @@ namespace Irc
         d->password = password;
     }
 
+    /*!
+        Returns the real name.
+     */
     QString Session::realName() const
     {
         Q_D(const Session);
         return d->realName;
     }
 
+    /*!
+        Sets the \a realName.
+
+        \note setRealName() has no effect on already established connection.
+     */
     void Session::setRealName(const QString& realName)
     {
         Q_D(Session);
@@ -572,30 +718,45 @@ namespace Irc
         d->realName = realName;
     }
 
+    /*!
+        Returns the host.
+     */
     QString Session::host() const
     {
         Q_D(const Session);
         return d->host;
     }
 
+    /*!
+        Returns the port.
+     */
     quint16 Session::port() const
     {
         Q_D(const Session);
         return d->port;
     }
 
+    /*!
+        Returns the options.
+     */
     Session::Options Session::options() const
     {
         Q_D(const Session);
         return d->options;
     }
 
-    void Session::setOptions(Session::Options options)
+    /*!
+        Sets the \a options.
+     */
+    void Session::setOptions(Options options)
     {
         Q_D(Session);
         d->options = options;
     }
 
+    /*!
+        Returns \c true if connected or \c false otherwise.
+     */
     bool Session::isConnected() const
     {
         Q_D(const Session);
@@ -605,7 +766,7 @@ namespace Irc
     }
 
     /*!
-        Connects CoreIrcSession signals to matching slots of the \a receiver.
+        Connects Irc::Session signals to matching slots of the \a receiver.
 
         Receiver slots must follow the following syntax:
         \code
@@ -638,6 +799,9 @@ namespace Irc
         }
     }
 
+    /*!
+        Connects to server with \a hostName and \a port.
+     */
     void Session::connectToServer(const QString& hostName, quint16 port)
     {
         Q_D(Session);
@@ -647,6 +811,9 @@ namespace Irc
         d->_q_reconnect();
     }
 
+    /*!
+        Connects to server with \a address and \a port.
+     */
     void Session::connectToServer(const QHostAddress& address, quint16 port)
     {
         Q_D(Session);
@@ -656,12 +823,18 @@ namespace Irc
         d->socket->connectToHost(address, port);
     }
 
+    /*!
+        Disconnects from the server.
+     */
     void Session::disconnectFromServer()
     {
         Q_D(Session);
         d->socket->disconnectFromHost();
     }
 
+    /*!
+        Sends a raw message to the server.
+     */
     bool Session::sendRaw(const QString& message)
     {
         Q_D(Session);
@@ -669,6 +842,9 @@ namespace Irc
         return bytes != -1;
     }
 
+    /*!
+        Joins \a channel with optional \a key.
+     */
     bool Session::cmdJoin(const QString& channel, const QString& key)
     {
         if (key.isNull())
@@ -677,21 +853,33 @@ namespace Irc
             return sendRaw(QString(QLatin1String("JOIN %1 %2")).arg(channel).arg(key));
     }
 
+    /*!
+        Parts \a channel.
+     */
     bool Session::cmdPart(const QString& channel)
     {
         return sendRaw(QString(QLatin1String("PART %1")).arg(channel));
     }
 
+    /*!
+        Quits with optional \a reason.
+     */
     bool Session::cmdQuit(const QString& reason)
     {
         return sendRaw(QString(QLatin1String("QUIT :%1")).arg(reason.isNull() ? "Quit" : reason));
     }
 
+    /*!
+        Requests the list of names on \a channel.
+     */
     bool Session::cmdNames(const QString& channel)
     {
         return sendRaw(QString(QLatin1String("NAMES %1")).arg(channel));
     }
 
+    /*!
+        Requests the list of channels.
+     */
     bool Session::cmdList(const QString& channel)
     {
         if (channel.isNull())
@@ -700,11 +888,17 @@ namespace Irc
             return sendRaw(QString(QLatin1String("LIST %1")).arg(channel));
     }
 
+    /*!
+        Sends a whois command on \a nick.
+     */
     bool Session::cmdWhois(const QString& nick)
     {
         return sendRaw(QString(QLatin1String("WHOIS %1 %2")).arg(nick).arg(nick));
     }
 
+    /*!
+        Sends a mode command on \a target.
+     */
     bool Session::cmdMode(const QString& target, const QString& mode)
     {
         if (mode.isNull())
@@ -713,6 +907,9 @@ namespace Irc
             return sendRaw(QString(QLatin1String("MODE %1 %2")).arg(target).arg(mode));
     }
 
+    /*!
+        Sends a topic command on \a channel.
+     */
     bool Session::cmdTopic(const QString& channel, const QString& topic)
     {
         if (topic.isNull())
@@ -721,11 +918,17 @@ namespace Irc
             return sendRaw(QString(QLatin1String("TOPIC %1 %2")).arg(channel).arg(topic));
     }
 
+    /*!
+        Sends an invitation to \a nick.
+     */
     bool Session::cmdInvite(const QString& nick, const QString& channel)
     {
         return sendRaw(QString(QLatin1String("INVITE %1 %2")).arg(nick).arg(channel));
     }
 
+    /*!
+        Kicks \a nick from \a channel with \a reason.
+     */
     bool Session::cmdKick(const QString& nick, const QString& channel, const QString& reason)
     {
         if (reason.isNull())
@@ -734,26 +937,41 @@ namespace Irc
             return sendRaw(QString(QLatin1String("KICK %1 %2 :%3")).arg(channel).arg(nick).arg(reason));
     }
 
+    /*!
+        Sends a \a message to \a receiver.
+     */
     bool Session::cmdMessage(const QString& receiver, const QString& message)
     {
         return sendRaw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver).arg(message));
     }
 
-    bool Session::cmdNotice(const QString& receiver, const QString& message)
+    /*!
+        Sends a \a notice to \a receiver.
+     */
+    bool Session::cmdNotice(const QString& receiver, const QString& notice)
     {
-        return sendRaw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver).arg(message));
+        return sendRaw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver).arg(notice));
     }
 
-    bool Session::cmdCtcpAction(const QString& receiver, const QString& message)
+    /*!
+        Sends a CTCP \a action to \a receiver.
+     */
+    bool Session::cmdCtcpAction(const QString& receiver, const QString& action)
     {
-        return sendRaw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver).arg(message));
+        return sendRaw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver).arg(action));
     }
 
+    /*!
+        Sends a CTCP \a request to \a receiver.
+     */
     bool Session::cmdCtcpRequest(const QString& nick, const QString& request)
     {
         return sendRaw(QString(QLatin1String("PRIVMSG %1 :\x01%2\x01")).arg(nick).arg(request));
     }
 
+    /*!
+        Sends a CTCP \a reply to \a receiver.
+     */
     bool Session::cmdCtcpReply(const QString& nick, const QString& reply)
     {
         return sendRaw(QString(QLatin1String("NOTICE %1 :\x01%2\x01")).arg(nick).arg(reply));
