@@ -162,13 +162,13 @@ static QByteArray detectEncoding(const QByteArray& text)
 #ifdef HAVE_ICU
     UErrorCode status = U_ZERO_ERROR;
     UCharsetDetector* detector = ucsdet_open(&status);
-    if (!U_FAILURE(status))
+    if (detector && !U_FAILURE(status))
     {
         ucsdet_setText(detector, text.constData(), text.length(), &status);
         if (!U_FAILURE(status))
         {
             const UCharsetMatch* match = ucsdet_detect(detector, &status);
-            if (!U_FAILURE(status))
+            if (match && !U_FAILURE(status))
                 encoding = ucsdet_getName(match, &status);
         }
     }
