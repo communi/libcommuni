@@ -32,6 +32,15 @@
     \brief Brief description.
 
     Detailed description.
+
+    \code
+    Irc::Session* session = new Irc::Session(this);
+    session->setNick(nick);
+    session->setIdent(ident);
+    session->setRealName(realName);
+    session->setPassword(password);
+    session->connectToServer(host, port);
+    \endcode
  */
 
 /*! \enum Irc::Session::Option
@@ -47,103 +56,103 @@
 /*!
     \fn void Irc::Session::connected()
 
-    This signal is emitted
+    This signal is emitted after a connection has been successfully established.
  */
 
 /*!
     \fn void Irc::Session::disconnected()
 
-    This signal is emitted
+    This signal is emitted when the session has been disconnected.
 */
 
 /*!
     \fn void Irc::Session::msgJoined(const QString& origin, const QString& channel)
 
-    This signal is emitted
+    This signal is emitted when \a origin has joined \a channel.
  */
 
 /*!
     \fn void Irc::Session::msgParted(const QString& origin, const QString& channel, const QString& message)
 
-    This signal is emitted
+    This signal is emitted when \a origin has parted \a channel with \a message.
  */
 
 /*!
     \fn void Irc::Session::msgQuit(const QString& origin, const QString& message)
 
-    This signal is emitted
+    This signal is emitted when \a origin has quit with \a message.
  */
 
 /*!
     \fn void Irc::Session::msgNickChanged(const QString& origin, const QString& nick)
 
-    This signal is emitted
+    This signal is emitted when \a origin has changed \a nick.
  */
 
 /*!
     \fn void Irc::Session::msgModeChanged(const QString& origin, const QString& receiver, const QString& mode, const QString& args)
 
-    This signal is emitted
+    This signal is emitted when \a origin has changed \a receiver's \a mode with \a args.
  */
 
 /*!
     \fn void Irc::Session::msgTopicChanged(const QString& origin, const QString& channel, const QString& topic)
 
-    This signal is emitted
+    This signal is emitted when \a origin has changed \a channel's \a topic.
  */
 
 /*!
     \fn void Irc::Session::msgInvited(const QString& origin, const QString& receiver, const QString& channel)
 
-    This signal is emitted
+    This signal is emitted when \a origin has invited \a receiver to \a channel.
  */
 
 /*!
     \fn void Irc::Session::msgKicked(const QString& origin, const QString& channel, const QString& nick, const QString& message)
 
-    This signal is emitted
+    This signal is emitted when \a origin has kicked \a nick from \a channel with \a message.
  */
 
 /*!
     \fn void Irc::Session::msgMessageReceived(const QString& origin, const QString& receiver, const QString& message)
 
-    This signal is emitted
+    This signal is emitted when \a origin has sent \a message to \a receiver.
  */
 
 /*!
     \fn void Irc::Session::msgNoticeReceived(const QString& origin, const QString& receiver, const QString& notice)
 
-    This signal is emitted
+    This signal is emitted when \a origin has sent \a notice to \a receiver.
  */
 
 /*!
     \fn void Irc::Session::msgCtcpRequestReceived(const QString& origin, const QString& request)
 
-    This signal is emitted
+    This signal is emitted when \a origin has sent a CTCP \a request.
  */
 
 /*!
     \fn void Irc::Session::msgCtcpReplyReceived(const QString& origin, const QString& reply)
 
-    This signal is emitted
+    This signal is emitted when \a origin has sent a CTCP \a reply.
  */
 
 /*!
     \fn void Irc::Session::msgCtcpActionReceived(const QString& origin, const QString& receiver, const QString& action)
 
-    This signal is emitted
+    This signal is emitted when \a origin has sent a CTCP \a action to \a receiver.
  */
 
 /*!
     \fn void Irc::Session::msgNumericMessageReceived(const QString& origin, uint code, const QStringList& params)
 
-    This signal is emitted
+    This signal is emitted when \a origin has sent a numeric message with \a code and \a params.
  */
 
 /*!
     \fn void Irc::Session::msgUnknownMessageReceived(const QString& origin, const QStringList& params)
 
-    This signal is emitted
+    This signal is emitted when \a origin has sent an unknown message with \a params.
  */
 
 static QByteArray detectEncoding(const QByteArray& text)
