@@ -199,9 +199,8 @@ namespace Irc
         void _q_state();
         void _q_readData();
 
-        void processLine(QByteArray line);
         QString readString(const QByteArray& data) const;
-        QStringList readStrings(const QList<QByteArray>& list) const;
+        void processLine(const QByteArray& line);
 
         Session* q_ptr;
 
@@ -329,25 +328,18 @@ namespace Irc
         QByteArray enc = encoding;
         if (enc.isNull())
             enc = detectEncoding(data);
-        QTextCodec *codec = QTextCodec::codecForName(encoding);
+        QTextCodec *codec = QTextCodec::codecForName(enc);
         if (!codec)
             codec = QTextCodec::codecForLocale();
         return codec->toUnicode(data);
     }
 
-    QStringList SessionPrivate::readStrings(const QList<QByteArray>& list) const
-    {
-        QStringList strings;
-        foreach (const QByteArray& data, list)
-            strings << readString(data);
-        return strings;
-    }
-
-    void SessionPrivate::processLine(QByteArray line)
+    void SessionPrivate::processLine(const QByteArray& line)
     {
         Q_Q(Session);
-        QByteArray prefix, command;
-        QList<QByteArray> params;
+        QString process = readString(line);
+        QString prefix, command;
+        QStringList params;
 
         // From RFC 1459:
         //  <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
@@ -361,16 +353,16 @@ namespace Irc
         //                   NUL or CR or LF>
 
         // parse <prefix>
-        if (line.startsWith(':'))
+        if (process.startsWith(QLatin1Char(':')))
         {
-            prefix = line.mid(1, line.indexOf(' ') - 1);
-            line.remove(0, prefix.length() + 2);
+            prefix = process.mid(1, process.indexOf(QLatin1Char(' ')) - 1);
+            process.remove(0, prefix.length() + 2);
 
             if (options & Session::StripNicks)
             {
                 for (int i = 0; i < prefix.size(); ++i)
                 {
-                    if (prefix.at(i) == '@' || prefix.at(i) == '!')
+                    if (prefix.at(i) == QLatin1Char('@') || prefix.at(i) == QLatin1Char('!'))
                     {
                         prefix.truncate(i);
                         break;
@@ -380,32 +372,32 @@ namespace Irc
         }
 
         // parse <command>
-        command = line.mid(0, line.indexOf(' '));
-        line.remove(0, command.length() + 1);
+        command = process.mid(0, process.indexOf(QLatin1Char(' ')));
+        process.remove(0, command.length() + 1);
         bool isNumeric = false;
         uint code = command.toInt(&isNumeric);
 
         // parse middle/params
-        while (!line.isEmpty())
+        while (!process.isEmpty())
         {
-            if (line.startsWith(':'))
+            if (process.startsWith(QLatin1Char(':')))
             {
-                line.remove(0, 1);
-                params << line;
-                line.clear();
+                process.remove(0, 1);
+                params << process;
+                process.clear();
             }
             else
             {
-                QByteArray param = line.mid(0, line.indexOf(' '));
-                line.remove(0, param.length() + 1);
+                QString param = process.mid(0, process.indexOf(QLatin1Char(' ')));
+                process.remove(0, param.length() + 1);
                 params << param;
             }
         }
 
         // handle PING/PONG
-        if (!qstrcmp(command, "PING"))
+        if (command == QLatin1String("PING"))
         {
-            QString arg = readString(params.value(0));
+            QString arg = params.value(0);
             q->sendRaw(QString(QLatin1String("PONG %1")).arg(arg));
             return;
         }
@@ -417,10 +409,7 @@ namespace Irc
                 QList<int>() << RPL_MOTDSTART << RPL_MOTD << RPL_ENDOFMOTD << ERR_NOMOTD;
 
             if (!motdReceived || (code >= 300 && !MOTD_LIST.contains(code)))
-            {
-                QStringList strings = readStrings(params);
-                emit q->msgNumericMessageReceived(prefix, code, strings);
-            }
+                emit q->msgNumericMessageReceived(prefix, code, params);
 
             // check whether it is the first RPL_ENDOFMOTD or ERR_NOMOTD after the connection
             if (!motdReceived && (code == RPL_ENDOFMOTD || code == ERR_NOMOTD))
@@ -428,59 +417,59 @@ namespace Irc
         }
         else
         {
-            if (!qstrcmp(command, "NICK"))
+            if (command == QLatin1String("NICK"))
             {
-                QString newNick = readString(params.value(0));
+                QString newNick = params.value(0);
                 if (nick == Util::nickFromTarget(prefix))
                     nick = newNick;
                 emit q->msgNickChanged(prefix, newNick);
             }
-            else if (!qstrcmp(command, "QUIT"))
+            else if (command == QLatin1String("QUIT"))
             {
-                QString reason = readString(params.value(0));
+                QString reason = params.value(0);
                 emit q->msgQuit(prefix, reason);
             }
-            else if (!qstrcmp(command, "JOIN"))
+            else if (command == QLatin1String("JOIN"))
             {
-                QString channel = readString(params.value(0));
+                QString channel = params.value(0);
                 emit q->msgJoined(prefix, channel);
             }
-            else if (!qstrcmp(command, "PART"))
+            else if (command == QLatin1String("PART"))
             {
-                QString channel = readString(params.value(0));
-                QString message = readString(params.value(1));
+                QString channel = params.value(0);
+                QString message = params.value(1);
                 emit q->msgParted(prefix, channel, message);
             }
-            else if (!qstrcmp(command, "MODE"))
+            else if (command == QLatin1String("MODE"))
             {
-                QString receiver = readString(params.value(0));
-                QString mode = readString(params.value(1));
-                QString args = readString(params.value(2));
+                QString receiver = params.value(0);
+                QString mode = params.value(1);
+                QString args = params.value(2);
                 emit q->msgModeChanged(prefix, receiver, mode, args);
             }
-            else if (!qstrcmp(command, "TOPIC"))
+            else if (command == QLatin1String("TOPIC"))
             {
-                QString channel = readString(params.value(0));
-                QString topic = readString(params.value(1));
+                QString channel = params.value(0);
+                QString topic = params.value(1);
                 emit q->msgTopicChanged(prefix, channel, topic);
             }
-            else if (!qstrcmp(command, "INVITE"))
+            else if (command == QLatin1String("INVITE"))
             {
-                QString receiver = readString(params.value(0));
-                QString channel = readString(params.value(1));
+                QString receiver = params.value(0);
+                QString channel = params.value(1);
                 emit q->msgInvited(prefix, receiver, channel);
             }
-            else if (!qstrcmp(command, "KICK"))
+            else if (command == QLatin1String("KICK"))
             {
-                QString channel = readString(params.value(0));
-                QString nick = readString(params.value(1));
-                QString message = readString(params.value(2));
+                QString channel = params.value(0);
+                QString nick = params.value(1);
+                QString message = params.value(2);
                 emit q->msgKicked(prefix, channel, nick, message);
             }
-            else if (!qstrcmp(command, "PRIVMSG"))
+            else if (command == QLatin1String("PRIVMSG"))
             {
-                QString receiver = readString(params.value(0));
-                QString message = readString(params.value(1));
+                QString receiver = params.value(0);
+                QString message = params.value(1);
 
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
@@ -498,10 +487,10 @@ namespace Irc
                     emit q->msgMessageReceived(prefix, receiver, message);
                 }
             }
-            else if (!qstrcmp(command, "NOTICE"))
+            else if (command == QLatin1String("NOTICE"))
             {
-                QString receiver = readString(params.value(0));
-                QString message = readString(params.value(1));
+                QString receiver = params.value(0);
+                QString message = params.value(1);
 
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
@@ -516,7 +505,7 @@ namespace Irc
                     emit q->msgNoticeReceived(prefix, receiver, message);
                 }
             }
-            else if (!qstrcmp(command, "KILL"))
+            else if (command == QLatin1String("KILL"))
             {
                 ; // ignore this event - not all servers generate this
             }
@@ -525,8 +514,7 @@ namespace Irc
                 // The "unknown" event is triggered upon receipt of any number of 
                 // unclassifiable miscellaneous messages, which aren't handled by 
                 // the library.
-                QStringList strings = readStrings(params);
-                emit q->msgUnknownMessageReceived(prefix, strings);
+                emit q->msgUnknownMessageReceived(prefix, params);
             }
         }
     }
