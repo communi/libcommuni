@@ -19,10 +19,11 @@ contains(DEFINES, HAVE_ICU) {
     LIBS += -l$$qtLibraryTarget(icuuc)
 }
 
+CONV_HEADERS += include/Irc include/IrcGlobal include/IrcSession include/IrcUtil
 HEADERS += irc.h ircglobal.h ircsession.h ircutil.h
 SOURCES += irc.cpp ircsession.cpp ircutil.cpp
 
-headers.files = $$HEADERS
+headers.files = $$HEADERS $$CONV_HEADERS
 headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
 INSTALLS += headers
 
