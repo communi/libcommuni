@@ -19,9 +19,7 @@
 
 /*!
     \class Irc::Util ircutil.h
-    \brief Brief description.
-
-    Detailed description.
+    \brief The Irc::Util class provides IRC related utility functions.
  */
 
 namespace Irc

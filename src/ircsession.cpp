@@ -29,28 +29,41 @@
 
 /*!
     \class Irc::Session ircsession.h
-    \brief Brief description.
+    \brief The Irc::Session class provides an IRC session.
 
-    Detailed description.
+    IRC (Internet Relay Chat protocol) is a simple communication protocol.
+    Irc::Session provides means to establish a connection to an IRC server.
+    Irc::Session works asynchronously. None of the functions block the 
+    calling thread but they return immediately and the actual work is done
+    behind the scenes in the event loop.
 
+    Example usage:
     \code
     Irc::Session* session = new Irc::Session(this);
-    session->setNick(nick);
-    session->setIdent(ident);
-    session->setRealName(realName);
-    session->setPassword(password);
-    session->connectToServer(host, port);
+    session->setNick("nick");
+    session->setIdent("username");
+    session->connectToServer("irc.freenode.net", 6667);
     \endcode
  */
 
 /*! \enum Irc::Session::Option
 
-    Foo
+    This enum describes special options that may be used by Irc::Session.
  */
 
 /*! \var Irc::Session::StripNicks
 
-    Bar
+    Strips origins automatically.
+
+    For every IRC server message, the origin is sent in standard form:
+    \code
+    nick!ident@host
+    \endcode
+    i.e. like \e jpnurmi!jaxr\@jolt.modeemi.fi. Such origins can not be used
+    in IRC commands but need to be stripped (i.e. ident and host part 
+    should be cut off) before using. This can be done either explicitly,
+    by calling Irc::Util::nickFromTarget(), or implicitly for all the 
+    messages - by setting this option with Irc::Session::setOption().
  */
 
 /*!

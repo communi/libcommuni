@@ -16,11 +16,32 @@
 
 #include "irc.h"
 
+/*! \mainpage LibIrcClient-Qt - a cross-platform C++ IRC library
+
+    \section Introduction
+
+    LibIrcClient-Qt is a cross-platform RC client library written with Qt 4.
+
+    \section Installation
+
+    To compile LibIrcClient-Qt, do the standard mantra:
+    \code
+    # qmake -config (debug|release)
+    # make
+    # sudo make install
+    \endcode
+
+    \section Usage
+
+    Add the following line to your qmake .pro file:
+    \code
+    CONFIG += libircclient-qt
+    \endcode
+ */
+
 /*!
     \namespace Irc
-    \brief Brief description.
-
-    Detailed description.
+    \brief The Irc namespace contains miscellaneous identifiers used throughout the LibIrcClient-Qt library.
  */
 
 /*!
@@ -41,9 +62,8 @@ const char* Irc::version()
 
 /*! 
     \enum Irc::RfcNumeric
-    \brief Brief description.
 
-    Detailed description.
+    This enum describes the numeric message codes defined in the RFC.
  */
 
 /*! 
