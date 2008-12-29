@@ -865,11 +865,14 @@ namespace Irc
     }
 
     /*!
-        Parts \a channel.
+        Parts \a channel with \a reason.
      */
-    bool Session::cmdPart(const QString& channel)
+    bool Session::cmdPart(const QString& channel, const QString& reason)
     {
-        return sendRaw(QString(QLatin1String("PART %1")).arg(channel));
+        if (reason.isNull())
+            return sendRaw(QString(QLatin1String("PART %1")).arg(channel));
+        else
+            return sendRaw(QString(QLatin1String("PART %1 %2")).arg(channel).arg(reason));
     }
 
     /*!

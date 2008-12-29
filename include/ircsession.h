@@ -91,7 +91,7 @@ namespace Irc
 
         bool sendRaw(const QString& message);
         bool cmdJoin(const QString& channel, const QString& key = QString());
-        bool cmdPart(const QString& channel);
+        bool cmdPart(const QString& channel, const QString& reason = QString());
         bool cmdQuit(const QString& reason = QString());
         bool cmdNames(const QString& channel);
         bool cmdList(const QString& channel = QString());
