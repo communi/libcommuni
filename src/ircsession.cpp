@@ -784,7 +784,7 @@ namespace Irc
         void on_<signal name>(<signal parameters>);
         \endcode
     */
-    void Session::connectSlotsByName(QObject* receiver)
+    void Session::connectSlotsByName(const QObject* receiver)
     {
         if (!receiver)
             return;

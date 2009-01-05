@@ -78,7 +78,7 @@ namespace Irc
         Options options() const;
         void setOptions(Options options);
 
-        void connectSlotsByName(QObject* receiver);
+        void connectSlotsByName(const QObject* receiver);
 
         bool isConnected() const;
 
