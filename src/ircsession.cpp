@@ -872,7 +872,7 @@ namespace Irc
         if (reason.isNull())
             return sendRaw(QString(QLatin1String("PART %1")).arg(channel));
         else
-            return sendRaw(QString(QLatin1String("PART %1 %2")).arg(channel).arg(reason));
+            return sendRaw(QString(QLatin1String("PART %1 :%2")).arg(channel).arg(reason));
     }
 
     /*!
@@ -929,7 +929,7 @@ namespace Irc
         if (topic.isNull())
             return sendRaw(QString(QLatin1String("TOPIC %1")).arg(channel));
         else
-            return sendRaw(QString(QLatin1String("TOPIC %1 %2")).arg(channel).arg(topic));
+            return sendRaw(QString(QLatin1String("TOPIC %1 :%2")).arg(channel).arg(topic));
     }
 
     /*!
