@@ -3,12 +3,16 @@
 ######################################################################
 
 TEMPLATE = lib
-DESTDIR = lib
 TARGET = $$qtLibraryTarget(ircclient-qt)
-DEPENDPATH += include src
-INCLUDEPATH += include
 DEFINES += BUILD_IRC
 QT = core network
+CONFIG += silent
+
+DESTDIR = lib
+DEPENDPATH += include src
+INCLUDEPATH += include
+OBJECTS_DIR = .tmp
+MOC_DIR = .tmp
 
 DEFINES += HAVE_ICU
 contains(DEFINES, HAVE_ICU) {
