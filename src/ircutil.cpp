@@ -15,6 +15,7 @@
 */
 
 #include "ircutil.h"
+#include <QString>
 
 /*!
     \class Irc::Util ircutil.h
