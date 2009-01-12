@@ -239,10 +239,10 @@ namespace Irc
         buffer(),
         socket(0),
         options(0),
-        ident(),
+        ident("libircclient-qt"),
         password(),
         nick(),
-        realName(),
+        realName("libircclient-qt"),
         host(),
         port(6667),
         motdReceived(false),
@@ -283,6 +283,10 @@ namespace Irc
         socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(ident).arg(realName).toLocal8Bit());
 
         emit q->connected();
+
+        // join auto-join channels
+        foreach (const QString& channel, channels)
+            q->cmdJoin(channel);
     }
 
     void SessionPrivate::_q_disconnected()
