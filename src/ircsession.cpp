@@ -322,7 +322,6 @@ namespace Irc
 
     void SessionPrivate::_q_state()
     {
-        qDebug("STATE %i", socket->state());
     }
 
     void SessionPrivate::_q_readData()
