@@ -40,8 +40,9 @@
     Example usage:
     \code
     Irc::Session* session = new Irc::Session(this);
-    session->setNick("nick");
-    session->setIdent("username");
+    session->setNick("jpnurmi");
+    session->setIdent("jpn");
+    session->setRealName("J-P Nurmi");
     session->connectToServer("irc.freenode.net", 6667);
     \endcode
  */
