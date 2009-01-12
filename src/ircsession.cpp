@@ -33,7 +33,7 @@
 
     IRC (Internet Relay Chat protocol) is a simple communication protocol.
     Irc::Session provides means to establish a connection to an IRC server.
-    Irc::Session works asynchronously. None of the functions block the 
+    Irc::Session works asynchronously. None of the functions block the
     calling thread but they return immediately and the actual work is done
     behind the scenes in the event loop.
 
@@ -60,9 +60,9 @@
     nick!ident@host
     \endcode
     i.e. like \e jpnurmi!jaxr\@jolt.modeemi.fi. Such origins can not be used
-    in IRC commands but need to be stripped (i.e. ident and host part 
+    in IRC commands but need to be stripped (i.e. ident and host part
     should be cut off) before using. This can be done either explicitly,
-    by calling Irc::Util::nickFromTarget(), or implicitly for all the 
+    by calling Irc::Util::nickFromTarget(), or implicitly for all the
     messages - by setting this option with Irc::Session::setOption().
  */
 
@@ -272,15 +272,15 @@ namespace Irc
             timer.stop();
 
         if (!password.isEmpty())
-            socket->write(QString("PASS %1\r\n").arg(password).toLocal8Bit());
+            socket->write(QString(QLatin1String("PASS %1\r\n")).arg(password).toLocal8Bit());
 
-        socket->write(QString("NICK %1\r\n").arg(nick).toLocal8Bit());
+        socket->write(QString(QLatin1String("NICK %1\r\n")).arg(nick).toLocal8Bit());
 
-		// RFC 1459 states that "hostname and servername are normally 
-        // ignored by the IRC server when the USER command comes from 
-        // a directly connected client (for security reasons)", therefore 
+		// RFC 1459 states that "hostname and servername are normally
+        // ignored by the IRC server when the USER command comes from
+        // a directly connected client (for security reasons)", therefore
         // we don't need them.
-        socket->write(QString("USER %1 unknown unknown :%2\r\n").arg(ident).arg(realName).toLocal8Bit());
+        socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(ident).arg(realName).toLocal8Bit());
 
         emit q->connected();
     }
@@ -417,7 +417,7 @@ namespace Irc
         // and dump
         if (isNumeric)
         {
-            static const QList<int> MOTD_LIST = 
+            static const QList<int> MOTD_LIST =
                 QList<int>() << RPL_MOTDSTART << RPL_MOTD << RPL_ENDOFMOTD << ERR_NOMOTD;
 
             if (!motdReceived || (code >= 300 && !MOTD_LIST.contains(code)))
@@ -523,8 +523,8 @@ namespace Irc
             }
             else
             {
-                // The "unknown" event is triggered upon receipt of any number of 
-                // unclassifiable miscellaneous messages, which aren't handled by 
+                // The "unknown" event is triggered upon receipt of any number of
+                // unclassifiable miscellaneous messages, which aren't handled by
                 // the library.
                 emit q->msgUnknownMessageReceived(prefix, params);
             }
@@ -879,7 +879,7 @@ namespace Irc
      */
     bool Session::cmdQuit(const QString& reason)
     {
-        return sendRaw(QString(QLatin1String("QUIT :%1")).arg(reason.isNull() ? "Quit" : reason));
+        return sendRaw(QString(QLatin1String("QUIT :%1")).arg(reason.isNull() ? QLatin1String("Quit") : reason));
     }
 
     /*!
