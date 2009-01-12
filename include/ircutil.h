@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008 J-P Nurmi jpnurmi@gmail.com
+* Copyright (C) 2008-2009 J-P Nurmi jpnurmi@gmail.com
 *
 * This library is free software; you can redistribute it and/or modify it
 * under the terms of the GNU Lesser General Public License as published by
@@ -26,11 +26,6 @@ namespace Irc
     public:
         static QString nickFromTarget(const QString& target);
         static QString hostFromTarget(const QString& target);
-
-        //static QString colorStripFromMirc(const QString& message);
-        //static QString colorConvertFromMirc(const QString& message);
-        //static QString colorConvertToMirc(const QString& message);
-        //static QString colorConvertToHtml(const QString& message);
     };
 }
 
