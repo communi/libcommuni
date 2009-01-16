@@ -82,6 +82,9 @@ namespace Irc
 
         bool isConnected() const;
 
+        QAbstractSocket* socket() const;
+        void setSocket(QAbstractSocket* socket);
+
     public slots:
         void setNick(const QString& nick);
 

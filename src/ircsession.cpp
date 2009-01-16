@@ -219,7 +219,7 @@ namespace Irc
         Session* q_ptr;
 
         QBuffer buffer;
-        QTcpSocket* socket;
+        QAbstractSocket* socket;
         Session::Options options;
 
         QString ident;
@@ -258,9 +258,9 @@ namespace Irc
     {
         q_ptr = session;
 
-        buffer.open(QIODevice::ReadWrite);
-
         Q_Q(Session);
+        q->setSocket(new QTcpSocket(q));
+        buffer.open(QIODevice::ReadWrite);
         q->connect(&timer, SIGNAL(timeout()), q, SLOT(_q_reconnect()));
     }
 
@@ -298,18 +298,8 @@ namespace Irc
 
     void SessionPrivate::_q_reconnect()
     {
-        Q_Q(Session);
-
         if (socket)
-            socket->deleteLater();
-
-        socket = new QTcpSocket(q);
-        q->connect(socket, SIGNAL(connected()), q, SLOT(_q_connected()));
-        q->connect(socket, SIGNAL(connected()), q, SLOT(_q_disconnected()));
-        q->connect(socket, SIGNAL(readyRead()), q, SLOT(_q_readData()));
-        q->connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(_q_error()));
-        q->connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), q, SLOT(_q_state()));
-        socket->connectToHost(host, port);
+            socket->connectToHost(host, port);
 
         // stop autoreconnecting...
         if (timer.isActive())
@@ -778,6 +768,43 @@ namespace Irc
         return d->socket &&
             (d->socket->state() == QAbstractSocket::ConnectingState
             || d->socket->state() == QAbstractSocket::ConnectedState);
+    }
+
+    /*!
+        Returns \c true if connected or \c false otherwise.
+     */
+    QAbstractSocket* Session::socket() const
+    {
+        Q_D(const Session);
+        return d->socket;
+    }
+
+    /*!
+        Sets the \a socket. Previous socket is deleted
+        if its parent is \c this.
+     */
+    void Session::setSocket(QAbstractSocket* socket)
+    {
+        Q_D(Session);
+        if (d->socket != socket)
+        {
+            if (d->socket)
+            {
+                d->socket->disconnect(this);
+                if (d->socket->parent() == this)
+                    d->socket->deleteLater();
+            }
+
+            d->socket = socket;
+            if (socket)
+            {
+                connect(socket, SIGNAL(connected()), SLOT(_q_connected()));
+                connect(socket, SIGNAL(connected()), SLOT(_q_disconnected()));
+                connect(socket, SIGNAL(readyRead()), SLOT(_q_readData()));
+                connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(_q_error()));
+                connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(_q_state()));
+            }
+        }
     }
 
     /*!
