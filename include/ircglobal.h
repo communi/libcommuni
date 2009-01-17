@@ -37,20 +37,15 @@
 
     You can use IRC_VERSION to use the latest LibIrcClient-Qt features where available. For example:
     \code
-#if IRC_VERSION >= 0x000200
-    session->setNick(nick);
-    session->setIdent(ident);
-    session->setRealName(realName);
-    session->setPassword(password);
+#if IRC_VERSION >= 0x000300
+    session->setSocket(new QSslSocket(session));
     session->connectToServer(host, port);
-#else
-    session->connectToServer(host, port, nick, ident, realName, password);
 #endif
     \endcode
     
     \sa IRC_VERSION_STR and Irc::version().
  */
-#define IRC_VERSION 0x000200
+#define IRC_VERSION 0x000300
 
 /*!
     \def IRC_VERSION_STR
@@ -60,6 +55,6 @@
 
     \sa Irc::version() and IRC_VERSION.
  */
-#define IRC_VERSION_STR "0.2.0"
+#define IRC_VERSION_STR "0.3.0"
 
 #endif // IRC_GLOBAL_H
