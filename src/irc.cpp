@@ -20,7 +20,7 @@
 
     \section Introduction
 
-    LibIrcClient-Qt is a cross-platform RC client library written with Qt 4.
+    LibIrcClient-Qt is a cross-platform IRC client library written with Qt 4.
 
     \section Installation
 
