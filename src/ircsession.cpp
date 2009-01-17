@@ -18,6 +18,7 @@
 #include "ircutil.h"
 #include <QTimer>
 #include <QBuffer>
+#include <QPointer>
 #include <QTcpSocket>
 #include <QTextCodec>
 #include <QStringList>
@@ -45,6 +46,10 @@
     session->setRealName("J-P Nurmi");
     session->connectToServer("irc.freenode.net", 6667);
     \endcode
+
+    \note Irc::Session supports SSL (Secure Sockets Layer) connections since version 0.3.0 
+
+    \sa setSocket()
  */
 
 /*! \enum Irc::Session::Option
@@ -219,8 +224,8 @@ namespace Irc
         Session* q_ptr;
 
         QBuffer buffer;
-        QAbstractSocket* socket;
         Session::Options options;
+        QPointer<QAbstractSocket> socket;
 
         QString ident;
         QString password;
@@ -238,8 +243,8 @@ namespace Irc
     SessionPrivate::SessionPrivate() :
         q_ptr(0),
         buffer(),
-        socket(0),
         options(0),
+        socket(0),
         ident("libircclient-qt"),
         password(),
         nick(),
@@ -299,7 +304,11 @@ namespace Irc
     void SessionPrivate::_q_reconnect()
     {
         if (socket)
+        {
             socket->connectToHost(host, port);
+            if (socket->inherits("QSslSocket"))
+                QMetaObject::invokeMethod(socket, "startClientEncryption");
+        }
 
         // stop autoreconnecting...
         if (timer.isActive())
@@ -308,8 +317,6 @@ namespace Irc
 
     void SessionPrivate::_q_error()
     {
-        qDebug("ERROR %i", socket->error());
-
         // start reconnecting...
         if (delay >= 0)
             timer.start(delay * 1000);
@@ -541,7 +548,8 @@ namespace Irc
     Session::~Session()
     {
         Q_D(Session);
-        d->socket->close();
+        if (d->socket)
+            d->socket->close();
         delete d;
     }
 
@@ -771,7 +779,9 @@ namespace Irc
     }
 
     /*!
-        Returns \c true if connected or \c false otherwise.
+        Returns the socket.
+
+        Irc::Session creates an instance of QTcpSocket by default.
      */
     QAbstractSocket* Session::socket() const
     {
@@ -780,8 +790,12 @@ namespace Irc
     }
 
     /*!
-        Sets the \a socket. Previous socket is deleted
-        if its parent is \c this.
+        Sets the \a socket. The previously set socket is deleted if its parent is \c this.
+
+        Irc::Session supports QSslSocket in the way that it automatically calls
+        QSslSocket::startClientEncryption() while connecting.
+
+        This function was introduced in version 0.3.0.
      */
     void Session::setSocket(QAbstractSocket* socket)
     {
@@ -798,11 +812,11 @@ namespace Irc
             d->socket = socket;
             if (socket)
             {
-                connect(socket, SIGNAL(connected()), SLOT(_q_connected()));
-                connect(socket, SIGNAL(connected()), SLOT(_q_disconnected()));
-                connect(socket, SIGNAL(readyRead()), SLOT(_q_readData()));
-                connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(_q_error()));
-                connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(_q_state()));
+                connect(socket, SIGNAL(connected()), this, SLOT(_q_connected()));
+                connect(socket, SIGNAL(connected()), this, SLOT(_q_disconnected()));
+                connect(socket, SIGNAL(readyRead()), this, SLOT(_q_readData()));
+                connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_error()));
+                connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_q_state()));
             }
         }
     }
@@ -862,7 +876,7 @@ namespace Irc
         d->motdReceived = false;
         d->host = address.toString();
         d->port = port;
-        d->socket->connectToHost(address, port);
+        d->_q_reconnect();
     }
 
     /*!
@@ -871,7 +885,8 @@ namespace Irc
     void Session::disconnectFromServer()
     {
         Q_D(Session);
-        d->socket->disconnectFromHost();
+        if (d->socket)
+            d->socket->disconnectFromHost();
     }
 
     /*!
@@ -880,7 +895,9 @@ namespace Irc
     bool Session::sendRaw(const QString& message)
     {
         Q_D(Session);
-        qint64 bytes = d->socket->write(message.toUtf8() + QByteArray("\r\n"));
+        qint64 bytes = -1;
+        if (d->socket)
+            d->socket->write(message.toUtf8() + QByteArray("\r\n"));
         return bytes != -1;
     }
 
