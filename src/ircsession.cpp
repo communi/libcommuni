@@ -906,7 +906,7 @@ namespace Irc
      */
     bool Session::cmdJoin(const QString& channel, const QString& key)
     {
-        if (key.isNull())
+        if (key.isEmpty())
             return sendRaw(QString(QLatin1String("JOIN %1")).arg(channel));
         else
             return sendRaw(QString(QLatin1String("JOIN %1 %2")).arg(channel).arg(key));
@@ -917,7 +917,7 @@ namespace Irc
      */
     bool Session::cmdPart(const QString& channel, const QString& reason)
     {
-        if (reason.isNull())
+        if (reason.isEmpty())
             return sendRaw(QString(QLatin1String("PART %1")).arg(channel));
         else
             return sendRaw(QString(QLatin1String("PART %1 :%2")).arg(channel).arg(reason));
@@ -928,7 +928,7 @@ namespace Irc
      */
     bool Session::cmdQuit(const QString& reason)
     {
-        return sendRaw(QString(QLatin1String("QUIT :%1")).arg(reason.isNull() ? QLatin1String("Quit") : reason));
+        return sendRaw(QString(QLatin1String("QUIT :%1")).arg(reason.isEmpty() ? QLatin1String("Quit") : reason));
     }
 
     /*!
@@ -944,7 +944,7 @@ namespace Irc
      */
     bool Session::cmdList(const QString& channel)
     {
-        if (channel.isNull())
+        if (channel.isEmpty())
             return sendRaw(QString(QLatin1String("LIST")));
         else
             return sendRaw(QString(QLatin1String("LIST %1")).arg(channel));
@@ -963,7 +963,7 @@ namespace Irc
      */
     bool Session::cmdMode(const QString& target, const QString& mode)
     {
-        if (mode.isNull())
+        if (mode.isEmpty())
             return sendRaw(QString(QLatin1String("MODE %1")).arg(target));
         else
             return sendRaw(QString(QLatin1String("MODE %1 %2")).arg(target).arg(mode));
@@ -974,7 +974,7 @@ namespace Irc
      */
     bool Session::cmdTopic(const QString& channel, const QString& topic)
     {
-        if (topic.isNull())
+        if (topic.isEmpty())
             return sendRaw(QString(QLatin1String("TOPIC %1")).arg(channel));
         else
             return sendRaw(QString(QLatin1String("TOPIC %1 :%2")).arg(channel).arg(topic));
@@ -993,7 +993,7 @@ namespace Irc
      */
     bool Session::cmdKick(const QString& nick, const QString& channel, const QString& reason)
     {
-        if (reason.isNull())
+        if (reason.isEmpty())
             return sendRaw(QString(QLatin1String("KICK %1 %2")).arg(channel).arg(nick));
         else
             return sendRaw(QString(QLatin1String("KICK %1 %2 :%3")).arg(channel).arg(nick).arg(reason));
