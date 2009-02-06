@@ -289,10 +289,6 @@ namespace Irc
         socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(ident).arg(realName).toLocal8Bit());
 
         emit q->connected();
-
-        // join auto-join channels
-        foreach (const QString& channel, channels)
-            q->cmdJoin(channel);
     }
 
     void SessionPrivate::_q_disconnected()
@@ -428,6 +424,13 @@ namespace Irc
             // check whether it is the first RPL_ENDOFMOTD or ERR_NOMOTD after the connection
             if (!motdReceived && (code == RPL_ENDOFMOTD || code == ERR_NOMOTD))
                 motdReceived = true;
+
+            // join auto-join channels after MOTD
+            if (code == RPL_ENDOFMOTD || code == ERR_NOMOTD)
+            {
+                foreach (const QString& channel, channels)
+                    q->cmdJoin(channel);
+            }
         }
         else
         {
@@ -569,9 +572,7 @@ namespace Irc
     {
         Q_D(Session);
         if (!d->channels.contains(channel, Qt::CaseInsensitive))
-        {
             d->channels.append(channel);
-        }
     }
 
     /*!
