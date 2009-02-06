@@ -1,6 +1,11 @@
 0.3.0
 -----
 - Added SSL support
+- Quality & compatibility
+  - no_keywords
+  - QT_NO_CAST_FROM_ASCII
+  - QT_NO_CAST_TO_ASCII
+- Bug fixes & code improvements
 
 0.2.0
 -----

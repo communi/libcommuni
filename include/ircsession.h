@@ -85,7 +85,7 @@ namespace Irc
         QAbstractSocket* socket() const;
         void setSocket(QAbstractSocket* socket);
 
-    public slots:
+    public Q_SLOTS:
         void setNick(const QString& nick);
 
         void connectToServer(const QString& hostName, quint16 port = 6667);
@@ -109,7 +109,7 @@ namespace Irc
         bool cmdCtcpRequest(const QString& nick, const QString& request);
         bool cmdCtcpReply(const QString& nick, const QString& reply);
 
-    signals:
+    Q_SIGNALS:
         void connected();
         void disconnected();
         
