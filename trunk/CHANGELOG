@@ -1,0 +1,15 @@
+0.3.0
+-----
+- Added SSL support
+
+0.2.0
+-----
+- The first fully Qt-based version
+
+0.1.1
+-----
+- Added support for optional encoding detection with ICU
+
+0.1.0
+-----
+- The first internal release
