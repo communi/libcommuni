@@ -7,6 +7,7 @@ TARGET = $$qtLibraryTarget(ircclient-qt)
 DEFINES += BUILD_IRC
 QT = core network
 CONFIG += silent
+DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 
 DESTDIR = lib
 DEPENDPATH += include src
