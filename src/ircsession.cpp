@@ -49,6 +49,17 @@
 
     \note Irc::Session supports SSL (Secure Sockets Layer) connections since version 0.3.0 
 
+    Example SSL usage:
+    \code
+    Irc::Session* session = new Irc::Session(this);
+    // ...
+    QSslSocket* socket = new QSslSocket(session);
+    socket->ignoreSslErrors();
+    socket->setPeerVerifyMode(QSslSocket::VerifyNone);
+    session->setSocket(socket);
+    session->connectToServer("irc.secure.ssl", 6669);
+    \endcode
+
     \sa setSocket()
  */
 
@@ -783,6 +794,8 @@ namespace Irc
         Returns the socket.
 
         Irc::Session creates an instance of QTcpSocket by default.
+
+        This function was introduced in version 0.3.0.
      */
     QAbstractSocket* Session::socket() const
     {
