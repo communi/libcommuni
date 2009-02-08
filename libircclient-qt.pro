@@ -24,9 +24,9 @@ contains(DEFINES, HAVE_ICU) {
     LIBS += -l$$qtLibraryTarget(icuuc)
 }
 
-CONV_HEADERS += include/Irc include/IrcGlobal include/IrcSession include/IrcUtil
-HEADERS += irc.h ircglobal.h ircsession.h ircutil.h
-SOURCES += irc.cpp ircsession.cpp ircutil.cpp
+CONV_HEADERS += include/Irc include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
+HEADERS += irc.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
+SOURCES += irc.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
 
 mkspecs.files = libircclient-qt.prf
 mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
