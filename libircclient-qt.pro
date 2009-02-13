@@ -3,7 +3,6 @@
 ######################################################################
 
 TEMPLATE = lib
-TARGET = $$qtLibraryTarget(ircclient-qt)
 DEFINES += BUILD_IRC
 QT = core network
 CONFIG += silent
@@ -23,10 +22,19 @@ contains(DEFINES, HAVE_ICU) {
     unix:LIBS += -licui18n -licudata
     LIBS += -l$$qtLibraryTarget(icuuc)
 }
+TARGET = $$qtLibraryTarget(ircclient-qt)
 
 CONV_HEADERS += include/Irc include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
 HEADERS += irc.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
 SOURCES += irc.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
+
+mac {
+    CONFIG += lib_bundle
+    FRAMEWORK_HEADERS.version = Versions
+    FRAMEWORK_HEADERS.files = $$HEADERS
+    FRAMEWORK_HEADERS.path = Headers
+    QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+}
 
 mkspecs.files = libircclient-qt.prf
 mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
