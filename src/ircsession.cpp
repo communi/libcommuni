@@ -827,7 +827,7 @@ namespace Irc
             if (socket)
             {
                 connect(socket, SIGNAL(connected()), this, SLOT(_q_connected()));
-                connect(socket, SIGNAL(connected()), this, SLOT(_q_disconnected()));
+                connect(socket, SIGNAL(disconnected()), this, SLOT(_q_disconnected()));
                 connect(socket, SIGNAL(readyRead()), this, SLOT(_q_readData()));
                 connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_error()));
                 connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_q_state()));
