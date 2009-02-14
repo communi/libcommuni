@@ -3,12 +3,13 @@
 ######################################################################
 
 contains(CONFIG, coverage) {
+    CONFIG -= silent
     OBJECTS_DIR =
     MOC_DIR =
 
     QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
     QMAKE_LIBS += -lgcov
-    QMAKE_CLEAN += *.gcno
+    QMAKE_CLEAN += *.gcno *.gcda
 
     zerocounters.commands = @lcov --directory \$(OBJECTS_DIR) --zerocounters
     QMAKE_EXTRA_UNIX_TARGETS *= zerocounters
