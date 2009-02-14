@@ -49,3 +49,5 @@ INSTALLS += target
 
 dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
+
+include(coverage.pri)

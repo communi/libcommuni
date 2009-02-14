@@ -6,7 +6,7 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += .
-CONFIG += qtestlib libircclient-qt
+include(../test.pri)
 
 # Input
 SOURCES += tst_ircsession.cpp
