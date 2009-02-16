@@ -1018,6 +1018,8 @@ namespace Irc
      */
     bool Session::cmdMessage(const QString& receiver, const QString& message)
     {
+        Q_D(Session);
+        emit msgMessageReceived(d->nick, receiver, message);
         return sendRaw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver).arg(message));
     }
 
