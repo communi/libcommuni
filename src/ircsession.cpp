@@ -1028,6 +1028,8 @@ namespace Irc
      */
     bool Session::cmdNotice(const QString& receiver, const QString& notice)
     {
+        Q_D(Session);
+        emit msgNoticeReceived(d->nick, receiver, notice);
         return sendRaw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver).arg(notice));
     }
 
@@ -1036,6 +1038,8 @@ namespace Irc
      */
     bool Session::cmdCtcpAction(const QString& receiver, const QString& action)
     {
+        Q_D(Session);
+        emit msgCtcpActionReceived(d->nick, receiver, action);
         return sendRaw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver).arg(action));
     }
 
