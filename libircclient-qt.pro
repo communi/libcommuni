@@ -19,7 +19,7 @@ CONV_HEADERS += include/Irc include/IrcDccSession include/IrcGlobal include/IrcS
 HEADERS += irc.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
 SOURCES += irc.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
 
-mac {
+macx {
     CONFIG += lib_bundle
     FRAMEWORK_HEADERS.version = Versions
     FRAMEWORK_HEADERS.files = $$HEADERS
