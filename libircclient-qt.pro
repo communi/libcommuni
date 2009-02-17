@@ -15,10 +15,6 @@ INCLUDEPATH += include
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp
 
-CONV_HEADERS += include/Irc include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
-HEADERS += irc.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
-SOURCES += irc.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
-
 macx {
     CONFIG += lib_bundle
     FRAMEWORK_HEADERS.version = Versions
@@ -26,6 +22,10 @@ macx {
     FRAMEWORK_HEADERS.path = Headers
     QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
 }
+
+CONV_HEADERS += include/Irc include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
+HEADERS += irc.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
+SOURCES += irc.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
 
 mkspecs.files = libircclient-qt.prf
 mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
