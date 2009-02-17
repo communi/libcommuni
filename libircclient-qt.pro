@@ -3,6 +3,7 @@
 ######################################################################
 
 TEMPLATE = lib
+TARGET = $$qtLibraryTarget(ircclient-qt)
 DEFINES += BUILD_IRC
 QT = core network
 CONFIG += silent
@@ -13,16 +14,6 @@ DEPENDPATH += include src
 INCLUDEPATH += include
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp
-
-DEFINES += HAVE_ICU
-contains(DEFINES, HAVE_ICU) {
-    win32:INCLUDEPATH += C:\ICU\include
-    win32:LIBS += -LC:\ICU\lib
-    win32:LIBS += -l$$qtLibraryTarget(icuin)
-    unix:LIBS += -licui18n -licudata
-    LIBS += -l$$qtLibraryTarget(icuuc)
-}
-TARGET = $$qtLibraryTarget(ircclient-qt)
 
 CONV_HEADERS += include/Irc include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
 HEADERS += irc.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
@@ -50,4 +41,5 @@ INSTALLS += target
 dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
 
+include(icu.pri)
 include(coverage.pri)
