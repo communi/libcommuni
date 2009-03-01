@@ -16,6 +16,7 @@
 
 #include "ircsession.h"
 #include "ircutil.h"
+#include <QSet>
 #include <QTimer>
 #include <QBuffer>
 #include <QPointer>
@@ -850,6 +851,7 @@ namespace Irc
         const QMetaObject *thisMo = metaObject();
         const QMetaObject *thatMo = receiver->metaObject();
         Q_ASSERT(thisMo && thatMo);
+        QSet<QByteArray> connectedSlots;
         for (int j = 0; j < thatMo->methodCount(); ++j) {
             QMetaMethod slot = thatMo->method(j);
             const char* slotSignature = slot.signature();
@@ -863,7 +865,12 @@ namespace Irc
                     Q_ASSERT(signalSignature);
                     if (qstrcmp(slotSignature + 3, signalSignature))
                         continue;
-                    QMetaObject::connect(this, i, receiver, j);
+                    QByteArray slotName = QByteArray::fromRawData(slotSignature, qstrlen(slotSignature));
+                    if (!connectedSlots.contains(slotName)) {
+                        // prevent double connection to overridden slots
+                        connectedSlots.insert(slotName);
+                        QMetaObject::connect(this, i, receiver, j);
+                    }
                 }
             }
         }
