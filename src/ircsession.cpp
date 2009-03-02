@@ -16,6 +16,7 @@
 
 #include "ircsession.h"
 #include "ircutil.h"
+#include <QSet>
 #include <QTimer>
 #include <QBuffer>
 #include <QPointer>
@@ -827,7 +828,7 @@ namespace Irc
             if (socket)
             {
                 connect(socket, SIGNAL(connected()), this, SLOT(_q_connected()));
-                connect(socket, SIGNAL(connected()), this, SLOT(_q_disconnected()));
+                connect(socket, SIGNAL(disconnected()), this, SLOT(_q_disconnected()));
                 connect(socket, SIGNAL(readyRead()), this, SLOT(_q_readData()));
                 connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_error()));
                 connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_q_state()));
@@ -850,6 +851,7 @@ namespace Irc
         const QMetaObject *thisMo = metaObject();
         const QMetaObject *thatMo = receiver->metaObject();
         Q_ASSERT(thisMo && thatMo);
+        QSet<QByteArray> connectedSlots;
         for (int j = 0; j < thatMo->methodCount(); ++j) {
             QMetaMethod slot = thatMo->method(j);
             const char* slotSignature = slot.signature();
@@ -863,7 +865,12 @@ namespace Irc
                     Q_ASSERT(signalSignature);
                     if (qstrcmp(slotSignature + 3, signalSignature))
                         continue;
-                    QMetaObject::connect(this, i, receiver, j);
+                    QByteArray slotName = QByteArray::fromRawData(slotSignature, qstrlen(slotSignature));
+                    if (!connectedSlots.contains(slotName)) {
+                        // prevent double connection to overridden slots
+                        connectedSlots.insert(slotName);
+                        QMetaObject::connect(this, i, receiver, j);
+                    }
                 }
             }
         }
@@ -1018,6 +1025,8 @@ namespace Irc
      */
     bool Session::cmdMessage(const QString& receiver, const QString& message)
     {
+        Q_D(Session);
+        emit msgMessageReceived(d->nick, receiver, message);
         return sendRaw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver).arg(message));
     }
 
@@ -1026,6 +1035,8 @@ namespace Irc
      */
     bool Session::cmdNotice(const QString& receiver, const QString& notice)
     {
+        Q_D(Session);
+        emit msgNoticeReceived(d->nick, receiver, notice);
         return sendRaw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver).arg(notice));
     }
 
@@ -1034,6 +1045,8 @@ namespace Irc
      */
     bool Session::cmdCtcpAction(const QString& receiver, const QString& action)
     {
+        Q_D(Session);
+        emit msgCtcpActionReceived(d->nick, receiver, action);
         return sendRaw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver).arg(action));
     }
 

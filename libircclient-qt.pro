@@ -15,13 +15,12 @@ INCLUDEPATH += include
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp
 
-DEFINES += HAVE_ICU
-contains(DEFINES, HAVE_ICU) {
-    win32:INCLUDEPATH += C:\ICU\include
-    win32:LIBS += -LC:\ICU\lib
-    win32:LIBS += -l$$qtLibraryTarget(icuin)
-    unix:LIBS += -licui18n
-    LIBS += -l$$qtLibraryTarget(icuuc)
+macx {
+    CONFIG += lib_bundle
+    FRAMEWORK_HEADERS.version = Versions
+    FRAMEWORK_HEADERS.files = $$HEADERS
+    FRAMEWORK_HEADERS.path = Headers
+    QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
 }
 
 CONV_HEADERS += include/Irc include/IrcGlobal include/IrcSession include/IrcUtil
@@ -41,3 +40,6 @@ INSTALLS += target
 
 dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
+
+include(icu.pri)
+include(coverage.pri)
