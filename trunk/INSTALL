@@ -1,5 +1,0 @@
-1. qmake -config [debug|release]
-2. make
-3. sudo make install
-4. CONFIG += libircclient-qt
-5. enjoy!
