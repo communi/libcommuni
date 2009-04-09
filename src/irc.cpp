@@ -15,6 +15,7 @@
 */
 
 #include "irc.h"
+#include <QMetaEnum>
 
 /*! \mainpage LibIrcClient-Qt - a cross-platform C++ IRC library
 
@@ -58,6 +59,17 @@
 const char* Irc::version()
 {
     return IRC_VERSION_STR;
+}
+
+/*!
+    Returns the numeric RFC \a code as a string or \a 0 if the code is unknown.
+ */
+const char* Irc::Rfc::toString(uint code)
+{
+    int index = staticMetaObject.indexOfEnumerator("Numeric");
+    Q_ASSERT(index != -1);
+    QMetaEnum enumerator = staticMetaObject.enumerator(index);
+    return enumerator.valueToKey(code);
 }
 
 /*! 

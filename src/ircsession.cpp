@@ -428,17 +428,17 @@ namespace Irc
         if (isNumeric)
         {
             static const QList<int> MOTD_LIST =
-                QList<int>() << RPL_MOTDSTART << RPL_MOTD << RPL_ENDOFMOTD << ERR_NOMOTD;
+                QList<int>() << Rfc::RPL_MOTDSTART << Rfc::RPL_MOTD << Rfc::RPL_ENDOFMOTD << Rfc::ERR_NOMOTD;
 
             if (!motdReceived || (code >= 300 && !MOTD_LIST.contains(code)))
                 emit q->msgNumericMessageReceived(prefix, code, params);
 
             // check whether it is the first RPL_ENDOFMOTD or ERR_NOMOTD after the connection
-            if (!motdReceived && (code == RPL_ENDOFMOTD || code == ERR_NOMOTD))
+            if (!motdReceived && (code == Rfc::RPL_ENDOFMOTD || code == Rfc::ERR_NOMOTD))
                 motdReceived = true;
 
             // join auto-join channels after MOTD
-            if (code == RPL_ENDOFMOTD || code == ERR_NOMOTD)
+            if (code == Rfc::RPL_ENDOFMOTD || code == Rfc::ERR_NOMOTD)
             {
                 foreach (const QString& channel, channels)
                     q->cmdJoin(channel);
