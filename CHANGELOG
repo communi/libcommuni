@@ -8,6 +8,8 @@
   emit own messages, notices and actions. This simplifies client
   implementation
 - Started working on auto tests and added code coverage support
+- Added a workaround for older Qt versions that don't have the 
+  QT_FORWARD_DECLARE_CLASS() macro defined
 
 0.3.0
 -----
