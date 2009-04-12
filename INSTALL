@@ -3,3 +3,9 @@
 3. sudo make install
 4. CONFIG += libircclient-qt
 5. enjoy!
+
+NOTE: ICU support is enabled by default. If you do not have ICU installed or
+      if you want to disable the ICU support for other reasons, you must 
+      comment out the following line from icu.pri:
+      
+      # DEFINES += HAVE_ICU
