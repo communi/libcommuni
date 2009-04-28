@@ -60,6 +60,7 @@ namespace Irc
     
             RPL_UNIQOPIS	        = 325,
             RPL_CHANNELMODEIS	    = 324,
+            RPL_CHANNELURL          = 328,
             RPL_CHANNELCREATED      = 329,
     
             RPL_NOTOPIC	            = 331,

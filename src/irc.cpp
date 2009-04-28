@@ -233,6 +233,13 @@ const char* Irc::Rfc::toString(uint code)
  */
 
 /*! 
+    \var Irc::RPL_CHANNELURL
+    \brief 329 \<channel\> \<url\>
+
+    No description available in RFC
+ */
+
+/*! 
     \var Irc::RPL_CHANNELCREATED
     \brief 329 \<channel\> \<datetime\>
 
