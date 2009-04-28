@@ -233,6 +233,13 @@ const char* Irc::Rfc::toString(uint code)
  */
 
 /*! 
+    \var Irc::RPL_CHANNELCREATED
+    \brief 329 \<channel\> \<datetime\>
+
+    No description available in RFC
+ */
+
+/*! 
     \var Irc::RPL_NOTOPIC
     \brief 331 \<channel\> :No topic is set
 
@@ -244,6 +251,13 @@ const char* Irc::Rfc::toString(uint code)
     \brief 332 \<channel\> :\<topic\>
 
     When sending a TOPIC message to determine the channel topic, one of two replies is sent. If the topic is set, RPL_TOPIC is sent back else RPL_NOTOPIC.
+ */
+
+/*!
+    \var Irc::RPL_TOPICSET
+    \brief 333 \<channel\> \<user\> \<datetime\>
+
+    No description available in RFC
  */
 
 /*! 
