@@ -90,7 +90,7 @@ namespace Irc
 
         void connectToServer(const QString& hostName, quint16 port = 6667);
         void connectToServer(const QHostAddress& address, quint16 port = 6667);
-        void disconnectFromServer();
+        void disconnectFromServer(const QString& message = QString());
 
         bool sendRaw(const QString& message);
         bool cmdJoin(const QString& channel, const QString& key = QString());

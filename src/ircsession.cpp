@@ -903,11 +903,18 @@ namespace Irc
     /*!
         Disconnects from the server.
      */
-    void Session::disconnectFromServer()
+    void Session::disconnectFromServer(const QString& message)
     {
         Q_D(Session);
+        if (message.isEmpty())
+            sendRaw(QString(QLatin1String("QUIT")));
+        else
+            sendRaw(QString(QLatin1String("QUIT :%1")).arg(message));
         if (d->socket)
+        {
+            d->socket->waitForBytesWritten(-1); // TODO
             d->socket->disconnectFromHost();
+        }
     }
 
     /*!
