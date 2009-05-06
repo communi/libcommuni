@@ -382,14 +382,9 @@ namespace Irc
 
             if (options & Session::StripNicks)
             {
-                for (int i = 0; i < prefix.size(); ++i)
-                {
-                    if (prefix.at(i) == QLatin1Char('@') || prefix.at(i) == QLatin1Char('!'))
-                    {
-                        prefix.truncate(i);
-                        break;
-                    }
-                }
+                int index = prefix.indexOf(QRegExp(QLatin1String("[@!]")));
+                if (index != -1)
+                    prefix.truncate(index);
             }
         }
 
@@ -429,6 +424,17 @@ namespace Irc
         {
             static const QList<int> MOTD_LIST =
                 QList<int>() << Rfc::RPL_MOTDSTART << Rfc::RPL_MOTD << Rfc::RPL_ENDOFMOTD << Rfc::ERR_NOMOTD;
+
+            if (code == Rfc::RPL_TOPICSET && options & Session::StripNicks)
+            {
+                QString user = params.value(2);
+                int index = user.indexOf(QRegExp(QLatin1String("[@!]")));
+                if (index != -1)
+                {
+                    user.truncate(index);
+                    params.replace(2, user);
+                }
+            }
 
             if (!motdReceived || (code >= 300 && !MOTD_LIST.contains(code)))
                 emit q->msgNumericMessageReceived(prefix, code, params);
