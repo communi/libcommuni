@@ -866,6 +866,8 @@ namespace Irc
                 continue;
             for (int i = 0; i < thisMo->methodCount(); ++i) {
                 QMetaMethod signal = thisMo->method(i);
+                if (signal.parameterTypes() != slot.parameterTypes())
+                    continue;
                 if (signal.methodType() == QMetaMethod::Signal) {
                     const char* signalSignature = signal.signature();
                     Q_ASSERT(signalSignature);
