@@ -26,6 +26,8 @@ namespace Irc
     public:
         static QString nickFromTarget(const QString& target);
         static QString hostFromTarget(const QString& target);
+        static QString messageToHtml(const QString& message);
+        static QString colorNameFromCode(int code);
     };
 }
 
