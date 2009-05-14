@@ -69,7 +69,7 @@ namespace Irc
         void setRealName(const QString& realName);
 
         QString host() const;
-        void setHost(const QString& host;
+        void setHost(const QString& host);
 
         quint16 port() const;
         void setPort(quint16 port);

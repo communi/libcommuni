@@ -762,9 +762,9 @@ namespace Irc
     /*!
         Sets the \a host.
      */
-    void Session::setHost(const QString& host) const
+    void Session::setHost(const QString& host)
     {
-        Q_D(const Session);
+        Q_D(Session);
         if (isConnected())
             qWarning("Session::setHost() has no effect until re-connect");
         d->host = host;
@@ -782,9 +782,9 @@ namespace Irc
     /*!
         Sets the \a port.
      */
-    void Session::setPort(quint16 port) const
+    void Session::setPort(quint16 port)
     {
-        Q_D(const Session);
+        Q_D(Session);
         if (isConnected())
             qWarning("Session::setPort() has no effect until re-connect");
         d->port = port;
