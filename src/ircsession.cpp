@@ -915,7 +915,7 @@ namespace Irc
     {
         Q_D(Session);
         d->motdReceived = false;
-        if (hostName.isNull())
+        if (!hostName.isNull())
             d->host = hostName;
         if (port != 6667)
             d->port = port;
