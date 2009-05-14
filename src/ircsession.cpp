@@ -255,7 +255,7 @@ namespace Irc
     SessionPrivate::SessionPrivate() :
         q_ptr(0),
         buffer(),
-        options(0),
+        options(Session::StripNicks),
         socket(0),
         ident(QLatin1String("libircclient-qt")),
         password(),
@@ -792,6 +792,8 @@ namespace Irc
 
     /*!
         Returns the options.
+
+        The default value is \c StripNicks.
      */
     Session::Options Session::options() const
     {
