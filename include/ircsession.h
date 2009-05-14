@@ -35,9 +35,11 @@ namespace Irc
         Q_PROPERTY(int autoReconnectDelay READ autoReconnectDelay WRITE setAutoReconnectDelay)
         Q_PROPERTY(bool connected READ isConnected)
         Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
+        Q_PROPERTY(QString host READ host WRITE setHost)
         Q_PROPERTY(QString ident READ ident WRITE setIdent)
         Q_PROPERTY(QString nick READ nick WRITE setNick)
         Q_PROPERTY(QString password READ password WRITE setPassword)
+        Q_PROPERTY(quint16 port READ port WRITE setPort)
         Q_PROPERTY(QString realName READ realName WRITE setRealName)
 
     public:
@@ -67,7 +69,10 @@ namespace Irc
         void setRealName(const QString& realName);
 
         QString host() const;
+        void setHost(const QString& host;
+
         quint16 port() const;
+        void setPort(quint16 port);
 
         enum Option
         {
@@ -88,8 +93,7 @@ namespace Irc
     public Q_SLOTS:
         void setNick(const QString& nick);
 
-        void connectToServer(const QString& hostName, quint16 port = 6667);
-        void connectToServer(const QHostAddress& address, quint16 port = 6667);
+        void connectToServer(const QString& hostName = QString(), quint16 port = 6667);
         void disconnectFromServer();
 
         bool sendRaw(const QString& message);

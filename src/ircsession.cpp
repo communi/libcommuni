@@ -760,12 +760,34 @@ namespace Irc
     }
 
     /*!
+        Sets the \a host.
+     */
+    void Session::setHost(const QString& host) const
+    {
+        Q_D(const Session);
+        if (isConnected())
+            qWarning("Session::setHost() has no effect until re-connect");
+        d->host = host;
+    }
+
+    /*!
         Returns the port.
      */
     quint16 Session::port() const
     {
         Q_D(const Session);
         return d->port;
+    }
+
+    /*!
+        Sets the \a port.
+     */
+    void Session::setPort(quint16 port) const
+    {
+        Q_D(const Session);
+        if (isConnected())
+            qWarning("Session::setPort() has no effect until re-connect");
+        d->port = port;
     }
 
     /*!
@@ -891,20 +913,10 @@ namespace Irc
     {
         Q_D(Session);
         d->motdReceived = false;
-        d->host = hostName;
-        d->port = port;
-        d->_q_reconnect();
-    }
-
-    /*!
-        Connects to server with \a address and \a port.
-     */
-    void Session::connectToServer(const QHostAddress& address, quint16 port)
-    {
-        Q_D(Session);
-        d->motdReceived = false;
-        d->host = address.toString();
-        d->port = port;
+        if (hostName.isNull())
+            d->host = hostName;
+        if (port != 6667)
+            d->port = port;
         d->_q_reconnect();
     }
 
