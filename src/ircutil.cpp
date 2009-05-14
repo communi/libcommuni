@@ -55,9 +55,9 @@ namespace Irc
     QString Util::messageToHtml(const QString& message)
     {
         QString processed = message;
+        processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
         processed.replace(QLatin1Char('<'), QLatin1String("&lt;"));
         processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
-        processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
 
         enum
         {
