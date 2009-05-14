@@ -57,6 +57,7 @@ namespace Irc
         QString processed = message;
         processed.replace(QLatin1Char('<'), QLatin1String("&lt;"));
         processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
+        processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
 
         enum
         {
