@@ -1002,6 +1002,14 @@ namespace Irc
     }
 
     /*!
+        Sends a whowas command on \a nick.
+     */
+    bool Session::cmdWhowas(const QString& nick)
+    {
+        return sendRaw(QString(QLatin1String("WHOWAS %1 %2")).arg(nick).arg(nick));
+    }
+
+    /*!
         Sends a mode command on \a target.
      */
     bool Session::cmdMode(const QString& target, const QString& mode)

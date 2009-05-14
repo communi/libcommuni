@@ -103,6 +103,7 @@ namespace Irc
         bool cmdNames(const QString& channel);
         bool cmdList(const QString& channel = QString());
         bool cmdWhois(const QString& nick);
+        bool cmdWhowas(const QString& nick);
         bool cmdMode(const QString& target, const QString& mode = QString());
         bool cmdTopic(const QString& channel, const QString& topic = QString());
         bool cmdInvite(const QString& nick, const QString& channel);
