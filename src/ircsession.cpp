@@ -923,6 +923,16 @@ namespace Irc
     }
 
     /*!
+        Reconnects to server.
+     */
+    void Session::reconnectToServer()
+    {
+        Q_D(Session);
+        d->motdReceived = true;
+        d->_q_reconnect();
+    }
+
+    /*!
         Disconnects from the server.
      */
     void Session::disconnectFromServer()

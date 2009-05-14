@@ -94,6 +94,7 @@ namespace Irc
         void setNick(const QString& nick);
 
         void connectToServer(const QString& hostName = QString(), quint16 port = 6667);
+        void reconnectToServer();
         void disconnectFromServer();
 
         bool sendRaw(const QString& message);
