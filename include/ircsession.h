@@ -90,6 +90,8 @@ namespace Irc
         QAbstractSocket* socket() const;
         void setSocket(QAbstractSocket* socket);
 
+        QString resolveTarget(const QString& sender, const QString& receiver) const;
+
     public Q_SLOTS:
         void setNick(const QString& nick);
 

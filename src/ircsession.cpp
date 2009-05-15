@@ -867,6 +867,32 @@ namespace Irc
     }
 
     /*!
+        Resolves target for \a sender and \a receiver.
+     */
+    QString Session::resolveTarget(const QString& sender, const QString& receiver) const
+    {
+        Q_D(const Session);
+
+        QString target = receiver;
+
+        if (target.contains(QLatin1Char('*')) || target.contains(QLatin1Char('?')))
+            target = d->nick;
+
+        if (target == d->nick)
+        {
+            if (target == sender)
+                target = d->host;
+            else
+                target = sender;
+        }
+
+        if (target.isEmpty() || target == QLatin1String("AUTH"))
+            target = d->host;
+
+        return target;
+    }
+
+    /*!
         Connects Irc::Session signals to matching slots of the \a receiver.
 
         Receiver slots must follow the following syntax:
