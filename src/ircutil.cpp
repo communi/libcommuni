@@ -56,6 +56,7 @@ namespace Irc
     {
         QString processed = message;
         processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
+        processed.replace(QLatin1Char('%'), QLatin1String("&#37;"));
         processed.replace(QLatin1Char('<'), QLatin1String("&lt;"));
         processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
 
