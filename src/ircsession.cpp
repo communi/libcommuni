@@ -24,7 +24,6 @@
 #include <QTextCodec>
 #include <QStringList>
 #include <QMetaMethod>
-#include <QHostAddress>
 #ifdef HAVE_ICU
 #include <unicode/ucsdet.h>
 #endif // HAVE_ICU
