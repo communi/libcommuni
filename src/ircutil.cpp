@@ -198,7 +198,10 @@ namespace Irc
             else if (URL_PATTERN.cap(1).isEmpty())
                 protocol = QLatin1String("mailto:");
 
-            QString link = QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, href, href) + append;
+            QString source = href;
+            source.replace(QLatin1String("&amp;"), QLatin1String("&"));
+
+            QString link = QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, source, href) + append;
             processed.replace(pos, len, link);
             pos += link.length();
         }
