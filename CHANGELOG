@@ -1,3 +1,7 @@
+0.3.2
+-----
+- Fixed problems with "unknown" messages
+
 0.3.1
 -----
 - Fixed compilation on Mac
