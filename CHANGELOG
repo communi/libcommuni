@@ -1,6 +1,9 @@
 0.3.2
 -----
 - Fixed problems with "unknown" messages
+- Fixed Irc::Session::connectSlotsByName() not to try to establish
+  a connection when the parameter types don't match
+- Code improvements
 
 0.3.1
 -----
