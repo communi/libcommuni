@@ -12,8 +12,13 @@ DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 DESTDIR = lib
 DEPENDPATH += include src
 INCLUDEPATH += include
-OBJECTS_DIR = .tmp
-MOC_DIR = .tmp
+CONFIG(debug, debug|release) {
+    OBJECTS_DIR = debug
+    MOC_DIR = debug
+} else {
+    OBJECTS_DIR = release
+    MOC_DIR = debug
+}
 
 macx {
     CONFIG += lib_bundle

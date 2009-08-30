@@ -383,14 +383,9 @@ namespace Irc
 
             if (options & Session::StripNicks)
             {
-                for (int i = 0; i < prefix.size(); ++i)
-                {
-                    if (prefix.at(i) == QLatin1Char('@') || prefix.at(i) == QLatin1Char('!'))
-                    {
-                        prefix.truncate(i);
-                        break;
-                    }
-                }
+                int index = prefix.indexOf(QRegExp(QLatin1String("[@!]")));
+                if (index != -1)
+                    prefix.truncate(index);
             }
         }
 
@@ -861,6 +856,8 @@ namespace Irc
                 continue;
             for (int i = 0; i < thisMo->methodCount(); ++i) {
                 QMetaMethod signal = thisMo->method(i);
+                if (signal.parameterTypes() != slot.parameterTypes())
+                    continue;
                 if (signal.methodType() == QMetaMethod::Signal) {
                     const char* signalSignature = signal.signature();
                     Q_ASSERT(signalSignature);

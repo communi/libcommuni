@@ -27,7 +27,7 @@ namespace Irc
     /*!
         Parses and returns the nick part from \a target.
     */
-    QString Irc::Util::nickFromTarget(const QString& target)
+    QString Util::nickFromTarget(const QString& target)
     {
         int index = target.indexOf(QLatin1Char('!'));
         return target.left(index);
@@ -36,7 +36,7 @@ namespace Irc
     /*!
         Parses and returns the host part from \a target.
     */
-    QString Irc::Util::hostFromTarget(const QString& target)
+    QString Util::hostFromTarget(const QString& target)
     {
         int index = target.indexOf(QLatin1Char('!'));
         return target.mid(index + 1);
