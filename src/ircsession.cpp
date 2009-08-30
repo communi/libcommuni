@@ -235,7 +235,7 @@ namespace Irc
 
         Session* q_ptr;
 
-        QBuffer buffer;
+        QByteArray buffer;
         Session::Options options;
         QPointer<QAbstractSocket> socket;
 
@@ -277,7 +277,6 @@ namespace Irc
 
         Q_Q(Session);
         q->setSocket(new QTcpSocket(q));
-        buffer.open(QIODevice::ReadWrite);
         q->connect(&timer, SIGNAL(timeout()), q, SLOT(_q_reconnect()));
     }
 
@@ -336,12 +335,14 @@ namespace Irc
 
     void SessionPrivate::_q_readData()
     {
-        qint64 bytes = buffer.write(socket->readAll());
-        buffer.seek(buffer.pos() - bytes);
-        while (buffer.canReadLine())
+        buffer += socket->readAll();
+        int i = -1;
+        while ((i = buffer.indexOf("\r\n")) != -1)
         {
-            QByteArray line = buffer.readLine();
-            processLine(line.trimmed());
+            QByteArray line = buffer.left(i).trimmed();
+            buffer = buffer.mid(i + 2);
+            if (!line.isEmpty())
+                processLine(line);
         }
     }
 
