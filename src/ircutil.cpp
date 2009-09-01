@@ -23,8 +23,7 @@
     \brief The Irc::Util class provides IRC related utility functions.
  */
 
-static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)]|&)+)|([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
-//static QRegExp URL_PATTERN(QLatin1String("\\b(?:(?:ssh|fish|irc|ftp|sftp|http|https|nntp|telnet|file)://|(?:mailto|news):(?!/)|www[0-9]?(?=\\.)|ftp(?=\\.))(?:[$_.+!*(),;/\\\\?:@&~=-](?=[A-Za-z0-9%])|[A-Za-z0-9%*])(?:[A-Za-z0-9)]|[$_.+!*(,;/\\\\?:@&~=-](?!\\s|$)|%[A-Fa-f0-9]{2})*(?:#[/a-zA-Z0-9][a-zA-Z0-9$_.+!*(),;/\\\\?:@&~=%-]*)?"), Qt::CaseInsensitive);
+static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)]|&)+)|([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
 
 namespace Irc
 {
