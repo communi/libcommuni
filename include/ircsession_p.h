@@ -20,6 +20,7 @@
 #include <QHash>
 #include <QTimer>
 #include <QStringList>
+#include <QAbstractSocket>
 
 namespace Irc
 {
@@ -36,7 +37,7 @@ namespace Irc
         void _q_disconnected();
         void _q_reconnect();
         void _q_error();
-        void _q_state();
+        void _q_state(QAbstractSocket::SocketState state);
         void _q_readData();
 
         QString readString(const QByteArray& data) const;

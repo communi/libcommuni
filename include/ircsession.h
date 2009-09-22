@@ -120,6 +120,7 @@ namespace Irc
 
     Q_SIGNALS:
         void connected();
+        void reconnecting();
         void disconnected();
 
         void bufferAdded(Irc::Buffer* buffer);
@@ -137,7 +138,7 @@ namespace Irc
         Q_PRIVATE_SLOT(d_func(), void _q_disconnected())
         Q_PRIVATE_SLOT(d_func(), void _q_reconnect())
         Q_PRIVATE_SLOT(d_func(), void _q_error())
-        Q_PRIVATE_SLOT(d_func(), void _q_state())
+        Q_PRIVATE_SLOT(d_func(), void _q_state(QAbstractSocket::SocketState))
         Q_PRIVATE_SLOT(d_func(), void _q_readData())
         friend class Buffer;
     };

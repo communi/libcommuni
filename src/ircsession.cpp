@@ -228,12 +228,16 @@ namespace Irc
 
     void SessionPrivate::_q_error()
     {
+        Q_Q(Session);
         // start reconnecting...
         if (delay >= 0)
+        {
             timer.start(delay * 1000);
+            emit q->reconnecting();
+        }
     }
 
-    void SessionPrivate::_q_state()
+    void SessionPrivate::_q_state(QAbstractSocket::SocketState state)
     {
     }
 
@@ -350,6 +354,7 @@ namespace Irc
                     QStringList list = params;
                     list.removeAll(QLatin1String("="));
                     list.removeAll(QLatin1String("@"));
+                    list.removeAll(QLatin1String("*"));
 
                     QString target = resolveTarget(QString(), list.value(1));
                     Buffer* buffer = createBuffer(target);
@@ -889,7 +894,7 @@ namespace Irc
                 connect(socket, SIGNAL(disconnected()), this, SLOT(_q_disconnected()));
                 connect(socket, SIGNAL(readyRead()), this, SLOT(_q_readData()));
                 connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_error()));
-                connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_q_state()));
+                connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_q_state(QAbstractSocket::SocketState)));
             }
         }
     }
