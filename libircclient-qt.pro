@@ -29,14 +29,16 @@ macx {
 }
 
 CONV_HEADERS += include/Irc include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
-HEADERS += irc.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
-SOURCES += irc.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
+PUB_HEADERS += irc.h ircbuffer.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
+PRIV_HEADERS += ircbuffer_p.h ircsession_p.h
+HEADERS = $$PUB_HEADERS $$PRIV_HEADERS
+SOURCES += irc.cpp ircbuffer.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
 
 mkspecs.files = libircclient-qt.prf
 mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
 INSTALLS += mkspecs
 
-headers.files = $$HEADERS $$CONV_HEADERS
+headers.files = $$PUB_HEADERS $$CONV_HEADERS
 headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
 INSTALLS += headers
 
@@ -47,4 +49,3 @@ dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
 
 include(icu.pri)
-include(coverage.pri)

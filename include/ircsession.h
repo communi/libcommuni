@@ -24,6 +24,7 @@ QT_FORWARD_DECLARE_CLASS(QAbstractSocket)
 
 namespace Irc
 {
+    class Buffer;
     class SessionPrivate;
 
     class IRC_EXPORT Session : public QObject
@@ -31,14 +32,16 @@ namespace Irc
         Q_OBJECT
         Q_PROPERTY(QStringList autoJoinChannels READ autoJoinChannels WRITE setAutoJoinChannels)
         Q_PROPERTY(int autoReconnectDelay READ autoReconnectDelay WRITE setAutoReconnectDelay)
-        Q_PROPERTY(bool connected READ isConnected)
         Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
         Q_PROPERTY(QString host READ host WRITE setHost)
         Q_PROPERTY(QString ident READ ident WRITE setIdent)
         Q_PROPERTY(QString nick READ nick WRITE setNick)
+        Q_PROPERTY(Options options READ options WRITE setOptions)
         Q_PROPERTY(QString password READ password WRITE setPassword)
         Q_PROPERTY(quint16 port READ port WRITE setPort)
         Q_PROPERTY(QString realName READ realName WRITE setRealName)
+        Q_FLAGS(Options)
+        Q_ENUMS(Option)
 
     public:
         Session(QObject* parent = 0);
@@ -59,6 +62,7 @@ namespace Irc
         void setIdent(const QString& ident);
 
         QString nick() const;
+        void setNick(const QString& nick);
 
         QString password() const;
         void setPassword(const QString& password);
@@ -74,78 +78,65 @@ namespace Irc
 
         enum Option
         {
-            StripNicks = 0x1
+            NoOptions = 0x0,
+            StripNicks = 0x1,
+            EchoMessages = 0x2
         };
         Q_DECLARE_FLAGS(Options, Option)
 
         Options options() const;
         void setOptions(Options options);
 
-        void connectSlotsByName(const QObject* receiver);
-
-        bool isConnected() const;
-
         QAbstractSocket* socket() const;
         void setSocket(QAbstractSocket* socket);
 
-        QString resolveTarget(const QString& sender, const QString& receiver) const;
+        Buffer* buffer(const QString& receiver = QString()) const;
+
+        Buffer* defaultBuffer() const;
+        void setDefaultBuffer(Buffer* buffer);
 
     public Q_SLOTS:
-        void setNick(const QString& nick);
-
         void connectToServer(const QString& hostName = QString(), quint16 port = 6667);
         void reconnectToServer();
         void disconnectFromServer();
 
-        bool sendRaw(const QString& message);
-        bool cmdJoin(const QString& channel, const QString& key = QString());
-        bool cmdPart(const QString& channel, const QString& reason = QString());
-        bool cmdQuit(const QString& reason = QString());
-        bool cmdNames(const QString& channel);
-        bool cmdList(const QString& channel = QString());
-        bool cmdWhois(const QString& nick);
-        bool cmdWhowas(const QString& nick);
-        bool cmdMode(const QString& target, const QString& mode = QString());
-        bool cmdTopic(const QString& channel, const QString& topic = QString());
-        bool cmdInvite(const QString& nick, const QString& channel);
-        bool cmdKick(const QString& nick, const QString& channel, const QString& reason = QString());
-        bool cmdMessage(const QString& receiver, const QString& message);
-        bool cmdNotice(const QString& receiver, const QString& notice);
-        bool cmdCtcpAction(const QString& receiver, const QString& action);
-        bool cmdCtcpRequest(const QString& nick, const QString& request);
-        bool cmdCtcpReply(const QString& nick, const QString& reply);
+        bool raw(const QString& message);
+        bool join(const QString& channel, const QString& key = QString());
+        bool part(const QString& channel, const QString& reason = QString());
+        bool quit(const QString& reason = QString());
+        bool names(const QString& channel);
+        bool list(const QString& channel = QString());
+        bool whois(const QString& nick);
+        bool whowas(const QString& nick);
+        bool mode(const QString& target, const QString& mode = QString());
+        bool topic(const QString& channel, const QString& topic = QString());
+        bool invite(const QString& nick, const QString& channel);
+        bool kick(const QString& nick, const QString& channel, const QString& reason = QString());
+        bool message(const QString& receiver, const QString& message);
+        bool notice(const QString& receiver, const QString& notice);
+        bool ctcpAction(const QString& receiver, const QString& action);
+        bool ctcpRequest(const QString& nick, const QString& request);
+        bool ctcpReply(const QString& nick, const QString& reply);
 
     Q_SIGNALS:
         void connected();
         void disconnected();
-        
-        void msgJoined(const QString& origin, const QString& channel);
-        void msgParted(const QString& origin, const QString& channel, const QString& message);
-        void msgQuit(const QString& origin, const QString& message);
-        void msgNickChanged(const QString& origin, const QString& nick);
-        void msgModeChanged(const QString& origin, const QString& receiver, const QString& mode, const QString& args);
-        void msgTopicChanged(const QString& origin, const QString& channel, const QString& topic);
-        void msgInvited(const QString& origin, const QString& receiver, const QString& channel);
-        void msgKicked(const QString& origin, const QString& channel, const QString& nick, const QString& message);
-        void msgMessageReceived(const QString& origin, const QString& receiver, const QString& message);
-        void msgNoticeReceived(const QString& origin, const QString& receiver, const QString& notice);
-        void msgCtcpRequestReceived(const QString& origin, const QString& request);
-        void msgCtcpReplyReceived(const QString& origin, const QString& reply);
-        void msgCtcpActionReceived(const QString& origin, const QString& receiver, const QString& action);
-        void msgNumericMessageReceived(const QString& origin, uint code, const QStringList& params);
-        void msgUnknownMessageReceived(const QString& origin, const QStringList& params);
+
+        void bufferAdded(Irc::Buffer* buffer);
+        void bufferRemoved(Irc::Buffer* buffer);
 
     private:
         SessionPrivate* const d_ptr;
         Q_DECLARE_PRIVATE(Session)
         Q_DISABLE_COPY(Session)
-        
+
         Q_PRIVATE_SLOT(d_func(), void _q_connected())
         Q_PRIVATE_SLOT(d_func(), void _q_disconnected())
         Q_PRIVATE_SLOT(d_func(), void _q_reconnect())
         Q_PRIVATE_SLOT(d_func(), void _q_error())
         Q_PRIVATE_SLOT(d_func(), void _q_state())
         Q_PRIVATE_SLOT(d_func(), void _q_readData())
+        friend class Buffer;
     };
 }
 

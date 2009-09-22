@@ -15,6 +15,9 @@
 */
 
 #include "ircsession.h"
+#include "ircsession_p.h"
+#include "ircbuffer.h"
+#include "ircbuffer_p.h"
 #include "ircutil.h"
 #include <QSet>
 #include <QTimer>
@@ -68,6 +71,11 @@
     This enum describes special options that may be used by Irc::Session.
  */
 
+/*! \var Irc::Session::NoOptions
+
+    Clears options.
+ */
+
 /*! \var Irc::Session::StripNicks
 
     Strips origins automatically.
@@ -76,11 +84,20 @@
     \code
     nick!ident@host
     \endcode
-    i.e. like \e jpnurmi!jaxr\@jolt.modeemi.fi. Such origins can not be used
+    i.e. like \e jpnurmi!jpnurmi\@xob.kapsi.fi. Such origins can not be used
     in IRC commands but need to be stripped (i.e. ident and host part
     should be cut off) before using. This can be done either explicitly,
     by calling Irc::Util::nickFromTarget(), or implicitly for all the
     messages - by setting this option with Irc::Session::setOption().
+ */
+
+/*! \var Irc::Session::EchoMessages
+
+    Echo own messages, notices and actions.
+
+    IRC servers do not echo users own messages, notices or actions.
+    This option makes Irc::Session to echo them to ease up IRC client
+    implementation.
  */
 
 /*!
@@ -93,96 +110,18 @@
     \fn void Irc::Session::disconnected()
 
     This signal is emitted when the session has been disconnected.
-*/
-
-/*!
-    \fn void Irc::Session::msgJoined(const QString& origin, const QString& channel)
-
-    This signal is emitted when \a origin has joined \a channel.
  */
 
 /*!
-    \fn void Irc::Session::msgParted(const QString& origin, const QString& channel, const QString& message)
+    \fn void Irc::Session::bufferAdded(Irc::Buffer* buffer)
 
-    This signal is emitted when \a origin has parted \a channel with \a message.
+    This signal is emitted whenever a \a buffer was added.
  */
 
 /*!
-    \fn void Irc::Session::msgQuit(const QString& origin, const QString& message)
+    \fn void Irc::Session::bufferRemoved(Irc::Buffer* buffer)
 
-    This signal is emitted when \a origin has quit with \a message.
- */
-
-/*!
-    \fn void Irc::Session::msgNickChanged(const QString& origin, const QString& nick)
-
-    This signal is emitted when \a origin has changed \a nick.
- */
-
-/*!
-    \fn void Irc::Session::msgModeChanged(const QString& origin, const QString& receiver, const QString& mode, const QString& args)
-
-    This signal is emitted when \a origin has changed \a receiver's \a mode with \a args.
- */
-
-/*!
-    \fn void Irc::Session::msgTopicChanged(const QString& origin, const QString& channel, const QString& topic)
-
-    This signal is emitted when \a origin has changed \a channel's \a topic.
- */
-
-/*!
-    \fn void Irc::Session::msgInvited(const QString& origin, const QString& receiver, const QString& channel)
-
-    This signal is emitted when \a origin has invited \a receiver to \a channel.
- */
-
-/*!
-    \fn void Irc::Session::msgKicked(const QString& origin, const QString& channel, const QString& nick, const QString& message)
-
-    This signal is emitted when \a origin has kicked \a nick from \a channel with \a message.
- */
-
-/*!
-    \fn void Irc::Session::msgMessageReceived(const QString& origin, const QString& receiver, const QString& message)
-
-    This signal is emitted when \a origin has sent \a message to \a receiver.
- */
-
-/*!
-    \fn void Irc::Session::msgNoticeReceived(const QString& origin, const QString& receiver, const QString& notice)
-
-    This signal is emitted when \a origin has sent \a notice to \a receiver.
- */
-
-/*!
-    \fn void Irc::Session::msgCtcpRequestReceived(const QString& origin, const QString& request)
-
-    This signal is emitted when \a origin has sent a CTCP \a request.
- */
-
-/*!
-    \fn void Irc::Session::msgCtcpReplyReceived(const QString& origin, const QString& reply)
-
-    This signal is emitted when \a origin has sent a CTCP \a reply.
- */
-
-/*!
-    \fn void Irc::Session::msgCtcpActionReceived(const QString& origin, const QString& receiver, const QString& action)
-
-    This signal is emitted when \a origin has sent a CTCP \a action to \a receiver.
- */
-
-/*!
-    \fn void Irc::Session::msgNumericMessageReceived(const QString& origin, uint code, const QStringList& params)
-
-    This signal is emitted when \a origin has sent a numeric message with \a code and \a params.
- */
-
-/*!
-    \fn void Irc::Session::msgUnknownMessageReceived(const QString& origin, const QStringList& params)
-
-    This signal is emitted when \a origin has sent an unknown message with \a params.
+    This signal is emitted whenever a \a buffer was removed.
  */
 
 static QByteArray detectEncoding(const QByteArray& text)
@@ -214,47 +153,10 @@ static QByteArray detectEncoding(const QByteArray& text)
 
 namespace Irc
 {
-    class SessionPrivate
-    {
-        Q_DECLARE_PUBLIC(Session)
-
-    public:
-        SessionPrivate();
-        void init(Session* session);
-
-        void _q_connected();
-        void _q_disconnected();
-        void _q_reconnect();
-        void _q_error();
-        void _q_state();
-        void _q_readData();
-
-        QString readString(const QByteArray& data) const;
-        void processLine(const QByteArray& line);
-
-        Session* q_ptr;
-
-        QByteArray buffer;
-        Session::Options options;
-        QPointer<QAbstractSocket> socket;
-
-        QString ident;
-        QString password;
-        QString nick;
-        QString realName;
-        QString host;
-        quint16 port;
-        bool motdReceived;
-        QStringList channels;
-        QByteArray encoding;
-        int delay;
-        QTimer timer;
-    };
-
     SessionPrivate::SessionPrivate() :
         q_ptr(0),
         buffer(),
-        options(Session::StripNicks),
+        options(Session::StripNicks | Session::EchoMessages),
         socket(0),
         ident(QLatin1String("libircclient-qt")),
         password(),
@@ -266,7 +168,9 @@ namespace Irc
         channels(),
         encoding(),
         delay(-1),
-        timer()
+        timer(),
+        defaultBuffer(),
+        buffers()
     {
     }
 
@@ -292,12 +196,13 @@ namespace Irc
 
         socket->write(QString(QLatin1String("NICK %1\r\n")).arg(nick).toLocal8Bit());
 
-		// RFC 1459 states that "hostname and servername are normally
+        // RFC 1459 states that "hostname and servername are normally
         // ignored by the IRC server when the USER command comes from
         // a directly connected client (for security reasons)", therefore
         // we don't need them.
         socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(ident).arg(realName).toLocal8Bit());
 
+        defaultBuffer = createBuffer(host);
         emit q->connected();
     }
 
@@ -415,15 +320,48 @@ namespace Irc
         if (command == QLatin1String("PING"))
         {
             QString arg = params.value(0);
-            q->sendRaw(QString(QLatin1String("PONG %1")).arg(arg));
+            q->raw(QString(QLatin1String("PONG %1")).arg(arg));
             return;
         }
 
         // and dump
         if (isNumeric)
         {
-            static const QList<int> MOTD_LIST =
-                QList<int>() << Rfc::RPL_MOTDSTART << Rfc::RPL_MOTD << Rfc::RPL_ENDOFMOTD << Rfc::ERR_NOMOTD;
+            switch (code)
+            {
+                case Irc::Rfc::RPL_WELCOME:
+                {
+                    Buffer* buffer = createBuffer(host);
+                    buffer->d_func()->setReceiver(prefix);
+                    break;
+                }
+
+                case Irc::Rfc::RPL_TOPIC:
+                {
+                    QString topic = params.value(1);
+                    QString target = resolveTarget(QString(), topic);
+                    Buffer* buffer = createBuffer(target);
+                    buffer->d_func()->topic = topic;
+                    break;
+                }
+
+                case Irc::Rfc::RPL_NAMREPLY:
+                {
+                    QStringList list = params;
+                    list.removeAll(QLatin1String("="));
+                    list.removeAll(QLatin1String("@"));
+
+                    QString target = resolveTarget(QString(), list.value(1));
+                    Buffer* buffer = createBuffer(target);
+                    QStringList names = list.value(2).split(QLatin1String(" "), QString::SkipEmptyParts);
+                    foreach (const QString& name, names)
+                        buffer->d_func()->addName(name);
+                    break;
+                }
+
+                default:
+                    break;
+            }
 
             if (code == Rfc::RPL_TOPICSET && options & Session::StripNicks)
             {
@@ -436,8 +374,11 @@ namespace Irc
                 }
             }
 
-            if (!motdReceived || (code >= 300 && !MOTD_LIST.contains(code)))
-                emit q->msgNumericMessageReceived(prefix, code, params);
+            static const QList<int> MOTD_LIST =
+                QList<int>() << Rfc::RPL_MOTDSTART << Rfc::RPL_MOTD << Rfc::RPL_ENDOFMOTD << Rfc::ERR_NOMOTD;
+
+            if (defaultBuffer && (!motdReceived || (code >= 300 && !MOTD_LIST.contains(code))))
+                emit defaultBuffer->numericMessageReceived(prefix, code, params);
 
             // check whether it is the first RPL_ENDOFMOTD or ERR_NOMOTD after the connection
             if (!motdReceived && (code == Rfc::RPL_ENDOFMOTD || code == Rfc::ERR_NOMOTD))
@@ -447,64 +388,103 @@ namespace Irc
             if (code == Rfc::RPL_ENDOFMOTD || code == Rfc::ERR_NOMOTD)
             {
                 foreach (const QString& channel, channels)
-                    q->cmdJoin(channel);
+                    q->join(channel);
             }
         }
         else
         {
             if (command == QLatin1String("NICK"))
             {
+                QString oldNick = Util::nickFromTarget(prefix);
                 QString newNick = params.value(0);
-                if (nick == Util::nickFromTarget(prefix))
+
+                if (nick == oldNick)
                     nick = newNick;
-                emit q->msgNickChanged(prefix, newNick);
+
+                foreach (Buffer* buffer, buffers)
+                {
+                    if (buffer->receiver() == oldNick)
+                        buffer->d_func()->setReceiver(newNick);
+
+                    if (buffer->names().contains(oldNick))
+                    {
+                        buffer->d_func()->removeName(oldNick);
+                        buffer->d_func()->addName(newNick);
+                        emit buffer->nickChanged(prefix, newNick);
+                    }
+                }
             }
             else if (command == QLatin1String("QUIT"))
             {
                 QString reason = params.value(0);
-                emit q->msgQuit(prefix, reason);
+                QString nick = Util::nickFromTarget(prefix);
+                foreach (Buffer* buffer, buffers)
+                {
+                    if (buffer->names().contains(nick))
+                    {
+                        buffer->d_func()->removeName(nick);
+                        emit buffer->quit(prefix, reason);
+                    }
+                }
             }
             else if (command == QLatin1String("JOIN"))
             {
                 QString channel = params.value(0);
-                emit q->msgJoined(prefix, channel);
+                QString target = resolveTarget(prefix, channel);
+                Buffer* buffer = createBuffer(target);
+                buffer->d_func()->addName(Util::nickFromTarget(prefix));
+                emit buffer->joined(prefix);
             }
             else if (command == QLatin1String("PART"))
             {
                 QString channel = params.value(0);
                 QString message = params.value(1);
-                emit q->msgParted(prefix, channel, message);
+                QString target = resolveTarget(prefix, channel);
+                Buffer* buffer = createBuffer(target);
+                buffer->d_func()->removeName(Util::nickFromTarget(prefix));
+                emit buffer->parted(prefix, message);
             }
             else if (command == QLatin1String("MODE"))
             {
                 QString receiver = params.value(0);
                 QString mode = params.value(1);
                 QString args = params.value(2);
-                emit q->msgModeChanged(prefix, receiver, mode, args);
+                QString target = resolveTarget(prefix, receiver);
+                Buffer* buffer = createBuffer(target);
+                emit buffer->modeChanged(prefix, mode, args);
             }
             else if (command == QLatin1String("TOPIC"))
             {
                 QString channel = params.value(0);
                 QString topic = params.value(1);
-                emit q->msgTopicChanged(prefix, channel, topic);
+                QString target = resolveTarget(prefix, channel);
+                Buffer* buffer = createBuffer(target);
+                buffer->d_func()->topic = topic;
+                emit buffer->topicChanged(prefix, topic);
             }
             else if (command == QLatin1String("INVITE"))
             {
                 QString receiver = params.value(0);
                 QString channel = params.value(1);
-                emit q->msgInvited(prefix, receiver, channel);
+                if (defaultBuffer)
+                    emit defaultBuffer->invited(prefix, receiver, channel);
             }
             else if (command == QLatin1String("KICK"))
             {
                 QString channel = params.value(0);
                 QString nick = params.value(1);
                 QString message = params.value(2);
-                emit q->msgKicked(prefix, channel, nick, message);
+                QString target = resolveTarget(prefix, channel);
+                Buffer* buffer = createBuffer(target);
+                buffer->d_func()->removeName(nick);
+                emit buffer->kicked(prefix, nick, message);
             }
             else if (command == QLatin1String("PRIVMSG"))
             {
                 QString receiver = params.value(0);
                 QString message = params.value(1);
+                QString target = resolveTarget(prefix, receiver);
+                Buffer* buffer = createBuffer(target);
 
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
@@ -512,14 +492,19 @@ namespace Irc
                     message.remove(message.length() - 1, 1);
 
                     if (message.startsWith(QLatin1String("ACTION ")))
-                        emit q->msgCtcpActionReceived(prefix, receiver, message.mid(7));
+                    {
+                        emit buffer->ctcpActionReceived(prefix, message.mid(7));
+                    }
                     else
+                    {
                         // TODO: check params
-                        emit q->msgCtcpRequestReceived(prefix, /*receiver,*/ message);
+                        if (defaultBuffer)
+                            emit defaultBuffer->ctcpRequestReceived(prefix, /*receiver,*/ message);
+                    }
                 }
                 else
                 {
-                    emit q->msgMessageReceived(prefix, receiver, message);
+                    emit buffer->messageReceived(prefix, message);
                 }
             }
             else if (command == QLatin1String("NOTICE"))
@@ -533,11 +518,14 @@ namespace Irc
                     message.remove(message.length() - 1, 1);
 
                     // TODO: check params
-                    emit q->msgCtcpReplyReceived(prefix, /*receiver,*/ message);
+                    if (defaultBuffer)
+                        emit defaultBuffer->ctcpReplyReceived(prefix, /*receiver,*/ message);
                 }
                 else
                 {
-                    emit q->msgNoticeReceived(prefix, receiver, message);
+                    QString target = resolveTarget(prefix, receiver);
+                    Buffer* buffer = createBuffer(target);
+                    emit buffer->noticeReceived(prefix, message);
                 }
             }
             else if (command == QLatin1String("KILL"))
@@ -549,9 +537,59 @@ namespace Irc
                 // The "unknown" event is triggered upon receipt of any number of
                 // unclassifiable miscellaneous messages, which aren't handled by
                 // the library.
-                emit q->msgUnknownMessageReceived(prefix, params);
+                if (defaultBuffer)
+                    emit defaultBuffer->unknownMessageReceived(prefix, params);
             }
         }
+    }
+
+    bool SessionPrivate::isConnected() const
+    {
+        return socket &&
+            (socket->state() == QAbstractSocket::ConnectingState
+             || socket->state() == QAbstractSocket::ConnectedState);
+    }
+
+    QString SessionPrivate::resolveTarget(const QString& sender, const QString& receiver) const
+    {
+        QString target = receiver;
+
+        if (target.contains(QLatin1Char('*')) || target.contains(QLatin1Char('?')))
+            target = nick;
+
+        if (target == nick)
+        {
+            if (target == sender)
+                target = host;
+            else
+                target = sender;
+        }
+
+        if (target.isEmpty() || target == QLatin1String("AUTH"))
+            target = host;
+
+        return target;
+    }
+
+    Buffer* SessionPrivate::createBuffer(const QString& receiver)
+    {
+        Q_Q(Session);
+        QString lower = receiver.toLower();
+        if (!buffers.contains(lower))
+        {
+            Buffer* buffer = new Buffer(receiver, q);
+            buffers.insert(lower, buffer);
+            emit q->bufferAdded(buffer);
+        }
+        return buffers.value(lower);
+    }
+
+    void SessionPrivate::removeBuffer(Buffer* buffer)
+    {
+        Q_Q(Session);
+        QString lower = buffer->receiver().toLower();
+        if (buffers.take(lower) == buffer)
+            emit q->bufferRemoved(buffer);
     }
 
     /*!
@@ -678,7 +716,7 @@ namespace Irc
     void Session::setIdent(const QString& ident)
     {
         Q_D(Session);
-        if (isConnected())
+        if (d->isConnected())
             qWarning("Session::setIdent() has no effect until re-connect");
         d->ident = ident;
     }
@@ -702,7 +740,7 @@ namespace Irc
         {
             d->nick = nick;
             if (d->socket)
-            	sendRaw(QString(QLatin1String("NICK %1")).arg(nick));
+            	raw(QString(QLatin1String("NICK %1")).arg(nick));
         }
     }
 
@@ -723,7 +761,7 @@ namespace Irc
     void Session::setPassword(const QString& password)
     {
         Q_D(Session);
-        if (isConnected())
+        if (d->isConnected())
             qWarning("Session::setPassword() has no effect until re-connect");
         d->password = password;
     }
@@ -745,7 +783,7 @@ namespace Irc
     void Session::setRealName(const QString& realName)
     {
         Q_D(Session);
-        if (isConnected())
+        if (d->isConnected())
             qWarning("Session::setRealName() has no effect until re-connect");
         d->realName = realName;
     }
@@ -765,7 +803,7 @@ namespace Irc
     void Session::setHost(const QString& host)
     {
         Q_D(Session);
-        if (isConnected())
+        if (d->isConnected())
             qWarning("Session::setHost() has no effect until re-connect");
         d->host = host;
     }
@@ -785,7 +823,7 @@ namespace Irc
     void Session::setPort(quint16 port)
     {
         Q_D(Session);
-        if (isConnected())
+        if (d->isConnected())
             qWarning("Session::setPort() has no effect until re-connect");
         d->port = port;
     }
@@ -808,17 +846,6 @@ namespace Irc
     {
         Q_D(Session);
         d->options = options;
-    }
-
-    /*!
-        Returns \c true if connected or \c false otherwise.
-     */
-    bool Session::isConnected() const
-    {
-        Q_D(const Session);
-        return d->socket &&
-            (d->socket->state() == QAbstractSocket::ConnectingState
-            || d->socket->state() == QAbstractSocket::ConnectedState);
     }
 
     /*!
@@ -867,71 +894,32 @@ namespace Irc
     }
 
     /*!
-        Resolves target for \a sender and \a receiver.
+        Returns the buffer for \a receiver.
      */
-    QString Session::resolveTarget(const QString& sender, const QString& receiver) const
+    Buffer* Session::buffer(const QString& receiver) const
     {
         Q_D(const Session);
-
-        QString target = receiver;
-
-        if (target.contains(QLatin1Char('*')) || target.contains(QLatin1Char('?')))
-            target = d->nick;
-
-        if (target == d->nick)
-        {
-            if (target == sender)
-                target = d->host;
-            else
-                target = sender;
-        }
-
-        if (target.isEmpty() || target == QLatin1String("AUTH"))
-            target = d->host;
-
-        return target;
+        if (receiver.isNull())
+            return d->buffers.value(d->host.toLower());
+        return d->buffers.value(receiver.toLower());
     }
 
     /*!
-        Connects Irc::Session signals to matching slots of the \a receiver.
-
-        Receiver slots must follow the following syntax:
-        \code
-        void on_<signal name>(<signal parameters>);
-        \endcode
-    */
-    void Session::connectSlotsByName(const QObject* receiver)
+        Returns the default buffer.
+     */
+    Buffer* Session::defaultBuffer() const
     {
-        if (!receiver)
-            return;
-        const QMetaObject *thisMo = metaObject();
-        const QMetaObject *thatMo = receiver->metaObject();
-        Q_ASSERT(thisMo && thatMo);
-        QSet<QByteArray> connectedSlots;
-        for (int j = 0; j < thatMo->methodCount(); ++j) {
-            QMetaMethod slot = thatMo->method(j);
-            const char* slotSignature = slot.signature();
-            Q_ASSERT(slotSignature);
-            if (qstrncmp(slotSignature, "on_", 3))
-                continue;
-            for (int i = 0; i < thisMo->methodCount(); ++i) {
-                QMetaMethod signal = thisMo->method(i);
-                if (signal.parameterTypes() != slot.parameterTypes())
-                    continue;
-                if (signal.methodType() == QMetaMethod::Signal) {
-                    const char* signalSignature = signal.signature();
-                    Q_ASSERT(signalSignature);
-                    if (qstrcmp(slotSignature + 3, signalSignature))
-                        continue;
-                    QByteArray slotName = QByteArray::fromRawData(slotSignature, qstrlen(slotSignature));
-                    if (!connectedSlots.contains(slotName)) {
-                        // prevent double connection to overridden slots
-                        connectedSlots.insert(slotName);
-                        QMetaObject::connect(this, i, receiver, j);
-                    }
-                }
-            }
-        }
+        Q_D(const Session);
+        return d->defaultBuffer;
+    }
+
+    /*!
+        Sets the default \a buffer.
+     */
+    void Session::setDefaultBuffer(Buffer* buffer)
+    {
+        Q_D(Session);
+        d->defaultBuffer = buffer;
     }
 
     /*!
@@ -971,7 +959,7 @@ namespace Irc
     /*!
         Sends a raw message to the server.
      */
-    bool Session::sendRaw(const QString& message)
+    bool Session::raw(const QString& message)
     {
         Q_D(Session);
         qint64 bytes = -1;
@@ -983,153 +971,165 @@ namespace Irc
     /*!
         Joins \a channel with optional \a key.
      */
-    bool Session::cmdJoin(const QString& channel, const QString& key)
+    bool Session::join(const QString& channel, const QString& key)
     {
         if (key.isEmpty())
-            return sendRaw(QString(QLatin1String("JOIN %1")).arg(channel));
+            return raw(QString(QLatin1String("JOIN %1")).arg(channel));
         else
-            return sendRaw(QString(QLatin1String("JOIN %1 %2")).arg(channel).arg(key));
+            return raw(QString(QLatin1String("JOIN %1 %2")).arg(channel).arg(key));
     }
 
     /*!
         Parts \a channel with \a reason.
      */
-    bool Session::cmdPart(const QString& channel, const QString& reason)
+    bool Session::part(const QString& channel, const QString& reason)
     {
         if (reason.isEmpty())
-            return sendRaw(QString(QLatin1String("PART %1")).arg(channel));
+            return raw(QString(QLatin1String("PART %1")).arg(channel));
         else
-            return sendRaw(QString(QLatin1String("PART %1 :%2")).arg(channel).arg(reason));
+            return raw(QString(QLatin1String("PART %1 :%2")).arg(channel).arg(reason));
     }
 
     /*!
         Quits with optional \a reason.
      */
-    bool Session::cmdQuit(const QString& reason)
+    bool Session::quit(const QString& reason)
     {
-        return sendRaw(QString(QLatin1String("QUIT :%1")).arg(reason.isEmpty() ? QLatin1String("Quit") : reason));
+        return raw(QString(QLatin1String("QUIT :%1")).arg(reason.isEmpty() ? QLatin1String("Quit") : reason));
     }
 
     /*!
         Requests the list of names on \a channel.
      */
-    bool Session::cmdNames(const QString& channel)
+    bool Session::names(const QString& channel)
     {
-        return sendRaw(QString(QLatin1String("NAMES %1")).arg(channel));
+        return raw(QString(QLatin1String("NAMES %1")).arg(channel));
     }
 
     /*!
         Requests the list of channels.
      */
-    bool Session::cmdList(const QString& channel)
+    bool Session::list(const QString& channel)
     {
         if (channel.isEmpty())
-            return sendRaw(QString(QLatin1String("LIST")));
+            return raw(QString(QLatin1String("LIST")));
         else
-            return sendRaw(QString(QLatin1String("LIST %1")).arg(channel));
+            return raw(QString(QLatin1String("LIST %1")).arg(channel));
     }
 
     /*!
         Sends a whois command on \a nick.
      */
-    bool Session::cmdWhois(const QString& nick)
+    bool Session::whois(const QString& nick)
     {
-        return sendRaw(QString(QLatin1String("WHOIS %1 %2")).arg(nick).arg(nick));
+        return raw(QString(QLatin1String("WHOIS %1 %2")).arg(nick).arg(nick));
     }
 
     /*!
         Sends a whowas command on \a nick.
      */
-    bool Session::cmdWhowas(const QString& nick)
+    bool Session::whowas(const QString& nick)
     {
-        return sendRaw(QString(QLatin1String("WHOWAS %1 %2")).arg(nick).arg(nick));
+        return raw(QString(QLatin1String("WHOWAS %1 %2")).arg(nick).arg(nick));
     }
 
     /*!
         Sends a mode command on \a target.
      */
-    bool Session::cmdMode(const QString& target, const QString& mode)
+    bool Session::mode(const QString& target, const QString& mode)
     {
         if (mode.isEmpty())
-            return sendRaw(QString(QLatin1String("MODE %1")).arg(target));
+            return raw(QString(QLatin1String("MODE %1")).arg(target));
         else
-            return sendRaw(QString(QLatin1String("MODE %1 %2")).arg(target).arg(mode));
+            return raw(QString(QLatin1String("MODE %1 %2")).arg(target).arg(mode));
     }
 
     /*!
         Sends a topic command on \a channel.
      */
-    bool Session::cmdTopic(const QString& channel, const QString& topic)
+    bool Session::topic(const QString& channel, const QString& topic)
     {
         if (topic.isEmpty())
-            return sendRaw(QString(QLatin1String("TOPIC %1")).arg(channel));
+            return raw(QString(QLatin1String("TOPIC %1")).arg(channel));
         else
-            return sendRaw(QString(QLatin1String("TOPIC %1 :%2")).arg(channel).arg(topic));
+            return raw(QString(QLatin1String("TOPIC %1 :%2")).arg(channel).arg(topic));
     }
 
     /*!
         Sends an invitation to \a nick.
      */
-    bool Session::cmdInvite(const QString& nick, const QString& channel)
+    bool Session::invite(const QString& nick, const QString& channel)
     {
-        return sendRaw(QString(QLatin1String("INVITE %1 %2")).arg(nick).arg(channel));
+        return raw(QString(QLatin1String("INVITE %1 %2")).arg(nick).arg(channel));
     }
 
     /*!
         Kicks \a nick from \a channel with \a reason.
      */
-    bool Session::cmdKick(const QString& nick, const QString& channel, const QString& reason)
+    bool Session::kick(const QString& nick, const QString& channel, const QString& reason)
     {
         if (reason.isEmpty())
-            return sendRaw(QString(QLatin1String("KICK %1 %2")).arg(channel).arg(nick));
+            return raw(QString(QLatin1String("KICK %1 %2")).arg(channel).arg(nick));
         else
-            return sendRaw(QString(QLatin1String("KICK %1 %2 :%3")).arg(channel).arg(nick).arg(reason));
+            return raw(QString(QLatin1String("KICK %1 %2 :%3")).arg(channel).arg(nick).arg(reason));
     }
 
     /*!
         Sends a \a message to \a receiver.
      */
-    bool Session::cmdMessage(const QString& receiver, const QString& message)
+    bool Session::message(const QString& receiver, const QString& message)
     {
         Q_D(Session);
-        emit msgMessageReceived(d->nick, receiver, message);
-        return sendRaw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver).arg(message));
+        if (d->options & Session::EchoMessages)
+        {
+            Buffer* buffer = d->createBuffer(receiver);
+            emit buffer->messageReceived(d->nick, message);
+        }
+        return raw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver).arg(message));
     }
 
     /*!
         Sends a \a notice to \a receiver.
      */
-    bool Session::cmdNotice(const QString& receiver, const QString& notice)
+    bool Session::notice(const QString& receiver, const QString& notice)
     {
         Q_D(Session);
-        emit msgNoticeReceived(d->nick, receiver, notice);
-        return sendRaw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver).arg(notice));
+        if (d->options & Session::EchoMessages)
+        {
+            Buffer* buffer = d->createBuffer(receiver);
+            emit buffer->noticeReceived(d->nick, notice);
+        }
+        return raw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver).arg(notice));
     }
 
     /*!
         Sends a CTCP \a action to \a receiver.
      */
-    bool Session::cmdCtcpAction(const QString& receiver, const QString& action)
+    bool Session::ctcpAction(const QString& receiver, const QString& action)
     {
         Q_D(Session);
-        emit msgCtcpActionReceived(d->nick, receiver, action);
-        return sendRaw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver).arg(action));
+        if (d->options & Session::EchoMessages)
+        {
+            Buffer* buffer = d->createBuffer(receiver);
+            emit buffer->ctcpActionReceived(d->nick, action);
+        }
+        return raw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver).arg(action));
     }
 
     /*!
         Sends a CTCP \a request to \a receiver.
      */
-    bool Session::cmdCtcpRequest(const QString& nick, const QString& request)
+    bool Session::ctcpRequest(const QString& nick, const QString& request)
     {
-        return sendRaw(QString(QLatin1String("PRIVMSG %1 :\x01%2\x01")).arg(nick).arg(request));
+        return raw(QString(QLatin1String("PRIVMSG %1 :\x01%2\x01")).arg(nick).arg(request));
     }
 
     /*!
         Sends a CTCP \a reply to \a receiver.
      */
-    bool Session::cmdCtcpReply(const QString& nick, const QString& reply)
+    bool Session::ctcpReply(const QString& nick, const QString& reply)
     {
-        return sendRaw(QString(QLatin1String("NOTICE %1 :\x01%2\x01")).arg(nick).arg(reply));
+        return raw(QString(QLatin1String("NOTICE %1 :\x01%2\x01")).arg(nick).arg(reply));
     }
 }
 
