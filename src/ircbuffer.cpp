@@ -198,6 +198,13 @@ namespace Irc
         d->receiver = receiver;
     }
 
+    Buffer::Buffer(BufferPrivate& dd, const QString& receiver, Session* parent) : QObject(parent), d_ptr(&dd)
+    {
+        Q_D(Buffer);
+        d->q_ptr = this;
+        d->receiver = receiver;
+    }
+
     /*!
         Destructs the IRC buffer.
      */

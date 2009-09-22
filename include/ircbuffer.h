@@ -67,9 +67,12 @@ namespace Irc
         void numericMessageReceived(const QString& origin, uint code, const QStringList& params);
         void unknownMessageReceived(const QString& origin, const QStringList& params);
 
-    private:
+    protected:
         Buffer(const QString& receiver, Session* parent = 0);
+        Buffer(BufferPrivate& dd, const QString& receiver, Session* parent = 0);
         BufferPrivate* const d_ptr;
+
+    private:
         Q_DECLARE_PRIVATE(Buffer)
         Q_DISABLE_COPY(Buffer)
         friend class SessionPrivate;

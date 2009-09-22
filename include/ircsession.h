@@ -125,6 +125,9 @@ namespace Irc
         void bufferAdded(Irc::Buffer* buffer);
         void bufferRemoved(Irc::Buffer* buffer);
 
+    protected:
+        virtual Buffer* createBuffer(const QString& receiver);
+
     private:
         SessionPrivate* const d_ptr;
         Q_DECLARE_PRIVATE(Session)

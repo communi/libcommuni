@@ -577,7 +577,7 @@ namespace Irc
         QString lower = receiver.toLower();
         if (!buffers.contains(lower))
         {
-            Buffer* buffer = new Buffer(receiver, q);
+            Buffer* buffer = q->createBuffer(receiver);
             buffers.insert(lower, buffer);
             emit q->bufferAdded(buffer);
         }
@@ -1130,6 +1130,14 @@ namespace Irc
     bool Session::ctcpReply(const QString& nick, const QString& reply)
     {
         return raw(QString(QLatin1String("NOTICE %1 :\x01%2\x01")).arg(nick).arg(reply));
+    }
+
+    /*!
+        Returns a new Irc::Buffer object to act as an IRC buffer for \a receiver.
+     */
+    Buffer* Session::createBuffer(const QString& receiver)
+    {
+        return new Irc::Buffer(receiver, this);
     }
 }
 

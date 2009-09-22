@@ -28,7 +28,7 @@ macx {
     QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
 }
 
-CONV_HEADERS += include/Irc include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
+CONV_HEADERS += include/Irc include/IrcBuffer include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
 PUB_HEADERS += irc.h ircbuffer.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
 PRIV_HEADERS += ircbuffer_p.h ircsession_p.h
 HEADERS = $$PUB_HEADERS $$PRIV_HEADERS
