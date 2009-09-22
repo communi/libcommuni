@@ -8,6 +8,9 @@ DEFINES += BUILD_IRC
 QT = core network
 CONFIG += silent
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
+!win32:VERSION = 0.4.0
+
+message(Building LibIrcClient-Qt $$VERSION)
 
 DESTDIR = lib
 DEPENDPATH += include src
@@ -48,4 +51,9 @@ INSTALLS += target
 dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
 
-include(icu.pri)
+!no_icu {
+    message(ICU support enabled. Run \'qmake -config no_icu\' to disable ICU support.)
+    include(icu.pri)
+} else {
+    message(ICU support disabled.)
+}
