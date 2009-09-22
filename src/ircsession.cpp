@@ -451,6 +451,7 @@ namespace Irc
                 QString args = params.value(2);
                 QString target = resolveTarget(prefix, receiver);
                 Buffer* buffer = createBuffer(target);
+                buffer->d_func()->updateMode(args, mode);
                 emit buffer->modeChanged(prefix, mode, args);
             }
             else if (command == QLatin1String("TOPIC"))
