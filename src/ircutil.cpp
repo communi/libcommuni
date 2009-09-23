@@ -56,6 +56,7 @@ namespace Irc
         processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
         processed.replace(QLatin1Char('<'), QLatin1String("&lt;"));
         processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
+        processed.replace(QLatin1Char('\t'), QLatin1String("&nbsp;"));
 
         enum
         {
@@ -101,13 +102,13 @@ namespace Irc
                 state ^= Color;
                 break;
 
-            case '\x09': // italic
+            /*case '\x09': // italic
                 if (state & Italic)
                     replacement = QLatin1String("</span>");
                 else
                     replacement = QLatin1String("<span style='text-decoration: underline'>");
                 state ^= Italic;
-                break;
+                break;*/
 
             case '\x13': // strike-through
                 if (state & StrikeThrough)
