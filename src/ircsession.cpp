@@ -231,6 +231,7 @@ namespace Irc
         void _q_readData();
 
         QString readString(const QByteArray& data) const;
+        void readLines(const QByteArray& delimiter);
         void processLine(const QByteArray& line);
 
         Session* q_ptr;
@@ -336,14 +337,10 @@ namespace Irc
     void SessionPrivate::_q_readData()
     {
         buffer += socket->readAll();
-        int i = -1;
-        while ((i = buffer.indexOf("\r\n")) != -1)
-        {
-            QByteArray line = buffer.left(i).trimmed();
-            buffer = buffer.mid(i + 2);
-            if (!line.isEmpty())
-                processLine(line);
-        }
+        // try reading RFC compliant message lines first
+        readLines("\r\n");
+        // fall back to RFC incompliant lines...
+        readLines("\n");
     }
 
     QString SessionPrivate::readString(const QByteArray& data) const
@@ -355,6 +352,18 @@ namespace Irc
         if (!codec)
             codec = QTextCodec::codecForLocale();
         return codec->toUnicode(data);
+    }
+
+    void SessionPrivate::readLines(const QByteArray& delimiter)
+    {
+        int i = -1;
+        while ((i = buffer.indexOf(delimiter)) != -1)
+        {
+            QByteArray line = buffer.left(i).trimmed();
+            buffer = buffer.mid(i + delimiter.length());
+            if (!line.isEmpty())
+                processLine(line);
+        }
     }
 
     void SessionPrivate::processLine(const QByteArray& line)
