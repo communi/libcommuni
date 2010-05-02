@@ -39,6 +39,7 @@ namespace Irc
         void _q_readData();
 
         QString readString(const QByteArray& data) const;
+        void readLines(const QByteArray& delimiter);
         void processLine(const QByteArray& line);
         bool isConnected() const;
         QString resolveTarget(const QString& sender, const QString& receiver) const;
