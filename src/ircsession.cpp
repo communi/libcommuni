@@ -1249,21 +1249,21 @@ namespace Irc
     {
         Buffer* buffer = new Buffer(receiver, this);
         // TODO: for backwards compatibility, to be removed in 1.0
-        connect(buffer, SIGNAL(joined(const QString& origin)), SLOT(_q_joined(const QString& origin)));
-        connect(buffer, SIGNAL(parted(const QString& origin, const QString& message)), SLOT(_q_parted(const QString& origin, const QString& message)));
-        connect(buffer, SIGNAL(quit(const QString& origin, const QString& message)), SLOT(_q_quit(const QString& origin, const QString& message)));
-        connect(buffer, SIGNAL(nickChanged(const QString& origin, const QString& nick)), SLOT(_q_nickChanged(const QString& origin, const QString& nick)));
-        connect(buffer, SIGNAL(modeChanged(const QString& origin, const QString& mode, const QString& args)), SLOT(_q_modeChanged(const QString& origin, const QString& mode, const QString& args)));
-        connect(buffer, SIGNAL(topicChanged(const QString& origin, const QString& topic)), SLOT(_q_topicChanged(const QString& origin, const QString& topic)));
-        connect(buffer, SIGNAL(invited(const QString& origin, const QString& receiver, const QString& channel)), SLOT(_q_invited(const QString& origin, const QString& receiver, const QString& channel)));
-        connect(buffer, SIGNAL(kicked(const QString& origin, const QString& nick, const QString& message)), SLOT(_q_kicked(const QString& origin, const QString& nick, const QString& message)));
-        connect(buffer, SIGNAL(messageReceived(const QString& origin, const QString& message)), SLOT(_q_messageReceived(const QString& origin, const QString& message)));
-        connect(buffer, SIGNAL(noticeReceived(const QString& origin, const QString& notice)), SLOT(_q_noticeReceived(const QString& origin, const QString& notice)));
-        connect(buffer, SIGNAL(ctcpRequestReceived(const QString& origin, const QString& request)), SLOT(_q_ctcpRequestReceived(const QString& origin, const QString& request)));
-        connect(buffer, SIGNAL(ctcpReplyReceived(const QString& origin, const QString& reply)), SLOT(_q_ctcpReplyReceived(const QString& origin, const QString& reply)));
-        connect(buffer, SIGNAL(ctcpActionReceived(const QString& origin, const QString& action)), SLOT(_q_ctcpActionReceived(const QString& origin, const QString& action)));
-        connect(buffer, SIGNAL(numericMessageReceived(const QString& origin, uint code, const QStringList& params)), SLOT(_q_numericMessageReceived(const QString& origin, uint code, const QStringList& params)));
-        connect(buffer, SIGNAL(unknownMessageReceived(const QString& origin, const QStringList& params)), SLOT(_q_unknownMessageReceived(const QString& origin, const QStringList& params)));
+        connect(buffer, SIGNAL(joined(QString)), SLOT(_q_joined(QString)));
+        connect(buffer, SIGNAL(parted(QString, QString)), SLOT(_q_parted(QString, QString)));
+        connect(buffer, SIGNAL(quit(QString, QString)), SLOT(_q_quit(QString, QString)));
+        connect(buffer, SIGNAL(nickChanged(QString, QString)), SLOT(_q_nickChanged(QString, QString)));
+        connect(buffer, SIGNAL(modeChanged(QString, QString, QString)), SLOT(_q_modeChanged(QString, QString, QString)));
+        connect(buffer, SIGNAL(topicChanged(QString, QString)), SLOT(_q_topicChanged(QString, QString)));
+        connect(buffer, SIGNAL(invited(QString, QString, QString)), SLOT(_q_invited(QString, QString, QString)));
+        connect(buffer, SIGNAL(kicked(QString, QString, QString)), SLOT(_q_kicked(QString, QString, QString)));
+        connect(buffer, SIGNAL(messageReceived(QString, QString)), SLOT(_q_messageReceived(QString, QString)));
+        connect(buffer, SIGNAL(noticeReceived(QString, QString)), SLOT(_q_noticeReceived(QString, QString)));
+        connect(buffer, SIGNAL(ctcpRequestReceived(QString, QString)), SLOT(_q_ctcpRequestReceived(QString, QString)));
+        connect(buffer, SIGNAL(ctcpReplyReceived(QString, QString)), SLOT(_q_ctcpReplyReceived(QString, QString)));
+        connect(buffer, SIGNAL(ctcpActionReceived(QString, QString)), SLOT(_q_ctcpActionReceived(QString, QString)));
+        connect(buffer, SIGNAL(numericMessageReceived(QString, uint, QStringList)), SLOT(_q_numericMessageReceived(QString, uint, QStringList)));
+        connect(buffer, SIGNAL(unknownMessageReceived(QString, QStringList)), SLOT(_q_unknownMessageReceived(QString, QStringList)));
         return buffer;
     }
 
