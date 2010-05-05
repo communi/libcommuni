@@ -18,6 +18,7 @@
 #include <QHash>
 #include <QTimer>
 #include <QStringList>
+#include <QVariantList>
 #include <QAbstractSocket>
 
 namespace Irc
@@ -64,6 +65,24 @@ namespace Irc
         QTimer timer;
         Buffer* defaultBuffer;
         QHash<QString, Buffer*> buffers;
+
+        // TODO: for backwards compatibility, to be removed in 1.0
+        void emitCompatSignal(const char* signal, const QVariantList& params);
+        void _q_joined(const QString& origin);
+        void _q_parted(const QString& origin, const QString& message);
+        void _q_quit(const QString& origin, const QString& message);
+        void _q_nickChanged(const QString& origin, const QString& nick);
+        void _q_modeChanged(const QString& origin, const QString& mode, const QString& args);
+        void _q_topicChanged(const QString& origin, const QString& topic);
+        void _q_invited(const QString& origin, const QString& receiver, const QString& channel);
+        void _q_kicked(const QString& origin, const QString& nick, const QString& message);
+        void _q_messageReceived(const QString& origin, const QString& message);
+        void _q_noticeReceived(const QString& origin, const QString& notice);
+        void _q_ctcpRequestReceived(const QString& origin, const QString& request);
+        void _q_ctcpReplyReceived(const QString& origin, const QString& reply);
+        void _q_ctcpActionReceived(const QString& origin, const QString& action);
+        void _q_numericMessageReceived(const QString& origin, uint code, const QStringList& params);
+        void _q_unknownMessageReceived(const QString& origin, const QStringList& params);
     };
 }
 

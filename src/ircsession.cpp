@@ -604,6 +604,104 @@ namespace Irc
             emit q->bufferRemoved(buffer);
     }
 
+    // TODO: for backwards compatibility, to be removed in 1.0
+    inline void SessionPrivate::emitCompatSignal(const char* signal, const QVariantList& params)
+    {
+        Q_Q(Session);
+        if (q->receivers(signal)) {
+            qWarning() << "IrcSession::" << signal << "[signal] is DEPRECATED";
+            QMetaObject::invokeMethod(q, signal,
+                                      params.count() > 0 ? QGenericArgument(QMetaType::typeName(params.at(0).type()), &params[0]) : QGenericArgument(),
+                                      params.count() > 1 ? QGenericArgument(QMetaType::typeName(params.at(1).type()), &params[1]) : QGenericArgument(),
+                                      params.count() > 2 ? QGenericArgument(QMetaType::typeName(params.at(2).type()), &params[2]) : QGenericArgument(),
+                                      params.count() > 3 ? QGenericArgument(QMetaType::typeName(params.at(3).type()), &params[3]) : QGenericArgument());
+        }
+    }
+    void SessionPrivate::_q_joined(const QString& origin)
+    {
+        Q_Q(Session);
+        Buffer* buffer = qobject_cast<Buffer*>(q->sender());
+        Q_ASSERT(buffer);
+        emitCompatSignal("msgJoined(QString, QString)", QVariantList() << origin << buffer->receiver());
+    }
+    void SessionPrivate::_q_parted(const QString& origin, const QString& message)
+    {
+        Q_Q(Session);
+        Buffer* buffer = qobject_cast<Buffer*>(q->sender());
+        Q_ASSERT(buffer);
+        emitCompatSignal("msgParted(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << message);
+    }
+    void SessionPrivate::_q_quit(const QString& origin, const QString& message)
+    {
+        emitCompatSignal("msgQuit(QString, QString)", QVariantList() << origin << message);
+    }
+    void SessionPrivate::_q_nickChanged(const QString& origin, const QString& nick)
+    {
+        emitCompatSignal("msgNickChanged(QString, QString)", QVariantList() << origin << nick);
+    }
+    void SessionPrivate::_q_modeChanged(const QString& origin, const QString& mode, const QString& args)
+    {
+        Q_Q(Session);
+        Buffer* buffer = qobject_cast<Buffer*>(q->sender());
+        Q_ASSERT(buffer);
+        emitCompatSignal("msgModeChanged(QString, QString, QString, QString)", QVariantList() << origin << buffer->receiver() << mode << args);
+    }
+    void SessionPrivate::_q_topicChanged(const QString& origin, const QString& topic)
+    {
+        Q_Q(Session);
+        Buffer* buffer = qobject_cast<Buffer*>(q->sender());
+        Q_ASSERT(buffer);
+        emitCompatSignal("msgTopicChanged(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << topic);
+    }
+    void SessionPrivate::_q_invited(const QString& origin, const QString& receiver, const QString& channel)
+    {
+        emitCompatSignal("msgInvited(QString, QString, QString)", QVariantList() << origin << receiver << channel);
+    }
+    void SessionPrivate::_q_kicked(const QString& origin, const QString& nick, const QString& message)
+    {
+        Q_Q(Session);
+        Buffer* buffer = qobject_cast<Buffer*>(q->sender());
+        Q_ASSERT(buffer);
+        emitCompatSignal("msgKicked(QString, QString, QString, QString)", QVariantList() << origin << buffer->receiver() << nick << message);
+    }
+    void SessionPrivate::_q_messageReceived(const QString& origin, const QString& message)
+    {
+        Q_Q(Session);
+        Buffer* buffer = qobject_cast<Buffer*>(q->sender());
+        Q_ASSERT(buffer);
+        emitCompatSignal("msgMessageReceived(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << message);
+    }
+    void SessionPrivate::_q_noticeReceived(const QString& origin, const QString& notice)
+    {
+        Q_Q(Session);
+        Buffer* buffer = qobject_cast<Buffer*>(q->sender());
+        Q_ASSERT(buffer);
+        emitCompatSignal("msgNoticeReceived(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << notice);
+    }
+    void SessionPrivate::_q_ctcpRequestReceived(const QString& origin, const QString& request)
+    {
+        emitCompatSignal("msgCtcpRequestReceived(QString, QString)", QVariantList() << origin << request);
+    }
+    void SessionPrivate::_q_ctcpReplyReceived(const QString& origin, const QString& reply)
+    {
+        emitCompatSignal("msgCtcpReplyReceived(QString, QString)", QVariantList() << origin << reply);
+    }
+    void SessionPrivate::_q_ctcpActionReceived(const QString& origin, const QString& action)
+    {
+        Q_Q(Session);
+        Buffer* buffer = qobject_cast<Buffer*>(q->sender());
+        Q_ASSERT(buffer);
+        emitCompatSignal("msgCtcpActionReceived(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << action);
+    }
+    void SessionPrivate::_q_numericMessageReceived(const QString& origin, uint code, const QStringList& params)
+    {
+        emitCompatSignal("msgNumericMessageReceived(QString, uint, QStringList)", QVariantList() << origin << code << params);
+    }
+    void SessionPrivate::_q_unknownMessageReceived(const QString& origin, const QStringList& params)
+    {
+        emitCompatSignal("msgUnknownMessageReceived(QString, QStringList)", QVariantList() << origin << params);
+    }
+
     /*!
         Constructs a new IRC session with \a parent.
      */
@@ -1149,8 +1247,59 @@ namespace Irc
      */
     Buffer* Session::createBuffer(const QString& receiver)
     {
-        return new Irc::Buffer(receiver, this);
+        Buffer* buffer = new Buffer(receiver, this);
+        // TODO: for backwards compatibility, to be removed in 1.0
+        connect(buffer, SIGNAL(joined(const QString& origin)), SLOT(_q_joined(const QString& origin)));
+        connect(buffer, SIGNAL(parted(const QString& origin, const QString& message)), SLOT(_q_parted(const QString& origin, const QString& message)));
+        connect(buffer, SIGNAL(quit(const QString& origin, const QString& message)), SLOT(_q_quit(const QString& origin, const QString& message)));
+        connect(buffer, SIGNAL(nickChanged(const QString& origin, const QString& nick)), SLOT(_q_nickChanged(const QString& origin, const QString& nick)));
+        connect(buffer, SIGNAL(modeChanged(const QString& origin, const QString& mode, const QString& args)), SLOT(_q_modeChanged(const QString& origin, const QString& mode, const QString& args)));
+        connect(buffer, SIGNAL(topicChanged(const QString& origin, const QString& topic)), SLOT(_q_topicChanged(const QString& origin, const QString& topic)));
+        connect(buffer, SIGNAL(invited(const QString& origin, const QString& receiver, const QString& channel)), SLOT(_q_invited(const QString& origin, const QString& receiver, const QString& channel)));
+        connect(buffer, SIGNAL(kicked(const QString& origin, const QString& nick, const QString& message)), SLOT(_q_kicked(const QString& origin, const QString& nick, const QString& message)));
+        connect(buffer, SIGNAL(messageReceived(const QString& origin, const QString& message)), SLOT(_q_messageReceived(const QString& origin, const QString& message)));
+        connect(buffer, SIGNAL(noticeReceived(const QString& origin, const QString& notice)), SLOT(_q_noticeReceived(const QString& origin, const QString& notice)));
+        connect(buffer, SIGNAL(ctcpRequestReceived(const QString& origin, const QString& request)), SLOT(_q_ctcpRequestReceived(const QString& origin, const QString& request)));
+        connect(buffer, SIGNAL(ctcpReplyReceived(const QString& origin, const QString& reply)), SLOT(_q_ctcpReplyReceived(const QString& origin, const QString& reply)));
+        connect(buffer, SIGNAL(ctcpActionReceived(const QString& origin, const QString& action)), SLOT(_q_ctcpActionReceived(const QString& origin, const QString& action)));
+        connect(buffer, SIGNAL(numericMessageReceived(const QString& origin, uint code, const QStringList& params)), SLOT(_q_numericMessageReceived(const QString& origin, uint code, const QStringList& params)));
+        connect(buffer, SIGNAL(unknownMessageReceived(const QString& origin, const QStringList& params)), SLOT(_q_unknownMessageReceived(const QString& origin, const QStringList& params)));
+        return buffer;
     }
+
+    // TODO: for backwards compatibility, to be removed in 1.0
+    bool Session::sendRaw(const QString& message)
+        { return Session::raw(message); }
+    bool Session::cmdJoin(const QString& channel, const QString& key)
+        { return Session::join(channel, key); }
+    bool Session::cmdPart(const QString& channel, const QString& reason)
+        { return Session::part(channel, reason); }
+    bool Session::cmdQuit(const QString& reason)
+        { return Session::quit(reason); }
+    bool Session::cmdNames(const QString& channel)
+        { return Session::names(channel); }
+    bool Session::cmdList(const QString& channel)
+        { return Session::list(channel); }
+    bool Session::cmdWhois(const QString& nick)
+        { return Session::whois(nick); }
+    bool Session::cmdMode(const QString& target, const QString& mode)
+        { return Session::mode(target, mode); }
+    bool Session::cmdTopic(const QString& channel, const QString& topic)
+        { return Session::topic(channel, topic); }
+    bool Session::cmdInvite(const QString& nick, const QString& channel)
+        { return Session::invite(nick, channel); }
+    bool Session::cmdKick(const QString& nick, const QString& channel, const QString& reason)
+        { return Session::kick(nick, channel, reason); }
+    bool Session::cmdMessage(const QString& receiver, const QString& message)
+        { return Session::message(receiver, message); }
+    bool Session::cmdNotice(const QString& receiver, const QString& notice)
+        { return Session::notice(receiver, notice); }
+    bool Session::cmdCtcpAction(const QString& receiver, const QString& action)
+        { return Session::ctcpAction(receiver, action); }
+    bool Session::cmdCtcpRequest(const QString& nick, const QString& request)
+        { return Session::ctcpRequest(nick, request); }
+    bool Session::cmdCtcpReply(const QString& nick, const QString& reply)
+        { return Session::ctcpReply(nick, reply); }
 }
 
 #include "moc_ircsession.cpp"
