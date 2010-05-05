@@ -622,84 +622,84 @@ namespace Irc
         Q_Q(Session);
         Buffer* buffer = qobject_cast<Buffer*>(q->sender());
         Q_ASSERT(buffer);
-        emitCompatSignal("msgJoined(QString, QString)", QVariantList() << origin << buffer->receiver());
+        emitCompatSignal("msgJoined(QString,QString)", QVariantList() << origin << buffer->receiver());
     }
     void SessionPrivate::_q_parted(const QString& origin, const QString& message)
     {
         Q_Q(Session);
         Buffer* buffer = qobject_cast<Buffer*>(q->sender());
         Q_ASSERT(buffer);
-        emitCompatSignal("msgParted(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << message);
+        emitCompatSignal("msgParted(QString,QString,QString)", QVariantList() << origin << buffer->receiver() << message);
     }
     void SessionPrivate::_q_quit(const QString& origin, const QString& message)
     {
-        emitCompatSignal("msgQuit(QString, QString)", QVariantList() << origin << message);
+        emitCompatSignal("msgQuit(QString,QString)", QVariantList() << origin << message);
     }
     void SessionPrivate::_q_nickChanged(const QString& origin, const QString& nick)
     {
-        emitCompatSignal("msgNickChanged(QString, QString)", QVariantList() << origin << nick);
+        emitCompatSignal("msgNickChanged(QString,QString)", QVariantList() << origin << nick);
     }
     void SessionPrivate::_q_modeChanged(const QString& origin, const QString& mode, const QString& args)
     {
         Q_Q(Session);
         Buffer* buffer = qobject_cast<Buffer*>(q->sender());
         Q_ASSERT(buffer);
-        emitCompatSignal("msgModeChanged(QString, QString, QString, QString)", QVariantList() << origin << buffer->receiver() << mode << args);
+        emitCompatSignal("msgModeChanged(QString,QString,QString,QString)", QVariantList() << origin << buffer->receiver() << mode << args);
     }
     void SessionPrivate::_q_topicChanged(const QString& origin, const QString& topic)
     {
         Q_Q(Session);
         Buffer* buffer = qobject_cast<Buffer*>(q->sender());
         Q_ASSERT(buffer);
-        emitCompatSignal("msgTopicChanged(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << topic);
+        emitCompatSignal("msgTopicChanged(QString,QString,QString)", QVariantList() << origin << buffer->receiver() << topic);
     }
     void SessionPrivate::_q_invited(const QString& origin, const QString& receiver, const QString& channel)
     {
-        emitCompatSignal("msgInvited(QString, QString, QString)", QVariantList() << origin << receiver << channel);
+        emitCompatSignal("msgInvited(QString,QString,QString)", QVariantList() << origin << receiver << channel);
     }
     void SessionPrivate::_q_kicked(const QString& origin, const QString& nick, const QString& message)
     {
         Q_Q(Session);
         Buffer* buffer = qobject_cast<Buffer*>(q->sender());
         Q_ASSERT(buffer);
-        emitCompatSignal("msgKicked(QString, QString, QString, QString)", QVariantList() << origin << buffer->receiver() << nick << message);
+        emitCompatSignal("msgKicked(QString,QString,QString,QString)", QVariantList() << origin << buffer->receiver() << nick << message);
     }
     void SessionPrivate::_q_messageReceived(const QString& origin, const QString& message)
     {
         Q_Q(Session);
         Buffer* buffer = qobject_cast<Buffer*>(q->sender());
         Q_ASSERT(buffer);
-        emitCompatSignal("msgMessageReceived(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << message);
+        emitCompatSignal("msgMessageReceived(QString,QString,QString)", QVariantList() << origin << buffer->receiver() << message);
     }
     void SessionPrivate::_q_noticeReceived(const QString& origin, const QString& notice)
     {
         Q_Q(Session);
         Buffer* buffer = qobject_cast<Buffer*>(q->sender());
         Q_ASSERT(buffer);
-        emitCompatSignal("msgNoticeReceived(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << notice);
+        emitCompatSignal("msgNoticeReceived(QString,QString,QString)", QVariantList() << origin << buffer->receiver() << notice);
     }
     void SessionPrivate::_q_ctcpRequestReceived(const QString& origin, const QString& request)
     {
-        emitCompatSignal("msgCtcpRequestReceived(QString, QString)", QVariantList() << origin << request);
+        emitCompatSignal("msgCtcpRequestReceived(QString,QString)", QVariantList() << origin << request);
     }
     void SessionPrivate::_q_ctcpReplyReceived(const QString& origin, const QString& reply)
     {
-        emitCompatSignal("msgCtcpReplyReceived(QString, QString)", QVariantList() << origin << reply);
+        emitCompatSignal("msgCtcpReplyReceived(QString,QString)", QVariantList() << origin << reply);
     }
     void SessionPrivate::_q_ctcpActionReceived(const QString& origin, const QString& action)
     {
         Q_Q(Session);
         Buffer* buffer = qobject_cast<Buffer*>(q->sender());
         Q_ASSERT(buffer);
-        emitCompatSignal("msgCtcpActionReceived(QString, QString, QString)", QVariantList() << origin << buffer->receiver() << action);
+        emitCompatSignal("msgCtcpActionReceived(QString,QString,QString)", QVariantList() << origin << buffer->receiver() << action);
     }
     void SessionPrivate::_q_numericMessageReceived(const QString& origin, uint code, const QStringList& params)
     {
-        emitCompatSignal("msgNumericMessageReceived(QString, uint, QStringList)", QVariantList() << origin << code << params);
+        emitCompatSignal("msgNumericMessageReceived(QString,uint,QStringList)", QVariantList() << origin << code << params);
     }
     void SessionPrivate::_q_unknownMessageReceived(const QString& origin, const QStringList& params)
     {
-        emitCompatSignal("msgUnknownMessageReceived(QString, QStringList)", QVariantList() << origin << params);
+        emitCompatSignal("msgUnknownMessageReceived(QString,QStringList)", QVariantList() << origin << params);
     }
 
     /*!
