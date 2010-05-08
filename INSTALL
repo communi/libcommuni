@@ -4,6 +4,11 @@
 4. CONFIG += libircclient-qt
 5. enjoy!
 
-NOTE: ICU support is enabled by default. If you do not have ICU installed or
-      if you want to disable the ICU support for other reasons, you may pass
-      additional "-config no_icu" parameters to qmake.
+NOTES: ICU support is enabled by default. If you do not have ICU installed or
+       if you want to disable the ICU support for other reasons, you may pass
+       additional "-config no_icu" parameters to qmake.
+
+       Deprecated functionality is enabled by default. If you do not need
+       deprecated backwards compatible functionality (introduces small
+       overhead), you may pass additional "-config no_deprecated" parameters
+       to qmake.
