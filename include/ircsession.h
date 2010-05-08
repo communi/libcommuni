@@ -117,6 +117,7 @@ namespace Irc
         bool ctcpRequest(const QString& nick, const QString& request);
         bool ctcpReply(const QString& nick, const QString& reply);
 
+#ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0
         Q_DECL_DEPRECATED bool sendRaw(const QString& message);
         Q_DECL_DEPRECATED bool cmdJoin(const QString& channel, const QString& key = QString());
@@ -134,6 +135,7 @@ namespace Irc
         Q_DECL_DEPRECATED bool cmdCtcpAction(const QString& receiver, const QString& action);
         Q_DECL_DEPRECATED bool cmdCtcpRequest(const QString& nick, const QString& request);
         Q_DECL_DEPRECATED bool cmdCtcpReply(const QString& nick, const QString& reply);
+#endif // IRC_NO_DEPRECATED
 
     Q_SIGNALS:
         void connected();
@@ -143,6 +145,7 @@ namespace Irc
         void bufferAdded(Irc::Buffer* buffer);
         void bufferRemoved(Irc::Buffer* buffer);
 
+#ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0
         Q_DECL_DEPRECATED void msgJoined(const QString& origin, const QString& channel);
         Q_DECL_DEPRECATED void msgParted(const QString& origin, const QString& channel, const QString& message);
@@ -159,6 +162,7 @@ namespace Irc
         Q_DECL_DEPRECATED void msgCtcpActionReceived(const QString& origin, const QString& receiver, const QString& action);
         Q_DECL_DEPRECATED void msgNumericMessageReceived(const QString& origin, uint code, const QStringList& params);
         Q_DECL_DEPRECATED void msgUnknownMessageReceived(const QString& origin, const QStringList& params);
+#endif // IRC_NO_DEPRECATED
 
     protected:
         virtual Buffer* createBuffer(const QString& receiver);
@@ -175,6 +179,7 @@ namespace Irc
         Q_PRIVATE_SLOT(d_func(), void _q_state(QAbstractSocket::SocketState))
         Q_PRIVATE_SLOT(d_func(), void _q_readData())
 
+#ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0
         Q_PRIVATE_SLOT(d_func(), void _q_joined(const QString&));
         Q_PRIVATE_SLOT(d_func(), void _q_parted(const QString&, const QString&));
@@ -191,6 +196,7 @@ namespace Irc
         Q_PRIVATE_SLOT(d_func(), void _q_ctcpActionReceived(const QString&, const QString&));
         Q_PRIVATE_SLOT(d_func(), void _q_numericMessageReceived(const QString&, uint code, const QStringList&));
         Q_PRIVATE_SLOT(d_func(), void _q_unknownMessageReceived(const QString&, const QStringList&));
+#endif // IRC_NO_DEPRECATED
 
         friend class Buffer;
     };

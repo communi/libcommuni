@@ -611,6 +611,7 @@ namespace Irc
             emit q->bufferRemoved(buffer);
     }
 
+#ifndef IRC_NO_DEPRECATED
     // TODO: for backwards compatibility, to be removed in 1.0
     inline void SessionPrivate::emitCompatSignal(const char* signal, const QVariantList& params)
     {
@@ -711,6 +712,7 @@ namespace Irc
     {
         emitCompatSignal(SIGNAL(msgUnknownMessageReceived(QString,QStringList)), QVariantList() << origin << params);
     }
+#endif // IRC_NO_DEPRECATED
 
     /*!
         Constructs a new IRC session with \a parent.
@@ -1264,6 +1266,7 @@ namespace Irc
     Buffer* Session::createBuffer(const QString& receiver)
     {
         Buffer* buffer = new Buffer(receiver, this);
+#ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0
         connect(buffer, SIGNAL(joined(QString)), SLOT(_q_joined(QString)));
         connect(buffer, SIGNAL(parted(QString, QString)), SLOT(_q_parted(QString, QString)));
@@ -1280,9 +1283,11 @@ namespace Irc
         connect(buffer, SIGNAL(ctcpActionReceived(QString, QString)), SLOT(_q_ctcpActionReceived(QString, QString)));
         connect(buffer, SIGNAL(numericMessageReceived(QString, uint, QStringList)), SLOT(_q_numericMessageReceived(QString, uint, QStringList)));
         connect(buffer, SIGNAL(unknownMessageReceived(QString, QStringList)), SLOT(_q_unknownMessageReceived(QString, QStringList)));
+#endif // IRC_NO_DEPRECATED
         return buffer;
     }
 
+#ifndef IRC_NO_DEPRECATED
     // TODO: for backwards compatibility, to be removed in 1.0
     bool Session::sendRaw(const QString& message)
     {
@@ -1364,6 +1369,7 @@ namespace Irc
         qWarning() << "IrcSession::cmdCtcpReply(reply) [slot] is DEPRECATED";
         return Session::ctcpReply(nick, reply);
     }
+#endif // IRC_NO_DEPRECATED
 }
 
 #ifndef QT_NO_DEBUG_STREAM

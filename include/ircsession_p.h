@@ -66,6 +66,7 @@ namespace Irc
         Buffer* defaultBuffer;
         QHash<QString, Buffer*> buffers;
 
+#ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0
         void emitCompatSignal(const char* signal, const QVariantList& params);
         void _q_joined(const QString& origin);
@@ -83,6 +84,7 @@ namespace Irc
         void _q_ctcpActionReceived(const QString& origin, const QString& action);
         void _q_numericMessageReceived(const QString& origin, uint code, const QStringList& params);
         void _q_unknownMessageReceived(const QString& origin, const QStringList& params);
+#endif // IRC_NO_DEPRECATED
     };
 }
 
