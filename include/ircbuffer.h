@@ -79,4 +79,8 @@ namespace Irc
     };
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+IRC_EXPORT QDebug operator<<(QDebug debug, const Irc::Buffer* buffer);
+#endif // QT_NO_DEBUG_STREAM
+
 #endif // IRC_BUFFER_H

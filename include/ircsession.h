@@ -196,6 +196,10 @@ namespace Irc
     };
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+IRC_EXPORT QDebug operator<<(QDebug debug, const Irc::Session* session);
+#endif // QT_NO_DEBUG_STREAM
+
 Q_DECLARE_OPERATORS_FOR_FLAGS(Irc::Session::Options)
 
 #endif // IRC_SESSION_H

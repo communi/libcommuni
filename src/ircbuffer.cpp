@@ -311,4 +311,19 @@ namespace Irc
     }
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const Irc::Buffer* buffer)
+{
+    if (!buffer)
+        return debug << "Irc::Buffer(0x0) ";
+    debug.nospace() << buffer->metaObject()->className() << '(' << (void*) buffer;
+    if (!buffer->objectName().isEmpty())
+        debug << ", name = " << buffer->objectName();
+    if (!buffer->receiver().isEmpty())
+        debug << ", receiver = " << buffer->receiver();
+    debug << ')';
+    return debug.space();
+}
+#endif // QT_NO_DEBUG_STREAM
+
 #include "moc_ircbuffer.cpp"

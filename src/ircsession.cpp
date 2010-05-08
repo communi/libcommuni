@@ -1366,4 +1366,20 @@ namespace Irc
     }
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const Irc::Session* session)
+{
+    if (!session)
+        return debug << "Irc::Session(0x0) ";
+    debug.nospace() << session->metaObject()->className() << '(' << (void*) session;
+    if (!session->objectName().isEmpty())
+        debug << ", name = " << session->objectName();
+    if (!session->host().isEmpty())
+        debug << ", host = " << session->host()
+              << ", port = " << session->port();
+    debug << ')';
+    return debug.space();
+}
+#endif // QT_NO_DEBUG_STREAM
+
 #include "moc_ircsession.cpp"
