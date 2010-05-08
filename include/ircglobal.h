@@ -43,7 +43,7 @@
     
     \sa IRC_VERSION_STR and Irc::version().
  */
-#define IRC_VERSION 0x000000
+#define IRC_VERSION 0x000400
 
 /*!
     \def IRC_VERSION_STR
@@ -53,7 +53,7 @@
 
     \sa Irc::version() and IRC_VERSION.
  */
-#define IRC_VERSION_STR "trunk"
+#define IRC_VERSION_STR "0.4.0"
 
 /*!
     \internal
