@@ -616,7 +616,7 @@ namespace Irc
     {
         Q_Q(Session);
         if (q->receivers(signal)) {
-            qWarning() << "IrcSession::" << signal << "[signal] is DEPRECATED";
+            qWarning("IrcSession::%s [signal] is DEPRECATED", signal+1);
             QByteArray method(signal);
             method.remove(0, 1);
             method.truncate(method.indexOf("("));
@@ -1285,37 +1285,85 @@ namespace Irc
 
     // TODO: for backwards compatibility, to be removed in 1.0
     bool Session::sendRaw(const QString& message)
-        { return Session::raw(message); }
+    {
+        qWarning() << "IrcSession::sendRaw(message) [slot] is DEPRECATED";
+        return Session::raw(message);
+    }
     bool Session::cmdJoin(const QString& channel, const QString& key)
-        { return Session::join(channel, key); }
+    {
+        qWarning() << "IrcSession::cmdJoin(channel, key) [slot] is DEPRECATED";
+        return Session::join(channel, key);
+    }
     bool Session::cmdPart(const QString& channel, const QString& reason)
-        { return Session::part(channel, reason); }
+    {
+        qWarning() << "IrcSession::cmdPart(channel, reason) [slot] is DEPRECATED";
+        return Session::part(channel, reason);
+    }
     bool Session::cmdQuit(const QString& reason)
-        { return Session::quit(reason); }
+    {
+        qWarning() << "IrcSession::cmdQuit(reason) [slot] is DEPRECATED";
+        return Session::quit(reason);
+    }
     bool Session::cmdNames(const QString& channel)
-        { return Session::names(channel); }
+    {
+        qWarning() << "IrcSession::cmdNames(channel) [slot] is DEPRECATED";
+        return Session::names(channel);
+    }
     bool Session::cmdList(const QString& channel)
-        { return Session::list(channel); }
+    {
+        qWarning() << "IrcSession::cmdList(channel) [slot] is DEPRECATED";
+        return Session::list(channel);
+    }
     bool Session::cmdWhois(const QString& nick)
-        { return Session::whois(nick); }
+    {
+        qWarning() << "IrcSession::cmdWhois(nick) [slot] is DEPRECATED";
+        return Session::whois(nick);
+    }
     bool Session::cmdMode(const QString& target, const QString& mode)
-        { return Session::mode(target, mode); }
+    {
+        qWarning() << "IrcSession::cmdMode(target, mode) [slot] is DEPRECATED";
+        return Session::mode(target, mode);
+    }
     bool Session::cmdTopic(const QString& channel, const QString& topic)
-        { return Session::topic(channel, topic); }
+    {
+        qWarning() << "IrcSession::cmdTopic(channel, topic) [slot] is DEPRECATED";
+        return Session::topic(channel, topic);
+    }
     bool Session::cmdInvite(const QString& nick, const QString& channel)
-        { return Session::invite(nick, channel); }
+    {
+        qWarning() << "IrcSession::cmdInvite(nick, channel) [slot] is DEPRECATED";
+        return Session::invite(nick, channel);
+    }
     bool Session::cmdKick(const QString& nick, const QString& channel, const QString& reason)
-        { return Session::kick(nick, channel, reason); }
+    {
+        qWarning() << "IrcSession::cmdKick(nick, channel, reason) [slot] is DEPRECATED";
+        return Session::kick(nick, channel, reason);
+    }
     bool Session::cmdMessage(const QString& receiver, const QString& message)
-        { return Session::message(receiver, message); }
+    {
+        qWarning() << "IrcSession::cmdMessage(receiver, message) [slot] is DEPRECATED";
+        return Session::message(receiver, message);
+    }
     bool Session::cmdNotice(const QString& receiver, const QString& notice)
-        { return Session::notice(receiver, notice); }
+    {
+        qWarning() << "IrcSession::cmdNotice(receiver, notice) [slot] is DEPRECATED";
+        return Session::notice(receiver, notice);
+    }
     bool Session::cmdCtcpAction(const QString& receiver, const QString& action)
-        { return Session::ctcpAction(receiver, action); }
+    {
+        qWarning() << "IrcSession::cmdCtcpAction(receiver, action) [slot] is DEPRECATED";
+        return Session::ctcpAction(receiver, action);
+    }
     bool Session::cmdCtcpRequest(const QString& nick, const QString& request)
-        { return Session::ctcpRequest(nick, request); }
+    {
+        qWarning() << "IrcSession::cmdCtcpRequest(request) [slot] is DEPRECATED";
+        return Session::ctcpRequest(nick, request);
+    }
     bool Session::cmdCtcpReply(const QString& nick, const QString& reply)
-        { return Session::ctcpReply(nick, reply); }
+    {
+        qWarning() << "IrcSession::cmdCtcpReply(reply) [slot] is DEPRECATED";
+        return Session::ctcpReply(nick, reply);
+    }
 }
 
 #include "moc_ircsession.cpp"
