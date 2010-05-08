@@ -162,7 +162,7 @@ namespace Irc
         realName(QLatin1String("libircclient-qt")),
         host(),
         port(6667),
-        motdReceived(false),
+        motd(),
         channels(),
         encoding(),
         delay(-1),
@@ -370,6 +370,20 @@ namespace Irc
                     break;
                 }
 
+                case Irc::Rfc::RPL_MOTDSTART:
+                    motd.clear();
+                    break;
+
+                case Irc::Rfc::RPL_MOTD:
+                    motd.append(params.value(1) + QLatin1Char('\n'));
+                    break;
+
+                case Irc::Rfc::RPL_ENDOFMOTD:
+                    if (defaultBuffer)
+                        emit defaultBuffer->motdReceived(motd);
+                    motd.clear();
+                    break;
+
                 default:
                     break;
             }
@@ -385,15 +399,8 @@ namespace Irc
                 }
             }
 
-            static const QList<int> MOTD_LIST =
-                QList<int>() << Rfc::RPL_MOTDSTART << Rfc::RPL_MOTD << Rfc::RPL_ENDOFMOTD << Rfc::ERR_NOMOTD;
-
-            if (defaultBuffer && (!motdReceived || (code >= 300 && !MOTD_LIST.contains(code))))
+            if (defaultBuffer)
                 emit defaultBuffer->numericMessageReceived(prefix, code, params);
-
-            // check whether it is the first RPL_ENDOFMOTD or ERR_NOMOTD after the connection
-            if (!motdReceived && (code == Rfc::RPL_ENDOFMOTD || code == Rfc::ERR_NOMOTD))
-                motdReceived = true;
 
             // join auto-join channels after MOTD
             if (code == Rfc::RPL_ENDOFMOTD || code == Rfc::ERR_NOMOTD)
@@ -1041,7 +1048,6 @@ namespace Irc
     void Session::connectToServer(const QString& hostName, quint16 port)
     {
         Q_D(Session);
-        d->motdReceived = false;
         if (!hostName.isNull())
             d->host = hostName;
         if (port != 6667)
@@ -1055,7 +1061,6 @@ namespace Irc
     void Session::reconnectToServer()
     {
         Q_D(Session);
-        d->motdReceived = true;
         d->_q_reconnect();
     }
 
@@ -1079,6 +1084,14 @@ namespace Irc
         if (d->socket)
             d->socket->write(message.toUtf8() + QByteArray("\r\n"));
         return bytes != -1;
+    }
+
+    /*!
+        Requests message of the day.
+     */
+    bool Session::motd()
+    {
+        return raw(QString(QLatin1String("MOTD")));
     }
 
     /*!

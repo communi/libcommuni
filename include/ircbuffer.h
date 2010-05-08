@@ -49,6 +49,7 @@ namespace Irc
 
     Q_SIGNALS:
         void receiverChanged(const QString& receiver);
+        void motdReceived(const QString& motd);
         void joined(const QString& origin);
         void parted(const QString& origin, const QString& message);
         void quit(const QString& origin, const QString& message);

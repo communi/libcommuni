@@ -99,6 +99,7 @@ namespace Irc
         void disconnectFromServer();
 
         bool raw(const QString& message);
+        bool motd();
         bool join(const QString& channel, const QString& key = QString());
         bool part(const QString& channel, const QString& reason = QString());
         bool quit(const QString& reason = QString());

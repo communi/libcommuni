@@ -58,7 +58,7 @@ namespace Irc
         QString realName;
         QString host;
         quint16 port;
-        bool motdReceived;
+        QString motd;
         QStringList channels;
         QByteArray encoding;
         int delay;
