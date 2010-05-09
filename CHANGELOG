@@ -1,3 +1,12 @@
+0.4.0
+-----
+- Introduced Irc::Buffer - the concept of server/channel/query specific buffers
+- Deprecated buffer-specific functionality in Irc::Session
+- Fixed tabs not to cause underlined text
+- Added a version number to the library
+- Added Irc::Rfc::toString()
+- Fixed euIRC connection problems
+
 0.3.2
 -----
 - Fixed problems with "unknown" messages
