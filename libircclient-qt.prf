@@ -2,4 +2,5 @@
 # LibIrcClient-Qt
 ######################################################################
 
+include(libircclient-qt-config.prf)
 qtAddLibrary(ircclient-qt)

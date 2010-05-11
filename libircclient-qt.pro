@@ -21,6 +21,14 @@ CONFIG(debug, debug|release) {
     MOC_DIR = debug
 }
 
+static {
+    DEFINES += IRC_STATIC
+    system(echo DEFINES+=IRC_STATIC > libircclient-qt-config.prf)
+} else {
+    DEFINES += IRC_SHARED
+    system(echo DEFINES+=IRC_SHARED > libircclient-qt-config.prf)
+}
+
 macx {
     CONFIG += lib_bundle
     FRAMEWORK_HEADERS.version = Versions
@@ -35,7 +43,7 @@ PRIV_HEADERS += ircbuffer_p.h ircsession_p.h
 HEADERS = $$PUB_HEADERS $$PRIV_HEADERS
 SOURCES += irc.cpp ircbuffer.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
 
-mkspecs.files = libircclient-qt.prf
+mkspecs.files = libircclient-qt.prf libircclient-qt-config.prf
 mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
 INSTALLS += mkspecs
 
