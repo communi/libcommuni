@@ -21,11 +21,17 @@
     \file ircglobal.h
  */
 
-#if BUILD_IRC
+#if defined(IRC_SHARED)
+#  if defined(BUILD_IRC)
 #    define IRC_EXPORT Q_DECL_EXPORT
-#else
+#  else
 #    define IRC_EXPORT Q_DECL_IMPORT
-#endif // BUILD_IRC
+#  endif
+#elif defined(IRC_STATIC)
+#  define IRC_EXPORT Q_DECL_EXPORT
+#else
+#  error Installation problem: either IRC_SHARED or IRC_STATIC must be defined!
+#endif
 
 /*!
     \def IRC_VERSION
