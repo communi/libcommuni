@@ -18,7 +18,7 @@ CONFIG(debug, debug|release) {
     MOC_DIR = debug
 } else {
     OBJECTS_DIR = release
-    MOC_DIR = debug
+    MOC_DIR = release
 }
 
 static {
