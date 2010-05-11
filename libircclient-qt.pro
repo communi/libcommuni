@@ -10,8 +10,6 @@ CONFIG += silent
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 !win32:VERSION = 0.4.0
 
-message(Building LibIrcClient-Qt $$VERSION)
-
 DESTDIR = lib
 DEPENDPATH += include src
 INCLUDEPATH += include
@@ -51,16 +49,20 @@ INSTALLS += target
 dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
 
-!no_icu {
-    message(ICU support enabled. Run \'qmake -config no_icu\' to disable ICU support.)
-    include(icu.pri)
-} else {
-    message(ICU support disabled.)
-}
+!build_pass {
+    message(Building LibIrcClient-Qt $$VERSION)
 
-!no_deprecated {
-    message(Deprecated functionality enabled. Run \'qmake -config no_deprecated\' to disable deprecated functionality.)
-} else {
-    message(Deprecated functionality disabled.)
-    DEFINES += IRC_NO_DEPRECATED
+    !no_icu {
+        message(ICU support enabled. Run \'qmake -config no_icu\' to disable ICU support.)
+        include(icu.pri)
+    } else {
+        message(ICU support disabled.)
+    }
+
+    !no_deprecated {
+        message(Deprecated functionality enabled. Run \'qmake -config no_deprecated\' to disable deprecated functionality.)
+    } else {
+        message(Deprecated functionality disabled.)
+        DEFINES += IRC_NO_DEPRECATED
+    }
 }
