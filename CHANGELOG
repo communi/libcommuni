@@ -1,3 +1,10 @@
+0.4.1
+-----
+- Added support for static builds (qmake -config static)
+- Fixed qmake project messages output only once
+- Fixed MOC_DIR in release mode
+- Added default MacPorts paths for ICU
+
 0.4.0
 -----
 - Introduced Irc::Buffer - the concept of server/channel/query specific buffers
