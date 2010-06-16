@@ -1016,7 +1016,10 @@ namespace Irc
     }
 
     /*!
-        Returns the buffer for \a receiver.
+        Returns the buffer for \a receiver. Returns \c 0
+        if the buffer does not exist.
+
+        \sa addBuffer()
      */
     Buffer* Session::buffer(const QString& receiver) const
     {
@@ -1024,6 +1027,17 @@ namespace Irc
         if (receiver.isNull())
             return d->buffers.value(d->host.toLower());
         return d->buffers.value(receiver.toLower());
+    }
+
+    /*!
+        Adds a buffer for \a receiver and returns it.
+
+        \sa buffer()
+     */
+    Buffer* Session::addBuffer(const QString& receiver)
+    {
+        Q_D(Session);
+        return d->createBuffer(receiver);
     }
 
     /*!
