@@ -30,7 +30,7 @@ namespace Irc
 
         void addName(QString name);
         void removeName(const QString& name);
-        void setReceiver(const QString& rec);
+        void setReceiver(const QString& rec, bool replace = true);
         void updateMode(const QString& name, const QString& mode);
 
         Buffer* q_ptr;

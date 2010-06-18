@@ -179,11 +179,18 @@ namespace Irc
         names.insert(name, updated);
     }
 
-    void BufferPrivate::setReceiver(const QString& rec)
+    void BufferPrivate::setReceiver(const QString& rec, bool replace)
     {
         Q_Q(Buffer);
         if (receiver != rec)
         {
+            Session* s = q->session();
+            if (s)
+            {
+                if (replace)
+                    s->d_func()->buffers.remove(receiver);
+                s->d_func()->buffers.insert(rec, q);
+            }
             receiver = rec;
             emit q->receiverChanged(receiver);
         }

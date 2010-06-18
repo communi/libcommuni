@@ -200,6 +200,7 @@ namespace Irc
 #endif // IRC_NO_DEPRECATED
 
         friend class Buffer;
+        friend class BufferPrivate;
     };
 }
 

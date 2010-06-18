@@ -168,7 +168,8 @@ namespace Irc
         delay(-1),
         timer(),
         defaultBuffer(),
-        buffers()
+        buffers(),
+        welcomed(false)
     {
     }
 
@@ -202,6 +203,7 @@ namespace Irc
 
         defaultBuffer = createBuffer(host);
         emit q->connected();
+        welcomed = false;
     }
 
     void SessionPrivate::_q_disconnected()
@@ -341,8 +343,9 @@ namespace Irc
             {
                 case Irc::Rfc::RPL_WELCOME:
                 {
-                    Buffer* buffer = createBuffer(host);
-                    buffer->d_func()->setReceiver(prefix);
+                    Q_ASSERT(defaultBuffer);
+                    defaultBuffer->d_func()->setReceiver(prefix, false);
+                    welcomed = true;
                     break;
                 }
 
@@ -528,6 +531,12 @@ namespace Irc
             }
             else if (command == QLatin1String("NOTICE"))
             {
+                if (!welcomed)
+                {
+                    Q_ASSERT(defaultBuffer);
+                    defaultBuffer->d_func()->setReceiver(prefix, false);
+                }
+
                 QString receiver = params.value(0);
                 QString message = params.value(1);
 
