@@ -65,6 +65,7 @@ namespace Irc
         QTimer timer;
         Buffer* defaultBuffer;
         QHash<QString, Buffer*> buffers;
+        bool welcomed;
 
 #ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0
