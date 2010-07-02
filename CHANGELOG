@@ -4,6 +4,9 @@
 - Fixed qmake project messages output only once
 - Fixed MOC_DIR in release mode
 - Added default MacPorts paths for ICU
+- Fixed notices and messages from "real host" vs. "connected host" to get
+  directed to the same buffer
+- Fixed CTCP requests not to create a new buffer
 
 0.4.0
 -----
