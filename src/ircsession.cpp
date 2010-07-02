@@ -503,10 +503,7 @@ namespace Irc
             }
             else if (command == QLatin1String("PRIVMSG"))
             {
-                QString receiver = params.value(0);
                 QString message = params.value(1);
-                QString target = resolveTarget(prefix, receiver);
-                Buffer* buffer = createBuffer(target);
 
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
@@ -515,6 +512,9 @@ namespace Irc
 
                     if (message.startsWith(QLatin1String("ACTION ")))
                     {
+                        QString receiver = params.value(0);
+                        QString target = resolveTarget(prefix, receiver);
+                        Buffer* buffer = createBuffer(target);
                         emit buffer->ctcpActionReceived(prefix, message.mid(7));
                     }
                     else
@@ -526,6 +526,9 @@ namespace Irc
                 }
                 else
                 {
+                    QString receiver = params.value(0);
+                    QString target = resolveTarget(prefix, receiver);
+                    Buffer* buffer = createBuffer(target);
                     emit buffer->messageReceived(prefix, message);
                 }
             }
