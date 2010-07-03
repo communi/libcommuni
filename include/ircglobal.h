@@ -28,7 +28,7 @@
 #    define IRC_EXPORT Q_DECL_IMPORT
 #  endif
 #elif defined(IRC_STATIC)
-#  define IRC_EXPORT Q_DECL_EXPORT
+#  define IRC_EXPORT
 #else
 #  error Installation problem: either IRC_SHARED or IRC_STATIC must be defined!
 #endif
