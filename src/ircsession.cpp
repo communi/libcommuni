@@ -158,7 +158,7 @@ namespace Irc
         socket(0),
         ident(QLatin1String("libircclient-qt")),
         password(),
-        nick(),
+        nick(QLatin1String("libircclient")),
         realName(QLatin1String("libircclient-qt")),
         host(),
         port(6667),
@@ -185,6 +185,9 @@ namespace Irc
     void SessionPrivate::_q_connected()
     {
         Q_Q(Session);
+
+        Q_ASSERT( !nick.isEmpty() );
+        Q_ASSERT( !ident.isEmpty() );
 
         // stop autoreconnecting...
         if (timer.isActive())
