@@ -140,6 +140,7 @@ namespace Irc
 
     Q_SIGNALS:
         void connected();
+        void welcomed();
         void reconnecting();
         void disconnected();
 

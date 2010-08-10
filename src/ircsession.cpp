@@ -345,6 +345,7 @@ namespace Irc
                 {
                     Q_ASSERT(defaultBuffer);
                     defaultBuffer->d_func()->setReceiver(prefix, false);
+                    emit q->welcomed();
                     welcomed = true;
                     break;
                 }
