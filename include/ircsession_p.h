@@ -67,6 +67,17 @@ namespace Irc
         QHash<QString, Buffer*> buffers;
         bool welcomed;
 
+        // Capabilities supported by the server
+        QStringList capabilities;
+        // Capabilities enabled for this connection
+        QStringList enabledCapabilities;
+        // Capabilities to request only when connecting
+        QStringList wantedCapabilities;
+        // Temporary building list of capabilities in transmission
+        QStringList tempCapabilities;
+        // Whether the server has CAP implemented
+        bool        capabilitiesSupported;
+
 #ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0
         void emitCompatSignal(const char* signal, const QVariantList& params);

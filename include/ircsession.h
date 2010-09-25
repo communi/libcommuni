@@ -19,6 +19,7 @@
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QAbstractSocket)
+QT_FORWARD_DECLARE_CLASS(QStringList)
 
 namespace Irc
 {
@@ -38,6 +39,8 @@ namespace Irc
         Q_PROPERTY(QString password READ password WRITE setPassword)
         Q_PROPERTY(quint16 port READ port WRITE setPort)
         Q_PROPERTY(QString realName READ realName WRITE setRealName)
+        Q_PROPERTY(QStringList supportedCapabilities READ supportedCapabilities)
+        Q_PROPERTY(QStringList enabledCapabilities READ enabledCapabilities)
         Q_FLAGS(Options)
         Q_ENUMS(Option)
 
@@ -94,6 +97,9 @@ namespace Irc
         Buffer* defaultBuffer() const;
         void setDefaultBuffer(Buffer* buffer);
 
+        const QStringList &supportedCapabilities() const;
+        const QStringList &enabledCapabilities() const;
+
     public Q_SLOTS:
         void connectToServer(const QString& hostName = QString(), quint16 port = 6667);
         void reconnectToServer();
@@ -117,6 +123,9 @@ namespace Irc
         bool ctcpAction(const QString& receiver, const QString& action);
         bool ctcpRequest(const QString& nick, const QString& request);
         bool ctcpReply(const QString& nick, const QString& reply);
+
+        void requestCapabilities( const QStringList &capabilities );
+        void clearCapabilities();
 
 #ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0
@@ -146,6 +155,29 @@ namespace Irc
 
         void bufferAdded(Irc::Buffer* buffer);
         void bufferRemoved(Irc::Buffer* buffer);
+
+        /*!
+            This signal is emitted when the library receives a list of
+            supported capabilities for this session.
+
+            \sa requestCapabilities()
+        */
+        void capabilitiesListed( const QStringList &caps );
+        /*!
+            This signal is emitted when the server acknowledges the use of
+            a previously requested list of capabilities. Note that if you
+            request a list of capabilities, either all of them will be
+            acked, or all of them will be nacked.
+        */
+        void capabilitiesAcked( const QStringList &caps );
+        /*!
+            This signal is emitted when the server disacknowledges enabling
+            a previously requested list of capabilities. This means that none
+            of the requested capabilities will be enabled, even if some of them
+            were valid. (Any previously enabled capabilities will still be
+            enabled.)
+        */
+        void capabilitiesNotAcked( const QStringList &caps );
 
 #ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0

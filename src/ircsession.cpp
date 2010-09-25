@@ -169,7 +169,8 @@ namespace Irc
         timer(),
         defaultBuffer(),
         buffers(),
-        welcomed(false)
+        welcomed(false),
+        capabilitiesSupported(false)
     {
     }
 
@@ -193,6 +194,11 @@ namespace Irc
         if (timer.isActive())
             timer.stop();
 
+        // Send CAP LS first; if the server understands it this will
+        // temporarily pause the handshake until CAP END is sent, so we
+        // know whether the server supports the CAP extension.
+        socket->write("CAP LS\r\n");
+
         if (!password.isEmpty())
             socket->write(QString(QLatin1String("PASS %1\r\n")).arg(password).toLocal8Bit());
 
@@ -207,6 +213,7 @@ namespace Irc
         defaultBuffer = createBuffer(host);
         emit q->connected();
         welcomed = false;
+        capabilitiesSupported = false;
     }
 
     void SessionPrivate::_q_disconnected()
@@ -348,8 +355,17 @@ namespace Irc
                 {
                     Q_ASSERT(defaultBuffer);
                     defaultBuffer->d_func()->setReceiver(prefix, false);
+
                     emit q->welcomed();
                     welcomed = true;
+
+                    if( !capabilitiesSupported
+                     && !wantedCapabilities.isEmpty() )
+                    {
+                      emit q->capabilitiesNotAcked( wantedCapabilities );
+                    }
+                    wantedCapabilities.clear();
+
                     break;
                 }
 
@@ -566,6 +582,64 @@ namespace Irc
             else if (command == QLatin1String("KILL"))
             {
                 ; // ignore this event - not all servers generate this
+            }
+            else if (command == QLatin1String("CAP"))
+            {
+                QString subcommand = params.at(1);
+                bool endList = params.size() < 3
+                            || params.at(2) != QLatin1String("*");
+
+                QString rawCapabilities = params.at(params.size()-1);
+                tempCapabilities.append(rawCapabilities.split(QLatin1String(" ")));
+
+                if (subcommand == QLatin1String("LS") && endList)
+                {
+                    capabilities = tempCapabilities;
+                    emit q->capabilitiesListed( capabilities );
+
+                    if (!welcomed)
+                    {
+                        capabilitiesSupported = true;
+                        if (wantedCapabilities.isEmpty())
+                            socket->write("CAP END\r\n");
+                        else
+                            q->requestCapabilities( wantedCapabilities );
+                    }
+                }
+                else if (subcommand == QLatin1String("LIST") && endList)
+                {
+                    enabledCapabilities = tempCapabilities;
+                }
+                else if (subcommand == QLatin1String("ACK") && endList)
+                {
+                    foreach (const QString &cap, tempCapabilities)
+                    {
+                        if (cap.startsWith(QString::fromAscii("-")))
+                            // remove disabled capabilities from the list
+                            for (int capi = 0; capi <
+                                   enabledCapabilities.size(); ++capi)
+                            {
+                                if (enabledCapabilities.at(capi).compare(
+                                        cap.mid(1), Qt::CaseInsensitive)
+                                  == 0)
+                                    enabledCapabilities.removeAt(capi);
+                            }
+                        else
+                            enabledCapabilities.append(cap);
+                    }
+
+                    if( !welcomed )
+                      socket->write( "CAP END\r\n" );
+                    emit q->capabilitiesAcked( tempCapabilities );
+                }
+                else if (subcommand == QLatin1String("NAK") && endList )
+                {
+                    if( !welcomed )
+                        socket->write( "CAP END\r\n" );
+                    emit q->capabilitiesNotAcked( tempCapabilities );
+                }
+
+                tempCapabilities.clear();
             }
             else
             {
@@ -1029,6 +1103,84 @@ namespace Irc
                 connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_q_state(QAbstractSocket::SocketState)));
             }
         }
+    }
+
+    /*!
+        Returns the list of capabilities the server supports. If empty, the
+        server might not implement the capabilities extension, or it might
+        simply not support any specific capability.
+     */
+    const QStringList &Session::supportedCapabilities() const
+    {
+        Q_D(const Session);
+        return d->capabilities;
+    }
+
+    /*!
+        Returns the list of enabled capabilities for this session.
+
+        \sa requestCapabilities()
+     */
+    const QStringList &Session::enabledCapabilities() const
+    {
+        Q_D(const Session);
+        return d->enabledCapabilities;
+    }
+
+    /*!
+        Requests a capability in the server.
+
+        \sa supportedCapabilities()
+        \sa clearCapabilities()
+        \sa capabilitiesAcked()
+        \sa capabilitiesNotAcked()
+     */
+    void Session::requestCapabilities( const QStringList &caps )
+    {
+        Q_D(Session);
+
+        if( d->capabilitiesSupported )
+        {
+            // We're far enough in the handshake to send them right away.
+            QString caps;
+            foreach (const QString &rawCap, d->wantedCapabilities) {
+                QString cap = rawCap;
+                cap.remove( QLatin1String("\r") );
+                cap.remove( QLatin1String("\n") );
+                caps.append(cap + QLatin1String(" "));
+            }
+            d->socket->write(QString::fromAscii("CAP REQ :%1\r\n")
+                              .arg(caps).toAscii());
+            return;
+        }
+
+        if( !d->welcomed )
+        {
+            // Queue the requested capabilities to request them later.
+            d->wantedCapabilities.append( caps );
+            d->wantedCapabilities.removeDuplicates();
+            return;
+        }
+
+        // Capabilities are requested while they are not supported. Emit
+        // an artificial NACK
+        emit capabilitiesNotAcked( caps );
+    }
+
+    /*!
+        Clear all non-sticky capabilities for this session.
+
+        \sa enabledCapabilities()
+        \sa requestCapabilities()
+        \sa supportedCapabilities()
+     */
+    void Session::clearCapabilities()
+    {
+        Q_D(Session);
+        if( d->welcomed )
+          d->socket->write(QLatin1String("CAP CLEAR\r\n").latin1());
+        else
+          d->wantedCapabilities.clear();
     }
 
     /*!
