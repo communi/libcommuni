@@ -105,6 +105,20 @@
  */
 
 /*!
+    \fn void Irc::Session::welcomed()
+
+    This signal is emitted when the welcome message has been received.
+
+    \sa Irc::Rfc::RPL_WELCOME
+ */
+
+/*!
+    \fn void Irc::Session::reconnecting()
+
+    This signal is emitted when the session is about to reconnect.
+ */
+
+/*!
     \fn void Irc::Session::disconnected()
 
     This signal is emitted when the session has been disconnected.
