@@ -99,6 +99,7 @@ namespace Irc
 
         const QStringList &supportedCapabilities() const;
         const QStringList &enabledCapabilities() const;
+        bool capabilityEnabled(QString name) const;
 
     public Q_SLOTS:
         void connectToServer(const QString& hostName = QString(), quint16 port = 6667);

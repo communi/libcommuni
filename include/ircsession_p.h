@@ -20,6 +20,7 @@
 #include <QStringList>
 #include <QVariantList>
 #include <QAbstractSocket>
+#include "ircbuffer.h"
 
 namespace Irc
 {
@@ -42,6 +43,7 @@ namespace Irc
         QString readString(const QByteArray& data) const;
         void readLines(const QByteArray& delimiter);
         void processLine(const QByteArray& line);
+        Irc::Buffer::MessageFlags getMessageFlags(QString &msg) const;
         bool isConnected() const;
         QString resolveTarget(const QString& sender, const QString& receiver) const;
 

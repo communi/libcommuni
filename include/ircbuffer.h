@@ -30,6 +30,8 @@ namespace Irc
         Q_PROPERTY(QString receiver READ receiver)
         Q_PROPERTY(QString topic READ topic)
         Q_PROPERTY(QStringList names READ names)
+        Q_FLAGS(MessageFlags)
+        Q_ENUMS(MessageFlag)
 
     public:
         ~Buffer();
@@ -41,6 +43,15 @@ namespace Irc
         QStringList names() const;
         QString modes(const QString& name) const;
         QString visualMode(const QString& name) const;
+
+        enum MessageFlag
+        {
+            NoFlags = 0x0, /// No flags for this message
+            NoFlagsRequested = 0x1,/// Use the extended signal to get the flags
+            IdentifiedFlag = 0x2, /// Message was sent from an identified nick
+            EchoFlag = 0x4, /// Message echoed back from library
+        };
+        Q_DECLARE_FLAGS(MessageFlags, MessageFlag)
 
     public Q_SLOTS:
         bool message(const QString& message);
@@ -58,11 +69,16 @@ namespace Irc
         void topicChanged(const QString& origin, const QString& topic);
         void invited(const QString& origin, const QString& receiver, const QString& channel);
         void kicked(const QString& origin, const QString& nick, const QString& message);
-        void messageReceived(const QString& origin, const QString& message);
-        void noticeReceived(const QString& origin, const QString& notice);
-        void ctcpRequestReceived(const QString& origin, const QString& request);
-        void ctcpReplyReceived(const QString& origin, const QString& reply);
-        void ctcpActionReceived(const QString& origin, const QString& action);
+        void messageReceived(const QString& origin, const QString& message,
+                             Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
+        void noticeReceived(const QString& origin, const QString& notice,
+                            Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
+        void ctcpRequestReceived(const QString& origin, const QString& request,
+                                 Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
+        void ctcpReplyReceived(const QString& origin, const QString& reply,
+                               Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
+        void ctcpActionReceived(const QString& origin, const QString& action,
+                                Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
         void numericMessageReceived(const QString& origin, uint code, const QStringList& params);
         void unknownMessageReceived(const QString& origin, const QStringList& params);
 
@@ -82,5 +98,7 @@ namespace Irc
 #ifndef QT_NO_DEBUG_STREAM
 IRC_EXPORT QDebug operator<<(QDebug debug, const Irc::Buffer* buffer);
 #endif // QT_NO_DEBUG_STREAM
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Irc::Buffer::MessageFlags)
 
 #endif // IRC_BUFFER_H

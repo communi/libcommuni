@@ -525,6 +525,9 @@ namespace Irc
             {
                 QString message = params.value(1);
 
+                Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags;
+                flags |= getMessageFlags( message );
+
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
                     message.remove(0, 1);
@@ -535,13 +538,13 @@ namespace Irc
                         QString receiver = params.value(0);
                         QString target = resolveTarget(prefix, receiver);
                         Buffer* buffer = createBuffer(target);
-                        emit buffer->ctcpActionReceived(prefix, message.mid(7));
+                        emit buffer->ctcpActionReceived(prefix, message.mid(7), flags);
                     }
                     else
                     {
                         // TODO: check params
                         if (defaultBuffer)
-                            emit defaultBuffer->ctcpRequestReceived(prefix, /*receiver,*/ message);
+                            emit defaultBuffer->ctcpRequestReceived(prefix, /*receiver,*/ message, flags);
                     }
                 }
                 else
@@ -549,7 +552,7 @@ namespace Irc
                     QString receiver = params.value(0);
                     QString target = resolveTarget(prefix, receiver);
                     Buffer* buffer = createBuffer(target);
-                    emit buffer->messageReceived(prefix, message);
+                    emit buffer->messageReceived(prefix, message, flags);
                 }
             }
             else if (command == QLatin1String("NOTICE"))
@@ -563,6 +566,9 @@ namespace Irc
                 QString receiver = params.value(0);
                 QString message = params.value(1);
 
+                Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags;
+                flags |= getMessageFlags( message );
+
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
                     message.remove(0, 1);
@@ -570,13 +576,13 @@ namespace Irc
 
                     // TODO: check params
                     if (defaultBuffer)
-                        emit defaultBuffer->ctcpReplyReceived(prefix, /*receiver,*/ message);
+                        emit defaultBuffer->ctcpReplyReceived(prefix, /*receiver,*/ message, flags);
                 }
                 else
                 {
                     QString target = resolveTarget(prefix, receiver);
                     Buffer* buffer = createBuffer(target);
-                    emit buffer->noticeReceived(prefix, message);
+                    emit buffer->noticeReceived(prefix, message, flags);
                 }
             }
             else if (command == QLatin1String("KILL"))
@@ -595,7 +601,11 @@ namespace Irc
                 if (subcommand == QLatin1String("LS") && endList)
                 {
                     capabilities = tempCapabilities;
+
                     emit q->capabilitiesListed( capabilities );
+
+                    // Request in-library supported capabilities right away
+                    wantedCapabilities.append( QLatin1String("identify-msg") );
 
                     if (!welcomed)
                     {
@@ -650,6 +660,29 @@ namespace Irc
                     emit defaultBuffer->unknownMessageReceived(prefix, params);
             }
         }
+    }
+
+    Irc::Buffer::MessageFlags SessionPrivate::getMessageFlags(QString &m) const
+    {
+        Q_Q(const Session);
+        if (q->capabilityEnabled(QLatin1String("identify-msg")))
+        {
+            const QChar identstate = m.at(0);
+            m.remove(0, 1);
+            switch(identstate.toAscii())
+            {
+            case '+':
+                return Irc::Buffer::IdentifiedFlag;
+            case '-':
+                break;
+            default:
+                qWarning() << "Unknown identification state character"
+                              " in PRIVMSG with identify-msg enabled:"
+                           << identstate;
+            }
+        }
+
+        return Irc::Buffer::NoFlags;
     }
 
     bool SessionPrivate::isConnected() const
@@ -1106,7 +1139,8 @@ namespace Irc
     }
 
     /*!
-        Returns the list of capabilities the server supports. If empty, the
+        Returns the list of capabilities the server supports, as reported
+        by the server (including any modifiers). If empty, the
         server might not implement the capabilities extension, or it might
         simply not support any specific capability.
      */
@@ -1117,7 +1151,8 @@ namespace Irc
     }
 
     /*!
-        Returns the list of enabled capabilities for this session.
+        Returns the list of enabled capabilities for this session, as reported
+        by the server (including any modifiers).
 
         \sa requestCapabilities()
      */
@@ -1125,6 +1160,40 @@ namespace Irc
     {
         Q_D(const Session);
         return d->enabledCapabilities;
+    }
+
+    /*!
+        Returns whether a capability is enabled for this session.
+
+        If you give modifier names along with the name (i.e. '=' or '~'), this
+        method will remove them; it will match them to any name delivered by
+        the server, whether or not it sends any modifiers along. Behaviour when
+        including the 'disabled modifier' ('-') is undefined; you should negate
+        the return value of this method instead.
+
+        Note: This does not include the network specific modifier (i.e. '.').
+        For example, =identify-msg matches ~IDENTIFY-MSG but not .identify-msg.
+
+        \sa enabledCapabilities()
+     */
+    bool Session::capabilityEnabled(QString name) const
+    {
+        while (name.startsWith(QLatin1Char('='))
+            || name.startsWith(QLatin1Char('~')))
+            name.remove(0, 1);
+
+        foreach (const QString &mod, enabledCapabilities())
+        {
+            QString copy = mod;
+            while (copy.startsWith(QLatin1Char('='))
+                || copy.startsWith(QLatin1Char('~')))
+                copy.remove(0, 1);
+
+            if (name.compare(copy, Qt::CaseInsensitive) == 0)
+                return true;
+        }
+
+        return false;
     }
 
     /*!
@@ -1393,7 +1462,7 @@ namespace Irc
         if (d->options & Session::EchoMessages)
         {
             Buffer* buffer = d->createBuffer(receiver);
-            emit buffer->messageReceived(d->nick, message);
+            emit buffer->messageReceived(d->nick, message, Irc::Buffer::EchoFlag);
         }
         return raw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver).arg(message));
     }
@@ -1407,7 +1476,7 @@ namespace Irc
         if (d->options & Session::EchoMessages)
         {
             Buffer* buffer = d->createBuffer(receiver);
-            emit buffer->noticeReceived(d->nick, notice);
+            emit buffer->noticeReceived(d->nick, notice, Irc::Buffer::EchoFlag);
         }
         return raw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver).arg(notice));
     }
@@ -1421,7 +1490,7 @@ namespace Irc
         if (d->options & Session::EchoMessages)
         {
             Buffer* buffer = d->createBuffer(receiver);
-            emit buffer->ctcpActionReceived(d->nick, action);
+            emit buffer->ctcpActionReceived(d->nick, action, Irc::Buffer::EchoFlag);
         }
         return raw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver).arg(action));
     }
