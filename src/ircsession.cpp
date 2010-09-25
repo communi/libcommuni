@@ -122,6 +122,34 @@
     This signal is emitted whenever a \a buffer was removed.
  */
 
+/*!
+    \fn void Irc::Session::capabilitiesListed(const QStringList& capabilities)
+
+    This signal is emitted when the library receives a list of
+    supported capabilities for this session.
+
+    \sa requestCapabilities()
+ */
+
+/*!
+    \fn void Irc::Session::capabilitiesAcked(const QStringList& capabilities)
+
+    This signal is emitted when the server acknowledges the use of
+    a previously requested list of capabilities. Note that if you
+    request a list of capabilities, either all of them will be
+    acked, or all of them will be nacked.
+ */
+
+/*!
+    \fn void Irc::Session::capabilitiesNotAcked(const QStringList& capabilities)
+
+    This signal is emitted when the server disacknowledges enabling
+    a previously requested list of capabilities. This means that none
+    of the requested capabilities will be enabled, even if some of them
+    were valid. (Any previously enabled capabilities will still be
+    enabled.)
+ */
+
 static QByteArray detectEncoding(const QByteArray& text)
 {
     Q_UNUSED(text);
