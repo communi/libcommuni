@@ -25,6 +25,37 @@
  */
 
 /*!
+    \enum Irc::Buffer::MessageFlag
+
+    This enum describes available message flags.
+ */
+
+/*!
+    \var Irc::Buffer::NoFlags
+
+    No flags for the message.
+ */
+
+/*!
+    \var Irc::Buffer::NoFlagsRequested
+
+    Use the extended signal to get the flags.
+ */
+
+/*!
+    \var Irc::Buffer::IdentifiedFlag
+
+    Message was sent from an identified nick.
+ */
+
+/*!
+    \var Irc::Buffer::EchoFlag
+
+    Message echoed back from library.
+ */
+
+
+/*!
     \fn void Irc::Buffer::receiverChanged(const QString& receiver)
 
     This signal is emitted whenever \a receiver has changed.

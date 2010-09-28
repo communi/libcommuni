@@ -46,10 +46,10 @@ namespace Irc
 
         enum MessageFlag
         {
-            NoFlags = 0x0, /// No flags for this message
-            NoFlagsRequested = 0x1,/// Use the extended signal to get the flags
-            IdentifiedFlag = 0x2, /// Message was sent from an identified nick
-            EchoFlag = 0x4, /// Message echoed back from library
+            NoFlags = 0x0,
+            NoFlagsRequested = 0x1,
+            IdentifiedFlag = 0x2,
+            EchoFlag = 0x4,
         };
         Q_DECLARE_FLAGS(MessageFlags, MessageFlag)
 
