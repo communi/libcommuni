@@ -97,9 +97,9 @@ namespace Irc
         Buffer* defaultBuffer() const;
         void setDefaultBuffer(Buffer* buffer);
 
-        const QStringList &supportedCapabilities() const;
-        const QStringList &enabledCapabilities() const;
-        bool capabilityEnabled(QString name) const;
+        QStringList supportedCapabilities() const;
+        QStringList enabledCapabilities() const;
+        bool capabilityEnabled(const QString& name) const;
 
     public Q_SLOTS:
         void connectToServer(const QString& hostName = QString(), quint16 port = 6667);
@@ -125,7 +125,7 @@ namespace Irc
         bool ctcpRequest(const QString& nick, const QString& request);
         bool ctcpReply(const QString& nick, const QString& reply);
 
-        void requestCapabilities( const QStringList &capabilities );
+        void requestCapabilities(const QStringList& capabilities);
         void clearCapabilities();
 
 #ifndef IRC_NO_DEPRECATED

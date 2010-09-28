@@ -43,7 +43,7 @@ namespace Irc
         QString readString(const QByteArray& data) const;
         void readLines(const QByteArray& delimiter);
         void processLine(const QByteArray& line);
-        Irc::Buffer::MessageFlags getMessageFlags(QString &msg) const;
+        Irc::Buffer::MessageFlags getMessageFlags(QString& message) const;
         bool isConnected() const;
         QString resolveTarget(const QString& sender, const QString& receiver) const;
 

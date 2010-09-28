@@ -229,8 +229,8 @@ namespace Irc
     {
         Q_Q(Session);
 
-        Q_ASSERT( !nick.isEmpty() );
-        Q_ASSERT( !ident.isEmpty() );
+        Q_ASSERT(!nick.isEmpty());
+        Q_ASSERT(!ident.isEmpty());
 
         // stop autoreconnecting...
         if (timer.isActive())
@@ -401,11 +401,8 @@ namespace Irc
                     emit q->welcomed();
                     welcomed = true;
 
-                    if( !capabilitiesSupported
-                     && !wantedCapabilities.isEmpty() )
-                    {
-                      emit q->capabilitiesNotAcked( wantedCapabilities );
-                    }
+                    if (!capabilitiesSupported && !wantedCapabilities.isEmpty())
+                        emit q->capabilitiesNotAcked(wantedCapabilities);
                     wantedCapabilities.clear();
 
                     break;
@@ -567,8 +564,7 @@ namespace Irc
             {
                 QString message = params.value(1);
 
-                Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags;
-                flags |= getMessageFlags( message );
+                Irc::Buffer::MessageFlags flags = getMessageFlags(message);
 
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
@@ -608,8 +604,7 @@ namespace Irc
                 QString receiver = params.value(0);
                 QString message = params.value(1);
 
-                Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags;
-                flags |= getMessageFlags( message );
+                Irc::Buffer::MessageFlags flags = getMessageFlags(message);
 
                 if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
                 {
@@ -644,10 +639,10 @@ namespace Irc
                 {
                     capabilities = tempCapabilities;
 
-                    emit q->capabilitiesListed( capabilities );
+                    emit q->capabilitiesListed(capabilities);
 
                     // Request in-library supported capabilities right away
-                    wantedCapabilities.append( QLatin1String("identify-msg") );
+                    wantedCapabilities.append(QLatin1String("identify-msg"));
 
                     if (!welcomed)
                     {
@@ -655,7 +650,7 @@ namespace Irc
                         if (wantedCapabilities.isEmpty())
                             socket->write("CAP END\r\n");
                         else
-                            q->requestCapabilities( wantedCapabilities );
+                            q->requestCapabilities(wantedCapabilities);
                     }
                 }
                 else if (subcommand == QLatin1String("LIST") && endList)
@@ -680,15 +675,15 @@ namespace Irc
                             enabledCapabilities.append(cap);
                     }
 
-                    if( !welcomed )
-                      socket->write( "CAP END\r\n" );
-                    emit q->capabilitiesAcked( tempCapabilities );
+                    if (!welcomed)
+                        socket->write("CAP END\r\n");
+                    emit q->capabilitiesAcked(tempCapabilities);
                 }
-                else if (subcommand == QLatin1String("NAK") && endList )
+                else if (subcommand == QLatin1String("NAK") && endList)
                 {
-                    if( !welcomed )
-                        socket->write( "CAP END\r\n" );
-                    emit q->capabilitiesNotAcked( tempCapabilities );
+                    if (!welcomed)
+                        socket->write("CAP END\r\n");
+                    emit q->capabilitiesNotAcked(tempCapabilities);
                 }
 
                 tempCapabilities.clear();
@@ -704,14 +699,14 @@ namespace Irc
         }
     }
 
-    Irc::Buffer::MessageFlags SessionPrivate::getMessageFlags(QString &m) const
+    Irc::Buffer::MessageFlags SessionPrivate::getMessageFlags(QString& message) const
     {
         Q_Q(const Session);
         if (q->capabilityEnabled(QLatin1String("identify-msg")))
         {
-            const QChar identstate = m.at(0);
-            m.remove(0, 1);
-            switch(identstate.toAscii())
+            const QChar identstate = message.at(0);
+            message.remove(0, 1);
+            switch (identstate.toAscii())
             {
             case '+':
                 return Irc::Buffer::IdentifiedFlag;
@@ -1186,7 +1181,7 @@ namespace Irc
         server might not implement the capabilities extension, or it might
         simply not support any specific capability.
      */
-    const QStringList &Session::supportedCapabilities() const
+    QStringList Session::supportedCapabilities() const
     {
         Q_D(const Session);
         return d->capabilities;
@@ -1198,7 +1193,7 @@ namespace Irc
 
         \sa requestCapabilities()
      */
-    const QStringList &Session::enabledCapabilities() const
+    QStringList Session::enabledCapabilities() const
     {
         Q_D(const Session);
         return d->enabledCapabilities;
@@ -1218,11 +1213,12 @@ namespace Irc
 
         \sa enabledCapabilities()
      */
-    bool Session::capabilityEnabled(QString name) const
+    bool Session::capabilityEnabled(const QString& name) const
     {
-        while (name.startsWith(QLatin1Char('='))
-            || name.startsWith(QLatin1Char('~')))
-            name.remove(0, 1);
+        QString cleanName = name;
+        while (cleanName.startsWith(QLatin1Char('='))
+            || cleanName.startsWith(QLatin1Char('~')))
+            cleanName.remove(0, 1);
 
         foreach (const QString &mod, enabledCapabilities())
         {
@@ -1231,7 +1227,7 @@ namespace Irc
                 || copy.startsWith(QLatin1Char('~')))
                 copy.remove(0, 1);
 
-            if (name.compare(copy, Qt::CaseInsensitive) == 0)
+            if (cleanName.compare(copy, Qt::CaseInsensitive) == 0)
                 return true;
         }
 
@@ -1246,18 +1242,18 @@ namespace Irc
         \sa capabilitiesAcked()
         \sa capabilitiesNotAcked()
      */
-    void Session::requestCapabilities( const QStringList &caps )
+    void Session::requestCapabilities(const QStringList& capabilities)
     {
         Q_D(Session);
 
-        if( d->capabilitiesSupported )
+        if (d->capabilitiesSupported)
         {
             // We're far enough in the handshake to send them right away.
             QString caps;
             foreach (const QString &rawCap, d->wantedCapabilities) {
                 QString cap = rawCap;
-                cap.remove( QLatin1String("\r") );
-                cap.remove( QLatin1String("\n") );
+                cap.remove(QLatin1String("\r"));
+                cap.remove(QLatin1String("\n"));
                 caps.append(cap + QLatin1String(" "));
             }
             d->socket->write(QString::fromAscii("CAP REQ :%1\r\n")
@@ -1265,17 +1261,17 @@ namespace Irc
             return;
         }
 
-        if( !d->welcomed )
+        if (!d->welcomed)
         {
             // Queue the requested capabilities to request them later.
-            d->wantedCapabilities.append( caps );
+            d->wantedCapabilities.append(capabilities);
             d->wantedCapabilities.removeDuplicates();
             return;
         }
 
         // Capabilities are requested while they are not supported. Emit
         // an artificial NACK
-        emit capabilitiesNotAcked( caps );
+        emit capabilitiesNotAcked(capabilities);
     }
 
     /*!
@@ -1288,10 +1284,10 @@ namespace Irc
     void Session::clearCapabilities()
     {
         Q_D(Session);
-        if( d->welcomed )
-          d->socket->write(QLatin1String("CAP CLEAR\r\n").latin1());
+        if (d->welcomed)
+            d->socket->write("CAP CLEAR\r\n");
         else
-          d->wantedCapabilities.clear();
+            d->wantedCapabilities.clear();
     }
 
     /*!
