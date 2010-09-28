@@ -37,12 +37,6 @@
  */
 
 /*!
-    \var Irc::Buffer::NoFlagsRequested
-
-    Use the extended signal to get the flags.
- */
-
-/*!
     \var Irc::Buffer::IdentifiedFlag
 
     Message was sent from an identified nick.

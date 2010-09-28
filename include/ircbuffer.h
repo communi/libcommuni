@@ -47,9 +47,8 @@ namespace Irc
         enum MessageFlag
         {
             NoFlags = 0x0,
-            NoFlagsRequested = 0x1,
-            IdentifiedFlag = 0x2,
-            EchoFlag = 0x4,
+            IdentifiedFlag = 0x1,
+            EchoFlag = 0x2,
         };
         Q_DECLARE_FLAGS(MessageFlags, MessageFlag)
 
@@ -70,15 +69,15 @@ namespace Irc
         void invited(const QString& origin, const QString& receiver, const QString& channel);
         void kicked(const QString& origin, const QString& nick, const QString& message);
         void messageReceived(const QString& origin, const QString& message,
-                             Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
+                             Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags);
         void noticeReceived(const QString& origin, const QString& notice,
-                            Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
+                            Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags);
         void ctcpRequestReceived(const QString& origin, const QString& request,
-                                 Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
+                                 Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags);
         void ctcpReplyReceived(const QString& origin, const QString& reply,
-                               Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
+                               Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags);
         void ctcpActionReceived(const QString& origin, const QString& action,
-                                Irc::Buffer::MessageFlags info = Irc::Buffer::NoFlagsRequested);
+                                Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags);
         void numericMessageReceived(const QString& origin, uint code, const QStringList& params);
         void unknownMessageReceived(const QString& origin, const QStringList& params);
 
