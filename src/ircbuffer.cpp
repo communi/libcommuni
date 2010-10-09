@@ -56,6 +56,12 @@
  */
 
 /*!
+    \fn void Irc::Buffer::motdReceived(const QString& motd)
+
+    This signal is emitted when message of the day \a motd has been changed.
+ */
+
+/*!
     \fn void Irc::Buffer::joined(const QString& origin)
 
     This signal is emitted when \a origin has joined.
@@ -104,31 +110,31 @@
  */
 
 /*!
-    \fn void Irc::Buffer::messageReceived(const QString& origin, const QString& message)
+    \fn void Irc::Buffer::messageReceived(const QString& origin, const QString& message, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
 
     This signal is emitted when \a origin has sent \a message.
  */
 
 /*!
-    \fn void Irc::Buffer::noticeReceived(const QString& origin, const QString& notice)
+    \fn void Irc::Buffer::noticeReceived(const QString& origin, const QString& notice, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
 
     This signal is emitted when \a origin has sent \a notice.
  */
 
 /*!
-    \fn void Irc::Buffer::ctcpRequestReceived(const QString& origin, const QString& request)
+    \fn void Irc::Buffer::ctcpRequestReceived(const QString& origin, const QString& request, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
 
     This signal is emitted when \a origin has sent a CTCP \a request.
  */
 
 /*!
-    \fn void Irc::Buffer::ctcpReplyReceived(const QString& origin, const QString& reply)
+    \fn void Irc::Buffer::ctcpReplyReceived(const QString& origin, const QString& reply, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
 
     This signal is emitted when \a origin has sent a CTCP \a reply.
  */
 
 /*!
-    \fn void Irc::Buffer::ctcpActionReceived(const QString& origin, const QString& action)
+    \fn void Irc::Buffer::ctcpActionReceived(const QString& origin, const QString& action, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
 
     This signal is emitted when \a origin has sent a CTCP \a action.
  */
