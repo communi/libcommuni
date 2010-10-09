@@ -20,6 +20,7 @@
 #include <QSet>
 #include <QTimer>
 #include <QBuffer>
+#include <QRegExp>
 #include <QPointer>
 #include <QTcpSocket>
 #include <QTextCodec>
@@ -1373,7 +1374,13 @@ namespace Irc
         Q_D(Session);
         qint64 bytes = -1;
         if (d->socket)
-            d->socket->write(message.toUtf8() + QByteArray("\r\n"));
+        {
+            int index = message.indexOf(QRegExp(QLatin1String("[\\r\\n]+")));
+            if (index != -1)
+                bytes = d->socket->write(message.left(index).toUtf8() + QByteArray("\r\n"));
+            else
+                bytes = d->socket->write(message.toUtf8() + QByteArray("\r\n"));
+        }
         return bytes != -1;
     }
 
@@ -1497,12 +1504,18 @@ namespace Irc
     bool Session::message(const QString& receiver, const QString& message)
     {
         Q_D(Session);
-        if (d->options & Session::EchoMessages)
+        bool result = true;
+        QStringList lines = message.split(QRegExp(QLatin1String("[\\r\\n]+")), QString::SkipEmptyParts);
+        foreach (const QString& line, lines)
         {
-            Buffer* buffer = d->createBuffer(receiver);
-            emit buffer->messageReceived(d->nick, message, Irc::Buffer::EchoFlag);
+            if (d->options & Session::EchoMessages)
+            {
+                Buffer* buffer = d->createBuffer(receiver);
+                emit buffer->messageReceived(d->nick, line, Irc::Buffer::EchoFlag);
+            }
+            result &= raw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver, line));
         }
-        return raw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver, message));
+        return result;
     }
 
     /*!
@@ -1511,12 +1524,18 @@ namespace Irc
     bool Session::notice(const QString& receiver, const QString& notice)
     {
         Q_D(Session);
-        if (d->options & Session::EchoMessages)
+        bool result = true;
+        QStringList lines = notice.split(QRegExp(QLatin1String("[\\r\\n]+")), QString::SkipEmptyParts);
+        foreach (const QString& line, lines)
         {
-            Buffer* buffer = d->createBuffer(receiver);
-            emit buffer->noticeReceived(d->nick, notice, Irc::Buffer::EchoFlag);
+            if (d->options & Session::EchoMessages)
+            {
+                Buffer* buffer = d->createBuffer(receiver);
+                emit buffer->noticeReceived(d->nick, line, Irc::Buffer::EchoFlag);
+            }
+            result &= raw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver, line));
         }
-        return raw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver, notice));
+        return result;
     }
 
     /*!
@@ -1525,12 +1544,18 @@ namespace Irc
     bool Session::ctcpAction(const QString& receiver, const QString& action)
     {
         Q_D(Session);
-        if (d->options & Session::EchoMessages)
+        bool result = true;
+        QStringList lines = action.split(QRegExp(QLatin1String("[\\r\\n]+")), QString::SkipEmptyParts);
+        foreach (const QString& line, lines)
         {
-            Buffer* buffer = d->createBuffer(receiver);
-            emit buffer->ctcpActionReceived(d->nick, action, Irc::Buffer::EchoFlag);
+            if (d->options & Session::EchoMessages)
+            {
+                Buffer* buffer = d->createBuffer(receiver);
+                emit buffer->ctcpActionReceived(d->nick, line, Irc::Buffer::EchoFlag);
+            }
+            result &= raw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver, line));
         }
-        return raw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver, action));
+        return result;
     }
 
     /*!
