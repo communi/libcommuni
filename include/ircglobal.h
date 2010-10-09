@@ -49,7 +49,7 @@
     
     \sa IRC_VERSION_STR and Irc::version().
  */
-#define IRC_VERSION 0x000000
+#define IRC_VERSION 0xFFFFFF
 
 /*!
     \def IRC_VERSION_STR
