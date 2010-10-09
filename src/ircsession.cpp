@@ -250,7 +250,7 @@ namespace Irc
         // ignored by the IRC server when the USER command comes from
         // a directly connected client (for security reasons)", therefore
         // we don't need them.
-        socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(ident).arg(realName).toLocal8Bit());
+        socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(ident, realName).toLocal8Bit());
 
         defaultBuffer = createBuffer(host);
         emit q->connected();
@@ -1382,7 +1382,7 @@ namespace Irc
      */
     bool Session::motd()
     {
-        return raw(QString(QLatin1String("MOTD")));
+        return raw(QLatin1String("MOTD"));
     }
 
     /*!
@@ -1393,7 +1393,7 @@ namespace Irc
         if (key.isEmpty())
             return raw(QString(QLatin1String("JOIN %1")).arg(channel));
         else
-            return raw(QString(QLatin1String("JOIN %1 %2")).arg(channel).arg(key));
+            return raw(QString(QLatin1String("JOIN %1 %2")).arg(channel, key));
     }
 
     /*!
@@ -1404,7 +1404,7 @@ namespace Irc
         if (reason.isEmpty())
             return raw(QString(QLatin1String("PART %1")).arg(channel));
         else
-            return raw(QString(QLatin1String("PART %1 :%2")).arg(channel).arg(reason));
+            return raw(QString(QLatin1String("PART %1 :%2")).arg(channel, reason));
     }
 
     /*!
@@ -1429,7 +1429,7 @@ namespace Irc
     bool Session::list(const QString& channel)
     {
         if (channel.isEmpty())
-            return raw(QString(QLatin1String("LIST")));
+            return raw(QLatin1String("LIST"));
         else
             return raw(QString(QLatin1String("LIST %1")).arg(channel));
     }
@@ -1439,7 +1439,7 @@ namespace Irc
      */
     bool Session::whois(const QString& nick)
     {
-        return raw(QString(QLatin1String("WHOIS %1 %2")).arg(nick).arg(nick));
+        return raw(QString(QLatin1String("WHOIS %1 %2")).arg(nick, nick));
     }
 
     /*!
@@ -1447,7 +1447,7 @@ namespace Irc
      */
     bool Session::whowas(const QString& nick)
     {
-        return raw(QString(QLatin1String("WHOWAS %1 %2")).arg(nick).arg(nick));
+        return raw(QString(QLatin1String("WHOWAS %1 %2")).arg(nick, nick));
     }
 
     /*!
@@ -1458,7 +1458,7 @@ namespace Irc
         if (mode.isEmpty())
             return raw(QString(QLatin1String("MODE %1")).arg(target));
         else
-            return raw(QString(QLatin1String("MODE %1 %2")).arg(target).arg(mode));
+            return raw(QString(QLatin1String("MODE %1 %2")).arg(target, mode));
     }
 
     /*!
@@ -1469,7 +1469,7 @@ namespace Irc
         if (topic.isEmpty())
             return raw(QString(QLatin1String("TOPIC %1")).arg(channel));
         else
-            return raw(QString(QLatin1String("TOPIC %1 :%2")).arg(channel).arg(topic));
+            return raw(QString(QLatin1String("TOPIC %1 :%2")).arg(channel, topic));
     }
 
     /*!
@@ -1477,7 +1477,7 @@ namespace Irc
      */
     bool Session::invite(const QString& nick, const QString& channel)
     {
-        return raw(QString(QLatin1String("INVITE %1 %2")).arg(nick).arg(channel));
+        return raw(QString(QLatin1String("INVITE %1 %2")).arg(nick, channel));
     }
 
     /*!
@@ -1486,9 +1486,9 @@ namespace Irc
     bool Session::kick(const QString& nick, const QString& channel, const QString& reason)
     {
         if (reason.isEmpty())
-            return raw(QString(QLatin1String("KICK %1 %2")).arg(channel).arg(nick));
+            return raw(QString(QLatin1String("KICK %1 %2")).arg(channel, nick));
         else
-            return raw(QString(QLatin1String("KICK %1 %2 :%3")).arg(channel).arg(nick).arg(reason));
+            return raw(QString(QLatin1String("KICK %1 %2 :%3")).arg(channel, nick, reason));
     }
 
     /*!
@@ -1502,7 +1502,7 @@ namespace Irc
             Buffer* buffer = d->createBuffer(receiver);
             emit buffer->messageReceived(d->nick, message, Irc::Buffer::EchoFlag);
         }
-        return raw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver).arg(message));
+        return raw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver, message));
     }
 
     /*!
@@ -1516,7 +1516,7 @@ namespace Irc
             Buffer* buffer = d->createBuffer(receiver);
             emit buffer->noticeReceived(d->nick, notice, Irc::Buffer::EchoFlag);
         }
-        return raw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver).arg(notice));
+        return raw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver, notice));
     }
 
     /*!
@@ -1530,7 +1530,7 @@ namespace Irc
             Buffer* buffer = d->createBuffer(receiver);
             emit buffer->ctcpActionReceived(d->nick, action, Irc::Buffer::EchoFlag);
         }
-        return raw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver).arg(action));
+        return raw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver, action));
     }
 
     /*!
@@ -1538,7 +1538,7 @@ namespace Irc
      */
     bool Session::ctcpRequest(const QString& nick, const QString& request)
     {
-        return raw(QString(QLatin1String("PRIVMSG %1 :\x01%2\x01")).arg(nick).arg(request));
+        return raw(QString(QLatin1String("PRIVMSG %1 :\x01%2\x01")).arg(nick, request));
     }
 
     /*!
@@ -1546,7 +1546,7 @@ namespace Irc
      */
     bool Session::ctcpReply(const QString& nick, const QString& reply)
     {
-        return raw(QString(QLatin1String("NOTICE %1 :\x01%2\x01")).arg(nick).arg(reply));
+        return raw(QString(QLatin1String("NOTICE %1 :\x01%2\x01")).arg(nick, reply));
     }
 
     /*!
