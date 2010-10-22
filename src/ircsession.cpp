@@ -524,6 +524,8 @@ namespace Irc
                 Buffer* buffer = createBuffer(target);
                 buffer->d_func()->removeName(Util::nickFromTarget(prefix));
                 emit buffer->parted(prefix, message);
+                if (nick == Util::nickFromTarget(prefix))
+                    buffer->deleteLater();
             }
             else if (command == QLatin1String("MODE"))
             {
