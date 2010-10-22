@@ -519,13 +519,20 @@ namespace Irc
             else if (command == QLatin1String("PART"))
             {
                 QString channel = params.value(0);
-                QString message = params.value(1);
                 QString target = resolveTarget(prefix, channel);
-                Buffer* buffer = createBuffer(target);
-                buffer->d_func()->removeName(Util::nickFromTarget(prefix));
-                emit buffer->parted(prefix, message);
-                if (nick == Util::nickFromTarget(prefix))
+                if (nick != Util::nickFromTarget(prefix))
+                {
+                    QString message = params.value(1);
+                    Buffer* buffer = createBuffer(target);
+                    buffer->d_func()->removeName(Util::nickFromTarget(prefix));
+                    emit buffer->parted(prefix, message);
+                }
+                else if (buffers.contains(target))
+                {
+                    Buffer* buffer = buffers.value(target);
+                    removeBuffer(buffer);
                     buffer->deleteLater();
+                }
             }
             else if (command == QLatin1String("MODE"))
             {
