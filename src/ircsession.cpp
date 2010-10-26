@@ -1300,9 +1300,21 @@ namespace Irc
     }
 
     /*!
+        Returns all allocated buffers.
+
+        \sa buffer()
+     */
+    QList<Buffer*> Session::buffers() const
+    {
+        Q_D(const Session);
+        return d->buffers.values();
+    }
+
+    /*!
         Returns the buffer for \a receiver. Returns \c 0
         if the buffer does not exist.
 
+        \sa buffers()
         \sa addBuffer()
      */
     Buffer* Session::buffer(const QString& receiver) const

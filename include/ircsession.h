@@ -91,6 +91,7 @@ namespace Irc
         QAbstractSocket* socket() const;
         void setSocket(QAbstractSocket* socket);
 
+        QList<Buffer*> buffers() const;
         Buffer* buffer(const QString& receiver = QString()) const;
         Buffer* addBuffer(const QString& receiver);
 
