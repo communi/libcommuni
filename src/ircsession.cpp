@@ -1382,7 +1382,7 @@ namespace Irc
         Q_D(Session);
         qint64 bytes = -1;
         if (d->socket)
-            d->socket->write(message.toUtf8() + QByteArray("\r\n"));
+            bytes = d->socket->write(message.toUtf8() + QByteArray("\r\n"));
         return bytes != -1;
     }
 
