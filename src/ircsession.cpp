@@ -763,7 +763,15 @@ namespace Irc
     {
         Q_Q(Session);
         QString lower = receiver.toLower();
-        if (!buffers.contains(lower))
+        QString lowerNick = Util::nickFromTarget(receiver).toLower();
+        if (lower != lowerNick && buffers.contains(lowerNick))
+        {
+            Buffer* buffer = buffers.value(lowerNick);
+            buffer->d_func()->setReceiver(lower);
+            buffers.insert(lower, buffer);
+            buffers.remove(lowerNick);
+        }
+        else if (!buffers.contains(lower) && !buffers.contains(lowerNick))
         {
             Buffer* buffer = q->createBuffer(receiver);
             buffers.insert(lower, buffer);
@@ -1523,7 +1531,7 @@ namespace Irc
             Buffer* buffer = d->createBuffer(receiver);
             emit buffer->messageReceived(d->nick, message, Irc::Buffer::EchoFlag);
         }
-        return raw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(receiver, message));
+        return raw(QString(QLatin1String("PRIVMSG %1 :%2")).arg(Util::nickFromTarget(receiver), message));
     }
 
     /*!
@@ -1537,7 +1545,7 @@ namespace Irc
             Buffer* buffer = d->createBuffer(receiver);
             emit buffer->noticeReceived(d->nick, notice, Irc::Buffer::EchoFlag);
         }
-        return raw(QString(QLatin1String("NOTICE %1 :%2")).arg(receiver, notice));
+        return raw(QString(QLatin1String("NOTICE %1 :%2")).arg(Util::nickFromTarget(receiver), notice));
     }
 
     /*!
@@ -1551,7 +1559,7 @@ namespace Irc
             Buffer* buffer = d->createBuffer(receiver);
             emit buffer->ctcpActionReceived(d->nick, action, Irc::Buffer::EchoFlag);
         }
-        return raw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(receiver, action));
+        return raw(QString(QLatin1String("PRIVMSG %1 :\x01" "ACTION %2\x01")).arg(Util::nickFromTarget(receiver), action));
     }
 
     /*!
@@ -1559,7 +1567,7 @@ namespace Irc
      */
     bool Session::ctcpRequest(const QString& nick, const QString& request)
     {
-        return raw(QString(QLatin1String("PRIVMSG %1 :\x01%2\x01")).arg(nick, request));
+        return raw(QString(QLatin1String("PRIVMSG %1 :\x01%2\x01")).arg(Util::nickFromTarget(nick), request));
     }
 
     /*!
@@ -1567,7 +1575,7 @@ namespace Irc
      */
     bool Session::ctcpReply(const QString& nick, const QString& reply)
     {
-        return raw(QString(QLatin1String("NOTICE %1 :\x01%2\x01")).arg(nick, reply));
+        return raw(QString(QLatin1String("NOTICE %1 :\x01%2\x01")).arg(Util::nickFromTarget(nick), reply));
     }
 
     /*!
