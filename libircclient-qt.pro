@@ -30,11 +30,26 @@ static {
 }
 
 macx {
-    CONFIG += lib_bundle
-    FRAMEWORK_HEADERS.version = Versions
-    FRAMEWORK_HEADERS.files = $$HEADERS
-    FRAMEWORK_HEADERS.path = Headers
-    QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+    # Libircclient-qt is installed using the same format as Qt itself. This
+    # makes it easier for other applications to link against it, as Qmake
+    # assumes that.
+
+    !qt_no_framework {
+        CONFIG += lib_bundle
+        FRAMEWORK_HEADERS.version = Versions
+        FRAMEWORK_HEADERS.files = $$HEADERS
+        FRAMEWORK_HEADERS.path = Headers
+        QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+
+        QMAKE_POST_LINK  = install_name_tool -id
+        QMAKE_POST_LINK +=   "$$[QT_INSTALL_LIBS]/ircclient-qt.framework/Versions/0/$${TARGET}"
+        QMAKE_POST_LINK +=   "$${DESTDIR}/ircclient-qt.framework/Versions/0/$${TARGET}"
+    } else {
+        CONFIG -= lib_bundle
+        QMAKE_POST_LINK  =  install_name_tool -id
+        QMAKE_POST_LINK +=   "$$[QT_INSTALL_LIBS]/lib$${TARGET}.0.dylib"
+        QMAKE_POST_LINK +=   "$${DESTDIR}/lib$${TARGET}.0.dylib"
+    }
 }
 
 CONV_HEADERS += include/Irc include/IrcBuffer include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
@@ -58,7 +73,16 @@ dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
 
 !build_pass {
-    message(Building LibIrcClient-Qt $$VERSION)
+    macx {
+        # See above for an explanation of this.
+        !qt_no_framework {
+            message(Building LibIrcClient-Qt $$VERSION (framework))
+        } else {
+            message(Building LibIrcClient-Qt $$VERSION (dylib))
+        }
+    } else {
+        message(Building LibIrcClient-Qt $$VERSION)
+    }
 
     !no_icu {
         message(ICU support enabled. Run \'qmake -config no_icu\' to disable ICU support.)
