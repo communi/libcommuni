@@ -8,7 +8,7 @@ DEFINES += BUILD_IRC
 QT = core network
 CONFIG += silent
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
-!win32:VERSION = 0.5.0
+!win32:VERSION = 0.6.0
 
 DESTDIR = lib
 DEPENDPATH += include src
