@@ -86,7 +86,7 @@
     in IRC commands but need to be stripped (i.e. ident and host part
     should be cut off) before using. This can be done either explicitly,
     by calling Irc::Util::nickFromTarget(), or implicitly for all the
-    messages - by setting this option with Irc::Session::setOption().
+    messages - by setting this option with Irc::Session::setOptions().
  */
 
 /*! \var Irc::Session::EchoMessages
@@ -163,6 +163,96 @@
     were valid. (Any previously enabled capabilities will still be
     enabled.)
  */
+ 
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgJoined ( const QString &origin, const QString &channel)
+
+    \deprecated Use Irc::Buffer::joined(const QString& origin)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgParted (const QString &origin, const QString &channel, const QString &message)
+
+    \deprecated Use Irc::Buffer::parted(const QString& origin, const QString& message)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgQuit (const QString &origin, const QString &message)
+
+    \deprecated Use Irc::Buffer::quit(const QString& origin, const QString& message)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgNickChanged (const QString &origin, const QString &nick)
+
+    \deprecated Use Irc::Buffer::nickChanged(const QString& origin, const QString& nick)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgModeChanged (const QString &origin, const QString &receiver, const QString &mode, const QString &args)
+
+    \deprecated Use Irc::Buffer::modeChanged(const QString& origin, const QString& mode, const QString& args)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgTopicChanged (const QString &origin, const QString &channel, const QString &topic)
+
+    \deprecated Use Irc::Buffer::topicChanged(const QString& origin, const QString& topic)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgInvited (const QString &origin, const QString &receiver, const QString &channel)
+
+    \deprecated Use Irc::Buffer::invited(const QString& origin, const QString& receiver, const QString& channel)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgKicked (const QString &origin, const QString &channel, const QString &nick, const QString &message)
+
+    \deprecated Use Irc::Buffer::kicked(const QString& origin, const QString& nick, const QString& message)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgMessageReceived (const QString &origin, const QString &receiver, const QString &message)
+
+    \deprecated Use Irc::Buffer::messageReceived(const QString& origin, const QString& message)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgNoticeReceived (const QString &origin, const QString &receiver, const QString &notice)
+
+    \deprecated Use Irc::Buffer::noticeReceived(const QString& origin, const QString& notice)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgCtcpRequestReceived (const QString &origin, const QString &request)
+
+    \deprecated Use Irc::Buffer::ctcpRequestReceived(const QString& origin, const QString& request)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgCtcpReplyReceived (const QString &origin, const QString &reply)
+
+    \deprecated Use Irc::Buffer::ctcpReplyReceived(const QString& origin, const QString& reply)
+ */
+ 
+ /*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgCtcpActionReceived (const QString &origin, const QString &receiver, const QString &action)
+
+    \deprecated Use Irc::Buffer::ctcpActionReceived(const QString& origin, const QString& action)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgNumericMessageReceived (const QString &origin, uint code, const QStringList &params)
+
+    \deprecated Use Irc::Buffer::numericMessageReceived(const QString& origin, uint code, const QStringList& params)
+ */
+
+/*!
+    \fn Q_DECL_DEPRECATED void Irc::Session::msgUnknownMessageReceived (const QString &origin, const QStringList &params)
+
+    \deprecated Use Irc::Buffer::unknownMessageReceived(const QString& origin, const QStringList& params)
+*/
 
 static QByteArray detectEncoding(const QByteArray& text)
 {
@@ -1580,6 +1670,9 @@ namespace Irc
 
     /*!
         Returns a new Irc::Buffer object to act as an IRC buffer for \a receiver.
+
+        This virtual factory method can be overridden for example in order to make
+        Irc::Session use a subclass of Irc::Buffer.
      */
     Buffer* Session::createBuffer(const QString& receiver)
     {
@@ -1607,81 +1700,97 @@ namespace Irc
 
 #ifndef IRC_NO_DEPRECATED
     // TODO: for backwards compatibility, to be removed in 1.0
+    /*! \deprecated Use Irc::Session::raw() */
     bool Session::sendRaw(const QString& message)
     {
         qWarning() << "IrcSession::sendRaw(message) [slot] is DEPRECATED";
         return Session::raw(message);
     }
+    /*! \deprecated Use Irc::Session::join() */
     bool Session::cmdJoin(const QString& channel, const QString& key)
     {
         qWarning() << "IrcSession::cmdJoin(channel, key) [slot] is DEPRECATED";
         return Session::join(channel, key);
     }
+    /*! \deprecated Use Irc::Session::part() */
     bool Session::cmdPart(const QString& channel, const QString& reason)
     {
         qWarning() << "IrcSession::cmdPart(channel, reason) [slot] is DEPRECATED";
         return Session::part(channel, reason);
     }
+    /*! \deprecated Use Irc::Session::quit() */
     bool Session::cmdQuit(const QString& reason)
     {
         qWarning() << "IrcSession::cmdQuit(reason) [slot] is DEPRECATED";
         return Session::quit(reason);
     }
+    /*! \deprecated Use Irc::Session::names() */
     bool Session::cmdNames(const QString& channel)
     {
         qWarning() << "IrcSession::cmdNames(channel) [slot] is DEPRECATED";
         return Session::names(channel);
     }
+    /*! \deprecated Use Irc::Session::list() */
     bool Session::cmdList(const QString& channel)
     {
         qWarning() << "IrcSession::cmdList(channel) [slot] is DEPRECATED";
         return Session::list(channel);
     }
+    /*! \deprecated Use Irc::Session::whois() */
     bool Session::cmdWhois(const QString& nick)
     {
         qWarning() << "IrcSession::cmdWhois(nick) [slot] is DEPRECATED";
         return Session::whois(nick);
     }
+    /*! \deprecated Use Irc::Session::mode() */
     bool Session::cmdMode(const QString& target, const QString& mode)
     {
         qWarning() << "IrcSession::cmdMode(target, mode) [slot] is DEPRECATED";
         return Session::mode(target, mode);
     }
+    /*! \deprecated Use Irc::Session::topic() */
     bool Session::cmdTopic(const QString& channel, const QString& topic)
     {
         qWarning() << "IrcSession::cmdTopic(channel, topic) [slot] is DEPRECATED";
         return Session::topic(channel, topic);
     }
+    /*! \deprecated Use Irc::Session::invite() */
     bool Session::cmdInvite(const QString& nick, const QString& channel)
     {
         qWarning() << "IrcSession::cmdInvite(nick, channel) [slot] is DEPRECATED";
         return Session::invite(nick, channel);
     }
+    /*! \deprecated Use Irc::Session::kick() */
     bool Session::cmdKick(const QString& nick, const QString& channel, const QString& reason)
     {
         qWarning() << "IrcSession::cmdKick(nick, channel, reason) [slot] is DEPRECATED";
         return Session::kick(nick, channel, reason);
     }
+    /*! \deprecated Use Irc::Session::message() */
     bool Session::cmdMessage(const QString& receiver, const QString& message)
     {
         qWarning() << "IrcSession::cmdMessage(receiver, message) [slot] is DEPRECATED";
         return Session::message(receiver, message);
     }
+    /*! \deprecated Use Irc::Session::notice() */
     bool Session::cmdNotice(const QString& receiver, const QString& notice)
     {
         qWarning() << "IrcSession::cmdNotice(receiver, notice) [slot] is DEPRECATED";
         return Session::notice(receiver, notice);
     }
+    /*! \deprecated Use Irc::Session::ctcpAction() */
     bool Session::cmdCtcpAction(const QString& receiver, const QString& action)
     {
         qWarning() << "IrcSession::cmdCtcpAction(receiver, action) [slot] is DEPRECATED";
         return Session::ctcpAction(receiver, action);
     }
+    /*! \deprecated Use Irc::Session::ctcpRequest() */
     bool Session::cmdCtcpRequest(const QString& nick, const QString& request)
     {
         qWarning() << "IrcSession::cmdCtcpRequest(request) [slot] is DEPRECATED";
         return Session::ctcpRequest(nick, request);
     }
+    /*! \deprecated Use Irc::Session::ctcpReply() */
     bool Session::cmdCtcpReply(const QString& nick, const QString& reply)
     {
         qWarning() << "IrcSession::cmdCtcpReply(reply) [slot] is DEPRECATED";
