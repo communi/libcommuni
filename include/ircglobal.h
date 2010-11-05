@@ -61,9 +61,6 @@
  */
 #define IRC_VERSION_STR "0.6.0"
 
-/*!
-    \internal
- */
 #ifndef QT_FORWARD_DECLARE_CLASS
 #   define QT_FORWARD_DECLARE_CLASS(name) class name;
 #endif // QT_FORWARD_DECLARE_CLASS

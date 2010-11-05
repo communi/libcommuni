@@ -21,7 +21,17 @@
     \class Irc::Buffer ircbuffer.h
     \brief The Irc::Buffer class provides an IRC buffer.
 
-    ...
+    The Irc::Buffer class acts as a buffer for a single receiver. Receivers
+    can be:
+    \li the server
+    \li channels
+    \li queries.
+
+    Server/channel/query specific messages are delivered to the corresponding
+    buffer.
+
+    \note Buffers are not intended to be instantiated directly, but via the
+    virtual factory method Irc::Session::createBuffer().
  */
 
 /*!
@@ -227,6 +237,11 @@ namespace Irc
         }
     }
 
+    /*!
+        Constructs a new IRC buffer with \a receiver and \a parent.
+
+        \sa Session::createBuffer()
+     */
     Buffer::Buffer(const QString& receiver, Session* parent) : QObject(parent), d_ptr(new BufferPrivate)
     {
         Q_D(Buffer);
