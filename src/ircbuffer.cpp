@@ -68,7 +68,7 @@
 /*!
     \fn void Irc::Buffer::motdReceived(const QString& motd)
 
-    This signal is emitted when message of the day \a motd has been changed.
+    This signal is emitted when message of the day \a motd has been received.
  */
 
 /*!
