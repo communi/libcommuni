@@ -52,11 +52,11 @@ macx {
     }
 }
 
-CONV_HEADERS += include/Irc include/IrcBuffer include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
-PUB_HEADERS += irc.h ircbuffer.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
+CONV_HEADERS += include/Irc include/IrcBuffer include/IrcGlobal include/IrcSession include/IrcUtil
+PUB_HEADERS += irc.h ircbuffer.h ircglobal.h ircsession.h ircutil.h
 PRIV_HEADERS += ircbuffer_p.h ircsession_p.h
 HEADERS = $$PUB_HEADERS $$PRIV_HEADERS
-SOURCES += irc.cpp ircbuffer.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
+SOURCES += irc.cpp ircbuffer.cpp ircsession.cpp ircutil.cpp
 
 mkspecs.files = libircclient-qt.prf libircclient-qt-config.prf
 mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
