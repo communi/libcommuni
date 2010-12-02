@@ -90,6 +90,12 @@
  */
 
 /*!
+    \fn void Irc::Buffer::namesReceived(const QStringList& names)
+
+    This signal is emitted when the list of \a names has been received.
+ */
+
+/*!
     \fn void Irc::Buffer::nickChanged(const QString& origin, const QString& nick)
 
     This signal is emitted when \a origin has changed \a nick.

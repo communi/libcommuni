@@ -522,6 +522,14 @@ namespace Irc
                     break;
                 }
 
+                case Irc::Rfc::RPL_ENDOFNAMES:
+                {
+                    QString target = resolveTarget(QString(), params.value(1));
+                    Buffer* buffer = createBuffer(target);
+                    emit buffer->namesReceived(buffer->names());
+                    break;
+                }
+
                 case Irc::Rfc::RPL_MOTDSTART:
                     motd.clear();
                     break;

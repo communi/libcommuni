@@ -63,6 +63,7 @@ namespace Irc
         void joined(const QString& origin);
         void parted(const QString& origin, const QString& message);
         void quit(const QString& origin, const QString& message);
+        void namesReceived(const QStringList& names);
         void nickChanged(const QString& origin, const QString& nick);
         void modeChanged(const QString& origin, const QString& mode, const QString& args);
         void topicChanged(const QString& origin, const QString& topic);
