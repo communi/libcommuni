@@ -500,10 +500,10 @@ namespace Irc
 
                 case Irc::Rfc::RPL_TOPIC:
                 {
-                    QString topic = params.value(1);
-                    QString target = resolveTarget(QString(), topic);
+                    QString channel = params.value(1);
+                    QString target = resolveTarget(QString(), channel);
                     Buffer* buffer = createBuffer(target);
-                    buffer->d_func()->topic = topic;
+                    buffer->d_func()->topic = params.value(2);
                     break;
                 }
 
