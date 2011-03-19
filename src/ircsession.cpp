@@ -1,5 +1,6 @@
 /*
 * Copyright (C) 2008-2009 J-P Nurmi jpnurmi@gmail.com
+* Copyright (C) 2010-2011 SmokeX smokexjc@gmail.com
 *
 * This library is free software; you can redistribute it and/or modify it
 * under the terms of the GNU Lesser General Public License as published by
@@ -624,9 +625,9 @@ namespace Irc
                     buffer->d_func()->removeName(Util::nickFromTarget(prefix));
                     emit buffer->parted(prefix, message);
                 }
-                else if (buffers.contains(target))
+                else if (buffers.contains(target.toLower()))
                 {
-                    Buffer* buffer = buffers.value(target);
+                    Buffer* buffer = buffers.value(target.toLower());
                     removeBuffer(buffer);
                     buffer->deleteLater();
                 }
