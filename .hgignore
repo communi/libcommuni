@@ -7,3 +7,4 @@ lib
 *.bak
 *.rej
 *.orig
+libircclient-qt-config.prf
