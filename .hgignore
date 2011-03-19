@@ -1,10 +1,13 @@
 syntax: glob
 Makefile
+Makefile.*
 debug
 release
 lib
 *~
+*.pdb
 *.bak
 *.rej
 *.orig
+*.pro.user
 libircclient-qt-config.prf
