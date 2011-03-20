@@ -1,5 +1,6 @@
 /*
 * Copyright (C) 2008-2009 J-P Nurmi jpnurmi@gmail.com
+* Copyright (C) 2010-2011 SmokeX smokexjc@gmail.com
 *
 * This library is free software; you can redistribute it and/or modify it
 * under the terms of the GNU Lesser General Public License as published by
@@ -12,6 +13,14 @@
 * License for more details.
 */
 
+/*
+  Parts of this code come from Konversation and are copyrighted to:
+  Copyright (C) 2002 Dario Abatianni <eisfuchs@tigress.com>
+  Copyright (C) 2004 Peter Simonsson <psn@linux.se>
+  Copyright (C) 2006-2008 Eike Hein <hein@kde.org>
+  Copyright (C) 2004-2009 Eli Mackenzie <argonel@gmail.com>
+*/
+
 #include "ircutil.h"
 #include <QString>
 #include <QRegExp>
@@ -21,7 +30,7 @@
     \brief The Irc::Util class provides IRC related utility functions.
  */
 
-static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)]|&)+)|([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
+static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
 
 namespace Irc
 {
@@ -56,6 +65,8 @@ namespace Irc
         processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
         processed.replace(QLatin1Char('<'), QLatin1String("&lt;"));
         processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
+        processed.replace(QLatin1Char('"'), QLatin1String("&quot;"));
+        processed.replace(QLatin1Char('\''), QLatin1String("&apos;"));
         processed.replace(QLatin1Char('\t'), QLatin1String("&nbsp;"));
 
         enum
@@ -71,16 +82,23 @@ namespace Irc
         int state = None;
 
         int pos = 0;
+        bool parseColor = false;
         while (pos < processed.size())
         {
-            if (state & Color)
+            if (parseColor)
             {
-                QString tmp = processed.mid(pos, 2);
-                processed.remove(pos, 2);
-                processed = processed.arg(colorNameFromCode(tmp.toInt()));
-                state &= ~Color;
-                pos += 2;
-                continue;
+                int len = 2;
+                bool ok = false;
+                int code = processed.mid(pos, len).toInt(&ok);
+                if (ok)
+                {
+                    processed.remove(pos, len);
+                    QString color = colorNameFromCode(code);
+                    processed = processed.arg(color);
+                    len = color.length();
+                }
+                pos += len;
+                parseColor = false;
             }
 
             QString replacement;
@@ -100,15 +118,17 @@ namespace Irc
                 else
                     replacement = QLatin1String("<span style='color: %1'>");
                 state ^= Color;
+                parseColor = state & Color;
                 break;
 
-            /*case '\x09': // italic
+            //case '\x09': // italic
+            case '\x1d': // italic
                 if (state & Italic)
                     replacement = QLatin1String("</span>");
                 else
-                    replacement = QLatin1String("<span style='text-decoration: underline'>");
+                    replacement = QLatin1String("<span style='font-style: italic'>");
                 state ^= Italic;
-                break;*/
+                break;
 
             case '\x13': // strike-through
                 if (state & StrikeThrough)
@@ -128,6 +148,10 @@ namespace Irc
                 break;
 
             case '\x16': // inverse
+                if (state & Inverse)
+                    replacement = QLatin1String("</span>");
+                else
+                    replacement = QLatin1String("<span style='font-weight: bold'>");
                 state ^= Inverse;
                 break;
 
