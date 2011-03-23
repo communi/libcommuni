@@ -7,6 +7,7 @@ TARGET = $$qtLibraryTarget(ircclient-qt)
 DEFINES += BUILD_IRC
 QT = core network
 CONFIG += silent
+win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 !win32:VERSION = 0.6.0
 
@@ -50,6 +51,13 @@ macx {
         QMAKE_POST_LINK +=   "$$[QT_INSTALL_LIBS]/lib$${TARGET}.0.dylib"
         QMAKE_POST_LINK +=   "$${DESTDIR}/lib$${TARGET}.0.dylib"
     }
+}
+
+symbian {
+    TARGET.EPOCALLOWDLLDATA = 1
+    TARGET.CAPABILITY = NetworkServices
+    TARGET.UID3 = 0xEAF16DB1
+    MMP_RULES += EXPORTUNFROZEN
 }
 
 CONV_HEADERS += include/Irc include/IrcBuffer include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
