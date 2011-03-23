@@ -10,6 +10,7 @@ QT = core network
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 !win32:VERSION = 0.6.0
+QMAKE_CXXFLAGS.ARMCC =
 
 DESTDIR = lib
 DEPENDPATH += include src
@@ -82,7 +83,7 @@ SOURCES += ircsession.cpp
 SOURCES += ircutil.cpp
 
 mkspecs.files = libircclient-qt.prf libircclient-qt-config.prf
-mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
+mkspecs.path = $$[QMAKE_MKSPECS]/features
 INSTALLS += mkspecs
 
 headers.files = $$PUB_HEADERS $$CONV_HEADERS
@@ -128,11 +129,9 @@ symbian {
     TARGET.UID3 = 0xEAF16DB1
     MMP_RULES += EXPORTUNFROZEN
 
-    #BLD_INF_RULES.prj_exports += "libircclient-qt.prf $$mkspecs.path/libircclient-qt.prf"
-    #BLD_INF_RULES.prj_exports += "libircclient-qt-config.prf $$mkspecs.path/libircclient-qt-config.prf"
-
-    system($$QMAKE_COPY libircclient-qt.prf $$replace(mkspecs.path, /, $$QMAKE_DIR_SEP))
-    system($$QMAKE_COPY libircclient-qt-config.prf $$replace(mkspecs.path, /, $$QMAKE_DIR_SEP))
+    mkspecs.path ~= s/^[A-Za-z]:/ # strip drive letter
+    BLD_INF_RULES.prj_exports += "libircclient-qt.prf $$mkspecs.path/libircclient-qt.prf"
+    BLD_INF_RULES.prj_exports += "libircclient-qt-config.prf $$mkspecs.path/libircclient-qt-config.prf"
 
     for(header, headers.files) {
         BLD_INF_RULES.prj_exports += "$$header $$MW_LAYER_PUBLIC_EXPORT_PATH($$basename(header))"
