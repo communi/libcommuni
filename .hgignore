@@ -1,6 +1,7 @@
 syntax: glob
 Makefile
 Makefile.*
+Makefile_*.mk
 debug
 release
 lib
@@ -11,3 +12,7 @@ lib
 *.orig
 *.pro.user
 libircclient-qt-config.prf
+.make.cache
+ABLD.BAT
+bld.inf
+*.mmp
