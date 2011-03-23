@@ -198,21 +198,21 @@ namespace Irc
 
 #ifndef IRC_NO_DEPRECATED
         // TODO: for backwards compatibility, to be removed in 1.0
-        Q_PRIVATE_SLOT(d_func(), void _q_joined(const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_parted(const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_quit(const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_nickChanged(const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_modeChanged(const QString&, const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_topicChanged(const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_invited(const QString&, const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_kicked(const QString&, const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_messageReceived(const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_noticeReceived(const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_ctcpRequestReceived(const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_ctcpReplyReceived(const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_ctcpActionReceived(const QString&, const QString&));
-        Q_PRIVATE_SLOT(d_func(), void _q_numericMessageReceived(const QString&, uint code, const QStringList&));
-        Q_PRIVATE_SLOT(d_func(), void _q_unknownMessageReceived(const QString&, const QStringList&));
+        Q_PRIVATE_SLOT(d_func(), void _q_joined(const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_parted(const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_quit(const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_nickChanged(const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_modeChanged(const QString&, const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_topicChanged(const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_invited(const QString&, const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_kicked(const QString&, const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_messageReceived(const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_noticeReceived(const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_ctcpRequestReceived(const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_ctcpReplyReceived(const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_ctcpActionReceived(const QString&, const QString&))
+        Q_PRIVATE_SLOT(d_func(), void _q_numericMessageReceived(const QString&, uint code, const QStringList&))
+        Q_PRIVATE_SLOT(d_func(), void _q_unknownMessageReceived(const QString&, const QStringList&))
 #endif // IRC_NO_DEPRECATED
 
         friend class Buffer;
