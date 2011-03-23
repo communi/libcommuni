@@ -16,3 +16,4 @@ libircclient-qt-config.prf
 ABLD.BAT
 bld.inf
 *.mmp
+moc_*.cpp
