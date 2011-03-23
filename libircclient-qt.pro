@@ -93,20 +93,6 @@ INSTALLS += target
 dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
 
-symbian {
-    TARGET.EPOCALLOWDLLDATA = 1
-    TARGET.CAPABILITY = NetworkServices
-    TARGET.UID3 = 0xEAF16DB1
-    MMP_RULES += EXPORTUNFROZEN
-
-    BLD_INF_RULES.prj_exports += "libircclient-qt.prf $$[QT_INSTALL_DATA]/mkspecs/features/libircclient-qt.prf"
-    BLD_INF_RULES.prj_exports += "libircclient-qt-config.prf $$[QT_INSTALL_DATA]/mkspecs/features/libircclient-qt-config.prf"
-
-    for(header, headers.files) {
-        BLD_INF_RULES.prj_exports += "$$header $$headers.path/$$basename(header)"
-    }
-}
-
 !build_pass {
     macx {
         # See above for an explanation of this.
@@ -131,5 +117,22 @@ symbian {
     } else {
         message(Deprecated functionality disabled.)
         DEFINES += IRC_NO_DEPRECATED
+    }
+}
+
+symbian {
+    TARGET.EPOCALLOWDLLDATA = 1
+    TARGET.CAPABILITY = NetworkServices
+    TARGET.UID3 = 0xEAF16DB1
+    MMP_RULES += EXPORTUNFROZEN
+
+    #BLD_INF_RULES.prj_exports += "libircclient-qt.prf $$mkspecs.path/libircclient-qt.prf"
+    #BLD_INF_RULES.prj_exports += "libircclient-qt-config.prf $$mkspecs.path/libircclient-qt-config.prf"
+
+    system($$QMAKE_COPY libircclient-qt.prf $$replace(mkspecs.path, /, $$QMAKE_DIR_SEP))
+    system($$QMAKE_COPY libircclient-qt-config.prf $$replace(mkspecs.path, /, $$QMAKE_DIR_SEP))
+
+    for(header, headers.files) {
+        BLD_INF_RULES.prj_exports += "$$header $$MW_LAYER_PUBLIC_EXPORT_PATH($$basename(header))"
     }
 }
