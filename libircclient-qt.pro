@@ -53,18 +53,31 @@ macx {
     }
 }
 
-symbian {
-    TARGET.EPOCALLOWDLLDATA = 1
-    TARGET.CAPABILITY = NetworkServices
-    TARGET.UID3 = 0xEAF16DB1
-    MMP_RULES += EXPORTUNFROZEN
-}
+CONV_HEADERS += include/Irc
+CONV_HEADERS += include/IrcBuffer
+CONV_HEADERS += include/IrcDccSession
+CONV_HEADERS += include/IrcGlobal
+CONV_HEADERS += include/IrcSession
+CONV_HEADERS += include/IrcUtil
 
-CONV_HEADERS += include/Irc include/IrcBuffer include/IrcDccSession include/IrcGlobal include/IrcSession include/IrcUtil
-PUB_HEADERS += irc.h ircbuffer.h ircdccsession.h ircglobal.h ircsession.h ircutil.h
-PRIV_HEADERS += ircbuffer_p.h ircsession_p.h
-HEADERS = $$PUB_HEADERS $$PRIV_HEADERS
-SOURCES += irc.cpp ircbuffer.cpp ircdccsession.cpp ircsession.cpp ircutil.cpp
+PUB_HEADERS += include/irc.h
+PUB_HEADERS += include/ircbuffer.h
+PUB_HEADERS += include/ircdccsession.h
+PUB_HEADERS += include/ircglobal.h
+PUB_HEADERS += include/ircsession.h
+PUB_HEADERS += include/ircutil.h
+
+PRIV_HEADERS += include/ircbuffer_p.h
+PRIV_HEADERS += include/ircsession_p.h
+
+HEADERS += $$PUB_HEADERS
+HEADERS += $$PRIV_HEADERS
+
+SOURCES += irc.cpp
+SOURCES += ircbuffer.cpp
+SOURCES += ircdccsession.cpp
+SOURCES += ircsession.cpp
+SOURCES += ircutil.cpp
 
 mkspecs.files = libircclient-qt.prf libircclient-qt-config.prf
 mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
@@ -79,6 +92,20 @@ INSTALLS += target
 
 dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
+
+symbian {
+    TARGET.EPOCALLOWDLLDATA = 1
+    TARGET.CAPABILITY = NetworkServices
+    TARGET.UID3 = 0xEAF16DB1
+    MMP_RULES += EXPORTUNFROZEN
+
+    BLD_INF_RULES.prj_exports += "libircclient-qt.prf $$[QT_INSTALL_DATA]/mkspecs/features/libircclient-qt.prf"
+    BLD_INF_RULES.prj_exports += "libircclient-qt-config.prf $$[QT_INSTALL_DATA]/mkspecs/features/libircclient-qt-config.prf"
+
+    for(header, headers.files) {
+        BLD_INF_RULES.prj_exports += "$$header $$headers.path/$$basename(header)"
+    }
+}
 
 !build_pass {
     macx {
