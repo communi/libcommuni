@@ -6,7 +6,7 @@ TEMPLATE = lib
 TARGET = $$qtLibraryTarget(ircclient-qt)
 DEFINES += BUILD_IRC
 QT = core network
-CONFIG += silent
+!symbian:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 !win32:VERSION = 0.6.0
@@ -14,12 +14,14 @@ DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 DESTDIR = lib
 DEPENDPATH += include src
 INCLUDEPATH += include
-CONFIG(debug, debug|release) {
-    OBJECTS_DIR = debug
-    MOC_DIR = debug
-} else {
-    OBJECTS_DIR = release
-    MOC_DIR = release
+!symbian {
+    CONFIG(debug, debug|release) {
+        OBJECTS_DIR = debug
+        MOC_DIR = debug
+    } else {
+        OBJECTS_DIR = release
+        MOC_DIR = release
+    }
 }
 
 static {
