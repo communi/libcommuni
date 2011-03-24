@@ -136,4 +136,8 @@ symbian {
     for(header, headers.files) {
         BLD_INF_RULES.prj_exports += "$$header $$MW_LAYER_PUBLIC_EXPORT_PATH($$basename(header))"
     }
+
+    library.sources = ircclient-qt.dll
+    library.path = !:/sys/bin
+    DEPLOYMENT += library
 }
