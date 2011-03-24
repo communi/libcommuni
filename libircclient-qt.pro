@@ -10,9 +10,9 @@ QT = core network
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 !win32:VERSION = 0.6.0
-QMAKE_CXXFLAGS.ARMCC =
 
 DESTDIR = lib
+DLLDESTDIR = bin
 DEPENDPATH += include src
 INCLUDEPATH += include
 !symbian {
