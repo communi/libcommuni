@@ -33,29 +33,6 @@ static {
     system(echo DEFINES+=IRC_SHARED > libircclient-qt-config.prf)
 }
 
-macx {
-    # Libircclient-qt is installed using the same format as Qt itself. This
-    # makes it easier for other applications to link against it, as Qmake
-    # assumes that.
-
-    !qt_no_framework {
-        CONFIG += lib_bundle
-        FRAMEWORK_HEADERS.version = Versions
-        FRAMEWORK_HEADERS.files = $$HEADERS
-        FRAMEWORK_HEADERS.path = Headers
-        QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
-
-        QMAKE_POST_LINK  = install_name_tool -id
-        QMAKE_POST_LINK +=   "$$[QT_INSTALL_LIBS]/ircclient-qt.framework/Versions/0/$${TARGET}"
-        QMAKE_POST_LINK +=   "$${DESTDIR}/ircclient-qt.framework/Versions/0/$${TARGET}"
-    } else {
-        CONFIG -= lib_bundle
-        QMAKE_POST_LINK  =  install_name_tool -id
-        QMAKE_POST_LINK +=   "$$[QT_INSTALL_LIBS]/lib$${TARGET}.0.dylib"
-        QMAKE_POST_LINK +=   "$${DESTDIR}/lib$${TARGET}.0.dylib"
-    }
-}
-
 CONV_HEADERS += include/Irc
 CONV_HEADERS += include/IrcBuffer
 CONV_HEADERS += include/IrcDccSession
@@ -86,15 +63,30 @@ mkspecs.files = libircclient-qt.prf libircclient-qt-config.prf
 mkspecs.path = $$[QMAKE_MKSPECS]/features
 INSTALLS += mkspecs
 
-headers.files = $$PUB_HEADERS $$CONV_HEADERS
-headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
-INSTALLS += headers
-
 target.path = $$[QT_INSTALL_LIBS]
 INSTALLS += target
 
 dlltarget.path = $$[QT_INSTALL_BINS]
 INSTALLS += dlltarget
+
+macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
+    CONFIG += lib_bundle debug_and_release
+    CONFIG(debug, debug|release) {
+        !build_pass:CONFIG += build_all
+    } else { #release
+        !debug_and_release|build_pass {
+            FRAMEWORK_HEADERS.version = Versions
+            FRAMEWORK_HEADERS.files = $$PUB_HEADERS $$CONV_HEADERS
+            FRAMEWORK_HEADERS.path = Headers
+        }
+        QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+    }
+    QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$[QT_INSTALL_LIBS]/
+} else {
+    headers.files = $$PUB_HEADERS $$CONV_HEADERS
+    headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
+    INSTALLS += headers
+}
 
 !build_pass {
     macx {
