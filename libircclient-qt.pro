@@ -10,7 +10,7 @@ QT = core network
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 
-IRC_VERSION = 0.6.0
+IRC_VERSION = 1.0.0
 !win32:VERSION = $$IRC_VERSION
 
 DESTDIR = lib
