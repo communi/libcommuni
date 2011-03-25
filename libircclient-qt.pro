@@ -9,7 +9,9 @@ QT = core network
 !symbian:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
-!win32:VERSION = 0.6.0
+
+IRC_VERSION = 0.6.0
+!win32:VERSION = $$IRC_VERSION
 
 DESTDIR = lib
 DLLDESTDIR = bin
@@ -92,12 +94,12 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
     macx {
         # See above for an explanation of this.
         !qt_no_framework {
-            message(Building LibIrcClient-Qt $$VERSION (framework))
+            message(Building LibIrcClient-Qt $$IRC_VERSION (framework))
         } else {
-            message(Building LibIrcClient-Qt $$VERSION (dylib))
+            message(Building LibIrcClient-Qt $$IRC_VERSION (dylib))
         }
     } else {
-        message(Building LibIrcClient-Qt $$VERSION)
+        message(Building LibIrcClient-Qt $$IRC_VERSION)
     }
 
     !no_icu {
