@@ -23,12 +23,8 @@
 #include <QBuffer>
 #include <QPointer>
 #include <QTcpSocket>
-#include <QTextCodec>
 #include <QStringList>
 #include <QMetaMethod>
-#ifdef HAVE_ICU
-#include <unicode/ucsdet.h>
-#endif // HAVE_ICU
 
 /*!
     \class Irc::Session ircsession.h
@@ -255,37 +251,11 @@
     \deprecated Use Irc::Buffer::unknownMessageReceived(const QString& origin, const QStringList& params)
 */
 
-static QByteArray detectEncoding(const QByteArray& text)
-{
-    Q_UNUSED(text);
-    QByteArray encoding;
-#ifdef HAVE_ICU
-    UErrorCode status = U_ZERO_ERROR;
-    UCharsetDetector* detector = ucsdet_open(&status);
-    if (detector && !U_FAILURE(status))
-    {
-        ucsdet_setText(detector, text.constData(), text.length(), &status);
-        if (!U_FAILURE(status))
-        {
-            const UCharsetMatch* match = ucsdet_detect(detector, &status);
-            if (match && !U_FAILURE(status))
-                encoding = ucsdet_getName(match, &status);
-        }
-    }
-
-    if (U_FAILURE(status)) {
-        qWarning("detectEncoding() failed: %s", u_errorName(status));
-    }
-
-    ucsdet_close(detector);
-#endif // HAVE_ICU
-    return encoding;
-}
-
 namespace Irc
 {
     SessionPrivate::SessionPrivate() :
         q_ptr(0),
+        parser(),
         buffer(),
         options(Session::StripNicks | Session::EchoMessages),
         socket(0),
@@ -297,7 +267,6 @@ namespace Irc
         port(6667),
         motd(),
         channels(),
-        encoding(),
         delay(-1),
         timer(),
         defaultBuffer(),
@@ -393,17 +362,6 @@ namespace Irc
         readLines("\n");
     }
 
-    QString SessionPrivate::readString(const QByteArray& data) const
-    {
-        QByteArray enc = encoding;
-        if (enc.isNull())
-            enc = detectEncoding(data);
-        QTextCodec *codec = QTextCodec::codecForName(enc);
-        if (!codec)
-            codec = QTextCodec::codecForLocale();
-        return codec->toUnicode(data);
-    }
-
     void SessionPrivate::readLines(const QByteArray& delimiter)
     {
         int i = -1;
@@ -419,57 +377,21 @@ namespace Irc
     void SessionPrivate::processLine(const QByteArray& line)
     {
         Q_Q(Session);
-        QString process = readString(line);
-        QString prefix, command;
-        QStringList params;
+        parser.parse(line);
 
-        // From RFC 1459:
-        //  <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
-        //  <prefix>   ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]
-        //  <command>  ::= <letter> { <letter> } | <number> <number> <number>
-        //  <SPACE>    ::= ' ' { ' ' }
-        //  <params>   ::= <SPACE> [ ':' <trailing> | <middle> <params> ]
-        //  <middle>   ::= <Any *non-empty* sequence of octets not including SPACE
-        //                 or NUL or CR or LF, the first of which may not be ':'>
-        //  <trailing> ::= <Any, possibly *empty*, sequence of octets not including
-        //                   NUL or CR or LF>
+        QString prefix = parser.prefix();
+        QString command = parser.command();
+        QStringList params = parser.params();
 
-        // parse <prefix>
-        if (process.startsWith(QLatin1Char(':')))
+        if (options & Session::StripNicks)
         {
-            prefix = process.mid(1, process.indexOf(QLatin1Char(' ')) - 1);
-            process.remove(0, prefix.length() + 2);
-
-            if (options & Session::StripNicks)
-            {
-                int index = prefix.indexOf(QRegExp(QLatin1String("[@!]")));
-                if (index != -1)
-                    prefix.truncate(index);
-            }
+            int index = prefix.indexOf(QRegExp(QLatin1String("[@!]")));
+            if (index != -1)
+                prefix.truncate(index);
         }
 
-        // parse <command>
-        command = process.mid(0, process.indexOf(QLatin1Char(' ')));
-        process.remove(0, command.length() + 1);
         bool isNumeric = false;
         uint code = command.toInt(&isNumeric);
-
-        // parse middle/params
-        while (!process.isEmpty())
-        {
-            if (process.startsWith(QLatin1Char(':')))
-            {
-                process.remove(0, 1);
-                params << process;
-                process.clear();
-            }
-            else
-            {
-                QString param = process.mid(0, process.indexOf(QLatin1Char(' ')));
-                process.remove(0, param.length() + 1);
-                params << param;
-            }
-        }
 
         // handle PING/PONG
         if (command == QLatin1String("PING"))
@@ -1079,7 +1001,7 @@ namespace Irc
     QByteArray Session::encoding() const
     {
         Q_D(const Session);
-        return d->encoding;
+        return d->parser.encoding();
     }
 
     /*!
@@ -1094,7 +1016,7 @@ namespace Irc
     void Session::setEncoding(const QByteArray& encoding)
     {
         Q_D(Session);
-        d->encoding = encoding;
+        d->parser.setEncoding(encoding);
     }
 
     /*!

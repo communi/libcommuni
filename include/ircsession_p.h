@@ -21,6 +21,7 @@
 #include <QVariantList>
 #include <QAbstractSocket>
 #include "ircbuffer.h"
+#include "ircparser_p.h"
 
 namespace Irc
 {
@@ -40,7 +41,6 @@ namespace Irc
         void _q_state(QAbstractSocket::SocketState state);
         void _q_readData();
 
-        QString readString(const QByteArray& data) const;
         void readLines(const QByteArray& delimiter);
         void processLine(const QByteArray& line);
         Irc::Buffer::MessageFlags getMessageFlags(QString& message) const;
@@ -51,6 +51,7 @@ namespace Irc
         void removeBuffer(Buffer* buffer);
 
         Session* q_ptr;
+        Parser parser;
         QByteArray buffer;
         Session::Options options;
         QAbstractSocket* socket;
@@ -62,7 +63,6 @@ namespace Irc
         quint16 port;
         QString motd;
         QStringList channels;
-        QByteArray encoding;
         int delay;
         QTimer timer;
         Buffer* defaultBuffer;
