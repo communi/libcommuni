@@ -43,7 +43,6 @@ namespace Irc
 
         void readLines(const QByteArray& delimiter);
         void processLine(const QByteArray& line);
-        Irc::Buffer::MessageFlags getMessageFlags(QString& message) const;
         bool isConnected() const;
         QString resolveTarget(const QString& sender, const QString& receiver) const;
 
@@ -53,7 +52,6 @@ namespace Irc
         Session* q_ptr;
         Parser parser;
         QByteArray buffer;
-        Session::Options options;
         QAbstractSocket* socket;
         QString ident;
         QString password;
@@ -62,24 +60,12 @@ namespace Irc
         QString host;
         quint16 port;
         QString motd;
-        QStringList channels;
         int delay;
         QTimer timer;
         Buffer* defaultBuffer;
         QHash<QString, Buffer*> buffers;
         bool welcomed;
-
-        // Capabilities supported by the server
-        QStringList capabilities;
-        // Capabilities enabled for this connection
-        QStringList enabledCapabilities;
-        // Capabilities to request only when connecting
-        QStringList wantedCapabilities;
-        // Temporary building list of capabilities in transmission
-        QStringList tempCapabilities;
-        // Whether the server has CAP implemented
-        bool        capabilitiesSupported;
     };
 }
 
-#endif // IRC_BUFFER_P_H
+#endif // IRC_SESSION_P_H

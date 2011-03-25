@@ -29,29 +29,18 @@ namespace Irc
     class IRC_EXPORT Session : public QObject
     {
         Q_OBJECT
-        Q_PROPERTY(QStringList autoJoinChannels READ autoJoinChannels WRITE setAutoJoinChannels)
         Q_PROPERTY(int autoReconnectDelay READ autoReconnectDelay WRITE setAutoReconnectDelay)
         Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
         Q_PROPERTY(QString host READ host WRITE setHost)
         Q_PROPERTY(QString ident READ ident WRITE setIdent)
         Q_PROPERTY(QString nick READ nick WRITE setNick)
-        Q_PROPERTY(Options options READ options WRITE setOptions)
         Q_PROPERTY(QString password READ password WRITE setPassword)
         Q_PROPERTY(quint16 port READ port WRITE setPort)
         Q_PROPERTY(QString realName READ realName WRITE setRealName)
-        Q_PROPERTY(QStringList supportedCapabilities READ supportedCapabilities)
-        Q_PROPERTY(QStringList enabledCapabilities READ enabledCapabilities)
-        Q_FLAGS(Options)
-        Q_ENUMS(Option)
 
     public:
         Session(QObject* parent = 0);
         ~Session();
-
-        QStringList autoJoinChannels() const;
-        void addAutoJoinChannel(const QString& channel);
-        void removeAutoJoinChannel(const QString& channel);
-        void setAutoJoinChannels(const QStringList& channels);
 
         int autoReconnectDelay() const;
         void setAutoReconnectDelay(int seconds);
@@ -77,17 +66,6 @@ namespace Irc
         quint16 port() const;
         void setPort(quint16 port);
 
-        enum Option
-        {
-            NoOptions = 0x0,
-            StripNicks = 0x1,
-            EchoMessages = 0x2
-        };
-        Q_DECLARE_FLAGS(Options, Option)
-
-        Options options() const;
-        void setOptions(Options options);
-
         QAbstractSocket* socket() const;
         void setSocket(QAbstractSocket* socket);
 
@@ -97,10 +75,6 @@ namespace Irc
 
         Buffer* defaultBuffer() const;
         void setDefaultBuffer(Buffer* buffer);
-
-        QStringList supportedCapabilities() const;
-        QStringList enabledCapabilities() const;
-        bool capabilityEnabled(const QString& name) const;
 
     public Q_SLOTS:
         void connectToServer(const QString& hostName = QString(), quint16 port = 6667);
@@ -126,9 +100,6 @@ namespace Irc
         bool ctcpRequest(const QString& nick, const QString& request);
         bool ctcpReply(const QString& nick, const QString& reply);
 
-        void requestCapabilities(const QStringList& capabilities);
-        void clearCapabilities();
-
     Q_SIGNALS:
         void connected();
         void welcomed();
@@ -137,10 +108,6 @@ namespace Irc
 
         void bufferAdded(Irc::Buffer* buffer);
         void bufferRemoved(Irc::Buffer* buffer);
-
-        void capabilitiesListed(const QStringList& capabilities);
-        void capabilitiesAcked(const QStringList& capabilities);
-        void capabilitiesNotAcked(const QStringList& capabilities);
 
     protected:
         virtual Buffer* createBuffer(const QString& receiver);
@@ -165,7 +132,5 @@ namespace Irc
 #ifndef QT_NO_DEBUG_STREAM
 IRC_EXPORT QDebug operator<<(QDebug debug, const Irc::Session* session);
 #endif // QT_NO_DEBUG_STREAM
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(Irc::Session::Options)
 
 #endif // IRC_SESSION_H
