@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2009 J-P Nurmi jpnurmi@gmail.com
+* Copyright (C) 2008-2011 J-P Nurmi <jpnurmi@gmail.com>
 * Copyright (C) 2010-2011 SmokeX smokexjc@gmail.com
 *
 * This library is free software; you can redistribute it and/or modify it
