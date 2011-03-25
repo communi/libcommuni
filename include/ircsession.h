@@ -129,26 +129,6 @@ namespace Irc
         void requestCapabilities(const QStringList& capabilities);
         void clearCapabilities();
 
-#ifndef IRC_NO_DEPRECATED
-        // TODO: for backwards compatibility, to be removed in 1.0
-        Q_DECL_DEPRECATED bool sendRaw(const QString& message);
-        Q_DECL_DEPRECATED bool cmdJoin(const QString& channel, const QString& key = QString());
-        Q_DECL_DEPRECATED bool cmdPart(const QString& channel, const QString& reason = QString());
-        Q_DECL_DEPRECATED bool cmdQuit(const QString& reason = QString());
-        Q_DECL_DEPRECATED bool cmdNames(const QString& channel);
-        Q_DECL_DEPRECATED bool cmdList(const QString& channel = QString());
-        Q_DECL_DEPRECATED bool cmdWhois(const QString& nick);
-        Q_DECL_DEPRECATED bool cmdMode(const QString& target, const QString& mode = QString());
-        Q_DECL_DEPRECATED bool cmdTopic(const QString& channel, const QString& topic = QString());
-        Q_DECL_DEPRECATED bool cmdInvite(const QString& nick, const QString& channel);
-        Q_DECL_DEPRECATED bool cmdKick(const QString& nick, const QString& channel, const QString& reason = QString());
-        Q_DECL_DEPRECATED bool cmdMessage(const QString& receiver, const QString& message);
-        Q_DECL_DEPRECATED bool cmdNotice(const QString& receiver, const QString& notice);
-        Q_DECL_DEPRECATED bool cmdCtcpAction(const QString& receiver, const QString& action);
-        Q_DECL_DEPRECATED bool cmdCtcpRequest(const QString& nick, const QString& request);
-        Q_DECL_DEPRECATED bool cmdCtcpReply(const QString& nick, const QString& reply);
-#endif // IRC_NO_DEPRECATED
-
     Q_SIGNALS:
         void connected();
         void welcomed();
@@ -161,25 +141,6 @@ namespace Irc
         void capabilitiesListed(const QStringList& capabilities);
         void capabilitiesAcked(const QStringList& capabilities);
         void capabilitiesNotAcked(const QStringList& capabilities);
-
-#ifndef IRC_NO_DEPRECATED
-        // TODO: for backwards compatibility, to be removed in 1.0
-        Q_DECL_DEPRECATED void msgJoined(const QString& origin, const QString& channel);
-        Q_DECL_DEPRECATED void msgParted(const QString& origin, const QString& channel, const QString& message);
-        Q_DECL_DEPRECATED void msgQuit(const QString& origin, const QString& message);
-        Q_DECL_DEPRECATED void msgNickChanged(const QString& origin, const QString& nick);
-        Q_DECL_DEPRECATED void msgModeChanged(const QString& origin, const QString& receiver, const QString& mode, const QString& args);
-        Q_DECL_DEPRECATED void msgTopicChanged(const QString& origin, const QString& channel, const QString& topic);
-        Q_DECL_DEPRECATED void msgInvited(const QString& origin, const QString& receiver, const QString& channel);
-        Q_DECL_DEPRECATED void msgKicked(const QString& origin, const QString& channel, const QString& nick, const QString& message);
-        Q_DECL_DEPRECATED void msgMessageReceived(const QString& origin, const QString& receiver, const QString& message);
-        Q_DECL_DEPRECATED void msgNoticeReceived(const QString& origin, const QString& receiver, const QString& notice);
-        Q_DECL_DEPRECATED void msgCtcpRequestReceived(const QString& origin, const QString& request);
-        Q_DECL_DEPRECATED void msgCtcpReplyReceived(const QString& origin, const QString& reply);
-        Q_DECL_DEPRECATED void msgCtcpActionReceived(const QString& origin, const QString& receiver, const QString& action);
-        Q_DECL_DEPRECATED void msgNumericMessageReceived(const QString& origin, uint code, const QStringList& params);
-        Q_DECL_DEPRECATED void msgUnknownMessageReceived(const QString& origin, const QStringList& params);
-#endif // IRC_NO_DEPRECATED
 
     protected:
         virtual Buffer* createBuffer(const QString& receiver);
@@ -195,25 +156,6 @@ namespace Irc
         Q_PRIVATE_SLOT(d_func(), void _q_error())
         Q_PRIVATE_SLOT(d_func(), void _q_state(QAbstractSocket::SocketState))
         Q_PRIVATE_SLOT(d_func(), void _q_readData())
-
-#ifndef IRC_NO_DEPRECATED
-        // TODO: for backwards compatibility, to be removed in 1.0
-        Q_PRIVATE_SLOT(d_func(), void _q_joined(const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_parted(const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_quit(const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_nickChanged(const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_modeChanged(const QString&, const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_topicChanged(const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_invited(const QString&, const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_kicked(const QString&, const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_messageReceived(const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_noticeReceived(const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_ctcpRequestReceived(const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_ctcpReplyReceived(const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_ctcpActionReceived(const QString&, const QString&))
-        Q_PRIVATE_SLOT(d_func(), void _q_numericMessageReceived(const QString&, uint code, const QStringList&))
-        Q_PRIVATE_SLOT(d_func(), void _q_unknownMessageReceived(const QString&, const QStringList&))
-#endif // IRC_NO_DEPRECATED
 
         friend class Buffer;
         friend class BufferPrivate;

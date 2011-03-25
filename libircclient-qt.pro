@@ -107,13 +107,6 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
     } else {
         message(ICU support disabled.)
     }
-
-    !no_deprecated {
-        message(Deprecated functionality enabled. Run \'qmake -config no_deprecated\' to disable deprecated functionality.)
-    } else {
-        message(Deprecated functionality disabled.)
-        DEFINES += IRC_NO_DEPRECATED
-    }
 }
 
 symbian {

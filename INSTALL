@@ -18,12 +18,7 @@ ICU support is enabled by default. If you do not have ICU installed or if you
 want to disable the ICU support for other reasons, you may pass additional
 "-config no_icu" parameters to qmake.
 
-Deprecations
-------------
-Deprecated functionality is enabled by default. If you do not need
-deprecated backwards compatible functionality (introduces small
-overhead), you may pass additional "-config no_deprecated" parameters
-to qmake.
-
-Example: a static library in release mode, without deprecated functionality:
-qmake -confit static -config release -config no_deprecated
+Example
+-------
+A static library in release mode, without ICU support:
+qmake -confit static -config release -config no_icu
