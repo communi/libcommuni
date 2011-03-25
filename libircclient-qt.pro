@@ -60,6 +60,13 @@ SOURCES += ircparser.cpp
 SOURCES += ircsession.cpp
 SOURCES += ircutil.cpp
 
+OTHER_FILES += CHANGELOG
+OTHER_FILES += COPYING
+OTHER_FILES += Doxyfile
+OTHER_FILES += README
+OTHER_FILES += TODO
+OTHER_FILES += VERSION
+
 mkspecs.files = libircclient-qt.prf libircclient-qt-config.prf
 mkspecs.path = $$[QMAKE_MKSPECS]/features
 INSTALLS += mkspecs
