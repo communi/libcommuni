@@ -79,7 +79,7 @@ bool IrcParser::parse(const QByteArray& line)
     d.command = process.mid(0, process.indexOf(QLatin1Char(' ')));
     process.remove(0, d.command.length() + 1);
 
-    // parse middle/params
+    // parse <params>
     while (!process.isEmpty())
     {
         if (process.startsWith(QLatin1Char(':')))
@@ -96,8 +96,7 @@ bool IrcParser::parse(const QByteArray& line)
         }
     }
 
-    // TODO: check RFC compliancy?
-    return true;
+    return process.trimmed().isEmpty();
 }
 
 QString IrcParser::encode(const QByteArray& data) const
