@@ -19,11 +19,8 @@
 #include "ircbuffer_p.h"
 #include "ircmessage.h"
 #include "ircutil.h"
-#include <QBuffer>
-#include <QPointer>
 #include <QTcpSocket>
 #include <QStringList>
-#include <QMetaMethod>
 
 /*!
     \class IrcSession ircsession.h
