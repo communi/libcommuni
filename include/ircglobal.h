@@ -15,7 +15,7 @@
 #ifndef IRCGLOBAL_H
 #define IRCGLOBAL_H
 
-#include <QtGlobal>
+#include <QtCore/qglobal.h>
 
 /*!
     \file ircglobal.h

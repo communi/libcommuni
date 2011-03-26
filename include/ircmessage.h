@@ -12,12 +12,12 @@
 * License for more details.
 */
 
-#ifndef IRC_MESSAGE_H
-#define IRC_MESSAGE_H
+#ifndef IRCMESSAGE_H
+#define IRCMESSAGE_H
 
 #include <ircglobal.h>
-#include <QString>
-#include <QObject>
+#include <QtCore/qstring.h>
+#include <QtCore/qobject.h>
 
 class IRC_EXPORT IrcMessage
 {
@@ -293,4 +293,4 @@ public:
         IrcQueryMessage(Whowas, user) { }
 };
 
-#endif // IRC_MESSAGE_H
+#endif // IRCMESSAGE_H
