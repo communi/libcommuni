@@ -58,14 +58,11 @@ namespace Irc
 
         bool sendCommand(IrcCommand* command);
 
-        /* TODO:
-        QList<Buffer*> buffers() const;
-        Buffer* buffer(const QString& receiver = QString()) const;
-        Buffer* addBuffer(const QString& receiver);
+        Buffer* mainBuffer() const;
+        Buffer* buffer(const QString& pattern) const;
 
-        Buffer* defaultBuffer() const;
-        void setDefaultBuffer(Buffer* buffer);
-        */
+        Buffer* addBuffer(const QString& pattern);
+        void removeBuffer(Buffer* buffer);
 
     public Q_SLOTS:
         void open();
@@ -77,10 +74,8 @@ namespace Irc
         void connected();
         void disconnected();
 
-        /*TODO:
     protected:
-        virtual Buffer* createBuffer(const QString& receiver);
-        */
+        virtual Buffer* createBuffer(const QString& pattern);
 
     private:
         QScopedPointer<SessionPrivate> d_ptr;

@@ -649,68 +649,53 @@ namespace Irc
     }
 
     /*!
-        Returns all allocated buffers.
+        Returns the main buffer.
 
         \sa buffer()
-     */
-    /*
-    QList<Buffer*> Session::buffers() const
-    {
-        Q_D(const Session);
-        return d->buffers.values();
-    }*/
-
-    /*!
-        Returns the buffer for \a receiver. Returns \c 0
-        if the buffer does not exist.
-
-        \sa buffers()
         \sa addBuffer()
      */
-    /*
-    Buffer* Session::buffer(const QString& receiver) const
+    Buffer* Session::mainBuffer() const
     {
         Q_D(const Session);
-        if (receiver.isNull())
-            return d->buffers.value(d->host.toLower());
-        return d->buffers.value(receiver.toLower());
+        return d->mainBuffer;
     }
-    */
 
     /*!
-        Adds a buffer for \a receiver and returns it.
+        Returns a buffer for \a pattern. Returns \c 0
+        if the buffer does not exist.
 
-        \sa buffer()
+        \sa mainBuffer()
+        \sa addBuffer()
      */
-    /*
-    Buffer* Session::addBuffer(const QString& receiver)
-    {
-        Q_D(Session);
-        return d->createBuffer(receiver);
-    }
-    */
-
-    /*!
-        Returns the default buffer.
-     */
-    /*
-    Buffer* Session::defaultBuffer() const
+    Buffer* Session::buffer(const QString& pattern) const
     {
         Q_D(const Session);
-        return d->defaultBuffer;
+        return d->buffers.value(pattern);
     }
-    */
 
     /*!
-        Sets the default \a buffer.
+        Adds a buffer for \a pattern.
+
+        \sa removeBuffer()
      */
-    /*
-    void Session::setDefaultBuffer(Buffer* buffer)
+    Buffer* Session::addBuffer(const QString& pattern)
     {
         Q_D(Session);
-        d->defaultBuffer = buffer;
+        Buffer* buffer = createBuffer(pattern);
+        d->buffers.insert(pattern, buffer);
+        return buffer;
     }
-    */
+
+    /*!
+        Removes the \a buffer.
+
+        \sa addBuffer()
+     */
+    void Session::removeBuffer(Buffer* buffer)
+    {
+        Q_D(Session);
+        d->buffers.remove(buffer->pattern(), buffer);
+    }
 
     /*!
         Connects to the server.
@@ -742,17 +727,15 @@ namespace Irc
     }
 
     /*!
-        Returns a new Irc::Buffer object to act as an IRC buffer for \a receiver.
+        Returns a new Irc::Buffer object to act as an IRC buffer for \a pattern.
 
         This virtual factory method can be overridden for example in order to make
         Irc::Session use a subclass of Irc::Buffer.
      */
-    /*
-    Buffer* Session::createBuffer(const QString& receiver)
+    Buffer* Session::createBuffer(const QString& pattern)
     {
-        return new Buffer(receiver, this);
+        return new Buffer(pattern, this);
     }
-    */
 }
 
 #ifndef QT_NO_DEBUG_STREAM

@@ -59,8 +59,8 @@ namespace Irc
         quint16 port;
         QString motd;
         bool welcomed;
-        //Buffer* defaultBuffer;
-        //QHash<QString, Buffer*> buffers;
+        Buffer* mainBuffer;
+        QMultiHash<QString, Buffer*> buffers;
     };
 }
 
