@@ -19,7 +19,6 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
-QT_FORWARD_DECLARE_CLASS(QAuthenticator)
 QT_FORWARD_DECLARE_CLASS(QAbstractSocket)
 
 class IrcBuffer;
@@ -32,6 +31,9 @@ class IRC_EXPORT IrcSession : public QObject
 
     Q_PROPERTY(QString host READ host WRITE setHost)
     Q_PROPERTY(quint16 port READ port WRITE setPort)
+    Q_PROPERTY(QString userName READ userName WRITE setUserName)
+    Q_PROPERTY(QString nickName READ nickName WRITE setNickName)
+    Q_PROPERTY(QString realName READ realName WRITE setRealName)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
 
     Q_ENUMS(MessageType ChannelAction UserAction CtcpType)
@@ -45,6 +47,15 @@ public:
 
     quint16 port() const;
     void setPort(quint16 port);
+
+    QString userName() const;
+    void setUserName(const QString& name);
+
+    QString nickName() const;
+    void setNickName(const QString& name);
+
+    QString realName() const;
+    void setRealName(const QString& name);
 
     QByteArray encoding() const;
     void setEncoding(const QByteArray& encoding);
@@ -66,7 +77,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void connecting();
-    void authenticate(QAuthenticator* authenticator);
+    void password(QString* password);
     void connected();
     void disconnected();
 
@@ -81,7 +92,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_connected())
     Q_PRIVATE_SLOT(d_func(), void _q_disconnected())
     Q_PRIVATE_SLOT(d_func(), void _q_reconnect())
-    Q_PRIVATE_SLOT(d_func(), void _q_error())
+    Q_PRIVATE_SLOT(d_func(), void _q_error(QAbstractSocket::SocketError))
     Q_PRIVATE_SLOT(d_func(), void _q_state(QAbstractSocket::SocketState))
     Q_PRIVATE_SLOT(d_func(), void _q_readData())
 };

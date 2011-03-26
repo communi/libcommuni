@@ -19,14 +19,11 @@
 #include "ircbuffer_p.h"
 #include "ircmessage.h"
 #include "ircutil.h"
-#include <QSet>
-#include <QTimer>
 #include <QBuffer>
 #include <QPointer>
 #include <QTcpSocket>
 #include <QStringList>
 #include <QMetaMethod>
-#include <QAuthenticator>
 
 /*!
     \class IrcSession ircsession.h
@@ -90,6 +87,9 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     socket(0),
     host(),
     port(6667),
+    userName(),
+    nickName(),
+    realName(),
     mainBuffer(0),
     buffers()
 {
@@ -100,20 +100,18 @@ void IrcSessionPrivate::_q_connected()
     Q_Q(IrcSession);
     emit q->connecting();
 
-    QAuthenticator auth;
-    emit q->authenticate(&auth);
-    Q_ASSERT(!auth.user().isEmpty());
+    QString password;
+    emit q->password(&password);
+    if (!password.isEmpty())
+        socket->write(QString(QLatin1String("PASS %1\r\n")).arg(password).toLocal8Bit());
 
-    if (!auth.password().isEmpty())
-        socket->write(QString(QLatin1String("PASS %1\r\n")).arg(auth.password()).toLocal8Bit());
-
-    socket->write(QString(QLatin1String("NICK %1\r\n")).arg(auth.user()).toLocal8Bit());
+    socket->write(QString(QLatin1String("NICK %1\r\n")).arg(nickName).toLocal8Bit());
 
     // RFC 1459 states that "hostname and servername are normally
     // ignored by the IRC server when the USER command comes from
     // a directly connected client (for security reasons)", therefore
     // we don't need them.
-    socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(auth.user(), auth.user()).toLocal8Bit());
+    socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(userName, realName).toLocal8Bit());
 
     mainBuffer = q->createBuffer(QLatin1String("*"));
 }
@@ -134,14 +132,14 @@ void IrcSessionPrivate::_q_reconnect()
     }
 }
 
-void IrcSessionPrivate::_q_error()
+void IrcSessionPrivate::_q_error(QAbstractSocket::SocketError error)
 {
-    Q_ASSERT(false);
+    qDebug() << "_q_error" << error;
 }
 
 void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
 {
-    Q_UNUSED(state);
+    qDebug() << "_q_state" << state;
 }
 
 void IrcSessionPrivate::_q_readData()
@@ -170,6 +168,8 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
     Q_Q(IrcSession);
     parser.parse(line);
 
+    qDebug() << line;
+
     QString prefix = parser.prefix();
     QString command = parser.command();
     QStringList params = parser.params();
@@ -193,6 +193,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             case Irc::RPL_WELCOME:
             {
                 emit q->connected();
+                qDebug("WELCOME");
                 break;
             }
 
@@ -248,6 +249,15 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         //if (defaultBuffer)
         //    emit defaultBuffer->numericMessageReceived(prefix, code, params);
     }
+    else
+    {
+        if (command == QLatin1String("JOIN"))
+        {
+            //IrcJoinMessage msg = IrcJoinMessage::fromString(params.join(" "));
+            // ...
+        }
+    }
+
     /*else
     {
         if (command == QLatin1String("NICK"))
@@ -568,6 +578,74 @@ void IrcSession::setPort(quint16 port)
 }
 
 /*!
+    Returns the user name.
+ */
+QString IrcSession::userName() const
+{
+    Q_D(const IrcSession);
+    return d->userName;
+}
+
+/*!
+    Sets the user \a name.
+
+    \note setUserName() has no effect on already established connection.
+ */
+void IrcSession::setUserName(const QString& name)
+{
+    Q_D(IrcSession);
+    if (d->isConnected())
+        qWarning("IrcSession::setUserName() has no effect until re-connect");
+    d->userName = name;
+}
+
+/*!
+    Returns the nick name.
+ */
+QString IrcSession::nickName() const
+{
+    Q_D(const IrcSession);
+    return d->nickName;
+}
+
+/*!
+    Sets the nick \a name.
+ */
+void IrcSession::setNickName(const QString& name)
+{
+    Q_D(IrcSession);
+    if (d->nickName != name)
+    {
+        d->nickName = name;
+        // TODO:
+        //if (d->socket)
+        //    raw(QString(QLatin1String("NICK %1")).arg(nick));
+    }
+}
+
+/*!
+    Returns the real name.
+ */
+QString IrcSession::realName() const
+{
+    Q_D(const IrcSession);
+    return d->realName;
+}
+
+/*!
+    Sets the real \a name.
+
+    \note setRealName() has no effect on already established connection.
+ */
+void IrcSession::setRealName(const QString& name)
+{
+    Q_D(IrcSession);
+    if (d->isConnected())
+        qWarning("IrcSession::setRealName() has no effect until re-connect");
+    d->realName = name;
+}
+
+/*!
     Returns the socket.
 
     IrcSession creates an instance of QTcpSocket by default.
@@ -606,7 +684,7 @@ void IrcSession::setSocket(QAbstractSocket* socket)
             connect(socket, SIGNAL(connected()), this, SLOT(_q_connected()));
             connect(socket, SIGNAL(disconnected()), this, SLOT(_q_disconnected()));
             connect(socket, SIGNAL(readyRead()), this, SLOT(_q_readData()));
-            connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_error()));
+            connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_error(QAbstractSocket::SocketError)));
             connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_q_state(QAbstractSocket::SocketState)));
         }
     }
@@ -668,6 +746,21 @@ void IrcSession::removeBuffer(IrcBuffer* buffer)
 void IrcSession::open()
 {
     Q_D(IrcSession);
+    if (d->userName.isEmpty())
+    {
+        qCritical("IrcSession::open(): userName is empty!");
+        return;
+    }
+    if (d->nickName.isEmpty())
+    {
+        qCritical("IrcSession::open(): nickName is empty!");
+        return;
+    }
+    if (d->realName.isEmpty())
+    {
+        qCritical("IrcSession::open(): realName is empty!");
+        return;
+    }
     d->_q_reconnect();
 }
 

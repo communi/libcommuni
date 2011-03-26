@@ -32,7 +32,7 @@ public:
     void _q_connected();
     void _q_disconnected();
     void _q_reconnect();
-    void _q_error();
+    void _q_error(QAbstractSocket::SocketError error);
     void _q_state(QAbstractSocket::SocketState state);
     void _q_readData();
 
@@ -52,6 +52,9 @@ public:
     QAbstractSocket* socket;
     QString host;
     quint16 port;
+    QString userName;
+    QString nickName;
+    QString realName;
     IrcBuffer* mainBuffer;
     QMultiHash<QString, IrcBuffer*> buffers;
 };
