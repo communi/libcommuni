@@ -44,27 +44,23 @@ namespace Irc
         void readLines(const QByteArray& delimiter);
         void processLine(const QByteArray& line);
         bool isConnected() const;
-        QString resolveTarget(const QString& sender, const QString& receiver) const;
+        //QString resolveTarget(const QString& sender, const QString& receiver) const;
 
-        Buffer* createBuffer(const QString& receiver);
-        void removeBuffer(Buffer* buffer);
+        //Buffer* createBuffer(const QString& receiver);
+        //void removeBuffer(Buffer* buffer);
+
+        bool raw(const QString& msg);
 
         Session* q_ptr;
         Parser parser;
         QByteArray buffer;
         QAbstractSocket* socket;
-        QString ident;
-        QString password;
-        QString nick;
-        QString realName;
         QString host;
         quint16 port;
         QString motd;
-        int delay;
-        QTimer timer;
-        Buffer* defaultBuffer;
-        QHash<QString, Buffer*> buffers;
         bool welcomed;
+        //Buffer* defaultBuffer;
+        //QHash<QString, Buffer*> buffers;
     };
 }
 
