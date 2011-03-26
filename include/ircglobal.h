@@ -12,8 +12,8 @@
 * License for more details.
 */
 
-#ifndef IRC_GLOBAL_H
-#define IRC_GLOBAL_H
+#ifndef IRCGLOBAL_H
+#define IRCGLOBAL_H
 
 #include <QtGlobal>
 
@@ -49,7 +49,7 @@
     
     \sa IRC_VERSION_STR and Irc::version().
  */
-#define IRC_VERSION 0x000600
+#define IRC_VERSION 0x010000
 
 /*!
     \def IRC_VERSION_STR
@@ -59,10 +59,10 @@
 
     \sa Irc::version() and IRC_VERSION.
  */
-#define IRC_VERSION_STR "0.6.0"
+#define IRC_VERSION_STR "1.0.0"
 
 #ifndef QT_FORWARD_DECLARE_CLASS
 #   define QT_FORWARD_DECLARE_CLASS(name) class name;
 #endif // QT_FORWARD_DECLARE_CLASS
 
-#endif // IRC_GLOBAL_H
+#endif // IRCGLOBAL_H
