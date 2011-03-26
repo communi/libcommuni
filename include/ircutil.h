@@ -12,21 +12,18 @@
 * License for more details.
 */
 
-#ifndef IRC_UTIL_H
-#define IRC_UTIL_H
+#ifndef IRCUTIL_H
+#define IRCUTIL_H
 
 #include <irc.h>
 
-namespace Irc
+class IRC_EXPORT IrcUtil
 {
-    class IRC_EXPORT Util
-    {
-    public:
-        static QString nickFromTarget(const QString& target);
-        static QString hostFromTarget(const QString& target);
-        static QString messageToHtml(const QString& message);
-        static QString colorNameFromCode(int code);
-    };
-}
+public:
+    static QString nickFromTarget(const QString& target);
+    static QString hostFromTarget(const QString& target);
+    static QString messageToHtml(const QString& message);
+    static QString colorNameFromCode(int code);
+};
 
-#endif // IRC_UTIL_H
+#endif // IRCUTIL_H
