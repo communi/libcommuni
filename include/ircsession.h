@@ -63,7 +63,7 @@ public:
     QAbstractSocket* socket() const;
     void setSocket(QAbstractSocket* socket);
 
-    bool sendMessage(IrcMessage* message);
+    bool sendMessage(const IrcMessage& message);
 
     IrcBuffer* mainBuffer() const;
     IrcBuffer* buffer(const QString& pattern) const;
@@ -80,6 +80,7 @@ Q_SIGNALS:
     void password(QString* password);
     void connected();
     void disconnected();
+    void messageReceived(const IrcMessage& message);
 
 protected:
     virtual IrcBuffer* createBuffer(const QString& pattern);

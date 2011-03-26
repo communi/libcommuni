@@ -174,88 +174,127 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
     QString command = parser.command();
     QStringList params = parser.params();
 
+    // numeric
     bool isNumeric = false;
     uint code = command.toInt(&isNumeric);
+    if (isNumeric)
+    {
+        // connected!
+        if (code == Irc::RPL_WELCOME)
+            emit q->connected();
+
+        IrcNumericMessage msg = IrcNumericMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
 
     // handle PING/PONG
-    if (command == QLatin1String("PING"))
+    else if (command == QLatin1String("PING"))
     {
         QString arg = params.value(0);
         raw(QString(QLatin1String("PONG %1")).arg(arg));
         return;
     }
 
-    // and dump
-    if (isNumeric)
+    // channel operations
+    else if (command == QLatin1String("JOIN"))
     {
-        switch (code)
-        {
-            case Irc::RPL_WELCOME:
-            {
-                emit q->connected();
-                qDebug("WELCOME");
-                break;
-            }
-
-            /* TODO:
-            case Irc::RPL_TOPIC:
-            {
-                QString channel = params.value(1);
-                QString target = resolveTarget(QString(), channel);
-                createBuffer(target);
-                break;
-            }
-
-            case Irc::RPL_NAMREPLY:
-            {
-                QStringList list = params;
-                list.removeAll(QLatin1String("="));
-                list.removeAll(QLatin1String("@"));
-                list.removeAll(QLatin1String("*"));
-
-                QString target = resolveTarget(QString(), list.value(1));
-                IrcBuffer* buffer = createBuffer(target);
-                buffer->d_func()->names += list.value(2).split(QLatin1String(" "), QString::SkipEmptyParts);
-                break;
-            }
-
-            case Irc::RPL_ENDOFNAMES:
-            {
-                QString target = resolveTarget(QString(), params.value(1));
-                IrcBuffer* buffer = createBuffer(target);
-                emit buffer->namesReceived(buffer->d_func()->names);
-                break;
-            }
-
-            case Irc::RPL_MOTDSTART:
-                motd.clear();
-                break;
-
-            case Irc::RPL_MOTD:
-                motd.append(params.value(1) + QLatin1Char('\n'));
-                break;
-
-            case Irc::RPL_ENDOFMOTD:
-                if (defaultBuffer)
-                    emit defaultBuffer->motdReceived(motd);
-                motd.clear();
-                break;
-            */
-
-            default:
-                break;
-        }
-
-        //if (defaultBuffer)
-        //    emit defaultBuffer->numericMessageReceived(prefix, code, params);
+        IrcJoinMessage msg = IrcJoinMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
     }
-    else
+    else if (command == QLatin1String("PART"))
     {
-        if (command == QLatin1String("JOIN"))
+        IrcPartMessage msg = IrcPartMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+    else if (command == QLatin1String("TOPIC"))
+    {
+        IrcTopicMessage msg = IrcTopicMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+    else if (command == QLatin1String("NAMES"))
+    {
+        IrcNamesMessage msg = IrcNamesMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+    else if (command == QLatin1String("LIST"))
+    {
+        IrcListMessage msg = IrcListMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+    else if (command == QLatin1String("INVITE"))
+    {
+        IrcInviteMessage msg = IrcInviteMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+    else if (command == QLatin1String("KICK"))
+    {
+        IrcKickMessage msg = IrcKickMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+
+    // mode operations
+    else if (command == QLatin1String("MODE"))
+    {
+        if (params.value(0).startsWith(QLatin1Char('#')))
         {
-            //IrcJoinMessage msg = IrcJoinMessage::fromString(params.join(" "));
-            // ...
+            IrcChannelModeMessage msg = IrcChannelModeMessage::fromString(prefix, params);
+            emit q->messageReceived(msg);
         }
+        else
+        {
+            IrcUserModeMessage msg = IrcUserModeMessage::fromString(prefix, params);
+            emit q->messageReceived(msg);
+        }
+    }
+
+    // sending messages & ctcp messages
+    else if (command == QLatin1String("PRIVMSG"))
+    {
+        if (params.value(1).startsWith(QLatin1String("\1ACTION ")))
+        {
+            IrcCtcpActionMessage msg = IrcCtcpActionMessage::fromString(prefix, params);
+            emit q->messageReceived(msg);
+        }
+        else if (params.value(1).startsWith(QLatin1Char('\1')))
+        {
+            IrcCtcpRequestMessage msg = IrcCtcpRequestMessage::fromString(prefix, params);
+            emit q->messageReceived(msg);
+        }
+        else
+        {
+            IrcPrivateMessage msg = IrcPrivateMessage::fromString(prefix, params);
+            emit q->messageReceived(msg);
+        }
+    }
+    else if (command == QLatin1String("NOTICE"))
+    {
+        if (params.value(1).startsWith(QLatin1Char('\1')))
+        {
+            IrcCtcpReplyMessage msg = IrcCtcpReplyMessage::fromString(prefix, params);
+            emit q->messageReceived(msg);
+        }
+        else
+        {
+            IrcNoticeMessage msg = IrcNoticeMessage::fromString(prefix, params);
+            emit q->messageReceived(msg);
+        }
+    }
+
+    // user-based queries
+    else if (command == QLatin1String("WHO"))
+    {
+        IrcWhoMessage msg = IrcWhoMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+    else if (command == QLatin1String("WHOIS"))
+    {
+        IrcWhoisMessage msg = IrcWhoisMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+    else if (command == QLatin1String("WHOWAS"))
+    {
+        IrcWhowasMessage msg = IrcWhowasMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
     }
 
     /*else
@@ -295,118 +334,6 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
                 }
             }
         }
-        else if (command == QLatin1String("JOIN"))
-        {
-            QString channel = params.value(0);
-            QString target = resolveTarget(prefix, channel);
-            IrcBuffer* buffer = createBuffer(target);
-            //buffer->d_func()->addName(Util::nickFromTarget(prefix));
-            emit buffer->joined(prefix);
-        }
-        else if (command == QLatin1String("PART"))
-        {
-            QString channel = params.value(0);
-            QString target = resolveTarget(prefix, channel);
-            if (nick != Util::nickFromTarget(prefix))
-            {
-                QString message = params.value(1);
-                IrcBuffer* buffer = createBuffer(target);
-                //buffer->d_func()->removeName(Util::nickFromTarget(prefix));
-                emit buffer->parted(prefix, message);
-            }
-            else if (buffers.contains(target.toLower()))
-            {
-                IrcBuffer* buffer = buffers.value(target.toLower());
-                removeBuffer(buffer);
-                buffer->deleteLater();
-            }
-        }
-        else if (command == QLatin1String("MODE"))
-        {
-            QString receiver = params.value(0);
-            QString mode = params.value(1);
-            QString args = params.value(2);
-            QString target = resolveTarget(prefix, receiver);
-            IrcBuffer* buffer = createBuffer(target);
-            //buffer->d_func()->updateMode(args, mode);
-            emit buffer->modeChanged(prefix, mode, args);
-        }
-        else if (command == QLatin1String("TOPIC"))
-        {
-            QString channel = params.value(0);
-            QString topic = params.value(1);
-            QString target = resolveTarget(prefix, channel);
-            IrcBuffer* buffer = createBuffer(target);
-            //buffer->d_func()->topic = topic;
-            emit buffer->topicChanged(prefix, topic);
-        }
-        else if (command == QLatin1String("INVITE"))
-        {
-            QString receiver = params.value(0);
-            QString channel = params.value(1);
-            if (defaultBuffer)
-                emit defaultBuffer->invited(prefix, receiver, channel);
-        }
-        else if (command == QLatin1String("KICK"))
-        {
-            QString channel = params.value(0);
-            QString nick = params.value(1);
-            QString message = params.value(2);
-            QString target = resolveTarget(prefix, channel);
-            IrcBuffer* buffer = createBuffer(target);
-            //buffer->d_func()->removeName(nick);
-            emit buffer->kicked(prefix, nick, message);
-        }
-        else if (command == QLatin1String("PRIVMSG"))
-        {
-            QString message = params.value(1);
-
-            if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
-            {
-                message.remove(0, 1);
-                message.remove(message.length() - 1, 1);
-
-                if (message.startsWith(QLatin1String("ACTION ")))
-                {
-                    QString receiver = params.value(0);
-                    QString target = resolveTarget(prefix, receiver);
-                    IrcBuffer* buffer = createBuffer(target);
-                    emit buffer->ctcpActionReceived(prefix, message.mid(7));
-                }
-                else
-                {
-                    if (defaultBuffer)
-                        emit defaultBuffer->ctcpRequestReceived(prefix, message);
-                }
-            }
-            else
-            {
-                QString receiver = params.value(0);
-                QString target = resolveTarget(prefix, receiver);
-                IrcBuffer* buffer = createBuffer(target);
-                emit buffer->messageReceived(prefix, message);
-            }
-        }
-        else if (command == QLatin1String("NOTICE"))
-        {
-            QString receiver = params.value(0);
-            QString message = params.value(1);
-
-            if (message.startsWith(QLatin1Char('\1')) && message.endsWith(QLatin1Char('\1')))
-            {
-                message.remove(0, 1);
-                message.remove(message.length() - 1, 1);
-
-                if (defaultBuffer)
-                    emit defaultBuffer->ctcpReplyReceived(prefix, message);
-            }
-            else
-            {
-                QString target = resolveTarget(prefix, receiver);
-                IrcBuffer* buffer = createBuffer(target);
-                emit buffer->noticeReceived(prefix, message);
-            }
-        }
         else if (command == QLatin1String("KILL"))
         {
             ; // ignore this event - not all servers generate this
@@ -428,29 +355,6 @@ bool IrcSessionPrivate::isConnected() const
         (socket->state() == QAbstractSocket::ConnectingState
          || socket->state() == QAbstractSocket::ConnectedState);
 }
-
-/*
-QString IrcSessionPrivate::resolveTarget(const QString& sender, const QString& receiver) const
-{
-    QString target = receiver;
-
-    if (target.contains(QLatin1Char('*')) || target.contains(QLatin1Char('?')))
-        target = nick;
-
-    if (target == nick)
-    {
-        if (target == sender)
-            target = host;
-        else
-            target = sender;
-    }
-
-    if (target.isEmpty() || target == QLatin1String("AUTH"))
-        target = host;
-
-    return target;
-}
-*/
 
 /*
 IrcBuffer* IrcSessionPrivate::createBuffer(const QString& receiver)
@@ -777,10 +681,10 @@ void IrcSession::close()
 /*!
     Sends a \a message to the server.
  */
-bool IrcSession::sendMessage(IrcMessage* message)
+bool IrcSession::sendMessage(const IrcMessage& message)
 {
     Q_D(IrcSession);
-    return message && d->raw(message->toString());
+    return d->raw(message.toString());
 }
 
 /*!
