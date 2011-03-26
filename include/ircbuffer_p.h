@@ -12,26 +12,24 @@
 * License for more details.
 */
 
-#ifndef IRC_BUFFER_P_H
-#define IRC_BUFFER_P_H
+#ifndef IRCBUFFER_P_H
+#define IRCBUFFER_P_H
 
-#include <QHash>
+#include <QString>
+#include <QStringList>
 
-namespace Irc
+class IrcBuffer;
+
+class IrcBufferPrivate
 {
-    class Buffer;
+    Q_DECLARE_PUBLIC(IrcBuffer)
 
-    class BufferPrivate
-    {
-        Q_DECLARE_PUBLIC(Buffer)
+public:
+    IrcBufferPrivate();
 
-    public:
-        BufferPrivate();
+    IrcBuffer* q_ptr;
+    QString pattern;
+    QStringList names;
+};
 
-        Buffer* q_ptr;
-        QString pattern;
-        QStringList names;
-    };
-}
-
-#endif // IRC_BUFFER_P_H
+#endif // IRCBUFFER_P_H

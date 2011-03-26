@@ -12,64 +12,59 @@
 * License for more details.
 */
 
-#ifndef IRC_BUFFER_H
-#define IRC_BUFFER_H
+#ifndef IRCBUFFER_H
+#define IRCBUFFER_H
 
 #include <ircglobal.h>
-#include <QStringList>
-#include <QObject>
+#include <QtCore/qobject.h>
+#include <QtCore/qscopedpointer.h>
 
-namespace Irc
+class IrcSession;
+class IrcBufferPrivate;
+
+class IRC_EXPORT IrcBuffer : public QObject
 {
-    class Session;
-    class BufferPrivate;
+    Q_OBJECT
+    Q_PROPERTY(QString pattern READ pattern)
 
-    class IRC_EXPORT Buffer : public QObject
-    {
-        Q_OBJECT
-        Q_PROPERTY(QString pattern READ pattern)
+public:
+    ~IrcBuffer();
 
-    public:
-        ~Buffer();
+    QString pattern() const;
+    IrcSession* session() const;
 
-        Session* session() const;
+Q_SIGNALS:
+    void motdReceived(const QString& motd);
+    void joined(const QString& origin);
+    void parted(const QString& origin, const QString& message);
+    void quit(const QString& origin, const QString& message);
+    void namesReceived(const QStringList& names);
+    void nickChanged(const QString& origin, const QString& nick);
+    void modeChanged(const QString& origin, const QString& mode, const QString& args);
+    void topicChanged(const QString& origin, const QString& topic);
+    void invited(const QString& origin, const QString& receiver, const QString& channel);
+    void kicked(const QString& origin, const QString& nick, const QString& message);
+    void messageReceived(const QString& origin, const QString& message);
+    void noticeReceived(const QString& origin, const QString& notice);
+    void ctcpRequestReceived(const QString& origin, const QString& request);
+    void ctcpReplyReceived(const QString& origin, const QString& reply);
+    void ctcpActionReceived(const QString& origin, const QString& action);
+    void numericMessageReceived(const QString& origin, uint code, const QStringList& params);
+    void unknownMessageReceived(const QString& origin, const QStringList& params);
 
-        QString pattern() const;
+protected:
+    IrcBuffer(const QString& pattern, IrcSession* parent);
+    IrcBuffer(IrcBufferPrivate& dd, const QString& pattern, IrcSession* parent);
+    QScopedPointer<IrcBufferPrivate> d_ptr;
 
-    Q_SIGNALS:
-        void motdReceived(const QString& motd);
-        void joined(const QString& origin);
-        void parted(const QString& origin, const QString& message);
-        void quit(const QString& origin, const QString& message);
-        void namesReceived(const QStringList& names);
-        void nickChanged(const QString& origin, const QString& nick);
-        void modeChanged(const QString& origin, const QString& mode, const QString& args);
-        void topicChanged(const QString& origin, const QString& topic);
-        void invited(const QString& origin, const QString& receiver, const QString& channel);
-        void kicked(const QString& origin, const QString& nick, const QString& message);
-        void messageReceived(const QString& origin, const QString& message);
-        void noticeReceived(const QString& origin, const QString& notice);
-        void ctcpRequestReceived(const QString& origin, const QString& request);
-        void ctcpReplyReceived(const QString& origin, const QString& reply);
-        void ctcpActionReceived(const QString& origin, const QString& action);
-        void numericMessageReceived(const QString& origin, uint code, const QStringList& params);
-        void unknownMessageReceived(const QString& origin, const QStringList& params);
-
-    protected:
-        Buffer(const QString& pattern, Session* parent = 0);
-        Buffer(BufferPrivate& dd, const QString& pattern, Session* parent = 0);
-        BufferPrivate* const d_ptr;
-
-    private:
-        Q_DECLARE_PRIVATE(Buffer)
-        Q_DISABLE_COPY(Buffer)
-        friend class SessionPrivate;
-        friend class Session;
-    };
-}
+private:
+    Q_DECLARE_PRIVATE(IrcBuffer)
+    Q_DISABLE_COPY(IrcBuffer)
+    friend class IrcSession;
+};
 
 #ifndef QT_NO_DEBUG_STREAM
-IRC_EXPORT QDebug operator<<(QDebug debug, const Irc::Buffer* buffer);
+IRC_EXPORT QDebug operator<<(QDebug debug, const IrcBuffer* buffer);
 #endif // QT_NO_DEBUG_STREAM
 
-#endif // IRC_BUFFER_H
+#endif // IRCBUFFER_H
