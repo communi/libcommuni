@@ -100,8 +100,8 @@
     This signal is emitted whenever a \a buffer was removed.
  */
 
-IrcSessionPrivate::IrcSessionPrivate() :
-    q_ptr(0),
+IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
+    q_ptr(session),
     parser(),
     buffer(),
     socket(0),
@@ -110,14 +110,6 @@ IrcSessionPrivate::IrcSessionPrivate() :
     motd(),
     welcomed(false)
 {
-}
-
-void IrcSessionPrivate::init(IrcSession* session)
-{
-    q_ptr = session;
-
-    Q_Q(IrcSession);
-    q->setSocket(new QTcpSocket(q));
 }
 
 void IrcSessionPrivate::_q_connected()
@@ -519,10 +511,9 @@ bool IrcSessionPrivate::raw(const QString& msg)
 /*!
     Constructs a new IRC session with \a parent.
  */
-IrcSession::IrcSession(QObject* parent) : QObject(parent), d_ptr(new IrcSessionPrivate)
+IrcSession::IrcSession(QObject* parent) : QObject(parent), d_ptr(new IrcSessionPrivate(this))
 {
-    Q_D(IrcSession);
-    d->init(this);
+    setSocket(new QTcpSocket(this));
 }
 
 /*!

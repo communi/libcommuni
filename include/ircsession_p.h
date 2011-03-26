@@ -27,9 +27,7 @@ class IrcSessionPrivate
     Q_DECLARE_PUBLIC(IrcSession)
 
 public:
-    IrcSessionPrivate();
-
-    void init(IrcSession* session);
+    IrcSessionPrivate(IrcSession* session);
 
     void _q_connected();
     void _q_disconnected();
