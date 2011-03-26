@@ -12,56 +12,52 @@
 * License for more details.
 */
 
-#ifndef IRC_SESSION_P_H
-#define IRC_SESSION_P_H
+#ifndef IRCSESSION_P_H
+#define IRCSESSION_P_H
 
-#include <QHash>
-#include <QTimer>
-#include <QStringList>
-#include <QVariantList>
+#include <QString>
+#include <QByteArray>
+#include <QMultiHash>
 #include <QAbstractSocket>
 #include "ircbuffer.h"
 #include "ircparser_p.h"
 
-namespace Irc
+class IrcSessionPrivate
 {
-    class SessionPrivate
-    {
-        Q_DECLARE_PUBLIC(Session)
+    Q_DECLARE_PUBLIC(IrcSession)
 
-    public:
-        SessionPrivate();
+public:
+    IrcSessionPrivate();
 
-        void init(Session* session);
+    void init(IrcSession* session);
 
-        void _q_connected();
-        void _q_disconnected();
-        void _q_reconnect();
-        void _q_error();
-        void _q_state(QAbstractSocket::SocketState state);
-        void _q_readData();
+    void _q_connected();
+    void _q_disconnected();
+    void _q_reconnect();
+    void _q_error();
+    void _q_state(QAbstractSocket::SocketState state);
+    void _q_readData();
 
-        void readLines(const QByteArray& delimiter);
-        void processLine(const QByteArray& line);
-        bool isConnected() const;
-        //QString resolveTarget(const QString& sender, const QString& receiver) const;
+    void readLines(const QByteArray& delimiter);
+    void processLine(const QByteArray& line);
+    bool isConnected() const;
+    //QString resolveTarget(const QString& sender, const QString& receiver) const;
 
-        //Buffer* createBuffer(const QString& receiver);
-        //void removeBuffer(Buffer* buffer);
+    //Buffer* createBuffer(const QString& receiver);
+    //void removeBuffer(Buffer* buffer);
 
-        bool raw(const QString& msg);
+    bool raw(const QString& msg);
 
-        Session* q_ptr;
-        Parser parser;
-        QByteArray buffer;
-        QAbstractSocket* socket;
-        QString host;
-        quint16 port;
-        QString motd;
-        bool welcomed;
-        Buffer* mainBuffer;
-        QMultiHash<QString, Buffer*> buffers;
-    };
-}
+    IrcSession* q_ptr;
+    IrcParser parser;
+    QByteArray buffer;
+    QAbstractSocket* socket;
+    QString host;
+    quint16 port;
+    QString motd;
+    bool welcomed;
+    IrcBuffer* mainBuffer;
+    QMultiHash<QString, IrcBuffer*> buffers;
+};
 
-#endif // IRC_SESSION_P_H
+#endif // IRCSESSION_P_H

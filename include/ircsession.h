@@ -12,87 +12,82 @@
 * License for more details.
 */
 
-#ifndef IRC_SESSION_H
-#define IRC_SESSION_H
+#ifndef IRCSESSION_H
+#define IRCSESSION_H
 
 #include <ircglobal.h>
 #include <QtCore/qobject.h>
-#include <QtCore/qstringlist.h>
 #include <QtCore/qscopedpointer.h>
-
-class IrcCommand;
 
 QT_FORWARD_DECLARE_CLASS(QAuthenticator)
 QT_FORWARD_DECLARE_CLASS(QAbstractSocket)
 
-namespace Irc
+class IrcBuffer;
+class IrcCommand;
+class IrcSessionPrivate;
+
+class IRC_EXPORT IrcSession : public QObject
 {
-    class Buffer;
-    class SessionPrivate;
+    Q_OBJECT
 
-    class IRC_EXPORT Session : public QObject
-    {
-        Q_OBJECT
+    Q_PROPERTY(QString host READ host WRITE setHost)
+    Q_PROPERTY(quint16 port READ port WRITE setPort)
+    Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
 
-        Q_PROPERTY(QString host READ host WRITE setHost)
-        Q_PROPERTY(quint16 port READ port WRITE setPort)
-        Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
+    Q_ENUMS(MessageType ChannelAction UserAction CtcpType)
 
-        Q_ENUMS(MessageType ChannelAction UserAction CtcpType)
+public:
+    IrcSession(QObject* parent = 0);
+    ~IrcSession();
 
-    public:
-        Session(QObject* parent = 0);
-        ~Session();
+    QString host() const;
+    void setHost(const QString& host);
 
-        QString host() const;
-        void setHost(const QString& host);
+    quint16 port() const;
+    void setPort(quint16 port);
 
-        quint16 port() const;
-        void setPort(quint16 port);
+    QByteArray encoding() const;
+    void setEncoding(const QByteArray& encoding);
 
-        QByteArray encoding() const;
-        void setEncoding(const QByteArray& encoding);
+    QAbstractSocket* socket() const;
+    void setSocket(QAbstractSocket* socket);
 
-        QAbstractSocket* socket() const;
-        void setSocket(QAbstractSocket* socket);
+    bool sendCommand(IrcCommand* command);
 
-        bool sendCommand(IrcCommand* command);
+    IrcBuffer* mainBuffer() const;
+    IrcBuffer* buffer(const QString& pattern) const;
 
-        Buffer* mainBuffer() const;
-        Buffer* buffer(const QString& pattern) const;
+    IrcBuffer* addBuffer(const QString& pattern);
+    void removeBuffer(IrcBuffer* buffer);
 
-        Buffer* addBuffer(const QString& pattern);
-        void removeBuffer(Buffer* buffer);
+public Q_SLOTS:
+    void open();
+    void close();
 
-    public Q_SLOTS:
-        void open();
-        void close();
+Q_SIGNALS:
+    void connecting();
+    void authenticate(QAuthenticator* authenticator);
+    void connected();
+    void disconnected();
 
-    Q_SIGNALS:
-        void connecting();
-        void authenticate(QAuthenticator* authenticator);
-        void connected();
-        void disconnected();
+protected:
+    virtual IrcBuffer* createBuffer(const QString& pattern);
 
-    protected:
-        virtual Buffer* createBuffer(const QString& pattern);
+private:
+    QScopedPointer<IrcSessionPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcSession)
+    Q_DISABLE_COPY(IrcSession)
 
-    private:
-        QScopedPointer<SessionPrivate> d_ptr;
-        Q_DECLARE_PRIVATE(Session)
-        Q_DISABLE_COPY(Session)
-
-        Q_PRIVATE_SLOT(d_func(), void _q_connected())
-        Q_PRIVATE_SLOT(d_func(), void _q_disconnected())
-        Q_PRIVATE_SLOT(d_func(), void _q_reconnect())
-        Q_PRIVATE_SLOT(d_func(), void _q_error())
-        Q_PRIVATE_SLOT(d_func(), void _q_state(QAbstractSocket::SocketState))
-        Q_PRIVATE_SLOT(d_func(), void _q_readData())
-    };
-}
+    Q_PRIVATE_SLOT(d_func(), void _q_connected())
+    Q_PRIVATE_SLOT(d_func(), void _q_disconnected())
+    Q_PRIVATE_SLOT(d_func(), void _q_reconnect())
+    Q_PRIVATE_SLOT(d_func(), void _q_error())
+    Q_PRIVATE_SLOT(d_func(), void _q_state(QAbstractSocket::SocketState))
+    Q_PRIVATE_SLOT(d_func(), void _q_readData())
+};
 
 #ifndef QT_NO_DEBUG_STREAM
-IRC_EXPORT QDebug operator<<(QDebug debug, const Irc::Session* session);
+IRC_EXPORT QDebug operator<<(QDebug debug, const IrcSession* session);
 #endif // QT_NO_DEBUG_STREAM
 
-#endif // IRC_SESSION_H
+#endif // IRCSESSION_H
