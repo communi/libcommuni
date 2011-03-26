@@ -52,8 +52,6 @@ public:
     QAbstractSocket* socket;
     QString host;
     quint16 port;
-    QString motd;
-    bool welcomed;
     IrcBuffer* mainBuffer;
     QMultiHash<QString, IrcBuffer*> buffers;
 };

@@ -23,7 +23,7 @@ QT_FORWARD_DECLARE_CLASS(QAuthenticator)
 QT_FORWARD_DECLARE_CLASS(QAbstractSocket)
 
 class IrcBuffer;
-class IrcCommand;
+class IrcMessage;
 class IrcSessionPrivate;
 
 class IRC_EXPORT IrcSession : public QObject
@@ -52,7 +52,7 @@ public:
     QAbstractSocket* socket() const;
     void setSocket(QAbstractSocket* socket);
 
-    bool sendCommand(IrcCommand* command);
+    bool sendMessage(IrcMessage* message);
 
     IrcBuffer* mainBuffer() const;
     IrcBuffer* buffer(const QString& pattern) const;

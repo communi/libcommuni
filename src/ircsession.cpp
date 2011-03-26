@@ -17,6 +17,7 @@
 #include "ircsession_p.h"
 #include "ircbuffer.h"
 #include "ircbuffer_p.h"
+#include "ircmessage.h"
 #include "ircutil.h"
 #include <QSet>
 #include <QTimer>
@@ -63,13 +64,13 @@
  */
 
 /*!
-    \fn void IrcSession::connected()
+    \fn void IrcSession::connecting()
 
-    This signal is emitted after a connection has been successfully established.
+    This signal is emitted when the connection is being established.
  */
 
 /*!
-    \fn void IrcSession::welcomed()
+    \fn void IrcSession::connected()
 
     This signal is emitted when the welcome message has been received.
 
@@ -77,27 +78,9 @@
  */
 
 /*!
-    \fn void IrcSession::reconnecting()
-
-    This signal is emitted when the session is about to reconnect.
- */
-
-/*!
     \fn void IrcSession::disconnected()
 
     This signal is emitted when the session has been disconnected.
- */
-
-/*!
-    \fn void IrcSession::bufferAdded(IrcBuffer* buffer)
-
-    This signal is emitted whenever a \a buffer was added.
- */
-
-/*!
-    \fn void IrcSession::bufferRemoved(IrcBuffer* buffer)
-
-    This signal is emitted whenever a \a buffer was removed.
  */
 
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
@@ -107,15 +90,14 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     socket(0),
     host(),
     port(6667),
-    motd(),
-    welcomed(false)
+    mainBuffer(0),
+    buffers()
 {
 }
 
 void IrcSessionPrivate::_q_connected()
 {
     Q_Q(IrcSession);
-    welcomed = false;
     emit q->connecting();
 
     QAuthenticator auth;
@@ -133,7 +115,7 @@ void IrcSessionPrivate::_q_connected()
     // we don't need them.
     socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(auth.user(), auth.user()).toLocal8Bit());
 
-    //defaultBuffer = createBuffer(host);
+    mainBuffer = q->createBuffer(QLatin1String("*"));
 }
 
 void IrcSessionPrivate::_q_disconnected()
@@ -210,7 +192,6 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         {
             case Irc::RPL_WELCOME:
             {
-                welcomed = true;
                 emit q->connected();
                 break;
             }
@@ -398,12 +379,6 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         }
         else if (command == QLatin1String("NOTICE"))
         {
-            if (!welcomed)
-            {
-                Q_ASSERT(defaultBuffer);
-                defaultBuffer->d_func()->setReceiver(prefix, false);
-            }
-
             QString receiver = params.value(0);
             QString message = params.value(1);
 
@@ -683,7 +658,8 @@ IrcBuffer* IrcSession::addBuffer(const QString& pattern)
 void IrcSession::removeBuffer(IrcBuffer* buffer)
 {
     Q_D(IrcSession);
-    d->buffers.remove(buffer->pattern(), buffer);
+    if (buffer)
+        d->buffers.remove(buffer->pattern(), buffer);
 }
 
 /*!
@@ -706,13 +682,12 @@ void IrcSession::close()
 }
 
 /*!
-    Sends a \a command to the server.
+    Sends a \a message to the server.
  */
-bool IrcSession::sendCommand(IrcCommand *command)
+bool IrcSession::sendMessage(IrcMessage* message)
 {
-    //Q_D(IrcSession);
-    //return d->raw(cmd);
-    return false;
+    Q_D(IrcSession);
+    return message && d->raw(message->toString());
 }
 
 /*!
