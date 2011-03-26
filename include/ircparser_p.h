@@ -12,42 +12,39 @@
 * License for more details.
 */
 
-#ifndef IRC_PARSER_P_H
-#define IRC_PARSER_P_H
+#ifndef IRCPARSER_P_H
+#define IRCPARSER_P_H
 
-#include <QString>
-#include <QByteArray>
-#include <QStringList>
+#include <QtCore/qstring.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qstringlist.h>
 
-namespace Irc
+class IrcParser
 {
-    class Parser
+    struct Data
     {
-        struct ParserData
-        {
-            QString prefix;
-            QString command;
-            QStringList params;
-            QByteArray encoding;
-        };
-
-    public:
-        Parser();
-
-        bool parse(const QByteArray &line);
-
-        QString prefix() const { return d.prefix; }
-        QString command() const { return d.command; }
-        QStringList params() const { return d.params; }
-
-        QByteArray encoding() const { return d.encoding; }
-        void setEncoding(const QByteArray& encoding) { d.encoding = encoding; }
-
-    private:
-        QString encode(const QByteArray& data) const;
-
-        ParserData d;
+        QString prefix;
+        QString command;
+        QStringList params;
+        QByteArray encoding;
     };
-}
 
-#endif // IRC_PARSER_P_H
+public:
+    IrcParser();
+
+    bool parse(const QByteArray &line);
+
+    QString prefix() const { return d.prefix; }
+    QString command() const { return d.command; }
+    QStringList params() const { return d.params; }
+
+    QByteArray encoding() const { return d.encoding; }
+    void setEncoding(const QByteArray& encoding) { d.encoding = encoding; }
+
+private:
+    QString encode(const QByteArray& data) const;
+
+    Data d;
+};
+
+#endif // IRCPARSER_P_H

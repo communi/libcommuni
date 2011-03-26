@@ -46,70 +46,67 @@ static QByteArray detectEncoding(const QByteArray& text)
     return encoding;
 }
 
-namespace Irc
+IrcParser::IrcParser()
 {
-    Parser::Parser()
+}
+
+bool IrcParser::parse(const QByteArray& line)
+{
+    d.prefix.clear();
+    d.command.clear();
+    d.params.clear();
+
+    // From RFC 1459:
+    //  <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
+    //  <prefix>   ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]
+    //  <command>  ::= <letter> { <letter> } | <number> <number> <number>
+    //  <SPACE>    ::= ' ' { ' ' }
+    //  <params>   ::= <SPACE> [ ':' <trailing> | <middle> <params> ]
+    //  <middle>   ::= <Any *non-empty* sequence of octets not including SPACE
+    //                 or NUL or CR or LF, the first of which may not be ':'>
+    //  <trailing> ::= <Any, possibly *empty*, sequence of octets not including
+    //                   NUL or CR or LF>
+    QString process = encode(line);
+
+    // parse <prefix>
+    if (process.startsWith(QLatin1Char(':')))
     {
+        d.prefix = process.mid(1, process.indexOf(QLatin1Char(' ')) - 1);
+        process.remove(0, d.prefix.length() + 2);
     }
 
-    bool Parser::parse(const QByteArray& line)
+    // parse <command>
+    d.command = process.mid(0, process.indexOf(QLatin1Char(' ')));
+    process.remove(0, d.command.length() + 1);
+
+    // parse middle/params
+    while (!process.isEmpty())
     {
-        d.prefix.clear();
-        d.command.clear();
-        d.params.clear();
-
-        // From RFC 1459:
-        //  <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
-        //  <prefix>   ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]
-        //  <command>  ::= <letter> { <letter> } | <number> <number> <number>
-        //  <SPACE>    ::= ' ' { ' ' }
-        //  <params>   ::= <SPACE> [ ':' <trailing> | <middle> <params> ]
-        //  <middle>   ::= <Any *non-empty* sequence of octets not including SPACE
-        //                 or NUL or CR or LF, the first of which may not be ':'>
-        //  <trailing> ::= <Any, possibly *empty*, sequence of octets not including
-        //                   NUL or CR or LF>
-        QString process = encode(line);
-
-        // parse <prefix>
         if (process.startsWith(QLatin1Char(':')))
         {
-            d.prefix = process.mid(1, process.indexOf(QLatin1Char(' ')) - 1);
-            process.remove(0, d.prefix.length() + 2);
+            process.remove(0, 1);
+            d.params += process;
+            process.clear();
         }
-
-        // parse <command>
-        d.command = process.mid(0, process.indexOf(QLatin1Char(' ')));
-        process.remove(0, d.command.length() + 1);
-
-        // parse middle/params
-        while (!process.isEmpty())
+        else
         {
-            if (process.startsWith(QLatin1Char(':')))
-            {
-                process.remove(0, 1);
-                d.params += process;
-                process.clear();
-            }
-            else
-            {
-                QString param = process.mid(0, process.indexOf(QLatin1Char(' ')));
-                process.remove(0, param.length() + 1);
-                d.params += param;
-            }
+            QString param = process.mid(0, process.indexOf(QLatin1Char(' ')));
+            process.remove(0, param.length() + 1);
+            d.params += param;
         }
-
-        // TODO: check RFC compliancy?
-        return true;
     }
 
-    QString Parser::encode(const QByteArray& data) const
-    {
-        QByteArray encoding = d.encoding;
-        if (encoding.isNull())
-            encoding = detectEncoding(data);
-        QTextCodec *codec = QTextCodec::codecForName(encoding);
-        if (!codec)
-            codec = QTextCodec::codecForLocale();
-        return codec->toUnicode(data);
-    }
+    // TODO: check RFC compliancy?
+    return true;
+}
+
+QString IrcParser::encode(const QByteArray& data) const
+{
+    QByteArray encoding = d.encoding;
+    if (encoding.isNull())
+        encoding = detectEncoding(data);
+    QTextCodec *codec = QTextCodec::codecForName(encoding);
+    if (!codec)
+        codec = QTextCodec::codecForLocale();
+    return codec->toUnicode(data);
 }
