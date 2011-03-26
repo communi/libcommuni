@@ -36,37 +36,6 @@
  */
 
 /*!
-    \enum Irc::Buffer::MessageFlag
-
-    This enum describes available message flags.
- */
-
-/*!
-    \var Irc::Buffer::NoFlags
-
-    No flags for the message.
- */
-
-/*!
-    \var Irc::Buffer::IdentifiedFlag
-
-    Message was sent from an identified nick.
- */
-
-/*!
-    \var Irc::Buffer::EchoFlag
-
-    Message echoed back from library.
- */
-
-
-/*!
-    \fn void Irc::Buffer::receiverChanged(const QString& receiver)
-
-    This signal is emitted whenever \a receiver has changed.
- */
-
-/*!
     \fn void Irc::Buffer::motdReceived(const QString& motd)
 
     This signal is emitted when message of the day \a motd has been received.
@@ -127,31 +96,31 @@
  */
 
 /*!
-    \fn void Irc::Buffer::messageReceived(const QString& origin, const QString& message, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
+    \fn void Irc::Buffer::messageReceived(const QString& origin, const QString& message)
 
     This signal is emitted when \a origin has sent \a message.
  */
 
 /*!
-    \fn void Irc::Buffer::noticeReceived(const QString& origin, const QString& notice, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
+    \fn void Irc::Buffer::noticeReceived(const QString& origin, const QString& notice)
 
     This signal is emitted when \a origin has sent \a notice.
  */
 
 /*!
-    \fn void Irc::Buffer::ctcpRequestReceived(const QString& origin, const QString& request, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
+    \fn void Irc::Buffer::ctcpRequestReceived(const QString& origin, const QString& request)
 
     This signal is emitted when \a origin has sent a CTCP \a request.
  */
 
 /*!
-    \fn void Irc::Buffer::ctcpReplyReceived(const QString& origin, const QString& reply, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
+    \fn void Irc::Buffer::ctcpReplyReceived(const QString& origin, const QString& reply)
 
     This signal is emitted when \a origin has sent a CTCP \a reply.
  */
 
 /*!
-    \fn void Irc::Buffer::ctcpActionReceived(const QString& origin, const QString& action, Irc::Buffer::MessageFlags flags = Irc::Buffer::NoFlags)
+    \fn void Irc::Buffer::ctcpActionReceived(const QString& origin, const QString& action)
 
     This signal is emitted when \a origin has sent a CTCP \a action.
  */
@@ -173,95 +142,6 @@ namespace Irc
     BufferPrivate::BufferPrivate() :
         q_ptr(0)
     {
-    }
-
-    void BufferPrivate::addName(QString name)
-    {
-        QString mode;
-        if (name.startsWith(QLatin1Char('~'))) // owner
-        {
-            mode = QLatin1Char('q');
-            name.remove(0, 1);
-        }
-        if (name.startsWith(QLatin1Char('&'))) // admin
-        {
-           mode = QLatin1Char('a');
-           name.remove(0, 1);
-        }
-        if (name.startsWith(QLatin1Char('@'))) // operator
-        {
-            mode = QLatin1Char('o');
-            name.remove(0, 1);
-        }
-        if (name.startsWith(QLatin1Char('%'))) // halfop
-        {
-            mode = QLatin1Char('h');
-            name.remove(0, 1);
-        }
-        if (name.startsWith(QLatin1Char('+'))) // voiced
-        {
-            mode = QLatin1Char('v');
-            name.remove(0, 1);
-        }
-        if (name.startsWith(QLatin1Char('-'))) // muted
-        {
-            mode = QLatin1Char('m');
-            name.remove(0, 1);
-        }
-        names.insert(name, mode);
-    }
-
-    void BufferPrivate::removeName(const QString& name)
-    {
-        names.remove(name);
-    }
-
-    void BufferPrivate::updateMode(const QString& name, const QString& mode)
-    {
-        bool add = true;
-        QString updated = names.value(name);
-        for (int i = 0; i < mode.size(); ++i)
-        {
-            QChar c = mode.at(i);
-            switch (c.toAscii())
-            {
-                case '+':
-                    add = true;
-                    break;
-                case '-':
-                    add = false;
-                    break;
-                default:
-                    if (add)
-                    {
-                        if (!updated.contains(c))
-                            updated += c;
-                    }
-                    else
-                    {
-                        updated.remove(c);
-                    }
-                    break;
-            }
-        }
-        names.insert(name, updated);
-    }
-
-    void BufferPrivate::setReceiver(const QString& rec, bool replace)
-    {
-        Q_Q(Buffer);
-        if (receiver != rec)
-        {
-            Session* s = q->session();
-            if (s)
-            {
-                if (replace)
-                    s->d_func()->buffers.remove(receiver);
-                s->d_func()->buffers.insert(rec, q);
-            }
-            receiver = rec;
-            emit q->receiverChanged(receiver);
-        }
     }
 
     /*!
@@ -289,8 +169,10 @@ namespace Irc
     Buffer::~Buffer()
     {
         Session* s = session();
+        /* TODO:
         if (s)
             s->d_func()->removeBuffer(this);
+            */
 
         Q_D(Buffer);
         delete d;
@@ -311,83 +193,6 @@ namespace Irc
     {
         Q_D(const Buffer);
         return d->receiver;
-    }
-
-    /*!
-        Returns the topic.
-     */
-    QString Buffer::topic() const
-    {
-        Q_D(const Buffer);
-        return d->topic;
-    }
-
-    /*!
-        Returns the names.
-     */
-    QStringList Buffer::names() const
-    {
-        Q_D(const Buffer);
-        return d->names.keys();
-    }
-
-    /*!
-        Returns the modes of \a name.
-     */
-    QString Buffer::modes(const QString& name) const
-    {
-        Q_D(const Buffer);
-        return d->names.value(name);
-    }
-
-    /*!
-        Returns the visual mode of \a name.
-     */
-    QString Buffer::visualMode(const QString& name) const
-    {
-        Q_D(const Buffer);
-        QString modes = d->names.value(name);
-        if (modes.contains(QLatin1Char('o')))
-            return QLatin1String("@");
-        if (modes.contains(QLatin1Char('v')))
-            return QLatin1String("+");
-        return QString();
-    }
-
-    /*!
-        This convenience function sends a \a message to the buffer's receiver.
-
-        \sa Session::message()
-     */
-    bool Buffer::message(const QString& message)
-    {
-        Q_D(Buffer);
-        Session* s = session();
-        return s && s->message(d->receiver, message);
-    }
-
-    /*!
-        This convenience function sends a \a notice to the buffer's receiver.
-
-        \sa Session::notice()
-     */
-    bool Buffer::notice(const QString& notice)
-    {
-        Q_D(Buffer);
-        Session* s = session();
-        return s && s->notice(d->receiver, notice);
-    }
-
-    /*!
-        This convenience function sends a CTCP \a action to the buffers' receiver.
-
-        \sa Session::ctcpAction()
-     */
-    bool Buffer::ctcpAction(const QString& action)
-    {
-        Q_D(Buffer);
-        Session* s = session();
-        return s && s->ctcpAction(d->receiver, action);
     }
 }
 

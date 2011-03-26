@@ -28,15 +28,9 @@ namespace Irc
     public:
         BufferPrivate();
 
-        void addName(QString name);
-        void removeName(const QString& name);
-        void setReceiver(const QString& rec, bool replace = true);
-        void updateMode(const QString& name, const QString& mode);
-
         Buffer* q_ptr;
         QString receiver;
-        QString topic;
-        QHash<QString, QString> names;
+        QStringList names;
     };
 }
 
