@@ -14,6 +14,7 @@
 */
 
 #include "ircmessage.h"
+#include <QMetaEnum>
 #include <QDebug>
 
 IrcMessage::IrcMessage(Type type) : t(type) { }
@@ -333,3 +334,16 @@ IrcNumericMessage IrcNumericMessage::fromString(const QString& prefix, const QSt
     msg.pfx = prefix;
     return msg;
 }
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const IrcMessage& message)
+{
+    int index = message.staticMetaObject.indexOfEnumerator("Type");
+    Q_ASSERT(index != -1);
+    QMetaEnum enumerator = message.staticMetaObject.enumerator(index);
+
+    debug.nospace() << message.staticMetaObject.className();
+    debug << '(' << enumerator.valueToKey(message.type()) << ')';
+    return debug.space();
+}
+#endif // QT_NO_DEBUG_STREAM

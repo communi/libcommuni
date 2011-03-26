@@ -107,6 +107,7 @@ protected:
 
 class IRC_EXPORT IrcChannelMessage : public IrcMessage
 {
+    Q_GADGET
 public:
     IrcChannelMessage(Type type, const QString& channel);
     QString channel() const { return chan; }
@@ -116,6 +117,7 @@ protected:
 
 class IRC_EXPORT IrcJoinMessage : public IrcChannelMessage
 {
+    Q_GADGET
 public:
     IrcJoinMessage(const QString& channel, const QString& key = QString());
     QString key() const { return k; }
@@ -127,6 +129,7 @@ protected:
 
 class IRC_EXPORT IrcPartMessage : public IrcChannelMessage
 {
+    Q_GADGET
 public:
     IrcPartMessage(const QString& channel, const QString& reason = QString());
     QString reason() const { return rson; }
@@ -138,6 +141,7 @@ protected:
 
 class IRC_EXPORT IrcTopicMessage : public IrcChannelMessage
 {
+    Q_GADGET
 public:
     IrcTopicMessage(const QString& channel, const QString& topic = QString());
     QString topic() const { return tpc; }
@@ -149,6 +153,7 @@ protected:
 
 class IRC_EXPORT IrcNamesMessage : public IrcChannelMessage
 {
+    Q_GADGET
 public:
     IrcNamesMessage(const QString& channel) :
         IrcChannelMessage(Names, channel) { }
@@ -158,6 +163,7 @@ public:
 
 class IRC_EXPORT IrcListMessage : public IrcChannelMessage
 {
+    Q_GADGET
 public:
     IrcListMessage(const QString& channel, const QString& server = QString());
     QString server() const { return srv; }
@@ -169,6 +175,7 @@ protected:
 
 class IRC_EXPORT IrcInviteMessage : public IrcChannelMessage
 {
+    Q_GADGET
 public:
     IrcInviteMessage(const QString& channel, const QString& user);
     QString user() const { return usr; }
@@ -180,6 +187,7 @@ protected:
 
 class IRC_EXPORT IrcKickMessage : public IrcChannelMessage
 {
+    Q_GADGET
 public:
     IrcKickMessage(const QString& channel, const QString& user, const QString& reason = QString());
     QString user() const { return usr; }
@@ -195,6 +203,7 @@ protected:
 
 class IRC_EXPORT IrcModeMessage : public IrcMessage
 {
+    Q_GADGET
 public:
     IrcModeMessage(Type type, const QString& target, const QString& mode = QString());
     QString target() const { return tgt; }
@@ -206,6 +215,7 @@ protected:
 
 class IRC_EXPORT IrcChannelModeMessage : public IrcModeMessage
 {
+    Q_GADGET
 public:
     IrcChannelModeMessage(const QString& channel, const QString& mode = QString(),
                           const QString& argument = QString(), const QString& mask = QString());
@@ -222,6 +232,7 @@ protected:
 
 class IRC_EXPORT IrcUserModeMessage : public IrcModeMessage
 {
+    Q_GADGET
 public:
     IrcUserModeMessage(const QString& user, const QString& mode) :
         IrcModeMessage(UserMode, user, mode) { }
@@ -233,6 +244,7 @@ public:
 
 class IRC_EXPORT IrcSendMessage : public IrcMessage
 {
+    Q_GADGET
 public:
     IrcSendMessage(Type type, const QString& target, const QString& message);
     QString target() const { return tgt; }
@@ -244,6 +256,7 @@ protected:
 
 class IRC_EXPORT IrcPrivateMessage : public IrcSendMessage
 {
+    Q_GADGET
 public:
     IrcPrivateMessage(const QString& target, const QString& message) :
         IrcSendMessage(Private, target, message) { }
@@ -253,6 +266,7 @@ public:
 
 class IRC_EXPORT IrcNoticeMessage : public IrcSendMessage
 {
+    Q_GADGET
 public:
     IrcNoticeMessage(const QString& target, const QString& message) :
         IrcSendMessage(Notice, target, message) { }
@@ -264,6 +278,7 @@ public:
 
 class IRC_EXPORT IrcCtcpMessage : public IrcMessage
 {
+    Q_GADGET
 public:
     IrcCtcpMessage(Type type, const QString& target, const QString& message);
     QString target() const { return tgt; }
@@ -275,6 +290,7 @@ protected:
 
 class IRC_EXPORT IrcCtcpActionMessage : public IrcCtcpMessage
 {
+    Q_GADGET
 public:
     IrcCtcpActionMessage(const QString& target, const QString& message) :
         IrcCtcpMessage(CtcpAction, target, message) { }
@@ -284,6 +300,7 @@ public:
 
 class IRC_EXPORT IrcCtcpRequestMessage : public IrcCtcpMessage
 {
+    Q_GADGET
 public:
     IrcCtcpRequestMessage(const QString& target, const QString& message) :
         IrcCtcpMessage(CtcpRequest, target, message) { }
@@ -293,6 +310,7 @@ public:
 
 class IRC_EXPORT IrcCtcpReplyMessage : public IrcCtcpMessage
 {
+    Q_GADGET
 public:
     IrcCtcpReplyMessage(const QString& target, const QString& message) :
         IrcCtcpMessage(CtcpReply, target, message) { }
@@ -304,6 +322,7 @@ public:
 
 class IRC_EXPORT IrcQueryMessage : public IrcMessage
 {
+    Q_GADGET
 public:
     IrcQueryMessage(Type type, const QString& user);
     QString user() const { return usr; }
@@ -313,6 +332,7 @@ protected:
 
 class IRC_EXPORT IrcWhoMessage : public IrcQueryMessage
 {
+    Q_GADGET
 public:
     IrcWhoMessage(const QString& user) :
         IrcQueryMessage(Who, user) { }
@@ -322,6 +342,7 @@ public:
 
 class IRC_EXPORT IrcWhoisMessage : public IrcQueryMessage
 {
+    Q_GADGET
 public:
     IrcWhoisMessage(const QString& user) :
         IrcQueryMessage(Whois, user) { }
@@ -331,6 +352,7 @@ public:
 
 class IRC_EXPORT IrcWhowasMessage : public IrcQueryMessage
 {
+    Q_GADGET
 public:
     IrcWhowasMessage(const QString& user) :
         IrcQueryMessage(Whowas, user) { }
@@ -340,6 +362,7 @@ public:
 
 class IRC_EXPORT IrcNumericMessage : public IrcMessage
 {
+    Q_GADGET
 public:
     IrcNumericMessage(uint code, const QStringList& params);
     uint code() const { return c; }
@@ -349,5 +372,9 @@ protected:
     uint c;
     QStringList p;
 };
+
+#ifndef QT_NO_DEBUG_STREAM
+IRC_EXPORT QDebug operator<<(QDebug debug, const IrcMessage& message);
+#endif // QT_NO_DEBUG_STREAM
 
 #endif // IRCMESSAGE_H
