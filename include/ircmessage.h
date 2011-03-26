@@ -51,7 +51,7 @@ public:
         ChannelMode = 20,
         UserMode = 21,
 
-        // server queries and commands
+        // TODO: server queries and commands
         Version = 30,
         Stats = 31,
         Links = 32,
@@ -232,7 +232,7 @@ public:
 class IRC_EXPORT IrcSendMessage : public IrcMessage
 {
 public:
-    IrcSendMessage(Type type, const QString& message);
+    IrcSendMessage(Type type, const QString& target, const QString& message);
     QString target() const { return tgt; }
     QString message() const { return msg; }
 protected:
@@ -243,8 +243,8 @@ protected:
 class IRC_EXPORT IrcPrivateMessage : public IrcSendMessage
 {
 public:
-    IrcPrivateMessage(const QString& message) :
-        IrcSendMessage(Private, message) { }
+    IrcPrivateMessage(const QString& target, const QString& message) :
+        IrcSendMessage(Private, target, message) { }
     QString toString() const;
     static IrcPrivateMessage fromString(const QString& prefix, const QStringList& params);
 };
@@ -252,8 +252,8 @@ public:
 class IRC_EXPORT IrcNoticeMessage : public IrcSendMessage
 {
 public:
-    IrcNoticeMessage(const QString& message) :
-        IrcSendMessage(Notice, message) { }
+    IrcNoticeMessage(const QString& target, const QString& message) :
+        IrcSendMessage(Notice, target, message) { }
     QString toString() const;
     static IrcNoticeMessage fromString(const QString& prefix, const QStringList& params);
 };
@@ -263,7 +263,7 @@ public:
 class IRC_EXPORT IrcCtcpMessage : public IrcMessage
 {
 public:
-    IrcCtcpMessage(Type type, const QString& message);
+    IrcCtcpMessage(Type type, const QString& target, const QString& message);
     QString target() const { return tgt; }
     QString message() const { return msg; }
 protected:
@@ -274,8 +274,8 @@ protected:
 class IRC_EXPORT IrcCtcpActionMessage : public IrcCtcpMessage
 {
 public:
-    IrcCtcpActionMessage(const QString& message) :
-        IrcCtcpMessage(CtcpAction, message) { }
+    IrcCtcpActionMessage(const QString& target, const QString& message) :
+        IrcCtcpMessage(CtcpAction, target, message) { }
     QString toString() const;
     static IrcCtcpActionMessage fromString(const QString& prefix, const QStringList& params);
 };
@@ -283,8 +283,8 @@ public:
 class IRC_EXPORT IrcCtcpRequestMessage : public IrcCtcpMessage
 {
 public:
-    IrcCtcpRequestMessage(const QString& message) :
-        IrcCtcpMessage(CtcpRequest, message) { }
+    IrcCtcpRequestMessage(const QString& target, const QString& message) :
+        IrcCtcpMessage(CtcpRequest, target, message) { }
     QString toString() const;
     static IrcCtcpRequestMessage fromString(const QString& prefix, const QStringList& params);
 };
@@ -292,8 +292,8 @@ public:
 class IRC_EXPORT IrcCtcpReplyMessage : public IrcCtcpMessage
 {
 public:
-    IrcCtcpReplyMessage(const QString& message) :
-        IrcCtcpMessage(CtcpReply, message) { }
+    IrcCtcpReplyMessage(const QString& target, const QString& message) :
+        IrcCtcpMessage(CtcpReply, target, message) { }
     QString toString() const;
     static IrcCtcpReplyMessage fromString(const QString& prefix, const QStringList& params);
 };

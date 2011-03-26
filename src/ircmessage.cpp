@@ -164,17 +164,46 @@ QString IrcChannelModeMessage::toString() const
     return lst.join(" ");
 }
 
+IrcChannelModeMessage IrcChannelModeMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString channel = params.value(0);
+    const QString mode = params.value(1);
+    const QString argument = params.value(2);
+    const QString mask = params.value(3);
+    IrcChannelModeMessage msg(channel, mode, argument, mask);
+    msg.pfx = prefix;
+    return msg;
+}
+
 QString IrcUserModeMessage::toString() const
 {
     return QString("MODE %1 %2").arg(tgt, mod);
 }
 
-IrcSendMessage::IrcSendMessage(Type type, const QString& message) :
-    IrcMessage(type), msg(message) { }
+IrcUserModeMessage IrcUserModeMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString user = params.value(0);
+    const QString mode = params.value(1);
+    IrcUserModeMessage msg(user, mode);
+    msg.pfx = prefix;
+    return msg;
+}
+
+IrcSendMessage::IrcSendMessage(Type type, const QString& target, const QString& message) :
+    IrcMessage(type), tgt(target), msg(message) { }
 
 QString IrcPrivateMessage::toString() const
 {
     return QString("PRIVMSG %1 :%2").arg(tgt, msg);
+}
+
+IrcPrivateMessage IrcPrivateMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString target = params.value(0);
+    const QString message = params.value(1);
+    IrcPrivateMessage msg(target, message);
+    msg.pfx = prefix;
+    return msg;
 }
 
 QString IrcNoticeMessage::toString() const
@@ -182,22 +211,70 @@ QString IrcNoticeMessage::toString() const
     return QString("NOTICE %1 :%2").arg(tgt, msg);
 }
 
-IrcCtcpMessage::IrcCtcpMessage(Type type, const QString& message) :
-    IrcMessage(type), msg(message) { }
+IrcNoticeMessage IrcNoticeMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString target = params.value(0);
+    const QString message = params.value(1);
+    IrcNoticeMessage msg(target, message);
+    msg.pfx = prefix;
+    return msg;
+}
+
+IrcCtcpMessage::IrcCtcpMessage(Type type, const QString& target, const QString& message) :
+    IrcMessage(type), tgt(target), msg(message) { }
 
 QString IrcCtcpActionMessage::toString() const
 {
-    return QString("PRIVMSG %1 :\x01" "ACTION %2\x01").arg(tgt, msg);
+    return QString("PRIVMSG %1 :\1ACTION %2\x01").arg(tgt, msg);
+}
+
+IrcCtcpActionMessage IrcCtcpActionMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString target = params.value(0);
+    QString message = params.value(1);
+    if (message.startsWith("\1ACTION "))
+        message.remove(0, 8);
+    if (message.endsWith('\1'))
+        message.chop(1);
+    IrcCtcpActionMessage msg(target, message);
+    msg.pfx = prefix;
+    return msg;
 }
 
 QString IrcCtcpRequestMessage::toString() const
 {
-    return QString("PRIVMSG %1 :\x01%2\x01").arg(tgt, msg);
+    return QString("PRIVMSG %1 :\1%2\1").arg(tgt, msg);
+}
+
+IrcCtcpRequestMessage IrcCtcpRequestMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString target = params.value(0);
+    QString message = params.value(1);
+    if (message.startsWith('\1'))
+        message.remove(0, 1);
+    if (message.endsWith('\1'))
+        message.chop(1);
+    IrcCtcpRequestMessage msg(target, message);
+    msg.pfx = prefix;
+    return msg;
 }
 
 QString IrcCtcpReplyMessage::toString() const
 {
-    return QString("NOTICE %1 :\x01%2\x01").arg(tgt, msg);
+    return QString("NOTICE %1 :\1%2\1").arg(tgt, msg);
+}
+
+IrcCtcpReplyMessage IrcCtcpReplyMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString target = params.value(0);
+    QString message = params.value(1);
+    if (message.startsWith('\1'))
+        message.remove(0, 1);
+    if (message.endsWith('\1'))
+        message.chop(1);
+    IrcCtcpReplyMessage msg(target, message);
+    msg.pfx = prefix;
+    return msg;
 }
 
 IrcQueryMessage::IrcQueryMessage(Type type, const QString& user) :
@@ -208,12 +285,36 @@ QString IrcWhoMessage::toString() const
     return QString("WHO %1").arg(usr);
 }
 
+IrcWhoMessage IrcWhoMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString user = params.value(0);
+    IrcWhoMessage msg(user);
+    msg.pfx = prefix;
+    return msg;
+}
+
 QString IrcWhoisMessage::toString() const
 {
     return QString("WHOIS %1 %1").arg(usr);
 }
 
+IrcWhoisMessage IrcWhoisMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString user = params.value(0);
+    IrcWhoisMessage msg(user);
+    msg.pfx = prefix;
+    return msg;
+}
+
 QString IrcWhowasMessage::toString() const
 {
     return QString("WHOWAS %1 %1").arg(usr);
+}
+
+IrcWhowasMessage IrcWhowasMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString user = params.value(0);
+    IrcWhowasMessage msg(user);
+    msg.pfx = prefix;
+    return msg;
 }
