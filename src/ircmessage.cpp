@@ -14,7 +14,6 @@
 */
 
 #include "ircmessage.h"
-#include <QStringList>
 #include <QDebug>
 
 IrcMessage::IrcMessage(Type type) : t(type) { }
@@ -315,6 +314,22 @@ IrcWhowasMessage IrcWhowasMessage::fromString(const QString& prefix, const QStri
 {
     const QString user = params.value(0);
     IrcWhowasMessage msg(user);
+    msg.pfx = prefix;
+    return msg;
+}
+
+IrcNumericMessage::IrcNumericMessage(uint code, const QStringList& params) :
+    IrcMessage(Numeric), c(code), p(params) { }
+
+QString IrcNumericMessage::toString() const
+{
+    return QString("%1 :%2").arg(c).arg(p.join(" "));
+}
+
+IrcNumericMessage IrcNumericMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const uint code = params.value(0).toInt();
+    IrcNumericMessage msg(code, params.mid(1));
     msg.pfx = prefix;
     return msg;
 }

@@ -18,6 +18,7 @@
 #include <ircglobal.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qstringlist.h>
 
 class IRC_EXPORT IrcMessage
 {
@@ -81,6 +82,7 @@ public:
         Ping = 71,
         Pong = 72,
         Error = 73,
+        Numeric = 74,
 
         // TODO: optional messages
         Away = 80,
@@ -334,6 +336,18 @@ public:
         IrcQueryMessage(Whowas, user) { }
     QString toString() const;
     static IrcWhowasMessage fromString(const QString& prefix, const QStringList& params);
+};
+
+class IRC_EXPORT IrcNumericMessage : public IrcMessage
+{
+public:
+    IrcNumericMessage(uint code, const QStringList& params);
+    uint code() const { return c; }
+    QString toString() const;
+    static IrcNumericMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    uint c;
+    QStringList p;
 };
 
 #endif // IRCMESSAGE_H
