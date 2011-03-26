@@ -27,14 +27,14 @@ namespace Irc
     class IRC_EXPORT Buffer : public QObject
     {
         Q_OBJECT
-        Q_PROPERTY(QString receiver READ receiver)
+        Q_PROPERTY(QString pattern READ pattern)
 
     public:
         ~Buffer();
 
         Session* session() const;
 
-        QString receiver() const;
+        QString pattern() const;
 
     Q_SIGNALS:
         void motdReceived(const QString& motd);
@@ -56,8 +56,8 @@ namespace Irc
         void unknownMessageReceived(const QString& origin, const QStringList& params);
 
     protected:
-        Buffer(const QString& receiver, Session* parent = 0);
-        Buffer(BufferPrivate& dd, const QString& receiver, Session* parent = 0);
+        Buffer(const QString& pattern, Session* parent = 0);
+        Buffer(BufferPrivate& dd, const QString& pattern, Session* parent = 0);
         BufferPrivate* const d_ptr;
 
     private:

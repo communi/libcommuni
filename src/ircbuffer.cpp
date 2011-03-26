@@ -22,14 +22,8 @@
     \class Irc::Buffer ircbuffer.h
     \brief The Irc::Buffer class provides an IRC buffer.
 
-    The Irc::Buffer class acts as a buffer for a single receiver. Receivers
-    can be:
-    \li the server
-    \li channels
-    \li queries.
-
-    Server/channel/query specific messages are delivered to the corresponding
-    buffer.
+    The Irc::Buffer class acts as a buffer for a pattern. A pattern can
+    match any target such as channels and queries.
 
     \note Buffers are not intended to be instantiated directly, but via the
     virtual factory method Irc::Session::createBuffer().
@@ -145,22 +139,22 @@ namespace Irc
     }
 
     /*!
-        Constructs a new IRC buffer with \a receiver and \a parent.
+        Constructs a new IRC buffer for \a pattern with \a parent.
 
         \sa Session::createBuffer()
      */
-    Buffer::Buffer(const QString& receiver, Session* parent) : QObject(parent), d_ptr(new BufferPrivate)
+    Buffer::Buffer(const QString& pattern, Session* parent) : QObject(parent), d_ptr(new BufferPrivate)
     {
         Q_D(Buffer);
         d->q_ptr = this;
-        d->receiver = receiver;
+        d->pattern = pattern;
     }
 
-    Buffer::Buffer(BufferPrivate& dd, const QString& receiver, Session* parent) : QObject(parent), d_ptr(&dd)
+    Buffer::Buffer(BufferPrivate& dd, const QString& pattern, Session* parent) : QObject(parent), d_ptr(&dd)
     {
         Q_D(Buffer);
         d->q_ptr = this;
-        d->receiver = receiver;
+        d->pattern = pattern;
     }
 
     /*!
@@ -187,12 +181,12 @@ namespace Irc
     }
 
     /*!
-        Returns the receiver.
+        Returns the pattern.
      */
-    QString Buffer::receiver() const
+    QString Buffer::pattern() const
     {
         Q_D(const Buffer);
-        return d->receiver;
+        return d->pattern;
     }
 }
 
@@ -204,8 +198,8 @@ QDebug operator<<(QDebug debug, const Irc::Buffer* buffer)
     debug.nospace() << buffer->metaObject()->className() << '(' << (void*) buffer;
     if (!buffer->objectName().isEmpty())
         debug << ", name = " << buffer->objectName();
-    if (!buffer->receiver().isEmpty())
-        debug << ", receiver = " << buffer->receiver();
+    if (!buffer->pattern().isEmpty())
+        debug << ", pattern = " << buffer->pattern();
     debug << ')';
     return debug.space();
 }

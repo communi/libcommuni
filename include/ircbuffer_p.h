@@ -29,7 +29,7 @@ namespace Irc
         BufferPrivate();
 
         Buffer* q_ptr;
-        QString receiver;
+        QString pattern;
         QStringList names;
     };
 }
