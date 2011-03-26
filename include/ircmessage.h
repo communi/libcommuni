@@ -91,12 +91,14 @@ public:
     IrcMessage(Type type);
     virtual ~IrcMessage();
 
-    inline Type type() const { return t; }
+    Type type() const { return t; }
+    QString prefix() const { return pfx; }
 
     virtual QString toString() const = 0;
 
 protected:
     Type t;
+    QString pfx;
 };
 
 // channel operations
@@ -116,7 +118,7 @@ public:
     IrcJoinMessage(const QString& channel, const QString& key = QString());
     QString key() const { return k; }
     QString toString() const;
-    static IrcJoinMessage fromString(const QString& str);
+    static IrcJoinMessage fromString(const QString& prefix, const QStringList& params);
 protected:
     QString k;
 };
@@ -127,7 +129,7 @@ public:
     IrcPartMessage(const QString& channel, const QString& reason = QString());
     QString reason() const { return rson; }
     QString toString() const;
-    static IrcPartMessage fromString(const QString& str);
+    static IrcPartMessage fromString(const QString& prefix, const QStringList& params);
 protected:
     QString rson;
 };
@@ -138,7 +140,7 @@ public:
     IrcTopicMessage(const QString& channel, const QString& topic = QString());
     QString topic() const { return tpc; }
     QString toString() const;
-    static IrcTopicMessage fromString(const QString& str);
+    static IrcTopicMessage fromString(const QString& prefix, const QStringList& params);
 protected:
     QString tpc;
 };
@@ -149,7 +151,7 @@ public:
     IrcNamesMessage(const QString& channel) :
         IrcChannelMessage(Names, channel) { }
     QString toString() const;
-    static IrcNamesMessage fromString(const QString& str);
+    static IrcNamesMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcListMessage : public IrcChannelMessage
@@ -158,7 +160,7 @@ public:
     IrcListMessage(const QString& channel, const QString& server = QString());
     QString server() const { return srv; }
     QString toString() const;
-    static IrcListMessage fromString(const QString& str);
+    static IrcListMessage fromString(const QString& prefix, const QStringList& params);
 protected:
     QString srv;
 };
@@ -169,7 +171,7 @@ public:
     IrcInviteMessage(const QString& channel, const QString& user);
     QString user() const { return usr; }
     QString toString() const;
-    static IrcInviteMessage fromString(const QString& str);
+    static IrcInviteMessage fromString(const QString& prefix, const QStringList& params);
 protected:
     QString usr;
 };
@@ -181,7 +183,7 @@ public:
     QString user() const { return usr; }
     QString reason() const { return rson; }
     QString toString() const;
-    static IrcKickMessage fromString(const QString& str);
+    static IrcKickMessage fromString(const QString& prefix, const QStringList& params);
 protected:
     QString usr;
     QString rson;
@@ -209,7 +211,7 @@ public:
     QString argument() const { return arg; }
     QString mask() const { return msk; }
     QString toString() const;
-    static IrcChannelModeMessage fromString(const QString& str);
+    static IrcChannelModeMessage fromString(const QString& prefix, const QStringList& params);
 protected:
     QString mod;
     QString arg;
@@ -222,7 +224,7 @@ public:
     IrcUserModeMessage(const QString& user, const QString& mode) :
         IrcModeMessage(UserMode, user, mode) { }
     QString toString() const;
-    static IrcUserModeMessage fromString(const QString& str);
+    static IrcUserModeMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 // sending messages
@@ -244,7 +246,7 @@ public:
     IrcPrivateMessage(const QString& message) :
         IrcSendMessage(Private, message) { }
     QString toString() const;
-    static IrcPrivateMessage fromString(const QString& str);
+    static IrcPrivateMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcNoticeMessage : public IrcSendMessage
@@ -253,7 +255,7 @@ public:
     IrcNoticeMessage(const QString& message) :
         IrcSendMessage(Notice, message) { }
     QString toString() const;
-    static IrcNoticeMessage fromString(const QString& str);
+    static IrcNoticeMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 // ctcp messages
@@ -275,7 +277,7 @@ public:
     IrcCtcpActionMessage(const QString& message) :
         IrcCtcpMessage(CtcpAction, message) { }
     QString toString() const;
-    static IrcCtcpActionMessage fromString(const QString& str);
+    static IrcCtcpActionMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcCtcpRequestMessage : public IrcCtcpMessage
@@ -284,7 +286,7 @@ public:
     IrcCtcpRequestMessage(const QString& message) :
         IrcCtcpMessage(CtcpRequest, message) { }
     QString toString() const;
-    static IrcCtcpRequestMessage fromString(const QString& str);
+    static IrcCtcpRequestMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcCtcpReplyMessage : public IrcCtcpMessage
@@ -293,7 +295,7 @@ public:
     IrcCtcpReplyMessage(const QString& message) :
         IrcCtcpMessage(CtcpReply, message) { }
     QString toString() const;
-    static IrcCtcpReplyMessage fromString(const QString& str);
+    static IrcCtcpReplyMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 // user-based queries
@@ -313,7 +315,7 @@ public:
     IrcWhoMessage(const QString& user) :
         IrcQueryMessage(Who, user) { }
     QString toString() const;
-    static IrcWhoMessage fromString(const QString& str);
+    static IrcWhoMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcWhoisMessage : public IrcQueryMessage
@@ -322,7 +324,7 @@ public:
     IrcWhoisMessage(const QString& user) :
         IrcQueryMessage(Whois, user) { }
     QString toString() const;
-    static IrcWhoisMessage fromString(const QString& str);
+    static IrcWhoisMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcWhowasMessage : public IrcQueryMessage
@@ -331,7 +333,7 @@ public:
     IrcWhowasMessage(const QString& user) :
         IrcQueryMessage(Whowas, user) { }
     QString toString() const;
-    static IrcWhowasMessage fromString(const QString& str);
+    static IrcWhowasMessage fromString(const QString& prefix, const QStringList& params);
 };
 
 #endif // IRCMESSAGE_H

@@ -15,6 +15,7 @@
 
 #include "ircmessage.h"
 #include <QStringList>
+#include <QDebug>
 
 IrcMessage::IrcMessage(Type type) : t(type) { }
 IrcMessage::~IrcMessage() { }
@@ -32,6 +33,14 @@ QString IrcJoinMessage::toString() const
     return QString("JOIN %1 %2").arg(chan, k);
 }
 
+IrcJoinMessage IrcJoinMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString channel = params.value(0);
+    IrcJoinMessage msg(channel);
+    msg.pfx = prefix;
+    return msg;
+}
+
 IrcPartMessage::IrcPartMessage(const QString& channel, const QString& reason) :
     IrcChannelMessage(Part, channel), rson(reason) { }
 
@@ -40,6 +49,15 @@ QString IrcPartMessage::toString() const
     if (rson.isEmpty())
         return QString("PART %1").arg(chan);
     return QString("PART %1 %2").arg(chan, rson);
+}
+
+IrcPartMessage IrcPartMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString channel = params.value(0);
+    const QString reason = params.value(1);
+    IrcPartMessage msg(channel, reason);
+    msg.pfx = prefix;
+    return msg;
 }
 
 IrcTopicMessage::IrcTopicMessage(const QString& channel, const QString& topic) :
@@ -52,9 +70,26 @@ QString IrcTopicMessage::toString() const
     return QString("TOPIC %1 :%2").arg(chan, tpc);
 }
 
+IrcTopicMessage IrcTopicMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString channel = params.value(0);
+    const QString topic = params.value(1);
+    IrcTopicMessage msg(channel, topic);
+    msg.pfx = prefix;
+    return msg;
+}
+
 QString IrcNamesMessage::toString() const
 {
     return QString("NAMES %1").arg(chan);
+}
+
+IrcNamesMessage IrcNamesMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString channel = params.value(0);
+    IrcNamesMessage msg(channel);
+    msg.pfx = prefix;
+    return msg;
 }
 
 IrcListMessage::IrcListMessage(const QString& channel, const QString& server) :
@@ -67,12 +102,30 @@ QString IrcListMessage::toString() const
     return QString("LIST %1 %2").arg(chan, srv);
 }
 
+IrcListMessage IrcListMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString channel = params.value(0);
+    const QString server = params.value(1);
+    IrcListMessage msg(channel, server);
+    msg.pfx = prefix;
+    return msg;
+}
+
 IrcInviteMessage::IrcInviteMessage(const QString& channel, const QString& user) :
     IrcChannelMessage(Invite, channel), usr(user) { }
 
 QString IrcInviteMessage::toString() const
 {
     return QString("INVITE %1 %2").arg(usr, chan);
+}
+
+IrcInviteMessage IrcInviteMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString user = params.value(0);
+    const QString channel = params.value(1);
+    IrcInviteMessage msg(channel, user);
+    msg.pfx = prefix;
+    return msg;
 }
 
 IrcKickMessage::IrcKickMessage(const QString& channel, const QString& user, const QString& reason) :
@@ -83,6 +136,16 @@ QString IrcKickMessage::toString() const
     if (rson.isEmpty())
         return QString("KICK %1 %2").arg(usr, chan);
     return QString("KICK %1 %2 :%3").arg(usr, chan, rson);
+}
+
+IrcKickMessage IrcKickMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString user = params.value(0);
+    const QString channel = params.value(1);
+    const QString reason = params.value(2);
+    IrcKickMessage msg(channel, user, reason);
+    msg.pfx = prefix;
+    return msg;
 }
 
 IrcModeMessage::IrcModeMessage(Type type, const QString& target, const QString& mode) :
