@@ -19,7 +19,6 @@
 #include <QByteArray>
 #include <QMultiHash>
 #include <QAbstractSocket>
-#include "ircbuffer.h"
 #include "ircparser_p.h"
 
 class IrcSessionPrivate
@@ -40,9 +39,6 @@ public:
     void processLine(const QByteArray& line);
     bool isConnected() const;
 
-    //Buffer* createBuffer(const QString& receiver);
-    //void removeBuffer(Buffer* buffer);
-
     bool raw(const QString& msg);
 
     IrcSession* q_ptr;
@@ -54,8 +50,6 @@ public:
     QString userName;
     QString nickName;
     QString realName;
-    IrcBuffer* mainBuffer;
-    QMultiHash<QString, IrcBuffer*> buffers;
 };
 
 #endif // IRCSESSION_P_H

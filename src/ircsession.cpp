@@ -15,8 +15,6 @@
 
 #include "ircsession.h"
 #include "ircsession_p.h"
-#include "ircbuffer.h"
-#include "ircbuffer_p.h"
 #include "ircmessage.h"
 #include "ircutil.h"
 #include <QTcpSocket>
@@ -86,9 +84,7 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     port(6667),
     userName(),
     nickName(),
-    realName(),
-    mainBuffer(0),
-    buffers()
+    realName()
 {
 }
 
@@ -109,8 +105,6 @@ void IrcSessionPrivate::_q_connected()
     // a directly connected client (for security reasons)", therefore
     // we don't need them.
     socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(userName, realName).toLocal8Bit());
-
-    mainBuffer = q->createBuffer(QLatin1String("*"));
 }
 
 void IrcSessionPrivate::_q_disconnected()
@@ -353,39 +347,6 @@ bool IrcSessionPrivate::isConnected() const
          || socket->state() == QAbstractSocket::ConnectedState);
 }
 
-/*
-IrcBuffer* IrcSessionPrivate::createBuffer(const QString& receiver)
-{
-    Q_Q(IrcSession);
-    QString lower = receiver.toLower();
-    QString lowerNick = Util::nickFromTarget(receiver).toLower();
-    if (lower != lowerNick && buffers.contains(lowerNick))
-    {
-        IrcBuffer* buffer = buffers.value(lowerNick);
-        //buffer->d_func()->setReceiver(lower);
-        buffers.insert(lower, buffer);
-        buffers.remove(lowerNick);
-    }
-    else if (!buffers.contains(lower) && !buffers.contains(lowerNick))
-    {
-        IrcBuffer* buffer = q->createBuffer(receiver);
-        buffers.insert(lower, buffer);
-        emit q->bufferAdded(buffer);
-    }
-    return buffers.value(lower);
-}
-*/
-
-/*
-void IrcSessionPrivate::removeBuffer(IrcBuffer* buffer)
-{
-    Q_Q(IrcSession);
-    QString lower = buffer->receiver().toLower();
-    if (buffers.take(lower) == buffer)
-        emit q->bufferRemoved(buffer);
-}
-*/
-
 bool IrcSessionPrivate::raw(const QString& msg)
 {
     qint64 bytes = -1;
@@ -592,56 +553,6 @@ void IrcSession::setSocket(QAbstractSocket* socket)
 }
 
 /*!
-    Returns the main buffer.
-
-    \sa buffer()
-    \sa addBuffer()
- */
-IrcBuffer* IrcSession::mainBuffer() const
-{
-    Q_D(const IrcSession);
-    return d->mainBuffer;
-}
-
-/*!
-    Returns a buffer for \a pattern. Returns \c 0
-    if the buffer does not exist.
-
-    \sa mainBuffer()
-    \sa addBuffer()
- */
-IrcBuffer* IrcSession::buffer(const QString& pattern) const
-{
-    Q_D(const IrcSession);
-    return d->buffers.value(pattern);
-}
-
-/*!
-    Adds a buffer for \a pattern.
-
-    \sa removeBuffer()
- */
-IrcBuffer* IrcSession::addBuffer(const QString& pattern)
-{
-    Q_D(IrcSession);
-    IrcBuffer* buffer = createBuffer(pattern);
-    d->buffers.insert(pattern, buffer);
-    return buffer;
-}
-
-/*!
-    Removes the \a buffer.
-
-    \sa addBuffer()
- */
-void IrcSession::removeBuffer(IrcBuffer* buffer)
-{
-    Q_D(IrcSession);
-    if (buffer)
-        d->buffers.remove(buffer->pattern(), buffer);
-}
-
-/*!
     Connects to the server.
  */
 void IrcSession::open()
@@ -682,17 +593,6 @@ bool IrcSession::sendMessage(const IrcMessage& message)
 {
     Q_D(IrcSession);
     return d->raw(message.toString());
-}
-
-/*!
-    Returns a new Irc::Buffer object to act as an IRC buffer for \a pattern.
-
-    This virtual factory method can be overridden for example in order to make
-    IrcSession use a subclass of Irc::Buffer.
- */
-IrcBuffer* IrcSession::createBuffer(const QString& pattern)
-{
-    return new IrcBuffer(pattern, this);
 }
 
 #ifndef QT_NO_DEBUG_STREAM

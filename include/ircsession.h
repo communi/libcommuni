@@ -21,7 +21,6 @@
 
 QT_FORWARD_DECLARE_CLASS(QAbstractSocket)
 
-class IrcBuffer;
 class IrcMessage;
 class IrcSessionPrivate;
 
@@ -65,12 +64,6 @@ public:
 
     bool sendMessage(const IrcMessage& message);
 
-    IrcBuffer* mainBuffer() const;
-    IrcBuffer* buffer(const QString& pattern) const;
-
-    IrcBuffer* addBuffer(const QString& pattern);
-    void removeBuffer(IrcBuffer* buffer);
-
 public Q_SLOTS:
     void open();
     void close();
@@ -81,9 +74,6 @@ Q_SIGNALS:
     void connected();
     void disconnected();
     void messageReceived(const IrcMessage& message);
-
-protected:
-    virtual IrcBuffer* createBuffer(const QString& pattern);
 
 private:
     QScopedPointer<IrcSessionPrivate> d_ptr;

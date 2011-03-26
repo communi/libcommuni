@@ -36,20 +36,17 @@ static {
 }
 
 CONV_HEADERS += include/Irc
-CONV_HEADERS += include/IrcBuffer
 CONV_HEADERS += include/IrcGlobal
 CONV_HEADERS += include/IrcMessage
 CONV_HEADERS += include/IrcSession
 CONV_HEADERS += include/IrcUtil
 
 PUB_HEADERS += include/irc.h
-PUB_HEADERS += include/ircbuffer.h
 PUB_HEADERS += include/ircglobal.h
 PUB_HEADERS += include/ircmessage.h
 PUB_HEADERS += include/ircsession.h
 PUB_HEADERS += include/ircutil.h
 
-PRIV_HEADERS += include/ircbuffer_p.h
 PRIV_HEADERS += include/ircparser_p.h
 PRIV_HEADERS += include/ircsession_p.h
 
@@ -57,7 +54,6 @@ HEADERS += $$PUB_HEADERS
 HEADERS += $$PRIV_HEADERS
 
 SOURCES += irc.cpp
-SOURCES += ircbuffer.cpp
 SOURCES += ircmessage.cpp
 SOURCES += ircparser.cpp
 SOURCES += ircsession.cpp
