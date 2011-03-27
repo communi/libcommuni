@@ -20,6 +20,92 @@
 IrcMessage::IrcMessage(Type type) : t(type) { }
 IrcMessage::~IrcMessage() { }
 
+IrcPasswordMessage::IrcPasswordMessage(const QString& password) :
+    IrcMessage(Password), passwd(password) { }
+
+QString IrcPasswordMessage::toString() const
+{
+    return QString("PASS %1").arg(passwd);
+}
+
+IrcPasswordMessage IrcPasswordMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString password = params.value(0);
+    IrcPasswordMessage msg(password);
+    msg.pfx = prefix;
+    return msg;
+}
+
+IrcNickNameMessage::IrcNickNameMessage(const QString& nickName) :
+    IrcMessage(NickName), nick(nickName) { }
+
+QString IrcNickNameMessage::toString() const
+{
+    return QString("NICK %1").arg(nick);
+}
+
+IrcNickNameMessage IrcNickNameMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString nickName = params.value(0);
+    IrcNickNameMessage msg(nickName);
+    msg.pfx = prefix;
+    return msg;
+}
+
+IrcUserMessage::IrcUserMessage(const QString& userName, const QString& realName) :
+    IrcMessage(User), user(userName), real(realName) { }
+
+QString IrcUserMessage::toString() const
+{
+    // RFC 1459 states that "hostname and servername are normally
+    // ignored by the IRC server when the USER command comes from
+    // a directly connected client (for security reasons)", therefore
+    // we don't need them.
+    return QString("USER %1 hostname servername :%2").arg(user, real);
+}
+
+IrcUserMessage IrcUserMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString userName = params.value(0);
+    const QString realName = params.value(3);
+    IrcUserMessage msg(userName, realName);
+    msg.pfx = prefix;
+    return msg;
+}
+
+IrcOperatorMessage::IrcOperatorMessage(const QString& user, const QString& password) :
+    IrcMessage(Operator), usr(user), passwd(password) { }
+
+QString IrcOperatorMessage::toString() const
+{
+    return QString("OPER %1 %2").arg(usr, passwd);
+}
+
+IrcOperatorMessage IrcOperatorMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString user = params.value(0);
+    const QString password = params.value(1);
+    IrcOperatorMessage msg(user, password);
+    msg.pfx = prefix;
+    return msg;
+}
+
+IrcQuitMessage::IrcQuitMessage(const QString& reason) :
+    IrcMessage(Quit), rson(reason) { }
+
+QString IrcQuitMessage::toString() const
+{
+    return QString("QUIT :%1").arg(rson);
+}
+
+IrcQuitMessage IrcQuitMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString reason = params.value(0);
+    IrcQuitMessage msg(reason);
+    msg.pfx = prefix;
+    return msg;
+}
+
 IrcChannelMessage::IrcChannelMessage(Type type, const QString& channel) :
     IrcMessage(type), chan(channel) { }
 

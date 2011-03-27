@@ -30,14 +30,12 @@ public:
     {
         None = 0,
 
-        // TODO: connection registration
+        // connection registration
         Password = 1,
-        Nickname = 2,
+        NickName = 2,
         User = 3,
-        Server = 4,
-        Operator = 5,
-        Quit = 6,
-        ServerQuit = 7,
+        Operator = 4,
+        Quit = 5,
 
         // channel operations
         Join = 10,
@@ -101,6 +99,72 @@ public:
 protected:
     Type t;
     QString pfx;
+};
+
+// connection registration
+
+class IRC_EXPORT IrcPasswordMessage : public IrcMessage
+{
+    Q_GADGET
+public:
+    IrcPasswordMessage(const QString& password);
+    QString password() const { return passwd; }
+    QString toString() const;
+    static IrcPasswordMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    QString passwd;
+};
+
+class IRC_EXPORT IrcNickNameMessage : public IrcMessage
+{
+    Q_GADGET
+public:
+    IrcNickNameMessage(const QString& nickName);
+    QString nickName() const { return nick; }
+    QString toString() const;
+    static IrcNickNameMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    QString nick;
+};
+
+class IRC_EXPORT IrcUserMessage : public IrcMessage
+{
+    Q_GADGET
+public:
+    IrcUserMessage(const QString& userName, const QString& realName);
+    QString userName() const { return user; }
+    QString realName() const { return real; }
+    QString toString() const;
+    static IrcUserMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    QString user;
+    QString real;
+};
+
+class IRC_EXPORT IrcOperatorMessage : public IrcMessage
+{
+    Q_GADGET
+public:
+    IrcOperatorMessage(const QString& user, const QString& password);
+    QString user() const { return usr; }
+    QString password() const { return passwd; }
+    QString toString() const;
+    static IrcOperatorMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    QString usr;
+    QString passwd;
+};
+
+class IRC_EXPORT IrcQuitMessage : public IrcMessage
+{
+    Q_GADGET
+public:
+    IrcQuitMessage(const QString& reason);
+    QString reason() const { return rson; }
+    QString toString() const;
+    static IrcQuitMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    QString rson;
 };
 
 // channel operations
