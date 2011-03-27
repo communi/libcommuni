@@ -97,14 +97,14 @@ void IrcSessionPrivate::_q_connected()
     emit q->password(&password);
     if (!password.isEmpty()) {
         IrcPasswordMessage passwdMsg(password);
-        q->sendMessage(passwdMsg);
+        q->sendMessage(&passwdMsg);
     }
 
     IrcNickNameMessage nickMsg(nickName);
-    q->sendMessage(nickMsg);
+    q->sendMessage(&nickMsg);
 
     IrcUserMessage userMsg(userName, realName);
-    q->sendMessage(userMsg);
+    q->sendMessage(&userMsg);
 }
 
 void IrcSessionPrivate::_q_disconnected()
@@ -175,73 +175,73 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             emit q->connected();
 
         IrcNumericMessage msg = IrcNumericMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
 
     // error
     else if (command == QLatin1String("ERROR"))
     {
         IrcErrorMessage msg = IrcErrorMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
 
     // handle PING/PONG
     else if (command == QLatin1String("PING"))
     {
         IrcPingMessage ping = IrcPingMessage::fromString(prefix, params);
-        emit q->messageReceived(ping);
+        emit q->messageReceived(&ping);
         // TODO: ifAutomatic?
         IrcPongMessage pong(ping.target());
-        q->sendMessage(pong);
+        q->sendMessage(&pong);
     }
 
     // connection registration
     else if (command == QLatin1String("NICK"))
     {
         IrcNickNameMessage msg = IrcNickNameMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
     else if (command == QLatin1String("QUIT"))
     {
         IrcQuitMessage msg = IrcQuitMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
 
     // channel operations
     else if (command == QLatin1String("JOIN"))
     {
         IrcJoinMessage msg = IrcJoinMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
     else if (command == QLatin1String("PART"))
     {
         IrcPartMessage msg = IrcPartMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
     else if (command == QLatin1String("TOPIC"))
     {
         IrcTopicMessage msg = IrcTopicMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
     else if (command == QLatin1String("NAMES"))
     {
         IrcNamesMessage msg = IrcNamesMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
     else if (command == QLatin1String("LIST"))
     {
         IrcListMessage msg = IrcListMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
     else if (command == QLatin1String("INVITE"))
     {
         IrcInviteMessage msg = IrcInviteMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
     else if (command == QLatin1String("KICK"))
     {
         IrcKickMessage msg = IrcKickMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
 
     // mode operations
@@ -250,12 +250,12 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         if (params.value(0).startsWith(QLatin1Char('#')))
         {
             IrcChannelModeMessage msg = IrcChannelModeMessage::fromString(prefix, params);
-            emit q->messageReceived(msg);
+            emit q->messageReceived(&msg);
         }
         else
         {
             IrcUserModeMessage msg = IrcUserModeMessage::fromString(prefix, params);
-            emit q->messageReceived(msg);
+            emit q->messageReceived(&msg);
         }
     }
 
@@ -265,17 +265,17 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         if (params.value(1).startsWith(QLatin1String("\1ACTION ")))
         {
             IrcCtcpActionMessage msg = IrcCtcpActionMessage::fromString(prefix, params);
-            emit q->messageReceived(msg);
+            emit q->messageReceived(&msg);
         }
         else if (params.value(1).startsWith(QLatin1Char('\1')))
         {
             IrcCtcpRequestMessage msg = IrcCtcpRequestMessage::fromString(prefix, params);
-            emit q->messageReceived(msg);
+            emit q->messageReceived(&msg);
         }
         else
         {
             IrcPrivateMessage msg = IrcPrivateMessage::fromString(prefix, params);
-            emit q->messageReceived(msg);
+            emit q->messageReceived(&msg);
         }
     }
     else if (command == QLatin1String("NOTICE"))
@@ -283,12 +283,12 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         if (params.value(1).startsWith(QLatin1Char('\1')))
         {
             IrcCtcpReplyMessage msg = IrcCtcpReplyMessage::fromString(prefix, params);
-            emit q->messageReceived(msg);
+            emit q->messageReceived(&msg);
         }
         else
         {
             IrcNoticeMessage msg = IrcNoticeMessage::fromString(prefix, params);
-            emit q->messageReceived(msg);
+            emit q->messageReceived(&msg);
         }
     }
 
@@ -296,24 +296,24 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
     else if (command == QLatin1String("WHO"))
     {
         IrcWhoMessage msg = IrcWhoMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
     else if (command == QLatin1String("WHOIS"))
     {
         IrcWhoisMessage msg = IrcWhoisMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
     else if (command == QLatin1String("WHOWAS"))
     {
         IrcWhowasMessage msg = IrcWhowasMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
 
     // unknown
     else
     {
         IrcMessage msg = IrcMessage::fromString(prefix, params);
-        emit q->messageReceived(msg);
+        emit q->messageReceived(&msg);
     }
 }
 
@@ -449,7 +449,7 @@ void IrcSession::setNickName(const QString& name)
     {
         d->nickName = name;
         IrcNickNameMessage msg(name);
-        sendMessage(msg);
+        sendMessage(&msg);
     }
 }
 
@@ -559,9 +559,9 @@ void IrcSession::close()
 
     \sa sendRaw()
  */
-bool IrcSession::sendMessage(const IrcMessage& message)
+bool IrcSession::sendMessage(const IrcMessage* message)
 {
-    return sendRaw(message.toString());
+    return message && sendRaw(message->toString());
 }
 
 /*!
