@@ -456,9 +456,8 @@ void IrcSession::setNickName(const QString& name)
     if (d->nickName != name)
     {
         d->nickName = name;
-        // TODO:
-        //if (d->socket)
-        //    raw(QString(QLatin1String("NICK %1")).arg(nick));
+        IrcNickNameMessage msg(name);
+        sendMessage(msg);
     }
 }
 
