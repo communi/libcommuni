@@ -75,12 +75,11 @@ public:
         Whois = 61,
         Whowas = 62,
 
-        // TODO: miscellaneous messages
-        Kill = 70,
-        Ping = 71,
-        Pong = 72,
-        Error = 73,
-        Numeric = 74,
+        // miscellaneous messages
+        Ping = 70,
+        Pong = 71,
+        Error = 72,
+        Numeric = 73,
 
         // TODO: optional messages
         Away = 80,
@@ -424,12 +423,51 @@ public:
     static IrcWhowasMessage fromString(const QString& prefix, const QStringList& params);
 };
 
+// miscellaneous messages
+
+class IRC_EXPORT IrcPingMessage : public IrcMessage
+{
+    Q_GADGET
+public:
+    IrcPingMessage(const QString& target);
+    QString target() const { return tgt; }
+    QString toString() const;
+    static IrcPingMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    QString tgt;
+};
+
+class IRC_EXPORT IrcPongMessage : public IrcMessage
+{
+    Q_GADGET
+public:
+    IrcPongMessage(const QString& target);
+    QString target() const { return tgt; }
+    QString toString() const;
+    static IrcPongMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    QString tgt;
+};
+
+class IRC_EXPORT IrcErrorMessage : public IrcMessage
+{
+    Q_GADGET
+public:
+    IrcErrorMessage(const QString& error);
+    QString error() const { return err; }
+    QString toString() const;
+    static IrcErrorMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    QString err;
+};
+
 class IRC_EXPORT IrcNumericMessage : public IrcMessage
 {
     Q_GADGET
 public:
     IrcNumericMessage(uint code, const QStringList& params);
     uint code() const { return c; }
+    QStringList parameters() const { return p; }
     QString toString() const;
     static IrcNumericMessage fromString(const QString& prefix, const QStringList& params);
 protected:

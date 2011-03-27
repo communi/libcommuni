@@ -405,6 +405,54 @@ IrcWhowasMessage IrcWhowasMessage::fromString(const QString& prefix, const QStri
     return msg;
 }
 
+IrcPingMessage::IrcPingMessage(const QString& target) :
+    IrcMessage(Ping), tgt(target) { }
+
+QString IrcPingMessage::toString() const
+{
+    return QString("PING %1").arg(tgt);
+}
+
+IrcPingMessage IrcPingMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString target = params.value(0);
+    IrcPingMessage msg(target);
+    msg.pfx = prefix;
+    return msg;
+}
+
+IrcPongMessage::IrcPongMessage(const QString& target) :
+    IrcMessage(Pong), tgt(target) { }
+
+QString IrcPongMessage::toString() const
+{
+    return QString("PONG %1").arg(tgt);
+}
+
+IrcPongMessage IrcPongMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString target = params.value(0);
+    IrcPongMessage msg(target);
+    msg.pfx = prefix;
+    return msg;
+}
+
+IrcErrorMessage::IrcErrorMessage(const QString& error) :
+    IrcMessage(Error), err(error) { }
+
+QString IrcErrorMessage::toString() const
+{
+    return QString("ERROR :%1").arg(err);
+}
+
+IrcErrorMessage IrcErrorMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString error = params.value(0);
+    IrcErrorMessage msg(error);
+    msg.pfx = prefix;
+    return msg;
+}
+
 IrcNumericMessage::IrcNumericMessage(uint code, const QStringList& params) :
     IrcMessage(Numeric), c(code), p(params) { }
 
