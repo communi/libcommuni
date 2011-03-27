@@ -95,16 +95,16 @@ void IrcSessionPrivate::_q_connected()
 
     QString password;
     emit q->password(&password);
-    if (!password.isEmpty())
-        socket->write(QString(QLatin1String("PASS %1\r\n")).arg(password).toLocal8Bit());
+    if (!password.isEmpty()) {
+        IrcPasswordMessage passwdMsg(password);
+        q->sendMessage(passwdMsg);
+    }
 
-    socket->write(QString(QLatin1String("NICK %1\r\n")).arg(nickName).toLocal8Bit());
+    IrcNickNameMessage nickMsg(nickName);
+    q->sendMessage(nickMsg);
 
-    // RFC 1459 states that "hostname and servername are normally
-    // ignored by the IRC server when the USER command comes from
-    // a directly connected client (for security reasons)", therefore
-    // we don't need them.
-    socket->write(QString(QLatin1String("USER %1 unknown unknown :%2\r\n")).arg(userName, realName).toLocal8Bit());
+    IrcUserMessage userMsg(userName, realName);
+    q->sendMessage(userMsg);
 }
 
 void IrcSessionPrivate::_q_disconnected()
@@ -125,12 +125,12 @@ void IrcSessionPrivate::_q_reconnect()
 
 void IrcSessionPrivate::_q_error(QAbstractSocket::SocketError error)
 {
-    qDebug() << "_q_error" << error;
+    qDebug() << "IrcSessionPrivate::_q_error():" << error;
 }
 
 void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
 {
-    qDebug() << "_q_state" << state;
+    qDebug() << "IrcSessionPrivate::_q_state():" << state;
 }
 
 void IrcSessionPrivate::_q_readData()
@@ -178,12 +178,33 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         emit q->messageReceived(msg);
     }
 
+    // error
+    else if (command == QLatin1String("ERROR"))
+    {
+        IrcErrorMessage msg = IrcErrorMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+
     // handle PING/PONG
     else if (command == QLatin1String("PING"))
     {
-        QString arg = params.value(0);
-        raw(QString(QLatin1String("PONG %1")).arg(arg));
-        return;
+        IrcPingMessage ping = IrcPingMessage::fromString(prefix, params);
+        emit q->messageReceived(ping);
+        // TODO: ifAutomatic?
+        IrcPongMessage pong(ping.target());
+        q->sendMessage(pong);
+    }
+
+    // connection registration
+    else if (command == QLatin1String("NICK"))
+    {
+        IrcNickNameMessage msg = IrcNickNameMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
+    else if (command == QLatin1String("QUIT"))
+    {
+        IrcQuitMessage msg = IrcQuitMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
     }
 
     // channel operations
@@ -288,56 +309,12 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         emit q->messageReceived(msg);
     }
 
-    /*else
+    // unknown
+    else
     {
-        if (command == QLatin1String("NICK"))
-        {
-            QString oldNick = Util::nickFromTarget(prefix);
-            QString newNick = params.value(0);
-
-            if (nick == oldNick)
-                nick = newNick;
-
-            foreach (IrcBuffer* buffer, buffers)
-            {
-                if (buffer->receiver() == oldNick)
-                    buffer->d_func()->setReceiver(newNick);
-
-                if (buffer->names().contains(oldNick))
-                {
-                    buffer->d_func()->removeName(oldNick);
-                    buffer->d_func()->addName(newNick);
-                    emit buffer->nickChanged(prefix, newNick);
-                }
-            }
-        }
-        else if (command == QLatin1String("QUIT"))
-        {
-            QString reason = params.value(0);
-            QString nick = Util::nickFromTarget(prefix);
-
-            foreach (IrcBuffer* buffer, buffers)
-            {
-                if (buffer->names().contains(nick))
-                {
-                    buffer->d_func()->removeName(nick);
-                    emit buffer->quit(prefix, reason);
-                }
-            }
-        }
-        else if (command == QLatin1String("KILL"))
-        {
-            ; // ignore this event - not all servers generate this
-        }
-        else
-        {
-            // The "unknown" event is triggered upon receipt of any number of
-            // unclassifiable miscellaneous messages, which aren't handled by
-            // the library.
-            if (defaultBuffer)
-                emit defaultBuffer->unknownMessageReceived(prefix, params);
-        }
-    }*/
+        IrcMessage msg = IrcMessage::fromString(prefix, params);
+        emit q->messageReceived(msg);
+    }
 }
 
 bool IrcSessionPrivate::isConnected() const
