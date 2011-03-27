@@ -469,6 +469,22 @@ IrcNumericMessage IrcNumericMessage::fromString(const QString& prefix, const QSt
     return msg;
 }
 
+IrcAwayMessage::IrcAwayMessage(const QString& message) :
+    IrcMessage(Away), msg(message) { }
+
+QString IrcAwayMessage::toString() const
+{
+    return QString("AWAY :%1").arg(msg);
+}
+
+IrcAwayMessage IrcAwayMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    const QString message = params.value(0);
+    IrcAwayMessage msg(message);
+    msg.pfx = prefix;
+    return msg;
+}
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const IrcMessage& message)
 {

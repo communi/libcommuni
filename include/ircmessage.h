@@ -50,41 +50,26 @@ public:
         ChannelMode = 20,
         UserMode = 21,
 
-        // TODO: server queries and commands
-        Version = 30,
-        Stats = 31,
-        Links = 32,
-        Time = 33,
-        Connect = 34,
-        Trace = 35,
-        Admin = 36,
-        Info = 37,
-        Motd = 38,
-
         // sending messages
-        Private = 40,
-        Notice = 41,
+        Private = 30,
+        Notice = 31,
 
         // ctcp messages
-        CtcpAction = 50,
-        CtcpRequest = 51,
-        CtcpReply = 52,
+        CtcpAction = 40,
+        CtcpRequest = 41,
+        CtcpReply = 42,
 
         // user-based queries
-        Who = 60,
-        Whois = 61,
-        Whowas = 62,
+        Who = 50,
+        Whois = 51,
+        Whowas = 52,
 
         // miscellaneous messages
-        Ping = 70,
-        Pong = 71,
-        Error = 72,
-        Numeric = 73,
-
-        // TODO: optional messages
-        Away = 80,
-        Rehash = 81,
-        Restart = 82
+        Ping = 60,
+        Pong = 61,
+        Error = 62,
+        Numeric = 63,
+        Away = 64
     };
 
     IrcMessage(Type type);
@@ -473,6 +458,18 @@ public:
 protected:
     uint c;
     QStringList p;
+};
+
+class IRC_EXPORT IrcAwayMessage : public IrcMessage
+{
+    Q_GADGET
+public:
+    IrcAwayMessage(const QString& error);
+    QString message() const { return msg; }
+    QString toString() const;
+    static IrcAwayMessage fromString(const QString& prefix, const QStringList& params);
+protected:
+    QString msg;
 };
 
 #ifndef QT_NO_DEBUG_STREAM
