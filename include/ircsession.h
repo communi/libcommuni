@@ -63,6 +63,7 @@ public:
     void setSocket(QAbstractSocket* socket);
 
     bool sendMessage(const IrcMessage& message);
+    bool sendRaw(const QString& message);
 
 public Q_SLOTS:
     void open();

@@ -39,8 +39,6 @@ public:
     void processLine(const QByteArray& line);
     bool isConnected() const;
 
-    bool raw(const QString& msg);
-
     IrcSession* q_ptr;
     IrcParser parser;
     QByteArray buffer;

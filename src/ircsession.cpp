@@ -324,14 +324,6 @@ bool IrcSessionPrivate::isConnected() const
          || socket->state() == QAbstractSocket::ConnectedState);
 }
 
-bool IrcSessionPrivate::raw(const QString& msg)
-{
-    qint64 bytes = -1;
-    if (socket)
-        bytes = socket->write(msg.toUtf8() + QByteArray("\r\n"));
-    return bytes != -1;
-}
-
 /*!
     Constructs a new IRC session with \a parent.
  */
@@ -564,11 +556,26 @@ void IrcSession::close()
 
 /*!
     Sends a \a message to the server.
+
+    \sa sendRaw()
  */
 bool IrcSession::sendMessage(const IrcMessage& message)
 {
+    return sendRaw(message.toString());
+}
+
+/*!
+    Sends a raw \a message to the server.
+
+    \sa sendMessage()
+ */
+bool IrcSession::sendRaw(const QString& message)
+{
     Q_D(IrcSession);
-    return d->raw(message.toString());
+    qint64 bytes = -1;
+    if (d->socket)
+        bytes = d->socket->write(message.toUtf8() + QByteArray("\r\n"));
+    return bytes != -1;
 }
 
 #ifndef QT_NO_DEBUG_STREAM
