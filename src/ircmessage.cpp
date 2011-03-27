@@ -20,6 +20,19 @@
 IrcMessage::IrcMessage(Type type) : t(type) { }
 IrcMessage::~IrcMessage() { }
 
+QString IrcMessage::toString() const
+{
+    return QString("UNKNOWN %1").arg(params.join(" "));
+}
+
+IrcMessage IrcMessage::fromString(const QString& prefix, const QStringList& params)
+{
+    IrcMessage msg(Unknown);
+    msg.params = params;
+    msg.pfx = prefix;
+    return msg;
+}
+
 IrcPasswordMessage::IrcPasswordMessage(const QString& password) :
     IrcMessage(Password), passwd(password) { }
 
@@ -32,6 +45,7 @@ IrcPasswordMessage IrcPasswordMessage::fromString(const QString& prefix, const Q
 {
     const QString password = params.value(0);
     IrcPasswordMessage msg(password);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -48,6 +62,7 @@ IrcNickNameMessage IrcNickNameMessage::fromString(const QString& prefix, const Q
 {
     const QString nickName = params.value(0);
     IrcNickNameMessage msg(nickName);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -69,6 +84,7 @@ IrcUserMessage IrcUserMessage::fromString(const QString& prefix, const QStringLi
     const QString userName = params.value(0);
     const QString realName = params.value(3);
     IrcUserMessage msg(userName, realName);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -86,6 +102,7 @@ IrcOperatorMessage IrcOperatorMessage::fromString(const QString& prefix, const Q
     const QString user = params.value(0);
     const QString password = params.value(1);
     IrcOperatorMessage msg(user, password);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -102,6 +119,7 @@ IrcQuitMessage IrcQuitMessage::fromString(const QString& prefix, const QStringLi
 {
     const QString reason = params.value(0);
     IrcQuitMessage msg(reason);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -123,6 +141,7 @@ IrcJoinMessage IrcJoinMessage::fromString(const QString& prefix, const QStringLi
 {
     const QString channel = params.value(0);
     IrcJoinMessage msg(channel);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -142,6 +161,7 @@ IrcPartMessage IrcPartMessage::fromString(const QString& prefix, const QStringLi
     const QString channel = params.value(0);
     const QString reason = params.value(1);
     IrcPartMessage msg(channel, reason);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -161,6 +181,7 @@ IrcTopicMessage IrcTopicMessage::fromString(const QString& prefix, const QString
     const QString channel = params.value(0);
     const QString topic = params.value(1);
     IrcTopicMessage msg(channel, topic);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -174,6 +195,7 @@ IrcNamesMessage IrcNamesMessage::fromString(const QString& prefix, const QString
 {
     const QString channel = params.value(0);
     IrcNamesMessage msg(channel);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -193,6 +215,7 @@ IrcListMessage IrcListMessage::fromString(const QString& prefix, const QStringLi
     const QString channel = params.value(0);
     const QString server = params.value(1);
     IrcListMessage msg(channel, server);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -210,6 +233,7 @@ IrcInviteMessage IrcInviteMessage::fromString(const QString& prefix, const QStri
     const QString user = params.value(0);
     const QString channel = params.value(1);
     IrcInviteMessage msg(channel, user);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -230,6 +254,7 @@ IrcKickMessage IrcKickMessage::fromString(const QString& prefix, const QStringLi
     const QString channel = params.value(1);
     const QString reason = params.value(2);
     IrcKickMessage msg(channel, user, reason);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -257,6 +282,7 @@ IrcChannelModeMessage IrcChannelModeMessage::fromString(const QString& prefix, c
     const QString argument = params.value(2);
     const QString mask = params.value(3);
     IrcChannelModeMessage msg(channel, mode, argument, mask);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -271,6 +297,7 @@ IrcUserModeMessage IrcUserModeMessage::fromString(const QString& prefix, const Q
     const QString user = params.value(0);
     const QString mode = params.value(1);
     IrcUserModeMessage msg(user, mode);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -288,6 +315,7 @@ IrcPrivateMessage IrcPrivateMessage::fromString(const QString& prefix, const QSt
     const QString target = params.value(0);
     const QString message = params.value(1);
     IrcPrivateMessage msg(target, message);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -302,6 +330,7 @@ IrcNoticeMessage IrcNoticeMessage::fromString(const QString& prefix, const QStri
     const QString target = params.value(0);
     const QString message = params.value(1);
     IrcNoticeMessage msg(target, message);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -323,6 +352,7 @@ IrcCtcpActionMessage IrcCtcpActionMessage::fromString(const QString& prefix, con
     if (message.endsWith('\1'))
         message.chop(1);
     IrcCtcpActionMessage msg(target, message);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -341,6 +371,7 @@ IrcCtcpRequestMessage IrcCtcpRequestMessage::fromString(const QString& prefix, c
     if (message.endsWith('\1'))
         message.chop(1);
     IrcCtcpRequestMessage msg(target, message);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -359,6 +390,7 @@ IrcCtcpReplyMessage IrcCtcpReplyMessage::fromString(const QString& prefix, const
     if (message.endsWith('\1'))
         message.chop(1);
     IrcCtcpReplyMessage msg(target, message);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -375,6 +407,7 @@ IrcWhoMessage IrcWhoMessage::fromString(const QString& prefix, const QStringList
 {
     const QString user = params.value(0);
     IrcWhoMessage msg(user);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -388,6 +421,7 @@ IrcWhoisMessage IrcWhoisMessage::fromString(const QString& prefix, const QString
 {
     const QString user = params.value(0);
     IrcWhoisMessage msg(user);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -401,6 +435,7 @@ IrcWhowasMessage IrcWhowasMessage::fromString(const QString& prefix, const QStri
 {
     const QString user = params.value(0);
     IrcWhowasMessage msg(user);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -417,6 +452,7 @@ IrcPingMessage IrcPingMessage::fromString(const QString& prefix, const QStringLi
 {
     const QString target = params.value(0);
     IrcPingMessage msg(target);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -433,6 +469,7 @@ IrcPongMessage IrcPongMessage::fromString(const QString& prefix, const QStringLi
 {
     const QString target = params.value(0);
     IrcPongMessage msg(target);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -449,6 +486,7 @@ IrcErrorMessage IrcErrorMessage::fromString(const QString& prefix, const QString
 {
     const QString error = params.value(0);
     IrcErrorMessage msg(error);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -465,6 +503,7 @@ IrcNumericMessage IrcNumericMessage::fromString(const QString& prefix, const QSt
 {
     const uint code = params.value(0).toInt();
     IrcNumericMessage msg(code, params.mid(1));
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }
@@ -481,6 +520,7 @@ IrcAwayMessage IrcAwayMessage::fromString(const QString& prefix, const QStringLi
 {
     const QString message = params.value(0);
     IrcAwayMessage msg(message);
+    msg.params = params;
     msg.pfx = prefix;
     return msg;
 }

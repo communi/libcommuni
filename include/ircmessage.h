@@ -28,7 +28,7 @@ class IRC_EXPORT IrcMessage
 public:
     enum Type
     {
-        None = 0,
+        Unknown = 0,
 
         // connection registration
         Password = 1,
@@ -77,12 +77,15 @@ public:
 
     Type type() const { return t; }
     QString prefix() const { return pfx; }
+    QStringList parameters() const { return params; }
 
-    virtual QString toString() const = 0;
+    virtual QString toString() const;
+    static IrcMessage fromString(const QString& prefix, const QStringList& params);
 
 protected:
     Type t;
     QString pfx;
+    QStringList params;
 };
 
 // connection registration
