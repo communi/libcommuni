@@ -20,9 +20,12 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 
-class IRC_EXPORT IrcMessage
+class IRC_EXPORT IrcMessage : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(uint type READ type WRITE setType)
+    Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
+    Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
     Q_ENUMS(Type)
 
 public:
@@ -69,21 +72,33 @@ public:
         Pong = 61,
         Error = 62,
         Numeric = 63,
-        Away = 64
+        Away = 64,
+
+        // custom messages
+        Custom = 100
     };
 
-    IrcMessage(Type type);
-    virtual ~IrcMessage();
+    explicit IrcMessage(QObject* parent = 0) :
+        QObject(parent), t(Unknown) { }
 
-    Type type() const { return t; }
+    uint type() const { return t; }
+    void setType(uint type) { t = type; }
+
     QString prefix() const { return pfx; }
+    void setPrefix(const QString& prefix) { pfx = prefix; }
+
     QStringList parameters() const { return params; }
+    void setParameters(const QStringList& parameters) { params = parameters; }
+
+    static void registerCommand(const QString& command, IrcMessage* message);
+    static void unregisterCommand(const QString& command);
+    static IrcMessage* create(const QString& command, QObject* parent = 0);
 
     virtual QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    virtual void initFrom(const QString& prefix, const QStringList& parameters);
 
 protected:
-    Type t;
+    uint t;
     QString pfx;
     QStringList params;
 };
@@ -92,64 +107,100 @@ protected:
 
 class IRC_EXPORT IrcPasswordMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString password READ password WRITE setPassword)
+
 public:
-    IrcPasswordMessage(const QString& password);
+    explicit IrcPasswordMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = Password; }
+
     QString password() const { return passwd; }
+    void setPassword(const QString& password) { passwd = password; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString passwd;
 };
 
 class IRC_EXPORT IrcNickNameMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString nickName READ nickName WRITE setNickName)
+
 public:
-    IrcNickNameMessage(const QString& nickName);
+    explicit IrcNickNameMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = NickName; }
+
     QString nickName() const { return nick; }
+    void setNickName(const QString& nickName) { nick = nickName; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString nick;
 };
 
 class IRC_EXPORT IrcUserMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString userName READ userName WRITE setUserName)
+    Q_PROPERTY(QString realName READ realName WRITE setRealName)
+
 public:
-    IrcUserMessage(const QString& userName, const QString& realName);
+    explicit IrcUserMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = User; }
+
     QString userName() const { return user; }
+    void setUserName(const QString& userName) { user = userName; }
+
     QString realName() const { return real; }
+    void setRealName(const QString& realName) { real = realName; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString user;
     QString real;
 };
 
-class IRC_EXPORT IrcOperatorMessage : public IrcMessage
+class IRC_EXPORT IrcOperatorMessage : public IrcPasswordMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString user READ user WRITE setUser)
+
 public:
-    IrcOperatorMessage(const QString& user, const QString& password);
+    explicit IrcOperatorMessage(QObject* parent = 0) :
+        IrcPasswordMessage(parent) { t = Operator; }
+
     QString user() const { return usr; }
-    QString password() const { return passwd; }
+    void setUser(const QString& user) { usr = user; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString usr;
-    QString passwd;
 };
 
 class IRC_EXPORT IrcQuitMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString reason READ reason WRITE setReason)
+
 public:
-    IrcQuitMessage(const QString& reason);
+    explicit IrcQuitMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = Quit; }
+
     QString reason() const { return rson; }
+    void setReason(const QString& reason) { rson = reason; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString rson;
 };
@@ -158,93 +209,148 @@ protected:
 
 class IRC_EXPORT IrcChannelMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString channel READ channel WRITE setChannel)
+
 public:
-    IrcChannelMessage(Type type, const QString& channel);
+    explicit IrcChannelMessage(QObject* parent = 0) :
+        IrcMessage(parent) { }
+
     QString channel() const { return chan; }
+    void setChannel(const QString& channel) { chan = channel; }
+
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString chan;
 };
 
 class IRC_EXPORT IrcJoinMessage : public IrcChannelMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString key READ key WRITE setKey)
+
 public:
-    IrcJoinMessage(const QString& channel, const QString& key = QString());
+    explicit IrcJoinMessage(QObject* parent = 0) :
+        IrcChannelMessage(parent) { t = Join; }
+
     QString key() const { return k; }
+    void setKey(const QString& key) { k = key; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString k;
 };
 
 class IRC_EXPORT IrcPartMessage : public IrcChannelMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString reason READ reason WRITE setReason)
+
 public:
-    IrcPartMessage(const QString& channel, const QString& reason = QString());
+    explicit IrcPartMessage(QObject* parent = 0) :
+        IrcChannelMessage(parent) { t = Part; }
+
     QString reason() const { return rson; }
+    void setReason(const QString& reason) { rson = reason; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString rson;
 };
 
 class IRC_EXPORT IrcTopicMessage : public IrcChannelMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString topic READ topic WRITE setTopic)
+
 public:
-    IrcTopicMessage(const QString& channel, const QString& topic = QString());
+    explicit IrcTopicMessage(QObject* parent = 0) :
+        IrcChannelMessage(parent) { t = Topic; }
+
     QString topic() const { return tpc; }
+    void setTopic(const QString& topic) { tpc = topic; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString tpc;
 };
 
 class IRC_EXPORT IrcNamesMessage : public IrcChannelMessage
 {
-    Q_GADGET
+    Q_OBJECT
+
 public:
-    IrcNamesMessage(const QString& channel) :
-        IrcChannelMessage(Names, channel) { }
+    explicit IrcNamesMessage(QObject* parent = 0) :
+        IrcChannelMessage(parent) { t = Names; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcListMessage : public IrcChannelMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString server READ server WRITE setServer)
+
 public:
-    IrcListMessage(const QString& channel, const QString& server = QString());
+    explicit IrcListMessage(QObject* parent = 0) :
+        IrcChannelMessage(parent) { t = List; }
+
     QString server() const { return srv; }
+    void setServer(const QString& server) { srv = server; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString srv;
 };
 
 class IRC_EXPORT IrcInviteMessage : public IrcChannelMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString user READ user WRITE setUser)
+
 public:
-    IrcInviteMessage(const QString& channel, const QString& user);
+    explicit IrcInviteMessage(QObject* parent = 0) :
+        IrcChannelMessage(parent) { t = Invite; }
+
     QString user() const { return usr; }
+    void setUser(const QString& user) { usr = user; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString usr;
 };
 
 class IRC_EXPORT IrcKickMessage : public IrcChannelMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString user READ user WRITE setUser)
+    Q_PROPERTY(QString reason READ reason WRITE setReason)
+
 public:
-    IrcKickMessage(const QString& channel, const QString& user, const QString& reason = QString());
+    explicit IrcKickMessage(QObject* parent = 0) :
+        IrcChannelMessage(parent) { t = Kick; }
+
     QString user() const { return usr; }
+    void setUser(const QString& user) { usr = user; }
+
     QString reason() const { return rson; }
+    void setReason(const QString& reason) { rson = reason; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString usr;
     QString rson;
@@ -254,11 +360,22 @@ protected:
 
 class IRC_EXPORT IrcModeMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString target READ target WRITE setTarget)
+    Q_PROPERTY(QString mode READ mode WRITE setMode)
+
 public:
-    IrcModeMessage(Type type, const QString& target, const QString& mode = QString());
+    explicit IrcModeMessage(QObject* parent = 0) :
+        IrcMessage(parent) { }
+
     QString target() const { return tgt; }
+    void setTarget(const QString& target) { tgt = target; }
+
     QString mode() const { return mod; }
+    void setMode(const QString& mode) { mod = mode; }
+
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString tgt;
     QString mod;
@@ -266,40 +383,60 @@ protected:
 
 class IRC_EXPORT IrcChannelModeMessage : public IrcModeMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString argument READ argument WRITE setArgument)
+    Q_PROPERTY(QString mask READ mask WRITE setMask)
+
 public:
-    IrcChannelModeMessage(const QString& channel, const QString& mode = QString(),
-                          const QString& argument = QString(), const QString& mask = QString());
-    QString mode() const { return mod; }
+    explicit IrcChannelModeMessage(QObject* parent = 0) :
+        IrcModeMessage(parent) { t = ChannelMode; }
+
     QString argument() const { return arg; }
+    void setArgument(const QString& argument) { arg = argument; }
+
     QString mask() const { return msk; }
+    void setMask(const QString& mask) { msk = mask; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
-    QString mod;
     QString arg;
     QString msk;
 };
 
 class IRC_EXPORT IrcUserModeMessage : public IrcModeMessage
 {
-    Q_GADGET
+    Q_OBJECT
+
 public:
-    IrcUserModeMessage(const QString& user, const QString& mode) :
-        IrcModeMessage(UserMode, user, mode) { }
+    explicit IrcUserModeMessage(QObject* parent = 0) :
+        IrcModeMessage(parent) { t = UserMode; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 // sending messages
 
 class IRC_EXPORT IrcSendMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString target READ target WRITE setTarget)
+    Q_PROPERTY(QString message READ message WRITE setMessage)
+
 public:
-    IrcSendMessage(Type type, const QString& target, const QString& message);
+    explicit IrcSendMessage(QObject* parent = 0) :
+        IrcMessage(parent) { }
+
     QString target() const { return tgt; }
+    void setTarget(const QString& target) { tgt = target; }
+
     QString message() const { return msg; }
+    void setMessage(const QString& message) { msg = message; }
+
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString tgt;
     QString msg;
@@ -307,33 +444,47 @@ protected:
 
 class IRC_EXPORT IrcPrivateMessage : public IrcSendMessage
 {
-    Q_GADGET
+    Q_OBJECT
+
 public:
-    IrcPrivateMessage(const QString& target, const QString& message) :
-        IrcSendMessage(Private, target, message) { }
+    explicit IrcPrivateMessage(QObject* parent = 0) :
+        IrcSendMessage(parent) { t = Private; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcNoticeMessage : public IrcSendMessage
 {
-    Q_GADGET
+    Q_OBJECT
 public:
-    IrcNoticeMessage(const QString& target, const QString& message) :
-        IrcSendMessage(Notice, target, message) { }
+    explicit IrcNoticeMessage(QObject* parent = 0) :
+        IrcSendMessage(parent) { t = Notice; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 // ctcp messages
 
 class IRC_EXPORT IrcCtcpMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString target READ target WRITE setTarget)
+    Q_PROPERTY(QString message READ message WRITE setMessage)
+
 public:
-    IrcCtcpMessage(Type type, const QString& target, const QString& message);
+    explicit IrcCtcpMessage(QObject* parent = 0) :
+        IrcMessage(parent) { }
+
     QString target() const { return tgt; }
+    void setTarget(const QString& target) { tgt = target; }
+
     QString message() const { return msg; }
+    void setMessage(const QString& message) { msg = message; }
+
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString tgt;
     QString msg;
@@ -341,142 +492,195 @@ protected:
 
 class IRC_EXPORT IrcCtcpActionMessage : public IrcCtcpMessage
 {
-    Q_GADGET
+    Q_OBJECT
+
 public:
-    IrcCtcpActionMessage(const QString& target, const QString& message) :
-        IrcCtcpMessage(CtcpAction, target, message) { }
+    explicit IrcCtcpActionMessage(QObject* parent = 0) :
+        IrcCtcpMessage(parent) { t = CtcpAction; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcCtcpRequestMessage : public IrcCtcpMessage
 {
-    Q_GADGET
+    Q_OBJECT
+
 public:
-    IrcCtcpRequestMessage(const QString& target, const QString& message) :
-        IrcCtcpMessage(CtcpRequest, target, message) { }
+    explicit IrcCtcpRequestMessage(QObject* parent = 0) :
+        IrcCtcpMessage(parent) { t = CtcpRequest; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcCtcpReplyMessage : public IrcCtcpMessage
 {
-    Q_GADGET
+    Q_OBJECT
+
 public:
-    IrcCtcpReplyMessage(const QString& target, const QString& message) :
-        IrcCtcpMessage(CtcpReply, target, message) { }
+    explicit IrcCtcpReplyMessage(QObject* parent = 0) :
+        IrcCtcpMessage(parent) { t = CtcpReply; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 // user-based queries
 
 class IRC_EXPORT IrcQueryMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString user READ user WRITE setUser)
+
 public:
-    IrcQueryMessage(Type type, const QString& user);
+    explicit IrcQueryMessage(QObject* parent = 0) :
+        IrcMessage(parent) { }
+
     QString user() const { return usr; }
+    void setUser(const QString& user) { usr = user; }
+
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString usr;
 };
 
 class IRC_EXPORT IrcWhoMessage : public IrcQueryMessage
 {
-    Q_GADGET
+    Q_OBJECT
+
 public:
-    IrcWhoMessage(const QString& user) :
-        IrcQueryMessage(Who, user) { }
+    explicit IrcWhoMessage(QObject* parent = 0) :
+        IrcQueryMessage(parent) { t = Who; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcWhoisMessage : public IrcQueryMessage
 {
-    Q_GADGET
+    Q_OBJECT
+
 public:
-    IrcWhoisMessage(const QString& user) :
-        IrcQueryMessage(Whois, user) { }
+    explicit IrcWhoisMessage(QObject* parent = 0) :
+        IrcQueryMessage(parent) { t = Whois; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 class IRC_EXPORT IrcWhowasMessage : public IrcQueryMessage
 {
-    Q_GADGET
+    Q_OBJECT
+
 public:
-    IrcWhowasMessage(const QString& user) :
-        IrcQueryMessage(Whowas, user) { }
+    explicit IrcWhowasMessage(QObject* parent = 0) :
+        IrcQueryMessage(parent) { t = Whowas; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 // miscellaneous messages
 
 class IRC_EXPORT IrcPingMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString target READ target WRITE setTarget)
+
 public:
-    IrcPingMessage(const QString& target);
+    explicit IrcPingMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = Ping; }
+
     QString target() const { return tgt; }
+    void setTarget(const QString& target) { tgt = target; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString tgt;
 };
 
 class IRC_EXPORT IrcPongMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString target READ target WRITE setTarget)
+
 public:
-    IrcPongMessage(const QString& target);
+    explicit IrcPongMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = Pong; }
+
     QString target() const { return tgt; }
+    void setTarget(const QString& target) { tgt = target; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString tgt;
 };
 
 class IRC_EXPORT IrcErrorMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString error READ error WRITE setError)
+
 public:
-    IrcErrorMessage(const QString& error);
+    explicit IrcErrorMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = Error; }
+
     QString error() const { return err; }
+    void setError(const QString& error) { err = error; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString err;
 };
 
 class IRC_EXPORT IrcNumericMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(uint code READ code WRITE setCode)
+
 public:
-    IrcNumericMessage(uint code, const QStringList& params);
+    explicit IrcNumericMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = Numeric; }
+
     uint code() const { return c; }
-    QStringList parameters() const { return p; }
+    void setCode(uint code) { c = code; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     uint c;
-    QStringList p;
 };
 
 class IRC_EXPORT IrcAwayMessage : public IrcMessage
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString message READ message WRITE setMessage)
+
 public:
-    IrcAwayMessage(const QString& error);
+    explicit IrcAwayMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = Away; }
+
     QString message() const { return msg; }
+    void setMessage(const QString& message) { msg = message; }
+
     QString toString() const;
-    static IrcMessage* create(const QString& prefix, const QStringList& params);
+    void initFrom(const QString& prefix, const QStringList& params);
+
 protected:
     QString msg;
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-IRC_EXPORT QDebug operator<<(QDebug debug, const IrcMessage& message);
+IRC_EXPORT QDebug operator<<(QDebug debug, const IrcMessage* message);
 #endif // QT_NO_DEBUG_STREAM
 
 #endif // IRCMESSAGE_H
