@@ -41,7 +41,7 @@ QString IrcPasswordMessage::toString() const
     return QString("PASS %1").arg(passwd);
 }
 
-IrcPasswordMessage* IrcPasswordMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcPasswordMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString password = params.value(0);
     IrcPasswordMessage* msg = new IrcPasswordMessage(password);
@@ -58,7 +58,7 @@ QString IrcNickNameMessage::toString() const
     return QString("NICK %1").arg(nick);
 }
 
-IrcNickNameMessage* IrcNickNameMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcNickNameMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString nickName = params.value(0);
     IrcNickNameMessage* msg = new IrcNickNameMessage(nickName);
@@ -79,7 +79,7 @@ QString IrcUserMessage::toString() const
     return QString("USER %1 hostname servername :%2").arg(user, real);
 }
 
-IrcUserMessage* IrcUserMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcUserMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString userName = params.value(0);
     const QString realName = params.value(3);
@@ -97,7 +97,7 @@ QString IrcOperatorMessage::toString() const
     return QString("OPER %1 %2").arg(usr, passwd);
 }
 
-IrcOperatorMessage* IrcOperatorMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcOperatorMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString user = params.value(0);
     const QString password = params.value(1);
@@ -115,7 +115,7 @@ QString IrcQuitMessage::toString() const
     return QString("QUIT :%1").arg(rson);
 }
 
-IrcQuitMessage* IrcQuitMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcQuitMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString reason = params.value(0);
     IrcQuitMessage* msg = new IrcQuitMessage(reason);
@@ -137,7 +137,7 @@ QString IrcJoinMessage::toString() const
     return QString("JOIN %1 %2").arg(chan, k);
 }
 
-IrcJoinMessage* IrcJoinMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcJoinMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString channel = params.value(0);
     IrcJoinMessage* msg = new IrcJoinMessage(channel);
@@ -156,7 +156,7 @@ QString IrcPartMessage::toString() const
     return QString("PART %1 %2").arg(chan, rson);
 }
 
-IrcPartMessage* IrcPartMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcPartMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString channel = params.value(0);
     const QString reason = params.value(1);
@@ -176,7 +176,7 @@ QString IrcTopicMessage::toString() const
     return QString("TOPIC %1 :%2").arg(chan, tpc);
 }
 
-IrcTopicMessage* IrcTopicMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcTopicMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString channel = params.value(0);
     const QString topic = params.value(1);
@@ -191,7 +191,7 @@ QString IrcNamesMessage::toString() const
     return QString("NAMES %1").arg(chan);
 }
 
-IrcNamesMessage* IrcNamesMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcNamesMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString channel = params.value(0);
     IrcNamesMessage* msg = new IrcNamesMessage(channel);
@@ -210,7 +210,7 @@ QString IrcListMessage::toString() const
     return QString("LIST %1 %2").arg(chan, srv);
 }
 
-IrcListMessage* IrcListMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcListMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString channel = params.value(0);
     const QString server = params.value(1);
@@ -228,7 +228,7 @@ QString IrcInviteMessage::toString() const
     return QString("INVITE %1 %2").arg(usr, chan);
 }
 
-IrcInviteMessage* IrcInviteMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcInviteMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString user = params.value(0);
     const QString channel = params.value(1);
@@ -248,7 +248,7 @@ QString IrcKickMessage::toString() const
     return QString("KICK %1 %2 :%3").arg(usr, chan, rson);
 }
 
-IrcKickMessage* IrcKickMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcKickMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString user = params.value(0);
     const QString channel = params.value(1);
@@ -275,7 +275,7 @@ QString IrcChannelModeMessage::toString() const
     return lst.join(" ");
 }
 
-IrcChannelModeMessage* IrcChannelModeMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcChannelModeMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString channel = params.value(0);
     const QString mode = params.value(1);
@@ -292,7 +292,7 @@ QString IrcUserModeMessage::toString() const
     return QString("MODE %1 %2").arg(tgt, mod);
 }
 
-IrcUserModeMessage* IrcUserModeMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcUserModeMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString user = params.value(0);
     const QString mode = params.value(1);
@@ -310,7 +310,7 @@ QString IrcPrivateMessage::toString() const
     return QString("PRIVMSG %1 :%2").arg(tgt, msg);
 }
 
-IrcPrivateMessage* IrcPrivateMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcPrivateMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString target = params.value(0);
     const QString message = params.value(1);
@@ -325,7 +325,7 @@ QString IrcNoticeMessage::toString() const
     return QString("NOTICE %1 :%2").arg(tgt, msg);
 }
 
-IrcNoticeMessage* IrcNoticeMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcNoticeMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString target = params.value(0);
     const QString message = params.value(1);
@@ -343,7 +343,7 @@ QString IrcCtcpActionMessage::toString() const
     return QString("PRIVMSG %1 :\1ACTION %2\x01").arg(tgt, msg);
 }
 
-IrcCtcpActionMessage* IrcCtcpActionMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcCtcpActionMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString target = params.value(0);
     QString message = params.value(1);
@@ -362,7 +362,7 @@ QString IrcCtcpRequestMessage::toString() const
     return QString("PRIVMSG %1 :\1%2\1").arg(tgt, msg);
 }
 
-IrcCtcpRequestMessage* IrcCtcpRequestMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcCtcpRequestMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString target = params.value(0);
     QString message = params.value(1);
@@ -381,7 +381,7 @@ QString IrcCtcpReplyMessage::toString() const
     return QString("NOTICE %1 :\1%2\1").arg(tgt, msg);
 }
 
-IrcCtcpReplyMessage* IrcCtcpReplyMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcCtcpReplyMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString target = params.value(0);
     QString message = params.value(1);
@@ -403,7 +403,7 @@ QString IrcWhoMessage::toString() const
     return QString("WHO %1").arg(usr);
 }
 
-IrcWhoMessage* IrcWhoMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcWhoMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString user = params.value(0);
     IrcWhoMessage* msg = new IrcWhoMessage(user);
@@ -417,7 +417,7 @@ QString IrcWhoisMessage::toString() const
     return QString("WHOIS %1 %1").arg(usr);
 }
 
-IrcWhoisMessage* IrcWhoisMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcWhoisMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString user = params.value(0);
     IrcWhoisMessage* msg = new IrcWhoisMessage(user);
@@ -431,7 +431,7 @@ QString IrcWhowasMessage::toString() const
     return QString("WHOWAS %1 %1").arg(usr);
 }
 
-IrcWhowasMessage* IrcWhowasMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcWhowasMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString user = params.value(0);
     IrcWhowasMessage* msg = new IrcWhowasMessage(user);
@@ -448,7 +448,7 @@ QString IrcPingMessage::toString() const
     return QString("PING %1").arg(tgt);
 }
 
-IrcPingMessage* IrcPingMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcPingMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString target = params.value(0);
     IrcPingMessage* msg = new IrcPingMessage(target);
@@ -465,7 +465,7 @@ QString IrcPongMessage::toString() const
     return QString("PONG %1").arg(tgt);
 }
 
-IrcPongMessage* IrcPongMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcPongMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString target = params.value(0);
     IrcPongMessage* msg = new IrcPongMessage(target);
@@ -482,7 +482,7 @@ QString IrcErrorMessage::toString() const
     return QString("ERROR :%1").arg(err);
 }
 
-IrcErrorMessage* IrcErrorMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcErrorMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString error = params.value(0);
     IrcErrorMessage* msg = new IrcErrorMessage(error);
@@ -499,7 +499,7 @@ QString IrcNumericMessage::toString() const
     return QString("%1 :%2").arg(c).arg(p.join(" "));
 }
 
-IrcNumericMessage* IrcNumericMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcNumericMessage::create(const QString& prefix, const QStringList& params)
 {
     const uint code = params.value(0).toInt();
     IrcNumericMessage* msg = new IrcNumericMessage(code, params.mid(1));
@@ -516,7 +516,7 @@ QString IrcAwayMessage::toString() const
     return QString("AWAY :%1").arg(msg);
 }
 
-IrcAwayMessage* IrcAwayMessage::create(const QString& prefix, const QStringList& params)
+IrcMessage* IrcAwayMessage::create(const QString& prefix, const QStringList& params)
 {
     const QString message = params.value(0);
     IrcAwayMessage* msg = new IrcAwayMessage(message);
