@@ -96,14 +96,18 @@ void IrcSessionPrivate::_q_connected()
     QString password;
     emit q->password(&password);
     if (!password.isEmpty()) {
-        IrcPasswordMessage passwdMsg(password);
+        IrcPasswordMessage passwdMsg;
+        passwdMsg.setPassword(password);
         q->sendMessage(&passwdMsg);
     }
 
-    IrcNickNameMessage nickMsg(nickName);
+    IrcNickNameMessage nickMsg;
+    nickMsg.setNickName(nickName);
     q->sendMessage(&nickMsg);
 
-    IrcUserMessage userMsg(userName, realName);
+    IrcUserMessage userMsg;
+    userMsg.setUserName(userName);
+    userMsg.setRealName(realName);
     q->sendMessage(&userMsg);
 }
 
@@ -165,123 +169,56 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
     QString command = parser.command();
     QStringList params = parser.params();
 
-    IrcMessage* msg = 0;
+    IrcMessage* msg = IrcMessage::create(command);
+    if (msg)
+    {
+        msg->initFrom(prefix, params);
 
-    // numeric
-    bool isNumeric = false;
-    uint code = command.toInt(&isNumeric);
-    if (isNumeric)
-    {
-        // connected!
-        if (code == Irc::RPL_WELCOME)
-            emit q->connected();
-        msg = IrcNumericMessage::create(prefix, params);
-    }
+        switch (msg->type())
+        {
+        case IrcMessage::Numeric:
+            if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
+                emit q->connected();
+            break;
+        case IrcMessage::Ping: {
+            // TODO: ifAutomatic?
+            IrcPongMessage pongMsg;
+            pongMsg.setTarget(static_cast<IrcPingMessage*>(msg)->target());
+            q->sendMessage(&pongMsg);
+            break;
+            }
+        }
 
-    // error
-    else if (command == QLatin1String("ERROR"))
-    {
-        msg = IrcErrorMessage::create(prefix, params);
-    }
+        // TODO: mode operations
+        /*else if (command == QLatin1String("MODE"))
+        {
+            if (params.value(0).startsWith(QLatin1Char('#')))
+                msg = IrcChannelModeMessage::create(prefix, params);
+            else
+                msg = IrcUserModeMessage::create(prefix, params);
+        }*/
 
-    // handle PING/PONG
-    else if (command == QLatin1String("PING"))
-    {
-        msg = IrcPingMessage::create(prefix, params);
-        // TODO: ifAutomatic?
-        IrcPongMessage pong(static_cast<IrcPingMessage*>(msg)->target());
-        q->sendMessage(&pong);
-    }
+        // TODO: sending messages & ctcp messages
+        /*else if (command == QLatin1String("PRIVMSG"))
+        {
+            if (params.value(1).startsWith(QLatin1String("\1ACTION ")))
+                msg = IrcCtcpActionMessage::create(prefix, params);
+            else if (params.value(1).startsWith(QLatin1Char('\1')))
+                msg = IrcCtcpRequestMessage::create(prefix, params);
+            else
+                msg = IrcPrivateMessage::create(prefix, params);
+        }
+        else if (command == QLatin1String("NOTICE"))
+        {
+            if (params.value(1).startsWith(QLatin1Char('\1')))
+                msg = IrcCtcpReplyMessage::create(prefix, params);
+            else
+                msg = IrcNoticeMessage::create(prefix, params);
+        }*/
 
-    // connection registration
-    else if (command == QLatin1String("NICK"))
-    {
-        msg = IrcNickNameMessage::create(prefix, params);
+        emit q->messageReceived(msg);
+        msg->deleteLater();
     }
-    else if (command == QLatin1String("QUIT"))
-    {
-        msg = IrcQuitMessage::create(prefix, params);
-    }
-
-    // channel operations
-    else if (command == QLatin1String("JOIN"))
-    {
-        msg = IrcJoinMessage::create(prefix, params);
-    }
-    else if (command == QLatin1String("PART"))
-    {
-        msg = IrcPartMessage::create(prefix, params);
-    }
-    else if (command == QLatin1String("TOPIC"))
-    {
-        msg = IrcTopicMessage::create(prefix, params);
-    }
-    else if (command == QLatin1String("NAMES"))
-    {
-        msg = IrcNamesMessage::create(prefix, params);
-    }
-    else if (command == QLatin1String("LIST"))
-    {
-        msg = IrcListMessage::create(prefix, params);
-    }
-    else if (command == QLatin1String("INVITE"))
-    {
-        msg = IrcInviteMessage::create(prefix, params);
-    }
-    else if (command == QLatin1String("KICK"))
-    {
-        msg = IrcKickMessage::create(prefix, params);
-    }
-
-    // mode operations
-    else if (command == QLatin1String("MODE"))
-    {
-        if (params.value(0).startsWith(QLatin1Char('#')))
-            msg = IrcChannelModeMessage::create(prefix, params);
-        else
-            msg = IrcUserModeMessage::create(prefix, params);
-    }
-
-    // sending messages & ctcp messages
-    else if (command == QLatin1String("PRIVMSG"))
-    {
-        if (params.value(1).startsWith(QLatin1String("\1ACTION ")))
-            msg = IrcCtcpActionMessage::create(prefix, params);
-        else if (params.value(1).startsWith(QLatin1Char('\1')))
-            msg = IrcCtcpRequestMessage::create(prefix, params);
-        else
-            msg = IrcPrivateMessage::create(prefix, params);
-    }
-    else if (command == QLatin1String("NOTICE"))
-    {
-        if (params.value(1).startsWith(QLatin1Char('\1')))
-            msg = IrcCtcpReplyMessage::create(prefix, params);
-        else
-            msg = IrcNoticeMessage::create(prefix, params);
-    }
-
-    // user-based queries
-    else if (command == QLatin1String("WHO"))
-    {
-        msg = IrcWhoMessage::create(prefix, params);
-    }
-    else if (command == QLatin1String("WHOIS"))
-    {
-        msg = IrcWhoisMessage::create(prefix, params);
-    }
-    else if (command == QLatin1String("WHOWAS"))
-    {
-        msg = IrcWhowasMessage::create(prefix, params);
-    }
-
-    // unknown
-    else
-    {
-        msg = IrcMessage::create(prefix, params);
-    }
-
-    emit q->messageReceived(msg);
-    delete msg;
 }
 
 bool IrcSessionPrivate::isConnected() const
@@ -415,7 +352,8 @@ void IrcSession::setNickName(const QString& name)
     if (d->nickName != name)
     {
         d->nickName = name;
-        IrcNickNameMessage msg(name);
+        IrcNickNameMessage msg;
+        msg.setNickName(name);
         sendMessage(&msg);
     }
 }
