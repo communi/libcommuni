@@ -14,27 +14,46 @@
 */
 
 #include "ircmessage.h"
-#include <QMetaEnum>
 #include <QDebug>
 
-typedef QHash<QString, const QMetaObject*> MetaHash;
-Q_GLOBAL_STATIC(MetaHash, metaObjects)
-
-void IrcMessage::registerCommand(const QString& command, IrcMessage* message)
+static QHash<QString, const QMetaObject*> irc_meta_init()
 {
-    Q_ASSERT(message);
-    metaObjects()->insert(command, message->metaObject());
+    QHash<QString, const QMetaObject*> meta;
+    meta.insert("PASS", &IrcPasswordMessage::staticMetaObject);
+    meta.insert("NICK", &IrcNickNameMessage::staticMetaObject);
+    meta.insert("OPER", &IrcOperatorMessage::staticMetaObject);
+    meta.insert("QUIT", &IrcQuitMessage::staticMetaObject);
+    meta.insert("JOIN", &IrcJoinMessage::staticMetaObject);
+    meta.insert("PART", &IrcPartMessage::staticMetaObject);
+    meta.insert("TOPIC", &IrcTopicMessage::staticMetaObject);
+    meta.insert("NAMES", &IrcNamesMessage::staticMetaObject);
+    meta.insert("LIST", &IrcListMessage::staticMetaObject);
+    meta.insert("INVITE", &IrcInviteMessage::staticMetaObject);
+    meta.insert("KICK", &IrcKickMessage::staticMetaObject);
+    meta.insert("MODE", &IrcModeMessage::staticMetaObject);
+    meta.insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
+    meta.insert("NOTICE", &IrcNoticeMessage::staticMetaObject);
+    meta.insert("WHO", &IrcWhoMessage::staticMetaObject);
+    meta.insert("WHOIS", &IrcWhoisMessage::staticMetaObject);
+    meta.insert("WHOWAS", &IrcWhowasMessage::staticMetaObject);
+    meta.insert("PING", &IrcPingMessage::staticMetaObject);
+    meta.insert("PONG", &IrcPongMessage::staticMetaObject);
+    meta.insert("ERROR", &IrcErrorMessage::staticMetaObject);
+    meta.insert("AWAY", &IrcAwayMessage::staticMetaObject);
+    // TODO: numeric?
+    return meta;
 }
+QHash<QString, const QMetaObject*> IrcMessage::metaObjects = irc_meta_init();
 
 void IrcMessage::unregisterCommand(const QString& command)
 {
-    metaObjects()->remove(command);
+    metaObjects.remove(command);
 }
 
 IrcMessage* IrcMessage::create(const QString& command, QObject* parent)
 {
     QObject* message = 0;
-    const QMetaObject* metaObject = metaObjects()->value(command);
+    const QMetaObject* metaObject = metaObjects.value(command);
     if (metaObject)
         message = metaObject->newInstance(Q_ARG(QObject*, parent));
     return qobject_cast<IrcMessage*>(message);
@@ -419,7 +438,7 @@ QDebug operator<<(QDebug debug, const IrcMessage* message)
         debug << ", prefix = " << message->prefix();
     if (!message->parameters().isEmpty())
         debug << ", params = " << message->parameters();
-    debug << ')';
+    debug.nospace() << ')';
     return debug.space();
 }
 #endif // QT_NO_DEBUG_STREAM
