@@ -20,12 +20,14 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
+#include <QtCore/qvarlengtharray.h>
 
 class IRC_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(uint type READ type WRITE setType)
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
+    Q_PROPERTY(QString command READ command WRITE setCommand)
     Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
     Q_ENUMS(Type)
 
@@ -82,14 +84,19 @@ public:
     QString prefix() const { return pfx; }
     void setPrefix(const QString& prefix) { pfx = prefix; }
 
+    QString command() const { return cmd; }
+    void setCommand(const QString& command) { cmd = command; }
+
     QStringList parameters() const { return params; }
     void setParameters(const QStringList& parameters) { params = parameters; }
 
+    enum CommandSyntax { RegExp, Wildcard, FixedString };
+
     template <typename T>
-    static void registerCommand(const QString& command);
+    static void registerCommand(const QString& command, CommandSyntax syntax = FixedString);
     static void unregisterCommand(const QString& command);
 
-    static IrcMessage* create(const QString& command, QObject* parent = 0);
+    Q_INVOKABLE static IrcMessage* create(const QString& command, QObject* parent = 0);
 
     virtual QString toString() const;
     virtual void initFrom(const QString& prefix, const QStringList& parameters);
@@ -97,14 +104,15 @@ public:
 protected:
     uint t;
     QString pfx;
+    QString cmd;
     QStringList params;
-    static QHash<QString, const QMetaObject*> metaObjects;
+    static QVarLengthArray<QHash<QString, const QMetaObject*>, 3> metaObjects;
 };
 
 template <typename T>
-void IrcMessage::registerCommand(const QString& command)
+void IrcMessage::registerCommand(const QString& command, IrcMessage::CommandSyntax syntax)
 {
-    metaObjects.insert(command, &T::staticMetaObject);
+    metaObjects[syntax].insert(command, &T::staticMetaObject);
 }
 
 // connection registration

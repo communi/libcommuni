@@ -15,47 +15,64 @@
 #include "ircmessage.h"
 #include <QDebug>
 
-static QHash<QString, const QMetaObject*> irc_meta_init()
+static QVarLengthArray<QHash<QString, const QMetaObject*>, 3> irc_meta_init()
 {
-    QHash<QString, const QMetaObject*> meta;
-    meta.insert("PASS", &IrcPasswordMessage::staticMetaObject);
-    meta.insert("NICK", &IrcNickMessage::staticMetaObject);
-    meta.insert("OPER", &IrcOperatorMessage::staticMetaObject);
-    meta.insert("QUIT", &IrcQuitMessage::staticMetaObject);
-    meta.insert("JOIN", &IrcJoinMessage::staticMetaObject);
-    meta.insert("PART", &IrcPartMessage::staticMetaObject);
-    meta.insert("TOPIC", &IrcTopicMessage::staticMetaObject);
-    meta.insert("NAMES", &IrcNamesMessage::staticMetaObject);
-    meta.insert("LIST", &IrcListMessage::staticMetaObject);
-    meta.insert("INVITE", &IrcInviteMessage::staticMetaObject);
-    meta.insert("KICK", &IrcKickMessage::staticMetaObject);
-    meta.insert("MODE", &IrcModeMessage::staticMetaObject);
-    meta.insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
-    meta.insert("NOTICE", &IrcNoticeMessage::staticMetaObject);
-    meta.insert("WHO", &IrcWhoMessage::staticMetaObject);
-    meta.insert("WHOIS", &IrcWhoisMessage::staticMetaObject);
-    meta.insert("WHOWAS", &IrcWhowasMessage::staticMetaObject);
-    meta.insert("PING", &IrcPingMessage::staticMetaObject);
-    meta.insert("PONG", &IrcPongMessage::staticMetaObject);
-    meta.insert("ERROR", &IrcErrorMessage::staticMetaObject);
-    meta.insert("AWAY", &IrcAwayMessage::staticMetaObject);
-    // TODO: numeric?
+    QVarLengthArray<QHash<QString, const QMetaObject*>, 3> meta;
+    meta.resize(3);
+    meta[IrcMessage::FixedString].insert("PASS", &IrcPasswordMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("NICK", &IrcNickMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("OPER", &IrcOperatorMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("QUIT", &IrcQuitMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("JOIN", &IrcJoinMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("PART", &IrcPartMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("TOPIC", &IrcTopicMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("NAMES", &IrcNamesMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("LIST", &IrcListMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("INVITE", &IrcInviteMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("KICK", &IrcKickMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("MODE", &IrcModeMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("NOTICE", &IrcNoticeMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("WHO", &IrcWhoMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("WHOIS", &IrcWhoisMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("WHOWAS", &IrcWhowasMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("PING", &IrcPingMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("PONG", &IrcPongMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("ERROR", &IrcErrorMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("AWAY", &IrcAwayMessage::staticMetaObject);
+    meta[IrcMessage::RegExp].insert("\\d{1,3}", &IrcNumericMessage::staticMetaObject);
     return meta;
 }
-QHash<QString, const QMetaObject*> IrcMessage::metaObjects = irc_meta_init();
+QVarLengthArray<QHash<QString, const QMetaObject*>, 3> IrcMessage::metaObjects = irc_meta_init();
 
 void IrcMessage::unregisterCommand(const QString& command)
 {
-    metaObjects.remove(command);
+    for (int i = RegExp; i <= FixedString; ++i)
+        metaObjects[i].remove(command);
+}
+
+static const QMetaObject* irc_command_match(const QString& command, const QHash<QString, const QMetaObject*>& meta, QRegExp::PatternSyntax syntax)
+{
+    QHash<QString, const QMetaObject*>::const_iterator it;
+    for (it = meta.constBegin(); it != meta.constEnd(); ++it)
+        if (QRegExp(it.key(), Qt::CaseSensitive, syntax).exactMatch(command))
+            return it.value();
+    return 0;
 }
 
 IrcMessage* IrcMessage::create(const QString& command, QObject* parent)
 {
-    QObject* message = 0;
-    const QMetaObject* metaObject = metaObjects.value(command);
+    IrcMessage* message = 0;
+    const QMetaObject* metaObject = metaObjects[FixedString].value(command);
+    if (!metaObject)
+        metaObject = irc_command_match(command, metaObjects[Wildcard], QRegExp::Wildcard);
+    if (!metaObject)
+        metaObject = irc_command_match(command, metaObjects[RegExp], QRegExp::RegExp);
     if (metaObject)
-        message = metaObject->newInstance(Q_ARG(QObject*, parent));
-    return qobject_cast<IrcMessage*>(message);
+        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
+    if (message)
+        message->setCommand(command);
+    return message;
 }
 
 QString IrcMessage::toString() const
@@ -369,8 +386,7 @@ QString IrcNumericMessage::toString() const
 void IrcNumericMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
     IrcMessage::initFrom(prefix, parameters);
-    c = parameters.value(0).toInt();
-    params = parameters.mid(1);
+    c = cmd.toInt();
 }
 
 QString IrcAwayMessage::toString() const
