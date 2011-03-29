@@ -34,6 +34,7 @@ class IRC_EXPORT IrcSession : public QObject
     Q_PROPERTY(QString nickName READ nickName WRITE setNickName)
     Q_PROPERTY(QString realName READ realName WRITE setRealName)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
+    Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
 
     Q_ENUMS(MessageType ChannelAction UserAction CtcpType)
 
@@ -62,8 +63,8 @@ public:
     QAbstractSocket* socket() const;
     void setSocket(QAbstractSocket* socket);
 
-    bool sendMessage(const IrcMessage* message);
-    bool sendRaw(const QString& message);
+    Q_INVOKABLE bool sendMessage(const IrcMessage* message);
+    Q_INVOKABLE bool sendRaw(const QString& message);
 
 public Q_SLOTS:
     void open();
