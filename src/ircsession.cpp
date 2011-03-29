@@ -437,7 +437,7 @@ void IrcSession::close()
 
     \sa sendRaw()
  */
-bool IrcSession::sendMessage(const IrcMessage* message)
+bool IrcSession::sendMessage(IrcMessage* message)
 {
     return message && sendRaw(message->toString());
 }

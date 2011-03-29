@@ -63,7 +63,7 @@ public:
     QAbstractSocket* socket() const;
     void setSocket(QAbstractSocket* socket);
 
-    Q_INVOKABLE bool sendMessage(const IrcMessage* message);
+    Q_INVOKABLE bool sendMessage(IrcMessage* message);
     Q_INVOKABLE bool sendRaw(const QString& message);
 
 public Q_SLOTS:
@@ -75,7 +75,7 @@ Q_SIGNALS:
     void password(QString* password);
     void connected();
     void disconnected();
-    void messageReceived(const IrcMessage* message);
+    void messageReceived(IrcMessage* message);
 
 private:
     QScopedPointer<IrcSessionPrivate> d_ptr;
