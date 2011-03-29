@@ -1,6 +1,5 @@
 /*
 * Copyright (C) 2008-2011 J-P Nurmi <jpnurmi@gmail.com>
-* Copyright (C) 2010-2011 SmokeX smokexjc@gmail.com
 *
 * This library is free software; you can redistribute it and/or modify it
 * under the terms of the GNU Lesser General Public License as published by
@@ -28,15 +27,6 @@ void IrcReceiver::receiveMessage(const IrcMessage* message)
 
     switch (message->type())
     {
-    case IrcMessage::CtcpAction:
-        ctcpActionMessage(static_cast<const IrcCtcpActionMessage*>(message));
-        break;
-    case IrcMessage::CtcpReply:
-        ctcpReplyMessage(static_cast<const IrcCtcpReplyMessage*>(message));
-        break;
-    case IrcMessage::CtcpRequest:
-        ctcpRequestMessage(static_cast<const IrcCtcpRequestMessage*>(message));
-        break;
     case IrcMessage::Invite:
         inviteMessage(static_cast<const IrcInviteMessage*>(message));
         break;
@@ -46,11 +36,11 @@ void IrcReceiver::receiveMessage(const IrcMessage* message)
     case IrcMessage::Kick:
         kickMessage(static_cast<const IrcKickMessage*>(message));
         break;
-    case IrcMessage::ChannelMode: // TODO: fix
+    case IrcMessage::Mode:
         modeMessage(static_cast<const IrcModeMessage*>(message));
         break;
-    case IrcMessage::NickName:
-        nickNameMessage(static_cast<const IrcNickNameMessage*>(message));
+    case IrcMessage::Nick:
+        nickNameMessage(static_cast<const IrcNickMessage*>(message));
         break;
     case IrcMessage::Notice:
         noticeMessage(static_cast<const IrcNoticeMessage*>(message));

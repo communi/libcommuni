@@ -27,14 +27,11 @@ public:
     // TODO: filters
 
 protected:
-    virtual void ctcpActionMessage(const IrcCtcpActionMessage*) { }
-    virtual void ctcpReplyMessage(const IrcCtcpReplyMessage*) { }
-    virtual void ctcpRequestMessage(const IrcCtcpRequestMessage*) { }
     virtual void inviteMessage(const IrcInviteMessage*) { }
     virtual void joinMessage(const IrcJoinMessage*) { }
     virtual void kickMessage(const IrcKickMessage*) { }
     virtual void modeMessage(const IrcModeMessage*) { }
-    virtual void nickNameMessage(const IrcNickNameMessage*) { }
+    virtual void nickNameMessage(const IrcNickMessage*) { }
     virtual void noticeMessage(const IrcNoticeMessage*) { }
     virtual void numericMessage(const IrcNumericMessage*) { }
     virtual void partMessage(const IrcPartMessage*) { }

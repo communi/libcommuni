@@ -36,7 +36,7 @@ public:
 
         // connection registration
         Password = 1,
-        NickName = 2,
+        Nick = 2,
         User = 3,
         Operator = 4,
         Quit = 5,
@@ -51,29 +51,23 @@ public:
         Kick = 16,
 
         // mode operations
-        ChannelMode = 20,
-        UserMode = 21,
+        Mode = 20,
 
         // sending messages
         Private = 30,
         Notice = 31,
 
-        // ctcp messages
-        CtcpAction = 40,
-        CtcpRequest = 41,
-        CtcpReply = 42,
-
         // user-based queries
-        Who = 50,
-        Whois = 51,
-        Whowas = 52,
+        Who = 40,
+        Whois = 41,
+        Whowas = 42,
 
         // miscellaneous messages
-        Ping = 60,
-        Pong = 61,
-        Error = 62,
-        Numeric = 63,
-        Away = 64,
+        Ping = 50,
+        Pong = 51,
+        Error = 52,
+        Numeric = 53,
+        Away = 54,
 
         // custom messages
         Custom = 100
@@ -134,14 +128,14 @@ protected:
     QString passwd;
 };
 
-class IRC_EXPORT IrcNickNameMessage : public IrcMessage
+class IRC_EXPORT IrcNickMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString nickName READ nickName WRITE setNickName)
 
 public:
-    Q_INVOKABLE explicit IrcNickNameMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = NickName; }
+    Q_INVOKABLE explicit IrcNickMessage(QObject* parent = 0) :
+        IrcMessage(parent) { t = Nick; }
 
     QString nickName() const { return nick; }
     void setNickName(const QString& nickName) { nick = nickName; }
@@ -373,6 +367,8 @@ class IRC_EXPORT IrcModeMessage : public IrcMessage
     Q_OBJECT
     Q_PROPERTY(QString target READ target WRITE setTarget)
     Q_PROPERTY(QString mode READ mode WRITE setMode)
+    Q_PROPERTY(QString argument READ argument WRITE setArgument)
+    Q_PROPERTY(QString mask READ mask WRITE setMask)
 
 public:
     Q_INVOKABLE explicit IrcModeMessage(QObject* parent = 0) :
@@ -384,23 +380,6 @@ public:
     QString mode() const { return mod; }
     void setMode(const QString& mode) { mod = mode; }
 
-    void initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString tgt;
-    QString mod;
-};
-
-class IRC_EXPORT IrcChannelModeMessage : public IrcModeMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString argument READ argument WRITE setArgument)
-    Q_PROPERTY(QString mask READ mask WRITE setMask)
-
-public:
-    Q_INVOKABLE explicit IrcChannelModeMessage(QObject* parent = 0) :
-        IrcModeMessage(parent) { t = ChannelMode; }
-
     QString argument() const { return arg; }
     void setArgument(const QString& argument) { arg = argument; }
 
@@ -411,20 +390,10 @@ public:
     void initFrom(const QString& prefix, const QStringList& params);
 
 protected:
+    QString tgt;
+    QString mod;
     QString arg;
     QString msk;
-};
-
-class IRC_EXPORT IrcUserModeMessage : public IrcModeMessage
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE explicit IrcUserModeMessage(QObject* parent = 0) :
-        IrcModeMessage(parent) { t = UserMode; }
-
-    QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
 };
 
 // sending messages
@@ -455,85 +424,44 @@ protected:
 class IRC_EXPORT IrcPrivateMessage : public IrcSendMessage
 {
     Q_OBJECT
+    Q_PROPERTY(bool action READ isAction WRITE setAction)
+    Q_PROPERTY(bool request READ isRequest WRITE setRequest)
 
 public:
     Q_INVOKABLE explicit IrcPrivateMessage(QObject* parent = 0) :
-        IrcSendMessage(parent) { t = Private; }
+        IrcSendMessage(parent), act(false), req(false) { t = Private; }
+
+    bool isAction() const { return act; }
+    void setAction(bool action) { act = action; }
+
+    bool isRequest() const { return req; }
+    void setRequest(bool request) { req = request; }
 
     QString toString() const;
     void initFrom(const QString& prefix, const QStringList& params);
+
+protected:
+    bool act;
+    bool req;
 };
 
 class IRC_EXPORT IrcNoticeMessage : public IrcSendMessage
 {
     Q_OBJECT
+    Q_PROPERTY(bool reply READ isReply WRITE setReply)
+
 public:
     Q_INVOKABLE explicit IrcNoticeMessage(QObject* parent = 0) :
-        IrcSendMessage(parent) { t = Notice; }
+        IrcSendMessage(parent), rpl(false) { t = Notice; }
+
+    bool isReply() const { return rpl; }
+    void setReply(bool reply) { rpl = reply; }
 
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
-};
-
-// ctcp messages
-
-class IRC_EXPORT IrcCtcpMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString target READ target WRITE setTarget)
-    Q_PROPERTY(QString message READ message WRITE setMessage)
-
-public:
-    Q_INVOKABLE explicit IrcCtcpMessage(QObject* parent = 0) :
-        IrcMessage(parent) { }
-
-    QString target() const { return tgt; }
-    void setTarget(const QString& target) { tgt = target; }
-
-    QString message() const { return msg; }
-    void setMessage(const QString& message) { msg = message; }
-
     void initFrom(const QString& prefix, const QStringList& params);
 
 protected:
-    QString tgt;
-    QString msg;
-};
-
-class IRC_EXPORT IrcCtcpActionMessage : public IrcCtcpMessage
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE explicit IrcCtcpActionMessage(QObject* parent = 0) :
-        IrcCtcpMessage(parent) { t = CtcpAction; }
-
-    QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
-};
-
-class IRC_EXPORT IrcCtcpRequestMessage : public IrcCtcpMessage
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE explicit IrcCtcpRequestMessage(QObject* parent = 0) :
-        IrcCtcpMessage(parent) { t = CtcpRequest; }
-
-    QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
-};
-
-class IRC_EXPORT IrcCtcpReplyMessage : public IrcCtcpMessage
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE explicit IrcCtcpReplyMessage(QObject* parent = 0) :
-        IrcCtcpMessage(parent) { t = CtcpReply; }
-
-    QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool rpl;
 };
 
 // user-based queries
@@ -658,7 +586,7 @@ class IRC_EXPORT IrcNumericMessage : public IrcMessage
 
 public:
     Q_INVOKABLE explicit IrcNumericMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = Numeric; }
+        IrcMessage(parent), c(0) { t = Numeric; }
 
     uint code() const { return c; }
     void setCode(uint code) { c = code; }

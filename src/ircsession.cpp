@@ -101,7 +101,7 @@ void IrcSessionPrivate::_q_connected()
         q->sendMessage(&passwdMsg);
     }
 
-    IrcNickNameMessage nickMsg;
+    IrcNickMessage nickMsg;
     nickMsg.setNickName(nickName);
     q->sendMessage(&nickMsg);
 
@@ -188,33 +188,6 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             break;
             }
         }
-
-        // TODO: mode operations
-        /*else if (command == QLatin1String("MODE"))
-        {
-            if (params.value(0).startsWith(QLatin1Char('#')))
-                msg = IrcChannelModeMessage::create(prefix, params);
-            else
-                msg = IrcUserModeMessage::create(prefix, params);
-        }*/
-
-        // TODO: sending messages & ctcp messages
-        /*else if (command == QLatin1String("PRIVMSG"))
-        {
-            if (params.value(1).startsWith(QLatin1String("\1ACTION ")))
-                msg = IrcCtcpActionMessage::create(prefix, params);
-            else if (params.value(1).startsWith(QLatin1Char('\1')))
-                msg = IrcCtcpRequestMessage::create(prefix, params);
-            else
-                msg = IrcPrivateMessage::create(prefix, params);
-        }
-        else if (command == QLatin1String("NOTICE"))
-        {
-            if (params.value(1).startsWith(QLatin1Char('\1')))
-                msg = IrcCtcpReplyMessage::create(prefix, params);
-            else
-                msg = IrcNoticeMessage::create(prefix, params);
-        }*/
 
         emit q->messageReceived(msg);
         msg->deleteLater();
@@ -352,7 +325,7 @@ void IrcSession::setNickName(const QString& name)
     if (d->nickName != name)
     {
         d->nickName = name;
-        IrcNickNameMessage msg;
+        IrcNickMessage msg;
         msg.setNickName(name);
         sendMessage(&msg);
     }

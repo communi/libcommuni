@@ -1,6 +1,5 @@
 /*
 * Copyright (C) 2008-2011 J-P Nurmi <jpnurmi@gmail.com>
-* Copyright (C) 2010-2011 SmokeX smokexjc@gmail.com
 *
 * This library is free software; you can redistribute it and/or modify it
 * under the terms of the GNU Lesser General Public License as published by
@@ -20,7 +19,7 @@ static QHash<QString, const QMetaObject*> irc_meta_init()
 {
     QHash<QString, const QMetaObject*> meta;
     meta.insert("PASS", &IrcPasswordMessage::staticMetaObject);
-    meta.insert("NICK", &IrcNickNameMessage::staticMetaObject);
+    meta.insert("NICK", &IrcNickMessage::staticMetaObject);
     meta.insert("OPER", &IrcOperatorMessage::staticMetaObject);
     meta.insert("QUIT", &IrcQuitMessage::staticMetaObject);
     meta.insert("JOIN", &IrcJoinMessage::staticMetaObject);
@@ -81,12 +80,12 @@ void IrcPasswordMessage::initFrom(const QString& prefix, const QStringList& para
     passwd = parameters.value(0);
 }
 
-QString IrcNickNameMessage::toString() const
+QString IrcNickMessage::toString() const
 {
     return QString("NICK %1").arg(nick);
 }
 
-void IrcNickNameMessage::initFrom(const QString& prefix, const QStringList& parameters)
+void IrcNickMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
     IrcMessage::initFrom(prefix, parameters);
     nick = parameters.value(0);
@@ -225,14 +224,7 @@ void IrcKickMessage::initFrom(const QString& prefix, const QStringList& paramete
     rson = parameters.value(2);
 }
 
-void IrcModeMessage::initFrom(const QString &prefix, const QStringList &parameters)
-{
-    IrcMessage::initFrom(prefix, parameters);
-    tgt = parameters.value(0);
-    mod = parameters.value(1);
-}
-
-QString IrcChannelModeMessage::toString() const
+QString IrcModeMessage::toString() const
 {
     QStringList lst;
     lst << QString("MODE") << tgt << mod << arg << msk;
@@ -241,21 +233,13 @@ QString IrcChannelModeMessage::toString() const
     return lst.join(" ");
 }
 
-void IrcChannelModeMessage::initFrom(const QString& prefix, const QStringList& parameters)
+void IrcModeMessage::initFrom(const QString &prefix, const QStringList &parameters)
 {
-    IrcModeMessage::initFrom(prefix, parameters);
+    IrcMessage::initFrom(prefix, parameters);
+    tgt = parameters.value(0);
+    mod = parameters.value(1);
     arg = parameters.value(2);
     msk = parameters.value(3);
-}
-
-QString IrcUserModeMessage::toString() const
-{
-    return QString("MODE %1 %2").arg(tgt, mod);
-}
-
-void IrcUserModeMessage::initFrom(const QString& prefix, const QStringList& parameters)
-{
-    IrcModeMessage::initFrom(prefix, parameters);
 }
 
 void IrcSendMessage::initFrom(const QString &prefix, const QStringList &parameters)
@@ -267,71 +251,45 @@ void IrcSendMessage::initFrom(const QString &prefix, const QStringList &paramete
 
 QString IrcPrivateMessage::toString() const
 {
-    return QString("PRIVMSG %1 :%2").arg(tgt, msg);
+    QString copy(msg);
+    if (act)
+        copy = QString("\1ACTION %1\x01").arg(msg);
+    else if (req)
+        copy = QString("\1%1\1").arg(msg);
+    return QString("PRIVMSG %1 :%2").arg(tgt, copy);
 }
 
 void IrcPrivateMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
     IrcSendMessage::initFrom(prefix, parameters);
+
+    if (act && msg.startsWith("\1ACTION "))
+        msg.remove(0, 8);
+    else if (req && msg.startsWith('\1'))
+        msg.remove(0, 1);
+
+    if ((act || req) && msg.endsWith('\1'))
+        msg.chop(1);
 }
 
 QString IrcNoticeMessage::toString() const
 {
-    return QString("NOTICE %1 :%2").arg(tgt, msg);
+    QString copy(msg);
+    if (rpl)
+        copy = QString("\1%1\1").arg(msg);
+    return QString("NOTICE %1 :%2").arg(tgt, copy);
 }
 
 void IrcNoticeMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
     IrcSendMessage::initFrom(prefix, parameters);
-}
-
-void IrcCtcpMessage::initFrom(const QString &prefix, const QStringList &parameters)
-{
-    IrcMessage::initFrom(prefix, parameters);
-    tgt = parameters.value(0);
-    msg = parameters.value(1);
-}
-
-QString IrcCtcpActionMessage::toString() const
-{
-    return QString("PRIVMSG %1 :\1ACTION %2\x01").arg(tgt, msg);
-}
-
-void IrcCtcpActionMessage::initFrom(const QString& prefix, const QStringList& parameters)
-{
-    IrcCtcpMessage::initFrom(prefix, parameters);
-    if (msg.startsWith("\1ACTION "))
-        msg.remove(0, 8);
-    if (msg.endsWith('\1'))
-        msg.chop(1);
-}
-
-QString IrcCtcpRequestMessage::toString() const
-{
-    return QString("PRIVMSG %1 :\1%2\1").arg(tgt, msg);
-}
-
-void IrcCtcpRequestMessage::initFrom(const QString& prefix, const QStringList& parameters)
-{
-    IrcCtcpMessage::initFrom(prefix, parameters);
-    if (msg.startsWith('\1'))
-        msg.remove(0, 1);
-    if (msg.endsWith('\1'))
-        msg.chop(1);
-}
-
-QString IrcCtcpReplyMessage::toString() const
-{
-    return QString("NOTICE %1 :\1%2\1").arg(tgt, msg);
-}
-
-void IrcCtcpReplyMessage::initFrom(const QString& prefix, const QStringList& parameters)
-{
-    IrcCtcpMessage::initFrom(prefix, parameters);
-    if (msg.startsWith('\1'))
-        msg.remove(0, 1);
-    if (msg.endsWith('\1'))
-        msg.chop(1);
+    if (rpl)
+    {
+        if (msg.startsWith('\1'))
+            msg.remove(0, 1);
+        if (msg.endsWith('\1'))
+            msg.chop(1);
+    }
 }
 
 void IrcQueryMessage::initFrom(const QString &prefix, const QStringList &parameters)
