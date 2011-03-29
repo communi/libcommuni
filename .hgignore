@@ -4,6 +4,7 @@ Makefile.*
 Makefile_*.mk
 debug
 release
+imports
 lib
 *~
 *.pdb
@@ -12,6 +13,7 @@ lib
 *.orig
 *.pro.user
 libircclient-qt-config.prf
+.qmake.cache
 .make.cache
 ABLD.BAT
 bld.inf
