@@ -15,6 +15,7 @@
 #include <QtDeclarative>
 #include <IrcSession>
 #include <IrcMessage>
+#include <IrcUtil>
 #include <Irc>
 
 QML_DECLARE_TYPE(IrcSession)
@@ -41,6 +42,11 @@ public:
     Q_INVOKABLE IrcMessage* createMessage(const QString& command, QObject* parent = 0)
     {
         return IrcMessage::create(command, parent);
+    }
+
+    Q_INVOKABLE QString nickFromPrefix(const QString& prefix)
+    {
+        return IrcUtil::nickFromTarget(prefix);
     }
 };
 
