@@ -22,23 +22,23 @@ class IRC_EXPORT IrcReceiver
 {
 public:
     virtual ~IrcReceiver() { }
-    virtual void receiveMessage(const IrcMessage* message);
+    virtual void receiveMessage(IrcMessage* message);
 
     // TODO: filters
 
 protected:
-    virtual void inviteMessage(const IrcInviteMessage*) { }
-    virtual void joinMessage(const IrcJoinMessage*) { }
-    virtual void kickMessage(const IrcKickMessage*) { }
-    virtual void modeMessage(const IrcModeMessage*) { }
-    virtual void nickNameMessage(const IrcNickMessage*) { }
-    virtual void noticeMessage(const IrcNoticeMessage*) { }
-    virtual void numericMessage(const IrcNumericMessage*) { }
-    virtual void partMessage(const IrcPartMessage*) { }
-    virtual void privateMessage(const IrcPrivateMessage*) { }
-    virtual void quitMessage(const IrcQuitMessage*) { }
-    virtual void topicMessage(const IrcTopicMessage*) { }
-    virtual void unknownMessage(const IrcMessage*) { }
+    virtual void inviteMessage(IrcInviteMessage*) { }
+    virtual void joinMessage(IrcJoinMessage*) { }
+    virtual void kickMessage(IrcKickMessage*) { }
+    virtual void modeMessage(IrcModeMessage*) { }
+    virtual void nickNameMessage(IrcNickMessage*) { }
+    virtual void noticeMessage(IrcNoticeMessage*) { }
+    virtual void numericMessage(IrcNumericMessage*) { }
+    virtual void partMessage(IrcPartMessage*) { }
+    virtual void privateMessage(IrcPrivateMessage*) { }
+    virtual void quitMessage(IrcQuitMessage*) { }
+    virtual void topicMessage(IrcTopicMessage*) { }
+    virtual void unknownMessage(IrcMessage*) { }
 
 private:
     // TODO: filters

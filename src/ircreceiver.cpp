@@ -15,7 +15,7 @@
 #include "ircreceiver.h"
 #include <QDebug>
 
-void IrcReceiver::receiveMessage(const IrcMessage* message)
+void IrcReceiver::receiveMessage(IrcMessage* message)
 {
     if (!message)
     {
@@ -28,40 +28,40 @@ void IrcReceiver::receiveMessage(const IrcMessage* message)
     switch (message->type())
     {
     case IrcMessage::Invite:
-        inviteMessage(static_cast<const IrcInviteMessage*>(message));
+        inviteMessage(static_cast<IrcInviteMessage*>(message));
         break;
     case IrcMessage::Join:
-        joinMessage(static_cast<const IrcJoinMessage*>(message));
+        joinMessage(static_cast<IrcJoinMessage*>(message));
         break;
     case IrcMessage::Kick:
-        kickMessage(static_cast<const IrcKickMessage*>(message));
+        kickMessage(static_cast<IrcKickMessage*>(message));
         break;
     case IrcMessage::Mode:
-        modeMessage(static_cast<const IrcModeMessage*>(message));
+        modeMessage(static_cast<IrcModeMessage*>(message));
         break;
     case IrcMessage::Nick:
-        nickNameMessage(static_cast<const IrcNickMessage*>(message));
+        nickNameMessage(static_cast<IrcNickMessage*>(message));
         break;
     case IrcMessage::Notice:
-        noticeMessage(static_cast<const IrcNoticeMessage*>(message));
+        noticeMessage(static_cast<IrcNoticeMessage*>(message));
         break;
     case IrcMessage::Numeric:
-        numericMessage(static_cast<const IrcNumericMessage*>(message));
+        numericMessage(static_cast<IrcNumericMessage*>(message));
         break;
     case IrcMessage::Part:
-        partMessage(static_cast<const IrcPartMessage*>(message));
+        partMessage(static_cast<IrcPartMessage*>(message));
         break;
     case IrcMessage::Private:
-        privateMessage(static_cast<const IrcPrivateMessage*>(message));
+        privateMessage(static_cast<IrcPrivateMessage*>(message));
         break;
     case IrcMessage::Quit:
-        quitMessage(static_cast<const IrcQuitMessage*>(message));
+        quitMessage(static_cast<IrcQuitMessage*>(message));
         break;
     case IrcMessage::Topic:
-        topicMessage(static_cast<const IrcTopicMessage*>(message));
+        topicMessage(static_cast<IrcTopicMessage*>(message));
         break;
     case IrcMessage::Unknown:
-        unknownMessage(static_cast<const IrcMessage*>(message));
+        unknownMessage(static_cast<IrcMessage*>(message));
         break;
     }
 }
