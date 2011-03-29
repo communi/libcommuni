@@ -12,6 +12,13 @@ static {
     system(echo DEFINES+=IRC_SHARED > features$${QMAKE_DIR_SEP}libircclient-qt-config.prf)
 }
 
+OTHER_FILES += CHANGELOG
+OTHER_FILES += COPYING
+OTHER_FILES += Doxyfile
+OTHER_FILES += README
+OTHER_FILES += TODO
+OTHER_FILES += VERSION
+
 mkspecs.files += features/libircclient-qt.prf
 mkspecs.files += features/libircclient-qt-config.prf
 mkspecs.path = $$[QMAKE_MKSPECS]/features

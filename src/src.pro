@@ -56,13 +56,6 @@ SOURCES += ircreceiver.cpp
 SOURCES += ircsession.cpp
 SOURCES += ircutil.cpp
 
-#OTHER_FILES += CHANGELOG
-#OTHER_FILES += COPYING
-#OTHER_FILES += Doxyfile
-#OTHER_FILES += README
-#OTHER_FILES += TODO
-#OTHER_FILES += VERSION
-
 target.path = $$[QT_INSTALL_LIBS]
 INSTALLS += target
 
