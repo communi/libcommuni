@@ -12,9 +12,6 @@ win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 IRC_VERSION = 1.0.0
 !win32:VERSION = $$IRC_VERSION
 
-static:DEFINES += IRC_STATIC
-else:DEFINES += IRC_SHARED
-
 DESTDIR = ../lib
 DLLDESTDIR = ../bin
 DEPENDPATH += . ../include

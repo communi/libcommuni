@@ -3,12 +3,14 @@
 ######################################################################
 
 TEMPLATE = subdirs
-SUBDIRS += src # TODO: plugins tests examples
+SUBDIRS += src plugins # TODO: tests examples
 CONFIG += ordered
 
 static {
+    system(echo DEFINES+=IRC_STATIC > .qmake.cache)
     system(echo DEFINES+=IRC_STATIC > features$${QMAKE_DIR_SEP}libircclient-qt-config.prf)
 } else {
+    system(echo DEFINES+=IRC_STATIC > .qmake.cache)
     system(echo DEFINES+=IRC_SHARED > features$${QMAKE_DIR_SEP}libircclient-qt-config.prf)
 }
 
