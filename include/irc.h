@@ -18,12 +18,14 @@
 #include <ircglobal.h>
 #include <QtCore/qobject.h>
 
-class IRC_EXPORT Irc
+class IRC_EXPORT Irc : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
     Q_ENUMS(Code)
 
 public:
+    explicit Irc(QObject* parent = 0) : QObject(parent) { }
+
     enum Code
     {
         RPL_WELCOME                = 001,
