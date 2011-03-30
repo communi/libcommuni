@@ -27,40 +27,40 @@ void IrcReceiver::receiveMessage(IrcMessage* message)
 
     switch (message->type())
     {
-    case IrcMessage::Invite:
+    case Irc::Invite:
         inviteMessage(static_cast<IrcInviteMessage*>(message));
         break;
-    case IrcMessage::Join:
+    case Irc::Join:
         joinMessage(static_cast<IrcJoinMessage*>(message));
         break;
-    case IrcMessage::Kick:
+    case Irc::Kick:
         kickMessage(static_cast<IrcKickMessage*>(message));
         break;
-    case IrcMessage::Mode:
+    case Irc::Mode:
         modeMessage(static_cast<IrcModeMessage*>(message));
         break;
-    case IrcMessage::Nick:
+    case Irc::Nick:
         nickNameMessage(static_cast<IrcNickMessage*>(message));
         break;
-    case IrcMessage::Notice:
+    case Irc::Notice:
         noticeMessage(static_cast<IrcNoticeMessage*>(message));
         break;
-    case IrcMessage::Numeric:
+    case Irc::Numeric:
         numericMessage(static_cast<IrcNumericMessage*>(message));
         break;
-    case IrcMessage::Part:
+    case Irc::Part:
         partMessage(static_cast<IrcPartMessage*>(message));
         break;
-    case IrcMessage::Private:
+    case Irc::Private:
         privateMessage(static_cast<IrcPrivateMessage*>(message));
         break;
-    case IrcMessage::Quit:
+    case Irc::Quit:
         quitMessage(static_cast<IrcQuitMessage*>(message));
         break;
-    case IrcMessage::Topic:
+    case Irc::Topic:
         topicMessage(static_cast<IrcTopicMessage*>(message));
         break;
-    case IrcMessage::Unknown:
+    case Irc::Unknown:
         unknownMessage(static_cast<IrcMessage*>(message));
         break;
     }

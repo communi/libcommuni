@@ -17,6 +17,7 @@
 #include "ircsession_p.h"
 #include "ircmessage.h"
 #include "ircutil.h"
+#include "irc.h"
 #include <QTcpSocket>
 #include <QStringList>
 
@@ -102,7 +103,7 @@ void IrcSessionPrivate::_q_connected()
     }
 
     IrcNickMessage nickMsg;
-    nickMsg.setNickName(nickName);
+    nickMsg.setNick(nickName);
     q->sendMessage(&nickMsg);
 
     IrcUserMessage userMsg;
@@ -176,11 +177,11 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
 
         switch (msg->type())
         {
-        case IrcMessage::Numeric:
+        case Irc::Numeric:
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
                 emit q->connected();
             break;
-        case IrcMessage::Ping: {
+        case Irc::Ping: {
             // TODO: ifAutomatic?
             IrcPongMessage pongMsg;
             pongMsg.setTarget(static_cast<IrcPingMessage*>(msg)->target());
@@ -326,7 +327,7 @@ void IrcSession::setNickName(const QString& name)
     {
         d->nickName = name;
         IrcNickMessage msg;
-        msg.setNickName(name);
+        msg.setNick(name);
         sendMessage(&msg);
     }
 }
