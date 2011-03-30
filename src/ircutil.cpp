@@ -33,24 +33,6 @@
 static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
 
 /*!
-    Parses and returns the nick part from \a target.
-*/
-QString IrcUtil::nickFromTarget(const QString& target)
-{
-    int index = target.indexOf(QLatin1Char('!'));
-    return target.left(index);
-}
-
-/*!
-    Parses and returns the host part from \a target.
-*/
-QString IrcUtil::hostFromTarget(const QString& target)
-{
-    int index = target.indexOf(QLatin1Char('!'));
-    return target.mid(index + 1);
-}
-
-/*!
     Converts \a message to HTML. This function parses the
     message and replaces IRC-style formatting like colors,
     bold and underline to the corresponding HTML formatting.
