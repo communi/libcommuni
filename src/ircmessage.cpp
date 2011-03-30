@@ -99,13 +99,13 @@ void IrcPasswordMessage::initFrom(const QString& prefix, const QStringList& para
 
 QString IrcNickMessage::toString() const
 {
-    return QString("NICK %1").arg(nick);
+    return QString("NICK %1").arg(n);
 }
 
 void IrcNickMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
     IrcMessage::initFrom(prefix, parameters);
-    nick = parameters.value(0);
+    n = parameters.value(0);
 }
 
 QString IrcUserMessage::toString() const
@@ -387,6 +387,7 @@ void IrcNumericMessage::initFrom(const QString& prefix, const QStringList& param
 {
     IrcMessage::initFrom(prefix, parameters);
     c = cmd.toInt();
+    params = parameters.mid(1);
 }
 
 QString IrcAwayMessage::toString() const
