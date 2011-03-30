@@ -15,6 +15,7 @@
 #include <QtDeclarative>
 #include <IrcSession>
 #include <IrcMessage>
+#include <IrcPrefix>
 #include <IrcUtil>
 #include <Irc>
 
@@ -44,9 +45,19 @@ public:
         return IrcMessage::create(command, parent);
     }
 
-    Q_INVOKABLE QString nickFromPrefix(const QString& prefix)
+    Q_INVOKABLE QString nick(const QString& prefix)
     {
-        return IrcUtil::nickFromTarget(prefix);
+        return IrcPrefix(prefix).nick();
+    }
+
+    Q_INVOKABLE QString user(const QString& prefix)
+    {
+        return IrcPrefix(prefix).user();
+    }
+
+    Q_INVOKABLE QString host(const QString& prefix)
+    {
+        return IrcPrefix(prefix).host();
     }
 };
 
@@ -69,7 +80,17 @@ public:
     {
         qmlRegisterType<IrcSession>(uri, 1, 0, "IrcSession");
         qmlRegisterType<IrcMessage>(uri, 1, 0, "IrcMessage");
+        qmlRegisterType<IrcInviteMessage>(uri, 1, 0, "IrcInviteMessage");
         qmlRegisterType<IrcJoinMessage>(uri, 1, 0, "IrcJoinMessage");
+        qmlRegisterType<IrcKickMessage>(uri, 1, 0, "IrcKickMessage");
+        qmlRegisterType<IrcModeMessage>(uri, 1, 0, "IrcModeMessage");
+        qmlRegisterType<IrcNickMessage>(uri, 1, 0, "IrcNickMessage");
+        qmlRegisterType<IrcNoticeMessage>(uri, 1, 0, "IrcNoticeMessage");
+        qmlRegisterType<IrcNumericMessage>(uri, 1, 0, "IrcNumericMessage");
+        qmlRegisterType<IrcPartMessage>(uri, 1, 0, "IrcPartMessage");
+        qmlRegisterType<IrcPrivateMessage>(uri, 1, 0, "IrcPrivateMessage");
+        qmlRegisterType<IrcQuitMessage>(uri, 1, 0, "IrcQuitMessage");
+        qmlRegisterType<IrcTopicMessage>(uri, 1, 0, "IrcTopicMessage");
     }
 };
 
