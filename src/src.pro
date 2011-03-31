@@ -1,16 +1,16 @@
 ######################################################################
-# LibIrcClient-Qt
+# Communi
 ######################################################################
 
 TEMPLATE = lib
-TARGET = $$qtLibraryTarget(ircclient-qt)
-DEFINES += BUILD_IRC
+TARGET = $$qtLibraryTarget(Communi)
+DEFINES += BUILD_COMMUNI
 QT = core network
 !symbian:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
-IRC_VERSION = 1.0.0
-!win32:VERSION = $$IRC_VERSION
+COMMUNI_VERSION = 1.0.0
+!win32:VERSION = $$COMMUNI_VERSION
 
 DESTDIR = ../lib
 DLLDESTDIR = ../bin
@@ -77,7 +77,7 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
     QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$[QT_INSTALL_LIBS]/
 } else {
     headers.files = $$PUB_HEADERS $$CONV_HEADERS
-    headers.path = $$[QT_INSTALL_HEADERS]/ircclient-qt
+    headers.path = $$[QT_INSTALL_HEADERS]/Communi
     INSTALLS += headers
 }
 
@@ -91,7 +91,7 @@ symbian {
         BLD_INF_RULES.prj_exports += "$$header $$MW_LAYER_PUBLIC_EXPORT_PATH($$basename(header))"
     }
 
-    library.sources = ircclient-qt.dll
+    library.sources = Communi.dll
     library.path = !:/sys/bin
     DEPLOYMENT += library
 }

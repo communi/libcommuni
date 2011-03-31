@@ -69,6 +69,6 @@ public:
     }
 };
 
-#include "ircplugin.moc"
+#include "plugin.moc"
 
-Q_EXPORT_PLUGIN2(ircplugin, IrcPlugin);
+Q_EXPORT_PLUGIN2(communiplugin, IrcPlugin);

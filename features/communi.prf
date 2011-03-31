@@ -1,6 +1,6 @@
 ######################################################################
-# LibIrcClient-Qt
+# Communi
 ######################################################################
 
-include(libircclient-qt-config.prf)
-qtAddLibrary(ircclient-qt)
+include(communi-config.prf)
+qtAddLibrary(communi)

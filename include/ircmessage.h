@@ -23,7 +23,7 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qvarlengtharray.h>
 
-class IRC_EXPORT IrcMessage : public QObject
+class COMMUNI_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(uint type READ type WRITE setType)
@@ -74,7 +74,7 @@ void IrcMessage::registerCommand(const QString& command, IrcMessage::CommandSynt
 
 // connection registration
 
-class IRC_EXPORT IrcPasswordMessage : public IrcMessage
+class COMMUNI_EXPORT IrcPasswordMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString password READ password WRITE setPassword)
@@ -93,7 +93,7 @@ protected:
     QString passwd;
 };
 
-class IRC_EXPORT IrcNickMessage : public IrcMessage
+class COMMUNI_EXPORT IrcNickMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString nick READ nick WRITE setNick)
@@ -112,7 +112,7 @@ protected:
     QString n;
 };
 
-class IRC_EXPORT IrcUserMessage : public IrcMessage
+class COMMUNI_EXPORT IrcUserMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString userName READ userName WRITE setUserName)
@@ -136,7 +136,7 @@ protected:
     QString real;
 };
 
-class IRC_EXPORT IrcOperatorMessage : public IrcPasswordMessage
+class COMMUNI_EXPORT IrcOperatorMessage : public IrcPasswordMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString user READ user WRITE setUser)
@@ -155,7 +155,7 @@ protected:
     QString usr;
 };
 
-class IRC_EXPORT IrcQuitMessage : public IrcMessage
+class COMMUNI_EXPORT IrcQuitMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString reason READ reason WRITE setReason)
@@ -176,7 +176,7 @@ protected:
 
 // channel operations
 
-class IRC_EXPORT IrcChannelMessage : public IrcMessage
+class COMMUNI_EXPORT IrcChannelMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel WRITE setChannel)
@@ -194,7 +194,7 @@ protected:
     QString chan;
 };
 
-class IRC_EXPORT IrcJoinMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcJoinMessage : public IrcChannelMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString key READ key WRITE setKey)
@@ -213,7 +213,7 @@ protected:
     QString k;
 };
 
-class IRC_EXPORT IrcPartMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcPartMessage : public IrcChannelMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString reason READ reason WRITE setReason)
@@ -232,7 +232,7 @@ protected:
     QString rson;
 };
 
-class IRC_EXPORT IrcTopicMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcTopicMessage : public IrcChannelMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString topic READ topic WRITE setTopic)
@@ -251,7 +251,7 @@ protected:
     QString tpc;
 };
 
-class IRC_EXPORT IrcNamesMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcNamesMessage : public IrcChannelMessage
 {
     Q_OBJECT
 
@@ -263,7 +263,7 @@ public:
     void initFrom(const QString& prefix, const QStringList& params);
 };
 
-class IRC_EXPORT IrcListMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcListMessage : public IrcChannelMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString server READ server WRITE setServer)
@@ -282,7 +282,7 @@ protected:
     QString srv;
 };
 
-class IRC_EXPORT IrcInviteMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcInviteMessage : public IrcChannelMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString user READ user WRITE setUser)
@@ -301,7 +301,7 @@ protected:
     QString usr;
 };
 
-class IRC_EXPORT IrcKickMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcKickMessage : public IrcChannelMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString user READ user WRITE setUser)
@@ -327,7 +327,7 @@ protected:
 
 // mode operations
 
-class IRC_EXPORT IrcModeMessage : public IrcMessage
+class COMMUNI_EXPORT IrcModeMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString target READ target WRITE setTarget)
@@ -363,7 +363,7 @@ protected:
 
 // sending messages
 
-class IRC_EXPORT IrcSendMessage : public IrcMessage
+class COMMUNI_EXPORT IrcSendMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString target READ target WRITE setTarget)
@@ -386,7 +386,7 @@ protected:
     QString msg;
 };
 
-class IRC_EXPORT IrcPrivateMessage : public IrcSendMessage
+class COMMUNI_EXPORT IrcPrivateMessage : public IrcSendMessage
 {
     Q_OBJECT
     Q_PROPERTY(bool action READ isAction WRITE setAction)
@@ -410,7 +410,7 @@ protected:
     bool req;
 };
 
-class IRC_EXPORT IrcNoticeMessage : public IrcSendMessage
+class COMMUNI_EXPORT IrcNoticeMessage : public IrcSendMessage
 {
     Q_OBJECT
     Q_PROPERTY(bool reply READ isReply WRITE setReply)
@@ -431,7 +431,7 @@ protected:
 
 // user-based queries
 
-class IRC_EXPORT IrcQueryMessage : public IrcMessage
+class COMMUNI_EXPORT IrcQueryMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString user READ user WRITE setUser)
@@ -449,7 +449,7 @@ protected:
     QString usr;
 };
 
-class IRC_EXPORT IrcWhoMessage : public IrcQueryMessage
+class COMMUNI_EXPORT IrcWhoMessage : public IrcQueryMessage
 {
     Q_OBJECT
 
@@ -461,7 +461,7 @@ public:
     void initFrom(const QString& prefix, const QStringList& params);
 };
 
-class IRC_EXPORT IrcWhoisMessage : public IrcQueryMessage
+class COMMUNI_EXPORT IrcWhoisMessage : public IrcQueryMessage
 {
     Q_OBJECT
 
@@ -473,7 +473,7 @@ public:
     void initFrom(const QString& prefix, const QStringList& params);
 };
 
-class IRC_EXPORT IrcWhowasMessage : public IrcQueryMessage
+class COMMUNI_EXPORT IrcWhowasMessage : public IrcQueryMessage
 {
     Q_OBJECT
 
@@ -487,7 +487,7 @@ public:
 
 // miscellaneous messages
 
-class IRC_EXPORT IrcPingMessage : public IrcMessage
+class COMMUNI_EXPORT IrcPingMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString target READ target WRITE setTarget)
@@ -506,7 +506,7 @@ protected:
     QString tgt;
 };
 
-class IRC_EXPORT IrcPongMessage : public IrcMessage
+class COMMUNI_EXPORT IrcPongMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString target READ target WRITE setTarget)
@@ -525,7 +525,7 @@ protected:
     QString tgt;
 };
 
-class IRC_EXPORT IrcErrorMessage : public IrcMessage
+class COMMUNI_EXPORT IrcErrorMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString error READ error WRITE setError)
@@ -544,7 +544,7 @@ protected:
     QString err;
 };
 
-class IRC_EXPORT IrcNumericMessage : public IrcMessage
+class COMMUNI_EXPORT IrcNumericMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(uint code READ code WRITE setCode)
@@ -563,7 +563,7 @@ protected:
     uint c;
 };
 
-class IRC_EXPORT IrcAwayMessage : public IrcMessage
+class COMMUNI_EXPORT IrcAwayMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString message READ message WRITE setMessage)
@@ -583,7 +583,7 @@ protected:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-IRC_EXPORT QDebug operator<<(QDebug debug, const IrcMessage* message);
+COMMUNI_EXPORT QDebug operator<<(QDebug debug, const IrcMessage* message);
 #endif // QT_NO_DEBUG_STREAM
 
 #endif // IRCMESSAGE_H

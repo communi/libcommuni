@@ -15,15 +15,15 @@
 #include "irc.h"
 #include <QMetaEnum>
 
-/*! \mainpage LibIrcClient-Qt - a cross-platform C++ IRC library
+/*! \mainpage Communi - a cross-platform C++ IRC library
 
     \section Introduction
 
-    LibIrcClient-Qt is a cross-platform IRC client library written with Qt 4.
+    Communi is a cross-platform IRC client library written with Qt 4.
 
     \section Installation
 
-    To compile LibIrcClient-Qt, do the standard mantra:
+    To compile Communi, do the standard mantra:
     \code
     # qmake -config (debug|release)
     # make
@@ -34,29 +34,29 @@
 
     Add the following line to your qmake .pro file:
     \code
-    CONFIG += libircclient-qt
+    CONFIG += communi
     \endcode
  */
 
 /*!
     \namespace Irc
-    \brief The Irc namespace contains miscellaneous identifiers used throughout the LibIrcClient-Qt library.
+    \brief The Irc namespace contains miscellaneous identifiers used throughout the Communi library.
  */
 
 /*!
-    Returns the LibIrcClient-Qt version number as string
+    Returns the Communi version number as string
     in form M.N.P (M = major, N = minor, P = patch).
  */
 
 /*!
-    Returns the version number of LibIrcClient-Qt at run-time as a string (for example, "1.2.3").
+    Returns the version number of Communi at run-time as a string (for example, "1.2.3").
     This may be a different version than the version the application was compiled against.
 
-    \sa IRC_VERSION_STR
+    \sa COMMUNI_VERSION_STR
  */
 const char* Irc::version()
 {
-    return IRC_VERSION_STR;
+    return COMMUNI_VERSION_STR;
 }
 
 /*!

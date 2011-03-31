@@ -18,7 +18,7 @@
 #include <ircglobal.h>
 #include <ircmessage.h>
 
-class IRC_EXPORT IrcReceiver
+class COMMUNI_EXPORT IrcReceiver
 {
 public:
     virtual ~IrcReceiver() { }

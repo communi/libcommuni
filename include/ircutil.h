@@ -17,7 +17,7 @@
 
 #include <ircglobal.h>
 
-class IRC_EXPORT IrcUtil
+class COMMUNI_EXPORT IrcUtil
 {
 public:
     static QString messageToHtml(const QString& message);

@@ -18,7 +18,7 @@
 #include <ircglobal.h>
 #include <QtCore/qobject.h>
 
-class IRC_EXPORT Irc : public QObject
+class COMMUNI_EXPORT Irc : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Code Message)

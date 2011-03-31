@@ -12,7 +12,7 @@ lib
 *.rej
 *.orig
 *.pro.user
-libircclient-qt-config.prf
+communi-config.prf
 .qmake.cache
 .make.cache
 ABLD.BAT

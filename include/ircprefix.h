@@ -18,7 +18,7 @@
 #include <ircglobal.h>
 #include <QString>
 
-class IRC_EXPORT IrcPrefix
+class COMMUNI_EXPORT IrcPrefix
 {
 public:
     IrcPrefix(const QString& prefix = QString());
