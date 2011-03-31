@@ -16,22 +16,7 @@
 #include <IrcSession>
 #include <IrcMessage>
 #include <IrcPrefix>
-#include <IrcUtil>
 #include <Irc>
-
-QML_DECLARE_TYPE(IrcSession)
-QML_DECLARE_TYPE(IrcMessage)
-QML_DECLARE_TYPE(IrcInviteMessage)
-QML_DECLARE_TYPE(IrcJoinMessage)
-QML_DECLARE_TYPE(IrcKickMessage)
-QML_DECLARE_TYPE(IrcModeMessage)
-QML_DECLARE_TYPE(IrcNickMessage)
-QML_DECLARE_TYPE(IrcNoticeMessage)
-QML_DECLARE_TYPE(IrcNumericMessage)
-QML_DECLARE_TYPE(IrcPartMessage)
-QML_DECLARE_TYPE(IrcPrivateMessage)
-QML_DECLARE_TYPE(IrcQuitMessage)
-QML_DECLARE_TYPE(IrcTopicMessage)
 
 class DeclarativeIrc : public Irc
 {
@@ -40,27 +25,28 @@ class DeclarativeIrc : public Irc
 public:
     explicit DeclarativeIrc(QObject* parent = 0) : Irc(parent) { }
 
-    Q_INVOKABLE IrcMessage* createMessage(const QString& command, QObject* parent = 0)
+    Q_INVOKABLE static IrcMessage* createMessage(const QString& command, QObject* parent = 0)
     {
         return IrcMessage::create(command, parent);
     }
 
-    Q_INVOKABLE QString nick(const QString& prefix)
+    Q_INVOKABLE static QString nick(const QString& prefix)
     {
         return IrcPrefix(prefix).nick();
     }
 
-    Q_INVOKABLE QString user(const QString& prefix)
+    Q_INVOKABLE static QString user(const QString& prefix)
     {
         return IrcPrefix(prefix).user();
     }
 
-    Q_INVOKABLE QString host(const QString& prefix)
+    Q_INVOKABLE static QString host(const QString& prefix)
     {
         return IrcPrefix(prefix).host();
     }
 };
 
+QML_DECLARE_TYPE(IrcSession)
 QML_DECLARE_TYPE(DeclarativeIrc)
 
 class IrcPlugin : public QDeclarativeExtensionPlugin
@@ -73,24 +59,13 @@ public:
         QDeclarativeExtensionPlugin::initializeEngine(engine, uri);
         QDeclarativeContext *context = engine->rootContext();
         DeclarativeIrc* irc = new DeclarativeIrc(context);
-        context->setContextProperty("Irc", irc);
+        context->setContextProperty("irc", irc);
     }
 
     void registerTypes(const char *uri)
     {
         qmlRegisterType<IrcSession>(uri, 1, 0, "IrcSession");
-        qmlRegisterType<IrcMessage>(uri, 1, 0, "IrcMessage");
-        qmlRegisterType<IrcInviteMessage>(uri, 1, 0, "IrcInviteMessage");
-        qmlRegisterType<IrcJoinMessage>(uri, 1, 0, "IrcJoinMessage");
-        qmlRegisterType<IrcKickMessage>(uri, 1, 0, "IrcKickMessage");
-        qmlRegisterType<IrcModeMessage>(uri, 1, 0, "IrcModeMessage");
-        qmlRegisterType<IrcNickMessage>(uri, 1, 0, "IrcNickMessage");
-        qmlRegisterType<IrcNoticeMessage>(uri, 1, 0, "IrcNoticeMessage");
-        qmlRegisterType<IrcNumericMessage>(uri, 1, 0, "IrcNumericMessage");
-        qmlRegisterType<IrcPartMessage>(uri, 1, 0, "IrcPartMessage");
-        qmlRegisterType<IrcPrivateMessage>(uri, 1, 0, "IrcPrivateMessage");
-        qmlRegisterType<IrcQuitMessage>(uri, 1, 0, "IrcQuitMessage");
-        qmlRegisterType<IrcTopicMessage>(uri, 1, 0, "IrcTopicMessage");
+        qmlRegisterUncreatableType<DeclarativeIrc>(uri, 1, 0, "Irc", "");
     }
 };
 
