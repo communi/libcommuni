@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = subdirs
-SUBDIRS += src plugins # TODO: tests examples
+SUBDIRS += src plugins tests # TODO: examples
 CONFIG += ordered
 
 static {
@@ -34,7 +34,6 @@ symbian {
 
 !build_pass {
     macx {
-        # See above for an explanation of this.
         !qt_no_framework {
             message(Building Communi $$COMMUNI_VERSION (framework))
         } else {
