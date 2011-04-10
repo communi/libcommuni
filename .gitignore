@@ -6,6 +6,7 @@ release
 imports
 lib
 *~
+*.app
 *.pdb
 *.bak
 *.rej
@@ -14,7 +15,9 @@ lib
 communi-config.prf
 .qmake.cache
 .make.cache
+.tmp
 ABLD.BAT
 bld.inf
 *.mmp
 moc_*.cpp
+
