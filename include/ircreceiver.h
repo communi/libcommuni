@@ -18,13 +18,21 @@
 #include <ircglobal.h>
 #include <ircmessage.h>
 
+class IrcSession;
+class IrcReceiverPrivate;
+
 class COMMUNI_EXPORT IrcReceiver
 {
 public:
-    virtual ~IrcReceiver() { }
-    virtual void receiveMessage(IrcMessage* message);
+    IrcReceiver(IrcSession* session = 0);
+    virtual ~IrcReceiver();
+
+    IrcSession* session() const;
+    void setSession(IrcSession* session);
 
     // TODO: filters
+
+    virtual void receiveMessage(IrcMessage* message);
 
 protected:
     virtual void inviteMessage(IrcInviteMessage*) { }
@@ -41,6 +49,10 @@ protected:
     virtual void unknownMessage(IrcMessage*) { }
 
 private:
+    QScopedPointer<IrcReceiverPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcReceiver)
+    Q_DISABLE_COPY(IrcReceiver)
+
     // TODO: filters
 };
 

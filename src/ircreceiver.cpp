@@ -13,7 +13,53 @@
 */
 
 #include "ircreceiver.h"
+#include "ircsession.h"
+#include "ircsession_p.h"
 #include <QDebug>
+
+class IrcReceiverPrivate
+{
+    Q_DECLARE_PUBLIC(IrcReceiver)
+
+public:
+    IrcReceiverPrivate(IrcReceiver* session) : q_ptr(session), session(0)
+    {
+    }
+
+    IrcReceiver* q_ptr;
+    IrcSession* session;
+};
+
+IrcReceiver::IrcReceiver(IrcSession* session) : d_ptr(new IrcReceiverPrivate(this))
+{
+    setSession(session);
+}
+
+IrcReceiver::~IrcReceiver()
+{
+    Q_D(IrcReceiver);
+    if (d->session)
+        d->session->d_func()->receivers.removeAll(this);
+}
+
+IrcSession* IrcReceiver::session() const
+{
+    Q_D(const IrcReceiver);
+    return d->session;
+}
+
+void IrcReceiver::setSession(IrcSession* session)
+{
+    Q_D(IrcReceiver);
+    if (d->session != session)
+    {
+        if (d->session)
+            d->session->d_func()->receivers.removeAll(this);
+        d->session = session;
+        if (d->session)
+            d->session->d_func()->receivers.append(this);
+    }
+}
 
 void IrcReceiver::receiveMessage(IrcMessage* message)
 {
