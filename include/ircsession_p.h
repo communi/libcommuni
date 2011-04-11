@@ -21,6 +21,8 @@
 #include <QAbstractSocket>
 #include "ircparser_p.h"
 
+class IrcReceiver;
+
 class IrcSessionPrivate
 {
     Q_DECLARE_PUBLIC(IrcSession)
@@ -48,6 +50,9 @@ public:
     QString userName;
     QString nickName;
     QString realName;
+    QList<IrcReceiver*> receivers;
+
+    friend class IrcReceiverPrivate;
 };
 
 #endif // IRCSESSION_P_H

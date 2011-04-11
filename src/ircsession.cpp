@@ -15,6 +15,7 @@
 
 #include "ircsession.h"
 #include "ircsession_p.h"
+#include "ircreceiver.h"
 #include "ircmessage.h"
 #include "ircutil.h"
 #include "irc.h"
@@ -191,6 +192,8 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         }
 
         emit q->messageReceived(msg);
+        foreach (IrcReceiver* receiver, receivers)
+            receiver->receiveMessage(msg);
         msg->deleteLater();
     }
 }
