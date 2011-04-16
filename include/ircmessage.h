@@ -53,6 +53,7 @@ public:
     static void registerCommand(const QString& command, CommandSyntax syntax = FixedString);
     static void unregisterCommand(const QString& command);
 
+    Q_INVOKABLE static QStringList availableCommands();
     Q_INVOKABLE static IrcMessage* create(const QString& command, QObject* parent = 0);
 
     virtual QString toString() const;

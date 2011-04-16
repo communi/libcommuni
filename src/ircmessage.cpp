@@ -60,6 +60,15 @@ static const QMetaObject* irc_command_match(const QString& command, const QHash<
     return 0;
 }
 
+QStringList IrcMessage::availableCommands()
+{
+    QSet<QString> keys;
+    keys += QSet<QString>::fromList(metaObjects[FixedString].keys());
+    keys += QSet<QString>::fromList(metaObjects[Wildcard].keys());
+    keys += QSet<QString>::fromList(metaObjects[RegExp].keys());
+    return keys.toList();
+}
+
 IrcMessage* IrcMessage::create(const QString& command, QObject* parent)
 {
     IrcMessage* message = 0;
