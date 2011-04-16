@@ -289,10 +289,16 @@ void IrcPrivateMessage::initFrom(const QString& prefix, const QStringList& param
 {
     IrcSendMessage::initFrom(prefix, parameters);
 
-    if (act && msg.startsWith("\1ACTION "))
+    if (msg.startsWith("\1ACTION "))
+    {
+        act = true;
         msg.remove(0, 8);
-    else if (req && msg.startsWith('\1'))
+    }
+    else if (msg.startsWith('\1'))
+    {
+        req = true;
         msg.remove(0, 1);
+    }
 
     if ((act || req) && msg.endsWith('\1'))
         msg.chop(1);
