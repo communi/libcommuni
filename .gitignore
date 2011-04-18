@@ -5,6 +5,7 @@ debug
 release
 imports
 lib
+bin
 *~
 *.app
 *.pdb
@@ -20,4 +21,3 @@ ABLD.BAT
 bld.inf
 *.mmp
 moc_*.cpp
-
