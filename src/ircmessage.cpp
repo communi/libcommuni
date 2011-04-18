@@ -33,6 +33,7 @@ static QVarLengthArray<QHash<QString, const QMetaObject*>, 3> irc_meta_init()
     meta[IrcMessage::FixedString].insert("MODE", &IrcModeMessage::staticMetaObject);
     meta[IrcMessage::FixedString].insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
     meta[IrcMessage::FixedString].insert("NOTICE", &IrcNoticeMessage::staticMetaObject);
+    meta[IrcMessage::FixedString].insert("QUERY", &IrcQueryMessage::staticMetaObject);
     meta[IrcMessage::FixedString].insert("WHO", &IrcWhoMessage::staticMetaObject);
     meta[IrcMessage::FixedString].insert("WHOIS", &IrcWhoisMessage::staticMetaObject);
     meta[IrcMessage::FixedString].insert("WHOWAS", &IrcWhowasMessage::staticMetaObject);
@@ -94,10 +95,11 @@ QString IrcMessage::toString() const
     return QString("UNKNOWN %1").arg(params.join(" "));
 }
 
-void IrcMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
     params = parameters;
     pfx = prefix;
+    return !prefix.isEmpty();
 }
 
 QString IrcPasswordMessage::syntax() const
@@ -110,10 +112,11 @@ QString IrcPasswordMessage::toString() const
     return QString("PASS %1").arg(passwd);
 }
 
-void IrcPasswordMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcPasswordMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     passwd = parameters.value(0);
+    return ret && !passwd.isEmpty();
 }
 
 QString IrcNickMessage::syntax() const
@@ -126,10 +129,11 @@ QString IrcNickMessage::toString() const
     return QString("NICK %1").arg(n);
 }
 
-void IrcNickMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcNickMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     n = parameters.value(0);
+    return ret && !n.isEmpty();
 }
 
 QString IrcUserMessage::syntax() const
@@ -146,11 +150,12 @@ QString IrcUserMessage::toString() const
     return QString("USER %1 hostname servername :%2").arg(user, real);
 }
 
-void IrcUserMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcUserMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     user = parameters.value(0);
     real = parameters.value(3);
+    return ret && !user.isEmpty() && !real.isEmpty();
 }
 
 QString IrcOperatorMessage::syntax() const
@@ -163,11 +168,12 @@ QString IrcOperatorMessage::toString() const
     return QString("OPER %1 %2").arg(usr, passwd);
 }
 
-void IrcOperatorMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcOperatorMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     usr = parameters.value(0);
     passwd = parameters.value(1);
+    return ret && !usr.isEmpty() && !passwd.isEmpty();
 }
 
 QString IrcQuitMessage::syntax() const
@@ -180,16 +186,18 @@ QString IrcQuitMessage::toString() const
     return QString("QUIT :%1").arg(rson);
 }
 
-void IrcQuitMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcQuitMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     rson = parameters.value(0);
+    return ret;
 }
 
-void IrcChannelMessage::initFrom(const QString &prefix, const QStringList &parameters)
+bool IrcChannelMessage::initFrom(const QString &prefix, const QStringList &parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     chan = parameters.value(0);
+    return ret && !chan.isEmpty();
 }
 
 QString IrcJoinMessage::syntax() const
@@ -204,9 +212,9 @@ QString IrcJoinMessage::toString() const
     return QString("JOIN %1 %2").arg(chan, k);
 }
 
-void IrcJoinMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcJoinMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcChannelMessage::initFrom(prefix, parameters);
+    return IrcChannelMessage::initFrom(prefix, parameters);
 }
 
 QString IrcPartMessage::syntax() const
@@ -221,10 +229,11 @@ QString IrcPartMessage::toString() const
     return QString("PART %1 %2").arg(chan, rson);
 }
 
-void IrcPartMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcPartMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcChannelMessage::initFrom(prefix, parameters);
+    bool ret = IrcChannelMessage::initFrom(prefix, parameters);
     rson = parameters.value(1);
+    return ret;
 }
 
 QString IrcTopicMessage::syntax() const
@@ -239,10 +248,11 @@ QString IrcTopicMessage::toString() const
     return QString("TOPIC %1 :%2").arg(chan, tpc);
 }
 
-void IrcTopicMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcTopicMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcChannelMessage::initFrom(prefix, parameters);
+    bool ret = IrcChannelMessage::initFrom(prefix, parameters);
     tpc = parameters.value(1);
+    return ret;
 }
 
 QString IrcNamesMessage::syntax() const
@@ -255,9 +265,9 @@ QString IrcNamesMessage::toString() const
     return QString("NAMES %1").arg(chan);
 }
 
-void IrcNamesMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcNamesMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcChannelMessage::initFrom(prefix, parameters);
+    return IrcChannelMessage::initFrom(prefix, parameters);
 }
 
 QString IrcListMessage::syntax() const
@@ -272,10 +282,11 @@ QString IrcListMessage::toString() const
     return QString("LIST %1 %2").arg(chan, srv);
 }
 
-void IrcListMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcListMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcChannelMessage::initFrom(prefix, parameters);
+    bool ret = IrcChannelMessage::initFrom(prefix, parameters);
     srv = parameters.value(1);
+    return ret;
 }
 
 QString IrcInviteMessage::syntax() const
@@ -288,11 +299,12 @@ QString IrcInviteMessage::toString() const
     return QString("INVITE %1 %2").arg(usr, chan);
 }
 
-void IrcInviteMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcInviteMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     usr = parameters.value(0);
     chan = parameters.value(1);
+    return ret && !usr.isEmpty() && !chan.isEmpty();
 }
 
 QString IrcKickMessage::syntax() const
@@ -307,12 +319,13 @@ QString IrcKickMessage::toString() const
     return QString("KICK %1 %2 :%3").arg(usr, chan, rson);
 }
 
-void IrcKickMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcKickMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     usr = parameters.value(0);
     chan = parameters.value(1);
     rson = parameters.value(2);
+    return ret && !usr.isEmpty() && !chan.isEmpty();
 }
 
 QString IrcModeMessage::syntax() const
@@ -329,20 +342,22 @@ QString IrcModeMessage::toString() const
     return lst.join(" ");
 }
 
-void IrcModeMessage::initFrom(const QString &prefix, const QStringList &parameters)
+bool IrcModeMessage::initFrom(const QString &prefix, const QStringList &parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     tgt = parameters.value(0);
     mod = parameters.value(1);
     arg = parameters.value(2);
     msk = parameters.value(3);
+    return ret && !tgt.isEmpty();
 }
 
-void IrcSendMessage::initFrom(const QString &prefix, const QStringList &parameters)
+bool IrcSendMessage::initFrom(const QString &prefix, const QStringList &parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     tgt = parameters.value(0);
     msg = parameters.value(1);
+    return ret && !tgt.isEmpty() && !msg.isEmpty();
 }
 
 QString IrcPrivateMessage::syntax() const
@@ -360,9 +375,10 @@ QString IrcPrivateMessage::toString() const
     return QString("PRIVMSG %1 :%2").arg(tgt, copy);
 }
 
-void IrcPrivateMessage::initFrom(const QString& prefix, const QStringList& parameters)
+#include <QDebug>
+bool IrcPrivateMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcSendMessage::initFrom(prefix, parameters);
+    bool ret = IrcSendMessage::initFrom(prefix, parameters);
 
     if (msg.startsWith("\1ACTION "))
     {
@@ -377,6 +393,8 @@ void IrcPrivateMessage::initFrom(const QString& prefix, const QStringList& param
 
     if ((act || req) && msg.endsWith('\1'))
         msg.chop(1);
+
+    return ret;
 }
 
 QString IrcNoticeMessage::syntax() const
@@ -392,22 +410,34 @@ QString IrcNoticeMessage::toString() const
     return QString("NOTICE %1 :%2").arg(tgt, copy);
 }
 
-void IrcNoticeMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcNoticeMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcSendMessage::initFrom(prefix, parameters);
-    if (rpl)
+    bool ret = IrcSendMessage::initFrom(prefix, parameters);
+    if (msg.startsWith('\1'))
     {
-        if (msg.startsWith('\1'))
-            msg.remove(0, 1);
-        if (msg.endsWith('\1'))
-            msg.chop(1);
+        rpl = true;
+        msg.remove(0, 1);
     }
+    if (rpl && msg.endsWith('\1'))
+        msg.chop(1);
+    return ret;
 }
 
-void IrcQueryMessage::initFrom(const QString &prefix, const QStringList &parameters)
+QString IrcQueryMessage::syntax() const
 {
-    IrcMessage::initFrom(prefix, parameters);
+    return QString("QUERY <user>");
+}
+
+QString IrcQueryMessage::toString() const
+{
+    return QString("QUERY %1").arg(usr);
+}
+
+bool IrcQueryMessage::initFrom(const QString &prefix, const QStringList &parameters)
+{
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     usr = parameters.value(0);
+    return ret && !usr.isEmpty();
 }
 
 QString IrcWhoMessage::syntax() const
@@ -420,9 +450,9 @@ QString IrcWhoMessage::toString() const
     return QString("WHO %1").arg(usr);
 }
 
-void IrcWhoMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcWhoMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcQueryMessage::initFrom(prefix, parameters);
+    return IrcQueryMessage::initFrom(prefix, parameters);
 }
 
 QString IrcWhoisMessage::syntax() const
@@ -435,9 +465,9 @@ QString IrcWhoisMessage::toString() const
     return QString("WHOIS %1 %1").arg(usr);
 }
 
-void IrcWhoisMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcWhoisMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcQueryMessage::initFrom(prefix, parameters);
+    return IrcQueryMessage::initFrom(prefix, parameters);
 }
 
 QString IrcWhowasMessage::syntax() const
@@ -450,9 +480,9 @@ QString IrcWhowasMessage::toString() const
     return QString("WHOWAS %1 %1").arg(usr);
 }
 
-void IrcWhowasMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcWhowasMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcQueryMessage::initFrom(prefix, parameters);
+    return IrcQueryMessage::initFrom(prefix, parameters);
 }
 
 QString IrcPingMessage::syntax() const
@@ -465,10 +495,11 @@ QString IrcPingMessage::toString() const
     return QString("PING %1").arg(tgt);
 }
 
-void IrcPingMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcPingMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     tgt = parameters.value(0);
+    return ret && !tgt.isEmpty();
 }
 
 QString IrcPongMessage::toString() const
@@ -476,10 +507,11 @@ QString IrcPongMessage::toString() const
     return QString("PONG %1").arg(tgt);
 }
 
-void IrcPongMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcPongMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     tgt = parameters.value(0);
+    return ret && !tgt.isEmpty();
 }
 
 QString IrcErrorMessage::toString() const
@@ -487,10 +519,11 @@ QString IrcErrorMessage::toString() const
     return QString("ERROR :%1").arg(err);
 }
 
-void IrcErrorMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcErrorMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     err = parameters.value(0);
+    return ret && !err.isEmpty();
 }
 
 QString IrcNumericMessage::toString() const
@@ -498,11 +531,13 @@ QString IrcNumericMessage::toString() const
     return QString("%1 :%2").arg(c).arg(params.join(" "));
 }
 
-void IrcNumericMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcNumericMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
-    c = cmd.toInt();
+    bool ret = IrcMessage::initFrom(prefix, parameters);
+    bool numeric = false;
+    c = cmd.toInt(&numeric);
     params = parameters.mid(1);
+    return ret && numeric;
 }
 
 QString IrcAwayMessage::syntax() const
@@ -515,10 +550,11 @@ QString IrcAwayMessage::toString() const
     return QString("AWAY :%1").arg(msg);
 }
 
-void IrcAwayMessage::initFrom(const QString& prefix, const QStringList& parameters)
+bool IrcAwayMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    IrcMessage::initFrom(prefix, parameters);
+    bool ret = IrcMessage::initFrom(prefix, parameters);
     msg = parameters.value(0);
+    return ret;
 }
 
 #ifndef QT_NO_DEBUG_STREAM

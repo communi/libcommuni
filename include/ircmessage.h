@@ -58,7 +58,7 @@ public:
 
     virtual QString syntax() const;
     virtual QString toString() const;
-    virtual void initFrom(const QString& prefix, const QStringList& parameters);
+    virtual bool initFrom(const QString& prefix, const QStringList& parameters);
 
 protected:
     uint t;
@@ -90,7 +90,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString passwd;
@@ -110,7 +110,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString n;
@@ -134,7 +134,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString user;
@@ -155,7 +155,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString usr;
@@ -175,7 +175,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString rson;
@@ -195,7 +195,7 @@ public:
     QString channel() const { return chan; }
     void setChannel(const QString& channel) { chan = channel; }
 
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString chan;
@@ -215,7 +215,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString k;
@@ -235,7 +235,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString rson;
@@ -255,7 +255,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString tpc;
@@ -271,7 +271,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcListMessage : public IrcChannelMessage
@@ -288,7 +288,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString srv;
@@ -308,7 +308,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString usr;
@@ -332,7 +332,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString usr;
@@ -367,7 +367,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString tgt;
@@ -394,7 +394,7 @@ public:
     QString message() const { return msg; }
     void setMessage(const QString& message) { msg = message; }
 
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString tgt;
@@ -419,7 +419,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     bool act;
@@ -440,7 +440,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     bool rpl;
@@ -460,7 +460,9 @@ public:
     QString user() const { return usr; }
     void setUser(const QString& user) { usr = user; }
 
-    void initFrom(const QString& prefix, const QStringList& params);
+    QString syntax() const;
+    QString toString() const;
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString usr;
@@ -476,7 +478,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcWhoisMessage : public IrcQueryMessage
@@ -489,7 +491,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcWhowasMessage : public IrcQueryMessage
@@ -502,7 +504,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 };
 
 // miscellaneous messages
@@ -521,7 +523,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString tgt;
@@ -540,7 +542,7 @@ public:
     void setTarget(const QString& target) { tgt = target; }
 
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString tgt;
@@ -559,7 +561,7 @@ public:
     void setError(const QString& error) { err = error; }
 
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString err;
@@ -578,7 +580,7 @@ public:
     void setCode(uint code) { c = code; }
 
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     uint c;
@@ -598,7 +600,7 @@ public:
 
     QString syntax() const;
     QString toString() const;
-    void initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
     QString msg;
