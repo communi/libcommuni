@@ -23,6 +23,8 @@ class COMMUNI_EXPORT IrcPrefix
 public:
     IrcPrefix(const QString& prefix = QString());
 
+    bool isValid() const;
+
     QString prefix() const;
     void setPrefix(const QString& prefix);
 

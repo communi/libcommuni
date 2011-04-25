@@ -20,24 +20,21 @@ IrcPrefix::IrcPrefix(const QString& prefix)
     setPrefix(prefix);
 }
 
+bool IrcPrefix::isValid() const
+{
+    return !n.isEmpty() && !u.isEmpty() && !h.isEmpty();
+}
+
 QString IrcPrefix::prefix() const
 {
-    return QString("%1!%2@%3").arg(n, u, h);
+    return isValid() ? QString("%1!%2@%3").arg(n, u, h) : QString();
 }
 
 void IrcPrefix::setPrefix(const QString& prefix)
 {
-    QRegExp rx("([^!]+)!([^@]+)@(.+)");
-    if (rx.exactMatch(prefix))
-    {
-        n = rx.cap(1);
-        u = rx.cap(2);
-        h = rx.cap(3);
-    }
-    else
-    {
-        n = prefix;
-        u.clear();
-        h.clear();
-    }
+    QRegExp rx("([^!\\s]+)!([^@\\s]+)@(\\S+)");
+    bool match = rx.exactMatch(prefix.trimmed());
+    n = match ? rx.cap(1) : QString();
+    u = match ? rx.cap(2) : QString();
+    h = match ? rx.cap(3) : QString();
 }
