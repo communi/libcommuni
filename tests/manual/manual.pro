@@ -3,4 +3,4 @@
 ######################################################################
 
 TEMPLATE = subdirs
-SUBDIRS += manual
+# TODO: SUBDIRS += compattest irctest ssltest
