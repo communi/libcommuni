@@ -2,8 +2,6 @@
 # Communi
 ######################################################################
 
-QT = core network
-CONFIG += qtestlib testcase
-CONFIG -= app_bundle
+SOURCES += tst_ircparser.cpp
 
-include(../tests.pri)
+include (../auto.pri)
