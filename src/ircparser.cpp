@@ -96,7 +96,7 @@ bool IrcParser::parse(const QByteArray& line)
         }
     }
 
-    return process.trimmed().isEmpty();
+    return !d.command.isEmpty() && process.trimmed().isEmpty();
 }
 
 QString IrcParser::encode(const QByteArray& data) const
