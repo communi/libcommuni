@@ -36,8 +36,6 @@ class COMMUNI_EXPORT IrcSession : public QObject
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
 
-    Q_ENUMS(MessageType ChannelAction UserAction CtcpType)
-
 public:
     IrcSession(QObject* parent = 0);
     ~IrcSession();
