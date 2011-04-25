@@ -308,7 +308,7 @@ void IrcSession::setUserName(const QString& name)
     Q_D(IrcSession);
     if (d->isConnected())
         qWarning("IrcSession::setUserName() has no effect until re-connect");
-    d->userName = name;
+    d->userName = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
 }
 
 /*!
@@ -326,12 +326,16 @@ QString IrcSession::nickName() const
 void IrcSession::setNickName(const QString& name)
 {
     Q_D(IrcSession);
-    if (d->nickName != name)
+    QString nick = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
+    if (d->nickName != nick)
     {
-        d->nickName = name;
-        IrcNickMessage msg;
-        msg.setNick(name);
-        sendMessage(&msg);
+        d->nickName = nick;
+        if (d->isConnected())
+        {
+            IrcNickMessage msg;
+            msg.setNick(nick);
+            sendMessage(&msg);
+        }
     }
 }
 
