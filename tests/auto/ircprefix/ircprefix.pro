@@ -2,8 +2,6 @@
 # Communi
 ######################################################################
 
-TEMPLATE = subdirs
+SOURCES += tst_ircprefix.cpp
 
-SUBDIRS += ircparser
-SUBDIRS += ircprefix
-SUBDIRS += ircsession
+include (../auto.pri)
