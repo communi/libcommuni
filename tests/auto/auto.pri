@@ -3,7 +3,6 @@
 ######################################################################
 
 QT = core network
-CONFIG += console no_keywords
-CONFIG -= app_bundle
+CONFIG += testcase
 
 include(../tests.pri)
