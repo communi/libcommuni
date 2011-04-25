@@ -7,10 +7,13 @@ imports
 lib
 bin
 *~
+*.o
+*.moc
 *.app
 *.pdb
 *.bak
 *.rej
+*.exe
 *.orig
 *.pro.user
 communi-config.prf
@@ -21,3 +24,5 @@ ABLD.BAT
 bld.inf
 *.mmp
 moc_*.cpp
+/tests/auto/ircparser/ircparser
+/tests/auto/ircsession/ircsession
