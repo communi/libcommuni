@@ -214,7 +214,9 @@ QString IrcJoinMessage::toString() const
 
 bool IrcJoinMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
-    return IrcChannelMessage::initFrom(prefix, parameters);
+    bool ret = IrcChannelMessage::initFrom(prefix, parameters);
+    k = parameters.value(1);
+    return ret;
 }
 
 QString IrcPartMessage::syntax() const
@@ -226,7 +228,7 @@ QString IrcPartMessage::toString() const
 {
     if (rson.isEmpty())
         return QString("PART %1").arg(chan);
-    return QString("PART %1 %2").arg(chan, rson);
+    return QString("PART %1 :%2").arg(chan, rson);
 }
 
 bool IrcPartMessage::initFrom(const QString& prefix, const QStringList& parameters)
