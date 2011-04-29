@@ -25,4 +25,5 @@ bld.inf
 *.mmp
 moc_*.cpp
 /tests/auto/ircparser/ircparser
+/tests/auto/ircprefix/ircprefix
 /tests/auto/ircsession/ircsession
