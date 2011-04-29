@@ -15,6 +15,7 @@
 #include "ircreceiver.h"
 #include "ircsession.h"
 #include "ircsession_p.h"
+#include "ircfilter.h"
 #include <QDebug>
 
 class IrcReceiverPrivate
@@ -28,6 +29,7 @@ public:
 
     IrcReceiver* q_ptr;
     IrcSession* session;
+    QHash<uint, IrcFilter*> filters;
 };
 
 IrcReceiver::IrcReceiver(IrcSession* session) : d_ptr(new IrcReceiverPrivate(this))
@@ -59,6 +61,18 @@ void IrcReceiver::setSession(IrcSession* session)
         if (d->session)
             d->session->d_func()->receivers.append(this);
     }
+}
+
+IrcFilter* IrcReceiver::filter(uint message) const
+{
+    Q_D(const IrcReceiver);
+    return d->filters.value(message);
+}
+
+void IrcReceiver::setFilter(uint message, IrcFilter* filter)
+{
+    Q_D(IrcReceiver);
+    d->filters.insert(message, filter);
 }
 
 void IrcReceiver::receiveMessage(IrcMessage* message)

@@ -18,6 +18,7 @@
 #include <ircglobal.h>
 #include <ircmessage.h>
 
+class IrcFilter;
 class IrcSession;
 class IrcReceiverPrivate;
 
@@ -30,9 +31,10 @@ public:
     IrcSession* session() const;
     void setSession(IrcSession* session);
 
-    // TODO: filters
-
     virtual void receiveMessage(IrcMessage* message);
+
+    IrcFilter* filter(uint message) const;
+    void setFilter(uint message, IrcFilter* filter);
 
 protected:
     virtual void inviteMessage(IrcInviteMessage*) { }
@@ -52,8 +54,6 @@ private:
     QScopedPointer<IrcReceiverPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcReceiver)
     Q_DISABLE_COPY(IrcReceiver)
-
-    // TODO: filters
 };
 
 #endif // IRCRECEIVER_H
