@@ -16,6 +16,7 @@
 #include "ircsession.h"
 #include "ircsession_p.h"
 #include "ircfilter.h"
+#include <QVariant>
 #include <QDebug>
 
 class IrcReceiverPrivate
@@ -27,10 +28,53 @@ public:
     {
     }
 
+    bool testMatch(const QVariant& value, const QVariant& term, Qt::MatchFlags flags);
+    bool testFilter(const IrcFilter& filter, IrcMessage* message);
+
     IrcReceiver* q_ptr;
     IrcSession* session;
     QHash<uint, IrcFilter*> filters;
 };
+
+bool IrcReceiverPrivate::testMatch(const QVariant& value, const QVariant& term, Qt::MatchFlags flags)
+{
+    return value == term;
+}
+
+bool IrcReceiverPrivate::testFilter(const IrcFilter &filter, IrcMessage *message)
+{
+    if (!filter.isEnabled())
+        return false;
+
+    switch (filter.type())
+    {
+    case IrcFilter::DefaultFilter:
+        return true;
+
+    case IrcFilter::PropertyFilter:
+    {
+        const IrcPropertyFilter propertyFilter(filter);
+        QVariant property = message->property(propertyFilter.property().toLatin1());
+        return testMatch(property, propertyFilter.term(), propertyFilter.matchFlags());
+    }
+
+    case IrcFilter::IntersectionFilter:
+        foreach (const IrcFilter& f, filter.filters())
+            if (!testFilter(f, message))
+                return false;
+        return !filter.filters().isEmpty();
+
+    case IrcFilter::UnionFilter:
+        foreach (const IrcFilter& f, filter.filters())
+            if (testFilter(f, message))
+                return true;
+        return false;
+
+    case IrcFilter::InvalidFilter:
+    default:
+        return false;
+    }
+}
 
 IrcReceiver::IrcReceiver(IrcSession* session) : d_ptr(new IrcReceiverPrivate(this))
 {

@@ -18,7 +18,7 @@ class IrcFilterPrivate : public QSharedData
 {
 public:
     IrcFilterPrivate();
-    virtual ~IrcFilterPrivate();
+    ~IrcFilterPrivate();
 
     IrcFilter::FilterType type;
     bool enabled;
@@ -67,6 +67,11 @@ IrcFilter::~IrcFilter()
 IrcFilter::FilterType IrcFilter::type() const
 {
     return d_ptr->type;
+}
+
+void IrcFilter::setType(FilterType type)
+{
+    d_ptr->type = type;
 }
 
 bool IrcFilter::isEnabled() const
@@ -151,6 +156,11 @@ IrcPropertyFilter::IrcPropertyFilter(const QString& property)
     d_ptr->property = property;
 }
 
+IrcPropertyFilter::IrcPropertyFilter(const IrcFilter& other)
+    : IrcFilter(other)
+{
+}
+
 QString IrcPropertyFilter::property() const
 {
     return d_ptr->property;
@@ -179,29 +189,4 @@ Qt::MatchFlags IrcPropertyFilter::matchFlags() const
 void IrcPropertyFilter::setMatchFlags(Qt::MatchFlags flags)
 {
     d_ptr->matchFlags = flags;
-}
-
-IrcStringListFilter::IrcStringListFilter(const QStringList& terms)
-{
-    d_ptr->terms = terms;
-}
-
-QStringList IrcStringListFilter::terms() const
-{
-    return d_ptr->terms;
-}
-
-void IrcStringListFilter::setTerms(const QStringList& terms)
-{
-    d_ptr->terms = terms;
-}
-
-Qt::CaseSensitivity IrcStringListFilter::caseSensitivity() const
-{
-    return d_ptr->cs;
-}
-
-void	 IrcStringListFilter::setCaseSensitivity(Qt::CaseSensitivity cs)
-{
-    d_ptr->cs = cs;
 }

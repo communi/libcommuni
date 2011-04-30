@@ -30,18 +30,18 @@ public:
     {
         InvalidFilter,
         PropertyFilter,
-        StringListFilter,
         IntersectionFilter,
         UnionFilter,
         DefaultFilter
     };
 
     IrcFilter(FilterType type = DefaultFilter);
-    ~IrcFilter();
+    virtual ~IrcFilter();
     IrcFilter(const IrcFilter& other);
     IrcFilter& operator=(const IrcFilter& other);
 
     FilterType type() const;
+    void setType(FilterType type);
 
     bool isEnabled() const;
     void setEnabled(bool enabled);
@@ -70,6 +70,7 @@ class COMMUNI_EXPORT IrcPropertyFilter : public IrcFilter
 {
 public:
     IrcPropertyFilter(const QString& property = QString());
+    IrcPropertyFilter(const IrcFilter& other);
 
     QString property() const;
     void setProperty(const QString& property);
@@ -79,18 +80,6 @@ public:
 
     Qt::MatchFlags matchFlags() const;
     void setMatchFlags(Qt::MatchFlags flags);
-};
-
-class COMMUNI_EXPORT IrcStringListFilter : public IrcFilter
-{
-public:
-    IrcStringListFilter(const QStringList& terms = QStringList());
-
-    QStringList terms() const;
-    void setTerms(const QStringList& terms);
-
-    Qt::CaseSensitivity caseSensitivity() const;
-    void	 setCaseSensitivity(Qt::CaseSensitivity cs);
 };
 
 #endif // IRCFILTER_H
