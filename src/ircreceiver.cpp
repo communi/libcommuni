@@ -15,7 +15,7 @@
 #include "ircreceiver.h"
 #include "ircsession.h"
 #include "ircsession_p.h"
-#include "ircfilter.h"
+#include "ircmessagefilter.h"
 #include <QVariant>
 #include <QDebug>
 
@@ -28,49 +28,78 @@ public:
     {
     }
 
-    bool testMatch(const QVariant& value, const QVariant& term, Qt::MatchFlags flags);
-    bool testFilter(const IrcFilter& filter, IrcMessage* message);
-
     IrcReceiver* q_ptr;
     IrcSession* session;
-    QHash<uint, IrcFilter*> filters;
+    IrcMessageFilter filter;
 };
 
-bool IrcReceiverPrivate::testMatch(const QVariant& value, const QVariant& term, Qt::MatchFlags flags)
+static bool testMatch(const QVariant& value, const QVariant& match, Qt::MatchFlags flags)
 {
-    return value == term;
+    const uint matchType = flags & 0x0F;
+    if (matchType == Qt::MatchExactly)
+        return value == match;
+
+    const Qt::CaseSensitivity cs = flags & Qt::MatchCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    const QString text = value.toString();
+    const QString term = match.toString();
+
+    switch (matchType)
+    {
+    case Qt::MatchRegExp:
+        return QRegExp(term, cs, QRegExp::RegExp).exactMatch(text);
+    case Qt::MatchWildcard:
+        return QRegExp(term, cs, QRegExp::Wildcard).exactMatch(text);
+    case Qt::MatchStartsWith:
+        return text.startsWith(term, cs);
+    case Qt::MatchEndsWith:
+        return text.endsWith(term, cs);
+    case Qt::MatchFixedString:
+        return !text.compare(term, cs);
+    case Qt::MatchContains:
+    default:
+        return text.contains(term, cs);
+    }
 }
 
-bool IrcReceiverPrivate::testFilter(const IrcFilter &filter, IrcMessage *message)
+static bool testFilter(const IrcMessageFilter &filter, IrcMessage *message)
 {
     if (!filter.isEnabled())
         return false;
 
-    switch (filter.type())
+    switch (filter.filterType())
     {
-    case IrcFilter::DefaultFilter:
+    case IrcMessageFilter::DefaultFilter:
         return true;
 
-    case IrcFilter::PropertyFilter:
+    case IrcMessageFilter::IntersectionFilter:
     {
-        const IrcPropertyFilter propertyFilter(filter);
+        foreach (const IrcMessageFilter& f, IrcMessageIntersectionFilter(filter).filters())
+            if (!testFilter(f, message))
+                return false;
+        return !IrcMessageIntersectionFilter(filter).filters().isEmpty();
+    }
+
+    case IrcMessageFilter::UnionFilter:
+    {
+        foreach (const IrcMessageFilter& f, IrcMessageUnionFilter(filter).filters())
+            if (testFilter(f, message))
+                return true;
+        return false;
+    }
+
+    case IrcMessageFilter::TypeFilter:
+    {
+        const IrcMessageTypeFilter typeFilter(filter);
+        return message->type() & typeFilter.messageTypes();
+    }
+
+    case IrcMessageFilter::PropertyFilter:
+    {
+        const IrcMessagePropertyFilter propertyFilter(filter);
         QVariant property = message->property(propertyFilter.property().toLatin1());
         return testMatch(property, propertyFilter.term(), propertyFilter.matchFlags());
     }
 
-    case IrcFilter::IntersectionFilter:
-        foreach (const IrcFilter& f, filter.filters())
-            if (!testFilter(f, message))
-                return false;
-        return !filter.filters().isEmpty();
-
-    case IrcFilter::UnionFilter:
-        foreach (const IrcFilter& f, filter.filters())
-            if (testFilter(f, message))
-                return true;
-        return false;
-
-    case IrcFilter::InvalidFilter:
     default:
         return false;
     }
@@ -107,16 +136,16 @@ void IrcReceiver::setSession(IrcSession* session)
     }
 }
 
-IrcFilter* IrcReceiver::filter(uint message) const
+IrcMessageFilter IrcReceiver::messageFilter() const
 {
     Q_D(const IrcReceiver);
-    return d->filters.value(message);
+    return d->filter;
 }
 
-void IrcReceiver::setFilter(uint message, IrcFilter* filter)
+void IrcReceiver::setMessageFilter(const IrcMessageFilter& filter)
 {
     Q_D(IrcReceiver);
-    d->filters.insert(message, filter);
+    d->filter = filter;
 }
 
 void IrcReceiver::receiveMessage(IrcMessage* message)
@@ -127,7 +156,9 @@ void IrcReceiver::receiveMessage(IrcMessage* message)
         return;
     }
 
-    // TODO: filters
+    Q_D(IrcReceiver);
+    if (!testFilter(d->filter, message))
+        return;
 
     switch (message->type())
     {

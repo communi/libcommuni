@@ -27,18 +27,18 @@ INCLUDEPATH += . ../include
 }
 
 CONV_HEADERS += ../include/Irc
-CONV_HEADERS += ../include/IrcFilter
 CONV_HEADERS += ../include/IrcGlobal
 CONV_HEADERS += ../include/IrcMessage
+CONV_HEADERS += ../include/IrcMessageFilter
 CONV_HEADERS += ../include/IrcPrefix
 CONV_HEADERS += ../include/IrcReceiver
 CONV_HEADERS += ../include/IrcSession
 CONV_HEADERS += ../include/IrcUtil
 
 PUB_HEADERS += ../include/irc.h
-PUB_HEADERS += ../include/ircfilter.h
 PUB_HEADERS += ../include/ircglobal.h
 PUB_HEADERS += ../include/ircmessage.h
+PUB_HEADERS += ../include/ircmessagefilter.h
 PUB_HEADERS += ../include/ircprefix.h
 PUB_HEADERS += ../include/ircreceiver.h
 PUB_HEADERS += ../include/ircsession.h
@@ -51,8 +51,8 @@ HEADERS += $$PUB_HEADERS
 HEADERS += $$PRIV_HEADERS
 
 SOURCES += irc.cpp
-SOURCES += ircfilter.cpp
 SOURCES += ircmessage.cpp
+SOURCES += ircmessagefilter.cpp
 SOURCES += ircparser.cpp
 SOURCES += ircprefix.cpp
 SOURCES += ircreceiver.cpp

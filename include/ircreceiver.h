@@ -18,7 +18,7 @@
 #include <ircglobal.h>
 #include <ircmessage.h>
 
-class IrcFilter;
+class IrcMessageFilter;
 class IrcSession;
 class IrcReceiverPrivate;
 
@@ -33,8 +33,8 @@ public:
 
     virtual void receiveMessage(IrcMessage* message);
 
-    IrcFilter* filter(uint message) const;
-    void setFilter(uint message, IrcFilter* filter);
+    IrcMessageFilter messageFilter() const;
+    void setMessageFilter(const IrcMessageFilter& filter);
 
 protected:
     virtual void inviteMessage(IrcInviteMessage*) { }
