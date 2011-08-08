@@ -27,6 +27,7 @@ INCLUDEPATH += . ../include
 }
 
 CONV_HEADERS += ../include/Irc
+CONV_HEADERS += ../include/IrcCommand
 CONV_HEADERS += ../include/IrcGlobal
 CONV_HEADERS += ../include/IrcMessage
 CONV_HEADERS += ../include/IrcMessageFilter
@@ -36,6 +37,7 @@ CONV_HEADERS += ../include/IrcSession
 CONV_HEADERS += ../include/IrcUtil
 
 PUB_HEADERS += ../include/irc.h
+PUB_HEADERS += ../include/irccommand.h
 PUB_HEADERS += ../include/ircglobal.h
 PUB_HEADERS += ../include/ircmessage.h
 PUB_HEADERS += ../include/ircmessagefilter.h
@@ -51,6 +53,7 @@ HEADERS += $$PUB_HEADERS
 HEADERS += $$PRIV_HEADERS
 
 SOURCES += irc.cpp
+SOURCES += irccommand.cpp
 SOURCES += ircmessage.cpp
 SOURCES += ircmessagefilter.cpp
 SOURCES += ircparser.cpp
