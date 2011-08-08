@@ -16,6 +16,7 @@
 #include "ircsession.h"
 #include "ircsession_p.h"
 #include "ircreceiver.h"
+#include "irccommand.h"
 #include "ircmessage.h"
 #include "ircutil.h"
 #include "irc.h"
@@ -88,6 +89,7 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     nickName(),
     realName()
 {
+    QObject::connect(&builder, SIGNAL(messageBuilt(IrcMessage*)), session, SIGNAL(messageReceived(IrcMessage*)));
 }
 
 void IrcSessionPrivate::_q_connected()
@@ -97,20 +99,21 @@ void IrcSessionPrivate::_q_connected()
 
     QString password;
     emit q->password(&password);
-    if (!password.isEmpty()) {
-        IrcPasswordMessage passwdMsg;
-        passwdMsg.setPassword(password);
-        q->sendMessage(&passwdMsg);
+    if (!password.isEmpty())
+    {
+        IrcPasswordCommand cmd;
+        cmd.setPassword(password);
+        q->sendCommand(&cmd);
     }
 
-    IrcNickMessage nickMsg;
-    nickMsg.setNick(nickName);
-    q->sendMessage(&nickMsg);
+    IrcNickCommand nickCmd;
+    nickCmd.setNick(nickName);
+    q->sendCommand(&nickCmd);
 
-    IrcUserMessage userMsg;
-    userMsg.setUserName(userName);
-    userMsg.setRealName(realName);
-    q->sendMessage(&userMsg);
+    IrcUserCommand userCmd;
+    userCmd.setUserName(userName);
+    userCmd.setRealName(realName);
+    q->sendCommand(&userCmd);
 }
 
 void IrcSessionPrivate::_q_disconnected()
@@ -181,14 +184,15 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         case Irc::Numeric:
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
                 emit q->connected();
+            builder.handleMessage(static_cast<IrcNumericMessage*>(msg));
             break;
-        case Irc::Ping: {
+        /*case Irc::Ping: {
             // TODO: ifAutomatic?
-            IrcPongMessage pongMsg;
-            pongMsg.setTarget(static_cast<IrcPingMessage*>(msg)->target());
-            q->sendMessage(&pongMsg);
+            IrcPongCommand pongCmd;
+            pongCmd.setTarget(static_cast<IrcPingMessage*>(msg)->target());
+            q->sendCommand(&pongCmd);
             break;
-            }
+            }*/
         }
 
         emit q->messageReceived(msg);
@@ -332,9 +336,9 @@ void IrcSession::setNickName(const QString& name)
         d->nickName = nick;
         if (d->isConnected())
         {
-            IrcNickMessage msg;
-            msg.setNick(nick);
-            sendMessage(&msg);
+            IrcNickCommand cmd;
+            cmd.setNick(nick);
+            sendCommand(&cmd);
         }
     }
 }
@@ -441,19 +445,19 @@ void IrcSession::close()
 }
 
 /*!
-    Sends a \a message to the server.
+    Sends a \a command to the server.
 
     \sa sendRaw()
  */
-bool IrcSession::sendMessage(IrcMessage* message)
+bool IrcSession::sendCommand(IrcCommand* command)
 {
-    return message && sendRaw(message->toString());
+    return command && sendRaw(command->toString());
 }
 
 /*!
     Sends a raw \a message to the server.
 
-    \sa sendMessage()
+    \sa sendCommand()
  */
 bool IrcSession::sendRaw(const QString& message)
 {

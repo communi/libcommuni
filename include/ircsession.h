@@ -21,6 +21,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QAbstractSocket)
 
+class IrcCommand;
 class IrcMessage;
 class IrcSessionPrivate;
 
@@ -61,7 +62,7 @@ public:
     QAbstractSocket* socket() const;
     void setSocket(QAbstractSocket* socket);
 
-    Q_INVOKABLE bool sendMessage(IrcMessage* message);
+    Q_INVOKABLE bool sendCommand(IrcCommand* command);
     Q_INVOKABLE bool sendRaw(const QString& message);
 
 public Q_SLOTS:
