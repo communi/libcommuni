@@ -56,8 +56,6 @@ public:
     Q_INVOKABLE static QStringList availableCommands();
     Q_INVOKABLE static IrcMessage* create(const QString& command, QObject* parent = 0);
 
-    virtual QString syntax() const;
-    virtual QString toString() const;
     virtual bool initFrom(const QString& prefix, const QStringList& parameters);
 
 protected:
@@ -88,8 +86,6 @@ public:
     QString password() const { return passwd; }
     void setPassword(const QString& password) { passwd = password; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -108,8 +104,6 @@ public:
     QString nick() const { return n; }
     void setNick(const QString& nick) { n = nick; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -132,8 +126,6 @@ public:
     QString realName() const { return real; }
     void setRealName(const QString& realName) { real = realName; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -153,8 +145,6 @@ public:
     QString user() const { return usr; }
     void setUser(const QString& user) { usr = user; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -173,8 +163,6 @@ public:
     QString reason() const { return rson; }
     void setReason(const QString& reason) { rson = reason; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -213,8 +201,6 @@ public:
     QString key() const { return k; }
     void setKey(const QString& key) { k = key; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -233,8 +219,6 @@ public:
     QString reason() const { return rson; }
     void setReason(const QString& reason) { rson = reason; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -253,8 +237,6 @@ public:
     QString topic() const { return tpc; }
     void setTopic(const QString& topic) { tpc = topic; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -269,8 +251,6 @@ public:
     Q_INVOKABLE explicit IrcNamesMessage(QObject* parent = 0) :
         IrcChannelMessage(parent) { t = Irc::Names; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 };
 
@@ -286,8 +266,6 @@ public:
     QString server() const { return srv; }
     void setServer(const QString& server) { srv = server; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -306,8 +284,6 @@ public:
     QString user() const { return usr; }
     void setUser(const QString& user) { usr = user; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -330,8 +306,6 @@ public:
     QString reason() const { return rson; }
     void setReason(const QString& reason) { rson = reason; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -365,8 +339,6 @@ public:
     QString mask() const { return msk; }
     void setMask(const QString& mask) { msk = mask; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -417,8 +389,6 @@ public:
     bool isRequest() const { return req; }
     void setRequest(bool request) { req = request; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -438,8 +408,6 @@ public:
     bool isReply() const { return rpl; }
     void setReply(bool reply) { rpl = reply; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -460,8 +428,6 @@ public:
     QString user() const { return usr; }
     void setUser(const QString& user) { usr = user; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -476,8 +442,6 @@ public:
     Q_INVOKABLE explicit IrcWhoMessage(QObject* parent = 0) :
         IrcQueryMessage(parent) { t = Irc::Who; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 };
 
@@ -489,8 +453,6 @@ public:
     Q_INVOKABLE explicit IrcWhoisMessage(QObject* parent = 0) :
         IrcQueryMessage(parent) { t = Irc::Whois; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 };
 
@@ -502,8 +464,6 @@ public:
     Q_INVOKABLE explicit IrcWhowasMessage(QObject* parent = 0) :
         IrcQueryMessage(parent) { t = Irc::Whowas; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 };
 
@@ -521,8 +481,6 @@ public:
     QString target() const { return tgt; }
     void setTarget(const QString& target) { tgt = target; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -541,7 +499,6 @@ public:
     QString target() const { return tgt; }
     void setTarget(const QString& target) { tgt = target; }
 
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -560,7 +517,6 @@ public:
     QString error() const { return err; }
     void setError(const QString& error) { err = error; }
 
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -579,7 +535,6 @@ public:
     uint code() const { return c; }
     void setCode(uint code) { c = code; }
 
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
@@ -598,8 +553,6 @@ public:
     QString message() const { return msg; }
     void setMessage(const QString& message) { msg = message; }
 
-    QString syntax() const;
-    QString toString() const;
     bool initFrom(const QString& prefix, const QStringList& params);
 
 protected:
