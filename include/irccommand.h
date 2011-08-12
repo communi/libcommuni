@@ -82,7 +82,7 @@ public:
     QStringList parameters() const;
     void setParameters(QStringList parameters);
 
-    QString toString() const;
+    virtual QString toString() const;
 
     Q_INVOKABLE static IrcCommand* createPassword(const QString& password, QObject* parent = 0);
     Q_INVOKABLE static IrcCommand* createNick(const QString& nick, QObject* parent = 0);
