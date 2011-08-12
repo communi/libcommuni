@@ -41,7 +41,7 @@ protected:
     virtual void joinMessage(IrcJoinMessage*) { }
     virtual void kickMessage(IrcKickMessage*) { }
     virtual void modeMessage(IrcModeMessage*) { }
-    virtual void nickNameMessage(IrcNickMessage*) { }
+    virtual void nickMessage(IrcNickMessage*) { }
     virtual void noticeMessage(IrcNoticeMessage*) { }
     virtual void numericMessage(IrcNumericMessage*) { }
     virtual void partMessage(IrcPartMessage*) { }

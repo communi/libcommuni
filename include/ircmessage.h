@@ -17,532 +17,264 @@
 
 #include <irc.h>
 #include <ircglobal.h>
-#include <QtCore/qhash.h>
-#include <QtCore/qstring.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
-#include <QtCore/qvarlengtharray.h>
+
+class IrcMessagePrivate;
 
 class COMMUNI_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(uint type READ type WRITE setType)
-    Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
-    Q_PROPERTY(QString command READ command WRITE setCommand)
-    Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
+    Q_PROPERTY(Type type READ type)
+    Q_PROPERTY(QString prefix READ prefix)
+    Q_PROPERTY(QString command READ command)
+    Q_PROPERTY(QStringList parameters READ parameters)
+    Q_ENUMS(Type)
 
 public:
-    Q_INVOKABLE explicit IrcMessage(QObject* parent = 0) :
-        QObject(parent), t(Irc::Unknown) { }
+    enum Type
+    {
+        Unknown,
+        Nick,
+        Quit,
+        Join,
+        Part,
+        Topic,
+        Invite,
+        Kick,
+        Mode,
+        Private,
+        Notice,
+        Ping,
+        Pong,
+        Error,
+        Numeric
+    };
 
-    uint type() const { return t; }
-    void setType(uint type) { t = type; }
+    Q_INVOKABLE explicit IrcMessage(QObject* parent = 0);
+    virtual ~IrcMessage();
 
-    QString prefix() const { return pfx; }
-    void setPrefix(const QString& prefix) { pfx = prefix; }
+    Type type() const;
+    QString prefix() const;
+    QString command() const;
+    QStringList parameters() const;
 
-    QString command() const { return cmd; }
-    void setCommand(const QString& command) { cmd = command; }
-
-    QStringList parameters() const { return params; }
-    void setParameters(const QStringList& parameters) { params = parameters; }
-
-    Q_INVOKABLE static IrcMessage* create(const QString& command, QObject* parent = 0);
+    static IrcMessage* create(const QString& command, QObject* parent = 0);
 
     virtual bool initFrom(const QString& prefix, const QStringList& parameters);
 
 protected:
-    uint t;
-    QString pfx;
-    QString cmd;
-    QStringList params;
-};
-
-// connection registration
-
-class COMMUNI_EXPORT IrcPasswordMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString password READ password WRITE setPassword)
-
-public:
-    Q_INVOKABLE explicit IrcPasswordMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = Irc::Password; }
-
-    QString password() const { return passwd; }
-    void setPassword(const QString& password) { passwd = password; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString passwd;
+    QScopedPointer<IrcMessagePrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcMessage)
+    Q_DISABLE_COPY(IrcMessage)
 };
 
 class COMMUNI_EXPORT IrcNickMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString nick READ nick WRITE setNick)
+    Q_PROPERTY(QString nick READ nick)
 
 public:
-    Q_INVOKABLE explicit IrcNickMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = Irc::Nick; }
+    Q_INVOKABLE explicit IrcNickMessage(QObject* parent = 0);
 
-    QString nick() const { return n; }
-    void setNick(const QString& nick) { n = nick; }
+    QString nick() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString n;
-};
-
-class COMMUNI_EXPORT IrcUserMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString userName READ userName WRITE setUserName)
-    Q_PROPERTY(QString realName READ realName WRITE setRealName)
-
-public:
-    Q_INVOKABLE explicit IrcUserMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = Irc::User; }
-
-    QString userName() const { return user; }
-    void setUserName(const QString& userName) { user = userName; }
-
-    QString realName() const { return real; }
-    void setRealName(const QString& realName) { real = realName; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString user;
-    QString real;
-};
-
-class COMMUNI_EXPORT IrcOperatorMessage : public IrcPasswordMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString user READ user WRITE setUser)
-
-public:
-    Q_INVOKABLE explicit IrcOperatorMessage(QObject* parent = 0) :
-        IrcPasswordMessage(parent) { t = Irc::Operator; }
-
-    QString user() const { return usr; }
-    void setUser(const QString& user) { usr = user; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString usr;
 };
 
 class COMMUNI_EXPORT IrcQuitMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString reason READ reason WRITE setReason)
+    Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcQuitMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = Irc::Quit; }
+    Q_INVOKABLE explicit IrcQuitMessage(QObject* parent = 0);
 
-    QString reason() const { return rson; }
-    void setReason(const QString& reason) { rson = reason; }
+    QString reason() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString rson;
 };
 
-// channel operations
-
-class COMMUNI_EXPORT IrcChannelMessage : public IrcMessage
+class COMMUNI_EXPORT IrcJoinMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString channel READ channel WRITE setChannel)
+    Q_PROPERTY(QString channel READ channel)
 
 public:
-    Q_INVOKABLE explicit IrcChannelMessage(QObject* parent = 0) :
-        IrcMessage(parent) { }
+    Q_INVOKABLE explicit IrcJoinMessage(QObject* parent = 0);
 
-    QString channel() const { return chan; }
-    void setChannel(const QString& channel) { chan = channel; }
+    QString channel() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString chan;
 };
 
-class COMMUNI_EXPORT IrcJoinMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcPartMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString key READ key WRITE setKey)
+    Q_PROPERTY(QString channel READ channel)
+    Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcJoinMessage(QObject* parent = 0) :
-        IrcChannelMessage(parent) { t = Irc::Join; }
+    Q_INVOKABLE explicit IrcPartMessage(QObject* parent = 0);
 
-    QString key() const { return k; }
-    void setKey(const QString& key) { k = key; }
+    QString channel() const;
+    QString reason() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString k;
 };
 
-class COMMUNI_EXPORT IrcPartMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcTopicMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString reason READ reason WRITE setReason)
+    Q_PROPERTY(QString channel READ channel)
+    Q_PROPERTY(QString topic READ topic)
 
 public:
-    Q_INVOKABLE explicit IrcPartMessage(QObject* parent = 0) :
-        IrcChannelMessage(parent) { t = Irc::Part; }
+    Q_INVOKABLE explicit IrcTopicMessage(QObject* parent = 0);
 
-    QString reason() const { return rson; }
-    void setReason(const QString& reason) { rson = reason; }
+    QString channel() const;
+    QString topic() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString rson;
 };
 
-class COMMUNI_EXPORT IrcTopicMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcInviteMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString topic READ topic WRITE setTopic)
+    Q_PROPERTY(QString user READ user)
+    Q_PROPERTY(QString channel READ channel)
 
 public:
-    Q_INVOKABLE explicit IrcTopicMessage(QObject* parent = 0) :
-        IrcChannelMessage(parent) { t = Irc::Topic; }
+    Q_INVOKABLE explicit IrcInviteMessage(QObject* parent = 0);
 
-    QString topic() const { return tpc; }
-    void setTopic(const QString& topic) { tpc = topic; }
+    QString user() const;
+    QString channel() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString tpc;
 };
 
-class COMMUNI_EXPORT IrcNamesMessage : public IrcChannelMessage
+class COMMUNI_EXPORT IrcKickMessage : public IrcMessage
 {
     Q_OBJECT
+    Q_PROPERTY(QString channel READ channel)
+    Q_PROPERTY(QString user READ user)
+    Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcNamesMessage(QObject* parent = 0) :
-        IrcChannelMessage(parent) { t = Irc::Names; }
+    Q_INVOKABLE explicit IrcKickMessage(QObject* parent = 0);
+
+    QString channel() const;
+    QString user() const;
+    QString reason() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
 };
-
-class COMMUNI_EXPORT IrcListMessage : public IrcChannelMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString server READ server WRITE setServer)
-
-public:
-    Q_INVOKABLE explicit IrcListMessage(QObject* parent = 0) :
-        IrcChannelMessage(parent) { t = Irc::List; }
-
-    QString server() const { return srv; }
-    void setServer(const QString& server) { srv = server; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString srv;
-};
-
-class COMMUNI_EXPORT IrcInviteMessage : public IrcChannelMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString user READ user WRITE setUser)
-
-public:
-    Q_INVOKABLE explicit IrcInviteMessage(QObject* parent = 0) :
-        IrcChannelMessage(parent) { t = Irc::Invite; }
-
-    QString user() const { return usr; }
-    void setUser(const QString& user) { usr = user; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString usr;
-};
-
-class COMMUNI_EXPORT IrcKickMessage : public IrcChannelMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString user READ user WRITE setUser)
-    Q_PROPERTY(QString reason READ reason WRITE setReason)
-
-public:
-    Q_INVOKABLE explicit IrcKickMessage(QObject* parent = 0) :
-        IrcChannelMessage(parent) { t = Irc::Kick; }
-
-    QString user() const { return usr; }
-    void setUser(const QString& user) { usr = user; }
-
-    QString reason() const { return rson; }
-    void setReason(const QString& reason) { rson = reason; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString usr;
-    QString rson;
-};
-
-// mode operations
 
 class COMMUNI_EXPORT IrcModeMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString target READ target WRITE setTarget)
-    Q_PROPERTY(QString mode READ mode WRITE setMode)
-    Q_PROPERTY(QString argument READ argument WRITE setArgument)
-    Q_PROPERTY(QString mask READ mask WRITE setMask)
+    Q_PROPERTY(QString target READ target)
+    Q_PROPERTY(QString mode READ mode)
+    Q_PROPERTY(QString argument READ argument)
+    Q_PROPERTY(QString mask READ mask)
 
 public:
-    Q_INVOKABLE explicit IrcModeMessage(QObject* parent = 0) :
-        IrcMessage(parent) { }
+    Q_INVOKABLE explicit IrcModeMessage(QObject* parent = 0);
 
-    QString target() const { return tgt; }
-    void setTarget(const QString& target) { tgt = target; }
-
-    QString mode() const { return mod; }
-    void setMode(const QString& mode) { mod = mode; }
-
-    QString argument() const { return arg; }
-    void setArgument(const QString& argument) { arg = argument; }
-
-    QString mask() const { return msk; }
-    void setMask(const QString& mask) { msk = mask; }
+    QString target() const;
+    QString mode() const;
+    QString argument() const;
+    QString mask() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString tgt;
-    QString mod;
-    QString arg;
-    QString msk;
 };
 
-// sending messages
-
-class COMMUNI_EXPORT IrcSendMessage : public IrcMessage
+class COMMUNI_EXPORT IrcPrivateMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString target READ target WRITE setTarget)
-    Q_PROPERTY(QString message READ message WRITE setMessage)
+    Q_PROPERTY(QString target READ target)
+    Q_PROPERTY(QString message READ message)
+    Q_PROPERTY(bool action READ isAction)
+    Q_PROPERTY(bool request READ isRequest)
 
 public:
-    Q_INVOKABLE explicit IrcSendMessage(QObject* parent = 0) :
-        IrcMessage(parent) { }
+    Q_INVOKABLE explicit IrcPrivateMessage(QObject* parent = 0);
 
-    QString target() const { return tgt; }
-    void setTarget(const QString& target) { tgt = target; }
-
-    QString message() const { return msg; }
-    void setMessage(const QString& message) { msg = message; }
+    QString target() const;
+    QString message() const;
+    bool isAction() const;
+    bool isRequest() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString tgt;
-    QString msg;
 };
 
-class COMMUNI_EXPORT IrcPrivateMessage : public IrcSendMessage
+class COMMUNI_EXPORT IrcNoticeMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(bool action READ isAction WRITE setAction)
-    Q_PROPERTY(bool request READ isRequest WRITE setRequest)
+    Q_PROPERTY(QString target READ target)
+    Q_PROPERTY(QString message READ message)
+    Q_PROPERTY(bool reply READ isReply)
 
 public:
-    Q_INVOKABLE explicit IrcPrivateMessage(QObject* parent = 0) :
-        IrcSendMessage(parent), act(false), req(false) { t = Irc::Private; }
+    Q_INVOKABLE explicit IrcNoticeMessage(QObject* parent = 0);
 
-    bool isAction() const { return act; }
-    void setAction(bool action) { act = action; }
-
-    bool isRequest() const { return req; }
-    void setRequest(bool request) { req = request; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    bool act;
-    bool req;
-};
-
-class COMMUNI_EXPORT IrcNoticeMessage : public IrcSendMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(bool reply READ isReply WRITE setReply)
-
-public:
-    Q_INVOKABLE explicit IrcNoticeMessage(QObject* parent = 0) :
-        IrcSendMessage(parent), rpl(false) { t = Irc::Notice; }
-
-    bool isReply() const { return rpl; }
-    void setReply(bool reply) { rpl = reply; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    bool rpl;
-};
-
-// user-based queries
-
-class COMMUNI_EXPORT IrcQueryMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString user READ user WRITE setUser)
-
-public:
-    Q_INVOKABLE explicit IrcQueryMessage(QObject* parent = 0) :
-        IrcMessage(parent) { }
-
-    QString user() const { return usr; }
-    void setUser(const QString& user) { usr = user; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString usr;
-};
-
-class COMMUNI_EXPORT IrcWhoMessage : public IrcQueryMessage
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE explicit IrcWhoMessage(QObject* parent = 0) :
-        IrcQueryMessage(parent) { t = Irc::Who; }
+    QString target() const;
+    QString message() const;
+    bool isReply() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
 };
-
-class COMMUNI_EXPORT IrcWhoisMessage : public IrcQueryMessage
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE explicit IrcWhoisMessage(QObject* parent = 0) :
-        IrcQueryMessage(parent) { t = Irc::Whois; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-};
-
-class COMMUNI_EXPORT IrcWhowasMessage : public IrcQueryMessage
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE explicit IrcWhowasMessage(QObject* parent = 0) :
-        IrcQueryMessage(parent) { t = Irc::Whowas; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-};
-
-// miscellaneous messages
 
 class COMMUNI_EXPORT IrcPingMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString target READ target WRITE setTarget)
+    Q_PROPERTY(QString target READ target)
 
 public:
-    Q_INVOKABLE explicit IrcPingMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = Irc::Ping; }
+    Q_INVOKABLE explicit IrcPingMessage(QObject* parent = 0);
 
-    QString target() const { return tgt; }
-    void setTarget(const QString& target) { tgt = target; }
+    QString target() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString tgt;
 };
 
 class COMMUNI_EXPORT IrcPongMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString target READ target WRITE setTarget)
+    Q_PROPERTY(QString target READ target)
 
 public:
-    Q_INVOKABLE explicit IrcPongMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = Irc::Pong; }
+    Q_INVOKABLE explicit IrcPongMessage(QObject* parent = 0);
 
-    QString target() const { return tgt; }
-    void setTarget(const QString& target) { tgt = target; }
+    QString target() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString tgt;
 };
 
 class COMMUNI_EXPORT IrcErrorMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString error READ error WRITE setError)
+    Q_PROPERTY(QString error READ error)
 
 public:
-    Q_INVOKABLE explicit IrcErrorMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = Irc::Error; }
+    Q_INVOKABLE explicit IrcErrorMessage(QObject* parent = 0);
 
-    QString error() const { return err; }
-    void setError(const QString& error) { err = error; }
+    QString error() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString err;
 };
 
 class COMMUNI_EXPORT IrcNumericMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(uint code READ code WRITE setCode)
+    Q_PROPERTY(uint code READ code)
 
 public:
-    Q_INVOKABLE explicit IrcNumericMessage(QObject* parent = 0) :
-        IrcMessage(parent), c(0) { t = Irc::Numeric; }
+    Q_INVOKABLE explicit IrcNumericMessage(QObject* parent = 0);
 
-    uint code() const { return c; }
-    void setCode(uint code) { c = code; }
+    int code() const;
 
     bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    uint c;
-};
-
-class COMMUNI_EXPORT IrcAwayMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString message READ message WRITE setMessage)
-
-public:
-    Q_INVOKABLE explicit IrcAwayMessage(QObject* parent = 0) :
-        IrcMessage(parent) { t = Irc::Away; }
-
-    QString message() const { return msg; }
-    void setMessage(const QString& message) { msg = message; }
-
-    bool initFrom(const QString& prefix, const QStringList& params);
-
-protected:
-    QString msg;
 };
 
 #ifndef QT_NO_DEBUG_STREAM

@@ -180,18 +180,19 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
 
         switch (msg->type())
         {
-        case Irc::Numeric:
+        case IrcMessage::Numeric:
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
                 emit q->connected();
             builder.handleMessage(static_cast<IrcNumericMessage*>(msg));
             break;
-        /*case Irc::Ping: {
+        case IrcMessage::Ping: {
             // TODO: ifAutomatic?
-            IrcPongCommand pongCmd;
-            pongCmd.setTarget(static_cast<IrcPingMessage*>(msg)->target());
-            q->sendCommand(&pongCmd);
+            QString target = static_cast<IrcPingMessage*>(msg)->target();
+            IrcCommand* pongCmd = IrcCommand::createPong(target);
+            q->sendCommand(pongCmd);
+            delete pongCmd;
             break;
-            }*/
+            }
         }
 
         emit q->messageReceived(msg);

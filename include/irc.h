@@ -194,49 +194,6 @@ public:
         ERR_USERSDONTMATCH         = 502
     };
 
-    enum Message
-    {
-        Unknown = 0,
-
-        // connection registration
-        Password = 1,
-        Nick = 2,
-        User = 3,
-        Operator = 4,
-        Quit = 5,
-
-        // channel operations
-        Join = 10,
-        Part = 11,
-        Topic = 12,
-        Names = 13,
-        List = 14,
-        Invite = 15,
-        Kick = 16,
-
-        // mode operations
-        Mode = 20,
-
-        // sending messages
-        Private = 30,
-        Notice = 31,
-
-        // user-based queries
-        Who = 40,
-        Whois = 41,
-        Whowas = 42,
-
-        // miscellaneous messages
-        Ping = 50,
-        Pong = 51,
-        Error = 52,
-        Numeric = 53,
-        Away = 54,
-
-        // custom messages
-        Custom = 100
-    };
-
     static const char* version();
     static const char* toString(Code code);
 };
