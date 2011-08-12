@@ -47,13 +47,6 @@ public:
     QStringList parameters() const { return params; }
     void setParameters(const QStringList& parameters) { params = parameters; }
 
-    enum CommandSyntax { RegExp, Wildcard, FixedString };
-
-    template <typename T>
-    static void registerCommand(const QString& command, CommandSyntax syntax = FixedString);
-    static void unregisterCommand(const QString& command);
-
-    Q_INVOKABLE static QStringList availableCommands();
     Q_INVOKABLE static IrcMessage* create(const QString& command, QObject* parent = 0);
 
     virtual bool initFrom(const QString& prefix, const QStringList& parameters);
@@ -63,14 +56,7 @@ protected:
     QString pfx;
     QString cmd;
     QStringList params;
-    static QVarLengthArray<QHash<QString, const QMetaObject*>, 3> metaObjects;
 };
-
-template <typename T>
-void IrcMessage::registerCommand(const QString& command, IrcMessage::CommandSyntax syntax)
-{
-    metaObjects[syntax].insert(command, &T::staticMetaObject);
-}
 
 // connection registration
 
