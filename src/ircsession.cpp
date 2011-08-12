@@ -101,19 +101,18 @@ void IrcSessionPrivate::_q_connected()
     emit q->password(&password);
     if (!password.isEmpty())
     {
-        IrcPasswordCommand cmd;
-        cmd.setPassword(password);
-        q->sendCommand(&cmd);
+        IrcCommand* cmd = IrcCommand::createPassword(password, q);
+        q->sendCommand(cmd);
+        delete cmd;
     }
 
-    IrcNickCommand nickCmd;
-    nickCmd.setNick(nickName);
-    q->sendCommand(&nickCmd);
+    IrcCommand* cmd = IrcCommand::createNick(nickName, q);
+    q->sendCommand(cmd);
+    delete cmd;
 
-    IrcUserCommand userCmd;
-    userCmd.setUserName(userName);
-    userCmd.setRealName(realName);
-    q->sendCommand(&userCmd);
+    cmd = IrcCommand::createUser(userName, realName, q);
+    q->sendCommand(cmd);
+    delete cmd;
 }
 
 void IrcSessionPrivate::_q_disconnected()
@@ -336,9 +335,9 @@ void IrcSession::setNickName(const QString& name)
         d->nickName = nick;
         if (d->isConnected())
         {
-            IrcNickCommand cmd;
-            cmd.setNick(nick);
-            sendCommand(&cmd);
+            IrcCommand* cmd = IrcCommand::createNick(nick, this);
+            sendCommand(cmd);
+            delete cmd;
         }
     }
 }

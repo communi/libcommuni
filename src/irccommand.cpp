@@ -15,182 +15,213 @@
 #include "irccommand.h"
 #include <QDebug>
 
-static QHash<QString, const QMetaObject*> irc_meta_init()
+class IrcCommandPrivate
 {
-    QHash<QString, const QMetaObject*> meta;
-    meta.insert("PASS", &IrcPasswordCommand::staticMetaObject);
-    meta.insert("NICK", &IrcNickCommand::staticMetaObject);
-    meta.insert("OPER", &IrcOperatorCommand::staticMetaObject);
-    meta.insert("QUIT", &IrcQuitCommand::staticMetaObject);
-    meta.insert("JOIN", &IrcJoinCommand::staticMetaObject);
-    meta.insert("PART", &IrcPartCommand::staticMetaObject);
-    meta.insert("TOPIC", &IrcTopicCommand::staticMetaObject);
-    meta.insert("NAMES", &IrcNamesCommand::staticMetaObject);
-    meta.insert("LIST", &IrcListCommand::staticMetaObject);
-    meta.insert("INVITE", &IrcInviteCommand::staticMetaObject);
-    meta.insert("KICK", &IrcKickCommand::staticMetaObject);
-    meta.insert("MODE", &IrcModeCommand::staticMetaObject);
-    meta.insert("PRIVMSG", &IrcMessageCommand::staticMetaObject);
-    meta.insert("NOTICE", &IrcNoticeCommand::staticMetaObject);
-    meta.insert("QUERY", &IrcQueryCommand::staticMetaObject);
-    meta.insert("WHO", &IrcWhoCommand::staticMetaObject);
-    meta.insert("WHOIS", &IrcWhoisCommand::staticMetaObject);
-    meta.insert("WHOWAS", &IrcWhowasCommand::staticMetaObject);
-    meta.insert("PING", &IrcPingCommand::staticMetaObject);
-    meta.insert("PONG", &IrcPongCommand::staticMetaObject);
-    meta.insert("AWAY", &IrcAwayCommand::staticMetaObject);
-    return meta;
-}
-static QHash<QString, const QMetaObject*> metaObjects = irc_meta_init();
+public:
+    IrcCommand::Type type;
+    QStringList parameters;
 
-IrcCommand* IrcCommand::create(const QString& command, QObject* parent)
+    static IrcCommand* createCommand(IrcCommand::Type type, const QStringList& parameters, QObject* parent);
+};
+
+IrcCommand* IrcCommandPrivate::createCommand(IrcCommand::Type type, const QStringList& parameters, QObject* parent)
 {
-    IrcCommand* cmd = 0;
-    const QMetaObject* metaObject = metaObjects.value(command.toUpper());
-    if (metaObject)
-        cmd = qobject_cast<IrcCommand*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
-    return cmd;
+    IrcCommand* command = new IrcCommand(parent);
+    command->setType(type);
+    command->setParameters(parameters);
+    return command;
+}
+
+IrcCommand::IrcCommand(QObject* parent) : QObject(parent), d_ptr(new IrcCommandPrivate)
+{
+    Q_D(IrcCommand);
+    d->type = Unknown;
+}
+
+IrcCommand::~IrcCommand()
+{
+}
+
+IrcCommand::Type IrcCommand::type() const
+{
+    Q_D(const IrcCommand);
+    return d->type;
+}
+
+void IrcCommand::setType(Type type)
+{
+    Q_D(IrcCommand);
+    d->type = type;
+}
+
+QStringList IrcCommand::parameters() const
+{
+    Q_D(const IrcCommand);
+    return d->parameters;
+}
+
+void IrcCommand::setParameters(QStringList parameters)
+{
+    Q_D(IrcCommand);
+    d->parameters = parameters;
 }
 
 QString IrcCommand::toString() const
 {
-    return QString("UNKNOWN %1").arg(params.join(" "));
+    Q_D(const IrcCommand);
+    const QString p0 = d->parameters.value(0);
+    const QString p1 = d->parameters.value(1);
+    const QString p2 = d->parameters.value(2);
+
+    switch (d->type)
+    {
+    case Password:      return QString("PASS %1").arg(p0); // pass
+    case Nick:          return QString("NICK %1").arg(p0); // nick
+    case User:          return QString("USER %1 hostname servername :%2").arg(p0, p1); // user, real
+    case Operator:      return QString("OPER %1 %2").arg(p0, p1); // user, passwd
+    case Quit:          return QString("QUIT :%1").arg(p0); // reason
+    case Join:          return p1.isNull() ? QString("JOIN %1").arg(p0) : QString("JOIN %1 %2").arg(p0, p1); // chan, key
+    case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
+    case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
+    case Names:         return QString("NAMES %1").arg(p0); // chan
+    case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
+    case Invite:        return QString("INVITE %1 %2").arg(p0, p1); // user, chan
+    case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // user, chan, reason
+    case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg, mask
+    case Message:       return QString("PRIVMSG %1 :%2").arg(p0, p1); // target, msg
+    case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
+    case CtcpAction:    return QString("PRIVMSG %1 :\1ACTION %2\1").arg(p0, p1); // target, msg
+    case CtcpRequest:   return QString("PRIVMSG %1 :\1%2\1").arg(p0, p1); // target, msg
+    case CtcpReply:     return QString("NOTICE %1 :\1%2\1").arg(p0, p1); // target, msg
+    case Who:           return QString("WHO %1").arg(p0); // user
+    case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
+    case Whowas:        return QString("WHOWAS %1 %1").arg(p0); // user
+    case Ping:          return QString("PING %1").arg(p0); // target
+    case Pong:          return QString("PONG %1").arg(p0); // target
+    case Away:          return QString("AWAY :%1").arg(p0); // reason
+    case Unknown:
+    default:            return QString();
+    }
 }
 
-QString IrcPasswordCommand::toString() const
+IrcCommand* IrcCommand::createPassword(const QString& password, QObject* parent)
 {
-    return QString("PASS %1").arg(passwd);
+    return IrcCommandPrivate::createCommand(Password, QStringList() << password, parent);
 }
 
-QString IrcNickCommand::toString() const
+IrcCommand* IrcCommand::createNick(const QString& nick, QObject* parent)
 {
-    return QString("NICK %1").arg(n);
+    return IrcCommandPrivate::createCommand(Nick, QStringList() << nick, parent);
 }
 
-QString IrcUserCommand::toString() const
+IrcCommand* IrcCommand::createUser(const QString& userName, const QString& realName, QObject* parent)
 {
-    // RFC 1459 states that "hostname and servername are normally
-    // ignored by the IRC server when the USER command comes from
-    // a directly connected client (for security reasons)", therefore
-    // we don't need them.
-    return QString("USER %1 hostname servername :%2").arg(user, real);
+    return IrcCommandPrivate::createCommand(User, QStringList() << userName << realName, parent);
 }
 
-QString IrcOperatorCommand::toString() const
+IrcCommand* IrcCommand::createOperator(const QString& user, const QString& password, QObject* parent)
 {
-    return QString("OPER %1 %2").arg(usr, passwd);
+    return IrcCommandPrivate::createCommand(Operator, QStringList() << user << password, parent);
 }
 
-QString IrcQuitCommand::toString() const
+IrcCommand* IrcCommand::createQuit(const QString& reason, QObject* parent)
 {
-    return QString("QUIT :%1").arg(rson);
+    return IrcCommandPrivate::createCommand(Quit, QStringList() << reason, parent);
 }
 
-QString IrcJoinCommand::toString() const
+IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key, QObject* parent)
 {
-    if (k.isEmpty())
-        return QString("JOIN %1").arg(chan);
-    return QString("JOIN %1 %2").arg(chan, k);
+    return IrcCommandPrivate::createCommand(Join, QStringList() << channel << key, parent);
 }
 
-QString IrcPartCommand::toString() const
+IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason, QObject* parent)
 {
-    if (rson.isEmpty())
-        return QString("PART %1").arg(chan);
-    return QString("PART %1 :%2").arg(chan, rson);
+    return IrcCommandPrivate::createCommand(Part, QStringList() << channel << reason, parent);
 }
 
-QString IrcTopicCommand::toString() const
+IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic, QObject* parent)
 {
-    if (tpc.isEmpty())
-        return QString("TOPIC %1").arg(chan);
-    return QString("TOPIC %1 :%2").arg(chan, tpc);
+    return IrcCommandPrivate::createCommand(Topic, QStringList() << channel << topic, parent);
 }
 
-QString IrcNamesCommand::toString() const
+IrcCommand* IrcCommand::createNames(const QString& channel, QObject* parent)
 {
-    return QString("NAMES %1").arg(chan);
+    return IrcCommandPrivate::createCommand(Names, QStringList() << channel, parent);
 }
 
-QString IrcListCommand::toString() const
+IrcCommand* IrcCommand::createList(const QString& channel, const QString& server, QObject* parent)
 {
-    if (srv.isEmpty())
-        return QString("LIST %1").arg(chan);
-    return QString("LIST %1 %2").arg(chan, srv);
+    return IrcCommandPrivate::createCommand(List, QStringList() << channel << server, parent);
 }
 
-QString IrcInviteCommand::toString() const
+IrcCommand* IrcCommand::createInvite(const QString& user, const QString& channel, QObject* parent)
 {
-    return QString("INVITE %1 %2").arg(usr, chan);
+    return IrcCommandPrivate::createCommand(Invite, QStringList() << user << channel, parent);
 }
 
-QString IrcKickCommand::toString() const
+IrcCommand* IrcCommand::createKick(const QString& user, const QString& channel, const QString& reason, QObject* parent)
 {
-    if (rson.isEmpty())
-        return QString("KICK %1 %2").arg(usr, chan);
-    return QString("KICK %1 %2 :%3").arg(usr, chan, rson);
+    return IrcCommandPrivate::createCommand(Kick, QStringList() << user << channel << reason, parent);
 }
 
-QString IrcModeCommand::toString() const
+IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg, const QString& mask, QObject* parent)
 {
-    QStringList lst;
-    lst << QString("MODE") << tgt << mod << arg << msk;
-    while (lst.last().isEmpty())
-        lst.removeLast();
-    return lst.join(" ");
+    return IrcCommandPrivate::createCommand(Mode, QStringList() << target << mode << arg << mask, parent);
 }
 
-QString IrcMessageCommand::toString() const
+IrcCommand* IrcCommand::createMessage(const QString& target, const QString& message, QObject* parent)
 {
-    QString copy(msg);
-    if (act)
-        copy = QString("\1ACTION %1\x01").arg(msg);
-    else if (req)
-        copy = QString("\1%1\1").arg(msg);
-    return QString("PRIVMSG %1 :%2").arg(tgt, copy);
+    return IrcCommandPrivate::createCommand(Message, QStringList() << target << message, parent);
 }
 
-QString IrcNoticeCommand::toString() const
+IrcCommand* IrcCommand::createNotice(const QString& target, const QString& message, QObject* parent)
 {
-    QString copy(msg);
-    if (rpl)
-        copy = QString("\1%1\1").arg(msg);
-    return QString("NOTICE %1 :%2").arg(tgt, copy);
+    return IrcCommandPrivate::createCommand(Notice, QStringList() << target << message, parent);
 }
 
-QString IrcQueryCommand::toString() const
+IrcCommand* IrcCommand::createCtcpAction(const QString& target, const QString& action, QObject* parent)
 {
-    return QString("QUERY %1").arg(usr);
+    return IrcCommandPrivate::createCommand(CtcpAction, QStringList() << target << action, parent);
 }
 
-QString IrcWhoCommand::toString() const
+IrcCommand* IrcCommand::createCtcpRequest(const QString& target, const QString& request, QObject* parent)
 {
-    return QString("WHO %1").arg(usr);
+    return IrcCommandPrivate::createCommand(CtcpRequest, QStringList() << target << request, parent);
 }
 
-QString IrcWhoisCommand::toString() const
+IrcCommand* IrcCommand::createCtcpReply(const QString& target, const QString& reply, QObject* parent)
 {
-    return QString("WHOIS %1 %1").arg(usr);
+    return IrcCommandPrivate::createCommand(CtcpReply, QStringList() << target << reply, parent);
 }
 
-QString IrcWhowasCommand::toString() const
+IrcCommand* IrcCommand::createWho(const QString& user, QObject* parent)
 {
-    return QString("WHOWAS %1 %1").arg(usr);
+    return IrcCommandPrivate::createCommand(Who, QStringList() << user, parent);
 }
 
-QString IrcPingCommand::toString() const
+IrcCommand* IrcCommand::createWhois(const QString& user, QObject* parent)
 {
-    return QString("PING %1").arg(tgt);
+    return IrcCommandPrivate::createCommand(Whois, QStringList() << user, parent);
 }
 
-QString IrcPongCommand::toString() const
+IrcCommand* IrcCommand::createWhowas(const QString& user, QObject* parent)
 {
-    return QString("PONG %1").arg(tgt);
+    return IrcCommandPrivate::createCommand(Whowas, QStringList() << user, parent);
 }
 
-QString IrcAwayCommand::toString() const
+IrcCommand* IrcCommand::createPing(const QString& target, QObject* parent)
 {
-    return QString("AWAY :%1").arg(msg);
+    return IrcCommandPrivate::createCommand(Ping, QStringList() << target, parent);
+}
+
+IrcCommand* IrcCommand::createPong(const QString& target, QObject* parent)
+{
+    return IrcCommandPrivate::createCommand(Pong, QStringList() << target, parent);
+}
+
+IrcCommand* IrcCommand::createAway(const QString& reason, QObject* parent)
+{
+    return IrcCommandPrivate::createCommand(Away, QStringList() << reason, parent);
 }
 
 #ifndef QT_NO_DEBUG_STREAM
@@ -201,6 +232,9 @@ QDebug operator<<(QDebug debug, const IrcCommand* command)
     debug.nospace() << command->metaObject()->className() << '(' << (void*) command;
     if (!command->objectName().isEmpty())
         debug << ", name = " << command->objectName();
+    QString str = command->toString();
+    if (!str.isEmpty())
+        debug << "'" << str.left(20) << "'";
     debug.nospace() << ')';
     return debug.space();
 }
