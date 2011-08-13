@@ -429,7 +429,7 @@ int IrcNumericMessage::code() const
 {
     Q_D(const IrcMessage);
     bool ok = false;
-    int number = d->parameters.value(0).toInt(&ok);
+    int number = d->command.toInt(&ok);
     return ok ? number : -1;
 }
 
