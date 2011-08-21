@@ -30,7 +30,7 @@ class COMMUNI_EXPORT IrcSession : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString host READ host WRITE setHost)
-    Q_PROPERTY(quint16 port READ port WRITE setPort)
+    Q_PROPERTY(int port READ port WRITE setPort)
     Q_PROPERTY(QString userName READ userName WRITE setUserName)
     Q_PROPERTY(QString nickName READ nickName WRITE setNickName)
     Q_PROPERTY(QString realName READ realName WRITE setRealName)
@@ -44,8 +44,8 @@ public:
     QString host() const;
     void setHost(const QString& host);
 
-    quint16 port() const;
-    void setPort(quint16 port);
+    int port() const;
+    void setPort(int port);
 
     QString userName() const;
     void setUserName(const QString& name);

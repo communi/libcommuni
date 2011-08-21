@@ -273,7 +273,7 @@ void IrcSession::setHost(const QString& host)
 /*!
     Returns the port.
  */
-quint16 IrcSession::port() const
+int IrcSession::port() const
 {
     Q_D(const IrcSession);
     return d->port;
@@ -282,7 +282,7 @@ quint16 IrcSession::port() const
 /*!
     Sets the \a port.
  */
-void IrcSession::setPort(quint16 port)
+void IrcSession::setPort(int port)
 {
     Q_D(IrcSession);
     if (d->isConnected())

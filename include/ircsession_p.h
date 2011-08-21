@@ -48,7 +48,7 @@ public:
     QByteArray buffer;
     QAbstractSocket* socket;
     QString host;
-    quint16 port;
+    int port;
     QString userName;
     QString nickName;
     QString realName;
