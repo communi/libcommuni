@@ -87,8 +87,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_error(QAbstractSocket::SocketError))
     Q_PRIVATE_SLOT(d_func(), void _q_state(QAbstractSocket::SocketState))
     Q_PRIVATE_SLOT(d_func(), void _q_readData())
-
-    friend class IrcReceiver;
 };
 
 #ifndef QT_NO_DEBUG_STREAM

@@ -22,7 +22,6 @@
 #include "ircparser_p.h"
 #include "ircmessagebuilder_p.h"
 
-class IrcReceiver;
 class IrcMessageBuilder;
 
 class IrcSessionPrivate
@@ -53,9 +52,6 @@ public:
     QString userName;
     QString nickName;
     QString realName;
-    QList<IrcReceiver*> receivers;
-
-    friend class IrcReceiverPrivate;
 };
 
 #endif // IRCSESSION_P_H

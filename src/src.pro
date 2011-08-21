@@ -31,7 +31,6 @@ CONV_HEADERS += ../include/IrcCommand
 CONV_HEADERS += ../include/IrcGlobal
 CONV_HEADERS += ../include/IrcMessage
 CONV_HEADERS += ../include/IrcPrefix
-CONV_HEADERS += ../include/IrcReceiver
 CONV_HEADERS += ../include/IrcSession
 CONV_HEADERS += ../include/IrcUtil
 
@@ -40,7 +39,6 @@ PUB_HEADERS += ../include/irccommand.h
 PUB_HEADERS += ../include/ircglobal.h
 PUB_HEADERS += ../include/ircmessage.h
 PUB_HEADERS += ../include/ircprefix.h
-PUB_HEADERS += ../include/ircreceiver.h
 PUB_HEADERS += ../include/ircsession.h
 PUB_HEADERS += ../include/ircutil.h
 
@@ -57,7 +55,6 @@ SOURCES += ircmessage.cpp
 SOURCES += ircmessagebuilder.cpp
 SOURCES += ircparser.cpp
 SOURCES += ircprefix.cpp
-SOURCES += ircreceiver.cpp
 SOURCES += ircsession.cpp
 SOURCES += ircutil.cpp
 
