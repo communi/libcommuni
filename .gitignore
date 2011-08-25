@@ -17,6 +17,8 @@ bin
 *.orig
 *.pro.user
 *.qmlproject.user
+*.xcodeproj
+*.plist
 communi-config.prf
 .qmake.cache
 .make.cache
