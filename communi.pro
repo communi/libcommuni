@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = subdirs
-SUBDIRS += src plugins tests examples
+SUBDIRS += src plugins examples # tests
 CONFIG += ordered
 
 static {
