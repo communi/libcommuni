@@ -99,19 +99,10 @@ void IrcSessionPrivate::_q_connected()
     QString password;
     emit q->password(&password);
     if (!password.isEmpty())
-    {
-        IrcCommand* cmd = IrcCommand::createPassword(password, q);
-        q->sendCommand(cmd);
-        delete cmd;
-    }
+        q->sendCommand(IrcCommand::createPassword(password));
 
-    IrcCommand* cmd = IrcCommand::createNick(nickName, q);
-    q->sendCommand(cmd);
-    delete cmd;
-
-    cmd = IrcCommand::createUser(userName, realName, q);
-    q->sendCommand(cmd);
-    delete cmd;
+    q->sendCommand(IrcCommand::createNick(nickName));
+    q->sendCommand(IrcCommand::createUser(userName, realName));
 }
 
 void IrcSessionPrivate::_q_disconnected()
@@ -185,17 +176,16 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             builder.handleMessage(static_cast<IrcNumericMessage*>(msg));
             break;
         case IrcMessage::Ping: {
-            // TODO: ifAutomatic?
             QString target = static_cast<IrcPingMessage*>(msg)->target();
             IrcCommand* pongCmd = IrcCommand::createPong(target);
             q->sendCommand(pongCmd);
-            delete pongCmd;
             break;
             }
+        default:
+            break;
         }
 
         emit q->messageReceived(msg);
-        msg->deleteLater();
     }
 }
 
@@ -332,11 +322,7 @@ void IrcSession::setNickName(const QString& name)
     {
         d->nickName = nick;
         if (d->isConnected())
-        {
-            IrcCommand* cmd = IrcCommand::createNick(nick, this);
-            sendCommand(cmd);
-            delete cmd;
-        }
+            sendCommand(IrcCommand::createNick(nick));
     }
 }
 
@@ -443,6 +429,10 @@ void IrcSession::close()
 
 /*!
     Sends a \a command to the server.
+
+    The command must be allocated on the heap since the session will take
+    ownership of the command and delete it once it has been sent. It is
+    not safe to access the command after it has been sent.
 
     \sa sendRaw()
  */

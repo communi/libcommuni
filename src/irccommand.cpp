@@ -21,12 +21,12 @@ public:
     IrcCommand::Type type;
     QStringList parameters;
 
-    static IrcCommand* createCommand(IrcCommand::Type type, const QStringList& parameters, QObject* parent);
+    static IrcCommand* createCommand(IrcCommand::Type type, const QStringList& parameters);
 };
 
-IrcCommand* IrcCommandPrivate::createCommand(IrcCommand::Type type, const QStringList& parameters, QObject* parent)
+IrcCommand* IrcCommandPrivate::createCommand(IrcCommand::Type type, const QStringList& parameters)
 {
-    IrcCommand* command = new IrcCommand(parent);
+    IrcCommand* command = new IrcCommand;
     command->setType(type);
     command->setParameters(parameters);
     return command;
@@ -104,124 +104,124 @@ QString IrcCommand::toString() const
     }
 }
 
-IrcCommand* IrcCommand::createPassword(const QString& password, QObject* parent)
+IrcCommand* IrcCommand::createPassword(const QString& password)
 {
-    return IrcCommandPrivate::createCommand(Password, QStringList() << password, parent);
+    return IrcCommandPrivate::createCommand(Password, QStringList() << password);
 }
 
-IrcCommand* IrcCommand::createNick(const QString& nick, QObject* parent)
+IrcCommand* IrcCommand::createNick(const QString& nick)
 {
-    return IrcCommandPrivate::createCommand(Nick, QStringList() << nick, parent);
+    return IrcCommandPrivate::createCommand(Nick, QStringList() << nick);
 }
 
-IrcCommand* IrcCommand::createUser(const QString& userName, const QString& realName, QObject* parent)
+IrcCommand* IrcCommand::createUser(const QString& userName, const QString& realName)
 {
-    return IrcCommandPrivate::createCommand(User, QStringList() << userName << realName, parent);
+    return IrcCommandPrivate::createCommand(User, QStringList() << userName << realName);
 }
 
-IrcCommand* IrcCommand::createOperator(const QString& user, const QString& password, QObject* parent)
+IrcCommand* IrcCommand::createOperator(const QString& user, const QString& password)
 {
-    return IrcCommandPrivate::createCommand(Operator, QStringList() << user << password, parent);
+    return IrcCommandPrivate::createCommand(Operator, QStringList() << user << password);
 }
 
-IrcCommand* IrcCommand::createQuit(const QString& reason, QObject* parent)
+IrcCommand* IrcCommand::createQuit(const QString& reason)
 {
-    return IrcCommandPrivate::createCommand(Quit, QStringList() << reason, parent);
+    return IrcCommandPrivate::createCommand(Quit, QStringList() << reason);
 }
 
-IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key, QObject* parent)
+IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key)
 {
-    return IrcCommandPrivate::createCommand(Join, QStringList() << channel << key, parent);
+    return IrcCommandPrivate::createCommand(Join, QStringList() << channel << key);
 }
 
-IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason, QObject* parent)
+IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason)
 {
-    return IrcCommandPrivate::createCommand(Part, QStringList() << channel << reason, parent);
+    return IrcCommandPrivate::createCommand(Part, QStringList() << channel << reason);
 }
 
-IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic, QObject* parent)
+IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic)
 {
-    return IrcCommandPrivate::createCommand(Topic, QStringList() << channel << topic, parent);
+    return IrcCommandPrivate::createCommand(Topic, QStringList() << channel << topic);
 }
 
-IrcCommand* IrcCommand::createNames(const QString& channel, QObject* parent)
+IrcCommand* IrcCommand::createNames(const QString& channel)
 {
-    return IrcCommandPrivate::createCommand(Names, QStringList() << channel, parent);
+    return IrcCommandPrivate::createCommand(Names, QStringList() << channel);
 }
 
-IrcCommand* IrcCommand::createList(const QString& channel, const QString& server, QObject* parent)
+IrcCommand* IrcCommand::createList(const QString& channel, const QString& server)
 {
-    return IrcCommandPrivate::createCommand(List, QStringList() << channel << server, parent);
+    return IrcCommandPrivate::createCommand(List, QStringList() << channel << server);
 }
 
-IrcCommand* IrcCommand::createInvite(const QString& user, const QString& channel, QObject* parent)
+IrcCommand* IrcCommand::createInvite(const QString& user, const QString& channel)
 {
-    return IrcCommandPrivate::createCommand(Invite, QStringList() << user << channel, parent);
+    return IrcCommandPrivate::createCommand(Invite, QStringList() << user << channel);
 }
 
-IrcCommand* IrcCommand::createKick(const QString& user, const QString& channel, const QString& reason, QObject* parent)
+IrcCommand* IrcCommand::createKick(const QString& user, const QString& channel, const QString& reason)
 {
-    return IrcCommandPrivate::createCommand(Kick, QStringList() << user << channel << reason, parent);
+    return IrcCommandPrivate::createCommand(Kick, QStringList() << user << channel << reason);
 }
 
-IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg, const QString& mask, QObject* parent)
+IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg, const QString& mask)
 {
-    return IrcCommandPrivate::createCommand(Mode, QStringList() << target << mode << arg << mask, parent);
+    return IrcCommandPrivate::createCommand(Mode, QStringList() << target << mode << arg << mask);
 }
 
-IrcCommand* IrcCommand::createMessage(const QString& target, const QString& message, QObject* parent)
+IrcCommand* IrcCommand::createMessage(const QString& target, const QString& message)
 {
-    return IrcCommandPrivate::createCommand(Message, QStringList() << target << message, parent);
+    return IrcCommandPrivate::createCommand(Message, QStringList() << target << message);
 }
 
-IrcCommand* IrcCommand::createNotice(const QString& target, const QString& message, QObject* parent)
+IrcCommand* IrcCommand::createNotice(const QString& target, const QString& message)
 {
-    return IrcCommandPrivate::createCommand(Notice, QStringList() << target << message, parent);
+    return IrcCommandPrivate::createCommand(Notice, QStringList() << target << message);
 }
 
-IrcCommand* IrcCommand::createCtcpAction(const QString& target, const QString& action, QObject* parent)
+IrcCommand* IrcCommand::createCtcpAction(const QString& target, const QString& action)
 {
-    return IrcCommandPrivate::createCommand(CtcpAction, QStringList() << target << action, parent);
+    return IrcCommandPrivate::createCommand(CtcpAction, QStringList() << target << action);
 }
 
-IrcCommand* IrcCommand::createCtcpRequest(const QString& target, const QString& request, QObject* parent)
+IrcCommand* IrcCommand::createCtcpRequest(const QString& target, const QString& request)
 {
-    return IrcCommandPrivate::createCommand(CtcpRequest, QStringList() << target << request, parent);
+    return IrcCommandPrivate::createCommand(CtcpRequest, QStringList() << target << request);
 }
 
-IrcCommand* IrcCommand::createCtcpReply(const QString& target, const QString& reply, QObject* parent)
+IrcCommand* IrcCommand::createCtcpReply(const QString& target, const QString& reply)
 {
-    return IrcCommandPrivate::createCommand(CtcpReply, QStringList() << target << reply, parent);
+    return IrcCommandPrivate::createCommand(CtcpReply, QStringList() << target << reply);
 }
 
-IrcCommand* IrcCommand::createWho(const QString& user, QObject* parent)
+IrcCommand* IrcCommand::createWho(const QString& user)
 {
-    return IrcCommandPrivate::createCommand(Who, QStringList() << user, parent);
+    return IrcCommandPrivate::createCommand(Who, QStringList() << user);
 }
 
-IrcCommand* IrcCommand::createWhois(const QString& user, QObject* parent)
+IrcCommand* IrcCommand::createWhois(const QString& user)
 {
-    return IrcCommandPrivate::createCommand(Whois, QStringList() << user, parent);
+    return IrcCommandPrivate::createCommand(Whois, QStringList() << user);
 }
 
-IrcCommand* IrcCommand::createWhowas(const QString& user, QObject* parent)
+IrcCommand* IrcCommand::createWhowas(const QString& user)
 {
-    return IrcCommandPrivate::createCommand(Whowas, QStringList() << user, parent);
+    return IrcCommandPrivate::createCommand(Whowas, QStringList() << user);
 }
 
-IrcCommand* IrcCommand::createPing(const QString& target, QObject* parent)
+IrcCommand* IrcCommand::createPing(const QString& target)
 {
-    return IrcCommandPrivate::createCommand(Ping, QStringList() << target, parent);
+    return IrcCommandPrivate::createCommand(Ping, QStringList() << target);
 }
 
-IrcCommand* IrcCommand::createPong(const QString& target, QObject* parent)
+IrcCommand* IrcCommand::createPong(const QString& target)
 {
-    return IrcCommandPrivate::createCommand(Pong, QStringList() << target, parent);
+    return IrcCommandPrivate::createCommand(Pong, QStringList() << target);
 }
 
-IrcCommand* IrcCommand::createAway(const QString& reason, QObject* parent)
+IrcCommand* IrcCommand::createAway(const QString& reason)
 {
-    return IrcCommandPrivate::createCommand(Away, QStringList() << reason, parent);
+    return IrcCommandPrivate::createCommand(Away, QStringList() << reason);
 }
 
 #ifndef QT_NO_DEBUG_STREAM
