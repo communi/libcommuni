@@ -21,7 +21,7 @@ class COMMUNI_EXPORT IrcUtil
 {
 public:
     static QString messageToHtml(const QString& message);
-    static QString colorNameFromCode(int code);
+    static QString colorCodeToName(int code);
 };
 
 #endif // IRCUTIL_H

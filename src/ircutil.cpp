@@ -73,7 +73,7 @@ QString IrcUtil::messageToHtml(const QString& message)
             if (ok)
             {
                 processed.remove(pos, len);
-                QString color = colorNameFromCode(code);
+                QString color = colorCodeToName(code);
                 processed = processed.arg(color);
                 len = color.length();
             }
@@ -212,9 +212,9 @@ QString IrcUtil::messageToHtml(const QString& message)
 }
 
 /*!
-    Converts \a code to a color name.
+    Converts a color \a code to a color name.
 */
-QString IrcUtil::colorNameFromCode(int code)
+QString IrcUtil::colorCodeToName(int code)
 {
     switch (code)
     {
