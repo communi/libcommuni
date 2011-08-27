@@ -62,7 +62,7 @@ const char* Irc::version()
 /*!
     Returns the Code RFC \a code as a string or \a 0 if the code is unknown.
  */
-const char* Irc::toString(Irc::Code code)
+const char* Irc::toString(int code)
 {
     int index = staticMetaObject.indexOfEnumerator("Code");
     Q_ASSERT(index != -1);

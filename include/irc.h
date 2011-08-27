@@ -195,7 +195,7 @@ public:
     };
 
     static const char* version();
-    static const char* toString(Code code);
+    static const char* toString(int code);
 };
 
 #endif // IRC_H
