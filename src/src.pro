@@ -42,7 +42,6 @@ PUB_HEADERS += ../include/ircprefix.h
 PUB_HEADERS += ../include/ircsession.h
 PUB_HEADERS += ../include/ircutil.h
 
-PRIV_HEADERS += ../include/ircmessagebuilder_p.h
 PRIV_HEADERS += ../include/ircparser_p.h
 PRIV_HEADERS += ../include/ircsession_p.h
 
@@ -52,7 +51,6 @@ HEADERS += $$PRIV_HEADERS
 SOURCES += irc.cpp
 SOURCES += irccommand.cpp
 SOURCES += ircmessage.cpp
-SOURCES += ircmessagebuilder.cpp
 SOURCES += ircparser.cpp
 SOURCES += ircprefix.cpp
 SOURCES += ircsession.cpp

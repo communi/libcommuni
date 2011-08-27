@@ -20,9 +20,6 @@
 #include <QMultiHash>
 #include <QAbstractSocket>
 #include "ircparser_p.h"
-#include "ircmessagebuilder_p.h"
-
-class IrcMessageBuilder;
 
 class IrcSessionPrivate
 {
@@ -44,7 +41,6 @@ public:
 
     IrcSession* q_ptr;
     IrcParser parser;
-    IrcMessageBuilder builder;
     QByteArray buffer;
     QAbstractSocket* socket;
     QString host;

@@ -88,7 +88,6 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     nickName(),
     realName()
 {
-    QObject::connect(&builder, SIGNAL(messageBuilt(IrcMessage*)), session, SIGNAL(messageReceived(IrcMessage*)));
 }
 
 void IrcSessionPrivate::_q_connected()
@@ -173,7 +172,6 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         case IrcMessage::Numeric:
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
                 emit q->connected();
-            builder.handleMessage(static_cast<IrcNumericMessage*>(msg));
             break;
         case IrcMessage::Ping: {
             QString target = static_cast<IrcPingMessage*>(msg)->target();
