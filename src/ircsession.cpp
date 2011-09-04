@@ -122,12 +122,13 @@ void IrcSessionPrivate::_q_reconnect()
 
 void IrcSessionPrivate::_q_error(QAbstractSocket::SocketError error)
 {
-    qDebug() << "IrcSessionPrivate::_q_error():" << error;
+    qCritical() << "IrcSessionPrivate::_q_error():" << error;
 }
 
 void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
 {
-    qDebug() << "IrcSessionPrivate::_q_state():" << state;
+    static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
+    if (dbg) qDebug() << "IrcSessionPrivate::_q_state():" << state;
 }
 
 void IrcSessionPrivate::_q_readData()
@@ -156,7 +157,8 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
     Q_Q(IrcSession);
     parser.parse(line);
 
-    qDebug() << line;
+    static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
+    if (dbg) qDebug() << line;
 
     QString prefix = parser.prefix();
     QString command = parser.command();
