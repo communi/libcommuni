@@ -319,13 +319,13 @@ QString IrcPrivateMessage::message() const
 bool IrcPrivateMessage::isAction() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0).startsWith("\1ACTION ") && d->parameters.value(0).endsWith('\1');
+    return d->parameters.value(1).startsWith("\1ACTION ") && d->parameters.value(1).endsWith('\1');
 }
 
 bool IrcPrivateMessage::isRequest() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0).startsWith('\1') && d->parameters.value(0).endsWith('\1') && !isAction();
+    return d->parameters.value(1).startsWith('\1') && d->parameters.value(1).endsWith('\1') && !isAction();
 }
 
 bool IrcPrivateMessage::initFrom(const QString& prefix, const QStringList& parameters)
@@ -360,7 +360,7 @@ QString IrcNoticeMessage::message() const
 bool IrcNoticeMessage::isReply() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0).startsWith('\1') && d->parameters.value(0).endsWith('\1');
+    return d->parameters.value(1).startsWith('\1') && d->parameters.value(1).endsWith('\1');
 }
 
 bool IrcNoticeMessage::initFrom(const QString& prefix, const QStringList& parameters)
