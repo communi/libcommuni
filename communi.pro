@@ -6,11 +6,15 @@ TEMPLATE = subdirs
 SUBDIRS += src plugins examples # tests
 CONFIG += ordered
 
+lessThan(QT_MAJOR_VERSION, 4) | lessThan(QT_MINOR_VERSION, 7) {
+    error(Communi requires Qt 4.7 or newer but Qt $$[QT_VERSION] was detected.)
+}
+
 static {
     system(echo DEFINES+=COMMUNI_STATIC > .qmake.cache)
     system(echo DEFINES+=COMMUNI_STATIC > features$${QMAKE_DIR_SEP}communi-config.prf)
 } else {
-    system(echo DEFINES+=COMMUNI_STATIC > .qmake.cache)
+    system(echo DEFINES+=COMMUNI_SHARED > .qmake.cache)
     system(echo DEFINES+=COMMUNI_SHARED > features$${QMAKE_DIR_SEP}communi-config.prf)
 }
 
@@ -45,8 +49,8 @@ symbian {
 
     !no_icu {
         message(ICU support enabled. Run \'qmake -config no_icu\' to disable ICU support.)
-        include(icu.pri)
     } else {
         message(ICU support disabled.)
+        system(echo CONFIG+=no_icu >> .qmake.cache)
     }
 }

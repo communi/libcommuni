@@ -10,7 +10,7 @@ CONFIG += plugin
 !symbian:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
-TARGETPATH = org/gitorious/communi
+TARGETPATH = Communi
 DESTDIR = ../../imports/$$TARGETPATH
 DEPENDPATH += . ../../include
 INCLUDEPATH += . ../../include
