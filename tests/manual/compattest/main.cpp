@@ -1,13 +1,11 @@
 /*
  * Copyright (C) 2008-2011 J-P Nurmi <jpnurmi@gmail.com>
  *
- * This example is free, and not covered by LGPL license. There is no
+ * This test is free, and not covered by LGPL license. There is no
  * restriction applied to their modification, redistribution, using and so on.
  * You can study them, modify them, use them in your own program - either
  * completely or partially. By using it you may give me some credits in your
  * program, but you don't have to.
- *
- * $Id$
  */
 
 #include <QtCore>
