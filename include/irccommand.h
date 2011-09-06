@@ -32,7 +32,7 @@ class COMMUNI_EXPORT IrcCommand : public QObject
 public:
     enum Type
     {
-        Unknown,
+        Custom,
 
         // connection registration
         Password,
@@ -80,7 +80,7 @@ public:
     void setType(Type type);
 
     QStringList parameters() const;
-    void setParameters(QStringList parameters);
+    void setParameters(const QStringList& parameters);
 
     virtual QString toString() const;
 
@@ -88,26 +88,26 @@ public:
     Q_INVOKABLE static IrcCommand* createNick(const QString& nick);
     Q_INVOKABLE static IrcCommand* createUser(const QString& userName, const QString& realName);
     Q_INVOKABLE static IrcCommand* createOperator(const QString& user, const QString& password);
-    Q_INVOKABLE static IrcCommand* createQuit(const QString& reason);
-    Q_INVOKABLE static IrcCommand* createJoin(const QString& channel, const QString& key);
-    Q_INVOKABLE static IrcCommand* createPart(const QString& channel, const QString& reason);
-    Q_INVOKABLE static IrcCommand* createTopic(const QString& channel, const QString& topic);
+    Q_INVOKABLE static IrcCommand* createQuit(const QString& reason = QString());
+    Q_INVOKABLE static IrcCommand* createJoin(const QString& channel, const QString& key = QString());
+    Q_INVOKABLE static IrcCommand* createPart(const QString& channel, const QString& reason = QString());
+    Q_INVOKABLE static IrcCommand* createTopic(const QString& channel, const QString& topic = QString());
     Q_INVOKABLE static IrcCommand* createNames(const QString& channel);
-    Q_INVOKABLE static IrcCommand* createList(const QString& channel, const QString& server);
+    Q_INVOKABLE static IrcCommand* createList(const QString& channel, const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createInvite(const QString& user, const QString& channel);
-    Q_INVOKABLE static IrcCommand* createKick(const QString& user, const QString& channel, const QString& reason);
-    Q_INVOKABLE static IrcCommand* createMode(const QString& target, const QString& mode, const QString& arg, const QString& mask);
+    Q_INVOKABLE static IrcCommand* createKick(const QString& user, const QString& channel, const QString& reason = QString());
+    Q_INVOKABLE static IrcCommand* createMode(const QString& target, const QString& mode, const QString& arg = QString(), const QString& mask = QString());
     Q_INVOKABLE static IrcCommand* createMessage(const QString& target, const QString& message);
     Q_INVOKABLE static IrcCommand* createNotice(const QString& target, const QString& message);
     Q_INVOKABLE static IrcCommand* createCtcpAction(const QString& target, const QString& action);
     Q_INVOKABLE static IrcCommand* createCtcpRequest(const QString& target, const QString& request);
     Q_INVOKABLE static IrcCommand* createCtcpReply(const QString& target, const QString& reply);
-    Q_INVOKABLE static IrcCommand* createWho(const QString& user);
+    Q_INVOKABLE static IrcCommand* createWho(const QString& mask);
     Q_INVOKABLE static IrcCommand* createWhois(const QString& user);
     Q_INVOKABLE static IrcCommand* createWhowas(const QString& user);
     Q_INVOKABLE static IrcCommand* createPing(const QString& target);
     Q_INVOKABLE static IrcCommand* createPong(const QString& target);
-    Q_INVOKABLE static IrcCommand* createAway(const QString& reason);
+    Q_INVOKABLE static IrcCommand* createAway(const QString& reason = QString());
 
 private:
     QScopedPointer<IrcCommandPrivate> d_ptr;
