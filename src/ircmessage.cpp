@@ -15,6 +15,101 @@
 #include "ircmessage.h"
 #include <QDebug>
 
+/*!
+    \class IrcMessage ircmessage.h <IrcMessage>
+    \brief The IrcMessage class is the base class of all IRC message classes.
+
+    IRC messages are received from an IRC server. IrcSession translates received
+    messages into IrcMessage instances and emits the IrcSession::messageReceived()
+    signal upon message received.
+
+    Subclasses of IrcMessage contain specialized accessors for parameters that
+    are specific to the particular type of message. See IrcMessage::Type for
+    the list of supported message types.
+
+    \sa IrcSession::messageReceived(), IrcMessage::Type
+ */
+
+/*!
+    \enum IrcMessage::Type
+    This enum describes the supported message types.
+ */
+
+/*!
+    \var IrcMessage::Unknown
+    \brief An unknown message (IrcMessage).
+ */
+
+/*!
+    \var IrcMessage::Nick
+    \brief A nick message (IrcNickMessage).
+ */
+
+/*!
+    \var IrcMessage::Quit
+    \brief A quit message (IrcQuitMessage).
+ */
+
+/*!
+    \var IrcMessage::Join
+    \brief A join message (IrcJoinMessage).
+ */
+
+/*!
+    \var IrcMessage::Part
+    \brief A part message (IrcPartMessage).
+ */
+
+/*!
+    \var IrcMessage::Topic
+    \brief A topic message (IrcTopicMessage).
+ */
+
+/*!
+    \var IrcMessage::Invite
+    \brief An invite message (IrcInviteMessage).
+ */
+
+/*!
+    \var IrcMessage::Kick
+    \brief A kick message (IrcKickMessage).
+ */
+
+/*!
+    \var IrcMessage::Mode
+    \brief A mode message (IrcModeMessage).
+ */
+
+/*!
+    \var IrcMessage::Private
+    \brief A private message (IrcPrivateMessage).
+ */
+
+/*!
+    \var IrcMessage::Notice
+    \brief A notice message (IrcNoticeMessage).
+ */
+
+/*!
+    \var IrcMessage::Ping
+    \brief A ping message (IrcPingMessage).
+ */
+
+/*!
+    \var IrcMessage::Pong
+    \brief A pong message (IrcPongMessage).
+ */
+
+/*!
+    \var IrcMessage::Error
+    \brief An error message (IrcErrorMessage).
+ */
+
+/*!
+    \var IrcMessage::Numeric
+    \brief A numeric message (IrcNumericMessage).
+ */
+
 class IrcMessagePrivate
 {
 public:
@@ -52,54 +147,94 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
         if (ok)
             metaObject = &IrcNumericMessage::staticMetaObject;
     }
+    if (!metaObject)
+        metaObject = &IrcMessage::staticMetaObject;
     return metaObject;
 }
 
+/*!
+    Constructs a new IrcMessage with \a parent.
+ */
 IrcMessage::IrcMessage(QObject* parent) : QObject(parent), d_ptr(new IrcMessagePrivate)
 {
     Q_D(IrcMessage);
     d->type = Unknown;
 }
 
+/*!
+    Destructs the IRC message.
+ */
 IrcMessage::~IrcMessage()
 {
 }
 
+/*!
+    This property holds the message type.
+
+    \par Access functions:
+    \li IrcMessage::Type <b>type</b>() const
+ */
 IrcMessage::Type IrcMessage::type() const
 {
     Q_D(const IrcMessage);
     return d->type;
 }
 
+/*!
+    This property holds the message prefix.
+
+    \par Access functions:
+    \li QString <b>prefix</b>() const
+ */
 QString IrcMessage::prefix() const
 {
     Q_D(const IrcMessage);
     return d->prefix;
 }
 
+/*!
+    This property holds the message command.
+
+    \par Access functions:
+    \li QString <b>command</b>() const
+ */
 QString IrcMessage::command() const
 {
     Q_D(const IrcMessage);
     return d->command;
 }
 
+/*!
+    This property holds the message parameters.
+
+    \par Access functions:
+    \li QStringList <b>parameters</b>() const
+ */
 QStringList IrcMessage::parameters() const
 {
     Q_D(const IrcMessage);
     return d->parameters;
 }
 
+/*!
+    Creates a new message corresponding to \a command and with \a parent.
+ */
 IrcMessage* IrcMessage::create(const QString& command, QObject* parent)
 {
     IrcMessage* message = 0;
     const QMetaObject* metaObject = irc_command_meta_object(command);
-    if (metaObject)
-        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
-    if (message)
-        message->d_ptr->command = command;
+    Q_ASSERT(metaObject);
+    message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
+    Q_ASSERT(message);
+    message->d_ptr->command = command;
     return message;
 }
 
+/*!
+    Initializes the message from \a prefix and \a parameters and
+    returns \c true on success or \c false if the parameters
+    did not match the message.
+ */
 bool IrcMessage::initFrom(const QString& prefix, const QStringList& parameters)
 {
     Q_D(IrcMessage);
