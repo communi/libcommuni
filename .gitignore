@@ -4,6 +4,7 @@ Makefile_*.mk
 debug
 release
 imports
+doc
 lib
 bin
 *~
