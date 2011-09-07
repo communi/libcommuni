@@ -16,7 +16,7 @@
 #include <QDebug>
 
 /*!
-    \class IrcCommand irccommand.h
+    \class IrcCommand irccommand.h <IrcCommand>
     \brief The IrcCommand class provides the most common IRC commands.
 
     The IrcCommand class supports the most common IRC commands out of the box,
@@ -70,7 +70,7 @@
     };
     \endcode
 
-    \sa IrcSession::sendCommand(), IrcSession::sendRaw()
+    \sa IrcSession::sendCommand(), IrcSession::sendRaw(), IrcCommand::Type
  */
 
 /*!
