@@ -39,13 +39,13 @@
  */
 
 /*!
-    \namespace Irc
-    \brief The Irc namespace contains miscellaneous identifiers used throughout the Communi library.
- */
+    \class Irc irc.h <Irc>
+    \brief The Irc class contains miscellaneous identifiers used throughout the library.
 
-/*!
-    Returns the Communi version number as string
-    in form M.N.P (M = major, N = minor, P = patch).
+    The Irc class enumerates command responses and error replies as defined
+    in RFC 1459 (Internet Relay Chat Protocol - http://www.ietf.org/rfc/rfc1459.txt).
+
+    \sa Irc::Code
  */
 
 /*!
@@ -60,7 +60,9 @@ const char* Irc::version()
 }
 
 /*!
-    Returns the Code RFC \a code as a string or \a 0 if the code is unknown.
+    Returns the numeric \a code as a string or \a 0 if the code is unknown.
+
+    \sa IrcNumericMessage::code()
  */
 const char* Irc::toString(int code)
 {
@@ -71,19 +73,9 @@ const char* Irc::toString(int code)
 }
 
 /*!
-    \class Irc irc.h
-    \brief The Irc class enumerates command responses and error replies.
-
-    The Irc class enumerates command responses and error replies as defined
-    in RFC 1459 (Internet Relay Chat Protocol - http://www.ietf.org/rfc/rfc1459.txt).
-
-    \sa Irc::Code
- */
-
-/*!
     \enum Irc::Code
 
-    This enum describes the Code message codes defined in the RFC.
+    This enum describes the message codes defined in the RFC.
  */
 
 /*!

@@ -194,8 +194,8 @@ public:
         ERR_USERSDONTMATCH         = 502
     };
 
-    static const char* version();
-    static const char* toString(int code);
+    Q_INVOKABLE static const char* version();
+    Q_INVOKABLE static const char* toString(int code);
 };
 
 #endif // IRC_H
