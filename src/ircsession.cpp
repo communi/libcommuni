@@ -23,7 +23,7 @@
 #include <QStringList>
 
 /*!
-    \class IrcSession ircsession.h
+    \class IrcSession ircsession.h IrcSession
     \brief The IrcSession class provides an IRC session.
 
     IRC (Internet Relay Chat protocol) is a simple communication protocol.
@@ -35,23 +35,29 @@
     Example usage:
     \code
     IrcSession* session = new IrcSession(this);
-    session->setNick("jpnurmi");
-    session->setIdent("jpn");
+    session->setHost("irc.freenode.net");
+    session->setPort(6667);
+    session->setUserName("jpn");
+    session->setNickName("jpnurmi");
     session->setRealName("J-P Nurmi");
-    session->connectToServer("irc.freenode.net", 6667);
+    session->open();
     \endcode
 
-    \note IrcSession supports SSL (Secure Sockets Layer) connections since version 0.3.0
+    \section ssl Secure connections
+
+    IrcSession supports SSL (Secure Sockets Layer) connections.
 
     Example SSL usage:
     \code
     IrcSession* session = new IrcSession(this);
+    session->setHost("irc.secure.ssl");
+    session->setPort(6669);
     // ...
     QSslSocket* socket = new QSslSocket(session);
     socket->ignoreSslErrors();
     socket->setPeerVerifyMode(QSslSocket::VerifyNone);
     session->setSocket(socket);
-    session->connectToServer("irc.secure.ssl", 6669);
+    session->open();
     \endcode
 
     \sa setSocket()
@@ -215,9 +221,15 @@ IrcSession::~IrcSession()
 }
 
 /*!
-    Returns the encoding.
+    This property holds the message encoding. See QTextCodec documentation for supported encodings.
+
+    Encoding auto-detection can be turned on by passing a null QByteArray. The fallback codec is QTextCodec::codecForLocale().
 
     The default value is a null QByteArray.
+
+    \par Access functions:
+    \li QByteArray <b>encoding</b>() const
+    \li void <b>setEncoding</b>(const QByteArray& encoding)
  */
 QByteArray IrcSession::encoding() const
 {
@@ -225,15 +237,6 @@ QByteArray IrcSession::encoding() const
     return d->parser.encoding();
 }
 
-/*!
-    Sets the \a encoding.
-
-    See QTextCodec documentation for supported encodings.
-
-    Encoding auto-detection can be turned on by passing a null QByteArray.
-
-    The fallback locale is QTextCodec::codecForLocale().
- */
 void IrcSession::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcSession);
@@ -241,7 +244,11 @@ void IrcSession::setEncoding(const QByteArray& encoding)
 }
 
 /*!
-    Returns the host.
+    This property holds the server host.
+
+    \par Access functions:
+    \li QString <b>host</b>() const
+    \li void <b>setHost</b>(const QString& host)
  */
 QString IrcSession::host() const
 {
@@ -249,9 +256,6 @@ QString IrcSession::host() const
     return d->host;
 }
 
-/*!
-    Sets the \a host.
- */
 void IrcSession::setHost(const QString& host)
 {
     Q_D(IrcSession);
@@ -261,7 +265,13 @@ void IrcSession::setHost(const QString& host)
 }
 
 /*!
-    Returns the port.
+    This property holds the server port.
+
+    The default value is \c 6667.
+
+    \par Access functions:
+    \li int <b>port</b>() const
+    \li void <b>setPort</b>(int port)
  */
 int IrcSession::port() const
 {
@@ -269,9 +279,6 @@ int IrcSession::port() const
     return d->port;
 }
 
-/*!
-    Sets the \a port.
- */
 void IrcSession::setPort(int port)
 {
     Q_D(IrcSession);
@@ -281,7 +288,13 @@ void IrcSession::setPort(int port)
 }
 
 /*!
-    Returns the user name.
+    This property holds the user name.
+
+    \note Changing the user name has no effect until the connection is re-established.
+
+    \par Access functions:
+    \li QString <b>userName</b>() const
+    \li void <b>setUserName</b>(const QString& name)
  */
 QString IrcSession::userName() const
 {
@@ -289,11 +302,6 @@ QString IrcSession::userName() const
     return d->userName;
 }
 
-/*!
-    Sets the user \a name.
-
-    \note setUserName() has no effect on already established connection.
- */
 void IrcSession::setUserName(const QString& name)
 {
     Q_D(IrcSession);
@@ -303,7 +311,11 @@ void IrcSession::setUserName(const QString& name)
 }
 
 /*!
-    Returns the nick name.
+    This property holds the nick name.
+
+    \par Access functions:
+    \li QString <b>nickName</b>() const
+    \li void <b>setNickName</b>(const QString& name)
  */
 QString IrcSession::nickName() const
 {
@@ -311,9 +323,6 @@ QString IrcSession::nickName() const
     return d->nickName;
 }
 
-/*!
-    Sets the nick \a name.
- */
 void IrcSession::setNickName(const QString& name)
 {
     Q_D(IrcSession);
@@ -327,7 +336,13 @@ void IrcSession::setNickName(const QString& name)
 }
 
 /*!
-    Returns the real name.
+    This property holds the real name.
+
+    \note Changing the real name has no effect until the connection is re-established.
+
+    \par Access functions:
+    \li QString <b>realName</b>() const
+    \li void <b>setRealName</b>(const QString& name)
  */
 QString IrcSession::realName() const
 {
@@ -335,11 +350,6 @@ QString IrcSession::realName() const
     return d->realName;
 }
 
-/*!
-    Sets the real \a name.
-
-    \note setRealName() has no effect on already established connection.
- */
 void IrcSession::setRealName(const QString& name)
 {
     Q_D(IrcSession);
@@ -349,11 +359,16 @@ void IrcSession::setRealName(const QString& name)
 }
 
 /*!
-    Returns the socket.
+    This property holds the socket. IrcSession creates an instance of QTcpSocket by default.
 
-    IrcSession creates an instance of QTcpSocket by default.
+    The previously set socket is deleted if its parent is \c this.
 
-    This function was introduced in version 0.3.0.
+    \note IrcSession supports QSslSocket in the way that it automatically
+    calls QSslSocket::startClientEncryption() while connecting.
+
+    \par Access functions:
+    \li QAbstractSocket* <b>socket</b>() const
+    \li void <b>setSocket</b>(QAbstractSocket* socket)
  */
 QAbstractSocket* IrcSession::socket() const
 {
@@ -361,14 +376,6 @@ QAbstractSocket* IrcSession::socket() const
     return d->socket;
 }
 
-/*!
-    Sets the \a socket. The previously set socket is deleted if its parent is \c this.
-
-    IrcSession supports QSslSocket in the way that it automatically calls
-    QSslSocket::startClientEncryption() while connecting.
-
-    This function was introduced in version 0.3.0.
- */
 void IrcSession::setSocket(QAbstractSocket* socket)
 {
     Q_D(IrcSession);
@@ -394,7 +401,7 @@ void IrcSession::setSocket(QAbstractSocket* socket)
 }
 
 /*!
-    Connects to the server.
+    Opens a connection to the server.
  */
 void IrcSession::open()
 {
@@ -418,7 +425,7 @@ void IrcSession::open()
 }
 
 /*!
-    Disconnects from the server.
+    Closes the connection to the server.
  */
 void IrcSession::close()
 {
@@ -430,15 +437,21 @@ void IrcSession::close()
 /*!
     Sends a \a command to the server.
 
-    The command must be allocated on the heap since the session will take
-    ownership of the command and delete it once it has been sent. It is
-    not safe to access the command after it has been sent.
+    \warning The command must be allocated on the heap since the session
+    will take ownership of the command and delete it once it has been sent.
+    It is not safe to access the command after it has been sent.
 
     \sa sendRaw()
  */
 bool IrcSession::sendCommand(IrcCommand* command)
 {
-    return command && sendRaw(command->toString());
+    bool res = false;
+    if (command)
+    {
+        res = sendRaw(command->toString());
+        command->deleteLater();
+    }
+    return res;
 }
 
 /*!
