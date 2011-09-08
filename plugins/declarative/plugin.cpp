@@ -26,9 +26,9 @@ class DeclarativeIrcPrefix : public QObject
 public:
     explicit DeclarativeIrcPrefix(QObject* parent = 0) : QObject(parent) { }
 
-    Q_INVOKABLE static QString nick(const QString& prefix)
+    Q_INVOKABLE static QString name(const QString& prefix)
     {
-        return IrcPrefix(prefix).nick();
+        return IrcPrefix(prefix).name();
     }
 
     Q_INVOKABLE static QString user(const QString& prefix)
