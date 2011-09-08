@@ -16,7 +16,7 @@
 #define IRCPREFIX_H
 
 #include <ircglobal.h>
-#include <QString>
+#include <QtCore/qstring.h>
 
 class COMMUNI_EXPORT IrcPrefix
 {
@@ -24,12 +24,13 @@ public:
     IrcPrefix(const QString& prefix = QString());
 
     bool isValid() const;
+    bool isUser() const;
 
     QString prefix() const;
     void setPrefix(const QString& prefix);
 
-    QString nick() const { return n; }
-    void setNick(const QString& nick) { n = nick; }
+    QString name() const { return n; }
+    void setName(const QString& name) { n = name; }
 
     QString user() const { return u; }
     void setUser(const QString& user) { u = user; }
