@@ -243,12 +243,26 @@ bool IrcMessage::initFrom(const QString& prefix, const QStringList& parameters)
     return !prefix.isEmpty();
 }
 
+/*!
+    \class IrcNickMessage ircmessage.h <IrcMessage>
+    \brief The IrcNickMessage class represents a nick IRC message.
+ */
+
+/*!
+    Constructs a new IrcNickMessage with \a parent.
+ */
 IrcNickMessage::IrcNickMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Nick;
 }
 
+/*!
+    This property holds the new nick.
+
+    \par Access functions:
+    \li QString <b>nick</b>() const
+ */
 QString IrcNickMessage::nick() const
 {
     Q_D(const IrcMessage);
@@ -260,12 +274,26 @@ bool IrcNickMessage::initFrom(const QString& prefix, const QStringList& paramete
     return IrcMessage::initFrom(prefix, parameters) && !nick().isEmpty();
 }
 
+/*!
+    \class IrcQuitMessage ircmessage.h <IrcMessage>
+    \brief The IrcQuitMessage class represents a quit IRC message.
+ */
+
+/*!
+    Constructs a new IrcQuitMessage with \a parent.
+ */
 IrcQuitMessage::IrcQuitMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Quit;
 }
 
+/*!
+    This property holds the optional quit reason.
+
+    \par Access functions:
+    \li QString <b>reason</b>() const
+ */
 QString IrcQuitMessage::reason() const
 {
     Q_D(const IrcMessage);
@@ -277,12 +305,26 @@ bool IrcQuitMessage::initFrom(const QString& prefix, const QStringList& paramete
     return IrcMessage::initFrom(prefix, parameters);
 }
 
+/*!
+    \class IrcJoinMessage ircmessage.h <IrcMessage>
+    \brief The IrcJoinMessage class represents a join IRC message.
+ */
+
+/*!
+    Constructs a new IrcJoinMessage with \a parent.
+ */
 IrcJoinMessage::IrcJoinMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Join;
 }
 
+/*!
+    This property holds the channel in question.
+
+    \par Access functions:
+    \li QString <b>channel</b>() const
+ */
 QString IrcJoinMessage::channel() const
 {
     Q_D(const IrcMessage);
@@ -294,18 +336,38 @@ bool IrcJoinMessage::initFrom(const QString& prefix, const QStringList& paramete
     return IrcMessage::initFrom(prefix, parameters) && !channel().isEmpty();
 }
 
+/*!
+    \class IrcPartMessage ircmessage.h <IrcMessage>
+    \brief The IrcPartMessage class represents a part IRC message.
+ */
+
+/*!
+    Constructs a new IrcPartMessage with \a parent.
+ */
 IrcPartMessage::IrcPartMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Part;
 }
 
+/*!
+    This property holds the channel in question.
+
+    \par Access functions:
+    \li QString <b>channel</b>() const
+ */
 QString IrcPartMessage::channel() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(0);
 }
 
+/*!
+    This property holds the optional part reason.
+
+    \par Access functions:
+    \li QString <b>reason</b>() const
+ */
 QString IrcPartMessage::reason() const
 {
     Q_D(const IrcMessage);
@@ -317,18 +379,38 @@ bool IrcPartMessage::initFrom(const QString& prefix, const QStringList& paramete
     return IrcMessage::initFrom(prefix, parameters) && !channel().isEmpty();
 }
 
+/*!
+    \class IrcTopicMessage ircmessage.h <IrcMessage>
+    \brief The IrcTopicMessage class represents a topic IRC message.
+ */
+
+/*!
+    Constructs a new IrcTopicMessage with \a parent.
+ */
 IrcTopicMessage::IrcTopicMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Topic;
 }
 
+/*!
+    This property holds the channel in question.
+
+    \par Access functions:
+    \li QString <b>channel</b>() const
+ */
 QString IrcTopicMessage::channel() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(0);
 }
 
+/*!
+    This property holds the new channel topic.
+
+    \par Access functions:
+    \li QString <b>topic</b>() const
+ */
 QString IrcTopicMessage::topic() const
 {
     Q_D(const IrcMessage);
@@ -340,18 +422,38 @@ bool IrcTopicMessage::initFrom(const QString& prefix, const QStringList& paramet
     return IrcMessage::initFrom(prefix, parameters) && !channel().isEmpty();
 }
 
+/*!
+    \class IrcInviteMessage ircmessage.h <IrcMessage>
+    \brief The IrcInviteMessage class represents an invite IRC message.
+ */
+
+/*!
+    Constructs a new IrcInviteMessage with \a parent.
+ */
 IrcInviteMessage::IrcInviteMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Invite;
 }
 
+/*!
+    This property holds the user in question.
+
+    \par Access functions:
+    \li QString <b>user</b>() const
+ */
 QString IrcInviteMessage::user() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(0);
 }
 
+/*!
+    This property holds the channel in question.
+
+    \par Access functions:
+    \li QString <b>channel</b>() const
+ */
 QString IrcInviteMessage::channel() const
 {
     Q_D(const IrcMessage);
@@ -363,24 +465,50 @@ bool IrcInviteMessage::initFrom(const QString& prefix, const QStringList& parame
     return IrcMessage::initFrom(prefix, parameters) && !user().isEmpty() && !channel().isEmpty();
 }
 
+/*!
+    \class IrcKickMessage ircmessage.h <IrcMessage>
+    \brief The IrcKickMessage class represents a kick IRC message.
+ */
+
+/*!
+    Constructs a new IrcKickMessage with \a parent.
+ */
 IrcKickMessage::IrcKickMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Kick;
 }
 
+/*!
+    This property holds the user in question.
+
+    \par Access functions:
+    \li QString <b>user</b>() const
+ */
 QString IrcKickMessage::user() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(0);
 }
 
+/*!
+    This property holds the channel in question.
+
+    \par Access functions:
+    \li QString <b>channel</b>() const
+ */
 QString IrcKickMessage::channel() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(1);
 }
 
+/*!
+    This property holds the optional kick reason.
+
+    \par Access functions:
+    \li QString <b>reason</b>() const
+ */
 QString IrcKickMessage::reason() const
 {
     Q_D(const IrcMessage);
@@ -392,30 +520,62 @@ bool IrcKickMessage::initFrom(const QString& prefix, const QStringList& paramete
     return IrcMessage::initFrom(prefix, parameters) && !user().isEmpty() && !channel().isEmpty();
 }
 
+/*!
+    \class IrcModeMessage ircmessage.h <IrcMessage>
+    \brief The IrcModeMessage class represents a mode IRC message.
+ */
+
+/*!
+    Constructs a new IrcModeMessage with \a parent.
+ */
 IrcModeMessage::IrcModeMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Mode;
 }
 
+/*!
+    This property holds the target channel or user in question.
+
+    \par Access functions:
+    \li QString <b>target</b>() const
+ */
 QString IrcModeMessage::target() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(0);
 }
 
+/*!
+    This property holds the channel or user mode.
+
+    \par Access functions:
+    \li QString <b>mode</b>() const
+ */
 QString IrcModeMessage::mode() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(1);
 }
 
+/*!
+    This property holds the mode argument.
+
+    \par Access functions:
+    \li QString <b>argument</b>() const
+ */
 QString IrcModeMessage::argument() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(2);
 }
 
+/*!
+    This property holds the mode mask.
+
+    \par Access functions:
+    \li QString <b>mask</b>() const
+ */
 QString IrcModeMessage::mask() const
 {
     Q_D(const IrcMessage);
@@ -427,18 +587,38 @@ bool IrcModeMessage::initFrom(const QString &prefix, const QStringList &paramete
     return IrcMessage::initFrom(prefix, parameters) && !target().isEmpty();
 }
 
+/*!
+    \class IrcPrivateMessage ircmessage.h <IrcMessage>
+    \brief The IrcPrivateMessage class represents a private IRC message.
+ */
+
+/*!
+    Constructs a new IrcPrivateMessage with \a parent.
+ */
 IrcPrivateMessage::IrcPrivateMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Private;
 }
 
+/*!
+    This property holds the target channel or user in question.
+
+    \par Access functions:
+    \li QString <b>target</b>() const
+ */
 QString IrcPrivateMessage::target() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(0);
 }
 
+/*!
+    This property holds the message.
+
+    \par Access functions:
+    \li QString <b>message</b>() const
+ */
 QString IrcPrivateMessage::message() const
 {
     Q_D(const IrcMessage);
@@ -451,12 +631,26 @@ QString IrcPrivateMessage::message() const
     return msg;
 }
 
+/*!
+    \property bool IrcPrivateMessage::action
+    This property is \c true if the message is an action; otherwise \c false.
+
+    \par Access functions:
+    \li bool <b>isAction</b>() const
+ */
 bool IrcPrivateMessage::isAction() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(1).startsWith("\1ACTION ") && d->parameters.value(1).endsWith('\1');
 }
 
+/*!
+    \property bool IrcPrivateMessage::request
+    This property is \c true if the message is a request; otherwise \c false.
+
+    \par Access functions:
+    \li bool <b>isRequest</b>() const
+ */
 bool IrcPrivateMessage::isRequest() const
 {
     Q_D(const IrcMessage);
@@ -468,18 +662,38 @@ bool IrcPrivateMessage::initFrom(const QString& prefix, const QStringList& param
     return IrcMessage::initFrom(prefix, parameters) && !target().isEmpty() && !message().isEmpty();
 }
 
+/*!
+    \class IrcNoticeMessage ircmessage.h <IrcMessage>
+    \brief The IrcNoticeMessage class represents a notice IRC message.
+ */
+
+/*!
+    Constructs a new IrcNoticeMessage with \a parent.
+ */
 IrcNoticeMessage::IrcNoticeMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Notice;
 }
 
+/*!
+    This property holds the target channel or user in question.
+
+    \par Access functions:
+    \li QString <b>target</b>() const
+ */
 QString IrcNoticeMessage::target() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(0);
 }
 
+/*!
+    This property holds the message.
+
+    \par Access functions:
+    \li QString <b>message</b>() const
+ */
 QString IrcNoticeMessage::message() const
 {
     Q_D(const IrcMessage);
@@ -492,6 +706,13 @@ QString IrcNoticeMessage::message() const
     return msg;
 }
 
+/*!
+    \property bool IrcNoticeMessage::reply
+    This property is \c true if the message is a reply; otherwise \c false.
+
+    \par Access functions:
+    \li bool <b>isReply</b>() const
+ */
 bool IrcNoticeMessage::isReply() const
 {
     Q_D(const IrcMessage);
@@ -503,12 +724,26 @@ bool IrcNoticeMessage::initFrom(const QString& prefix, const QStringList& parame
     return IrcMessage::initFrom(prefix, parameters) && !target().isEmpty() && !message().isEmpty();
 }
 
+/*!
+    \class IrcPingMessage ircmessage.h <IrcMessage>
+    \brief The IrcPingMessage class represents a ping IRC message.
+ */
+
+/*!
+    Constructs a new IrcPingMessage with \a parent.
+ */
 IrcPingMessage::IrcPingMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Ping;
 }
 
+/*!
+    This property holds the target in question.
+
+    \par Access functions:
+    \li QString <b>target</b>() const
+ */
 QString IrcPingMessage::target() const
 {
     Q_D(const IrcMessage);
@@ -520,12 +755,26 @@ bool IrcPingMessage::initFrom(const QString& prefix, const QStringList& paramete
     return IrcMessage::initFrom(prefix, parameters) && !target().isEmpty();
 }
 
+/*!
+    \class IrcPongMessage ircmessage.h <IrcMessage>
+    \brief The IrcPongMessage class represents a pong IRC message.
+ */
+
+/*!
+    Constructs a new IrcPongMessage with \a parent.
+ */
 IrcPongMessage::IrcPongMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Pong;
 }
 
+/*!
+    This property holds the target in question.
+
+    \par Access functions:
+    \li QString <b>target</b>() const
+ */
 QString IrcPongMessage::target() const
 {
     Q_D(const IrcMessage);
@@ -537,12 +786,26 @@ bool IrcPongMessage::initFrom(const QString& prefix, const QStringList& paramete
     return IrcMessage::initFrom(prefix, parameters) && !target().isEmpty();
 }
 
+/*!
+    \class IrcErrorMessage ircmessage.h <IrcMessage>
+    \brief The IrcErrorMessage class represents an error IRC message.
+ */
+
+/*!
+    Constructs a new IrcErrorMessage with \a parent.
+ */
 IrcErrorMessage::IrcErrorMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Error;
 }
 
+/*!
+    This property holds the error.
+
+    \par Access functions:
+    \li QString <b>error</b>() const
+ */
 QString IrcErrorMessage::error() const
 {
     Q_D(const IrcMessage);
@@ -554,12 +817,26 @@ bool IrcErrorMessage::initFrom(const QString& prefix, const QStringList& paramet
     return IrcMessage::initFrom(prefix, parameters) && !error().isEmpty();
 }
 
+/*!
+    \class IrcNumericMessage ircmessage.h <IrcMessage>
+    \brief The IrcNumericMessage class represents a numeric IRC message.
+ */
+
+/*!
+    Constructs a new IrcNumericMessage with \a parent.
+ */
 IrcNumericMessage::IrcNumericMessage(QObject* parent) : IrcMessage(parent)
 {
     Q_D(IrcMessage);
     d->type = Numeric;
 }
 
+/*!
+    This property holds the numeric code.
+
+    \par Access functions:
+    \li int <b>code</b>() const
+ */
 int IrcNumericMessage::code() const
 {
     Q_D(const IrcMessage);
