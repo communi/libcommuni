@@ -21,7 +21,7 @@
 
     An IRC message prefix as specified in RFC 1459:
     <pre>
-    <prefix> ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]
+    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
     </pre>
  */
 
@@ -30,7 +30,7 @@
     Returns the name.
 
     <pre>
-    <prefix> ::= <b><servername></b> | <b><nick></b> [ '!' <user> ] [ '@' <host> ]
+    &lt;prefix&gt; ::= <b>&lt;servername&gt;</b> | <b>&lt;nick&gt;</b> [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
     </pre>
  */
 
@@ -39,7 +39,7 @@
     Sets the name.
 
     <pre>
-    <prefix> ::= <b><servername></b> | <b><nick></b> [ '!' <user> ] [ '@' <host> ]
+    &lt;prefix&gt; ::= <b>&lt;servername&gt;</b> | <b>&lt;nick&gt;</b> [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
     </pre>
  */
 
@@ -48,7 +48,7 @@
     Returns the user.
 
     <pre>
-    <prefix> ::= <servername> | <nick> [ '!' <b><user></b> ] [ '@' <host> ]
+    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' <b>&lt;user&gt;</b> ] [ '@' &lt;host&gt; ]
     </pre>
  */
 
@@ -57,7 +57,7 @@
     Sets the user.
 
     <pre>
-    <prefix> ::= <servername> | <nick> [ '!' <b><user></b> ] [ '@' <host> ]
+    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' <b>&lt;user&gt;</b> ] [ '@' &lt;host&gt; ]
     </pre>
  */
 
@@ -66,7 +66,7 @@
     Returns the host.
 
     <pre>
-    <prefix> ::= <servername> | <nick> [ '!' <user> ] [ '@' <b><host></b> ]
+    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' &lt;user&gt; ] [ '@' <b>&lt;host&gt;</b> ]
     </pre>
  */
 
@@ -75,7 +75,7 @@
     Sets the host.
 
     <pre>
-    <prefix> ::= <servername> | <nick> [ '!' <user> ] [ '@' <b><host></b> ]
+    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' &lt;user&gt; ] [ '@' <b>&lt;host&gt;</b> ]
     </pre>
  */
 
