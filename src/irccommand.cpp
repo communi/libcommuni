@@ -16,7 +16,13 @@
 #include <QDebug>
 
 /*!
+    \file irccommand.h
+    \brief #include &lt;IrcCommand&gt;
+ */
+
+/*!
     \class IrcCommand irccommand.h <IrcCommand>
+    \ingroup core
     \brief The IrcCommand class provides the most common IRC commands.
 
     The IrcCommand class supports the most common IRC commands out of the box,

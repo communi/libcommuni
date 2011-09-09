@@ -19,6 +19,7 @@
 
 /*!
     \file ircglobal.h
+    \brief #include &lt;IrcGlobal&gt;
  */
 
 #if defined(COMMUNI_SHARED)
@@ -42,8 +43,8 @@
     You can use COMMUNI_VERSION to use the latest Communi features where available. For example:
     \code
 #if COMMUNI_VERSION >= 0x000300
+    // SSL support since version 0.3.0
     session->setSocket(new QSslSocket(session));
-    session->connectToServer(host, port);
 #endif
     \endcode
     

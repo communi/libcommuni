@@ -16,7 +16,14 @@
 #include <QDebug>
 
 /*!
+    \file ircmessage.h
+    \brief #include &lt;IrcMessage&gt;
+ */
+
+/*!
     \class IrcMessage ircmessage.h <IrcMessage>
+    \ingroup core
+    \ingroup message
     \brief The IrcMessage class is the base class of all IRC message classes.
 
     IRC messages are received from an IRC server. IrcSession translates received
@@ -245,6 +252,7 @@ bool IrcMessage::initFrom(const QString& prefix, const QStringList& parameters)
 
 /*!
     \class IrcNickMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcNickMessage class represents a nick IRC message.
  */
 
@@ -276,6 +284,7 @@ bool IrcNickMessage::initFrom(const QString& prefix, const QStringList& paramete
 
 /*!
     \class IrcQuitMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcQuitMessage class represents a quit IRC message.
  */
 
@@ -307,6 +316,7 @@ bool IrcQuitMessage::initFrom(const QString& prefix, const QStringList& paramete
 
 /*!
     \class IrcJoinMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcJoinMessage class represents a join IRC message.
  */
 
@@ -338,6 +348,7 @@ bool IrcJoinMessage::initFrom(const QString& prefix, const QStringList& paramete
 
 /*!
     \class IrcPartMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcPartMessage class represents a part IRC message.
  */
 
@@ -381,6 +392,7 @@ bool IrcPartMessage::initFrom(const QString& prefix, const QStringList& paramete
 
 /*!
     \class IrcTopicMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcTopicMessage class represents a topic IRC message.
  */
 
@@ -424,6 +436,7 @@ bool IrcTopicMessage::initFrom(const QString& prefix, const QStringList& paramet
 
 /*!
     \class IrcInviteMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcInviteMessage class represents an invite IRC message.
  */
 
@@ -467,6 +480,7 @@ bool IrcInviteMessage::initFrom(const QString& prefix, const QStringList& parame
 
 /*!
     \class IrcKickMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcKickMessage class represents a kick IRC message.
  */
 
@@ -522,6 +536,7 @@ bool IrcKickMessage::initFrom(const QString& prefix, const QStringList& paramete
 
 /*!
     \class IrcModeMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcModeMessage class represents a mode IRC message.
  */
 
@@ -589,6 +604,7 @@ bool IrcModeMessage::initFrom(const QString &prefix, const QStringList &paramete
 
 /*!
     \class IrcPrivateMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcPrivateMessage class represents a private IRC message.
  */
 
@@ -664,6 +680,7 @@ bool IrcPrivateMessage::initFrom(const QString& prefix, const QStringList& param
 
 /*!
     \class IrcNoticeMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcNoticeMessage class represents a notice IRC message.
  */
 
@@ -726,6 +743,7 @@ bool IrcNoticeMessage::initFrom(const QString& prefix, const QStringList& parame
 
 /*!
     \class IrcPingMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcPingMessage class represents a ping IRC message.
  */
 
@@ -757,6 +775,7 @@ bool IrcPingMessage::initFrom(const QString& prefix, const QStringList& paramete
 
 /*!
     \class IrcPongMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcPongMessage class represents a pong IRC message.
  */
 
@@ -788,6 +807,7 @@ bool IrcPongMessage::initFrom(const QString& prefix, const QStringList& paramete
 
 /*!
     \class IrcErrorMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcErrorMessage class represents an error IRC message.
  */
 
@@ -819,6 +839,7 @@ bool IrcErrorMessage::initFrom(const QString& prefix, const QStringList& paramet
 
 /*!
     \class IrcNumericMessage ircmessage.h <IrcMessage>
+    \ingroup message
     \brief The IrcNumericMessage class represents a numeric IRC message.
  */
 

@@ -26,7 +26,13 @@
 #include <QRegExp>
 
 /*!
+    \file ircutil.h
+    \brief #include &lt;IrcUtil&gt;
+ */
+
+/*!
     \class IrcUtil ircutil.h <IrcUtil>
+    \ingroup utility
     \brief The IrcUtil class provides miscellaneous utility functions.
  */
 

@@ -15,31 +15,69 @@
 #include "irc.h"
 #include <QMetaEnum>
 
-/*! \mainpage Communi - a cross-platform C++ IRC library
+/*! \mainpage Communi - a cross-platform IRC client library written with Qt 4
 
-    \section Introduction
+    \section introduction Introduction
 
-    Communi is a cross-platform IRC client library written with Qt 4.
+    Communi, formerly known as LibIrcClient-Qt, is a cross-platform IRC
+    client library written with Qt 4. IRC (Internet Relay Chat protocol)
+    is a simple text-based communication protocol.
 
-    \section Installation
+    \section install Installation
 
     To compile Communi, do the standard mantra:
     \code
-    # qmake -config (debug|release)
-    # make
-    # sudo make install
+    $ qmake
+    $ make
+    $ sudo make install
     \endcode
 
-    \section Usage
+    The default build config is resolved by qmake. To build Communi
+    specifically in release or debug mode, you may pass additional
+    "-config release" or "-config debug" parameters to qmake, respectively.
+    Furthermore, in order to build a static version of Communi, you
+    may pass "-config static".
 
-    Add the following line to your qmake .pro file:
+    \subsection icu-support ICU support
+    Communi uses <a href="http://site.icu-project.org/">ICU</a> for automatic message encoding detection.
+    Notice that the encoding detection is, "at best, an imprecise operation using statistics and heuristics".
+    See <a href="http://userguide.icu-project.org/conversion/detection">Character Set Detection</a>
+    for more details. ICU support is enabled by default. If you do not have ICU installed or if you
+    want to disable the ICU support for other reasons, you may pass additional
+    "-config no_icu" parameters to qmake.
+
+    \section usage Usage
+
+    Add the following line to your qmake project (.pro) file:
     \code
     CONFIG += communi
     \endcode
+
+    This adds the necessary include paths and linker rules in order to use the library.
+
+    Communi in a nutshell:
+    \li IrcSession manages the connection to an IRC server
+    \li IrcMessage represents a message received from an IRC server via IrcSession::messageReceived().
+    \li IrcCommand represents a command sent to an IRC server via IrcSession::sendCommand().
+
+    \defgroup core Core classes
+    \brief The list of core classes to get started with.
+
+    \defgroup message Message classes
+    \brief The list of available IRC message classes.
+
+    \defgroup utility Utility classes
+    \brief The list of utility classes.
+ */
+
+/*!
+    \file irc.h
+    \brief #include &lt;Irc&gt;
  */
 
 /*!
     \class Irc irc.h <Irc>
+    \ingroup utility
     \brief The Irc class contains miscellaneous identifiers used throughout the library.
 
     The Irc class enumerates command responses and error replies as defined
@@ -52,7 +90,7 @@
     Returns the version number of Communi at run-time as a string (for example, "1.2.3").
     This may be a different version than the version the application was compiled against.
 
-    \sa COMMUNI_VERSION_STR
+    \sa COMMUNI_VERSION and COMMUNI_VERSION_STR
  */
 const char* Irc::version()
 {
@@ -62,7 +100,7 @@ const char* Irc::version()
 /*!
     Returns the numeric \a code as a string or \a 0 if the code is unknown.
 
-    \sa IrcNumericMessage::code()
+    \sa Irc::Code and IrcNumericMessage::code()
  */
 const char* Irc::toString(int code)
 {

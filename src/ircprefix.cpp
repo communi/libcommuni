@@ -16,7 +16,13 @@
 #include <QRegExp>
 
 /*!
+    \file ircprefix.h
+    \brief #include &lt;IrcPrefix&gt;
+ */
+
+/*!
     \class IrcPrefix ircprefix.h <IrcPrefix>
+    \ingroup utility
     \brief The IrcPrefix class is a helper class for handling IRC message prefixes.
 
     An IRC message prefix as specified in RFC 1459:

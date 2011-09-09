@@ -23,44 +23,34 @@
 #include <QStringList>
 
 /*!
+    \file ircsession.h
+    \brief #include &lt;IrcSession&gt;
+ */
+
+/*!
     \class IrcSession ircsession.h IrcSession
+    \ingroup core
     \brief The IrcSession class provides an IRC session.
 
-    IRC (Internet Relay Chat protocol) is a simple communication protocol.
     IrcSession provides means to establish a connection to an IRC server.
-    IrcSession works asynchronously. None of the functions block the
-    calling thread but they return immediately and the actual work is done
-    behind the scenes in the event loop.
+
+    IrcSession works asynchronously ie. it is non-blocking, emitting signals
+    to notify when the state of connection changes or data has arrived. The
+    asynchronous approach depends on an event loop. See QCoreApplication::exec()
+    for more details.
 
     Example usage:
     \code
     IrcSession* session = new IrcSession(this);
-    session->setHost("irc.freenode.net");
-    session->setPort(6667);
-    session->setUserName("jpn");
-    session->setNickName("jpnurmi");
-    session->setRealName("J-P Nurmi");
+    connect(session, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(onMessageReceived(IrcMessage*)));
+    session->setHost("irc.server.com");
+    session->setUserName("me");
+    session->setNickName("myself");
+    session->setRealName("And I");
     session->open();
     \endcode
 
-    \section ssl Secure connections
-
-    IrcSession supports SSL (Secure Sockets Layer) connections.
-
-    Example SSL usage:
-    \code
-    IrcSession* session = new IrcSession(this);
-    session->setHost("irc.secure.ssl");
-    session->setPort(6669);
-    // ...
-    QSslSocket* socket = new QSslSocket(session);
-    socket->ignoreSslErrors();
-    socket->setPeerVerifyMode(QSslSocket::VerifyNone);
-    session->setSocket(socket);
-    session->open();
-    \endcode
-
-    \sa setSocket()
+    \sa IrcMessage and IrcCommand
  */
 
 /*!
@@ -417,10 +407,18 @@ void IrcSession::setSocket(QAbstractSocket* socket)
 
 /*!
     Opens a connection to the server.
+
+    \note The function merely outputs a warnings and returns immediately if
+    either \ref host, \ref userName, \ref nickName or \ref realName is empty.
  */
 void IrcSession::open()
 {
     Q_D(IrcSession);
+    if (d->host.isEmpty())
+    {
+        qCritical("IrcSession::open(): host is empty!");
+        return;
+    }
     if (d->userName.isEmpty())
     {
         qCritical("IrcSession::open(): userName is empty!");
