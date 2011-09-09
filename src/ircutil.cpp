@@ -26,8 +26,8 @@
 #include <QRegExp>
 
 /*!
-    \class Irc::Util ircutil.h
-    \brief The Irc::Util class provides IRC related utility functions.
+    \class IrcUtil ircutil.h <IrcUtil>
+    \brief The IrcUtil class provides miscellaneous utility functions.
  */
 
 static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
