@@ -70,7 +70,8 @@ public:
         // miscellaneous commands
         Ping,
         Pong,
-        Away
+        Away,
+        Quote
     };
 
     explicit IrcCommand(QObject* parent = 0);
@@ -108,6 +109,7 @@ public:
     Q_INVOKABLE static IrcCommand* createPing(const QString& target);
     Q_INVOKABLE static IrcCommand* createPong(const QString& target);
     Q_INVOKABLE static IrcCommand* createAway(const QString& reason = QString());
+    Q_INVOKABLE static IrcCommand* createQuote(const QStringList& parameters);
 
 private:
     QScopedPointer<IrcCommandPrivate> d_ptr;

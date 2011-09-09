@@ -205,6 +205,11 @@
     \brief An away command (AWAY) is used to set the away status.
  */
 
+/*!
+    \var IrcCommand::Quote
+    \brief A quote command is used to send a raw message to the server.
+ */
+
 class IrcCommandPrivate
 {
 public:
@@ -315,6 +320,7 @@ QString IrcCommand::toString() const
     case Ping:          return QString("PING %1").arg(p0); // target
     case Pong:          return QString("PONG %1").arg(p0); // target
     case Away:          return QString("AWAY :%1").arg(p0); // reason
+    case Quote:         return d->parameters.join(" ");
     case Custom:        qWarning("Reimplement IrcCommand::toString() for IrcCommand::Custom");
     default:            return QString();
     }
@@ -510,6 +516,14 @@ IrcCommand* IrcCommand::createPong(const QString& target)
 IrcCommand* IrcCommand::createAway(const QString& reason)
 {
     return IrcCommandPrivate::createCommand(Away, QStringList() << reason);
+}
+
+/*!
+    Creates a new quote command with type IrcCommand::Quote and \a parameters.
+ */
+IrcCommand* IrcCommand::createQuote(const QStringList& parameters)
+{
+    return IrcCommandPrivate::createCommand(Quote, parameters);
 }
 
 #ifndef QT_NO_DEBUG_STREAM
