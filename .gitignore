@@ -28,6 +28,7 @@ ABLD.BAT
 bld.inf
 *.mmp
 moc_*.cpp
+/examples/irqqi/irqqi
 /tests/auto/ircmessage/ircmessage
 /tests/auto/ircparser/ircparser
 /tests/auto/ircprefix/ircprefix
