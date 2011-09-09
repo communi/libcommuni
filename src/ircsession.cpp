@@ -70,9 +70,18 @@
  */
 
 /*!
+    \fn void IrcSession::password(QString* password)
+
+    This signal is emitted when the connection \a password may be set.
+
+    \note IrcSession does not store the password.
+ */
+
+/*!
     \fn void IrcSession::connected()
 
-    This signal is emitted when the welcome message has been received.
+    This signal is emitted when the connection has been established ie.
+    the welcome message has been received and the server is ready to receive commands.
 
     \sa Irc::RPL_WELCOME
  */
@@ -81,6 +90,12 @@
     \fn void IrcSession::disconnected()
 
     This signal is emitted when the session has been disconnected.
+ */
+
+/*!
+    \fn void IrcSession::messageReceived(IrcMessage* message)
+
+    This signal is emitted whenever a \a message is received.
  */
 
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
