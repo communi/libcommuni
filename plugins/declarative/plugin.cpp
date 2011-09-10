@@ -26,19 +26,19 @@ class DeclarativeIrcPrefix : public QObject
 public:
     explicit DeclarativeIrcPrefix(QObject* parent = 0) : QObject(parent) { }
 
-    Q_INVOKABLE static QString name(const QString& prefix)
+    Q_INVOKABLE static QString name(const IrcPrefix& prefix)
     {
-        return IrcPrefix(prefix).name();
+        return prefix.name();
     }
 
-    Q_INVOKABLE static QString user(const QString& prefix)
+    Q_INVOKABLE static QString user(const IrcPrefix& prefix)
     {
-        return IrcPrefix(prefix).user();
+        return prefix.user();
     }
 
-    Q_INVOKABLE static QString host(const QString& prefix)
+    Q_INVOKABLE static QString host(const IrcPrefix& prefix)
     {
-        return IrcPrefix(prefix).host();
+        return prefix.host();
     }
 };
 
@@ -56,6 +56,9 @@ public:
     virtual void initializeEngine(QDeclarativeEngine* engine, const char* uri)
     {
         QDeclarativeExtensionPlugin::initializeEngine(engine, uri);
+
+        QDeclarativeContext* context = engine->rootContext();
+        context->setContextProperty("IrcPrefix", new DeclarativeIrcPrefix(context));
     }
 
     void registerTypes(const char *uri)
@@ -65,7 +68,6 @@ public:
 
         qmlRegisterUncreatableType<Irc>(uri, 1, 0, "Irc", "");
         qmlRegisterUncreatableType<IrcMessage>(uri, 1, 0, "IrcMessage", "");
-        qmlRegisterUncreatableType<DeclarativeIrcPrefix>(uri, 1, 0, "IrcPrefix", "");
     }
 };
 
