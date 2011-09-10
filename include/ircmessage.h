@@ -26,7 +26,7 @@ class COMMUNI_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Type type READ type)
-    Q_PROPERTY(QString prefix READ prefix)
+    Q_PROPERTY(QString sender READ sender)
     Q_PROPERTY(QString command READ command)
     Q_PROPERTY(QStringList parameters READ parameters)
     Q_ENUMS(Type)
@@ -55,13 +55,13 @@ public:
     virtual ~IrcMessage();
 
     Type type() const;
-    QString prefix() const;
+    QString sender() const;
     QString command() const;
     QStringList parameters() const;
 
     static IrcMessage* create(const QString& command, QObject* parent = 0);
 
-    virtual bool initFrom(const QString& prefix, const QStringList& parameters);
+    virtual bool initFrom(const QString& sender, const QStringList& parameters);
 
 protected:
     QScopedPointer<IrcMessagePrivate> d_ptr;
@@ -79,7 +79,7 @@ public:
 
     QString nick() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcQuitMessage : public IrcMessage
@@ -92,7 +92,7 @@ public:
 
     QString reason() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcJoinMessage : public IrcMessage
@@ -105,7 +105,7 @@ public:
 
     QString channel() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcPartMessage : public IrcMessage
@@ -120,7 +120,7 @@ public:
     QString channel() const;
     QString reason() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcTopicMessage : public IrcMessage
@@ -135,7 +135,7 @@ public:
     QString channel() const;
     QString topic() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcInviteMessage : public IrcMessage
@@ -150,7 +150,7 @@ public:
     QString user() const;
     QString channel() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcKickMessage : public IrcMessage
@@ -167,7 +167,7 @@ public:
     QString user() const;
     QString reason() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcModeMessage : public IrcMessage
@@ -186,7 +186,7 @@ public:
     QString argument() const;
     QString mask() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcPrivateMessage : public IrcMessage
@@ -205,7 +205,7 @@ public:
     bool isAction() const;
     bool isRequest() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcNoticeMessage : public IrcMessage
@@ -222,7 +222,7 @@ public:
     QString message() const;
     bool isReply() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcPingMessage : public IrcMessage
@@ -235,7 +235,7 @@ public:
 
     QString target() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcPongMessage : public IrcMessage
@@ -248,7 +248,7 @@ public:
 
     QString target() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcErrorMessage : public IrcMessage
@@ -261,7 +261,7 @@ public:
 
     QString error() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 class COMMUNI_EXPORT IrcNumericMessage : public IrcMessage
@@ -274,7 +274,7 @@ public:
 
     int code() const;
 
-    bool initFrom(const QString& prefix, const QStringList& params);
+    bool initFrom(const QString& sender, const QStringList& params);
 };
 
 #ifndef QT_NO_DEBUG_STREAM
