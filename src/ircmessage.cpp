@@ -121,7 +121,7 @@ class IrcMessagePrivate
 {
 public:
     IrcMessage::Type type;
-    QString sender;
+    IrcPrefix sender;
     QString command;
     QStringList parameters;
 };
@@ -191,9 +191,9 @@ IrcMessage::Type IrcMessage::type() const
     This property holds the message sender.
 
     \par Access functions:
-    \li QString <b>sender</b>() const
+    \li IrcPrefix <b>sender</b>() const
  */
-QString IrcMessage::sender() const
+IrcPrefix IrcMessage::sender() const
 {
     Q_D(const IrcMessage);
     return d->sender;
@@ -245,9 +245,9 @@ IrcMessage* IrcMessage::create(const QString& command, QObject* parent)
 bool IrcMessage::initFrom(const QString& sender, const QStringList& parameters)
 {
     Q_D(IrcMessage);
-    d->sender = sender;
+    d->sender.setPrefix(sender);
     d->parameters = parameters;
-    return !sender.isEmpty();
+    return d->sender.isValid();
 }
 
 /*!
@@ -879,8 +879,8 @@ QDebug operator<<(QDebug debug, const IrcMessage* message)
     debug.nospace() << message->metaObject()->className() << '(' << (void*) message;
     if (!message->objectName().isEmpty())
         debug << ", name = " << message->objectName();
-    if (!message->sender().isEmpty())
-        debug << ", sender = " << message->sender();
+    if (message->sender().isValid())
+        debug << ", sender = " << message->sender().name();
     if (!message->command().isEmpty())
         debug << ", command = " << message->command();
     if (!message->parameters().isEmpty())

@@ -213,6 +213,7 @@ bool IrcSessionPrivate::isConnected() const
 IrcSession::IrcSession(QObject* parent) : QObject(parent), d_ptr(new IrcSessionPrivate(this))
 {
     setSocket(new QTcpSocket(this));
+    qRegisterMetaType<IrcPrefix>("IrcPrefix");
 }
 
 /*!

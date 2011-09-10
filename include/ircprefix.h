@@ -17,6 +17,7 @@
 
 #include <ircglobal.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qmetatype.h>
 
 class COMMUNI_EXPORT IrcPrefix
 {
@@ -43,5 +44,7 @@ private:
     QString u;
     QString h;
 };
+
+Q_DECLARE_METATYPE(IrcPrefix)
 
 #endif // IRCPREFIX_H

@@ -134,7 +134,7 @@ QString IrcPrefix::prefix() const
  */
 void IrcPrefix::setPrefix(const QString& prefix)
 {
-    QRegExp rx("([^!\\s]+)(![^@\\s]+)(@\\S+)");
+    QRegExp rx("([^!\\s]+)(![^@\\s]+)?(@\\S+)?");
     bool match = rx.exactMatch(prefix.trimmed());
     n = match ? rx.cap(1) : QString();
     u = match ? rx.cap(2).mid(1) : QString();

@@ -17,6 +17,7 @@
 
 #include <irc.h>
 #include <ircglobal.h>
+#include <ircprefix.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 
@@ -26,7 +27,7 @@ class COMMUNI_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Type type READ type)
-    Q_PROPERTY(QString sender READ sender)
+    Q_PROPERTY(IrcPrefix sender READ sender)
     Q_PROPERTY(QString command READ command)
     Q_PROPERTY(QStringList parameters READ parameters)
     Q_ENUMS(Type)
@@ -55,7 +56,7 @@ public:
     virtual ~IrcMessage();
 
     Type type() const;
-    QString sender() const;
+    IrcPrefix sender() const;
     QString command() const;
     QStringList parameters() const;
 
