@@ -12,27 +12,27 @@
 * License for more details.
 */
 
-#include "ircprefix.h"
+#include "ircsender.h"
 #include <QRegExp>
 
 /*!
-    \file ircprefix.h
-    \brief #include &lt;IrcPrefix&gt;
+    \file ircsender.h
+    \brief #include &lt;IrcSender&gt;
  */
 
 /*!
-    \class IrcPrefix ircprefix.h <IrcPrefix>
+    \class IrcSender ircsender.h <IrcSender>
     \ingroup utility
-    \brief The IrcPrefix class is a helper class for handling IRC message prefixes.
+    \brief The IrcSender class is a helper class for handling IRC message sender prefixes.
 
-    An IRC message prefix as specified in RFC 1459:
+    An IRC message sender prefix as specified in RFC 1459:
     <pre>
     &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
     </pre>
  */
 
 /*!
-    \fn QString IrcPrefix::name() const
+    \fn QString IrcSender::name() const
     Returns the name.
 
     <pre>
@@ -41,7 +41,7 @@
  */
 
 /*!
-    \fn void IrcPrefix::setName(const QString& name)
+    \fn void IrcSender::setName(const QString& name)
     Sets the name.
 
     <pre>
@@ -50,7 +50,7 @@
  */
 
 /*!
-    \fn QString IrcPrefix::user() const
+    \fn QString IrcSender::user() const
     Returns the user.
 
     <pre>
@@ -59,7 +59,7 @@
  */
 
 /*!
-    \fn void IrcPrefix::setUser(const QString& user)
+    \fn void IrcSender::setUser(const QString& user)
     Sets the user.
 
     <pre>
@@ -68,7 +68,7 @@
  */
 
 /*!
-    \fn QString IrcPrefix::host() const
+    \fn QString IrcSender::host() const
     Returns the host.
 
     <pre>
@@ -77,7 +77,7 @@
  */
 
 /*!
-    \fn void IrcPrefix::setHost(const QString& host)
+    \fn void IrcSender::setHost(const QString& host)
     Sets the host.
 
     <pre>
@@ -86,37 +86,27 @@
  */
 
 /*!
-    Constructs a new IrcPrefix, optionally initializing to \a prefix.
+    Constructs a new IrcSender, optionally initializing to \a prefix.
  */
-IrcPrefix::IrcPrefix(const QString& prefix)
+IrcSender::IrcSender(const QString& prefix)
 {
     setPrefix(prefix);
 }
 
 /*!
-    Returns \c true if the prefix is valid; otherwise \c false.
+    Returns \c true if the sender is valid; otherwise \c false.
 
-    A prefix is considered valid if the name is not empty.
+    A sender is considered valid if the name is not empty.
  */
-bool IrcPrefix::isValid() const
+bool IrcSender::isValid() const
 {
     return !n.isEmpty();
 }
 
 /*!
-    Returns \c true if the prefix is a user prefix; otherwise \c false.
-
-    A prefix is considered as user prefix if either user or host is not empty.
- */
-bool IrcPrefix::isUser() const
-{
-    return isValid() && (!u.isEmpty() || !h.isEmpty());
-}
-
-/*!
     Returns the whole prefix.
  */
-QString IrcPrefix::prefix() const
+QString IrcSender::prefix() const
 {
     if (!isValid())
         return QString();
@@ -132,7 +122,7 @@ QString IrcPrefix::prefix() const
 
     \warning Overrides any existing name, user or host.
  */
-void IrcPrefix::setPrefix(const QString& prefix)
+void IrcSender::setPrefix(const QString& prefix)
 {
     QRegExp rx("([^!\\s]+)(![^@\\s]+)?(@\\S+)?");
     bool match = rx.exactMatch(prefix.trimmed());

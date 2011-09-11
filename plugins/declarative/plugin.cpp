@@ -16,29 +16,29 @@
 #include <IrcSession>
 #include <IrcCommand>
 #include <IrcMessage>
-#include <IrcPrefix>
+#include <IrcSender>
 #include <Irc>
 
-class DeclarativeIrcPrefix : public QObject
+class DeclarativeIrcSender : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit DeclarativeIrcPrefix(QObject* parent = 0) : QObject(parent) { }
+    explicit DeclarativeIrcSender(QObject* parent = 0) : QObject(parent) { }
 
-    Q_INVOKABLE static QString name(const IrcPrefix& prefix)
+    Q_INVOKABLE static QString name(const IrcSender& sender)
     {
-        return prefix.name();
+        return sender.name();
     }
 
-    Q_INVOKABLE static QString user(const IrcPrefix& prefix)
+    Q_INVOKABLE static QString user(const IrcSender& sender)
     {
-        return prefix.user();
+        return sender.user();
     }
 
-    Q_INVOKABLE static QString host(const IrcPrefix& prefix)
+    Q_INVOKABLE static QString host(const IrcSender& sender)
     {
-        return prefix.host();
+        return sender.host();
     }
 };
 
@@ -46,7 +46,7 @@ QML_DECLARE_TYPE(Irc)
 QML_DECLARE_TYPE(IrcCommand)
 QML_DECLARE_TYPE(IrcMessage)
 QML_DECLARE_TYPE(IrcSession)
-QML_DECLARE_TYPE(DeclarativeIrcPrefix)
+QML_DECLARE_TYPE(DeclarativeIrcSender)
 
 class CommuniPlugin : public QDeclarativeExtensionPlugin
 {
@@ -58,7 +58,7 @@ public:
         QDeclarativeExtensionPlugin::initializeEngine(engine, uri);
 
         QDeclarativeContext* context = engine->rootContext();
-        context->setContextProperty("IrcPrefix", new DeclarativeIrcPrefix(context));
+        context->setContextProperty("IrcSender", new DeclarativeIrcSender(context));
     }
 
     void registerTypes(const char *uri)

@@ -12,20 +12,19 @@
 * License for more details.
 */
 
-#ifndef IRCPREFIX_H
-#define IRCPREFIX_H
+#ifndef IRCSENDER_H
+#define IRCSENDER_H
 
 #include <ircglobal.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qmetatype.h>
 
-class COMMUNI_EXPORT IrcPrefix
+class COMMUNI_EXPORT IrcSender
 {
 public:
-    IrcPrefix(const QString& prefix = QString());
+    IrcSender(const QString& prefix = QString());
 
     bool isValid() const;
-    bool isUser() const;
 
     QString prefix() const;
     void setPrefix(const QString& prefix);
@@ -45,6 +44,6 @@ private:
     QString h;
 };
 
-Q_DECLARE_METATYPE(IrcPrefix)
+Q_DECLARE_METATYPE(IrcSender)
 
-#endif // IRCPREFIX_H
+#endif // IRCSENDER_H

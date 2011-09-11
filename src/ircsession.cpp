@@ -17,6 +17,7 @@
 #include "ircsession_p.h"
 #include "irccommand.h"
 #include "ircmessage.h"
+#include "ircsender.h"
 #include "ircutil.h"
 #include "irc.h"
 #include <QTcpSocket>
@@ -213,7 +214,7 @@ bool IrcSessionPrivate::isConnected() const
 IrcSession::IrcSession(QObject* parent) : QObject(parent), d_ptr(new IrcSessionPrivate(this))
 {
     setSocket(new QTcpSocket(this));
-    qRegisterMetaType<IrcPrefix>("IrcPrefix");
+    qRegisterMetaType<IrcSender>("IrcSender");
 }
 
 /*!

@@ -121,7 +121,7 @@ class IrcMessagePrivate
 {
 public:
     IrcMessage::Type type;
-    IrcPrefix sender;
+    IrcSender sender;
     QString command;
     QStringList parameters;
 };
@@ -191,9 +191,9 @@ IrcMessage::Type IrcMessage::type() const
     This property holds the message sender.
 
     \par Access functions:
-    \li IrcPrefix <b>sender</b>() const
+    \li IrcSender <b>sender</b>() const
  */
-IrcPrefix IrcMessage::sender() const
+IrcSender IrcMessage::sender() const
 {
     Q_D(const IrcMessage);
     return d->sender;
