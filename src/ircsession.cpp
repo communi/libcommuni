@@ -214,6 +214,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         }
 
         emit q->messageReceived(msg);
+        msg->deleteLater();
     }
 }
 
