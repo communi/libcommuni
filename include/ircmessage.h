@@ -15,9 +15,8 @@
 #ifndef IRCMESSAGE_H
 #define IRCMESSAGE_H
 
-#include <irc.h>
-#include <ircglobal.h>
-#include <ircsender.h>
+#include <IrcGlobal>
+#include <IrcSender>
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 

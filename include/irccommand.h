@@ -15,8 +15,7 @@
 #ifndef IRCCOMMAND_H
 #define IRCCOMMAND_H
 
-#include <irc.h>
-#include <ircglobal.h>
+#include <IrcGlobal>
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 

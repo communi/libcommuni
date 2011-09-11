@@ -15,7 +15,7 @@
 #ifndef IRCUTIL_H
 #define IRCUTIL_H
 
-#include <ircglobal.h>
+#include <IrcGlobal>
 
 class COMMUNI_EXPORT IrcUtil
 {

@@ -15,7 +15,7 @@
 #ifndef IRCSESSION_H
 #define IRCSESSION_H
 
-#include <ircglobal.h>
+#include <IrcGlobal>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
@@ -38,8 +38,8 @@ class COMMUNI_EXPORT IrcSession : public QObject
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
 
 public:
-    IrcSession(QObject* parent = 0);
-    ~IrcSession();
+    explicit IrcSession(QObject* parent = 0);
+    virtual ~IrcSession();
 
     QString host() const;
     void setHost(const QString& host);

@@ -15,7 +15,7 @@
 #ifndef IRCSENDER_H
 #define IRCSENDER_H
 
-#include <ircglobal.h>
+#include <IrcGlobal>
 #include <QtCore/qstring.h>
 #include <QtCore/qmetatype.h>
 
