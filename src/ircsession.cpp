@@ -89,6 +89,12 @@
     This signal is emitted whenever a \a message is received.
  */
 
+/*!
+    \fn void IrcSession::nickNameChanged(const QString& name)
+
+    This signal is emitted when the nick \a name has changed.
+ */
+
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     q_ptr(session),
     parser(),
@@ -192,6 +198,16 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             IrcCommand* pongCmd = IrcCommand::createPong(target);
             q->sendCommand(pongCmd);
             break;
+            }
+        case IrcMessage::Nick:
+            if (msg->sender().name() == nickName)
+            {
+                QString newNick = static_cast<IrcNickMessage*>(msg)->nick();
+                if (nickName != newNick)
+                {
+                    nickName = newNick;
+                    emit q->nickNameChanged(nickName);
+                }
             }
         default:
             break;
@@ -339,6 +355,7 @@ void IrcSession::setNickName(const QString& name)
         d->nickName = nick;
         if (d->isConnected())
             sendCommand(IrcCommand::createNick(nick));
+        emit nickNameChanged(nick);
     }
 }
 

@@ -32,7 +32,7 @@ class COMMUNI_EXPORT IrcSession : public QObject
     Q_PROPERTY(QString host READ host WRITE setHost)
     Q_PROPERTY(int port READ port WRITE setPort)
     Q_PROPERTY(QString userName READ userName WRITE setUserName)
-    Q_PROPERTY(QString nickName READ nickName WRITE setNickName)
+    Q_PROPERTY(QString nickName READ nickName WRITE setNickName NOTIFY nickNameChanged)
     Q_PROPERTY(QString realName READ realName WRITE setRealName)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
@@ -75,6 +75,7 @@ Q_SIGNALS:
     void connected();
     void disconnected();
     void messageReceived(IrcMessage* message);
+    void nickNameChanged(const QString& name);
 
 private:
     QScopedPointer<IrcSessionPrivate> d_ptr;
