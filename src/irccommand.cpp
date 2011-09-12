@@ -313,7 +313,7 @@ QString IrcCommand::toString() const
     case Names:         return QString("NAMES %1").arg(p0); // chan
     case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
     case Invite:        return QString("INVITE %1 %2").arg(p0, p1); // user, chan
-    case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // user, chan, reason
+    case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // chan, user, reason
     case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg, mask
     case Message:       return QString("PRIVMSG %1 :%2").arg(p0, p1); // target, msg
     case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
@@ -421,11 +421,11 @@ IrcCommand* IrcCommand::createInvite(const QString& user, const QString& channel
 }
 
 /*!
-    Creates a new kick command with type IrcCommand::Kick and parameters \a user, \a channel and optional \a reason.
+    Creates a new kick command with type IrcCommand::Kick and parameters \a channel, \a user and optional \a reason.
  */
-IrcCommand* IrcCommand::createKick(const QString& user, const QString& channel, const QString& reason)
+IrcCommand* IrcCommand::createKick(const QString& channel, const QString& user, const QString& reason)
 {
-    return IrcCommandPrivate::createCommand(Kick, QStringList() << user << channel << reason);
+    return IrcCommandPrivate::createCommand(Kick, QStringList() << channel << user << reason);
 }
 
 /*!
