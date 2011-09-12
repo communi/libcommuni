@@ -8,6 +8,8 @@
  * program, but you don't have to.
  */
 
+#include "irc.h"
+#include "irccommand.h"
 #include "ircsession.h"
 #include "ircmessage.h"
 #include <QtTest/QtTest>
@@ -50,7 +52,7 @@ private slots:
     void testSocket();
 
     void testSession();
-    void testSendMessage();
+    void testSendCommand();
     void testSendRaw();
 
 private:
@@ -71,7 +73,7 @@ void tst_IrcSession::testDefaults()
 {
     IrcSession session;
     QVERIFY(session.host().isNull());
-    QCOMPARE(session.port(), static_cast<quint16>(6667));
+    QCOMPARE(session.port(), 6667);
     QVERIFY(session.userName().isNull());
     QVERIFY(session.nickName().isNull());
     QVERIFY(session.realName().isNull());
@@ -102,19 +104,19 @@ void tst_IrcSession::testHost()
 
 void tst_IrcSession::testPort_data()
 {
-    QTest::addColumn<quint16>("port");
+    QTest::addColumn<int>("port");
 
-    QTest::newRow("-1") << static_cast<quint16>(-1);
-    QTest::newRow("0") << static_cast<quint16>(0);
-    QTest::newRow("6666") << static_cast<quint16>(6666);
-    QTest::newRow("6667") << static_cast<quint16>(6667);
-    QTest::newRow("6668") << static_cast<quint16>(6668);
-    QTest::newRow(qPrintable(QString::number(server.serverPort()))) << server.serverPort();
+    QTest::newRow("-1") << -1;
+    QTest::newRow("0") << 0;
+    QTest::newRow("6666") << 6666;
+    QTest::newRow("6667") << 6667;
+    QTest::newRow("6668") << 6668;
+    QTest::newRow(qPrintable(QString::number(server.serverPort()))) << static_cast<int>(server.serverPort());
 }
 
 void tst_IrcSession::testPort()
 {
-    QFETCH(quint16, port);
+    QFETCH(int, port);
 
     IrcSession session;
     session.setPort(port);
@@ -254,17 +256,15 @@ void tst_IrcSession::testSession()
 
     session.open();
     QVERIFY(server.waitForNewConnection(2000));
-    QTcpSocket* socket = server.nextPendingConnection();
-    QVERIFY(socket);
+    QTcpSocket* serverSocket = server.nextPendingConnection();
+    QVERIFY(serverSocket);
 
     QVERIFY(session.socket()->waitForConnected());
     QCOMPARE(connectingSpy.count(), 1);
     QCOMPARE(passwordSpy.count(), 1);
 
-    IrcNumericMessage msg;
-    msg.setCode(Irc::RPL_WELCOME);
-    QVERIFY(socket->write(msg.toString().toUtf8() + "\r\n"));
-    QVERIFY(socket->waitForBytesWritten());
+    QVERIFY(serverSocket->write(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n"));
+    QVERIFY(serverSocket->waitForBytesWritten());
     QVERIFY(session.socket()->waitForReadyRead());
     QCOMPARE(connectedSpy.count(), 1);
 
@@ -273,12 +273,11 @@ void tst_IrcSession::testSession()
     QCOMPARE(disconnectedSpy.count(), 1);
 }
 
-void tst_IrcSession::testSendMessage()
+void tst_IrcSession::testSendCommand()
 {
     IrcSession session;
-    QVERIFY(!session.sendMessage(0));
-    IrcMessage msg;
-    QVERIFY(!session.sendMessage(&msg));
+    QVERIFY(!session.sendCommand(0));
+    QVERIFY(!session.sendCommand(IrcCommand::createQuit()));
 
     session.setUserName("user");
     session.setNickName("nick");
@@ -288,14 +287,15 @@ void tst_IrcSession::testSendMessage()
     session.open();
     QVERIFY(session.socket()->waitForConnected());
 
-    QVERIFY(session.sendMessage(&msg));
+    QVERIFY(!session.sendCommand(0));
+    QVERIFY(session.sendCommand(IrcCommand::createQuit()));
     session.close();
 }
 
 void tst_IrcSession::testSendRaw()
 {
     IrcSession session;
-    QVERIFY(!session.sendRaw(" "));
+    QVERIFY(!session.sendRaw("QUIT"));
 
     session.setUserName("user");
     session.setNickName("nick");
@@ -305,7 +305,7 @@ void tst_IrcSession::testSendRaw()
     session.open();
     QVERIFY(session.socket()->waitForConnected());
 
-    QVERIFY(session.sendRaw(" "));
+    QVERIFY(session.sendRaw("QUIT"));
     session.close();
 }
 
