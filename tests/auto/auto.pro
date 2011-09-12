@@ -6,5 +6,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += ircmessage
 SUBDIRS += ircparser
-SUBDIRS += ircprefix
+SUBDIRS += ircsender
 SUBDIRS += ircsession
