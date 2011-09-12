@@ -146,7 +146,7 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
         metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
     }
 
-    const QMetaObject* metaObject = metaObjects.value(command);
+    const QMetaObject* metaObject = metaObjects.value(command.toUpper());
     if (!metaObject)
     {
         bool ok = false;
@@ -494,24 +494,24 @@ IrcKickMessage::IrcKickMessage(QObject* parent) : IrcMessage(parent)
 }
 
 /*!
-    This property holds the user in question.
-
-    \par Access functions:
-    \li QString <b>user</b>() const
- */
-QString IrcKickMessage::user() const
-{
-    Q_D(const IrcMessage);
-    return d->parameters.value(0);
-}
-
-/*!
     This property holds the channel in question.
 
     \par Access functions:
     \li QString <b>channel</b>() const
  */
 QString IrcKickMessage::channel() const
+{
+    Q_D(const IrcMessage);
+    return d->parameters.value(0);
+}
+
+/*!
+    This property holds the user in question.
+
+    \par Access functions:
+    \li QString <b>user</b>() const
+ */
+QString IrcKickMessage::user() const
 {
     Q_D(const IrcMessage);
     return d->parameters.value(1);
@@ -531,7 +531,7 @@ QString IrcKickMessage::reason() const
 
 bool IrcKickMessage::initFrom(const QString& sender, const QStringList& parameters)
 {
-    return IrcMessage::initFrom(sender, parameters) && !user().isEmpty() && !channel().isEmpty();
+    return IrcMessage::initFrom(sender, parameters) && !channel().isEmpty() && !user().isEmpty();
 }
 
 /*!
