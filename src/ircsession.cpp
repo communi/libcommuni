@@ -97,7 +97,7 @@
 
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     q_ptr(session),
-    parser(),
+    encoder(),
     buffer(),
     socket(0),
     host(),
@@ -173,20 +173,14 @@ void IrcSessionPrivate::readLines(const QByteArray& delimiter)
 void IrcSessionPrivate::processLine(const QByteArray& line)
 {
     Q_Q(IrcSession);
-    parser.parse(line);
 
+    QString encoded = encoder.encode(line);
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qDebug() << line;
+    if (dbg) qDebug() << encoded;
 
-    QString prefix = parser.prefix();
-    QString command = parser.command();
-    QStringList params = parser.params();
-
-    IrcMessage* msg = IrcMessage::create(command);
+    IrcMessage* msg = IrcMessage::fromString(encoded);
     if (msg)
     {
-        msg->initFrom(prefix, params);
-
         switch (msg->type())
         {
         case IrcMessage::Numeric:
@@ -258,13 +252,13 @@ IrcSession::~IrcSession()
 QByteArray IrcSession::encoding() const
 {
     Q_D(const IrcSession);
-    return d->parser.encoding();
+    return d->encoder.encoding();
 }
 
 void IrcSession::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcSession);
-    d->parser.setEncoding(encoding);
+    d->encoder.setEncoding(encoding);
 }
 
 /*!

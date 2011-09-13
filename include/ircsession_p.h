@@ -19,7 +19,7 @@
 #include <QByteArray>
 #include <QMultiHash>
 #include <QAbstractSocket>
-#include "ircparser_p.h"
+#include "ircencoder_p.h"
 
 class IrcSessionPrivate
 {
@@ -40,7 +40,7 @@ public:
     bool isConnected() const;
 
     IrcSession* q_ptr;
-    IrcParser parser;
+    IrcEncoder encoder;
     QByteArray buffer;
     QAbstractSocket* socket;
     QString host;
