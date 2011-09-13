@@ -13,6 +13,8 @@
 */
 
 #include "ircmessage.h"
+#include "irccommand.h"
+#include "ircparser_p.h"
 #include <QDebug>
 
 /*!
@@ -224,29 +226,49 @@ QStringList IrcMessage::parameters() const
 }
 
 /*!
-    Creates a new message corresponding to \a command and with \a parent.
+    Creates a new message from \a str with \a parent.
  */
-IrcMessage* IrcMessage::create(const QString& command, QObject* parent)
+IrcMessage* IrcMessage::fromString(const QString& str, QObject* parent)
 {
     IrcMessage* message = 0;
-    const QMetaObject* metaObject = irc_command_meta_object(command);
-    Q_ASSERT(metaObject);
-    message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
-    Q_ASSERT(message);
-    message->d_ptr->command = command;
+
+    IrcParser parser;
+    if (parser.parse(str))
+    {
+        QString prefix = parser.prefix();
+        QString command = parser.command();
+        QStringList params = parser.params();
+
+        const QMetaObject* metaObject = irc_command_meta_object(command);
+        Q_ASSERT(metaObject);
+        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
+        Q_ASSERT(message);
+
+        message->d_ptr->sender.setPrefix(prefix);
+        message->d_ptr->command = command;
+        message->d_ptr->parameters = params;
+    }
     return message;
 }
 
 /*!
-    Initializes the message from \a sender and \a parameters.
-    Returns \c true on success or \c false if the parameters
-    did not match the message.
+    Creates a new message from \a sender and \a command with \a parent.
  */
-bool IrcMessage::initFrom(const QString& sender, const QStringList& parameters)
+IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, QObject* parent)
 {
-    Q_D(IrcMessage);
-    d->sender.setPrefix(sender);
-    d->parameters = parameters;
+    return fromString(":" + sender + " " + command->toString(), parent);
+}
+
+/*!
+    \property bool IrcMessage::valid
+    This property is \c true if the message is valid; otherwise \c false.
+
+    A message is considered valid if the sender is valid
+    and the parameters match the message.
+ */
+bool IrcMessage::isValid() const
+{
+    Q_D(const IrcMessage);
     return d->sender.isValid();
 }
 
@@ -277,9 +299,9 @@ QString IrcNickMessage::nick() const
     return d->parameters.value(0);
 }
 
-bool IrcNickMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcNickMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !nick().isEmpty();
+    return IrcMessage::isValid() && !nick().isEmpty();
 }
 
 /*!
@@ -309,9 +331,9 @@ QString IrcQuitMessage::reason() const
     return d->parameters.value(0);
 }
 
-bool IrcQuitMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcQuitMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters);
+    return IrcMessage::isValid();
 }
 
 /*!
@@ -341,9 +363,9 @@ QString IrcJoinMessage::channel() const
     return d->parameters.value(0);
 }
 
-bool IrcJoinMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcJoinMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !channel().isEmpty();
+    return IrcMessage::isValid() && !channel().isEmpty();
 }
 
 /*!
@@ -385,9 +407,9 @@ QString IrcPartMessage::reason() const
     return d->parameters.value(1);
 }
 
-bool IrcPartMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcPartMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !channel().isEmpty();
+    return IrcMessage::isValid() && !channel().isEmpty();
 }
 
 /*!
@@ -429,9 +451,9 @@ QString IrcTopicMessage::topic() const
     return d->parameters.value(1);
 }
 
-bool IrcTopicMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcTopicMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !channel().isEmpty();
+    return IrcMessage::isValid() && !channel().isEmpty();
 }
 
 /*!
@@ -473,9 +495,9 @@ QString IrcInviteMessage::channel() const
     return d->parameters.value(1);
 }
 
-bool IrcInviteMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcInviteMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !user().isEmpty() && !channel().isEmpty();
+    return IrcMessage::isValid() && !user().isEmpty() && !channel().isEmpty();
 }
 
 /*!
@@ -529,9 +551,9 @@ QString IrcKickMessage::reason() const
     return d->parameters.value(2);
 }
 
-bool IrcKickMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcKickMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !channel().isEmpty() && !user().isEmpty();
+    return IrcMessage::isValid() && !channel().isEmpty() && !user().isEmpty();
 }
 
 /*!
@@ -597,9 +619,9 @@ QString IrcModeMessage::mask() const
     return d->parameters.value(3);
 }
 
-bool IrcModeMessage::initFrom(const QString &sender, const QStringList &parameters)
+bool IrcModeMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !target().isEmpty();
+    return IrcMessage::isValid() && !target().isEmpty();
 }
 
 /*!
@@ -673,9 +695,9 @@ bool IrcPrivateMessage::isRequest() const
     return d->parameters.value(1).startsWith('\1') && d->parameters.value(1).endsWith('\1') && !isAction();
 }
 
-bool IrcPrivateMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcPrivateMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !target().isEmpty() && !message().isEmpty();
+    return IrcMessage::isValid() && !target().isEmpty() && !message().isEmpty();
 }
 
 /*!
@@ -736,9 +758,9 @@ bool IrcNoticeMessage::isReply() const
     return d->parameters.value(1).startsWith('\1') && d->parameters.value(1).endsWith('\1');
 }
 
-bool IrcNoticeMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcNoticeMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !target().isEmpty() && !message().isEmpty();
+    return IrcMessage::isValid() && !target().isEmpty() && !message().isEmpty();
 }
 
 /*!
@@ -768,9 +790,9 @@ QString IrcPingMessage::target() const
     return d->parameters.value(0);
 }
 
-bool IrcPingMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcPingMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !target().isEmpty();
+    return IrcMessage::isValid() && !target().isEmpty();
 }
 
 /*!
@@ -800,9 +822,9 @@ QString IrcPongMessage::target() const
     return d->parameters.value(0);
 }
 
-bool IrcPongMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcPongMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !target().isEmpty();
+    return IrcMessage::isValid() && !target().isEmpty();
 }
 
 /*!
@@ -832,9 +854,9 @@ QString IrcErrorMessage::error() const
     return d->parameters.value(0);
 }
 
-bool IrcErrorMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcErrorMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && !error().isEmpty();
+    return IrcMessage::isValid() && !error().isEmpty();
 }
 
 /*!
@@ -866,9 +888,9 @@ int IrcNumericMessage::code() const
     return ok ? number : -1;
 }
 
-bool IrcNumericMessage::initFrom(const QString& sender, const QStringList& parameters)
+bool IrcNumericMessage::isValid() const
 {
-    return IrcMessage::initFrom(sender, parameters) && code() != -1;
+    return IrcMessage::isValid() && code() != -1;
 }
 
 #ifndef QT_NO_DEBUG_STREAM
