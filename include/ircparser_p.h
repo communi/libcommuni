@@ -26,24 +26,18 @@ class IrcParser
         QString prefix;
         QString command;
         QStringList params;
-        QByteArray encoding;
     };
 
 public:
     IrcParser();
 
-    bool parse(const QByteArray &line);
+    bool parse(const QString &line);
 
     QString prefix() const { return d.prefix; }
     QString command() const { return d.command; }
     QStringList params() const { return d.params; }
 
-    QByteArray encoding() const { return d.encoding; }
-    void setEncoding(const QByteArray& encoding) { d.encoding = encoding; }
-
 private:
-    QString encode(const QByteArray& data) const;
-
     Data d;
 };
 
