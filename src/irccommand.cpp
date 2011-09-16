@@ -302,154 +302,44 @@ QString IrcCommand::toString() const
 
     switch (d->type)
     {
-    case Password:      return QString("PASS %1").arg(p0); // pass
-    case Nick:          return QString("NICK %1").arg(p0); // nick
-    case User:          return QString("USER %1 hostname servername :%2").arg(p0, p1); // user, real
-    case Operator:      return QString("OPER %1 %2").arg(p0, p1); // user, passwd
-    case Quit:          return QString("QUIT :%1").arg(p0); // reason
-    case Join:          return p1.isNull() ? QString("JOIN %1").arg(p0) : QString("JOIN %1 %2").arg(p0, p1); // chan, key
-    case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
-    case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
-    case Names:         return QString("NAMES %1").arg(p0); // chan
-    case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
-    case Invite:        return QString("INVITE %1 %2").arg(p0, p1); // user, chan
-    case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // chan, user, reason
-    case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg, mask
-    case Message:       return QString("PRIVMSG %1 :%2").arg(p0, p1); // target, msg
-    case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
+
+    case Away:          return QString("AWAY :%1").arg(p0); // reason
     case CtcpAction:    return QString("PRIVMSG %1 :\1ACTION %2\1").arg(p0, p1); // target, msg
     case CtcpRequest:   return QString("PRIVMSG %1 :\1%2\1").arg(p0, p1); // target, msg
     case CtcpReply:     return QString("NOTICE %1 :\1%2\1").arg(p0, p1); // target, msg
+    case Invite:        return QString("INVITE %1 %2").arg(p0, p1); // user, chan
+    case Join:          return p1.isNull() ? QString("JOIN %1").arg(p0) : QString("JOIN %1 %2").arg(p0, p1); // chan, key
+    case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // chan, user, reason
+    case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
+    case Message:       return QString("PRIVMSG %1 :%2").arg(p0, p1); // target, msg
+    case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg, mask
+    case Names:         return QString("NAMES %1").arg(p0); // chan
+    case Nick:          return QString("NICK %1").arg(p0); // nick
+    case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
+    case Operator:      return QString("OPER %1 %2").arg(p0, p1); // user, passwd
+    case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
+    case Password:      return QString("PASS %1").arg(p0); // pass
+    case Ping:          return QString("PING %1").arg(p0); // target
+    case Pong:          return QString("PONG %1").arg(p0); // target
+    case Quit:          return QString("QUIT :%1").arg(p0); // reason
+    case Quote:         return d->parameters.join(" ");
+    case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
+    case User:          return QString("USER %1 hostname servername :%2").arg(p0, p1); // user, real
     case Who:           return QString("WHO %1").arg(p0); // user
     case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
     case Whowas:        return QString("WHOWAS %1 %1").arg(p0); // user
-    case Ping:          return QString("PING %1").arg(p0); // target
-    case Pong:          return QString("PONG %1").arg(p0); // target
-    case Away:          return QString("AWAY :%1").arg(p0); // reason
-    case Quote:         return d->parameters.join(" ");
+
     case Custom:        qWarning("Reimplement IrcCommand::toString() for IrcCommand::Custom");
     default:            return QString();
     }
 }
 
 /*!
-    Creates a new password command with type IrcCommand::Password and parameter \a password.
+    Creates a new away command with type IrcCommand::Away and optional parameter \a reason.
  */
-IrcCommand* IrcCommand::createPassword(const QString& password)
+IrcCommand* IrcCommand::createAway(const QString& reason)
 {
-    return IrcCommandPrivate::createCommand(Password, QStringList() << password);
-}
-
-/*!
-    Creates a new nick command with type IrcCommand::Nick and parameter \a nick.
- */
-IrcCommand* IrcCommand::createNick(const QString& nick)
-{
-    return IrcCommandPrivate::createCommand(Nick, QStringList() << nick);
-}
-
-/*!
-    Creates a new user command with type IrcCommand::User and parameters \a userName and \a realName.
- */
-IrcCommand* IrcCommand::createUser(const QString& userName, const QString& realName)
-{
-    return IrcCommandPrivate::createCommand(User, QStringList() << userName << realName);
-}
-
-/*!
-    Creates a new operator command with type IrcCommand::Operator and parameters \a user and \a password.
- */
-IrcCommand* IrcCommand::createOperator(const QString& user, const QString& password)
-{
-    return IrcCommandPrivate::createCommand(Operator, QStringList() << user << password);
-}
-
-/*!
-    Creates a new quit command with type IrcCommand::Quit and optional parameter \a reason.
- */
-IrcCommand* IrcCommand::createQuit(const QString& reason)
-{
-    return IrcCommandPrivate::createCommand(Quit, QStringList() << reason);
-}
-
-/*!
-    Creates a new join command with type IrcCommand::Join and parameters \a channel and optional \a key.
- */
-IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key)
-{
-    return IrcCommandPrivate::createCommand(Join, QStringList() << channel << key);
-}
-
-/*!
-    Creates a new part command with type IrcCommand::Part and parameters \a channel and optional \a reason.
- */
-IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason)
-{
-    return IrcCommandPrivate::createCommand(Part, QStringList() << channel << reason);
-}
-
-/*!
-    Creates a new topic command with type IrcCommand::Topic and parameters \a channel and optional \a topic.
- */
-IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic)
-{
-    return IrcCommandPrivate::createCommand(Topic, QStringList() << channel << topic);
-}
-
-/*!
-    Creates a new names command with type IrcCommand::Names and parameter \a channel.
- */
-IrcCommand* IrcCommand::createNames(const QString& channel)
-{
-    return IrcCommandPrivate::createCommand(Names, QStringList() << channel);
-}
-
-/*!
-    Creates a new list command with type IrcCommand::List and parameters \a channel and optional \a server.
- */
-IrcCommand* IrcCommand::createList(const QString& channel, const QString& server)
-{
-    return IrcCommandPrivate::createCommand(List, QStringList() << channel << server);
-}
-
-/*!
-    Creates a new invite command with type IrcCommand::Invite and parameters \a user and \a channel.
- */
-IrcCommand* IrcCommand::createInvite(const QString& user, const QString& channel)
-{
-    return IrcCommandPrivate::createCommand(Invite, QStringList() << user << channel);
-}
-
-/*!
-    Creates a new kick command with type IrcCommand::Kick and parameters \a channel, \a user and optional \a reason.
- */
-IrcCommand* IrcCommand::createKick(const QString& channel, const QString& user, const QString& reason)
-{
-    return IrcCommandPrivate::createCommand(Kick, QStringList() << channel << user << reason);
-}
-
-/*!
-    Creates a new mode command with type IrcCommand::Mode and parameters \a target, \a mode and optional \a arg and \a mask.
- */
-IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg, const QString& mask)
-{
-    return IrcCommandPrivate::createCommand(Mode, QStringList() << target << mode << arg << mask);
-}
-
-/*!
-    Creates a new message command with type IrcCommand::Message and parameters \a target and \a message.
- */
-IrcCommand* IrcCommand::createMessage(const QString& target, const QString& message)
-{
-    return IrcCommandPrivate::createCommand(Message, QStringList() << target << message);
-}
-
-/*!
-    Creates a new notice command with type IrcCommand::Notice and parameters \a target and \a message.
- */
-IrcCommand* IrcCommand::createNotice(const QString& target, const QString& message)
-{
-    return IrcCommandPrivate::createCommand(Notice, QStringList() << target << message);
+    return IrcCommandPrivate::createCommand(Away, QStringList() << reason);
 }
 
 /*!
@@ -461,6 +351,14 @@ IrcCommand* IrcCommand::createCtcpAction(const QString& target, const QString& a
 }
 
 /*!
+    Creates a new CTCP reply command with type IrcCommand::CtcpReply and parameters \a target and \a reply.
+ */
+IrcCommand* IrcCommand::createCtcpReply(const QString& target, const QString& reply)
+{
+    return IrcCommandPrivate::createCommand(CtcpReply, QStringList() << target << reply);
+}
+
+/*!
     Creates a new CTCP request command with type IrcCommand::CtcpRequest and parameters \a target and \a request.
  */
 IrcCommand* IrcCommand::createCtcpRequest(const QString& target, const QString& request)
@@ -469,11 +367,147 @@ IrcCommand* IrcCommand::createCtcpRequest(const QString& target, const QString& 
 }
 
 /*!
-    Creates a new CTCP reply command with type IrcCommand::CtcpReply and parameters \a target and \a reply.
+    Creates a new invite command with type IrcCommand::Invite and parameters \a user and \a channel.
  */
-IrcCommand* IrcCommand::createCtcpReply(const QString& target, const QString& reply)
+IrcCommand* IrcCommand::createInvite(const QString& user, const QString& channel)
 {
-    return IrcCommandPrivate::createCommand(CtcpReply, QStringList() << target << reply);
+    return IrcCommandPrivate::createCommand(Invite, QStringList() << user << channel);
+}
+
+/*!
+    Creates a new join command with type IrcCommand::Join and parameters \a channel and optional \a key.
+ */
+IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key)
+{
+    return IrcCommandPrivate::createCommand(Join, QStringList() << channel << key);
+}
+
+/*!
+    Creates a new kick command with type IrcCommand::Kick and parameters \a channel, \a user and optional \a reason.
+ */
+IrcCommand* IrcCommand::createKick(const QString& channel, const QString& user, const QString& reason)
+{
+    return IrcCommandPrivate::createCommand(Kick, QStringList() << channel << user << reason);
+}
+
+/*!
+    Creates a new list command with type IrcCommand::List and parameters \a channel and optional \a server.
+ */
+IrcCommand* IrcCommand::createList(const QString& channel, const QString& server)
+{
+    return IrcCommandPrivate::createCommand(List, QStringList() << channel << server);
+}
+
+/*!
+    Creates a new message command with type IrcCommand::Message and parameters \a target and \a message.
+ */
+IrcCommand* IrcCommand::createMessage(const QString& target, const QString& message)
+{
+    return IrcCommandPrivate::createCommand(Message, QStringList() << target << message);
+}
+
+/*!
+    Creates a new mode command with type IrcCommand::Mode and parameters \a target, \a mode and optional \a arg and \a mask.
+ */
+IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg, const QString& mask)
+{
+    return IrcCommandPrivate::createCommand(Mode, QStringList() << target << mode << arg << mask);
+}
+
+/*!
+    Creates a new names command with type IrcCommand::Names and parameter \a channel.
+ */
+IrcCommand* IrcCommand::createNames(const QString& channel)
+{
+    return IrcCommandPrivate::createCommand(Names, QStringList() << channel);
+}
+
+/*!
+    Creates a new nick command with type IrcCommand::Nick and parameter \a nick.
+ */
+IrcCommand* IrcCommand::createNick(const QString& nick)
+{
+    return IrcCommandPrivate::createCommand(Nick, QStringList() << nick);
+}
+
+/*!
+    Creates a new notice command with type IrcCommand::Notice and parameters \a target and \a message.
+ */
+IrcCommand* IrcCommand::createNotice(const QString& target, const QString& message)
+{
+    return IrcCommandPrivate::createCommand(Notice, QStringList() << target << message);
+}
+
+/*!
+    Creates a new operator command with type IrcCommand::Operator and parameters \a user and \a password.
+ */
+IrcCommand* IrcCommand::createOperator(const QString& user, const QString& password)
+{
+    return IrcCommandPrivate::createCommand(Operator, QStringList() << user << password);
+}
+
+/*!
+    Creates a new part command with type IrcCommand::Part and parameters \a channel and optional \a reason.
+ */
+IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason)
+{
+    return IrcCommandPrivate::createCommand(Part, QStringList() << channel << reason);
+}
+
+/*!
+    Creates a new password command with type IrcCommand::Password and parameter \a password.
+ */
+IrcCommand* IrcCommand::createPassword(const QString& password)
+{
+    return IrcCommandPrivate::createCommand(Password, QStringList() << password);
+}
+
+/*!
+    Creates a new ping command with type IrcCommand::Ping and parameter \a target.
+ */
+IrcCommand* IrcCommand::createPing(const QString& target)
+{
+    return IrcCommandPrivate::createCommand(Ping, QStringList() << target);
+}
+
+/*!
+    Creates a new pong command with type IrcCommand::Pong and parameter \a target.
+ */
+IrcCommand* IrcCommand::createPong(const QString& target)
+{
+    return IrcCommandPrivate::createCommand(Pong, QStringList() << target);
+}
+
+/*!
+    Creates a new quit command with type IrcCommand::Quit and optional parameter \a reason.
+ */
+IrcCommand* IrcCommand::createQuit(const QString& reason)
+{
+    return IrcCommandPrivate::createCommand(Quit, QStringList() << reason);
+}
+
+/*!
+    Creates a new quote command with type IrcCommand::Quote and \a parameters.
+ */
+IrcCommand* IrcCommand::createQuote(const QStringList& parameters)
+{
+    return IrcCommandPrivate::createCommand(Quote, parameters);
+}
+
+/*!
+    Creates a new topic command with type IrcCommand::Topic and parameters \a channel and optional \a topic.
+ */
+IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic)
+{
+    return IrcCommandPrivate::createCommand(Topic, QStringList() << channel << topic);
+}
+
+/*!
+    Creates a new user command with type IrcCommand::User and parameters \a userName and \a realName.
+ */
+IrcCommand* IrcCommand::createUser(const QString& userName, const QString& realName)
+{
+    return IrcCommandPrivate::createCommand(User, QStringList() << userName << realName);
 }
 
 /*!
@@ -498,38 +532,6 @@ IrcCommand* IrcCommand::createWhois(const QString& user)
 IrcCommand* IrcCommand::createWhowas(const QString& user)
 {
     return IrcCommandPrivate::createCommand(Whowas, QStringList() << user);
-}
-
-/*!
-    Creates a new ping command with type IrcCommand::Ping and parameter \a target.
- */
-IrcCommand* IrcCommand::createPing(const QString& target)
-{
-    return IrcCommandPrivate::createCommand(Ping, QStringList() << target);
-}
-
-/*!
-    Creates a new pong command with type IrcCommand::Pong and parameter \a target.
- */
-IrcCommand* IrcCommand::createPong(const QString& target)
-{
-    return IrcCommandPrivate::createCommand(Pong, QStringList() << target);
-}
-
-/*!
-    Creates a new away command with type IrcCommand::Away and optional parameter \a reason.
- */
-IrcCommand* IrcCommand::createAway(const QString& reason)
-{
-    return IrcCommandPrivate::createCommand(Away, QStringList() << reason);
-}
-
-/*!
-    Creates a new quote command with type IrcCommand::Quote and \a parameters.
- */
-IrcCommand* IrcCommand::createQuote(const QStringList& parameters)
-{
-    return IrcCommandPrivate::createCommand(Quote, parameters);
 }
 
 #ifndef QT_NO_DEBUG_STREAM
