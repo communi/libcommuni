@@ -10,7 +10,6 @@
 
 #include "ircparser_p.h"
 #include <QtTest/QtTest>
-#include <QtCore/QTextCodec>
 
 class tst_IrcParser : public QObject
 {
@@ -21,9 +20,6 @@ private slots:
 
     void testParse_data();
     void testParse();
-
-    void testEncoding_data();
-    void testEncoding();
 };
 
 void tst_IrcParser::testDefaults()
@@ -32,7 +28,6 @@ void tst_IrcParser::testDefaults()
     QVERIFY(parser.prefix().isNull());
     QVERIFY(parser.command().isNull());
     QVERIFY(parser.params().isEmpty());
-    QVERIFY(parser.encoding().isNull());
 }
 
 void tst_IrcParser::testParse_data()
@@ -70,27 +65,6 @@ void tst_IrcParser::testParse()
     QCOMPARE(parser.prefix(), prefix);
     QCOMPARE(parser.command(), command);
     QCOMPARE(parser.params(), params);
-}
-
-void tst_IrcParser::testEncoding_data()
-{
-    QTest::addColumn<QByteArray>("encoding");
-
-    QTest::newRow("null") << QByteArray();
-    QTest::newRow("empty") << QByteArray("");
-    QTest::newRow("space") << QByteArray(" ");
-    QTest::newRow("invalid") << QByteArray("invalid");
-    foreach (const QByteArray& codec, QTextCodec::availableCodecs())
-        QTest::newRow(codec) << codec;
-}
-
-void tst_IrcParser::testEncoding()
-{
-    QFETCH(QByteArray, encoding);
-
-    IrcParser parser;
-    parser.setEncoding(encoding);
-    QCOMPARE(parser.encoding(), encoding);
 }
 
 QTEST_MAIN(tst_IrcParser)
