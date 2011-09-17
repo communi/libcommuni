@@ -48,7 +48,6 @@ public:
         Private,
         Notice,
         Ping,
-        Pong,
         Error,
         Numeric
     };
@@ -232,19 +231,6 @@ class COMMUNI_EXPORT IrcPingMessage : public IrcMessage
 
 public:
     Q_INVOKABLE explicit IrcPingMessage(QObject* parent = 0);
-
-    QString target() const;
-
-    bool isValid() const;
-};
-
-class COMMUNI_EXPORT IrcPongMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString target READ target)
-
-public:
-    Q_INVOKABLE explicit IrcPongMessage(QObject* parent = 0);
 
     QString target() const;
 
