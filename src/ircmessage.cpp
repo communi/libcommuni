@@ -607,21 +607,9 @@ QString IrcModeMessage::argument() const
     return d->parameters.value(2);
 }
 
-/*!
-    This property holds the mode mask.
-
-    \par Access functions:
-    \li QString <b>mask</b>() const
- */
-QString IrcModeMessage::mask() const
-{
-    Q_D(const IrcMessage);
-    return d->parameters.value(3);
-}
-
 bool IrcModeMessage::isValid() const
 {
-    return IrcMessage::isValid() && !target().isEmpty();
+    return IrcMessage::isValid() && !target().isEmpty() && !mode().isEmpty();
 }
 
 /*!

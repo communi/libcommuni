@@ -178,7 +178,6 @@ class COMMUNI_EXPORT IrcModeMessage : public IrcMessage
     Q_PROPERTY(QString target READ target)
     Q_PROPERTY(QString mode READ mode)
     Q_PROPERTY(QString argument READ argument)
-    Q_PROPERTY(QString mask READ mask)
 
 public:
     Q_INVOKABLE explicit IrcModeMessage(QObject* parent = 0);
@@ -186,7 +185,6 @@ public:
     QString target() const;
     QString mode() const;
     QString argument() const;
-    QString mask() const;
 
     bool isValid() const;
 };
