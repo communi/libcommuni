@@ -187,12 +187,9 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
                 emit q->connected();
             break;
-        case IrcMessage::Ping: {
-            QString target = static_cast<IrcPingMessage*>(msg)->target();
-            IrcCommand* pongCmd = IrcCommand::createPong(target);
-            q->sendCommand(pongCmd);
+        case IrcMessage::Ping:
+            q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->target());
             break;
-            }
         case IrcMessage::Nick:
             if (msg->sender().name() == nickName)
             {
@@ -203,6 +200,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
                     emit q->nickNameChanged(nickName);
                 }
             }
+            break;
         default:
             break;
         }

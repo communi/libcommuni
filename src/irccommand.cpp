@@ -197,11 +197,6 @@
  */
 
 /*!
-    \var IrcCommand::Pong
-    \brief A pong command (PONG) is used to reply to a ping message.
- */
-
-/*!
     \var IrcCommand::Away
     \brief An away command (AWAY) is used to set the away status.
  */
@@ -314,7 +309,6 @@ QString IrcCommand::toString() const
     case Operator:      return QString("OPER %1 %2").arg(p0, p1); // user, passwd
     case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
     case Password:      return QString("PASS %1").arg(p0); // pass
-    case Pong:          return QString("PONG %1").arg(p0); // target
     case Quit:          return QString("QUIT :%1").arg(p0); // reason
     case Quote:         return d->parameters.join(" ");
     case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
@@ -454,14 +448,6 @@ IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason
 IrcCommand* IrcCommand::createPassword(const QString& password)
 {
     return IrcCommandPrivate::createCommand(Password, QStringList() << password);
-}
-
-/*!
-    Creates a new pong command with type IrcCommand::Pong and parameter \a target.
- */
-IrcCommand* IrcCommand::createPong(const QString& target)
-{
-    return IrcCommandPrivate::createCommand(Pong, QStringList() << target);
 }
 
 /*!
