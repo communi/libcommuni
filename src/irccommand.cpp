@@ -197,11 +197,6 @@
  */
 
 /*!
-    \var IrcCommand::Ping
-    \brief A ping command (PING) is used to test the presence of an active client at the other end of the connection.
- */
-
-/*!
     \var IrcCommand::Pong
     \brief A pong command (PONG) is used to reply to a ping message.
  */
@@ -319,7 +314,6 @@ QString IrcCommand::toString() const
     case Operator:      return QString("OPER %1 %2").arg(p0, p1); // user, passwd
     case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
     case Password:      return QString("PASS %1").arg(p0); // pass
-    case Ping:          return QString("PING %1").arg(p0); // target
     case Pong:          return QString("PONG %1").arg(p0); // target
     case Quit:          return QString("QUIT :%1").arg(p0); // reason
     case Quote:         return d->parameters.join(" ");
@@ -460,14 +454,6 @@ IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason
 IrcCommand* IrcCommand::createPassword(const QString& password)
 {
     return IrcCommandPrivate::createCommand(Password, QStringList() << password);
-}
-
-/*!
-    Creates a new ping command with type IrcCommand::Ping and parameter \a target.
- */
-IrcCommand* IrcCommand::createPing(const QString& target)
-{
-    return IrcCommandPrivate::createCommand(Ping, QStringList() << target);
 }
 
 /*!

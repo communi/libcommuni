@@ -67,7 +67,6 @@ public:
         Whowas,
 
         // miscellaneous commands
-        Ping,
         Pong,
         Away,
         Quote
@@ -100,7 +99,6 @@ public:
     Q_INVOKABLE static IrcCommand* createOperator(const QString& user, const QString& password);
     Q_INVOKABLE static IrcCommand* createPart(const QString& channel, const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createPassword(const QString& password);
-    Q_INVOKABLE static IrcCommand* createPing(const QString& target);
     Q_INVOKABLE static IrcCommand* createPong(const QString& target);
     Q_INVOKABLE static IrcCommand* createQuit(const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createQuote(const QStringList& parameters);
