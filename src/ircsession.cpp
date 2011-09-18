@@ -118,10 +118,10 @@ void IrcSessionPrivate::_q_connected()
     QString password;
     emit q->password(&password);
     if (!password.isEmpty())
-        q->sendCommand(IrcCommand::createPassword(password));
+        q->sendRaw(QString("PASS %1").arg(password));
 
     q->sendCommand(IrcCommand::createNick(nickName));
-    q->sendCommand(IrcCommand::createUser(userName, realName));
+    q->sendRaw(QString("USER %1 hostname servername :%2").arg(userName, realName));
 }
 
 void IrcSessionPrivate::_q_disconnected()

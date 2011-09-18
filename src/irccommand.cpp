@@ -306,13 +306,10 @@ QString IrcCommand::toString() const
     case Names:         return QString("NAMES %1").arg(p0); // chan
     case Nick:          return QString("NICK %1").arg(p0); // nick
     case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
-    case Operator:      return QString("OPER %1 %2").arg(p0, p1); // user, passwd
     case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
-    case Password:      return QString("PASS %1").arg(p0); // pass
     case Quit:          return QString("QUIT :%1").arg(p0); // reason
     case Quote:         return d->parameters.join(" ");
     case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
-    case User:          return QString("USER %1 hostname servername :%2").arg(p0, p1); // user, real
     case Who:           return QString("WHO %1").arg(p0); // user
     case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
     case Whowas:        return QString("WHOWAS %1 %1").arg(p0); // user
@@ -427,27 +424,11 @@ IrcCommand* IrcCommand::createNotice(const QString& target, const QString& messa
 }
 
 /*!
-    Creates a new operator command with type IrcCommand::Operator and parameters \a user and \a password.
- */
-IrcCommand* IrcCommand::createOperator(const QString& user, const QString& password)
-{
-    return IrcCommandPrivate::createCommand(Operator, QStringList() << user << password);
-}
-
-/*!
     Creates a new part command with type IrcCommand::Part and parameters \a channel and optional \a reason.
  */
 IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason)
 {
     return IrcCommandPrivate::createCommand(Part, QStringList() << channel << reason);
-}
-
-/*!
-    Creates a new password command with type IrcCommand::Password and parameter \a password.
- */
-IrcCommand* IrcCommand::createPassword(const QString& password)
-{
-    return IrcCommandPrivate::createCommand(Password, QStringList() << password);
 }
 
 /*!
@@ -472,14 +453,6 @@ IrcCommand* IrcCommand::createQuote(const QStringList& parameters)
 IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic)
 {
     return IrcCommandPrivate::createCommand(Topic, QStringList() << channel << topic);
-}
-
-/*!
-    Creates a new user command with type IrcCommand::User and parameters \a userName and \a realName.
- */
-IrcCommand* IrcCommand::createUser(const QString& userName, const QString& realName)
-{
-    return IrcCommandPrivate::createCommand(User, QStringList() << userName << realName);
 }
 
 /*!

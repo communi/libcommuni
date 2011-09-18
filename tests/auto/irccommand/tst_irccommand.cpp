@@ -31,15 +31,12 @@ private slots:
     void testNames();
     void testNick();
     void testNotice();
-    void testOperator();
     void testPart();
-    void testPassword();
     void testPing();
     void testPong();
     void testQuit();
     void testQuote();
     void testTopic();
-    void testUser();
     void testWho();
     void testWhois();
     void testWhowas();
@@ -104,15 +101,7 @@ void tst_IrcCommand::testNotice()
 {
 }
 
-void tst_IrcCommand::testOperator()
-{
-}
-
 void tst_IrcCommand::testPart()
-{
-}
-
-void tst_IrcCommand::testPassword()
 {
 }
 
@@ -133,10 +122,6 @@ void tst_IrcCommand::testQuote()
 }
 
 void tst_IrcCommand::testTopic()
-{
-}
-
-void tst_IrcCommand::testUser()
 {
 }
 
