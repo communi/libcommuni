@@ -20,6 +20,8 @@
 #include "ircsender.h"
 #include "ircutil.h"
 #include "irc.h"
+#include <QLocale>
+#include <QDateTime>
 #include <QTcpSocket>
 #include <QStringList>
 
@@ -190,6 +192,23 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         case IrcMessage::Ping:
             q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->target());
             break;
+        case IrcMessage::Private: {
+            IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
+            if (privMsg->isRequest())
+            {
+                QString reply;
+                QString request = privMsg->message().split(" ", QString::SkipEmptyParts).value(0).toUpper();
+                if (request == "PING")
+                    reply = privMsg->message();
+                else if (request == "TIME")
+                    reply = "TIME " + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat);
+                else if (request == "VERSION")
+                    reply = QString("VERSION Communi ") + Irc::version();
+                if (!reply.isNull())
+                    q->sendCommand(IrcCommand::createCtcpReply(msg->sender().name(), reply));
+            }
+            break;
+            }
         case IrcMessage::Nick:
             if (msg->sender().name() == nickName)
             {
