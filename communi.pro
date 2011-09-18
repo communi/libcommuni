@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = subdirs
-SUBDIRS += src plugins examples # tests
+SUBDIRS += src plugins examples tests
 CONFIG += ordered
 
 lessThan(QT_MAJOR_VERSION, 4) | lessThan(QT_MINOR_VERSION, 7) {
