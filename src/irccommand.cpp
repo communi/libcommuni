@@ -92,23 +92,8 @@
  */
 
 /*!
-    \var IrcCommand::Password
-    \brief A password command (PASS) is used to set a 'connection password'.
- */
-
-/*!
     \var IrcCommand::Nick
     \brief A nick command (NICK) is used to give user a nickname or change the previous one.
- */
-
-/*!
-    \var IrcCommand::User
-    \brief A user command (USER) is used at the beginning of connection to specify the username, hostname, and realname of a new user.
- */
-
-/*!
-    \var IrcCommand::Operator
-    \brief An operator command (OPER) is used by a normal user to obtain operator privileges.
  */
 
 /*!
