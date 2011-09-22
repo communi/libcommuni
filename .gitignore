@@ -20,6 +20,7 @@ bin
 *.qmlproject.user
 *.xcodeproj
 *.plist
+.DS_Store
 communi-config.prf
 .qmake.cache
 .make.cache
