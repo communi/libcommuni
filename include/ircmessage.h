@@ -61,8 +61,8 @@ public:
     QStringList parameters() const;
 
     virtual bool isValid() const;
-    static IrcMessage* fromString(const QString& str, QObject* parent = 0);
-    static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, QObject* parent = 0);
+    Q_INVOKABLE static IrcMessage* fromString(const QString& str, QObject* parent = 0);
+    Q_INVOKABLE static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, QObject* parent = 0);
 
 protected:
     QScopedPointer<IrcMessagePrivate> d_ptr;
