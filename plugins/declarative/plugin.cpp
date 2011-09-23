@@ -65,9 +65,9 @@ public:
     {
         qmlRegisterType<IrcSession>(uri, 1, 0, "IrcSession");
         qmlRegisterType<IrcCommand>(uri, 1, 0, "IrcCommand");
+        qmlRegisterType<IrcMessage>(uri, 1, 0, "IrcMessage");
 
         qmlRegisterUncreatableType<Irc>(uri, 1, 0, "Irc", "");
-        qmlRegisterUncreatableType<IrcMessage>(uri, 1, 0, "IrcMessage", "");
     }
 };
 
