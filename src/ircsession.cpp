@@ -106,7 +106,8 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     port(6667),
     userName(),
     nickName(),
-    realName()
+    realName(),
+    active(false)
 {
 }
 
@@ -147,6 +148,12 @@ void IrcSessionPrivate::_q_error(QAbstractSocket::SocketError error)
 
 void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
 {
+    Q_Q(IrcSession);
+    bool wasActive = active;
+    active = state != QAbstractSocket::UnconnectedState;
+    if (wasActive != active)
+        emit q->activeChanged(active);
+
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
     if (dbg) qDebug() << "IrcSessionPrivate::_q_state():" << state;
 }
@@ -392,6 +399,22 @@ void IrcSession::setRealName(const QString& name)
     if (d->isConnected())
         qWarning("IrcSession::setRealName() has no effect until re-connect");
     d->realName = name;
+}
+
+/*!
+    \property bool IrcSession::active
+    This property holds whether the session is active.
+
+    The session is considered active when the socket
+    state is not QAbstractSocket::UnconnectedState.
+
+    \par Access functions:
+    \li bool <b>isActive</b>() const
+ */
+bool IrcSession::isActive() const
+{
+    Q_D(const IrcSession);
+    return d->active;
 }
 
 /*!

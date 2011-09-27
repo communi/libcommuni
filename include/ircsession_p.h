@@ -48,6 +48,7 @@ public:
     QString userName;
     QString nickName;
     QString realName;
+    bool active;
 };
 
 #endif // IRCSESSION_P_H
