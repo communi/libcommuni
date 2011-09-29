@@ -767,20 +767,20 @@ IrcPingMessage::IrcPingMessage(QObject* parent) : IrcMessage(parent)
 }
 
 /*!
-    This property holds the target in question.
+    This property holds the optional message argument.
 
     \par Access functions:
-    \li QString <b>target</b>() const
+    \li QString <b>argument</b>() const
  */
-QString IrcPingMessage::target() const
+QString IrcPingMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->parameters.value(1);
 }
 
 bool IrcPingMessage::isValid() const
 {
-    return IrcMessage::isValid() && !target().isEmpty();
+    return IrcMessage::isValid();
 }
 
 /*!
@@ -799,20 +799,20 @@ IrcPongMessage::IrcPongMessage(QObject* parent) : IrcMessage(parent)
 }
 
 /*!
-    This property holds the target in question.
+    This property holds the optional message argument.
 
     \par Access functions:
-    \li QString <b>target</b>() const
+    \li QString <b>argument</b>() const
  */
-QString IrcPongMessage::target() const
+QString IrcPongMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->parameters.value(1);
 }
 
 bool IrcPongMessage::isValid() const
 {
-    return IrcMessage::isValid() && !target().isEmpty();
+    return IrcMessage::isValid();
 }
 
 /*!

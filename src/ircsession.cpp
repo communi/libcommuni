@@ -197,7 +197,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
                 emit q->connected();
             break;
         case IrcMessage::Ping:
-            q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->target());
+            q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
             break;
         case IrcMessage::Private: {
             IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
