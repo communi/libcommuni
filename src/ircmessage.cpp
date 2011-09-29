@@ -105,6 +105,11 @@
  */
 
 /*!
+    \var IrcMessage::Pong
+    \brief A pong message (IrcPongMessage).
+ */
+
+/*!
     \var IrcMessage::Error
     \brief An error message (IrcErrorMessage).
  */
@@ -139,6 +144,7 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
         metaObjects.insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
         metaObjects.insert("NOTICE", &IrcNoticeMessage::staticMetaObject);
         metaObjects.insert("PING", &IrcPingMessage::staticMetaObject);
+        metaObjects.insert("PONG", &IrcPongMessage::staticMetaObject);
         metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
     }
 
@@ -773,6 +779,38 @@ QString IrcPingMessage::target() const
 }
 
 bool IrcPingMessage::isValid() const
+{
+    return IrcMessage::isValid() && !target().isEmpty();
+}
+
+/*!
+    \class IrcPongMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief The IrcPongMessage class represents a pong IRC message.
+ */
+
+/*!
+    Constructs a new IrcPongMessage with \a parent.
+ */
+IrcPongMessage::IrcPongMessage(QObject* parent) : IrcMessage(parent)
+{
+    Q_D(IrcMessage);
+    d->type = Pong;
+}
+
+/*!
+    This property holds the target in question.
+
+    \par Access functions:
+    \li QString <b>target</b>() const
+ */
+QString IrcPongMessage::target() const
+{
+    Q_D(const IrcMessage);
+    return d->parameters.value(0);
+}
+
+bool IrcPongMessage::isValid() const
 {
     return IrcMessage::isValid() && !target().isEmpty();
 }

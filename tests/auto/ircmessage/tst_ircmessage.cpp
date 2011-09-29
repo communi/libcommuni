@@ -37,6 +37,7 @@ private slots:
     void testPartMessage_data();
     void testPartMessage();
     void testPingMessage(); // <--
+    void testPongMessage(); // <--
     void testPrivateMessage_data();
     void testPrivateMessage();
     void testQuitMessage_data();
@@ -357,6 +358,10 @@ void tst_IrcMessage::testPartMessage()
 }
 
 void tst_IrcMessage::testPingMessage()
+{
+}
+
+void tst_IrcMessage::testPongMessage()
 {
 }
 
