@@ -287,7 +287,7 @@ QString IrcCommand::toString() const
     case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // chan, user, reason
     case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
     case Message:       return QString("PRIVMSG %1 :%2").arg(p0, p1); // target, msg
-    case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg, mask
+    case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg
     case Names:         return QString("NAMES %1").arg(p0); // chan
     case Nick:          return QString("NICK %1").arg(p0); // nick
     case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
@@ -377,11 +377,11 @@ IrcCommand* IrcCommand::createMessage(const QString& target, const QString& mess
 }
 
 /*!
-    Creates a new mode command with type IrcCommand::Mode and parameters \a target, \a mode and optional \a arg and \a mask.
+    Creates a new mode command with type IrcCommand::Mode and parameters \a target, \a mode and optional \a arg.
  */
-IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg, const QString& mask)
+IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg)
 {
-    return IrcCommandPrivate::createCommand(Mode, QStringList() << target << mode << arg << mask);
+    return IrcCommandPrivate::createCommand(Mode, QStringList() << target << mode << arg);
 }
 
 /*!
