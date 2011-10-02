@@ -148,7 +148,8 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     nickName(),
     realName(),
     active(false),
-    connected(false)
+    connected(false),
+    info()
 {
 }
 
@@ -238,10 +239,21 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         switch (msg->type())
         {
         case IrcMessage::Numeric:
-            if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
+            switch (static_cast<IrcNumericMessage*>(msg)->code())
             {
+            case Irc::RPL_WELCOME:
                 setNick(msg->parameters().value(0));
                 setConnected(true);
+                break;
+            case Irc::RPL_ISUPPORT:
+                foreach (const QString& param, msg->parameters().mid(1))
+                {
+                    const QStringList keyValue = param.split("=", QString::SkipEmptyParts);
+                    info.insert(keyValue.value(0), keyValue.value(1));
+                }
+                break;
+            default:
+                break;
             }
             break;
         case IrcMessage::Ping:
@@ -349,6 +361,18 @@ void IrcSession::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcSession);
     d->encoder.setEncoding(encoding);
+}
+
+/*!
+    This property holds the server information (RPL_ISUPPORT).
+
+    \par Access functions:
+    \li IrcServerInfo <b>serverInfo</b>() const
+ */
+IrcServerInfo IrcSession::serverInfo() const
+{
+    Q_D(const IrcSession);
+    return d->info;
 }
 
 /*!

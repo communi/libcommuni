@@ -16,6 +16,7 @@
 #define IRCSESSION_H
 
 #include <IrcGlobal>
+#include <QtCore/qhash.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
@@ -23,6 +24,8 @@
 class IrcCommand;
 class IrcMessage;
 class IrcSessionPrivate;
+
+typedef QHash<QString, QString> IrcServerInfo;
 
 class COMMUNI_EXPORT IrcSession : public QObject
 {
@@ -34,6 +37,7 @@ class COMMUNI_EXPORT IrcSession : public QObject
     Q_PROPERTY(QString nickName READ nickName WRITE setNickName NOTIFY nickNameChanged)
     Q_PROPERTY(QString realName READ realName WRITE setRealName NOTIFY realNameChanged)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
+    Q_PROPERTY(IrcServerInfo serverInfo READ serverInfo)
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
@@ -59,6 +63,8 @@ public:
 
     QByteArray encoding() const;
     void setEncoding(const QByteArray& encoding);
+
+    IrcServerInfo serverInfo() const;
 
     bool isActive() const;
     bool isConnected() const;
