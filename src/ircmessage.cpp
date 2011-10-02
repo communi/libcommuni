@@ -775,7 +775,7 @@ IrcPingMessage::IrcPingMessage(QObject* parent) : IrcMessage(parent)
 QString IrcPingMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1);
+    return d->parameters.value(0);
 }
 
 bool IrcPingMessage::isValid() const
