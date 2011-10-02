@@ -32,7 +32,7 @@ public:
         RPL_YOURHOST               = 002,
         RPL_CREATED                = 003,
         RPL_MYINFO                 = 004,
-        RPL_BOUNCE                 = 005,
+        RPL_ISUPPORT               = 005,
 
         RPL_USERHOST               = 302,
         RPL_ISON                   = 303,
