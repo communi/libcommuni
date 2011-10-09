@@ -7,7 +7,7 @@ TARGET = $$qtLibraryTarget(communiplugin)
 DEFINES += BUILD_PLUGIN
 QT += declarative
 CONFIG += plugin
-!symbian:CONFIG += silent
+!verbose:!symbian:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
 TARGETPATH = Communi

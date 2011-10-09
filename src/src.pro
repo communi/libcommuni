@@ -6,7 +6,7 @@ TEMPLATE = lib
 TARGET = $$qtLibraryTarget(Communi)
 DEFINES += BUILD_COMMUNI
 QT = core network
-!symbian:CONFIG += silent
+!verbose:!symbian:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
 COMMUNI_VERSION = 1.0.0
