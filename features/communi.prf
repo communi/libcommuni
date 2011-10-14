@@ -3,4 +3,4 @@
 ######################################################################
 
 include(communi-config.prf)
-qtAddLibrary(communi)
+qtAddLibrary(Communi)
