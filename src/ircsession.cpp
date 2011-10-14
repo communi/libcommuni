@@ -92,6 +92,30 @@
  */
 
 /*!
+    \fn void IrcSession::hostChanged(const QString& host)
+
+    This signal is emitted when the \a host has changed.
+ */
+
+/*!
+    \fn void IrcSession::portChanged(int port)
+
+    This signal is emitted when the \a port has changed.
+ */
+
+/*!
+    \fn void IrcSession::userNameChanged(const QString& name)
+
+    This signal is emitted when the user \a name has changed.
+ */
+
+/*!
+    \fn void IrcSession::realNameChanged(const QString& name)
+
+    This signal is emitted when the real \a name has changed.
+ */
+
+/*!
     \fn void IrcSession::nickNameChanged(const QString& name)
 
     This signal is emitted when the nick \a name has changed.
@@ -303,7 +327,11 @@ void IrcSession::setHost(const QString& host)
     Q_D(IrcSession);
     if (d->isConnected())
         qWarning("IrcSession::setHost() has no effect until re-connect");
-    d->host = host;
+    if (d->host != host)
+    {
+        d->host = host;
+        emit hostChanged(host);
+    }
 }
 
 /*!
@@ -326,7 +354,11 @@ void IrcSession::setPort(int port)
     Q_D(IrcSession);
     if (d->isConnected())
         qWarning("IrcSession::setPort() has no effect until re-connect");
-    d->port = port;
+    if (d->port != port)
+    {
+        d->port = port;
+        emit portChanged(port);
+    }
 }
 
 /*!
@@ -349,7 +381,12 @@ void IrcSession::setUserName(const QString& name)
     Q_D(IrcSession);
     if (d->isConnected())
         qWarning("IrcSession::setUserName() has no effect until re-connect");
-    d->userName = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
+    QString user = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
+    if (d->userName != user)
+    {
+        d->userName = user;
+        emit userNameChanged(user);
+    }
 }
 
 /*!
@@ -371,10 +408,15 @@ void IrcSession::setNickName(const QString& name)
     QString nick = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
     if (d->nickName != nick)
     {
-        d->nickName = nick;
         if (d->isConnected())
+        {
             sendCommand(IrcCommand::createNick(nick));
-        emit nickNameChanged(nick);
+        }
+        else
+        {
+            d->nickName = nick;
+            emit nickNameChanged(nick);
+        }
     }
 }
 
@@ -398,7 +440,11 @@ void IrcSession::setRealName(const QString& name)
     Q_D(IrcSession);
     if (d->isConnected())
         qWarning("IrcSession::setRealName() has no effect until re-connect");
-    d->realName = name;
+    if (d->realName != name)
+    {
+        d->realName = name;
+        emit realNameChanged(name);
+    }
 }
 
 /*!
