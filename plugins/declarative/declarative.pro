@@ -32,11 +32,17 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
 SOURCES += plugin.cpp
 OTHER_FILES += qmldir
 
-target.path = $$[QT_INSTALL_IMPORTS]/$$TARGETPATH
+contains(MEEGO_EDITION,harmattan) {
+    COMMUNI_INSTALL_IMPORTS = /usr/lib/qt4/imports
+} else {
+    COMMUNI_INSTALL_IMPORTS = $$[QT_INSTALL_IMPORTS]
+}
+
+target.path = $$COMMUNI_INSTALL_IMPORTS/$$TARGETPATH
 INSTALLS += target
 
 other_files.files = $$OTHER_FILES
-other_files.path = $$[QT_INSTALL_IMPORTS]/$$TARGETPATH
+other_files.path = $$COMMUNI_INSTALL_IMPORTS/$$TARGETPATH
 INSTALLS += other_files
 
 symbian {

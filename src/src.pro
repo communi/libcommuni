@@ -59,10 +59,20 @@ SOURCES += ircsender.cpp
 SOURCES += ircsession.cpp
 SOURCES += ircutil.cpp
 
-target.path = $$[QT_INSTALL_LIBS]
+contains(MEEGO_EDITION,harmattan) {
+    COMMUNI_INSTALL_LIBS = /usr/lib
+    COMMUNI_INSTALL_BINS = /usr/bin
+    COMMUNI_INSTALL_HEADERS = /usr/include/qt4
+} else {
+    COMMUNI_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
+    COMMUNI_INSTALL_BINS = $$[QT_INSTALL_BINS]
+    COMMUNI_INSTALL_HEADERS = $$[QT_INSTALL_HEADERS]
+}
+
+target.path = $$COMMUNI_INSTALL_LIBS
 INSTALLS += target
 
-dlltarget.path = $$[QT_INSTALL_BINS]
+dlltarget.path = $$COMMUNI_INSTALL_BINS
 INSTALLS += dlltarget
 
 macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
@@ -77,10 +87,10 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
         }
         QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
     }
-    QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$[QT_INSTALL_LIBS]/
+    QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$COMMUNI_INSTALL_LIBS/
 } else {
     headers.files = $$PUB_HEADERS $$CONV_HEADERS
-    headers.path = $$[QT_INSTALL_HEADERS]/Communi
+    headers.path = $$COMMUNI_INSTALL_HEADERS/Communi
     INSTALLS += headers
 }
 
