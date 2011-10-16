@@ -29,8 +29,13 @@ ABLD.BAT
 bld.inf
 *.mmp
 moc_*.cpp
+*.changes
+*.deb
+build-stamp
+configure-stamp
+/debian
 /examples/bot/bot
-/examples/irqqi/irqqi
+/examples/meego/communi
 /tests/auto/ircencoder/ircencoder
 /tests/auto/irccommand/irccommand
 /tests/auto/ircmessage/ircmessage
