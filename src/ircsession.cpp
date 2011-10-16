@@ -226,6 +226,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         case IrcMessage::Numeric:
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
             {
+                setNick(msg->parameters().value(0));
                 connected = true;
                 emit q->connected();
                 emit q->connectedChanged(true);
@@ -253,14 +254,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             }
         case IrcMessage::Nick:
             if (msg->sender().name() == nickName)
-            {
-                QString newNick = static_cast<IrcNickMessage*>(msg)->nick();
-                if (nickName != newNick)
-                {
-                    nickName = newNick;
-                    emit q->nickNameChanged(nickName);
-                }
-            }
+                setNick(static_cast<IrcNickMessage*>(msg)->nick());
             break;
         default:
             break;
@@ -268,6 +262,16 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
 
         emit q->messageReceived(msg);
         msg->deleteLater();
+    }
+}
+
+void IrcSessionPrivate::setNick(const QString& nick)
+{
+    Q_Q(IrcSession);
+    if (nickName != nick)
+    {
+        nickName = nick;
+        emit q->nickNameChanged(nick);
     }
 }
 
@@ -413,14 +417,9 @@ void IrcSession::setNickName(const QString& name)
     if (d->nickName != nick)
     {
         if (isActive())
-        {
             sendCommand(IrcCommand::createNick(nick));
-        }
         else
-        {
-            d->nickName = nick;
-            emit nickNameChanged(nick);
-        }
+            d->setNick(nick);
     }
 }
 
