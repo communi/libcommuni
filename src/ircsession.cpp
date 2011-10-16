@@ -168,7 +168,7 @@ void IrcSessionPrivate::_q_reconnect()
 
 void IrcSessionPrivate::_q_error(QAbstractSocket::SocketError error)
 {
-    qCritical() << "IrcSessionPrivate::_q_error():" << error;
+    qWarning() << "IrcSessionPrivate::_q_error():" << error;
 }
 
 void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
