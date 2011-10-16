@@ -131,7 +131,8 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     userName(),
     nickName(),
     realName(),
-    active(false)
+    active(false),
+    connected(false)
 {
 }
 
@@ -178,6 +179,12 @@ void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
     if (wasActive != active)
         emit q->activeChanged(active);
 
+    bool wasConnected = connected;
+    if (state != QAbstractSocket::ConnectedState)
+        connected = false;
+    if (wasConnected != connected)
+        emit q->connectedChanged(connected);
+
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
     if (dbg) qDebug() << "IrcSessionPrivate::_q_state():" << state;
 }
@@ -218,7 +225,11 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         {
         case IrcMessage::Numeric:
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
+            {
+                connected = true;
                 emit q->connected();
+                emit q->connectedChanged(true);
+            }
             break;
         case IrcMessage::Ping:
             q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
@@ -258,13 +269,6 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         emit q->messageReceived(msg);
         msg->deleteLater();
     }
-}
-
-bool IrcSessionPrivate::isConnected() const
-{
-    return socket &&
-        (socket->state() == QAbstractSocket::ConnectingState
-         || socket->state() == QAbstractSocket::ConnectedState);
 }
 
 /*!
@@ -325,7 +329,7 @@ QString IrcSession::host() const
 void IrcSession::setHost(const QString& host)
 {
     Q_D(IrcSession);
-    if (d->isConnected())
+    if (isActive())
         qWarning("IrcSession::setHost() has no effect until re-connect");
     if (d->host != host)
     {
@@ -352,7 +356,7 @@ int IrcSession::port() const
 void IrcSession::setPort(int port)
 {
     Q_D(IrcSession);
-    if (d->isConnected())
+    if (isActive())
         qWarning("IrcSession::setPort() has no effect until re-connect");
     if (d->port != port)
     {
@@ -379,7 +383,7 @@ QString IrcSession::userName() const
 void IrcSession::setUserName(const QString& name)
 {
     Q_D(IrcSession);
-    if (d->isConnected())
+    if (isActive())
         qWarning("IrcSession::setUserName() has no effect until re-connect");
     QString user = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
     if (d->userName != user)
@@ -408,7 +412,7 @@ void IrcSession::setNickName(const QString& name)
     QString nick = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
     if (d->nickName != nick)
     {
-        if (d->isConnected())
+        if (isActive())
         {
             sendCommand(IrcCommand::createNick(nick));
         }
@@ -438,7 +442,7 @@ QString IrcSession::realName() const
 void IrcSession::setRealName(const QString& name)
 {
     Q_D(IrcSession);
-    if (d->isConnected())
+    if (isActive())
         qWarning("IrcSession::setRealName() has no effect until re-connect");
     if (d->realName != name)
     {
@@ -461,6 +465,24 @@ bool IrcSession::isActive() const
 {
     Q_D(const IrcSession);
     return d->active;
+}
+
+/*!
+    \property bool IrcSession::connected
+    This property holds whether the session is connected.
+
+    The session is considered connected when the welcome message
+    has been received and the server is ready to receive commands.
+
+    \sa Irc::RPL_WELCOME
+
+    \par Access functions:
+    \li bool <b>isConnected</b>() const
+ */
+bool IrcSession::isConnected() const
+{
+    Q_D(const IrcSession);
+    return d->connected;
 }
 
 /*!

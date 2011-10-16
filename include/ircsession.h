@@ -36,6 +36,7 @@ class COMMUNI_EXPORT IrcSession : public QObject
     Q_PROPERTY(QString realName READ realName WRITE setRealName NOTIFY realNameChanged)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
+    Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
 
 public:
@@ -61,6 +62,8 @@ public:
     void setEncoding(const QByteArray& encoding);
 
     bool isActive() const;
+    bool isConnected() const;
+
     QAbstractSocket* socket() const;
     void setSocket(QAbstractSocket* socket);
 
@@ -83,7 +86,9 @@ Q_SIGNALS:
     void userNameChanged(const QString& name);
     void nickNameChanged(const QString& name);
     void realNameChanged(const QString& name);
+
     void activeChanged(bool active);
+    void connectedChanged(bool connected);
 
 private:
     QScopedPointer<IrcSessionPrivate> d_ptr;
