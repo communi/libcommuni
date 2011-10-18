@@ -9,7 +9,7 @@ QT = core network
 !verbose:!symbian:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
-COMMUNI_VERSION = 1.0.0
+include(../version.pri)
 !win32:VERSION = $$COMMUNI_VERSION
 
 DESTDIR = ../lib
