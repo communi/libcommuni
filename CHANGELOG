@@ -1,3 +1,19 @@
+1.0.0
+-----
+- Renamed Communi (was LibIrcClient-Qt)
+- Underwent a major rewrite
+  - Split the monolithic IrcSession class
+  - New event/message & property based IrcSession API
+  - Removed the problematic buffer concept
+  - New public classes: IrcCommand and IrcMessage & subclasses
+- Improved QML compatibility
+  - QObject based messages & commands
+  - Used properties, signals, slots and invokables
+  - Provided a declarative plugin: import Communi 1.0
+- Environment variable COMMUNI_DEBUG=1 to help debugging - log socket state
+  changes and received messages to the debug output
+- Added desktop (QWidgets) & MeeGo (QML) examples
+
 0.5.0
 -----
 - Irc::Session API additions:
