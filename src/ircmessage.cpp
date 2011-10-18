@@ -122,6 +122,7 @@
 class IrcMessagePrivate
 {
 public:
+    QString raw;
     IrcMessage::Type type;
     IrcSender sender;
     QString command;
@@ -244,6 +245,7 @@ IrcMessage* IrcMessage::fromString(const QString& str, QObject* parent)
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
         Q_ASSERT(message);
 
+        message->d_ptr->raw = str;
         message->d_ptr->sender.setPrefix(prefix);
         message->d_ptr->command = command;
         message->d_ptr->parameters = params;
@@ -270,6 +272,15 @@ bool IrcMessage::isValid() const
 {
     Q_D(const IrcMessage);
     return d->sender.isValid();
+}
+
+/*!
+    Returns the message as a raw string as received from an IRC server.
+ */
+QString IrcMessage::toString() const
+{
+    Q_D(const IrcMessage);
+    return d->raw;
 }
 
 /*!
