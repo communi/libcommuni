@@ -18,8 +18,7 @@
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
-
-QT_FORWARD_DECLARE_CLASS(QAbstractSocket)
+#include <QtNetwork/qabstractsocket.h>
 
 class IrcCommand;
 class IrcMessage;
@@ -79,6 +78,9 @@ Q_SIGNALS:
     void password(QString* password);
     void connected();
     void disconnected();
+    void socketError(QAbstractSocket::SocketError error);
+    void socketStateChanged(QAbstractSocket::SocketState state);
+
     void messageReceived(IrcMessage* message);
 
     void hostChanged(const QString& host);

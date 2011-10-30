@@ -86,6 +86,22 @@
  */
 
 /*!
+    \fn void IrcSession::socketError(QAbstractSocket::SocketError error)
+
+    This signal is emitted whenever a socket \a error occurs.
+
+    \sa QAbstractSocket::error()
+ */
+
+/*!
+    \fn void IrcSession::socketStateChanged(QAbstractSocket::SocketState state)
+
+    This signal is emitted whenever the socket's \a state changes.
+
+    \sa QAbstractSocket::stateChanged()
+ */
+
+/*!
     \fn void IrcSession::messageReceived(IrcMessage* message)
 
     This signal is emitted whenever a \a message is received.
@@ -168,7 +184,9 @@ void IrcSessionPrivate::_q_reconnect()
 
 void IrcSessionPrivate::_q_error(QAbstractSocket::SocketError error)
 {
+    Q_Q(IrcSession);
     qWarning() << "IrcSessionPrivate::_q_error():" << error;
+    emit q->socketError(error);
 }
 
 void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
@@ -187,6 +205,7 @@ void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
 
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
     if (dbg) qDebug() << "IrcSessionPrivate::_q_state():" << state;
+    emit q->socketStateChanged(state);
 }
 
 void IrcSessionPrivate::_q_readData()
