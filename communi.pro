@@ -11,6 +11,10 @@ lessThan(QT_MAJOR_VERSION, 4) | lessThan(QT_MINOR_VERSION, 6) {
     error(Communi requires Qt 4.6 or newer but Qt $$[QT_VERSION] was detected.)
 }
 
+!isEqual(PWD, $$OUT_PWD) {
+    error(Communi does not support shadow builds.)
+}
+
 static {
     system(echo DEFINES+=COMMUNI_STATIC > .qmake.cache)
     system(echo DEFINES+=COMMUNI_STATIC > features$${QMAKE_DIR_SEP}communi-config.prf)
