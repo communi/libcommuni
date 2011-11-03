@@ -1,0 +1,124 @@
+#!/bin/sh
+
+
+
+#
+# Defaults
+#
+
+OPTION_STATIC=NO
+OPTION_QMAKE="$( which qmake )"
+OPTION_ICU=AUTO
+
+OPTION_MAKE_PLUGINS=AUTO
+OPTION_MAKE_EXAMPLES=AUTO
+OPTION_MAKE_TESTS=AUTO
+
+QMAKE_ARGS=""
+
+
+
+#
+# Functions
+#
+
+help()
+{
+cat << END
+Usage: $0 [OPTION]...
+
+Configure options:
+
+    -static .................. Build static library
+    -qmake ................... qmake to use
+    -config (config) ......... Additional configuration options recognized by qmake
+    -make (part) ............. Add part to the list of parts to be built at
+                               make time (available parts: plugins examples tests)
+    -nomake (part) ........... Exclude part from the list of parts to be built
+
+Additional options:
+
+ A plus (+) denotes a default value that needs to be evaluated. If the
+ evaluation succeeds, the feature is included. Here is a short explanation
+ of each option:
+
+    -no-icu .................. Do not compile MeeGo Touch framework support
+ +  -icu ..................... Compile MeeGo Touch framework support
+
+END
+}
+
+error()
+{
+    echo "Error: $@"
+    exit 1
+}
+
+parse_make_part()
+{
+    case "$1" in
+        plugins)    OPTION_MAKE_PLUGINS="$2";;
+        examples)   OPTION_MAKE_EXAMPLES="$2";;
+        tests)      OPTION_MAKE_TESTS="$2";;
+        *)          error "Unknown make part: $1";;
+    esac
+}
+
+add_qmake_config_arg()
+{
+    case "$1" in
+        YES)    QMAKE_ARGS="$QMAKE_ARGS -config $2";;
+        NO)     QMAKE_ARGS="$QMAKE_ARGS -config $3";;
+        AUTO)   ;; # Do nothing
+        *)      error "Invalid value";;
+    esac
+}
+
+
+
+#
+# Parse options to variables.
+#
+
+while [ $# -gt 0 ] ; do
+    case "$1" in
+        -static)        OPTION_STATIC="YES";;
+        -qmake)         OPTION_QMAKE="$2"; shift;;
+        -config)        QMAKE_ARGS="$QMAKE_ARGS -config $2"; shift;;
+
+        -make)          parse_make_part "$2" "YES"; shift;;
+        -nomake)        parse_make_part "$2" "NO"; shift;;
+
+        -icu)           OPTION_ICU="YES";;
+        -no-icu)        OPTION_ICU="NO";;
+
+        -help|-h)       help; exit;;
+        *)              error "Unknown option: $1. Please see $0 -help.";;
+    esac
+    shift
+done
+
+
+
+#
+# Static option
+#
+[ "$OPTION_STATIC" = "YES" ] && QMAKE_ARGS="$QMAKE_ARGS -config static"
+
+
+
+#
+# Add qmake options
+#
+add_qmake_config_arg "$OPTION_MAKE_PLUGINS"  "plugins"  "no_plugins"
+add_qmake_config_arg "$OPTION_MAKE_EXAMPLES" "examples" "no_examples"
+add_qmake_config_arg "$OPTION_MAKE_TESTS"    "tests"    "no_tests"
+add_qmake_config_arg "$OPTION_ICU"           "icu"      "no_icu"
+
+
+
+#
+# Static
+#
+echo "Running qmake: $OPTION_QMAKE $QMAKE_ARGS"
+$OPTION_QMAKE $QMAKE_ARGS
