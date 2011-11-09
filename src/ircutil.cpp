@@ -73,7 +73,10 @@ QString IrcUtil::messageToHtml(const QString& message)
     {
         if (parseColor)
         {
-            int len = 2;
+            int len = 0;
+            if (processed.at(pos).isDigit()) ++len;
+            if (pos+1 < processed.size() && processed.at(pos+1).isDigit()) ++len;
+
             bool ok = false;
             int code = processed.mid(pos, len).toInt(&ok);
             if (ok)
@@ -84,6 +87,8 @@ QString IrcUtil::messageToHtml(const QString& message)
                 len = color.length();
             }
             pos += len;
+            if (pos >= processed.size())
+                break;
             parseColor = false;
         }
 
