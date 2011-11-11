@@ -38,6 +38,8 @@ public:
     void readLines(const QByteArray& delimiter);
     void processLine(const QByteArray& line);
     void setNick(const QString& nick);
+    void setActive(bool active);
+    void setConnected(bool connected);
 
     IrcSession* q_ptr;
     IrcEncoder encoder;

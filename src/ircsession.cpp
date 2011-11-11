@@ -186,22 +186,17 @@ void IrcSessionPrivate::_q_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcSession);
     qWarning() << "IrcSessionPrivate::_q_error():" << error;
+    setConnected(false);
+    setActive(false);
     emit q->socketError(error);
 }
 
 void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
 {
     Q_Q(IrcSession);
-    bool wasActive = active;
-    active = state != QAbstractSocket::UnconnectedState;
-    if (wasActive != active)
-        emit q->activeChanged(active);
-
-    bool wasConnected = connected;
+    setActive(state != QAbstractSocket::UnconnectedState);
     if (state != QAbstractSocket::ConnectedState)
-        connected = false;
-    if (wasConnected != connected)
-        emit q->connectedChanged(connected);
+        setConnected(false);
 
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
     if (dbg) qDebug() << "IrcSessionPrivate::_q_state():" << state;
@@ -246,9 +241,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
             {
                 setNick(msg->parameters().value(0));
-                connected = true;
-                emit q->connected();
-                emit q->connectedChanged(true);
+                setConnected(true);
             }
             break;
         case IrcMessage::Ping:
@@ -291,6 +284,28 @@ void IrcSessionPrivate::setNick(const QString& nick)
     {
         nickName = nick;
         emit q->nickNameChanged(nick);
+    }
+}
+
+void IrcSessionPrivate::setActive(bool value)
+{
+    Q_Q(IrcSession);
+    if (active != value)
+    {
+        active = value;
+        emit q->activeChanged(active);
+    }
+}
+
+void IrcSessionPrivate::setConnected(bool value)
+{
+    Q_Q(IrcSession);
+    if (connected != value)
+    {
+        connected = value;
+        emit q->connectedChanged(connected);
+        if (connected)
+            emit q->connected();
     }
 }
 
