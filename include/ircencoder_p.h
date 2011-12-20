@@ -15,11 +15,12 @@
 #ifndef IRCENCODER_P_H
 #define IRCENCODER_P_H
 
+#include <IrcGlobal>
 #include <QtCore/qbytearray.h>
 
 class UCharsetDetector;
 
-class IrcEncoder
+class COMMUNI_EXPORT IrcEncoder
 {
     struct Data
     {

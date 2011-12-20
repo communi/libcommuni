@@ -15,11 +15,12 @@
 #ifndef IRCPARSER_P_H
 #define IRCPARSER_P_H
 
+#include <IrcGlobal>
 #include <QtCore/qstring.h>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qstringlist.h>
 
-class IrcParser
+class COMMUNI_EXPORT IrcParser
 {
     struct Data
     {
