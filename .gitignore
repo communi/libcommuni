@@ -25,6 +25,8 @@ communi-config.prf
 .qmake.cache
 .make.cache
 .tmp
+*.Debug
+*.Release
 ABLD.BAT
 bld.inf
 *.mmp
