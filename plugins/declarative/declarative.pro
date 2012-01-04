@@ -48,7 +48,7 @@ INSTALLS += other_files
 symbian {
     TARGET.EPOCALLOWDLLDATA = 1
     TARGET.CAPABILITY = NetworkServices
-    # TODO: TARGET.UID3 = 0x12345678
+    TARGET.UID3 = 0xEAF16DB2
 
     target.sources = ircplugin.dll
     target.path = /resource/qt/imports/$$TARGETPATH
@@ -57,10 +57,10 @@ symbian {
     other_files.path = /resource/qt/imports/$$TARGETPATH
 
     DEPLOYMENT += target other_files
-}
-
-for(other_file, OTHER_FILES) {
-    ARGUMENTS = $$other_file $$DESTDIR
-    !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK += &&
-    QMAKE_POST_LINK += $$QMAKE_COPY $$replace(ARGUMENTS, /, $$QMAKE_DIR_SEP)
+} else {
+    for(other_file, OTHER_FILES) {
+        ARGUMENTS = $$other_file $$DESTDIR
+        !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK += &&
+        QMAKE_POST_LINK += $$QMAKE_COPY $$replace(ARGUMENTS, /, $$QMAKE_DIR_SEP)
+    }
 }

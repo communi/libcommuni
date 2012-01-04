@@ -4,7 +4,7 @@
 
 TEMPLATE = subdirs
 SUBDIRS += src plugins examples
-!contains(MEEGO_EDITION,harmattan):SUBDIRS += tests
+!symbian:!contains(MEEGO_EDITION,harmattan):SUBDIRS += tests
 CONFIG += ordered
 
 lessThan(QT_MAJOR_VERSION, 4) | lessThan(QT_MINOR_VERSION, 6) {
