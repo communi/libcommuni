@@ -2,27 +2,16 @@
 # Communi
 ######################################################################
 
-defineReplace(icuLibTarget) {
-    unset(LIBRARY_NAME)
-    LIBRARY_NAME = $$1
-    CONFIG(debug, debug|release) {
-        !debug_and_release|build_pass {
-            win32:RET = $$member(LIBRARY_NAME, 0)d
-        }
-    }
-    isEmpty(RET):RET = $$LIBRARY_NAME
-    return($$RET)
-}
-
 !symbian {
     DEFINES += HAVE_ICU
-    contains(DEFINES, HAVE_ICU) {
+    contains(MEEGO_EDITION,harmattan) {
+        CONFIG += link_pkgconfig
+        PKGCONFIG += icu
+    } else {
         win32:INCLUDEPATH += C:/ICU/include
-        macx:INCLUDEPATH += /opt/local/include
         win32:LIBS += -LC:/ICU/lib
+        macx:INCLUDEPATH += /opt/local/include
         macx:LIBS += -L/opt/local/lib
-        win32:LIBS += -l$$icuLibTarget(icuin)
-        unix:LIBS += -licui18n -licudata
-        LIBS += -l$$icuLibTarget(icuuc)
+        LIBS += -licui18n -licudata -licuuc
     }
 }
