@@ -42,8 +42,8 @@ Additional options:
  evaluation succeeds, the feature is included. Here is a short explanation
  of each option:
 
-    -no-icu .................. Do not compile MeeGo Touch framework support
- +  -icu ..................... Compile MeeGo Touch framework support
+    -no-icu .................. Do not build ICU support
+ +  -icu ..................... Build ICU support
 
 END
 }
