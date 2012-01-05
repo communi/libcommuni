@@ -50,7 +50,7 @@ symbian {
     TARGET.CAPABILITY = NetworkServices
     TARGET.UID3 = 0xEAF16DB2
 
-    target.sources = ircplugin.dll
+    target.sources = communiplugin.dll
     target.path = /resource/qt/imports/$$TARGETPATH
 
     other_files.sources = $$OTHER_FILES
