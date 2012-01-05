@@ -1,3 +1,9 @@
+1.1.0
+-----
+- Introduced a configure script
+- Added a Symbian (QML) example
+- Improved the encoding detection
+
 1.0.0
 -----
 - Renamed Communi (was LibIrcClient-Qt)
