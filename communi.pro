@@ -63,16 +63,12 @@ contains(MEEGO_EDITION,harmattan) {
     OTHER_FILES += qtc_packaging/debian_harmattan/changelog
 }
 
-contains(MEEGO_EDITION,harmattan) {
-    COMMUNI_INSTALL_FEATURES = /usr/share/qt4/mkspecs
-} else {
-    COMMMUNI_INSTALL_FEATURES = $$[QMAKE_MKSPECS]
+!contains(MEEGO_EDITION,harmattan) {
+    mkspecs.files += features/communi.prf
+    mkspecs.files += features/communi-config.prf
+    mkspecs.path = $$[QMAKE_MKSPECS]/features
+    INSTALLS += mkspecs
 }
-
-mkspecs.files += features/communi.prf
-mkspecs.files += features/communi-config.prf
-mkspecs.path = $$COMMMUNI_INSTALL_FEATURES/features
-INSTALLS += mkspecs
 
 symbian {
     mkspecs.path ~= s/^[A-Za-z]:/ # strip drive letter

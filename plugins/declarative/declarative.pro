@@ -33,7 +33,7 @@ SOURCES += plugin.cpp
 OTHER_FILES += qmldir
 
 contains(MEEGO_EDITION,harmattan) {
-    COMMUNI_INSTALL_IMPORTS = /usr/lib/qt4/imports
+    COMMUNI_INSTALL_IMPORTS = /opt/communi/imports
 } else {
     COMMUNI_INSTALL_IMPORTS = $$[QT_INSTALL_IMPORTS]
 }
