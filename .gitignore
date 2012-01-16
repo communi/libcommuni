@@ -7,6 +7,7 @@ imports
 doc/html
 lib
 bin
+qmakepluginstubs
 *~
 *.o
 *.moc
@@ -29,6 +30,12 @@ communi-config.prf
 *.Release
 ABLD.BAT
 bld.inf
+bld.inf.*
+*.def
+*.sis
+*.pkg
+*.loc
+*.rss
 *.mmp
 moc_*.cpp
 *.changes
