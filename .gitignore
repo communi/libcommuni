@@ -44,7 +44,7 @@ build-stamp
 configure-stamp
 /debian
 /examples/bot/bot
-/examples/mobile/communi
+/examples/mobile/Communi
 /tests/auto/ircencoder/ircencoder
 /tests/auto/irccommand/irccommand
 /tests/auto/ircmessage/ircmessage
