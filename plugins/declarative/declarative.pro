@@ -48,7 +48,6 @@ INSTALLS += other_files
 symbian {
     TARGET.EPOCALLOWDLLDATA = 1
     TARGET.CAPABILITY = NetworkServices
-    TARGET.UID3 = 0xEAF16DB2
 
     target.sources = communiplugin.dll
     target.path = /resource/qt/imports/$$TARGETPATH

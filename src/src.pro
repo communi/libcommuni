@@ -95,7 +95,6 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
 symbian {
     TARGET.EPOCALLOWDLLDATA = 1
     TARGET.CAPABILITY = NetworkServices
-    TARGET.UID3 = 0xEAF16DB1
     MMP_RULES += EXPORTUNFROZEN
 
     for(header, headers.files) {
