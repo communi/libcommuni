@@ -1,6 +1,7 @@
 /*
 * Copyright (C) 2008-2011 J-P Nurmi <jpnurmi@gmail.com>
 * Copyright (C) 2010-2011 SmokeX <smokexjc@gmail.com>
+* Copyright (C) 2012 Mark Johnson <marknotgeorge@googlemail.com>
 *
 * This library is free software; you can redistribute it and/or modify it
 * under the terms of the GNU Lesser General Public License as published by
@@ -24,6 +25,7 @@
 #include "ircutil.h"
 #include <QString>
 #include <QRegExp>
+#include <QStringList>
 
 /*!
     \file ircutil.h
@@ -67,6 +69,10 @@ QString IrcUtil::messageToHtml(const QString& message)
     };
     int state = None;
 
+    // Set default colours - MJ
+    QString forecolour = "black";
+    QString backcolour = "transparent";
+
     int pos = 0;
     bool parseColor = false;
     while (pos < processed.size())
@@ -74,19 +80,60 @@ QString IrcUtil::messageToHtml(const QString& message)
         if (parseColor)
         {
             int len = 0;
-            if (processed.at(pos).isDigit()) ++len;
-            if (pos+1 < processed.size() && processed.at(pos+1).isDigit()) ++len;
+            // If the first character is a digit, we have a valid colour tag. - MJ
+            if (processed.at(pos).isDigit())
+            {
+                ++len;
+                // Find the first comma (,). If it's in the right place, we have
+                // a foreground and background colour. -MJ
+                int comma = processed.indexOf(QLatin1Char(','), pos) - pos;
+                if (comma == 1 || comma == 2)
+                    len = comma + 1;
+                int index = pos + len;
+                // Grab the next 1 or 2 characters if they are digits - they form
+                // part of the colour tag. - MJ
+                if (index < processed.size() && processed.at(index).isDigit())
+                {
+                    ++len;
+                    ++index;
+                    if ((index) < processed.size() && processed.at(index).isDigit())
+                        ++len;
 
-            bool ok = false;
-            int code = processed.mid(pos, len).toInt(&ok);
-            if (ok)
+                }
+            }
+
+            bool foreok = false;
+            bool backok = false;
+            int forecode = 1;
+            int backcode = 0;
+
+            // Extract the colour tag. - MJ
+            QString colourString = processed.mid(pos, len);
+
+            // Split the colour tag on the comma, if there is one, into foreground
+            // and background colour strings. - MJ
+            QStringList colorStringList = colourString.split(QLatin1Char(','), QString::SkipEmptyParts);
+
+            // Convert the colour strings into integer codes - MJ
+            if (!colorStringList[0].isEmpty())
+                forecode = colorStringList[0].toInt(&foreok);
+            if (colorStringList.count() > 1 && !colorStringList[1].isEmpty())
+                backcode = colorStringList[1].toInt(&backok);
+
+            // If the colour strings converted successfully, turn them into
+            // HTML colour names. - MJ.
+            if (foreok)
             {
                 processed.remove(pos, len);
-                QString color = colorCodeToName(code);
-                processed = processed.arg(color);
-                len = color.length();
+                forecolour = colorCodeToName(forecode);
+                if (backok)
+                    backcolour = colorCodeToName(backcode);
             }
-            pos += len;
+
+            // Add the colour names to the message string - MJ
+            processed = processed.arg(forecolour);
+            processed = processed.arg(backcolour);
+            len = forecolour.length() + backcolour.length();
             if (pos >= processed.size())
                 break;
             parseColor = false;
@@ -103,11 +150,11 @@ QString IrcUtil::messageToHtml(const QString& message)
             state ^= Bold;
             break;
 
-        case '\x03': // color
+        case '\x03': // color - modified to include a background-color tag. - MJ
             if (state & Color)
-                replacement = QLatin1String("</span>");
+                replacement = QLatin1String("</span></span>");
             else
-                replacement = QLatin1String("<span style='color: %1'>");
+                replacement = QLatin1String("<span style='color: %1'><span style='background-color: %2'>");
             state ^= Color;
             parseColor = state & Color;
             break;
