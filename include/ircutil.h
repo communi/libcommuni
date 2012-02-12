@@ -16,12 +16,13 @@
 #define IRCUTIL_H
 
 #include <IrcGlobal>
+#include <QString>
 
 class COMMUNI_EXPORT IrcUtil
 {
 public:
     static QString messageToHtml(const QString& message);
-    static QString colorCodeToName(int code);
+    static QString colorCodeToName(int code, const QString& defaultColor = QLatin1String("black"));
 };
 
 #endif // IRCUTIL_H
