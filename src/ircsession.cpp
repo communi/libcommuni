@@ -632,7 +632,11 @@ bool IrcSession::sendRaw(const QString& message)
     Q_D(IrcSession);
     qint64 bytes = -1;
     if (d->socket)
+    {
+        static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
+        if (dbg) qDebug() << "->" << message;
         bytes = d->socket->write(message.toUtf8() + QByteArray("\r\n"));
+    }
     return bytes != -1;
 }
 
