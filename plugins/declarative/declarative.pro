@@ -33,6 +33,7 @@ SOURCES += plugin.cpp
 OTHER_FILES += qmldir
 
 contains(MEEGO_EDITION,harmattan) {
+    QMAKE_RPATHDIR += /opt/communi/lib
     COMMUNI_INSTALL_IMPORTS = /opt/communi/imports
 } else {
     COMMUNI_INSTALL_IMPORTS = $$[QT_INSTALL_IMPORTS]
