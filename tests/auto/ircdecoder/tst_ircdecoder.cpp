@@ -8,11 +8,11 @@
  * program, but you don't have to.
  */
 
-#include "ircencoder_p.h"
+#include "ircdecoder_p.h"
 #include <QtTest/QtTest>
 #include <QtCore/QTextCodec>
 
-class tst_IrcEncoder : public QObject
+class tst_IrcDecoder : public QObject
 {
     Q_OBJECT
 
@@ -23,13 +23,13 @@ private slots:
     void testEncoding();
 };
 
-void tst_IrcEncoder::testDefaults()
+void tst_IrcDecoder::testDefaults()
 {
-    IrcEncoder encoder;
-    QVERIFY(encoder.encoding().isNull());
+    IrcDecoder decoder;
+    QVERIFY(decoder.encoding().isNull());
 }
 
-void tst_IrcEncoder::testEncoding_data()
+void tst_IrcDecoder::testEncoding_data()
 {
     QTest::addColumn<QByteArray>("encoding");
 
@@ -41,15 +41,15 @@ void tst_IrcEncoder::testEncoding_data()
         QTest::newRow(codec) << codec;
 }
 
-void tst_IrcEncoder::testEncoding()
+void tst_IrcDecoder::testEncoding()
 {
     QFETCH(QByteArray, encoding);
 
-    IrcEncoder encoder;
-    encoder.setEncoding(encoding);
-    QCOMPARE(encoder.encoding(), encoding);
+    IrcDecoder decoder;
+    decoder.setEncoding(encoding);
+    QCOMPARE(decoder.encoding(), encoding);
 }
 
-QTEST_MAIN(tst_IrcEncoder)
+QTEST_MAIN(tst_IrcDecoder)
 
-#include "tst_ircencoder.moc"
+#include "tst_ircdecoder.moc"

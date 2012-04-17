@@ -2,6 +2,6 @@
 # Communi
 ######################################################################
 
-SOURCES += tst_ircencoder.cpp
+SOURCES += tst_ircdecoder.cpp
 
 include (../auto.pri)
