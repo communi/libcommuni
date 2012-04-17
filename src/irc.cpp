@@ -38,14 +38,6 @@
     Furthermore, in order to build a static version of Communi, you
     may pass "-config static".
 
-    \subsection icu-support ICU support
-    Communi uses <a href="http://site.icu-project.org/">ICU</a> for automatic message encoding detection.
-    Notice that the encoding detection is, "at best, an imprecise operation using statistics and heuristics".
-    See <a href="http://userguide.icu-project.org/conversion/detection">Character Set Detection</a>
-    for more details. ICU support is enabled by default. If you do not have ICU installed or if you
-    want to disable the ICU support for other reasons, you may pass additional
-    "-config no_icu" parameters to qmake.
-
     \section usage Usage
 
     Add the following line to your qmake project (.pro) file:

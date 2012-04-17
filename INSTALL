@@ -12,13 +12,7 @@ specifically in release or debug mode, you may pass additional
 Furthermore, in order to build a static version of Communi, you
 may pass "-config static".
 
-ICU support
------------
-ICU support is enabled by default. If you do not have ICU installed or if you
-want to disable the ICU support for other reasons, you may pass additional
-"-config no_icu" parameters to qmake.
-
 Example
 -------
-A static library in release mode, without ICU support:
-qmake -confit static -config release -config no_icu
+A static library in release mode:
+qmake -confit static -config release

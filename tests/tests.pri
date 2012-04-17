@@ -18,5 +18,3 @@ macx:!qt_no_framework {
     TEMPLATE -= fakelib
     QMAKE_RPATHDIR += $$PWD/../lib
 }
-
-!no_icu:include(../icu.pri)
