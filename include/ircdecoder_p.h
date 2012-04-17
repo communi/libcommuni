@@ -12,15 +12,15 @@
 * License for more details.
 */
 
-#ifndef IRCENCODER_P_H
-#define IRCENCODER_P_H
+#ifndef IRCDECODER_P_H
+#define IRCDECODER_P_H
 
 #include <IrcGlobal>
 #include <QtCore/qbytearray.h>
 
 class UCharsetDetector;
 
-class COMMUNI_EXPORT IrcEncoder
+class COMMUNI_EXPORT IrcDecoder
 {
     struct Data
     {
@@ -29,13 +29,13 @@ class COMMUNI_EXPORT IrcEncoder
     };
 
 public:
-    IrcEncoder();
-    ~IrcEncoder();
+    IrcDecoder();
+    ~IrcDecoder();
 
     QByteArray encoding() const { return d.encoding; }
     void setEncoding(const QByteArray& encoding) { d.encoding = encoding; }
 
-    QString encode(const QByteArray& data) const;
+    QString decode(const QByteArray& data) const;
 
 private:
     QByteArray detectEncoding(const QByteArray& data) const;
@@ -43,4 +43,4 @@ private:
     Data d;
 };
 
-#endif // IRCENCODER_P_H
+#endif // IRCDECODER_P_H

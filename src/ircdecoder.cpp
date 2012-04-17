@@ -12,7 +12,7 @@
 * License for more details.
 */
 
-#include "ircencoder_p.h"
+#include "ircdecoder_p.h"
 #include <QTextCodec>
 
 #ifdef HAVE_ICU
@@ -21,25 +21,25 @@
 
 static bool isUtf8(const QByteArray& utf8);
 
-IrcEncoder::IrcEncoder()
+IrcDecoder::IrcDecoder()
 {
     d.detector = 0;
 #ifdef HAVE_ICU
     UErrorCode status = U_ZERO_ERROR;
     d.detector = ucsdet_open(&status);
     if (U_FAILURE(status))
-        qWarning("IrcEncoder: ICU initialization failed: %s", u_errorName(status));
+        qWarning("IrcDecoder: ICU initialization failed: %s", u_errorName(status));
 #endif // HAVE_ICU
 }
 
-IrcEncoder::~IrcEncoder()
+IrcDecoder::~IrcDecoder()
 {
 #ifdef HAVE_ICU
     ucsdet_close(d.detector);
 #endif // HAVE_ICU
 }
 
-QString IrcEncoder::encode(const QByteArray& data) const
+QString IrcDecoder::decode(const QByteArray& data) const
 {
     QByteArray enc = d.encoding;
     if (enc.isNull())
@@ -50,7 +50,7 @@ QString IrcEncoder::encode(const QByteArray& data) const
     return codec->toUnicode(data);
 }
 
-QByteArray IrcEncoder::detectEncoding(const QByteArray& data) const
+QByteArray IrcDecoder::detectEncoding(const QByteArray& data) const
 {
     QByteArray encoding("ISO 8859-1");
     if (isUtf8(data))
@@ -68,7 +68,7 @@ QByteArray IrcEncoder::detectEncoding(const QByteArray& data) const
         }
     }
     if (U_FAILURE(status))
-        qWarning("IrcEncoder::detectEncoding() failed: %s", u_errorName(status));
+        qWarning("IrcDecoder::detectEncoding() failed: %s", u_errorName(status));
 #endif // HAVE_ICU
     return encoding;
 }
