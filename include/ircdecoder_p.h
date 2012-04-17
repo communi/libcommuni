@@ -18,22 +18,20 @@
 #include <IrcGlobal>
 #include <QtCore/qbytearray.h>
 
-class UCharsetDetector;
-
 class COMMUNI_EXPORT IrcDecoder
 {
     struct Data
     {
-        QByteArray encoding;
-        UCharsetDetector* detector;
+        QByteArray fallback;
+        void* detector;
     };
 
 public:
     IrcDecoder();
     ~IrcDecoder();
 
-    QByteArray encoding() const { return d.encoding; }
-    void setEncoding(const QByteArray& encoding) { d.encoding = encoding; }
+    QByteArray encoding() const { return d.fallback; }
+    void setEncoding(const QByteArray& encoding) { d.fallback = encoding; }
 
     QString decode(const QByteArray& data) const;
 

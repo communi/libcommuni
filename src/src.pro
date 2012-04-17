@@ -25,7 +25,7 @@ INCLUDEPATH += . ../include
         MOC_DIR = release
     }
 }
-!no_icu:include(../icu.pri)
+include(uchardet.pri)
 
 CONV_HEADERS += ../include/Irc
 CONV_HEADERS += ../include/IrcCommand
