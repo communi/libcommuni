@@ -194,8 +194,11 @@
 class IrcCommandPrivate
 {
 public:
+    IrcCommandPrivate() : encoding("UTF-8") { }
+
     IrcCommand::Type type;
     QStringList parameters;
+    QByteArray encoding;
 
     static IrcCommand* createCommand(IrcCommand::Type type, const QStringList& parameters);
 };
@@ -260,6 +263,27 @@ void IrcCommand::setParameters(const QStringList& parameters)
 {
     Q_D(IrcCommand);
     d->parameters = parameters;
+}
+
+/*!
+    This property holds the encoding that is used when
+    sending the command via IrcSession::sendCommand().
+    The default value is "UTF-8".
+
+    \par Access functions:
+    \li QByteArray <b>encoding</b>() const
+    \li void <b>setEncoding</b>(const QByteArray& encoding)
+ */
+QByteArray IrcCommand::encoding() const
+{
+    Q_D(const IrcCommand);
+    return d->encoding;
+}
+
+void IrcCommand::setEncoding(const QByteArray& encoding)
+{
+    Q_D(IrcCommand);
+    d->encoding = encoding;
 }
 
 /*!
