@@ -18,7 +18,7 @@
 
 IrcDecoder::IrcDecoder()
 {
-    d.fallback = "ISO 8859-1";
+    d.fallback = QTextCodec::codecForLocale()->name();
     d.detector = uchardet_new();
 }
 
@@ -33,8 +33,7 @@ QString IrcDecoder::decode(const QByteArray& data) const
     if (enc.isEmpty())
         enc = d.fallback;
     QTextCodec *codec = QTextCodec::codecForName(enc);
-    if (!codec)
-        codec = QTextCodec::codecForLocale();
+    Q_ASSERT(codec);
     return codec->toUnicode(data);
 }
 
