@@ -13,6 +13,7 @@
 */
 
 #include "irccommand.h"
+#include <QTextCodec>
 #include <QDebug>
 
 /*!
@@ -268,11 +269,15 @@ void IrcCommand::setParameters(const QStringList& parameters)
 /*!
     This property holds the encoding that is used when
     sending the command via IrcSession::sendCommand().
-    The default value is "UTF-8".
+
+    See QTextCodec::availableCodes() for the list of
+    supported encodings. The default value is "UTF-8".
 
     \par Access functions:
     \li QByteArray <b>encoding</b>() const
     \li void <b>setEncoding</b>(const QByteArray& encoding)
+
+    \sa QTextCodec::availableCodecs()
  */
 QByteArray IrcCommand::encoding() const
 {
@@ -283,6 +288,11 @@ QByteArray IrcCommand::encoding() const
 void IrcCommand::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcCommand);
+    if (!QTextCodec::availableCodecs().contains(encoding))
+    {
+        qWarning() << "IrcCommand::setEncoding(): unsupported encoding" << encoding;
+        return;
+    }
     d->encoding = encoding;
 }
 
