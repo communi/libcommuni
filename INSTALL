@@ -15,4 +15,4 @@ may pass "-config static".
 Example
 -------
 A static library in release mode:
-qmake -confit static -config release
+qmake -config static -config release
