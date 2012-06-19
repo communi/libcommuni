@@ -12,30 +12,28 @@
 * License for more details.
 */
 
-#ifndef IRCENCODER_P_H
-#define IRCENCODER_P_H
+#ifndef IRCDECODER_P_H
+#define IRCDECODER_P_H
 
 #include <IrcGlobal>
 #include <QtCore/qbytearray.h>
 
-class UCharsetDetector;
-
-class COMMUNI_EXPORT IrcEncoder
+class COMMUNI_EXPORT IrcDecoder
 {
     struct Data
     {
-        QByteArray encoding;
-        UCharsetDetector* detector;
+        QByteArray fallback;
+        void* detector;
     };
 
 public:
-    IrcEncoder();
-    ~IrcEncoder();
+    IrcDecoder();
+    ~IrcDecoder();
 
-    QByteArray encoding() const { return d.encoding; }
-    void setEncoding(const QByteArray& encoding) { d.encoding = encoding; }
+    QByteArray encoding() const { return d.fallback; }
+    void setEncoding(const QByteArray& encoding) { d.fallback = encoding; }
 
-    QString encode(const QByteArray& data) const;
+    QString decode(const QByteArray& data) const;
 
 private:
     QByteArray detectEncoding(const QByteArray& data) const;
@@ -43,4 +41,4 @@ private:
     Data d;
 };
 
-#endif // IRCENCODER_P_H
+#endif // IRCDECODER_P_H

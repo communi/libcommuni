@@ -23,6 +23,7 @@
 #include <QLocale>
 #include <QDateTime>
 #include <QTcpSocket>
+#include <QTextCodec>
 #include <QStringList>
 
 /*!
@@ -139,7 +140,7 @@
 
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     q_ptr(session),
-    encoder(),
+    decoder(),
     buffer(),
     socket(0),
     host(),
@@ -229,11 +230,11 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
 {
     Q_Q(IrcSession);
 
-    QString encoded = encoder.encode(line);
+    QString decoded = decoder.decode(line);
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qDebug() << encoded;
+    if (dbg) qDebug() << decoded;
 
-    IrcMessage* msg = IrcMessage::fromString(encoded);
+    IrcMessage* msg = IrcMessage::fromString(decoded);
     if (msg)
     {
         switch (msg->type())
@@ -341,26 +342,34 @@ IrcSession::~IrcSession()
 }
 
 /*!
-    This property holds the message encoding. See QTextCodec documentation for supported encodings.
+    This property holds the FALLBACK encoding for received messages.
 
-    Encoding auto-detection can be turned on by passing a null QByteArray. The fallback codec is QTextCodec::codecForLocale().
-
-    The default value is a null QByteArray.
+    The fallback encoding is used when the auto-detection of message
+    encoding fails. See QTextCodec::availableCodes() for the list of
+    supported encodings. The default value is the codec most suitable
+    for the system locale.
 
     \par Access functions:
     \li QByteArray <b>encoding</b>() const
     \li void <b>setEncoding</b>(const QByteArray& encoding)
+
+    \sa QTextCodec::availableCodecs(), QTextCodec::codecForLocale()
  */
 QByteArray IrcSession::encoding() const
 {
     Q_D(const IrcSession);
-    return d->encoder.encoding();
+    return d->decoder.encoding();
 }
 
 void IrcSession::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcSession);
-    d->encoder.setEncoding(encoding);
+    if (!QTextCodec::availableCodecs().contains(encoding))
+    {
+        qWarning() << "IrcSession::setEncoding(): unsupported encoding" << encoding;
+        return;
+    }
+    d->decoder.setEncoding(encoding);
 }
 
 /*!

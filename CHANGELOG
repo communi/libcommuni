@@ -3,6 +3,7 @@
 - Introduced a configure script
 - Added a Symbian (QML) example
 - Improved the encoding detection
+- Replaced ICU with uchardet
 
 1.0.0
 -----
@@ -67,13 +68,13 @@
 -----
 - Fixed compilation on Mac
 - Fixed Irc::Session::connected() and disconnected() to be emitted correctly
-- Fixed Irc::Session::connectSlotsByName() not to establish multiple 
+- Fixed Irc::Session::connectSlotsByName() not to establish multiple
   connections when a slot exists multiple times (reimplemented)
 - Made Irc::Session::cmdMessage(), cmdNotice() and cmdCtcpAction() to
   emit own messages, notices and actions. This simplifies client
   implementation
 - Started working on auto tests and added code coverage support
-- Added a workaround for older Qt versions that don't have the 
+- Added a workaround for older Qt versions that don't have the
   QT_FORWARD_DECLARE_CLASS() macro defined
 
 0.3.0

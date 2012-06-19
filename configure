@@ -8,7 +8,6 @@
 
 OPTION_STATIC=NO
 OPTION_QMAKE="$( which qmake )"
-OPTION_ICU=AUTO
 
 OPTION_MAKE_PLUGINS=AUTO
 OPTION_MAKE_EXAMPLES=AUTO
@@ -35,15 +34,6 @@ Configure options:
     -make (part) ............. Add part to the list of parts to be built at
                                make time (available parts: plugins examples tests)
     -nomake (part) ........... Exclude part from the list of parts to be built
-
-Additional options:
-
- A plus (+) denotes a default value that needs to be evaluated. If the
- evaluation succeeds, the feature is included. Here is a short explanation
- of each option:
-
-    -no-icu .................. Do not build ICU support
- +  -icu ..................... Build ICU support
 
 END
 }
@@ -89,9 +79,6 @@ while [ $# -gt 0 ] ; do
         -make)          parse_make_part "$2" "YES"; shift;;
         -nomake)        parse_make_part "$2" "NO"; shift;;
 
-        -icu)           OPTION_ICU="YES";;
-        -no-icu)        OPTION_ICU="NO";;
-
         -help|-h)       help; exit;;
         *)              error "Unknown option: $1. Please see $0 -help.";;
     esac
@@ -113,7 +100,6 @@ done
 add_qmake_config_arg "$OPTION_MAKE_PLUGINS"  "plugins"  "no_plugins"
 add_qmake_config_arg "$OPTION_MAKE_EXAMPLES" "examples" "no_examples"
 add_qmake_config_arg "$OPTION_MAKE_TESTS"    "tests"    "no_tests"
-add_qmake_config_arg "$OPTION_ICU"           "icu"      "no_icu"
 
 
 

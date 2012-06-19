@@ -89,13 +89,6 @@ include(version.pri)
     } else {
         message(Building Communi $$COMMUNI_VERSION)
     }
-
-    !no_icu {
-        message(ICU support enabled. Run \'qmake -config no_icu\' to disable ICU support.)
-    } else {
-        message(ICU support disabled.)
-        system(echo CONFIG+=no_icu >> .qmake.cache)
-    }
 }
 
 lessThan(QT_MAJOR_VERSION, 5) {
