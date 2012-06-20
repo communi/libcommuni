@@ -52,7 +52,6 @@ public:
     QString realName;
     bool active;
     bool connected;
-    IrcServerInfo info;
 };
 
 #endif // IRCSESSION_P_H
