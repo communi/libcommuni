@@ -83,6 +83,9 @@ public:
     QString nick() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcNickMessage)
 };
 
 class COMMUNI_EXPORT IrcQuitMessage : public IrcMessage
@@ -96,6 +99,9 @@ public:
     QString reason() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcQuitMessage)
 };
 
 class COMMUNI_EXPORT IrcJoinMessage : public IrcMessage
@@ -109,6 +115,9 @@ public:
     QString channel() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcJoinMessage)
 };
 
 class COMMUNI_EXPORT IrcPartMessage : public IrcMessage
@@ -124,6 +133,9 @@ public:
     QString reason() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcPartMessage)
 };
 
 class COMMUNI_EXPORT IrcTopicMessage : public IrcMessage
@@ -139,6 +151,9 @@ public:
     QString topic() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcTopicMessage)
 };
 
 class COMMUNI_EXPORT IrcInviteMessage : public IrcMessage
@@ -154,6 +169,9 @@ public:
     QString channel() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcInviteMessage)
 };
 
 class COMMUNI_EXPORT IrcKickMessage : public IrcMessage
@@ -171,6 +189,9 @@ public:
     QString reason() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcKickMessage)
 };
 
 class COMMUNI_EXPORT IrcModeMessage : public IrcMessage
@@ -188,6 +209,9 @@ public:
     QString argument() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcModeMessage)
 };
 
 class COMMUNI_EXPORT IrcPrivateMessage : public IrcMessage
@@ -207,6 +231,9 @@ public:
     bool isRequest() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcPrivateMessage)
 };
 
 class COMMUNI_EXPORT IrcNoticeMessage : public IrcMessage
@@ -224,6 +251,9 @@ public:
     bool isReply() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcNoticeMessage)
 };
 
 class COMMUNI_EXPORT IrcPingMessage : public IrcMessage
@@ -237,6 +267,9 @@ public:
     QString argument() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcPingMessage)
 };
 
 class COMMUNI_EXPORT IrcPongMessage : public IrcMessage
@@ -250,6 +283,9 @@ public:
     QString argument() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcPongMessage)
 };
 
 class COMMUNI_EXPORT IrcErrorMessage : public IrcMessage
@@ -263,6 +299,9 @@ public:
     QString error() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcErrorMessage)
 };
 
 class COMMUNI_EXPORT IrcNumericMessage : public IrcMessage
@@ -276,6 +315,9 @@ public:
     int code() const;
 
     bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcNumericMessage)
 };
 
 #ifndef QT_NO_DEBUG_STREAM
