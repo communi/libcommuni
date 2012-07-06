@@ -15,6 +15,7 @@
 #include "ircmessage.h"
 #include "irccommand.h"
 #include "ircparser_p.h"
+#include "ircdecoder_p.h"
 #include <QDebug>
 
 /*!
@@ -122,7 +123,7 @@
 class IrcMessagePrivate
 {
 public:
-    QString raw;
+    QByteArray data;
     IrcMessage::Type type;
     IrcSender sender;
     QString command;
@@ -227,25 +228,29 @@ QStringList IrcMessage::parameters() const
 }
 
 /*!
-    Creates a new message from \a str with \a parent.
+    Creates a new message from \a data with \a encoding and \a parent.
  */
-IrcMessage* IrcMessage::fromString(const QString& str, QObject* parent)
+IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encoding, QObject* parent)
 {
     IrcMessage* message = 0;
 
     IrcParser parser;
-    if (parser.parse(str))
+    if (parser.parse(data))
     {
-        QString prefix = parser.prefix();
-        QString command = parser.command();
-        QStringList params = parser.params();
+        static IrcDecoder decoder;
+        decoder.setEncoding(encoding);
+        QString prefix = decoder.decode(parser.prefix());
+        QString command = decoder.decode(parser.command());
+        QStringList params;
+        foreach (const QByteArray& param, parser.params())
+            params += decoder.decode(param);
 
         const QMetaObject* metaObject = irc_command_meta_object(command);
         Q_ASSERT(metaObject);
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
         Q_ASSERT(message);
 
-        message->d_ptr->raw = str;
+        message->d_ptr->data = data;
         message->d_ptr->sender.setPrefix(prefix);
         message->d_ptr->command = command;
         message->d_ptr->parameters = params;
@@ -254,11 +259,21 @@ IrcMessage* IrcMessage::fromString(const QString& str, QObject* parent)
 }
 
 /*!
+    \internal
+    \deprecated
+    \sa fromData()
+ */
+IrcMessage* IrcMessage::fromString(const QString& str, QObject* parent)
+{
+    return fromData(str.toUtf8(), "UTF-8", parent);
+}
+
+/*!
     Creates a new message from \a sender and \a command with \a parent.
  */
 IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, QObject* parent)
 {
-    return fromString(":" + sender + " " + command->toString(), parent);
+    return fromData(":" + sender.toUtf8() + " " + command->toString().toUtf8(), "UTF-8", parent);
 }
 
 /*!
@@ -275,12 +290,23 @@ bool IrcMessage::isValid() const
 }
 
 /*!
-    Returns the message as a raw string as received from an IRC server.
+    Returns the message as received from an IRC server.
+ */
+QByteArray IrcMessage::toData() const
+{
+    Q_D(const IrcMessage);
+    return d->data;
+}
+
+/*!
+    \internal
+    \deprecated
+    \sa sendData()
  */
 QString IrcMessage::toString() const
 {
     Q_D(const IrcMessage);
-    return d->raw;
+    return QString::fromUtf8(d->data);
 }
 
 /*!

@@ -62,8 +62,10 @@ public:
     QStringList parameters() const;
 
     virtual bool isValid() const;
-    Q_INVOKABLE QString toString() const;
-    Q_INVOKABLE static IrcMessage* fromString(const QString& str, QObject* parent = 0);
+    Q_INVOKABLE QByteArray toData() const;
+    Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, const QByteArray& encoding, QObject* parent = 0);
+    Q_DECL_DEPRECATED QString toString() const;
+    Q_DECL_DEPRECATED static IrcMessage* fromString(const QString& str, QObject* parent = 0);
     Q_INVOKABLE static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, QObject* parent = 0);
 
 protected:
