@@ -161,10 +161,10 @@ void IrcSessionPrivate::_q_connected()
     QString password;
     emit q->password(&password);
     if (!password.isEmpty())
-        q->sendRaw(QString("PASS %1").arg(password));
+        q->sendData("PASS " + password.toUtf8());
 
     q->sendCommand(IrcCommand::createNick(nickName));
-    q->sendRaw(QString("USER %1 hostname servername :%2").arg(userName, realName));
+    q->sendData("USER " + userName.toUtf8() + " hostname servername :" + realName.toUtf8());
 }
 
 void IrcSessionPrivate::_q_disconnected()
@@ -246,7 +246,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             }
             break;
         case IrcMessage::Ping:
-            q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
+            q->sendData("PONG " + static_cast<IrcPingMessage*>(msg)->argument().toUtf8());
             break;
         case IrcMessage::Private: {
             IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
@@ -618,35 +618,47 @@ void IrcSession::close()
     will take ownership of the command and delete it once it has been sent.
     It is not safe to access the command after it has been sent.
 
-    \sa sendRaw()
+    \sa sendData()
  */
 bool IrcSession::sendCommand(IrcCommand* command)
 {
     bool res = false;
     if (command)
     {
-        res = sendRaw(command->toString());
+        QTextCodec* codec = QTextCodec::codecForName(command->encoding());
+        Q_ASSERT(codec);
+        res = sendData(codec->fromUnicode(command->toString()));
         command->deleteLater();
     }
     return res;
 }
 
 /*!
-    Sends a raw \a message to the server.
+    Sends raw \a data to the server.
 
     \sa sendCommand()
  */
-bool IrcSession::sendRaw(const QString& message)
+bool IrcSession::sendData(const QByteArray& data)
 {
     Q_D(IrcSession);
     qint64 bytes = -1;
     if (d->socket)
     {
         static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-        if (dbg) qDebug() << "->" << message;
-        bytes = d->socket->write(message.toUtf8() + QByteArray("\r\n"));
+        if (dbg) qDebug() << "->" << data;
+        bytes = d->socket->write(data + QByteArray("\r\n"));
     }
     return bytes != -1;
+}
+
+/*!
+    \internal
+    \deprecated
+    \sa sendData()
+ */
+bool IrcSession::sendRaw(const QString& message)
+{
+    return sendData(message.toUtf8());
 }
 
 #ifndef QT_NO_DEBUG_STREAM

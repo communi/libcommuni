@@ -53,7 +53,7 @@ private slots:
 
     void testSession();
     void testSendCommand();
-    void testSendRaw();
+    void testSendData();
 
 private:
     QTcpServer server;
@@ -292,10 +292,10 @@ void tst_IrcSession::testSendCommand()
     session.close();
 }
 
-void tst_IrcSession::testSendRaw()
+void tst_IrcSession::testSendData()
 {
     IrcSession session;
-    QVERIFY(!session.sendRaw("QUIT"));
+    QVERIFY(!session.sendData("QUIT"));
 
     session.setUserName("user");
     session.setNickName("nick");
@@ -305,7 +305,7 @@ void tst_IrcSession::testSendRaw()
     session.open();
     QVERIFY(session.socket()->waitForConnected());
 
-    QVERIFY(session.sendRaw("QUIT"));
+    QVERIFY(session.sendData("QUIT"));
     session.close();
 }
 
