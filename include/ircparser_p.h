@@ -16,27 +16,26 @@
 #define IRCPARSER_P_H
 
 #include <IrcGlobal>
-#include <QtCore/qstring.h>
+#include <QtCore/qlist.h>
 #include <QtCore/qbytearray.h>
-#include <QtCore/qstringlist.h>
 
 class COMMUNI_EXPORT IrcParser
 {
     struct Data
     {
-        QString prefix;
-        QString command;
-        QStringList params;
+        QByteArray prefix;
+        QByteArray command;
+        QList<QByteArray> params;
     };
 
 public:
     IrcParser();
 
-    bool parse(const QString &line);
+    bool parse(const QByteArray &line);
 
-    QString prefix() const { return d.prefix; }
-    QString command() const { return d.command; }
-    QStringList params() const { return d.params; }
+    QByteArray prefix() const { return d.prefix; }
+    QByteArray command() const { return d.command; }
+    QList<QByteArray> params() const { return d.params; }
 
 private:
     Data d;

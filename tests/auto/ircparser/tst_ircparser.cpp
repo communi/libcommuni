@@ -30,35 +30,37 @@ void tst_IrcParser::testDefaults()
     QVERIFY(parser.params().isEmpty());
 }
 
+typedef QList<QByteArray> QByteArrayList;
+Q_DECLARE_METATYPE(QByteArrayList)
 void tst_IrcParser::testParse_data()
 {
     QTest::addColumn<bool>("result");
     QTest::addColumn<QByteArray>("line");
-    QTest::addColumn<QString>("prefix");
-    QTest::addColumn<QString>("command");
-    QTest::addColumn<QStringList>("params");
+    QTest::addColumn<QByteArray>("prefix");
+    QTest::addColumn<QByteArray>("command");
+    QTest::addColumn<QList<QByteArray> >("params");
 
-    QTest::newRow("null") << false << QByteArray() << QString() << QString() << QStringList();
-    QTest::newRow("empty") << false << QByteArray("") << QString() << QString() << QStringList();
-    QTest::newRow("space") << false << QByteArray(" ") << QString() << QString() << QStringList();
+    QTest::newRow("null") << false << QByteArray() << QByteArray() << QByteArray() << QByteArrayList();
+    QTest::newRow("empty") << false << QByteArray("") << QByteArray() << QByteArray() << QByteArrayList();
+    QTest::newRow("space") << false << QByteArray(" ") << QByteArray() << QByteArray() << QByteArrayList();
 
-    QTest::newRow(":pfx") << false << QByteArray(":pfx") << QString("pfx") << QString() << QStringList();
-    QTest::newRow("cmd") << true << QByteArray("cmd") << QString() << QString("cmd") << QStringList();
-    QTest::newRow(":pfx cmd") << true << QByteArray(":pfx cmd") << QString("pfx") << QString("cmd") << QStringList();
+    QTest::newRow(":pfx") << false << QByteArray(":pfx") << QByteArray("pfx") << QByteArray() << QByteArrayList();
+    QTest::newRow("cmd") << true << QByteArray("cmd") << QByteArray() << QByteArray("cmd") << QByteArrayList();
+    QTest::newRow(":pfx cmd") << true << QByteArray(":pfx cmd") << QByteArray("pfx") << QByteArray("cmd") << QByteArrayList();
 
-    QTest::newRow(":pfx cmd 1 2 3") << true << QByteArray(":pfx cmd 1 2 3") << QString("pfx") << QString("cmd") << (QStringList() << "1" << "2" << "3");
-    QTest::newRow(":pfx cmd :1 2 3") << true << QByteArray(":pfx cmd :1 2 3") << QString("pfx") << QString("cmd") << (QStringList() << "1 2 3");
-    QTest::newRow(":pfx cmd 1 :2 3") << true << QByteArray(":pfx cmd 1 :2 3") << QString("pfx") << QString("cmd") << (QStringList() << "1" << "2 3");
-    QTest::newRow(":pfx cmd 1 2 :3") << true << QByteArray(":pfx cmd 1 2 :3") << QString("pfx") << QString("cmd") << (QStringList() << "1" << "2" << "3");
+    QTest::newRow(":pfx cmd 1 2 3") << true << QByteArray(":pfx cmd 1 2 3") << QByteArray("pfx") << QByteArray("cmd") << (QByteArrayList() << "1" << "2" << "3");
+    QTest::newRow(":pfx cmd :1 2 3") << true << QByteArray(":pfx cmd :1 2 3") << QByteArray("pfx") << QByteArray("cmd") << (QByteArrayList() << "1 2 3");
+    QTest::newRow(":pfx cmd 1 :2 3") << true << QByteArray(":pfx cmd 1 :2 3") << QByteArray("pfx") << QByteArray("cmd") << (QByteArrayList() << "1" << "2 3");
+    QTest::newRow(":pfx cmd 1 2 :3") << true << QByteArray(":pfx cmd 1 2 :3") << QByteArray("pfx") << QByteArray("cmd") << (QByteArrayList() << "1" << "2" << "3");
 }
 
 void tst_IrcParser::testParse()
 {
     QFETCH(bool, result);
     QFETCH(QByteArray, line);
-    QFETCH(QString, prefix);
-    QFETCH(QString, command);
-    QFETCH(QStringList, params);
+    QFETCH(QByteArray, prefix);
+    QFETCH(QByteArray, command);
+    QFETCH(QByteArrayList, params);
 
     IrcParser parser;
     QCOMPARE(parser.parse(line), result);

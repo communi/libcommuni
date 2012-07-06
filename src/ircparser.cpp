@@ -18,7 +18,7 @@ IrcParser::IrcParser()
 {
 }
 
-bool IrcParser::parse(const QString& line)
+bool IrcParser::parse(const QByteArray& line)
 {
     d.prefix.clear();
     d.command.clear();
@@ -34,23 +34,23 @@ bool IrcParser::parse(const QString& line)
     //                 or NUL or CR or LF, the first of which may not be ':'>
     //  <trailing> ::= <Any, possibly *empty*, sequence of octets not including
     //                   NUL or CR or LF>
-    QString process = line;
+    QByteArray process = line;
 
     // parse <prefix>
-    if (process.startsWith(QLatin1Char(':')))
+    if (process.startsWith(':'))
     {
-        d.prefix = process.mid(1, process.indexOf(QLatin1Char(' ')) - 1);
+        d.prefix = process.mid(1, process.indexOf(' ') - 1);
         process.remove(0, d.prefix.length() + 2);
     }
 
     // parse <command>
-    d.command = process.mid(0, process.indexOf(QLatin1Char(' ')));
+    d.command = process.mid(0, process.indexOf(' '));
     process.remove(0, d.command.length() + 1);
 
     // parse <params>
     while (!process.isEmpty())
     {
-        if (process.startsWith(QLatin1Char(':')))
+        if (process.startsWith(':'))
         {
             process.remove(0, 1);
             d.params += process;
@@ -58,7 +58,7 @@ bool IrcParser::parse(const QString& line)
         }
         else
         {
-            QString param = process.mid(0, process.indexOf(QLatin1Char(' ')));
+            QByteArray param = process.mid(0, process.indexOf(' '));
             process.remove(0, param.length() + 1);
             d.params += param;
         }
