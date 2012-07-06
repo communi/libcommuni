@@ -140,7 +140,7 @@
 
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     q_ptr(session),
-    decoder(),
+    encoding(),
     buffer(),
     socket(0),
     host(),
@@ -229,11 +229,10 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
 {
     Q_Q(IrcSession);
 
-    QString decoded = decoder.decode(line);
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qDebug() << decoded;
+    if (dbg) qDebug() << line;
 
-    IrcMessage* msg = IrcMessage::fromString(decoded);
+    IrcMessage* msg = IrcMessage::fromData(line, encoding);
     if (msg)
     {
         switch (msg->type())
@@ -346,7 +345,7 @@ IrcSession::~IrcSession()
 QByteArray IrcSession::encoding() const
 {
     Q_D(const IrcSession);
-    return d->decoder.encoding();
+    return d->encoding;
 }
 
 void IrcSession::setEncoding(const QByteArray& encoding)
@@ -357,7 +356,7 @@ void IrcSession::setEncoding(const QByteArray& encoding)
         qWarning() << "IrcSession::setEncoding(): unsupported encoding" << encoding;
         return;
     }
-    d->decoder.setEncoding(encoding);
+    d->encoding = encoding;
 }
 
 /*!
