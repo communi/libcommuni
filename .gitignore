@@ -17,8 +17,13 @@ qmakepluginstubs
 *.rej
 *.exe
 *.orig
-*.pro.user
-*.qmlproject.user
+*.user
+*.sln
+*.sdf
+*.opensdf
+*.vcproj
+*.vcxproj
+*.filters
 *.xcodeproj
 *.plist
 .DS_Store
