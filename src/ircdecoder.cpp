@@ -18,7 +18,7 @@
 
 IrcDecoder::IrcDecoder()
 {
-    d.fallback = QTextCodec::codecForLocale()->name();
+    d.fallback = "UTF-8";
     d.detector = uchardet_new();
 }
 
