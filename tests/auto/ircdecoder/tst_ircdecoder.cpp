@@ -26,28 +26,30 @@ private slots:
 void tst_IrcDecoder::testDefaults()
 {
     IrcDecoder decoder;
-    QVERIFY(decoder.encoding().isNull());
+    QCOMPARE(decoder.encoding(), QByteArray("UTF-8"));
 }
 
 void tst_IrcDecoder::testEncoding_data()
 {
     QTest::addColumn<QByteArray>("encoding");
+    QTest::addColumn<QByteArray>("actual");
 
-    QTest::newRow("null") << QByteArray();
-    QTest::newRow("empty") << QByteArray("");
-    QTest::newRow("space") << QByteArray(" ");
-    QTest::newRow("invalid") << QByteArray("invalid");
+    QTest::newRow("null") << QByteArray() << QByteArray("UTF-8");
+    QTest::newRow("empty") << QByteArray("") << QByteArray("UTF-8");
+    QTest::newRow("space") << QByteArray(" ") << QByteArray("UTF-8");
+    QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("UTF-8");
     foreach (const QByteArray& codec, QTextCodec::availableCodecs())
-        QTest::newRow(codec) << codec;
+        QTest::newRow(codec) << codec << QTextCodec::codecForName(codec)->name();
 }
 
 void tst_IrcDecoder::testEncoding()
 {
     QFETCH(QByteArray, encoding);
+    QFETCH(QByteArray, actual);
 
     IrcDecoder decoder;
     decoder.setEncoding(encoding);
-    QCOMPARE(decoder.encoding(), encoding);
+    QCOMPARE(decoder.encoding(), actual);
 }
 
 QTEST_MAIN(tst_IrcDecoder)
