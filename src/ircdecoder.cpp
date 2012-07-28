@@ -13,12 +13,11 @@
 */
 
 #include "ircdecoder_p.h"
-#include <QTextCodec>
 #include "uchardet.h"
 
 IrcDecoder::IrcDecoder()
 {
-    d.fallback = "UTF-8";
+    d.fallback = QTextCodec::codecForName("UTF-8");
     d.detector = uchardet_new();
 }
 
@@ -27,12 +26,23 @@ IrcDecoder::~IrcDecoder()
     uchardet_delete(d.detector);
 }
 
+QByteArray IrcDecoder::encoding() const
+{
+    return d.fallback->name();
+}
+
+void IrcDecoder::setEncoding(const QByteArray& encoding)
+{
+    d.fallback = QTextCodec::codecForName(encoding);
+    Q_ASSERT(d.fallback);
+}
+
 QString IrcDecoder::decode(const QByteArray& data) const
 {
-    QByteArray enc = detectEncoding(data);
-    if (enc.isEmpty())
-        enc = d.fallback;
-    QTextCodec *codec = QTextCodec::codecForName(enc);
+    QByteArray name = detectEncoding(data);
+    QTextCodec* codec = QTextCodec::codecForName(name);
+    if (!codec)
+        codec = d.fallback;
     Q_ASSERT(codec);
     return codec->toUnicode(data);
 }
