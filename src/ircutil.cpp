@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2011 J-P Nurmi <jpnurmi@gmail.com>
+* Copyright (C) 2008-2012 J-P Nurmi <jpnurmi@gmail.com>
 * Copyright (C) 2010-2011 SmokeX <smokexjc@gmail.com>
 * Copyright (C) 2012 Mark Johnson <marknotgeorge@googlemail.com>
 *
