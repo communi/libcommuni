@@ -33,8 +33,8 @@ QByteArray IrcDecoder::encoding() const
 
 void IrcDecoder::setEncoding(const QByteArray& encoding)
 {
-    d.fallback = QTextCodec::codecForName(encoding);
-    Q_ASSERT(d.fallback);
+    if (QTextCodec::availableCodecs().contains(encoding))
+        d.fallback = QTextCodec::codecForName(encoding);
 }
 
 QString IrcDecoder::decode(const QByteArray& data) const
