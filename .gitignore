@@ -25,6 +25,7 @@ qmakepluginstubs
 *.vcproj
 *.vcxproj
 *.filters
+/ipch
 *.xcodeproj
 *.plist
 .DS_Store
