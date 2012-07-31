@@ -19,6 +19,7 @@ qmakepluginstubs
 *.orig
 *.user
 *.sln
+*.suo
 *.sdf
 *.opensdf
 *.vcproj
