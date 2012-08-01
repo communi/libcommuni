@@ -265,7 +265,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             break;
             }
         case IrcMessage::Nick:
-            if (msg->sender().name() == nickName)
+            if (msg->isOwn())
                 setNick(static_cast<IrcNickMessage*>(msg)->nick());
             break;
         default:
