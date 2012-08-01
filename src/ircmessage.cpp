@@ -13,6 +13,7 @@
 */
 
 #include "ircmessage.h"
+#include "ircsession.h"
 #include "irccommand.h"
 #include "ircparser_p.h"
 #include "ircdecoder_p.h"
@@ -274,6 +275,19 @@ IrcMessage* IrcMessage::fromString(const QString& str, QObject* parent)
 IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, QObject* parent)
 {
     return fromData(":" + sender.toUtf8() + " " + command->toString().toUtf8(), "UTF-8", parent);
+}
+
+/*!
+    \property bool IrcMessage::own
+    This property is \c true if this is user's own message; otherwise \c false.
+
+    A message is considered own if the sender matches IrcSession::nickName.
+*/
+bool IrcMessage::isOwn() const
+{
+    Q_D(const IrcMessage);
+    IrcSession* session = qobject_cast<IrcSession*>(parent());
+    return session && d->sender.name() == session->nickName();
 }
 
 /*!

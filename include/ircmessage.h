@@ -27,6 +27,7 @@ class COMMUNI_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Type type READ type)
+    Q_PROPERTY(bool own READ isOwn)
     Q_PROPERTY(bool valid READ isValid)
     Q_PROPERTY(IrcSender sender READ sender)
     Q_PROPERTY(QString command READ command)
@@ -61,11 +62,15 @@ public:
     QString command() const;
     QStringList parameters() const;
 
+    bool isOwn() const;
     virtual bool isValid() const;
+
     Q_INVOKABLE QByteArray toData() const;
     Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, const QByteArray& encoding, QObject* parent = 0);
+
     Q_DECL_DEPRECATED QString toString() const;
     Q_DECL_DEPRECATED static IrcMessage* fromString(const QString& str, QObject* parent = 0);
+
     Q_INVOKABLE static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, QObject* parent = 0);
 
 protected:

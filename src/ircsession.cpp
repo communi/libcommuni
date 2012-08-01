@@ -232,7 +232,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
     if (dbg) qDebug() << line;
 
-    IrcMessage* msg = IrcMessage::fromData(line, encoding);
+    IrcMessage* msg = IrcMessage::fromData(line, encoding, q);
     if (msg)
     {
         switch (msg->type())
