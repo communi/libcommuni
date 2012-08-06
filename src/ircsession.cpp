@@ -161,10 +161,10 @@ void IrcSessionPrivate::_q_connected()
     QString password;
     emit q->password(&password);
     if (!password.isEmpty())
-        q->sendData("PASS " + password.toUtf8());
+        q->sendRaw(QString("PASS %1").arg(password));
 
     q->sendCommand(IrcCommand::createNick(nickName));
-    q->sendData("USER " + userName.toUtf8() + " hostname servername :" + realName.toUtf8());
+    q->sendRaw(QString("USER %1 hostname servername :%2").arg(userName, realName));
 }
 
 void IrcSessionPrivate::_q_disconnected()
@@ -245,7 +245,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             }
             break;
         case IrcMessage::Ping:
-            q->sendData("PONG " + static_cast<IrcPingMessage*>(msg)->argument().toUtf8());
+            q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
             break;
         case IrcMessage::Private: {
             IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
@@ -650,9 +650,11 @@ bool IrcSession::sendData(const QByteArray& data)
 }
 
 /*!
-    \internal
-    \deprecated
-    \sa sendData()
+    Sends raw \a message to the server.
+
+    \note The \message is sent using UTF-8 encoding.
+
+    \sa sendData(), sendCommand()
  */
 bool IrcSession::sendRaw(const QString& message)
 {

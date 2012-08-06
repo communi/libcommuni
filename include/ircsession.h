@@ -68,7 +68,7 @@ public:
 
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
     Q_INVOKABLE bool sendData(const QByteArray& data);
-    Q_DECL_DEPRECATED bool sendRaw(const QString& message);
+    Q_INVOKABLE bool sendRaw(const QString& message);
 
 public Q_SLOTS:
     void open();
