@@ -2,8 +2,21 @@
 -----
 - Introduced a configure script
 - Added a Symbian (QML) example
-- Improved the encoding detection
-- Replaced ICU with uchardet
+- Significantly revised the desktop example
+  - Added dock icon badge, topic label & channel user list
+  - Made it possible to emded parts into another app
+- Replaced ICU with uchardet as the encoding detection engine
+  - ICU is not available on all platforms, whereas uchardet is
+    built into Communi and therefore available on all platforms
+- IrcUtil::messageToHtml() to handle mIRC style background colors
+- Detect message encoding part by part, instead of for the whole line
+- Changed the semantics of IrcSession::encoding to a fallback encoding
+- API changes:
+  - Added bool IrcMessage::own [property]
+  - Added IrcMessage::fromData() - deprecated IrcMessage::fromString()
+  - Added IrcMessage::toData() - deprecated IrcMessage::toString()
+  - Added QByteArray IrcCommand::encoding [property]
+  - Added bool IrcSession::sendData(const QByteArray& data)
 
 1.0.0
 -----
