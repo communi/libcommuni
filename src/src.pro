@@ -29,6 +29,7 @@ include(uchardet.pri)
 
 CONV_HEADERS += ../include/Irc
 CONV_HEADERS += ../include/IrcCommand
+CONV_HEADERS += ../include/IrcEncodingPlugin
 CONV_HEADERS += ../include/IrcGlobal
 CONV_HEADERS += ../include/IrcMessage
 CONV_HEADERS += ../include/IrcSender
@@ -37,6 +38,7 @@ CONV_HEADERS += ../include/IrcUtil
 
 PUB_HEADERS += ../include/irc.h
 PUB_HEADERS += ../include/irccommand.h
+PUB_HEADERS += ../include/ircencodingplugin.h
 PUB_HEADERS += ../include/ircglobal.h
 PUB_HEADERS += ../include/ircmessage.h
 PUB_HEADERS += ../include/ircsender.h
@@ -53,6 +55,7 @@ HEADERS += $$PRIV_HEADERS
 SOURCES += irc.cpp
 SOURCES += irccommand.cpp
 SOURCES += ircdecoder.cpp
+SOURCES += ircencodingplugin.cpp
 SOURCES += ircmessage.cpp
 SOURCES += ircparser.cpp
 SOURCES += ircsender.cpp
