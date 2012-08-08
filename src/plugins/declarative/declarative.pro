@@ -11,13 +11,13 @@ CONFIG += plugin
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
 TARGETPATH = Communi
-DESTDIR = ../../imports/$$TARGETPATH
-DEPENDPATH += . ../../include
-INCLUDEPATH += . ../../include
+DESTDIR = ../../../imports/$$TARGETPATH
+DEPENDPATH += . ../../../include
+INCLUDEPATH += . ../../../include
 macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
-    LIBS += -F../../lib -framework Communi
+    LIBS += -F../../../lib -framework Communi
 } else {
-    LIBS += -L../../lib -l$$qtLibraryTarget(Communi)
+    LIBS += -L../../../lib -l$$qtLibraryTarget(Communi)
 }
 !symbian {
     CONFIG(debug, debug|release) {

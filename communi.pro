@@ -7,7 +7,7 @@ SUBDIRS += src
 CONFIG += ordered
 
 !no_plugins {
-    SUBDIRS += plugins
+    SUBDIRS += src/plugins
 } else {
     message(Plugins disabled)
 }
