@@ -23,6 +23,7 @@ public:
     explicit IcuPlugin(QObject* parent = 0);
     virtual ~IcuPlugin();
 
+    virtual QByteArray key() const;
     virtual QByteArray codecForData(const QByteArray& data);
 
 private:
@@ -40,6 +41,11 @@ IcuPlugin::IcuPlugin(QObject* parent) : IrcCodecPlugin(parent)
 IcuPlugin::~IcuPlugin()
 {
     ucsdet_close(ucsd);
+}
+
+QByteArray IcuPlugin::key() const
+{
+    return QByteArray("icu");
 }
 
 QByteArray IcuPlugin::codecForData(const QByteArray& data)

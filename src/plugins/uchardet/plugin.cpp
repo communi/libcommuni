@@ -23,6 +23,7 @@ public:
     explicit UCharDetPlugin(QObject* parent = 0);
     virtual ~UCharDetPlugin();
 
+    virtual QByteArray key() const;
     virtual QByteArray codecForData(const QByteArray& data);
 
 private:
@@ -37,6 +38,11 @@ UCharDetPlugin::UCharDetPlugin(QObject* parent) : IrcCodecPlugin(parent)
 UCharDetPlugin::~UCharDetPlugin()
 {
     uchardet_delete(ud);
+}
+
+QByteArray UCharDetPlugin::key() const
+{
+    return QByteArray("uchardet");
 }
 
 QByteArray UCharDetPlugin::codecForData(const QByteArray& data)

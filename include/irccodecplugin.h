@@ -21,6 +21,7 @@
 
 struct COMMUNI_EXPORT IrcCodecInterface
 {
+    virtual QByteArray key() const = 0;
     virtual QByteArray codecForData(const QByteArray& data) = 0;
 };
 
@@ -35,6 +36,7 @@ public:
     explicit IrcCodecPlugin(QObject* parent = 0);
     virtual ~IrcCodecPlugin();
 
+    virtual QByteArray key() const = 0;
     virtual QByteArray codecForData(const QByteArray& data) = 0;
 };
 
