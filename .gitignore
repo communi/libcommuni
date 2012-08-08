@@ -3,7 +3,8 @@ Makefile.*
 Makefile_*.mk
 debug
 release
-imports
+/imports
+/plugins
 doc/html
 lib
 bin
