@@ -12,30 +12,30 @@
 * License for more details.
 */
 
-#ifndef IRCENCODINGPLUGIN_H
-#define IRCENCODINGPLUGIN_H
+#ifndef IRCCODECPLUGIN_H
+#define IRCCODECPLUGIN_H
 
 #include <IrcGlobal>
 #include <QtCore/qplugin.h>
 #include <QtCore/qbytearray.h>
 
-struct COMMUNI_EXPORT IrcEncodingInterface
+struct COMMUNI_EXPORT IrcCodecInterface
 {
-    virtual QByteArray detectEncoding(const QByteArray& data) = 0;
+    virtual QByteArray codecForData(const QByteArray& data) = 0;
 };
 
-Q_DECLARE_INTERFACE(IrcEncodingInterface, "Communi.IrcEncodingInterface")
+Q_DECLARE_INTERFACE(IrcCodecInterface, "Communi.IrcCodecInterface")
 
-class COMMUNI_EXPORT IrcEncodingPlugin : public QObject, public IrcEncodingInterface
+class COMMUNI_EXPORT IrcCodecPlugin : public QObject, public IrcCodecInterface
 {
     Q_OBJECT
-    Q_INTERFACES(IrcEncodingInterface)
+    Q_INTERFACES(IrcCodecInterface)
 
 public:
-    explicit IrcEncodingPlugin(QObject* parent = 0);
-    virtual ~IrcEncodingPlugin();
+    explicit IrcCodecPlugin(QObject* parent = 0);
+    virtual ~IrcCodecPlugin();
 
-    virtual QByteArray detectEncoding(const QByteArray& data) = 0;
+    virtual QByteArray codecForData(const QByteArray& data) = 0;
 };
 
-#endif // IRCENCODINGPLUGIN_H
+#endif // IRCCODECPLUGIN_H

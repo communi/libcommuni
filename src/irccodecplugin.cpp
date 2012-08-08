@@ -12,12 +12,12 @@
 * License for more details.
 */
 
-#include "ircencodingplugin.h"
+#include "irccodecplugin.h"
 
-IrcEncodingPlugin::IrcEncodingPlugin(QObject* parent) : QObject(parent)
+IrcCodecPlugin::IrcCodecPlugin(QObject* parent) : QObject(parent)
 {
 }
 
-IrcEncodingPlugin::~IrcEncodingPlugin()
+IrcCodecPlugin::~IrcCodecPlugin()
 {
 }
