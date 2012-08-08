@@ -19,14 +19,10 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qtextcodec.h>
 
+class IrcCodecPlugin;
+
 class COMMUNI_EXPORT IrcDecoder
 {
-    struct Data
-    {
-        QTextCodec* fallback;
-        void* detector;
-    };
-
 public:
     IrcDecoder();
     ~IrcDecoder();
@@ -37,9 +33,12 @@ public:
     QString decode(const QByteArray& data) const;
 
 private:
-    QByteArray detectEncoding(const QByteArray& data) const;
+    bool loadPlugins();
 
-    Data d;
+    struct Data
+    {
+        QTextCodec* fallback;
+    } d;
 };
 
 #endif // IRCDECODER_P_H

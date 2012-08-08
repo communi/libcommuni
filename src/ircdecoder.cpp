@@ -13,17 +13,22 @@
 */
 
 #include "ircdecoder_p.h"
-#include "uchardet.h"
+#include "irccodecplugin.h"
+#include <QCoreApplication>
+#include <QPluginLoader>
+#include <QStringList>
+#include <QDebug>
+#include <QDir>
+
+Q_GLOBAL_STATIC(QList<IrcCodecPlugin*>, irc_codec_plugins)
 
 IrcDecoder::IrcDecoder()
 {
     d.fallback = QTextCodec::codecForName("UTF-8");
-    d.detector = uchardet_new();
 }
 
 IrcDecoder::~IrcDecoder()
 {
-    uchardet_delete(d.detector);
 }
 
 QByteArray IrcDecoder::encoding() const
@@ -39,7 +44,18 @@ void IrcDecoder::setEncoding(const QByteArray& encoding)
 
 QString IrcDecoder::decode(const QByteArray& data) const
 {
-    QByteArray name = detectEncoding(data);
+    static bool initialized = false;
+    if (!initialized)
+    {
+        if (!const_cast<IrcDecoder*>(this)->loadPlugins())
+            qWarning() << "IrcDecoder::decode(): no plugins available - expecting UTF-8";
+        initialized = true;
+    }
+
+    QByteArray name = d.fallback->name();
+    IrcCodecPlugin* plugin = irc_codec_plugins()->value(0);
+    if (plugin)
+        plugin->codecForData(data);
     QTextCodec* codec = QTextCodec::codecForName(name);
     if (!codec)
         codec = d.fallback;
@@ -47,10 +63,21 @@ QString IrcDecoder::decode(const QByteArray& data) const
     return codec->toUnicode(data);
 }
 
-QByteArray IrcDecoder::detectEncoding(const QByteArray& data) const
+bool IrcDecoder::loadPlugins()
 {
-    uchardet_reset(d.detector);
-    uchardet_handle_data(d.detector, data.constData(), data.length());
-    uchardet_data_end(d.detector);
-    return uchardet_get_charset(d.detector);
+    foreach (const QString& path, QCoreApplication::libraryPaths())
+    {
+        QDir dir(path);
+        if (!dir.cd("communi"))
+            continue;
+
+        foreach (const QFileInfo& file, dir.entryInfoList(QDir::Files))
+        {
+            QPluginLoader loader(file.absoluteFilePath());
+            IrcCodecPlugin* plugin = qobject_cast<IrcCodecPlugin*>(loader.instance());
+            if (plugin)
+                irc_codec_plugins()->append(plugin);
+        }
+    }
+    return !irc_codec_plugins()->isEmpty();
 }
