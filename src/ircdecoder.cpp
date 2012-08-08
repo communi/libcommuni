@@ -18,9 +18,11 @@
 #include <QPluginLoader>
 #include <QStringList>
 #include <QDebug>
+#include <QMap>
 #include <QDir>
 
-Q_GLOBAL_STATIC(QList<IrcCodecPlugin*>, irc_codec_plugins)
+typedef QMap<QByteArray, IrcCodecPlugin*> IrcCodecPluginMap;
+Q_GLOBAL_STATIC(IrcCodecPluginMap, irc_codec_plugins)
 
 IrcDecoder::IrcDecoder()
 {
@@ -44,23 +46,42 @@ void IrcDecoder::setEncoding(const QByteArray& encoding)
 
 QString IrcDecoder::decode(const QByteArray& data) const
 {
+    static QByteArray pluginKey;
     static bool initialized = false;
     if (!initialized)
     {
-        if (!const_cast<IrcDecoder*>(this)->loadPlugins())
-            qWarning() << "IrcDecoder::decode(): no plugins available - expecting UTF-8";
+        pluginKey = const_cast<IrcDecoder*>(this)->initialize();
         initialized = true;
     }
 
     QByteArray name = d.fallback->name();
-    IrcCodecPlugin* plugin = irc_codec_plugins()->value(0);
+    IrcCodecPlugin* plugin = irc_codec_plugins()->value(pluginKey);
     if (plugin)
-        plugin->codecForData(data);
+        name = plugin->codecForData(data);
+
     QTextCodec* codec = QTextCodec::codecForName(name);
     if (!codec)
         codec = d.fallback;
     Q_ASSERT(codec);
     return codec->toUnicode(data);
+}
+
+QByteArray IrcDecoder::initialize()
+{
+    bool loaded = loadPlugins();
+    QByteArray pluginKey = qgetenv("COMMUNI_CODEC_PLUGIN");
+    if (!pluginKey.isEmpty() && !irc_codec_plugins()->contains(pluginKey))
+    {
+        qWarning() << "IrcDecoder:" << pluginKey << "plugin not loaded";
+        if (loaded)
+            qWarning() << "IrcDecoder: available plugins:" << irc_codec_plugins()->keys();
+    }
+    if (!loaded)
+        qWarning() << "IrcDecoder: no plugins available";
+
+    if (pluginKey.isEmpty())
+        pluginKey = "uchardet";
+    return pluginKey;
 }
 
 bool IrcDecoder::loadPlugins()
@@ -76,7 +97,7 @@ bool IrcDecoder::loadPlugins()
             QPluginLoader loader(file.absoluteFilePath());
             IrcCodecPlugin* plugin = qobject_cast<IrcCodecPlugin*>(loader.instance());
             if (plugin)
-                irc_codec_plugins()->append(plugin);
+                irc_codec_plugins()->insert(plugin->key(), plugin);
         }
     }
     return !irc_codec_plugins()->isEmpty();

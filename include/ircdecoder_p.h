@@ -33,6 +33,7 @@ public:
     QString decode(const QByteArray& data) const;
 
 private:
+    QByteArray initialize();
     bool loadPlugins();
 
     struct Data
