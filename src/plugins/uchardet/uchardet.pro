@@ -9,7 +9,7 @@ CONFIG += plugin
 !verbose:!symbian:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
-DESTDIR = ../../../plugins
+DESTDIR = ../../../plugins/communi
 DEPENDPATH += . ../../../include
 INCLUDEPATH += . ../../../include
 macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
