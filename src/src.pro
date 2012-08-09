@@ -25,7 +25,6 @@ INCLUDEPATH += . ../include
         MOC_DIR = release
     }
 }
-include(3rdparty/uchardet-0.0.1/uchardet.pri)
 
 CONV_HEADERS += ../include/Irc
 CONV_HEADERS += ../include/IrcCommand
