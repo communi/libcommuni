@@ -32,7 +32,7 @@ include(icu.pri)
 
 contains(MEEGO_EDITION,harmattan) {
     QMAKE_RPATHDIR += /opt/communi/lib
-    COMMUNI_INSTALL_PLUGINS = /opt/communi/plugins
+    COMMUNI_INSTALL_PLUGINS = /opt/communi/plugins/communi
 } else {
     COMMUNI_INSTALL_PLUGINS = $$[QT_INSTALL_PLUGINS]/communi
 }
