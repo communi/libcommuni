@@ -84,9 +84,31 @@ QByteArray IrcDecoder::initialize()
     return pluginKey;
 }
 
+#if defined(Q_OS_WIN)
+#define COMMUNI_PATH_SEPARATOR ';'
+#else
+#define COMMUNI_PATH_SEPARATOR ':'
+#endif
+
+static QStringList pluginPaths()
+{
+    QStringList paths = QCoreApplication::libraryPaths();
+    const QByteArray env = qgetenv("COMMUNI_PLUGIN_PATH");
+    if (!env.isEmpty())
+    {
+        foreach (const QString& path, QFile::decodeName(env).split(COMMUNI_PATH_SEPARATOR, QString::SkipEmptyParts))
+        {
+            QString canonicalPath = QDir(path).canonicalPath();
+            if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))
+                paths += canonicalPath;
+        }
+    }
+    return paths;
+}
+
 bool IrcDecoder::loadPlugins()
 {
-    foreach (const QString& path, QCoreApplication::libraryPaths())
+    foreach (const QString& path, pluginPaths())
     {
         QDir dir(path);
         if (!dir.cd("communi"))
