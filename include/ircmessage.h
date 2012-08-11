@@ -27,12 +27,14 @@ class COMMUNI_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Type type READ type)
+    Q_PROPERTY(Flags flags READ flags)
     Q_PROPERTY(bool own READ isOwn)
     Q_PROPERTY(bool valid READ isValid)
     Q_PROPERTY(IrcSender sender READ sender)
     Q_PROPERTY(QString command READ command)
     Q_PROPERTY(QStringList parameters READ parameters)
-    Q_ENUMS(Type)
+    Q_ENUMS(Type Flag)
+    Q_FLAGS(Flags)
 
 public:
     enum Type
@@ -55,10 +57,20 @@ public:
         Capability
     };
 
+    enum Flag
+    {
+        None = 0x0,
+        Identified = 0x1,
+        Unidentified = 0x2
+    };
+    Q_DECLARE_FLAGS(Flags, Flag)
+
     Q_INVOKABLE explicit IrcMessage(QObject* parent = 0);
     virtual ~IrcMessage();
 
     Type type() const;
+    Flags flags() const;
+
     IrcSender sender() const;
     QString command() const;
     QStringList parameters() const;
@@ -79,6 +91,8 @@ protected:
     Q_DECLARE_PRIVATE(IrcMessage)
     Q_DISABLE_COPY(IrcMessage)
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(IrcMessage::Flags)
 
 class COMMUNI_EXPORT IrcNickMessage : public IrcMessage
 {

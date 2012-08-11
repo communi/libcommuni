@@ -121,11 +121,27 @@
     \brief A numeric message (IrcNumericMessage).
  */
 
+/*!
+    \enum IrcMessage::Flags
+    This enum describes the supported message flags.
+ */
+
+/*!
+    \var IrcMessage::None
+    \brief The message has no flags.
+ */
+
+/*!
+    \var IrcMessage::Identified
+    \brief The message is identified.
+ */
+
 class IrcMessagePrivate
 {
 public:
     QByteArray data;
     IrcMessage::Type type;
+    IrcMessage::Flags flags;
     IrcSender sender;
     QString command;
     QStringList parameters;
@@ -172,6 +188,7 @@ IrcMessage::IrcMessage(QObject* parent) : QObject(parent), d_ptr(new IrcMessageP
 {
     Q_D(IrcMessage);
     d->type = Unknown;
+    d->flags = None;
 }
 
 /*!
@@ -191,6 +208,18 @@ IrcMessage::Type IrcMessage::type() const
 {
     Q_D(const IrcMessage);
     return d->type;
+}
+
+/*!
+    This property holds the message flags.
+
+    \par Access functions:
+    \li IrcMessage::Flags <b>flags</b>() const
+ */
+IrcMessage::Flags IrcMessage::flags() const
+{
+    Q_D(const IrcMessage);
+    return d->flags;
 }
 
 /*!
