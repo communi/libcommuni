@@ -34,16 +34,12 @@ lessThan(QT_MAJOR_VERSION, 4) | lessThan(QT_MINOR_VERSION, 6) {
     error(Communi requires Qt 4.6 or newer but Qt $$[QT_VERSION] was detected.)
 }
 
-!isEqual(PWD, $$OUT_PWD) {
-    error(Communi does not support shadow builds.)
-}
-
 static {
-    system(echo DEFINES+=COMMUNI_STATIC > .qmake.cache)
-    system(echo DEFINES+=COMMUNI_STATIC > features$${QMAKE_DIR_SEP}communi-config.prf)
+    system(echo DEFINES+=COMMUNI_STATIC > $${OUT_PWD}$${QMAKE_DIR_SEP}.qmake.cache)
+    system(echo DEFINES+=COMMUNI_STATIC > $${OUT_PWD}$${QMAKE_DIR_SEP}communi-config.prf)
 } else {
-    system(echo DEFINES+=COMMUNI_SHARED > .qmake.cache)
-    system(echo DEFINES+=COMMUNI_SHARED > features$${QMAKE_DIR_SEP}communi-config.prf)
+    system(echo DEFINES+=COMMUNI_SHARED > $${OUT_PWD}$${QMAKE_DIR_SEP}.qmake.cache)
+    system(echo DEFINES+=COMMUNI_SHARED > $${OUT_PWD}$${QMAKE_DIR_SEP}communi-config.prf)
 }
 
 OTHER_FILES += CHANGELOG
@@ -65,7 +61,7 @@ contains(MEEGO_EDITION,harmattan) {
 
 !contains(MEEGO_EDITION,harmattan) {
     mkspecs.files += features/communi.prf
-    mkspecs.files += features/communi-config.prf
+    mkspecs.files += $$OUT_PWD/communi-config.prf
     mkspecs.path = $$[QMAKE_MKSPECS]/features
     INSTALLS += mkspecs
 }
