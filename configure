@@ -7,7 +7,7 @@
 #
 
 OPTION_STATIC=NO
-OPTION_QMAKE="$( which qmake )"
+OPTION_QMAKE=`which qmake 2>/dev/null || which qmake-qt4 2>/dev/null`
 
 OPTION_MAKE_PLUGINS=AUTO
 OPTION_MAKE_EXAMPLES=AUTO
