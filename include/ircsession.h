@@ -77,6 +77,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void connecting();
     void password(QString* password);
+    void capabilities(const QStringList& available, QStringList* request);
     void connected();
     void disconnected();
     void socketError(QAbstractSocket::SocketError error);

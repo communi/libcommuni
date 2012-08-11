@@ -72,6 +72,13 @@
  */
 
 /*!
+    \fn void IrcSession::capabilities(const QStringList& available, QStringList* request)
+
+    This signal is emitted when the connection capabilities may be requested.
+    Fill the \a request with capabilities from the \a available capabilities.
+ */
+
+/*!
     \fn void IrcSession::connected()
 
     This signal is emitted when the connection has been established ie.
@@ -149,7 +156,8 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     nickName(),
     realName(),
     active(false),
-    connected(false)
+    connected(false),
+    capabilities()
 {
 }
 
@@ -157,6 +165,12 @@ void IrcSessionPrivate::_q_connected()
 {
     Q_Q(IrcSession);
     emit q->connecting();
+
+    // Send CAP LS first; if the server understands it this will
+    // temporarily pause the handshake until CAP END is sent, so we
+    // know whether the server supports the CAP extension.
+    capabilities.clear();
+    q->sendData("CAP LS");
 
     QString password;
     emit q->password(&password);
@@ -267,6 +281,33 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
         case IrcMessage::Nick:
             if (msg->isOwn())
                 setNick(static_cast<IrcNickMessage*>(msg)->nick());
+            break;
+        case IrcMessage::Capability:
+            if (!connected)
+            {
+                IrcCapabilityMessage* capMsg = static_cast<IrcCapabilityMessage*>(msg);
+                QString subCommand = capMsg->subCommand();
+                if (subCommand == "LS")
+                {
+                    foreach (const QString& cap, capMsg->capabilities())
+                        capabilities.insert(cap);
+
+                    QStringList params = capMsg->parameters();
+                    if (params.value(params.count() - 1) != QLatin1String("*"))
+                    {
+                        QStringList request;
+                        emit q->capabilities(capabilities.toList(), &request);
+                        if (!request.isEmpty())
+                            q->sendCommand(IrcCommand::createCapability("REQ", request));
+                        else
+                            q->sendData("CAP END");
+                    }
+                }
+                else if (subCommand == "ACK" || subCommand == "NAK")
+                {
+                    q->sendData("CAP END");
+                }
+            }
             break;
         default:
             break;

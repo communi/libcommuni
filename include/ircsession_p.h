@@ -15,6 +15,7 @@
 #ifndef IRCSESSION_P_H
 #define IRCSESSION_P_H
 
+#include <QSet>
 #include <QString>
 #include <QByteArray>
 #include <QMultiHash>
@@ -51,6 +52,7 @@ public:
     QString realName;
     bool active;
     bool connected;
+    QSet<QString> capabilities;
 };
 
 #endif // IRCSESSION_P_H
