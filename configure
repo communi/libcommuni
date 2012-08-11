@@ -7,7 +7,7 @@
 #
 
 OPTION_STATIC=NO
-OPTION_QMAKE=`which qmake 2>/dev/null || which qmake-qt4 2>/dev/null`
+OPTION_QMAKE=`which qmake || which qmake-qt4` 2>/dev/null
 
 OPTION_MAKE_PLUGINS=AUTO
 OPTION_MAKE_EXAMPLES=AUTO
@@ -107,5 +107,10 @@ add_qmake_config_arg "$OPTION_MAKE_TESTS"    "tests"    "no_tests"
 #
 # Static
 #
+if [ ! -f "$OPTION_QMAKE" ]; then
+    echo "ERROR: Unable to find qmake. Try $0 -qmake /path/to/qmake."
+    exit 1
+fi
+
 echo "Running qmake: $OPTION_QMAKE $QMAKE_ARGS $PRO_FILE"
 $OPTION_QMAKE $QMAKE_ARGS $PRO_FILE
