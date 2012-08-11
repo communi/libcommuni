@@ -51,7 +51,8 @@ public:
         Ping,
         Pong,
         Error,
-        Numeric
+        Numeric,
+        Capability
     };
 
     Q_INVOKABLE explicit IrcMessage(QObject* parent = 0);
@@ -325,6 +326,24 @@ public:
 
 private:
     Q_DISABLE_COPY(IrcNumericMessage)
+};
+
+class COMMUNI_EXPORT IrcCapabilityMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString subCommand READ subCommand)
+    Q_PROPERTY(QStringList capabilities READ capabilities)
+
+public:
+    Q_INVOKABLE explicit IrcCapabilityMessage(QObject* parent = 0);
+
+    QString subCommand() const;
+    QStringList capabilities() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcCapabilityMessage)
 };
 
 #ifndef QT_NO_DEBUG_STREAM

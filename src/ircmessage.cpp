@@ -149,6 +149,7 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
         metaObjects.insert("PING", &IrcPingMessage::staticMetaObject);
         metaObjects.insert("PONG", &IrcPongMessage::staticMetaObject);
         metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
+        metaObjects.insert("CAP", &IrcCapabilityMessage::staticMetaObject);
     }
 
     const QMetaObject* metaObject = metaObjects.value(command.toUpper());
@@ -930,6 +931,68 @@ int IrcNumericMessage::code() const
 bool IrcNumericMessage::isValid() const
 {
     return IrcMessage::isValid() && code() != -1;
+}
+
+/*!
+    \class IrcCapabilityMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief The IrcCapabilityMessage class represents a capability IRC message.
+ */
+
+/*!
+    Constructs a new IrcCapabilityMessage with \a parent.
+ */
+IrcCapabilityMessage::IrcCapabilityMessage(QObject* parent) : IrcMessage(parent)
+{
+    Q_D(IrcMessage);
+    d->type = Capability;
+}
+
+/*!
+    This property holds the subcommand.
+
+    The defined capability subcommands are:
+    LS, LIST, REQ, ACK, NAK, CLEAR, END
+
+    \par Access functions:
+    \li QString <b>subCommand</b>() const
+ */
+QString IrcCapabilityMessage::subCommand() const
+{
+    Q_D(const IrcMessage);
+    return d->parameters.value(1);
+}
+
+/*!
+    This property holds the subcommand.
+
+    The following capability subcommands are defined:
+    LS, LIST, REQ, ACK, NAK, CLEAR, END
+
+    \par Access functions:
+    \li QString <b>subCommand</b>() const
+ */
+QStringList IrcCapabilityMessage::capabilities() const
+{
+    Q_D(const IrcMessage);
+    QStringList caps;
+    if (d->parameters.count() > 2)
+        caps = d->parameters.last().split(QLatin1Char(' '), QString::SkipEmptyParts);
+    return caps;
+}
+
+/*!
+    This property holds the capabilities.
+
+    A list of capabilities may exist for the following
+    subcommands: LS, LIST, REQ, ACK and NAK.
+
+    \par Access functions:
+    \li QStringList <b>capabilities</b>() const
+ */
+bool IrcCapabilityMessage::isValid() const
+{
+    return IrcMessage::isValid();
 }
 
 #ifndef QT_NO_DEBUG_STREAM
