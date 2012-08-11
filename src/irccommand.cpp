@@ -192,6 +192,11 @@
     \brief A quote command is used to send a raw message to the server.
  */
 
+/*!
+    \var IrcCommand::Capability
+    \brief A capability command (CAP) is used to manage connection capabilities.
+ */
+
 class IrcCommandPrivate
 {
 public:
@@ -313,6 +318,7 @@ QString IrcCommand::toString() const
     {
 
     case Away:          return QString("AWAY :%1").arg(p0); // reason
+    case Capability:    return QString("CAP %1 :%2").arg(p0, p1); // subcmd, caps
     case CtcpAction:    return QString("PRIVMSG %1 :\1ACTION %2\1").arg(p0, p1); // target, msg
     case CtcpRequest:   return QString("PRIVMSG %1 :\1%2\1").arg(p0, p1); // target, msg
     case CtcpReply:     return QString("NOTICE %1 :\1%2\1").arg(p0, p1); // target, msg
@@ -344,6 +350,16 @@ QString IrcCommand::toString() const
 IrcCommand* IrcCommand::createAway(const QString& reason)
 {
     return IrcCommandPrivate::createCommand(Away, QStringList() << reason);
+}
+
+/*!
+    Creates a new capability command with type IrcCommand::Capability and parameters \a subCommand and optional \a capabilities.
+
+    Available subcommands are: LS, LIST, REQ, ACK, NAK, CLEAR and END.
+ */
+IrcCommand* IrcCommand::createCapability(const QString& subCommand, const QStringList& capabilities)
+{
+    return IrcCommandPrivate::createCommand(Capability, QStringList() << subCommand << capabilities.join(QLatin1String(" ")));
 }
 
 /*!

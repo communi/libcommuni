@@ -66,7 +66,8 @@ public:
 
         // miscellaneous commands
         Away,
-        Quote
+        Quote,
+        Capability
     };
 
     explicit IrcCommand(QObject* parent = 0);
@@ -84,6 +85,7 @@ public:
     virtual QString toString() const;
 
     Q_INVOKABLE static IrcCommand* createAway(const QString& reason = QString());
+    Q_INVOKABLE static IrcCommand* createCapability(const QString& subCommand, const QStringList& capabilities = QStringList());
     Q_INVOKABLE static IrcCommand* createCtcpAction(const QString& target, const QString& action);
     Q_INVOKABLE static IrcCommand* createCtcpReply(const QString& target, const QString& reply);
     Q_INVOKABLE static IrcCommand* createCtcpRequest(const QString& target, const QString& request);
