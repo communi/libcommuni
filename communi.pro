@@ -69,7 +69,7 @@ contains(MEEGO_EDITION,harmattan) {
 symbian {
     mkspecs.path ~= s/^[A-Za-z]:/ # strip drive letter
     BLD_INF_RULES.prj_exports += "features/communi.prf $$mkspecs.path/communi.prf"
-    BLD_INF_RULES.prj_exports += "features/communi-config.prf $$mkspecs.path/communi-config.prf"
+    BLD_INF_RULES.prj_exports += "communi-config.prf $$mkspecs.path/communi-config.prf"
 }
 
 include(version.pri)
