@@ -59,7 +59,7 @@ symbian {
     DEPLOYMENT += target other_files
 } else {
     for(other_file, OTHER_FILES) {
-        ARGUMENTS = $$other_file $$DESTDIR
+        ARGUMENTS = $${PWD}$${QMAKE_DIR_SEP}$$other_file $$DESTDIR
         !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK += &&
         QMAKE_POST_LINK += $$QMAKE_COPY $$replace(ARGUMENTS, /, $$QMAKE_DIR_SEP)
     }

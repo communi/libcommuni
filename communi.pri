@@ -21,17 +21,19 @@ DEPENDPATH += $$PWD/include
     }
 }
 
+isEmpty(COMMUNI_LIBDIR):COMMUNI_LIBDIR = $$PWD/lib
+
 macx:!qt_no_framework {
-    LIBS += -F$$PWD/lib -framework Communi
+    LIBS += -F$$COMMUNI_LIBDIR -framework Communi
     install_name {
         QMAKE_POST_LINK = install_name_tool -change \
             "$$[QT_INSTALL_LIBS]/Communi.framework/Versions/1/Communi" \
-            "$$PWD/lib/Communi.framework/Versions/1/Communi" $$TARGET
+            "$$COMMUNI_LIBDIR/Communi.framework/Versions/1/Communi" $$TARGET
     }
 } else {
     REAL_TEMPLATE = $$TEMPLATE
     TEMPLATE = fakelib
-    LIBS += -L$$PWD/lib -l$$qtLibraryTarget(Communi)
+    LIBS += -L$$COMMUNI_LIBDIR -l$$qtLibraryTarget(Communi)
     TEMPLATE = $$REAL_TEMPLATE
-    QMAKE_RPATHDIR += $$PWD/lib
+    QMAKE_RPATHDIR += $$COMMUNI_LIBDIR
 }
