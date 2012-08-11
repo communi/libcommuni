@@ -14,6 +14,7 @@ OPTION_MAKE_EXAMPLES=AUTO
 OPTION_MAKE_TESTS=AUTO
 
 QMAKE_ARGS="-r"
+PRO_FILE=`dirname $0`/communi.pro
 
 
 
@@ -106,5 +107,5 @@ add_qmake_config_arg "$OPTION_MAKE_TESTS"    "tests"    "no_tests"
 #
 # Static
 #
-echo "Running qmake: $OPTION_QMAKE $QMAKE_ARGS"
-$OPTION_QMAKE $QMAKE_ARGS
+echo "Running qmake: $OPTION_QMAKE $QMAKE_ARGS $PRO_FILE"
+$OPTION_QMAKE $QMAKE_ARGS $PRO_FILE
