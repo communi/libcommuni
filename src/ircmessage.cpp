@@ -14,6 +14,7 @@
 
 #include "ircmessage.h"
 #include "ircsession.h"
+#include "ircsession_p.h"
 #include "irccommand.h"
 #include "ircparser_p.h"
 #include "ircdecoder_p.h"
@@ -285,6 +286,19 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encod
         message->d_ptr->sender.setPrefix(prefix);
         message->d_ptr->command = command;
         message->d_ptr->parameters = params;
+
+        IrcSession* session = qobject_cast<IrcSession*>(parent);
+        if (session && session->d_ptr->capabilities.contains("identify-msg"))
+        {
+            if (message->d_ptr->type == Private || message->d_ptr->type == Notice)
+            {
+                QString msg = message->property("message").toString();
+                if (msg.startsWith("+"))
+                    message->d_ptr->flags |= Identified;
+                else if (msg.startsWith("-"))
+                    message->d_ptr->flags |= Unidentified;
+            }
+        }
     }
     return message;
 }
@@ -730,6 +744,8 @@ QString IrcPrivateMessage::message() const
 {
     Q_D(const IrcMessage);
     QString msg = d->parameters.value(1);
+    if (d->flags & (Identified | Unidentified))
+        msg.remove(0, 1);
     const bool act = isAction();
     const bool req = isRequest();
     if (act) msg.remove(0, 8);
@@ -806,6 +822,8 @@ QString IrcNoticeMessage::message() const
 {
     Q_D(const IrcMessage);
     QString msg = d->parameters.value(1);
+    if (d->flags & (Identified | Unidentified))
+        msg.remove(0, 1);
     if (isReply())
     {
         msg.remove(0, 1);
