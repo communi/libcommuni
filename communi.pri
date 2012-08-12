@@ -24,7 +24,8 @@ DEPENDPATH += $$PWD/include
 isEmpty(COMMUNI_LIBDIR):COMMUNI_LIBDIR = $$PWD/lib
 
 macx:!qt_no_framework {
-    LIBS += -F$$COMMUNI_LIBDIR -framework Communi
+    QMAKE_LFLAGS += -F$$COMMUNI_LIBDIR # inject before system frameworks
+    LIBS += -framework Communi
     install_name {
         QMAKE_POST_LINK = install_name_tool -change \
             "$$[QT_INSTALL_LIBS]/Communi.framework/Versions/1/Communi" \
@@ -33,7 +34,8 @@ macx:!qt_no_framework {
 } else {
     REAL_TEMPLATE = $$TEMPLATE
     TEMPLATE = fakelib
-    LIBS += -L$$COMMUNI_LIBDIR -l$$qtLibraryTarget(Communi)
+    QMAKE_LIBDIR += $$COMMUNI_LIBDIR # injects before system libdirs
+    LIBS += -l$$qtLibraryTarget(Communi)
     TEMPLATE = $$REAL_TEMPLATE
     QMAKE_RPATHDIR += $$COMMUNI_LIBDIR
 }
