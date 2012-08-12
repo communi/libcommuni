@@ -1,3 +1,27 @@
+1.2.0
+-----
+- Implemented support for IRC capabilities as specified at
+  http://www.leeh.co.uk/draft-mitchell-irc-capabilities-02.html
+- Implemented support for the "identify-msg" capability
+- Pluginized the message decoder
+  - The default message decoder plugin is based on uchardet, which
+    is built into the plugin, making it available on all platforms
+  - An alternative message decoder plugin based on ICU is available
+    in src/plugins/icu must be enabled/built by hand. It requires
+    the presence of ICU (modify icu.pri if necessary) that is not
+    available for all Communi supported platforms
+  - The used message decoder plugin may be controlled by setting the
+    COMMUNI_CODEC_PLUGIN (values: uchardet,icu) environment variable
+  - In conjuction with the standard QT_PLUGIN_PATH, plugin paths may
+    be controlled by setting the COMMUNI_PLUGIN_PATH environment
+    variable
+- API changes:
+  - Added IrcCodecPlugin
+  - Added IrcMessage::Flags and IrcMessage::flags()
+    - None, Own, Identified, Unidentified
+  - Added IrcMessage::Capability and IrcCapabilityMessage
+  - Added IrcCommand::Capability and IrcCommand::createCapability()
+
 1.1.0
 -----
 - Introduced a configure script
