@@ -18,6 +18,7 @@
 #include "irccommand.h"
 #include "ircparser_p.h"
 #include "ircdecoder_p.h"
+#include <QVariant>
 #include <QDebug>
 
 /*!
