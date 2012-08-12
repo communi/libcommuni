@@ -133,8 +133,18 @@
  */
 
 /*!
+    \var IrcMessage::Own
+    \brief The message is user's own message.
+ */
+
+/*!
     \var IrcMessage::Identified
     \brief The message is identified.
+ */
+
+/*!
+    \var IrcMessage::Unidentified
+    \brief The message is unidentified.
  */
 
 class IrcMessagePrivate
@@ -288,9 +298,13 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encod
         message->d_ptr->parameters = params;
 
         IrcSession* session = qobject_cast<IrcSession*>(parent);
-        if (session && session->d_ptr->capabilities.contains("identify-msg"))
+        if (session)
         {
-            if (message->d_ptr->type == Private || message->d_ptr->type == Notice)
+            if (message->d_ptr->sender.name() == session->nickName())
+                message->d_ptr->flags |= Own;
+
+            if (session->d_ptr->capabilities.contains("identify-msg") &&
+               (message->d_ptr->type == Private || message->d_ptr->type == Notice))
             {
                 QString msg = message->property("message").toString();
                 if (msg.startsWith("+"))
@@ -330,8 +344,7 @@ IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, 
 bool IrcMessage::isOwn() const
 {
     Q_D(const IrcMessage);
-    IrcSession* session = qobject_cast<IrcSession*>(parent());
-    return session && d->sender.name() == session->nickName();
+    return d->flags & Own;
 }
 
 /*!
