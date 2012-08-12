@@ -148,6 +148,11 @@
     \brief The message is unidentified.
  */
 
+/*!
+    \var IrcMessage::Encrypted
+    \brief The message is encrypted.
+ */
+
 class IrcMessagePrivate
 {
 public:
@@ -314,6 +319,10 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encod
                     message->d_ptr->flags |= Unidentified;
             }
         }
+
+        foreach (const QString& param, params)
+            if (param.startsWith(QLatin1String("+OK ")))
+                message->d_ptr->flags |= Encrypted;
     }
     return message;
 }
@@ -1065,10 +1074,12 @@ QDebug operator<<(QDebug debug, const IrcMessage* message)
     QStringList flags;
     if (message->flags() == IrcMessage::None)
         flags << "None";
-    else if (message->flags() & IrcMessage::Identified)
+    if (message->flags() & IrcMessage::Identified)
         flags << "Identified";
-    else if (message->flags() & IrcMessage::Unidentified)
+    if (message->flags() & IrcMessage::Unidentified)
         flags << "Unidentified";
+    if (message->flags() & IrcMessage::Encrypted)
+        flags << "Encrypted";
     debug << ", flags = " << flags;
     if (!message->objectName().isEmpty())
         debug << ", name = " << message->objectName();

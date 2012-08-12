@@ -62,7 +62,8 @@ public:
         None = 0x0,
         Own = 0x1,
         Identified = 0x2,
-        Unidentified = 0x4
+        Unidentified = 0x4,
+        Encrypted = 0x8
     };
     Q_DECLARE_FLAGS(Flags, Flag)
 
