@@ -1048,6 +1048,14 @@ QDebug operator<<(QDebug debug, const IrcMessage* message)
     if (!message)
         return debug << "IrcMessage(0x0) ";
     debug.nospace() << message->metaObject()->className() << '(' << (void*) message;
+    QStringList flags;
+    if (message->flags() == IrcMessage::None)
+        flags << "None";
+    else if (message->flags() & IrcMessage::Identified)
+        flags << "Identified";
+    else if (message->flags() & IrcMessage::Unidentified)
+        flags << "Unidentified";
+    debug << ", flags = " << flags;
     if (!message->objectName().isEmpty())
         debug << ", name = " << message->objectName();
     if (message->sender().isValid())
