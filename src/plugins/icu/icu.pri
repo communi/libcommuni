@@ -10,7 +10,9 @@ pkgExists(icu) {
 } else:pkgExists(icu-i18n) {
     CONFIG += link_pkgconfig
     PKGCONFIG += icu-i18n
-} else {
+}
+
+isEmpty(PKGCONFIG) {
     win32 {
         isEmpty(ICU_DIR):ICU_DIR = $$(ICU_DIR)
         isEmpty(ICU_DIR):ICU_DIR = C:/ICU
@@ -20,8 +22,8 @@ pkgExists(icu) {
                    install ICU from http://icu-project.org and/or specify \
                    ICU_DIR to match the installation location.")
         }
-        INCLUDEPATH += C:/ICU/include
-        LIBS += -LC:/ICU/lib
+        INCLUDEPATH += $$ICU_DIR/include
+        LIBS += -L$$ICU_DIR/lib
     }
     LIBS += -licui18n -licudata -licuuc
 }
