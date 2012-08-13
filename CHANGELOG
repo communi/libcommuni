@@ -1,3 +1,13 @@
+1.1.1
+-----
+- Various build system fixes and improvements
+  - Fixed shadow builds
+  - Configure: improved qmake(-qt4) detection & added error handling
+  - Fixed plugins, examples and tests to link to the local built libs
+    instead of the installed ones whether they happen to exist
+  - Added a 'no_rpath' qmake config
+- Examples: fixed message formatting clash with nick names & URLs
+
 1.1.0
 -----
 - Introduced a configure script
