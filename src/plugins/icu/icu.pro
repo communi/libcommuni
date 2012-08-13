@@ -9,7 +9,7 @@ SOURCES += plugin.cpp
 include(icu.pri)
 
 contains(MEEGO_EDITION,harmattan) {
-    QMAKE_RPATHDIR += /opt/communi/lib
+    !no_rpath:QMAKE_RPATHDIR += /opt/communi/lib
     COMMUNI_INSTALL_PLUGINS = /opt/communi/plugins/communi
 } else {
     COMMUNI_INSTALL_PLUGINS = $$[QT_INSTALL_PLUGINS]/communi

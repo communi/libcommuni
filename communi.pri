@@ -37,5 +37,5 @@ macx:!qt_no_framework {
     QMAKE_LIBDIR += $$COMMUNI_LIBDIR # injects before system libdirs
     LIBS += -l$$qtLibraryTarget(Communi)
     TEMPLATE = $$REAL_TEMPLATE
-    QMAKE_RPATHDIR += $$COMMUNI_LIBDIR
+    !no_rpath:QMAKE_RPATHDIR += $$COMMUNI_LIBDIR
 }
