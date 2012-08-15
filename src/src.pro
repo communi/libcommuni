@@ -97,13 +97,21 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
 symbian {
     TARGET.EPOCALLOWDLLDATA = 1
     TARGET.CAPABILITY = NetworkServices
+    # TODO: TARGET.UID3 = 0xFFFFFFFF
     MMP_RULES += EXPORTUNFROZEN
+
+    load(data_caging_paths)
 
     for(header, headers.files) {
         BLD_INF_RULES.prj_exports += "$$header $$MW_LAYER_PUBLIC_EXPORT_PATH($$basename(header))"
     }
 
-    library.sources = Communi.dll
-    library.path = !:/sys/bin
+    vendor.pkg_prerules += \
+        "%{\"J-P Nurmi\"}" \
+        ":\"J-P Nurmi\""
+    DEPLOYMENT += vendor
+
+    library.sources = $${TARGET}.dll
+    library.path = $$SHARED_LIB_DIR
     DEPLOYMENT += library
 }

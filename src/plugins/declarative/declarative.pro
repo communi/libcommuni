@@ -2,7 +2,7 @@
 # Communi
 ######################################################################
 
-TARGET = $$qtLibraryTarget(communiplugin)
+TARGET = communiplugin
 QT += declarative
 TARGETPATH = Communi
 DESTDIR = ../../../imports/$$TARGETPATH
@@ -27,12 +27,13 @@ INSTALLS += other_files
 symbian {
     TARGET.EPOCALLOWDLLDATA = 1
     TARGET.CAPABILITY = NetworkServices
+    # TODO: TARGET.UID3 = 0xFFFFFFFF
 
-    target.sources = communiplugin.dll
-    target.path = /resource/qt/imports/$$TARGETPATH
+    target.sources = $${TARGET}.dll
+    target.path = $$QT_IMPORTS_BASE_DIR/$$TARGETPATH
 
     other_files.sources = $$OTHER_FILES
-    other_files.path = /resource/qt/imports/$$TARGETPATH
+    other_files.path = $$QT_IMPORTS_BASE_DIR/$$TARGETPATH
 
     DEPLOYMENT += target other_files
 } else {

@@ -2,7 +2,7 @@
 # Communi
 ######################################################################
 
-TARGET = $$qtLibraryTarget(uchardetplugin)
+TARGET = uchardetplugin
 DESTDIR = ../../../plugins/communi
 
 SOURCES += plugin.cpp
@@ -20,9 +20,11 @@ INSTALLS += target
 
 symbian {
     TARGET.EPOCALLOWDLLDATA = 1
+    TARGET.CAPABILITY = NetworkServices
+    # TODO: TARGET.UID3 = 0xFFFFFFFF
 
-    target.sources = uchardetplugin.dll
-    target.path = /resource/qt/plugins/communi
+    target.sources = $${TARGET}.dll
+    target.path = $$QT_PLUGINS_BASE_DIR/communi
 
     DEPLOYMENT += target
 }
