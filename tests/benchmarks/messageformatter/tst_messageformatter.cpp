@@ -125,6 +125,10 @@ void tst_MessageFormatter::testFormatHtml()
     TestUserModel model(&session);
     model.addUsers(users);
     QCOMPARE(model.rowCount(), users.count());
+
+    IrcMessage dummy;
+    formatter.formatMessage(&dummy, &model);
+
     QBENCHMARK {
         formatter.formatHtml(message);
     }
