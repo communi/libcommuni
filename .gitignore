@@ -61,3 +61,4 @@ configure-stamp
 /tests/auto/ircparser/ircparser
 /tests/auto/ircsender/ircsender
 /tests/auto/ircsession/ircsession
+/tests/benchmarks/messageformatter/messageformatter
