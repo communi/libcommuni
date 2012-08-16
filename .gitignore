@@ -19,6 +19,7 @@ qmakepluginstubs
 *.exe
 *.orig
 *.user
+*.user.*
 *.sln
 *.suo
 *.sdf
