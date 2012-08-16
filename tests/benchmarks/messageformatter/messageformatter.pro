@@ -2,6 +2,7 @@
 # Communi
 ######################################################################
 
-TEMPLATE = subdirs
+SOURCES += tst_messageformatter.cpp
 
-SUBDIRS += messageformatter
+include(../benchmarks.pri)
+include(../../../examples/shared/shared.pri)
