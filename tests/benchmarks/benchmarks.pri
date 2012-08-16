@@ -2,5 +2,8 @@
 # Communi
 ######################################################################
 
-TEMPLATE = subdirs
-SUBDIRS += auto benchmarks
+QT = core network gui
+CONFIG += qtestlib testcase
+CONFIG -= app_bundle
+
+include(../tests.pri)
