@@ -472,4 +472,6 @@ public:
     Q_INVOKABLE static const char* toString(int code);
 };
 
+COMMUNI_EXPORT extern void irc_set_codec_plugin(const QByteArray& key);
+
 #endif // IRC_H

@@ -24,6 +24,13 @@
 typedef QMap<QByteArray, IrcCodecPlugin*> IrcCodecPluginMap;
 Q_GLOBAL_STATIC(IrcCodecPluginMap, irc_codec_plugins)
 
+static QByteArray irc_plugin_key = qgetenv("COMMUNI_CODEC_PLUGIN");
+
+COMMUNI_EXPORT void irc_set_codec_plugin(const QByteArray& key)
+{
+    irc_plugin_key = key;
+}
+
 IrcDecoder::IrcDecoder()
 {
     d.fallback = QTextCodec::codecForName("UTF-8");
@@ -69,7 +76,7 @@ QString IrcDecoder::decode(const QByteArray& data) const
 QByteArray IrcDecoder::initialize()
 {
     bool loaded = loadPlugins();
-    QByteArray pluginKey = qgetenv("COMMUNI_CODEC_PLUGIN");
+    QByteArray pluginKey = irc_plugin_key;
     if (!pluginKey.isEmpty() && !irc_codec_plugins()->contains(pluginKey))
     {
         qWarning() << "IrcDecoder:" << pluginKey << "plugin not loaded";
