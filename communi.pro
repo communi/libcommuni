@@ -42,12 +42,15 @@ static {
     system(echo DEFINES+=COMMUNI_SHARED > $${OUT_PWD}$${QMAKE_DIR_SEP}communi-config.prf)
 }
 
+OTHER_FILES += AUTHORS
 OTHER_FILES += CHANGELOG
+OTHER_FILES += configure
 OTHER_FILES += COPYING
 OTHER_FILES += Doxyfile
 OTHER_FILES += README
 OTHER_FILES += TODO
 OTHER_FILES += VERSION
+OTHER_FILES += features/communi.prf
 
 contains(MEEGO_EDITION,harmattan) {
     OTHER_FILES += qtc_packaging/debian_harmattan/rules
