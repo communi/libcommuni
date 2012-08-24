@@ -6,14 +6,15 @@
 # Defaults
 #
 
-OPTION_STATIC=NO
+OPTION_STATIC=no
 OPTION_QMAKE=`which qmake || which qmake-qt4` 2>/dev/null
 
-OPTION_MAKE_PLUGINS=AUTO
-OPTION_MAKE_EXAMPLES=AUTO
-OPTION_MAKE_TESTS=AUTO
+OPTION_MAKE_PLUGINS=yes
+OPTION_MAKE_EXAMPLES=yes
+OPTION_MAKE_TESTS=yes
 
-QMAKE_ARGS="-r"
+QMAKE_ARGS=
+QMAKE_CONF=
 PRO_FILE=`dirname $0`/communi.pro
 
 
@@ -58,9 +59,11 @@ parse_make_part()
 add_qmake_config_arg()
 {
     case "$1" in
-        YES)    QMAKE_ARGS="$QMAKE_ARGS -config $2";;
-        NO)     QMAKE_ARGS="$QMAKE_ARGS -config $3";;
-        AUTO)   ;; # Do nothing
+        yes)    QMAKE_CONF="$QMAKE_CONF $2"
+                QMAKE_ARGS="$QMAKE_ARGS -config $2";;
+        no)     QMAKE_CONF="$QMAKE_CONF $3"
+                QMAKE_ARGS="$QMAKE_ARGS -config $3";;
+        auto)   ;; # Do nothing
         *)      error "Invalid value";;
     esac
 }
@@ -68,17 +71,19 @@ add_qmake_config_arg()
 
 
 #
-# Parse options to variables.
+# Parse arguments
 #
 
 while [ $# -gt 0 ] ; do
     case "$1" in
-        -static)        OPTION_STATIC="YES";;
+        -static)        OPTION_STATIC="yes";;
         -qmake)         OPTION_QMAKE="$2"; shift;;
-        -config)        QMAKE_ARGS="$QMAKE_ARGS -config $2"; shift;;
+        -config)        QMAKE_CONF="$QMAKE_CONF $2"
+                        QMAKE_ARGS="$QMAKE_ARGS -config $2";
+                        shift;;
 
-        -make)          parse_make_part "$2" "YES"; shift;;
-        -nomake)        parse_make_part "$2" "NO"; shift;;
+        -make)          parse_make_part "$2" "yes"; shift;;
+        -nomake)        parse_make_part "$2" "no"; shift;;
 
         -help|-h)       help; exit;;
         *)              error "Unknown option: $1. Please see $0 -help.";;
@@ -91,7 +96,10 @@ done
 #
 # Static option
 #
-[ "$OPTION_STATIC" = "YES" ] && QMAKE_ARGS="$QMAKE_ARGS -config static"
+if [ "$OPTION_STATIC" = "yes" ]; then
+    QMAKE_CONF="$QMAKE_CONF static"
+    QMAKE_ARGS="$QMAKE_ARGS -config static"
+fi
 
 
 
@@ -105,12 +113,27 @@ add_qmake_config_arg "$OPTION_MAKE_TESTS"    "tests"    "no_tests"
 
 
 #
-# Static
+# Run qmake
 #
 if [ ! -f "$OPTION_QMAKE" ]; then
     echo "ERROR: Unable to find qmake. Try $0 -qmake /path/to/qmake."
     exit 1
 fi
 
-echo "Running qmake: $OPTION_QMAKE $QMAKE_ARGS $PRO_FILE"
-$OPTION_QMAKE $QMAKE_ARGS $PRO_FILE
+echo "Running $OPTION_QMAKE"
+$OPTION_QMAKE -r $QMAKE_ARGS $PRO_FILE
+
+
+
+#
+# Output summary
+#
+echo
+echo "Communi build configuration:"
+echo "Configuration ...................$QMAKE_CONF"
+echo "Plugins ......................... $OPTION_MAKE_PLUGINS"
+echo "Examples ........................ $OPTION_MAKE_EXAMPLES"
+echo "Tests ........................... $OPTION_MAKE_TESTS"
+echo
+echo Communi is now configured for building. Just run \'make\'.
+echo
