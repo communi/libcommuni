@@ -14,6 +14,7 @@ BUILD_ICU=auto
 QMAKE_CONFIG=
 QMAKE_PARAMS=
 QMAKE_DEBUG=
+QMAKE_SPEC=
 OPT_HELP=no
 
 QMAKE=`which qmake || which qmake-qt4` 2>/dev/null
@@ -98,7 +99,11 @@ while [ "$#" -gt 0 ]; do
         QMAKE_CONFIG="$QMAKE_CONFIG static"
         ;;
     qmake)
-        QMAKE_="$1"
+        QMAKE="$1"
+        shift
+        ;;
+    spec)
+        QMAKE_SPEC="$1"
         shift
         ;;
     config)
@@ -170,11 +175,12 @@ if [ ! -f "$QMAKE" ]; then
     echo "ERROR: Unable to find qmake. Try $0 -qmake /path/to/qmake."
     exit 1
 fi
+[ "$QMAKE_SPEC" != "" ] && QMAKE_SPEC="-spec $QMAKE_SPEC"
 
 echo
-echo "Running $QMAKE..."
+echo "Running $QMAKE $QMAKE_SPEC..."
 
-$QMAKE $QMAKE_DEBUG -r $QMAKE_PARAMS "CONFIG+=$QMAKE_CONFIG" $SOURCE_TREE/communi.pro
+$QMAKE $QMAKE_SPEC $QMAKE_DEBUG $QMAKE_PARAMS "CONFIG+=$QMAKE_CONFIG" -r $SOURCE_TREE/communi.pro
 if [ $? != 0 ]; then
     echo "ERROR: qmake run failed."
     exit 1
