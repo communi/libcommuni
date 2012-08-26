@@ -86,8 +86,8 @@ QByteArray IrcDecoder::initialize()
     if (!loaded)
         qWarning() << "IrcDecoder: no plugins available";
 
-    if (pluginKey.isEmpty())
-        pluginKey = "uchardet";
+    if (pluginKey.isEmpty() && !irc_codec_plugins()->isEmpty())
+        pluginKey = irc_codec_plugins()->keys().first();
     return pluginKey;
 }
 
