@@ -4,7 +4,11 @@
 
 TEMPLATE = subdirs
 !no_uchardet:SUBDIRS += uchardet
-!lessThan(QT_MAJOR_VERSION, 4):!lessThan(QT_MINOR_VERSION, 7):SUBDIRS += declarative
+greaterThan(QT_MAJOR_VERSION, 4) {
+    SUBDIRS += quick2
+} else {
+    !lessThan(QT_MAJOR_VERSION, 4):!lessThan(QT_MINOR_VERSION, 7):SUBDIRS += declarative
+}
 
 # respect the icu/no_icu config if specified,
 # otherwise try to auto detect using pkg-config
