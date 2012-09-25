@@ -2,8 +2,8 @@
 # Communi
 ######################################################################
 
-QT = core network
-CONFIG += qtestlib testcase
+QT = core network testlib
+CONFIG += testcase
 CONFIG -= app_bundle
 
 include(../tests.pri)
