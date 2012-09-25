@@ -6,7 +6,7 @@ TEMPLATE = subdirs
 SUBDIRS += src
 CONFIG += ordered
 
-lessThan(QT_MAJOR_VERSION, 5):!no_plugins {
+!no_plugins {
     SUBDIRS += src/plugins
 } else {
     message(Plugins disabled)
