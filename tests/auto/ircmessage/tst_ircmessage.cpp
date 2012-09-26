@@ -49,7 +49,9 @@ private slots:
 void tst_IrcMessage::testDefaults()
 {
     IrcMessage msg;
+    QVERIFY(!msg.isValid());
     QVERIFY(msg.type() == IrcMessage::Unknown);
+    QVERIFY(msg.flags() == IrcMessage::None);
     QVERIFY(msg.sender().prefix().isNull());
     QVERIFY(msg.command().isNull());
     QVERIFY(msg.parameters().isEmpty());
