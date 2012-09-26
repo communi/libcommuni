@@ -18,8 +18,10 @@ IrcParser::IrcParser()
 {
 }
 
-bool IrcParser::parse(const QByteArray& line)
+bool IrcParser::parse(const QByteArray& data)
 {
+    d.data = data;
+    d.valid = false;
     d.prefix.clear();
     d.command.clear();
     d.params.clear();
@@ -34,7 +36,7 @@ bool IrcParser::parse(const QByteArray& line)
     //                 or NUL or CR or LF, the first of which may not be ':'>
     //  <trailing> ::= <Any, possibly *empty*, sequence of octets not including
     //                   NUL or CR or LF>
-    QByteArray process = line;
+    QByteArray process = data;
 
     // parse <prefix>
     if (process.startsWith(':'))
@@ -64,5 +66,6 @@ bool IrcParser::parse(const QByteArray& line)
         }
     }
 
-    return !d.command.isEmpty() && process.trimmed().isEmpty();
+    d.valid = !d.command.isEmpty() && process.trimmed().isEmpty();
+    return d.valid;
 }
