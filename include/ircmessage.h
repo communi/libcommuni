@@ -79,7 +79,11 @@ public:
     bool isOwn() const;
     virtual bool isValid() const;
 
+    QByteArray encoding() const;
+    void setEncoding(const QByteArray& encoding);
+
     Q_INVOKABLE QByteArray toData() const;
+    Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, QObject* parent = 0);
     Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, const QByteArray& encoding, QObject* parent = 0);
 
     Q_DECL_DEPRECATED QString toString() const;

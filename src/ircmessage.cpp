@@ -151,13 +151,30 @@
 class IrcMessagePrivate
 {
 public:
-    QByteArray data;
+    IrcMessagePrivate();
+    QString decode(const QByteArray& data) const;
+
     IrcMessage::Type type;
     IrcMessage::Flags flags;
-    IrcSender sender;
-    QString command;
-    QStringList parameters;
+    QByteArray encoding;
+    IrcParser parser;
 };
+
+IrcMessagePrivate::IrcMessagePrivate() :
+    type(IrcMessage::Unknown), flags(IrcMessage::None), encoding("UTF-8")
+{
+}
+
+QString IrcMessagePrivate::decode(const QByteArray& data) const
+{
+    if (!parser.isValid())
+        return QString();
+
+    // TODO: not thread safe
+    static IrcDecoder decoder;
+    decoder.setEncoding(encoding);
+    return decoder.decode(data);
+}
 
 static const QMetaObject* irc_command_meta_object(const QString& command)
 {
@@ -243,7 +260,7 @@ IrcMessage::Flags IrcMessage::flags() const
 IrcSender IrcMessage::sender() const
 {
     Q_D(const IrcMessage);
-    return d->sender;
+    return IrcSender(d->decode(d->parser.prefix()));
 }
 
 /*!
@@ -255,7 +272,7 @@ IrcSender IrcMessage::sender() const
 QString IrcMessage::command() const
 {
     Q_D(const IrcMessage);
-    return d->command;
+    return d->decode(d->parser.command());
 }
 
 /*!
@@ -267,41 +284,57 @@ QString IrcMessage::command() const
 QStringList IrcMessage::parameters() const
 {
     Q_D(const IrcMessage);
-    return d->parameters;
+    QStringList params;
+    foreach (const QByteArray& param, d->parser.params())
+        params += d->decode(param);
+    return params;
 }
 
 /*!
-    Creates a new message from \a data with \a encoding and \a parent.
+    This property holds the FALLBACK encoding for the message.
+
+    The fallback encoding is used when the auto-detection of message
+    encoding fails. See QTextCodec::availableCodes() for the list of
+    supported encodings. The default value is UTF-8.
+
+    \par Access functions:
+    \li QByteArray <b>encoding</b>() const
+    \li void <b>setEncoding</b>(const QByteArray& encoding)
+
+    \sa QTextCodec::availableCodecs(), QTextCodec::codecForLocale()
  */
-IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encoding, QObject* parent)
+QByteArray IrcMessage::encoding() const
+{
+    Q_D(const IrcMessage);
+    return d->encoding;
+}
+
+void IrcMessage::setEncoding(const QByteArray& encoding)
+{
+    Q_D(IrcMessage);
+    d->encoding = encoding;
+}
+
+/*!
+    Creates a new message from \a data and \a parent.
+ */
+IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
 {
     IrcMessage* message = 0;
 
     IrcParser parser;
     if (parser.parse(data))
     {
-        static IrcDecoder decoder;
-        decoder.setEncoding(encoding);
-        QString prefix = decoder.decode(parser.prefix());
-        QString command = decoder.decode(parser.command());
-        QStringList params;
-        foreach (const QByteArray& param, parser.params())
-            params += decoder.decode(param);
-
-        const QMetaObject* metaObject = irc_command_meta_object(command);
+        const QMetaObject* metaObject = irc_command_meta_object(parser.command());
         Q_ASSERT(metaObject);
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
         Q_ASSERT(message);
-
-        message->d_ptr->data = data;
-        message->d_ptr->sender.setPrefix(prefix);
-        message->d_ptr->command = command;
-        message->d_ptr->parameters = params;
+        message->d_ptr->parser = parser;
 
         IrcSession* session = qobject_cast<IrcSession*>(parent);
         if (session)
         {
-            if (message->d_ptr->sender.name() == session->nickName())
+            if (message->sender().name() == session->nickName())
                 message->d_ptr->flags |= Own;
 
             if (session->d_ptr->capabilities.contains("identify-msg") &&
@@ -315,6 +348,19 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encod
             }
         }
     }
+    return message;
+}
+
+/*!
+    This is an overloaded function.
+
+    This convenience function creates a new message from \a data, \a encoding and \a parent.
+ */
+IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encoding, QObject* parent)
+{
+    IrcMessage* message = fromData(data, parent);
+    if (message)
+        message->setEncoding(encoding);
     return message;
 }
 
@@ -358,7 +404,7 @@ bool IrcMessage::isOwn() const
 bool IrcMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->sender.isValid();
+    return d->parser.isValid() && sender().isValid();
 }
 
 /*!
@@ -367,7 +413,7 @@ bool IrcMessage::isValid() const
 QByteArray IrcMessage::toData() const
 {
     Q_D(const IrcMessage);
-    return d->data;
+    return d->parser.data();
 }
 
 /*!
@@ -378,7 +424,7 @@ QByteArray IrcMessage::toData() const
 QString IrcMessage::toString() const
 {
     Q_D(const IrcMessage);
-    return QString::fromUtf8(d->data);
+    return QString::fromUtf8(d->parser.data());
 }
 
 /*!
@@ -405,7 +451,7 @@ IrcNickMessage::IrcNickMessage(QObject* parent) : IrcMessage(parent)
 QString IrcNickMessage::nick() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 bool IrcNickMessage::isValid() const
@@ -437,7 +483,7 @@ IrcQuitMessage::IrcQuitMessage(QObject* parent) : IrcMessage(parent)
 QString IrcQuitMessage::reason() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 bool IrcQuitMessage::isValid() const
@@ -469,7 +515,7 @@ IrcJoinMessage::IrcJoinMessage(QObject* parent) : IrcMessage(parent)
 QString IrcJoinMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 bool IrcJoinMessage::isValid() const
@@ -501,7 +547,7 @@ IrcPartMessage::IrcPartMessage(QObject* parent) : IrcMessage(parent)
 QString IrcPartMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 /*!
@@ -513,7 +559,7 @@ QString IrcPartMessage::channel() const
 QString IrcPartMessage::reason() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1);
+    return d->decode(d->parser.params().value(1));
 }
 
 bool IrcPartMessage::isValid() const
@@ -545,7 +591,7 @@ IrcTopicMessage::IrcTopicMessage(QObject* parent) : IrcMessage(parent)
 QString IrcTopicMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 /*!
@@ -557,7 +603,7 @@ QString IrcTopicMessage::channel() const
 QString IrcTopicMessage::topic() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1);
+    return d->decode(d->parser.params().value(1));
 }
 
 bool IrcTopicMessage::isValid() const
@@ -589,7 +635,7 @@ IrcInviteMessage::IrcInviteMessage(QObject* parent) : IrcMessage(parent)
 QString IrcInviteMessage::user() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 /*!
@@ -601,7 +647,7 @@ QString IrcInviteMessage::user() const
 QString IrcInviteMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1);
+    return d->decode(d->parser.params().value(1));
 }
 
 bool IrcInviteMessage::isValid() const
@@ -633,7 +679,7 @@ IrcKickMessage::IrcKickMessage(QObject* parent) : IrcMessage(parent)
 QString IrcKickMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 /*!
@@ -645,7 +691,7 @@ QString IrcKickMessage::channel() const
 QString IrcKickMessage::user() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1);
+    return d->decode(d->parser.params().value(1));
 }
 
 /*!
@@ -657,7 +703,7 @@ QString IrcKickMessage::user() const
 QString IrcKickMessage::reason() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(2);
+    return d->decode(d->parser.params().value(2));
 }
 
 bool IrcKickMessage::isValid() const
@@ -689,7 +735,7 @@ IrcModeMessage::IrcModeMessage(QObject* parent) : IrcMessage(parent)
 QString IrcModeMessage::target() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 /*!
@@ -701,7 +747,7 @@ QString IrcModeMessage::target() const
 QString IrcModeMessage::mode() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1);
+    return d->decode(d->parser.params().value(1));
 }
 
 /*!
@@ -713,7 +759,7 @@ QString IrcModeMessage::mode() const
 QString IrcModeMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(2);
+    return d->decode(d->parser.params().value(2));
 }
 
 bool IrcModeMessage::isValid() const
@@ -745,7 +791,7 @@ IrcPrivateMessage::IrcPrivateMessage(QObject* parent) : IrcMessage(parent)
 QString IrcPrivateMessage::target() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 /*!
@@ -757,7 +803,7 @@ QString IrcPrivateMessage::target() const
 QString IrcPrivateMessage::message() const
 {
     Q_D(const IrcMessage);
-    QString msg = d->parameters.value(1);
+    QString msg = d->decode(d->parser.params().value(1));
     if (d->flags & (Identified | Unidentified))
         msg.remove(0, 1);
     const bool act = isAction();
@@ -778,7 +824,7 @@ QString IrcPrivateMessage::message() const
 bool IrcPrivateMessage::isAction() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1).startsWith("\1ACTION ") && d->parameters.value(1).endsWith('\1');
+    return d->parser.params().value(1).startsWith("\1ACTION ") && d->parser.params().value(1).endsWith('\1');
 }
 
 /*!
@@ -791,7 +837,7 @@ bool IrcPrivateMessage::isAction() const
 bool IrcPrivateMessage::isRequest() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1).startsWith('\1') && d->parameters.value(1).endsWith('\1') && !isAction();
+    return d->parser.params().value(1).startsWith('\1') && d->parser.params().value(1).endsWith('\1') && !isAction();
 }
 
 bool IrcPrivateMessage::isValid() const
@@ -823,7 +869,7 @@ IrcNoticeMessage::IrcNoticeMessage(QObject* parent) : IrcMessage(parent)
 QString IrcNoticeMessage::target() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 /*!
@@ -835,7 +881,7 @@ QString IrcNoticeMessage::target() const
 QString IrcNoticeMessage::message() const
 {
     Q_D(const IrcMessage);
-    QString msg = d->parameters.value(1);
+    QString msg = d->decode(d->parser.params().value(1));
     if (d->flags & (Identified | Unidentified))
         msg.remove(0, 1);
     if (isReply())
@@ -856,7 +902,7 @@ QString IrcNoticeMessage::message() const
 bool IrcNoticeMessage::isReply() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1).startsWith('\1') && d->parameters.value(1).endsWith('\1');
+    return d->parser.params().value(1).startsWith('\1') && d->parser.params().value(1).endsWith('\1');
 }
 
 bool IrcNoticeMessage::isValid() const
@@ -888,7 +934,7 @@ IrcPingMessage::IrcPingMessage(QObject* parent) : IrcMessage(parent)
 QString IrcPingMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 bool IrcPingMessage::isValid() const
@@ -920,7 +966,7 @@ IrcPongMessage::IrcPongMessage(QObject* parent) : IrcMessage(parent)
 QString IrcPongMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1);
+    return d->decode(d->parser.params().value(1));
 }
 
 bool IrcPongMessage::isValid() const
@@ -952,7 +998,7 @@ IrcErrorMessage::IrcErrorMessage(QObject* parent) : IrcMessage(parent)
 QString IrcErrorMessage::error() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(0);
+    return d->decode(d->parser.params().value(0));
 }
 
 bool IrcErrorMessage::isValid() const
@@ -985,7 +1031,7 @@ int IrcNumericMessage::code() const
 {
     Q_D(const IrcMessage);
     bool ok = false;
-    int number = d->command.toInt(&ok);
+    int number = d->parser.command().toInt(&ok);
     return ok ? number : -1;
 }
 
@@ -1021,7 +1067,7 @@ IrcCapabilityMessage::IrcCapabilityMessage(QObject* parent) : IrcMessage(parent)
 QString IrcCapabilityMessage::subCommand() const
 {
     Q_D(const IrcMessage);
-    return d->parameters.value(1);
+    return d->decode(d->parser.params().value(1));
 }
 
 /*!
@@ -1037,8 +1083,8 @@ QStringList IrcCapabilityMessage::capabilities() const
 {
     Q_D(const IrcMessage);
     QStringList caps;
-    if (d->parameters.count() > 2)
-        caps = d->parameters.last().split(QLatin1Char(' '), QString::SkipEmptyParts);
+    if (d->parser.params().count() > 2)
+        caps = d->decode(d->parser.params().last()).split(QLatin1Char(' '), QString::SkipEmptyParts);
     return caps;
 }
 
