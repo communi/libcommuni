@@ -69,6 +69,7 @@ QString IrcUtil::messageToHtml(const QString& message)
     int state = None;
 
     int pos = 0;
+    int depth = 0;
     bool parseColor = false;
     while (pos < processed.size())
     {
@@ -104,17 +105,29 @@ QString IrcUtil::messageToHtml(const QString& message)
         {
         case '\x02': // bold
             if (state & Bold)
+            {
+                depth--;
                 replacement = QLatin1String("</span>");
+            }
             else
+            {
+                depth++;
                 replacement = QLatin1String("<span style='font-weight: bold'>");
+            }
             state ^= Bold;
             break;
 
         case '\x03': // color
             if (state & Color)
+            {
+                depth--;
                 replacement = QLatin1String("</span>");
+            }
             else
+            {
+                depth++;
                 replacement = QLatin1String("<span style='%1'>");
+            }
             state ^= Color;
             parseColor = state & Color;
             break;
@@ -122,47 +135,75 @@ QString IrcUtil::messageToHtml(const QString& message)
         //case '\x09': // italic
         case '\x1d': // italic
             if (state & Italic)
+            {
+                depth--;
                 replacement = QLatin1String("</span>");
+            }
             else
+            {
+                depth++;
                 replacement = QLatin1String("<span style='font-style: italic'>");
+            }
             state ^= Italic;
             break;
 
         case '\x13': // strike-through
             if (state & StrikeThrough)
+            {
+                depth--;
                 replacement = QLatin1String("</span>");
+            }
             else
+            {
+                depth++;
                 replacement = QLatin1String("<span style='text-decoration: line-through'>");
+            }
             state ^= StrikeThrough;
             break;
 
         case '\x15': // underline
         case '\x1f': // underline
             if (state & Underline)
+            {
+                depth--;
                 replacement = QLatin1String("</span>");
+            }
             else
+            {
+                depth++;
                 replacement = QLatin1String("<span style='text-decoration: underline'>");
+            }
             state ^= Underline;
             break;
 
         case '\x16': // inverse
             if (state & Inverse)
+            {
+                depth--;
                 replacement = QLatin1String("</span>");
+            }
             else
+            {
+                depth++;
                 replacement = QLatin1String("<span style='font-weight: bold'>");
+            }
             state ^= Inverse;
             break;
 
         case '\x0f': // none
-            replacement = QLatin1String("</span>");
+            if (depth > 0)
+                replacement = QString(QLatin1String("</span>")).repeated(depth);
+            else
+                processed.remove(pos--, 1); // must rewind back for ++pos below...
             state = None;
+            depth = 0;
             break;
 
         default:
             break;
         }
 
-        if (!replacement.isNull())
+        if (!replacement.isEmpty())
         {
             processed.replace(pos, 1, replacement);
             pos += replacement.length();
