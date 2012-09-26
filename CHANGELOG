@@ -1,5 +1,6 @@
 1.2.0
 -----
+- Qt 5 support
 - Implemented support for IRC capabilities as specified at
   http://www.leeh.co.uk/draft-mitchell-irc-capabilities-02.html
 - Implemented support for the "identify-msg" capability
@@ -17,10 +18,16 @@
     variable
 - API changes:
   - Added IrcCodecPlugin
+  - Added QByteArray IrcMessage::encoding [property]
   - Added IrcMessage::Flags and IrcMessage::flags()
     - None, Own, Identified, Unidentified
   - Added IrcMessage::Capability and IrcCapabilityMessage
   - Added IrcCommand::Capability and IrcCommand::createCapability()
+- Desktop example:
+  - Added a user list view
+  - Added a tree UI layout mode in addition to the default tabs
+  - Save and restore UI state including splitters
+  - Added next/prev unread (highlighted) navigation shortcuts
 
 1.1.0
 -----
