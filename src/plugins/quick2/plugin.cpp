@@ -51,6 +51,7 @@ QML_DECLARE_TYPE(QuickIrcSender)
 class CommuniPlugin : public QQmlExtensionPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "Communi.QQmlExtensionInterface")
 
 public:
     virtual void initializeEngine(QQmlEngine* engine, const char* uri)
@@ -73,6 +74,4 @@ public:
 
 #include "plugin.moc"
 
-#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(communiplugin, CommuniPlugin);
-#endif

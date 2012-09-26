@@ -18,6 +18,9 @@
 class UCharDetPlugin : public IrcCodecPlugin
 {
     Q_OBJECT
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "Communi.IrcCodecInterface")
+#endif
 
 public:
     explicit UCharDetPlugin(QObject* parent = 0);
