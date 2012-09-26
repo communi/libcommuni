@@ -73,5 +73,3 @@ public:
 };
 
 #include "plugin.moc"
-
-Q_EXPORT_PLUGIN2(communiplugin, CommuniPlugin);
