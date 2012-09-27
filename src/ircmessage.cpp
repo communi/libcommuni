@@ -824,7 +824,10 @@ QString IrcPrivateMessage::message() const
 bool IrcPrivateMessage::isAction() const
 {
     Q_D(const IrcMessage);
-    return d->parser.params().value(1).startsWith("\1ACTION ") && d->parser.params().value(1).endsWith('\1');
+    QByteArray msg = d->parser.params().value(1);
+    if (d->flags & (Identified | Unidentified))
+        msg.remove(0, 1);
+    return msg.startsWith("\1ACTION ") && msg.endsWith('\1');
 }
 
 /*!
@@ -837,7 +840,10 @@ bool IrcPrivateMessage::isAction() const
 bool IrcPrivateMessage::isRequest() const
 {
     Q_D(const IrcMessage);
-    return d->parser.params().value(1).startsWith('\1') && d->parser.params().value(1).endsWith('\1') && !isAction();
+    QByteArray msg = d->parser.params().value(1);
+    if (d->flags & (Identified | Unidentified))
+        msg.remove(0, 1);
+    return msg.startsWith('\1') && msg.endsWith('\1') && !isAction();
 }
 
 bool IrcPrivateMessage::isValid() const
