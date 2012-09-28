@@ -340,7 +340,8 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
         IrcSession* session = qobject_cast<IrcSession*>(parent);
         if (session)
         {
-            if (message->sender().name() == session->nickName())
+            IrcSender sender = message->sender();
+            if (sender.isValid() && sender.name() == session->nickName())
                 message->d_ptr->flags |= Own;
 
             if (session->d_ptr->capabilities.contains("identify-msg") &&
