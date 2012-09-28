@@ -99,6 +99,7 @@ private:
     Q_DECLARE_PRIVATE(IrcSession)
     Q_DISABLE_COPY(IrcSession)
     friend class IrcMessage;
+    friend class tst_IrcMessage;
 
     Q_PRIVATE_SLOT(d_func(), void _q_connected())
     Q_PRIVATE_SLOT(d_func(), void _q_disconnected())
