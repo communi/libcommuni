@@ -168,7 +168,7 @@ IrcMessagePrivate::IrcMessagePrivate() :
 
 QString IrcMessagePrivate::decodeParam(int index) const
 {
-    return parser.params().value(index);
+    return decodeData(parser.params().value(index));
 }
 
 QString IrcMessagePrivate::decodeData(const QByteArray& data) const
