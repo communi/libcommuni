@@ -54,6 +54,7 @@ void IrcDecoder::setEncoding(const QByteArray& encoding)
 
 QString IrcDecoder::decode(const QByteArray& data) const
 {
+    // TODO: not thread safe
     static QByteArray pluginKey;
     static bool initialized = false;
     if (!initialized)
