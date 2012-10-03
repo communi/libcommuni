@@ -10,11 +10,13 @@ DESTDIR = ../../../imports/$$TARGETPATH
 SOURCES += plugin.cpp
 OTHER_FILES += qmldir
 
-contains(MEEGO_EDITION,harmattan) {
-    !no_rpath:QMAKE_RPATHDIR += /opt/communi/lib
-    COMMUNI_INSTALL_IMPORTS = /opt/communi/imports
-} else {
-    COMMUNI_INSTALL_IMPORTS = $$[QT_INSTALL_IMPORTS]
+isEmpty(COMMUNI_INSTALL_IMPORTS) {
+    contains(MEEGO_EDITION,harmattan) {
+        !no_rpath:QMAKE_RPATHDIR += /opt/communi/lib
+        COMMUNI_INSTALL_IMPORTS = /opt/communi/imports
+    } else {
+        COMMUNI_INSTALL_IMPORTS = $$[QT_INSTALL_IMPORTS]
+    }
 }
 
 target.path = $$COMMUNI_INSTALL_IMPORTS/$$TARGETPATH

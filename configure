@@ -4,6 +4,12 @@ BUILD_TREE=`/bin/pwd`
 SOURCE_TREE=`dirname $0`
 SOURCE_TREE=`cd "$SOURCE_TREE"; /bin/pwd`
 
+INSTALL_LIBS=
+INSTALL_BINS=
+INSTALL_HEADERS=
+INSTALL_PLUGINS=
+INSTALL_IMPORTS=
+
 BUILD_PLUGINS=yes
 BUILD_EXAMPLES=yes
 BUILD_TESTS=yes
@@ -28,6 +34,12 @@ while [ "$#" -gt 0 ]; do
     CURRENT_OPT="$1"
     UNKNOWN_ARG=no
     case "$1" in
+    #Qt style options that pass an argument
+    -libdir|-bindir|-headerdir|-plugindir|-importdir)
+        VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
+        shift
+        VAL="$1"
+        ;;
     #Qt style no options
     -no-*)
         VAR=`echo $1 | sed 's,^-no-\(.*\),\1,'`
@@ -57,6 +69,21 @@ while [ "$#" -gt 0 ]; do
 
     UNKNOWN_OPT=no
     case "$VAR" in
+    libdir)
+        INSTALL_LIBS="$VAL"
+        ;;
+    bindir)
+        INSTALL_BINS="$VAL"
+        ;;
+    headerdir)
+        INSTALL_HEADERS="$VAL"
+        ;;
+    plugindir)
+        INSTALL_PLUGINS="$VAL"
+        ;;
+    importdir)
+        INSTALL_IMPORTS="$VAL"
+        ;;
     nomake)
         case "$1" in
         plugins)
@@ -142,6 +169,19 @@ if [ "$OPT_HELP" = "yes" ]; then
     cat << EOF
 Usage:  configure [options]
 
+Installation options:
+
+    -libdir <dir> ............ Libraries will be installed to <dir>
+                               (default QT_INSTALL_LIBS)
+    -bindir <dir> ............ Binaries will be installed to <dir>
+                               (default QT_INSTALL_BINS)
+    -headerdir <dir> ......... Headers will be installed to <dir>
+                               (default QT_INSTALL_HEADERS/Communi)
+    -plugindir <dir> ......... Plugins will be installed to <dir>/communi
+                               (default QT_INSTALL_PLUGINS/communi)
+    -importdir <dir> ......... Imports for QML will be installed to <dir>/Communi
+                               (default QT_INSTALL_IMPORTS/Communi)
+
 Configure options:
 
     -static .................. Build static library
@@ -163,6 +203,12 @@ EOF
     [ "x$ERROR" = "xyes" ] && exit 1
     exit 0
 fi
+
+[ "$INSTALL_LIBS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_LIBS=$INSTALL_LIBS"
+[ "$INSTALL_BINS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_BINS=$INSTALL_BINS"
+[ "$INSTALL_HEADERS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_HEADERS=$INSTALL_HEADERS"
+[ "$INSTALL_PLUGINS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_PLUGINS=$INSTALL_PLUGINS"
+[ "$INSTALL_IMPORTS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_IMPORTS=$INSTALL_IMPORTS"
 
 [ "$BUILD_PLUGINS" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_plugins"
 [ "$BUILD_EXAMPLES" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_examples"
