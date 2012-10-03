@@ -102,7 +102,7 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
     QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$COMMUNI_INSTALL_LIBS/
 } else:!contains(MEEGO_EDITION,harmattan) {
     headers.files = $$PUB_HEADERS $$CONV_HEADERS
-    headers.path = COMMUNI_INSTALL_HEADERS
+    headers.path = $$COMMUNI_INSTALL_HEADERS
     INSTALLS += headers
 }
 
