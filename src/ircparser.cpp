@@ -16,6 +16,7 @@
 
 IrcParser::IrcParser()
 {
+    d.valid = false;
 }
 
 bool IrcParser::parse(const QByteArray& data)
