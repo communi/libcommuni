@@ -4,4 +4,4 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS += messageformatter
+!no_examples:SUBDIRS += messageformatter
