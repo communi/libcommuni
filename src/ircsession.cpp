@@ -266,16 +266,9 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
             IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
             if (privMsg->isRequest())
             {
-                QString reply;
-                QString request = privMsg->message().split(" ", QString::SkipEmptyParts).value(0).toUpper();
-                if (request == "PING")
-                    reply = privMsg->message();
-                else if (request == "TIME")
-                    reply = "TIME " + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat);
-                else if (request == "VERSION")
-                    reply = QString("VERSION Communi ") + Irc::version();
-                if (!reply.isNull())
-                    q->sendCommand(IrcCommand::createCtcpReply(msg->sender().name(), reply));
+                IrcCommand* reply = q->createCtcpReply(privMsg);
+                if (reply)
+                    q->sendCommand(reply);
             }
             break;
             }
@@ -701,6 +694,26 @@ bool IrcSession::sendData(const QByteArray& data)
 bool IrcSession::sendRaw(const QString& message)
 {
     return sendData(message.toUtf8());
+}
+
+/*!
+    Creates a reply command for the CTCP \a request.
+
+    The default implementation handles the following CTCP requests: PING, TIME and VERSION.
+
+    Reimplement this function in order to alter or omit the default replies.
+ */
+IrcCommand* IrcSession::createCtcpReply(IrcPrivateMessage* request) const
+{
+    QString reply;
+    QString type = request->message().split(" ", QString::SkipEmptyParts).value(0).toUpper();
+    if (type == "PING")
+        reply = request->message();
+    else if (type == "TIME")
+        reply = "TIME " + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat);
+    else if (type == "VERSION")
+        reply = QString("VERSION Communi ") + Irc::version();
+    return IrcCommand::createCtcpReply(request->sender().name(), reply);
 }
 
 #ifndef QT_NO_DEBUG_STREAM

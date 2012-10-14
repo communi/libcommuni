@@ -22,6 +22,7 @@
 
 class IrcCommand;
 class IrcMessage;
+class IrcPrivateMessage;
 class IrcSessionPrivate;
 
 class COMMUNI_EXPORT IrcSession : public QObject
@@ -93,6 +94,9 @@ Q_SIGNALS:
 
     void activeChanged(bool active);
     void connectedChanged(bool connected);
+
+protected:
+    virtual IrcCommand* createCtcpReply(IrcPrivateMessage* request) const;
 
 private:
     QScopedPointer<IrcSessionPrivate> d_ptr;
