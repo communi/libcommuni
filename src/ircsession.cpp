@@ -200,7 +200,8 @@ void IrcSessionPrivate::_q_reconnect()
 void IrcSessionPrivate::_q_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcSession);
-    qWarning() << "IrcSessionPrivate::_q_error():" << error;
+    static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
+    if (dbg) qWarning() << "IrcSessionPrivate::_q_error():" << error;
     setConnected(false);
     setActive(false);
     emit q->socketError(error);
