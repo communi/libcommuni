@@ -61,6 +61,8 @@ SOURCES += ircsender.cpp
 SOURCES += ircsession.cpp
 SOURCES += ircutil.cpp
 
+include(3rdparty/mozilla/mozilla.pri)
+
 isEmpty(COMMUNI_INSTALL_LIBS) {
     contains(MEEGO_EDITION,harmattan) {
         COMMUNI_INSTALL_LIBS = /opt/communi/lib
