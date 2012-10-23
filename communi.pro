@@ -15,8 +15,6 @@ CONFIG += ordered
 !no_tests {
     contains(MEEGO_EDITION,harmattan) {
         message(Tests not supported on Meego Harmattan)
-    } else:symbian {
-        message(Tests not supported on Symbian)
     } else {
         SUBDIRS += tests
     }
@@ -69,12 +67,6 @@ contains(MEEGO_EDITION,harmattan) {
     mkspecs.files += $$OUT_PWD/communi-config.prf
     mkspecs.path = $$[QMAKE_MKSPECS]/features
     INSTALLS += mkspecs
-}
-
-symbian {
-    mkspecs.path ~= s/^[A-Za-z]:/ # strip drive letter
-    BLD_INF_RULES.prj_exports += "features/communi.prf $$mkspecs.path/communi.prf"
-    BLD_INF_RULES.prj_exports += "communi-config.prf $$mkspecs.path/communi-config.prf"
 }
 
 include(version.pri)

@@ -6,7 +6,7 @@ TEMPLATE = lib
 TARGET = $$qtLibraryTarget(Communi)
 DEFINES += BUILD_COMMUNI
 QT = core network
-!verbose:!symbian:CONFIG += silent
+!verbose:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
 include(../version.pri)
@@ -16,14 +16,12 @@ DESTDIR = ../lib
 DLLDESTDIR = ../bin
 DEPENDPATH += . ../include
 INCLUDEPATH += . ../include
-!symbian {
-    CONFIG(debug, debug|release) {
-        OBJECTS_DIR = debug
-        MOC_DIR = debug
-    } else {
-        OBJECTS_DIR = release
-        MOC_DIR = release
-    }
+CONFIG(debug, debug|release) {
+    OBJECTS_DIR = debug
+    MOC_DIR = debug
+} else {
+    OBJECTS_DIR = release
+    MOC_DIR = release
 }
 
 CONV_HEADERS += ../include/Irc
@@ -106,26 +104,4 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
     headers.files = $$PUB_HEADERS $$CONV_HEADERS
     headers.path = $$COMMUNI_INSTALL_HEADERS
     INSTALLS += headers
-}
-
-symbian {
-    TARGET.EPOCALLOWDLLDATA = 1
-    TARGET.CAPABILITY = NetworkServices
-    # TODO: TARGET.UID3 = 0xFFFFFFFF
-    MMP_RULES += EXPORTUNFROZEN
-
-    load(data_caging_paths)
-
-    for(header, headers.files) {
-        BLD_INF_RULES.prj_exports += "$$header $$MW_LAYER_PUBLIC_EXPORT_PATH($$basename(header))"
-    }
-
-    vendor.pkg_prerules += \
-        "%{\"J-P Nurmi\"}" \
-        ":\"J-P Nurmi\""
-    DEPLOYMENT += vendor
-
-    library.sources = $${TARGET}.dll
-    library.path = $$SHARED_LIB_DIR
-    DEPLOYMENT += library
 }
