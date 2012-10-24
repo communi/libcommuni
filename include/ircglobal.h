@@ -42,12 +42,12 @@
 
     You can use COMMUNI_VERSION to use the latest Communi features where available. For example:
     \code
-#if COMMUNI_VERSION >= 0x000300
-    // SSL support since version 0.3.0
-    session->setSocket(new QSslSocket(session));
-#endif
+ #if COMMUNI_VERSION >= 0x000300
+     // SSL support since version 0.3.0
+     session->setSocket(new QSslSocket(session));
+ #endif
     \endcode
-    
+
     \sa COMMUNI_VERSION_STR and Irc::version().
  */
 #define COMMUNI_VERSION 0x010300
