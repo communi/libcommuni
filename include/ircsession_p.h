@@ -28,12 +28,12 @@ class IrcSessionPrivate
 public:
     IrcSessionPrivate(IrcSession* session);
 
-    void _q_connected();
-    void _q_disconnected();
-    void _q_reconnect();
-    void _q_error(QAbstractSocket::SocketError error);
-    void _q_state(QAbstractSocket::SocketState state);
-    void _q_readData();
+    void _irc_connected();
+    void _irc_disconnected();
+    void _irc_reconnect();
+    void _irc_error(QAbstractSocket::SocketError error);
+    void _irc_state(QAbstractSocket::SocketState state);
+    void _irc_readData();
 
     void readLines(const QByteArray& delimiter);
     void processLine(const QByteArray& line);

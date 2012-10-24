@@ -105,12 +105,12 @@ private:
     friend class IrcMessage;
     friend class tst_IrcMessage;
 
-    Q_PRIVATE_SLOT(d_func(), void _q_connected())
-    Q_PRIVATE_SLOT(d_func(), void _q_disconnected())
-    Q_PRIVATE_SLOT(d_func(), void _q_reconnect())
-    Q_PRIVATE_SLOT(d_func(), void _q_error(QAbstractSocket::SocketError))
-    Q_PRIVATE_SLOT(d_func(), void _q_state(QAbstractSocket::SocketState))
-    Q_PRIVATE_SLOT(d_func(), void _q_readData())
+    Q_PRIVATE_SLOT(d_func(), void _irc_connected())
+    Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
+    Q_PRIVATE_SLOT(d_func(), void _irc_reconnect())
+    Q_PRIVATE_SLOT(d_func(), void _irc_error(QAbstractSocket::SocketError))
+    Q_PRIVATE_SLOT(d_func(), void _irc_state(QAbstractSocket::SocketState))
+    Q_PRIVATE_SLOT(d_func(), void _irc_readData())
 };
 
 #ifndef QT_NO_DEBUG_STREAM

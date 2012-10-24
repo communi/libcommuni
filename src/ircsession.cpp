@@ -161,7 +161,7 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
 {
 }
 
-void IrcSessionPrivate::_q_connected()
+void IrcSessionPrivate::_irc_connected()
 {
     Q_Q(IrcSession);
     emit q->connecting();
@@ -181,13 +181,13 @@ void IrcSessionPrivate::_q_connected()
     q->sendRaw(QString("USER %1 hostname servername :%2").arg(userName, realName));
 }
 
-void IrcSessionPrivate::_q_disconnected()
+void IrcSessionPrivate::_irc_disconnected()
 {
     Q_Q(IrcSession);
     emit q->disconnected();
 }
 
-void IrcSessionPrivate::_q_reconnect()
+void IrcSessionPrivate::_irc_reconnect()
 {
     if (socket)
     {
@@ -197,17 +197,17 @@ void IrcSessionPrivate::_q_reconnect()
     }
 }
 
-void IrcSessionPrivate::_q_error(QAbstractSocket::SocketError error)
+void IrcSessionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcSession);
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qWarning() << "IrcSessionPrivate::_q_error():" << error;
+    if (dbg) qWarning() << "IrcSessionPrivate::_irc_error():" << error;
     setConnected(false);
     setActive(false);
     emit q->socketError(error);
 }
 
-void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
+void IrcSessionPrivate::_irc_state(QAbstractSocket::SocketState state)
 {
     Q_Q(IrcSession);
     setActive(state != QAbstractSocket::UnconnectedState);
@@ -215,11 +215,11 @@ void IrcSessionPrivate::_q_state(QAbstractSocket::SocketState state)
         setConnected(false);
 
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qDebug() << "IrcSessionPrivate::_q_state():" << state;
+    if (dbg) qDebug() << "IrcSessionPrivate::_irc_state():" << state;
     emit q->socketStateChanged(state);
 }
 
-void IrcSessionPrivate::_q_readData()
+void IrcSessionPrivate::_irc_readData()
 {
     buffer += socket->readAll();
     // try reading RFC compliant message lines first
@@ -593,11 +593,11 @@ void IrcSession::setSocket(QAbstractSocket* socket)
         d->socket = socket;
         if (socket)
         {
-            connect(socket, SIGNAL(connected()), this, SLOT(_q_connected()));
-            connect(socket, SIGNAL(disconnected()), this, SLOT(_q_disconnected()));
-            connect(socket, SIGNAL(readyRead()), this, SLOT(_q_readData()));
-            connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_error(QAbstractSocket::SocketError)));
-            connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_q_state(QAbstractSocket::SocketState)));
+            connect(socket, SIGNAL(connected()), this, SLOT(_irc_connected()));
+            connect(socket, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
+            connect(socket, SIGNAL(readyRead()), this, SLOT(_irc_readData()));
+            connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_irc_error(QAbstractSocket::SocketError)));
+            connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_irc_state(QAbstractSocket::SocketState)));
         }
     }
 }
@@ -631,7 +631,7 @@ void IrcSession::open()
         qCritical("IrcSession::open(): realName is empty!");
         return;
     }
-    d->_q_reconnect();
+    d->_irc_reconnect();
 }
 
 /*!
