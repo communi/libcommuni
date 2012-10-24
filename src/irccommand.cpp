@@ -437,6 +437,14 @@ IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key)
 }
 
 /*!
+    This overload is provided for convenience.
+ */
+IrcCommand* IrcCommand::createJoin(const QStringList& channels, const QStringList& keys)
+{
+    return IrcCommandPrivate::createCommand(Join, QStringList() << channels.join(",") << keys.join(","));
+}
+
+/*!
     Creates a new KICK command with type IrcCommand::Kick and parameters \a channel, \a user and optional \a reason.
 
     This command forcibly removes \a user from \a channel,
@@ -494,12 +502,20 @@ IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, c
 /*!
     Creates a new NAMES command with type IrcCommand::Names and parameter \a channel.
 
-    This command lists all users on the \a channels, optionally limiting to the given \a server.
+    This command lists all users on the \a channel, optionally limiting to the given \a server.
 
-    If \a channels is omitted, all users are shown, grouped by channel name with
+    If \a channel is omitted, all users are shown, grouped by channel name with
     all users who are not on a channel being shown as part of channel "*".
     If \a server is specified, the command is sent to \a server for evaluation.
 */
+IrcCommand* IrcCommand::createNames(const QString& channel, const QString& server)
+{
+    return IrcCommandPrivate::createCommand(Names, QStringList() << channel << server);
+}
+
+/*!
+    This overload is provided for convenience.
+ */
 IrcCommand* IrcCommand::createNames(const QStringList& channels, const QString& server)
 {
     return IrcCommandPrivate::createCommand(Names, QStringList() << channels.join(",") << server);
@@ -535,6 +551,14 @@ IrcCommand* IrcCommand::createNotice(const QString& target, const QString& messa
 IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason)
 {
     return IrcCommandPrivate::createCommand(Part, QStringList() << channel << reason);
+}
+
+/*!
+    This overload is provided for convenience.
+ */
+IrcCommand* IrcCommand::createPart(const QStringList& channels, const QString& reason)
+{
+    return IrcCommandPrivate::createCommand(Part, QStringList() << channels.join(",") << reason);
 }
 
 /*!
