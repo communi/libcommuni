@@ -12,14 +12,14 @@
 * License for more details.
 */
 
-#include "ircparser_p.h"
+#include "ircmessageparser_p.h"
 
-IrcParser::IrcParser()
+IrcMessageParser::IrcMessageParser()
 {
     d.valid = false;
 }
 
-bool IrcParser::parse(const QByteArray& data)
+bool IrcMessageParser::parse(const QByteArray& data)
 {
     d.data = data;
     d.valid = false;

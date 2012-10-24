@@ -8,10 +8,10 @@
  * program, but you don't have to.
  */
 
-#include "ircparser_p.h"
+#include "ircmessageparser_p.h"
 #include <QtTest/QtTest>
 
-class tst_IrcParser : public QObject
+class tst_IrcMessageParser : public QObject
 {
     Q_OBJECT
 
@@ -22,9 +22,9 @@ private slots:
     void testParse();
 };
 
-void tst_IrcParser::testDefaults()
+void tst_IrcMessageParser::testDefaults()
 {
-    IrcParser parser;
+    IrcMessageParser parser;
     QVERIFY(parser.prefix().isNull());
     QVERIFY(parser.command().isNull());
     QVERIFY(parser.params().isEmpty());
@@ -32,7 +32,7 @@ void tst_IrcParser::testDefaults()
 
 typedef QList<QByteArray> QByteArrayList;
 Q_DECLARE_METATYPE(QByteArrayList)
-void tst_IrcParser::testParse_data()
+void tst_IrcMessageParser::testParse_data()
 {
     QTest::addColumn<bool>("result");
     QTest::addColumn<QByteArray>("line");
@@ -54,7 +54,7 @@ void tst_IrcParser::testParse_data()
     QTest::newRow(":pfx cmd 1 2 :3") << true << QByteArray(":pfx cmd 1 2 :3") << QByteArray("pfx") << QByteArray("cmd") << (QByteArrayList() << "1" << "2" << "3");
 }
 
-void tst_IrcParser::testParse()
+void tst_IrcMessageParser::testParse()
 {
     QFETCH(bool, result);
     QFETCH(QByteArray, line);
@@ -62,13 +62,13 @@ void tst_IrcParser::testParse()
     QFETCH(QByteArray, command);
     QFETCH(QByteArrayList, params);
 
-    IrcParser parser;
+    IrcMessageParser parser;
     QCOMPARE(parser.parse(line), result);
     QCOMPARE(parser.prefix(), prefix);
     QCOMPARE(parser.command(), command);
     QCOMPARE(parser.params(), params);
 }
 
-QTEST_MAIN(tst_IrcParser)
+QTEST_MAIN(tst_IrcMessageParser)
 
-#include "tst_ircparser.moc"
+#include "tst_ircmessageparser.moc"

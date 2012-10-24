@@ -16,7 +16,7 @@
 #include "ircsession.h"
 #include "ircsession_p.h"
 #include "irccommand.h"
-#include "ircparser_p.h"
+#include "ircmessageparser_p.h"
 #include "ircdecoder_p.h"
 #include <QVariant>
 #include <QDebug>
@@ -158,7 +158,7 @@ public:
     IrcMessage::Type type;
     IrcMessage::Flags flags;
     QByteArray encoding;
-    IrcParser parser;
+    IrcMessageParser parser;
 };
 
 IrcMessagePrivate::IrcMessagePrivate() :
@@ -328,7 +328,7 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
 {
     IrcMessage* message = 0;
 
-    IrcParser parser;
+    IrcMessageParser parser;
     if (parser.parse(data))
     {
         const QMetaObject* metaObject = irc_command_meta_object(parser.command());

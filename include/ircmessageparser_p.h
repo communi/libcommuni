@@ -12,14 +12,14 @@
 * License for more details.
 */
 
-#ifndef IRCPARSER_P_H
-#define IRCPARSER_P_H
+#ifndef IRCMESSAGEPARSER_P_H
+#define IRCMESSAGEPARSER_P_H
 
 #include <IrcGlobal>
 #include <QtCore/qlist.h>
 #include <QtCore/qbytearray.h>
 
-class COMMUNI_EXPORT IrcParser
+class COMMUNI_EXPORT IrcMessageParser
 {
     struct Data
     {
@@ -31,7 +31,7 @@ class COMMUNI_EXPORT IrcParser
     };
 
 public:
-    IrcParser();
+    IrcMessageParser();
 
     bool parse(const QByteArray &data);
 
@@ -45,4 +45,4 @@ private:
     Data d;
 };
 
-#endif // IRCPARSER_P_H
+#endif // IRCMESSAGEPARSER_P_H
