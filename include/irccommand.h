@@ -32,47 +32,31 @@ class COMMUNI_EXPORT IrcCommand : public QObject
 public:
     enum Type
     {
-        Custom,
-
-        // connection registration
-        Nick,
-        Quit,
-
-        // channel operations
-        Join,
-        Part,
-        Topic,
-        Names,
-        List,
-        Invite,
-        Kick,
-
-        // mode operations
-        Mode,
-
-        // sending messages
-        Message,
-        Notice,
-
-        // ctcp messages
+        Admin,
+        Away,
+        Capability,
         CtcpAction,
-        CtcpRequest,
         CtcpReply,
-
-        // user-based queries
+        CtcpRequest,
+        Custom,
+        Info,
+        Invite,
+        Join,
+        Kick,
+        Knock,
+        List,
+        Message,
+        Mode,
+        Names,
+        Nick,
+        Notice,
+        Part,
+        Quit,
+        Quote,
+        Topic,
         Who,
         Whois,
-        Whowas,
-
-        // miscellaneous commands
-        Away,
-        Quote,
-        Capability,
-
-        // TODO: alphabetical order?
-        Admin,
-        Info,
-        Knock
+        Whowas
     };
 
     explicit IrcCommand(QObject* parent = 0);
