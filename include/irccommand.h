@@ -71,7 +71,8 @@ public:
 
         // TODO: alphabetical order?
         Admin,
-        Info
+        Info,
+        Knock
     };
 
     explicit IrcCommand(QObject* parent = 0);
@@ -98,6 +99,7 @@ public:
     Q_INVOKABLE static IrcCommand* createInvite(const QString& user, const QString& channel);
     Q_INVOKABLE static IrcCommand* createJoin(const QString& channel, const QString& key = QString());
     Q_INVOKABLE static IrcCommand* createKick(const QString& channel, const QString& user, const QString& reason = QString());
+    Q_INVOKABLE static IrcCommand* createKnock(const QString& channel, const QString& message = QString());
     Q_INVOKABLE static IrcCommand* createList(const QStringList& channels = QStringList(), const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createMessage(const QString& target, const QString& message);
     Q_INVOKABLE static IrcCommand* createMode(const QString& target, const QString& mode, const QString& arg = QString());

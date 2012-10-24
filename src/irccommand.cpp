@@ -326,6 +326,7 @@ QString IrcCommand::toString() const
     case Invite:        return QString("INVITE %1 %2").arg(p0, p1); // user, chan
     case Join:          return p1.isNull() ? QString("JOIN %1").arg(p0) : QString("JOIN %1 %2").arg(p0, p1); // chan, key
     case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // chan, user, reason
+    case Knock:         return QString("KNOCK %1 %2").arg(p0, p1); // chan, msg
     case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
     case Message:       return QString("PRIVMSG %1 :%2").arg(p0, p1); // target, msg
     case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg
@@ -444,6 +445,19 @@ IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key)
 IrcCommand* IrcCommand::createKick(const QString& channel, const QString& user, const QString& reason)
 {
     return IrcCommandPrivate::createCommand(Kick, QStringList() << channel << user << reason);
+}
+
+/*!
+    Creates a new KNOCK command with type IrcCommand::Knock and parameters \a channel and optional \a message.
+
+    The command sends an invitation request to a \a channel with an optional \a message.
+
+    \note This command is not formally defined by an RFC, but is supported by most major IRC daemons.
+    Support is indicated in a RPL_ISUPPORT reply (numeric 005) with the KNOCK keyword.
+ */
+IrcCommand* IrcCommand::createKnock(const QString& channel, const QString& message)
+{
+    return IrcCommandPrivate::createCommand(Knock, QStringList() << channel << message);
 }
 
 /*!
