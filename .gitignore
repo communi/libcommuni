@@ -56,8 +56,8 @@ configure-stamp
 /examples/bot/bot
 /examples/mobile/communi
 /tests/auto/irccommand/irccommand
-/tests/auto/ircdecoder/ircdecoder
 /tests/auto/ircmessage/ircmessage
+/tests/auto/ircmessagedecoder/ircmessagedecoder
 /tests/auto/ircmessageparser/ircmessageparser
 /tests/auto/ircsender/ircsender
 /tests/auto/ircsession/ircsession

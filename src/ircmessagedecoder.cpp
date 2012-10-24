@@ -12,7 +12,7 @@
 * License for more details.
 */
 
-#include "ircdecoder_p.h"
+#include "ircmessagedecoder_p.h"
 #include "irccodecplugin.h"
 #include <QCoreApplication>
 #include <QPluginLoader>
@@ -35,34 +35,34 @@ COMMUNI_EXPORT void irc_set_codec_plugin(const QByteArray& key)
     irc_plugin_key = key;
 }
 
-IrcDecoder::IrcDecoder()
+IrcMessageDecoder::IrcMessageDecoder()
 {
     d.fallback = QTextCodec::codecForName("UTF-8");
 }
 
-IrcDecoder::~IrcDecoder()
+IrcMessageDecoder::~IrcMessageDecoder()
 {
 }
 
-QByteArray IrcDecoder::encoding() const
+QByteArray IrcMessageDecoder::encoding() const
 {
     return d.fallback->name();
 }
 
-void IrcDecoder::setEncoding(const QByteArray& encoding)
+void IrcMessageDecoder::setEncoding(const QByteArray& encoding)
 {
     if (QTextCodec::availableCodecs().contains(encoding))
         d.fallback = QTextCodec::codecForName(encoding);
 }
 
-QString IrcDecoder::decode(const QByteArray& data) const
+QString IrcMessageDecoder::decode(const QByteArray& data) const
 {
     // TODO: not thread safe
     static QByteArray pluginKey;
     static bool initialized = false;
     if (!initialized)
     {
-        pluginKey = const_cast<IrcDecoder*>(this)->initialize();
+        pluginKey = const_cast<IrcMessageDecoder*>(this)->initialize();
         initialized = true;
     }
 
@@ -86,18 +86,18 @@ QString IrcDecoder::decode(const QByteArray& data) const
     return codec->toUnicode(data);
 }
 
-QByteArray IrcDecoder::initialize()
+QByteArray IrcMessageDecoder::initialize()
 {
     bool loaded = loadPlugins();
     QByteArray pluginKey = irc_plugin_key;
     if (!pluginKey.isEmpty() && !irc_codec_plugins()->contains(pluginKey))
     {
-        qWarning() << "IrcDecoder:" << pluginKey << "plugin not loaded";
+        qWarning() << "IrcMessageDecoder:" << pluginKey << "plugin not loaded";
         if (loaded)
-            qWarning() << "IrcDecoder: available plugins:" << irc_codec_plugins()->keys();
+            qWarning() << "IrcMessageDecoder: available plugins:" << irc_codec_plugins()->keys();
     }
     if (!loaded)
-        qWarning() << "IrcDecoder: no plugins available";
+        qWarning() << "IrcMessageDecoder: no plugins available";
 
     if (pluginKey.isEmpty() && !irc_codec_plugins()->isEmpty())
         pluginKey = irc_codec_plugins()->keys().first();
@@ -126,7 +126,7 @@ static QStringList pluginPaths()
     return paths;
 }
 
-bool IrcDecoder::loadPlugins()
+bool IrcMessageDecoder::loadPlugins()
 {
     foreach (const QString& path, pluginPaths())
     {

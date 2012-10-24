@@ -17,7 +17,7 @@
 #include "ircsession_p.h"
 #include "irccommand.h"
 #include "ircmessageparser_p.h"
-#include "ircdecoder_p.h"
+#include "ircmessagedecoder_p.h"
 #include <QVariant>
 #include <QDebug>
 
@@ -177,7 +177,7 @@ QString IrcMessagePrivate::decodeData(const QByteArray& data) const
         return QString();
 
     // TODO: not thread safe
-    static IrcDecoder decoder;
+    static IrcMessageDecoder decoder;
     decoder.setEncoding(encoding);
     return decoder.decode(data);
 }

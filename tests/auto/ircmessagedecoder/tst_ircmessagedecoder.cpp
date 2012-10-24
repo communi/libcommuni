@@ -8,11 +8,11 @@
  * program, but you don't have to.
  */
 
-#include "ircdecoder_p.h"
+#include "ircmessagedecoder_p.h"
 #include <QtTest/QtTest>
 #include <QtCore/QTextCodec>
 
-class tst_IrcDecoder : public QObject
+class tst_IrcMessageDecoder : public QObject
 {
     Q_OBJECT
 
@@ -23,13 +23,13 @@ private slots:
     void testEncoding();
 };
 
-void tst_IrcDecoder::testDefaults()
+void tst_IrcMessageDecoder::testDefaults()
 {
-    IrcDecoder decoder;
+    IrcMessageDecoder decoder;
     QCOMPARE(decoder.encoding(), QByteArray("UTF-8"));
 }
 
-void tst_IrcDecoder::testEncoding_data()
+void tst_IrcMessageDecoder::testEncoding_data()
 {
     QTest::addColumn<QByteArray>("encoding");
     QTest::addColumn<QByteArray>("actual");
@@ -42,16 +42,16 @@ void tst_IrcDecoder::testEncoding_data()
         QTest::newRow(codec) << codec << QTextCodec::codecForName(codec)->name();
 }
 
-void tst_IrcDecoder::testEncoding()
+void tst_IrcMessageDecoder::testEncoding()
 {
     QFETCH(QByteArray, encoding);
     QFETCH(QByteArray, actual);
 
-    IrcDecoder decoder;
+    IrcMessageDecoder decoder;
     decoder.setEncoding(encoding);
     QCOMPARE(decoder.encoding(), actual);
 }
 
-QTEST_MAIN(tst_IrcDecoder)
+QTEST_MAIN(tst_IrcMessageDecoder)
 
-#include "tst_ircdecoder.moc"
+#include "tst_ircmessagedecoder.moc"

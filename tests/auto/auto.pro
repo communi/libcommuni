@@ -5,8 +5,8 @@
 TEMPLATE = subdirs
 
 SUBDIRS += irccommand
-SUBDIRS += ircdecoder
 SUBDIRS += ircmessage
+SUBDIRS += ircmessagedecoder
 SUBDIRS += ircmessageparser
 SUBDIRS += ircsender
 SUBDIRS += ircsession

@@ -12,8 +12,8 @@
 * License for more details.
 */
 
-#ifndef IRCDECODER_P_H
-#define IRCDECODER_P_H
+#ifndef IRCMESSAGEDECODER_P_H
+#define IRCMESSAGEDECODER_P_H
 
 #include <IrcGlobal>
 #include <QtCore/qbytearray.h>
@@ -21,11 +21,11 @@
 
 class IrcCodecPlugin;
 
-class COMMUNI_EXPORT IrcDecoder
+class COMMUNI_EXPORT IrcMessageDecoder
 {
 public:
-    IrcDecoder();
-    ~IrcDecoder();
+    IrcMessageDecoder();
+    ~IrcMessageDecoder();
 
     QByteArray encoding() const;
     void setEncoding(const QByteArray& encoding);
@@ -42,4 +42,4 @@ private:
     } d;
 };
 
-#endif // IRCDECODER_P_H
+#endif // IRCMESSAGEDECODER_P_H
