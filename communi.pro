@@ -65,7 +65,7 @@ contains(MEEGO_EDITION,harmattan) {
 !contains(MEEGO_EDITION,harmattan) {
     mkspecs.files += features/communi.prf
     mkspecs.files += $$OUT_PWD/communi-config.prf
-    mkspecs.path = $$[QMAKE_MKSPECS]/features
+    mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
     INSTALLS += mkspecs
 }
 
