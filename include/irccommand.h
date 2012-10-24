@@ -70,7 +70,8 @@ public:
         Capability,
 
         // TODO: alphabetical order?
-        Admin
+        Admin,
+        Info
     };
 
     explicit IrcCommand(QObject* parent = 0);
@@ -93,6 +94,7 @@ public:
     Q_INVOKABLE static IrcCommand* createCtcpAction(const QString& target, const QString& action);
     Q_INVOKABLE static IrcCommand* createCtcpReply(const QString& target, const QString& reply);
     Q_INVOKABLE static IrcCommand* createCtcpRequest(const QString& target, const QString& request);
+    Q_INVOKABLE static IrcCommand* createInfo(const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createInvite(const QString& user, const QString& channel);
     Q_INVOKABLE static IrcCommand* createJoin(const QString& channel, const QString& key = QString());
     Q_INVOKABLE static IrcCommand* createKick(const QString& channel, const QString& user, const QString& reason = QString());

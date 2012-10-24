@@ -322,6 +322,7 @@ QString IrcCommand::toString() const
     case CtcpAction:    return QString("PRIVMSG %1 :\1ACTION %2\1").arg(p0, p1); // target, msg
     case CtcpRequest:   return QString("PRIVMSG %1 :\1%2\1").arg(p0, p1); // target, msg
     case CtcpReply:     return QString("NOTICE %1 :\1%2\1").arg(p0, p1); // target, msg
+    case Info:          return QString("INFO %1").arg(p0); // server
     case Invite:        return QString("INVITE %1 %2").arg(p0, p1); // user, chan
     case Join:          return p1.isNull() ? QString("JOIN %1").arg(p0) : QString("JOIN %1 %2").arg(p0, p1); // chan, key
     case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // chan, user, reason
@@ -398,6 +399,17 @@ IrcCommand* IrcCommand::createCtcpReply(const QString& target, const QString& re
 IrcCommand* IrcCommand::createCtcpRequest(const QString& target, const QString& request)
 {
     return IrcCommandPrivate::createCommand(CtcpRequest, QStringList() << target << request);
+}
+
+/*!
+    Creates a new INFO command with type IrcCommand::Info and optional parameter \a server.
+
+    The command shows info for the specified \a server,
+    or the current server if not specified.
+ */
+IrcCommand* IrcCommand::createInfo(const QString& server)
+{
+    return IrcCommandPrivate::createCommand(Info, QStringList() << server);
 }
 
 /*!
