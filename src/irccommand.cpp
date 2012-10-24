@@ -571,11 +571,15 @@ IrcCommand* IrcCommand::createWhois(const QString& user)
 }
 
 /*!
-    Creates a new WHOWAS command with type IrcCommand::Whowas and parameter \a user.
+    Creates a new WHOWAS command with type IrcCommand::Whowas and parameters \a user and optional \a count.
+
+    This command returns information about a \a user that is no longer online
+    (due to client disconnection, or nickname changes). If given, the server
+    will return information from the last \a count times the nickname has been used.
  */
-IrcCommand* IrcCommand::createWhowas(const QString& user)
+IrcCommand* IrcCommand::createWhowas(const QString& user, int count)
 {
-    return IrcCommandPrivate::createCommand(Whowas, QStringList() << user);
+    return IrcCommandPrivate::createCommand(Whowas, QStringList() << user << QString::number(count));
 }
 
 #ifndef QT_NO_DEBUG_STREAM
