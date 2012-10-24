@@ -552,11 +552,14 @@ IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic
 }
 
 /*!
-    Creates a new WHO command with type IrcCommand::Who and parameter \a mask.
+    Creates a new WHO command with type IrcCommand::Who and parameters \a mask and optional \a operators.
+
+    This command returns a list of users who match \a mask,
+    optionally matching only IRC \a operators.
  */
-IrcCommand* IrcCommand::createWho(const QString& mask)
+IrcCommand* IrcCommand::createWho(const QString& mask, bool operators)
 {
-    return IrcCommandPrivate::createCommand(Who, QStringList() << mask);
+    return IrcCommandPrivate::createCommand(Who, QStringList() << mask << (operators ? "o" : ""));
 }
 
 /*!

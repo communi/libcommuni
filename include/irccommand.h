@@ -110,7 +110,7 @@ public:
     Q_INVOKABLE static IrcCommand* createQuit(const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createQuote(const QStringList& parameters);
     Q_INVOKABLE static IrcCommand* createTopic(const QString& channel, const QString& topic = QString());
-    Q_INVOKABLE static IrcCommand* createWho(const QString& mask);
+    Q_INVOKABLE static IrcCommand* createWho(const QString& mask, bool operators = false);
     Q_INVOKABLE static IrcCommand* createWhois(const QString& user);
     Q_INVOKABLE static IrcCommand* createWhowas(const QString& user);
 
