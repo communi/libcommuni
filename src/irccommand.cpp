@@ -452,9 +452,9 @@ IrcCommand* IrcCommand::createKick(const QString& channel, const QString& user, 
     The command lists all channels on the server. If \a channels are given, it will list the channel topics.
     If \a server is given, the command will be forwarded to \a server for evaluation.
  */
-IrcCommand* IrcCommand::createList(const QString& channel, const QString& server)
+IrcCommand* IrcCommand::createList(const QStringList& channels, const QString& server)
 {
-    return IrcCommandPrivate::createCommand(List, QStringList() << channel << server);
+    return IrcCommandPrivate::createCommand(List, QStringList() << channels.join(",") << server);
 }
 
 /*!
