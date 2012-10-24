@@ -67,7 +67,10 @@ public:
         // miscellaneous commands
         Away,
         Quote,
-        Capability
+        Capability,
+
+        // TODO: alphabetical order?
+        Admin
     };
 
     explicit IrcCommand(QObject* parent = 0);
@@ -84,6 +87,7 @@ public:
 
     virtual QString toString() const;
 
+    Q_INVOKABLE static IrcCommand* createAdmin(const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createAway(const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createCapability(const QString& subCommand, const QStringList& capabilities = QStringList());
     Q_INVOKABLE static IrcCommand* createCtcpAction(const QString& target, const QString& action);

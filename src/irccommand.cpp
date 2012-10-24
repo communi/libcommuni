@@ -316,7 +316,7 @@ QString IrcCommand::toString() const
 
     switch (d->type)
     {
-
+    case Admin:         return QString("ADMIN %1").arg(p0); // server
     case Away:          return QString("AWAY :%1").arg(p0); // reason
     case Capability:    return QString("CAP %1 :%2").arg(p0, p1); // subcmd, caps
     case CtcpAction:    return QString("PRIVMSG %1 :\1ACTION %2\1").arg(p0, p1); // target, msg
@@ -342,6 +342,17 @@ QString IrcCommand::toString() const
     case Custom:        qWarning("Reimplement IrcCommand::toString() for IrcCommand::Custom");
     default:            return QString();
     }
+}
+
+/*!
+    Creates a new ADMIN command with type IrcCommand::Admin and optional parameter \a server.
+
+    The command shows admin info for the specified \a server,
+    or the current server if not specified.
+ */
+IrcCommand* IrcCommand::createAdmin(const QString& server)
+{
+    return IrcCommandPrivate::createCommand(Admin, QStringList() << server);
 }
 
 /*!
