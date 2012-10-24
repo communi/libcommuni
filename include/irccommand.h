@@ -103,7 +103,7 @@ public:
     Q_INVOKABLE static IrcCommand* createList(const QStringList& channels = QStringList(), const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createMessage(const QString& target, const QString& message);
     Q_INVOKABLE static IrcCommand* createMode(const QString& target, const QString& mode, const QString& arg = QString());
-    Q_INVOKABLE static IrcCommand* createNames(const QString& channel);
+    Q_INVOKABLE static IrcCommand* createNames(const QStringList& channels = QStringList(), const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createNick(const QString& nick);
     Q_INVOKABLE static IrcCommand* createNotice(const QString& target, const QString& message);
     Q_INVOKABLE static IrcCommand* createPart(const QString& channel, const QString& reason = QString());

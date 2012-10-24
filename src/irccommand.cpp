@@ -491,10 +491,16 @@ IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, c
 
 /*!
     Creates a new NAMES command with type IrcCommand::Names and parameter \a channel.
- */
-IrcCommand* IrcCommand::createNames(const QString& channel)
+
+    The command lists all users on the \a channels, optionally limiting to the given \a server.
+
+    If \a channels is omitted, all users are shown, grouped by channel name with
+    all users who are not on a channel being shown as part of channel "*".
+    If \a server is specified, the command is sent to \a server for evaluation.
+*/
+IrcCommand* IrcCommand::createNames(const QStringList& channels, const QString& server)
 {
-    return IrcCommandPrivate::createCommand(Names, QStringList() << channel);
+    return IrcCommandPrivate::createCommand(Names, QStringList() << channels.join(",") << server);
 }
 
 /*!
