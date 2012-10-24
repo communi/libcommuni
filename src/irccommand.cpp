@@ -86,70 +86,18 @@
  */
 
 /*!
-    \var IrcCommand::Custom
-    \brief A custom command
-
-    \sa IrcCommand::toString()
+    \var IrcCommand::Admin
+    \brief An admin command (ADMIN) is used to query server admin info.
  */
 
 /*!
-    \var IrcCommand::Nick
-    \brief A nick command (NICK) is used to give user a nickname or change the previous one.
+    \var IrcCommand::Away
+    \brief An away command (AWAY) is used to set the away status.
  */
 
 /*!
-    \var IrcCommand::Quit
-    \brief A quit command (QUIT) is used to end a client session.
- */
-
-/*!
-    \var IrcCommand::Join
-    \brief A join command (JOIN) is used to start listening a specific channel.
- */
-
-/*!
-    \var IrcCommand::Part
-    \brief A part command (PART) causes the client to be removed from the channel.
- */
-
-/*!
-    \var IrcCommand::Topic
-    \brief A topic command (TOPIC) is used to change or view the topic of a channel.
- */
-
-/*!
-    \var IrcCommand::Names
-    \brief A names command (NAMES) is used to list all nicknames on a channel.
- */
-
-/*!
-    \var IrcCommand::List
-    \brief A list command (LIST) is used to list channels and their topics.
- */
-
-/*!
-    \var IrcCommand::Invite
-    \brief An invite command (INVITE) is used to invite users to a channel.
- */
-
-/*!
-    \var IrcCommand::Kick
-    \brief A kick command (KICK) is used to forcibly remove a user from a channel.
- */
-
-/*!
-    \var IrcCommand::Mode
-    \brief A mode command (MODE) is used to change the mode of users and channels.
- */
-
-/*!
-    \var IrcCommand::Message
-    \brief A message command (PRIVMSG) is used to send private messages to channels and users.
- */
-
-/*!
-    \var IrcCommand::Notice
-    \brief A notice command (NOTICE) is used to send notice messages to channels and users.
+    \var IrcCommand::Capability
+    \brief A capability command (CAP) is used to manage connection capabilities.
  */
 
 /*!
@@ -158,13 +106,95 @@
  */
 
 /*!
+    \var IrcCommand::CtcpReply
+    \brief A CTCP reply command is used to send a reply to a request.
+ */
+
+/*!
     \var IrcCommand::CtcpRequest
     \brief A CTCP request command is used to send a request.
  */
 
 /*!
-    \var IrcCommand::CtcpReply
-    \brief A CTCP reply command is used to send a reply to a request.
+    \var IrcCommand::Custom
+    \brief A custom command
+
+    \sa IrcCommand::toString()
+ */
+
+/*!
+    \var IrcCommand::Info
+    \brief An info command (INFO) is used to query server info.
+ */
+
+/*!
+    \var IrcCommand::Invite
+    \brief An invite command (INVITE) is used to invite users to a channel.
+ */
+
+/*!
+    \var IrcCommand::Join
+    \brief A join command (JOIN) is used to start listening a specific channel.
+ */
+
+/*!
+    \var IrcCommand::Kick
+    \brief A kick command (KICK) is used to forcibly remove a user from a channel.
+ */
+
+/*!
+    \var IrcCommand::Knock
+    \brief A knock command (KNOCK) is used to request channel invitation.
+ */
+
+/*!
+    \var IrcCommand::List
+    \brief A list command (LIST) is used to list channels and their topics.
+ */
+
+/*!
+    \var IrcCommand::Message
+    \brief A message command (PRIVMSG) is used to send private messages to channels and users.
+ */
+
+/*!
+    \var IrcCommand::Mode
+    \brief A mode command (MODE) is used to change the mode of users and channels.
+ */
+
+/*!
+    \var IrcCommand::Names
+    \brief A names command (NAMES) is used to list all nicknames on a channel.
+ */
+
+/*!
+    \var IrcCommand::Nick
+    \brief A nick command (NICK) is used to give user a nickname or change the previous one.
+ */
+
+/*!
+    \var IrcCommand::Notice
+    \brief A notice command (NOTICE) is used to send notice messages to channels and users.
+ */
+
+/*!
+    \var IrcCommand::Part
+    \brief A part command (PART) causes the client to be removed from the channel.
+ */
+
+/*!
+    \var IrcCommand::Quit
+    \brief A quit command (QUIT) is used to end a client session.
+ */
+
+/*!
+    \var IrcCommand::Quote
+    \brief A quote command is used to send a raw message to the server.
+ */
+
+/*!
+    \var IrcCommand::Topic
+    \brief A topic command (TOPIC) is used to change or view the topic of a channel.
  */
 
 /*!
@@ -180,21 +210,6 @@
 /*!
     \var IrcCommand::Whowas
     \brief A whowas command (WHOWAS) is used to query information about a user that no longer exists.
- */
-
-/*!
-    \var IrcCommand::Away
-    \brief An away command (AWAY) is used to set the away status.
- */
-
-/*!
-    \var IrcCommand::Quote
-    \brief A quote command is used to send a raw message to the server.
- */
-
-/*!
-    \var IrcCommand::Capability
-    \brief A capability command (CAP) is used to manage connection capabilities.
  */
 
 class IrcCommandPrivate
