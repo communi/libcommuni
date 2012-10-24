@@ -308,8 +308,7 @@ QByteArray IrcCommand::encoding() const
 void IrcCommand::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcCommand);
-    if (!QTextCodec::availableCodecs().contains(encoding))
-    {
+    if (!QTextCodec::availableCodecs().contains(encoding)) {
         qWarning() << "IrcCommand::setEncoding(): unsupported encoding" << encoding;
         return;
     }
@@ -329,35 +328,34 @@ QString IrcCommand::toString() const
     const QString p1 = d->parameters.value(1);
     const QString p2 = d->parameters.value(2);
 
-    switch (d->type)
-    {
-    case Admin:         return QString("ADMIN %1").arg(p0); // server
-    case Away:          return QString("AWAY :%1").arg(p0); // reason
-    case Capability:    return QString("CAP %1 :%2").arg(p0, p1); // subcmd, caps
-    case CtcpAction:    return QString("PRIVMSG %1 :\1ACTION %2\1").arg(p0, p1); // target, msg
-    case CtcpRequest:   return QString("PRIVMSG %1 :\1%2\1").arg(p0, p1); // target, msg
-    case CtcpReply:     return QString("NOTICE %1 :\1%2\1").arg(p0, p1); // target, msg
-    case Info:          return QString("INFO %1").arg(p0); // server
-    case Invite:        return QString("INVITE %1 %2").arg(p0, p1); // user, chan
-    case Join:          return p1.isNull() ? QString("JOIN %1").arg(p0) : QString("JOIN %1 %2").arg(p0, p1); // chan, key
-    case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // chan, user, reason
-    case Knock:         return QString("KNOCK %1 %2").arg(p0, p1); // chan, msg
-    case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
-    case Message:       return QString("PRIVMSG %1 :%2").arg(p0, p1); // target, msg
-    case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg
-    case Names:         return QString("NAMES %1").arg(p0); // chan
-    case Nick:          return QString("NICK %1").arg(p0); // nick
-    case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
-    case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
-    case Quit:          return QString("QUIT :%1").arg(p0); // reason
-    case Quote:         return d->parameters.join(" ");
-    case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
-    case Who:           return QString("WHO %1").arg(p0); // user
-    case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
-    case Whowas:        return QString("WHOWAS %1 %1").arg(p0); // user
+    switch (d->type) {
+        case Admin:         return QString("ADMIN %1").arg(p0); // server
+        case Away:          return QString("AWAY :%1").arg(p0); // reason
+        case Capability:    return QString("CAP %1 :%2").arg(p0, p1); // subcmd, caps
+        case CtcpAction:    return QString("PRIVMSG %1 :\1ACTION %2\1").arg(p0, p1); // target, msg
+        case CtcpRequest:   return QString("PRIVMSG %1 :\1%2\1").arg(p0, p1); // target, msg
+        case CtcpReply:     return QString("NOTICE %1 :\1%2\1").arg(p0, p1); // target, msg
+        case Info:          return QString("INFO %1").arg(p0); // server
+        case Invite:        return QString("INVITE %1 %2").arg(p0, p1); // user, chan
+        case Join:          return p1.isNull() ? QString("JOIN %1").arg(p0) : QString("JOIN %1 %2").arg(p0, p1); // chan, key
+        case Kick:          return p2.isNull() ? QString("KICK %1 %2").arg(p0, p1) : QString("KICK %1 %2 :%3").arg(p0, p1, p2); // chan, user, reason
+        case Knock:         return QString("KNOCK %1 %2").arg(p0, p1); // chan, msg
+        case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
+        case Message:       return QString("PRIVMSG %1 :%2").arg(p0, p1); // target, msg
+        case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg
+        case Names:         return QString("NAMES %1").arg(p0); // chan
+        case Nick:          return QString("NICK %1").arg(p0); // nick
+        case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
+        case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
+        case Quit:          return QString("QUIT :%1").arg(p0); // reason
+        case Quote:         return d->parameters.join(" ");
+        case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
+        case Who:           return QString("WHO %1").arg(p0); // user
+        case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
+        case Whowas:        return QString("WHOWAS %1 %1").arg(p0); // user
 
-    case Custom:        qWarning("Reimplement IrcCommand::toString() for IrcCommand::Custom");
-    default:            return QString();
+        case Custom:        qWarning("Reimplement IrcCommand::toString() for IrcCommand::Custom");
+        default:            return QString();
     }
 }
 

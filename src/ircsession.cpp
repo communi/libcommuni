@@ -189,8 +189,7 @@ void IrcSessionPrivate::_irc_disconnected()
 
 void IrcSessionPrivate::_irc_reconnect()
 {
-    if (socket)
-    {
+    if (socket) {
         socket->connectToHost(host, port);
         if (socket->inherits("QSslSocket"))
             QMetaObject::invokeMethod(socket, "startClientEncryption");
@@ -231,8 +230,7 @@ void IrcSessionPrivate::_irc_readData()
 void IrcSessionPrivate::readLines(const QByteArray& delimiter)
 {
     int i = -1;
-    while ((i = buffer.indexOf(delimiter)) != -1)
-    {
+    while ((i = buffer.indexOf(delimiter)) != -1) {
         QByteArray line = buffer.left(i).trimmed();
         buffer = buffer.mid(i + delimiter.length());
         if (!line.isEmpty())
@@ -248,63 +246,54 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
     if (dbg) qDebug() << line;
 
     IrcMessage* msg = IrcMessage::fromData(line, encoding, q);
-    if (msg)
-    {
-        switch (msg->type())
-        {
-        case IrcMessage::Numeric:
-            if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME)
-            {
-                setNick(msg->parameters().value(0));
-                setConnected(true);
+    if (msg) {
+        switch (msg->type()) {
+            case IrcMessage::Numeric:
+                if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME) {
+                    setNick(msg->parameters().value(0));
+                    setConnected(true);
+                }
+                break;
+            case IrcMessage::Ping:
+                q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
+                break;
+            case IrcMessage::Private: {
+                IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
+                if (privMsg->isRequest()) {
+                    IrcCommand* reply = q->createCtcpReply(privMsg);
+                    if (reply)
+                        q->sendCommand(reply);
+                }
+                break;
             }
-            break;
-        case IrcMessage::Ping:
-            q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
-            break;
-        case IrcMessage::Private: {
-            IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
-            if (privMsg->isRequest())
-            {
-                IrcCommand* reply = q->createCtcpReply(privMsg);
-                if (reply)
-                    q->sendCommand(reply);
-            }
-            break;
-            }
-        case IrcMessage::Nick:
-            if (msg->isOwn())
-                setNick(static_cast<IrcNickMessage*>(msg)->nick());
-            break;
-        case IrcMessage::Capability:
-            if (!connected)
-            {
-                IrcCapabilityMessage* capMsg = static_cast<IrcCapabilityMessage*>(msg);
-                QString subCommand = capMsg->subCommand();
-                if (subCommand == "LS")
-                {
-                    foreach (const QString& cap, capMsg->capabilities())
+            case IrcMessage::Nick:
+                if (msg->isOwn())
+                    setNick(static_cast<IrcNickMessage*>(msg)->nick());
+                break;
+            case IrcMessage::Capability:
+                if (!connected) {
+                    IrcCapabilityMessage* capMsg = static_cast<IrcCapabilityMessage*>(msg);
+                    QString subCommand = capMsg->subCommand();
+                    if (subCommand == "LS") {
+                        foreach(const QString & cap, capMsg->capabilities())
                         capabilities.insert(cap);
 
-                    QStringList params = capMsg->parameters();
-                    if (params.value(params.count() - 1) != QLatin1String("*"))
-                    {
-                        QStringList request;
-                        emit q->capabilities(capabilities.toList(), &request);
-                        if (!request.isEmpty())
-                            q->sendCommand(IrcCommand::createCapability("REQ", request));
-                        else
-                            q->sendData("CAP END");
+                        QStringList params = capMsg->parameters();
+                        if (params.value(params.count() - 1) != QLatin1String("*")) {
+                            QStringList request;
+                            emit q->capabilities(capabilities.toList(), &request);
+                            if (!request.isEmpty())
+                                q->sendCommand(IrcCommand::createCapability("REQ", request));
+                            else
+                                q->sendData("CAP END");
+                        }
+                    } else if (subCommand == "ACK" || subCommand == "NAK") {
+                        q->sendData("CAP END");
                     }
                 }
-                else if (subCommand == "ACK" || subCommand == "NAK")
-                {
-                    q->sendData("CAP END");
-                }
-            }
-            break;
-        default:
-            break;
+                break;
+            default:
+                break;
         }
 
         emit q->messageReceived(msg);
@@ -315,8 +304,7 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
 void IrcSessionPrivate::setNick(const QString& nick)
 {
     Q_Q(IrcSession);
-    if (nickName != nick)
-    {
+    if (nickName != nick) {
         nickName = nick;
         emit q->nickNameChanged(nick);
     }
@@ -325,8 +313,7 @@ void IrcSessionPrivate::setNick(const QString& nick)
 void IrcSessionPrivate::setActive(bool value)
 {
     Q_Q(IrcSession);
-    if (active != value)
-    {
+    if (active != value) {
         active = value;
         emit q->activeChanged(active);
     }
@@ -335,8 +322,7 @@ void IrcSessionPrivate::setActive(bool value)
 void IrcSessionPrivate::setConnected(bool value)
 {
     Q_Q(IrcSession);
-    if (connected != value)
-    {
+    if (connected != value) {
         connected = value;
         emit q->connectedChanged(connected);
         if (connected)
@@ -385,8 +371,7 @@ QByteArray IrcSession::encoding() const
 void IrcSession::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcSession);
-    if (!QTextCodec::availableCodecs().contains(encoding))
-    {
+    if (!QTextCodec::availableCodecs().contains(encoding)) {
         qWarning() << "IrcSession::setEncoding(): unsupported encoding" << encoding;
         return;
     }
@@ -411,8 +396,7 @@ void IrcSession::setHost(const QString& host)
     Q_D(IrcSession);
     if (isActive())
         qWarning("IrcSession::setHost() has no effect until re-connect");
-    if (d->host != host)
-    {
+    if (d->host != host) {
         d->host = host;
         emit hostChanged(host);
     }
@@ -438,8 +422,7 @@ void IrcSession::setPort(int port)
     Q_D(IrcSession);
     if (isActive())
         qWarning("IrcSession::setPort() has no effect until re-connect");
-    if (d->port != port)
-    {
+    if (d->port != port) {
         d->port = port;
         emit portChanged(port);
     }
@@ -466,8 +449,7 @@ void IrcSession::setUserName(const QString& name)
     if (isActive())
         qWarning("IrcSession::setUserName() has no effect until re-connect");
     QString user = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
-    if (d->userName != user)
-    {
+    if (d->userName != user) {
         d->userName = user;
         emit userNameChanged(user);
     }
@@ -490,8 +472,7 @@ void IrcSession::setNickName(const QString& name)
 {
     Q_D(IrcSession);
     QString nick = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
-    if (d->nickName != nick)
-    {
+    if (d->nickName != nick) {
         if (isActive())
             sendCommand(IrcCommand::createNick(nick));
         else
@@ -519,8 +500,7 @@ void IrcSession::setRealName(const QString& name)
     Q_D(IrcSession);
     if (isActive())
         qWarning("IrcSession::setRealName() has no effect until re-connect");
-    if (d->realName != name)
-    {
+    if (d->realName != name) {
         d->realName = name;
         emit realNameChanged(name);
     }
@@ -581,18 +561,15 @@ QAbstractSocket* IrcSession::socket() const
 void IrcSession::setSocket(QAbstractSocket* socket)
 {
     Q_D(IrcSession);
-    if (d->socket != socket)
-    {
-        if (d->socket)
-        {
+    if (d->socket != socket) {
+        if (d->socket) {
             d->socket->disconnect(this);
             if (d->socket->parent() == this)
                 d->socket->deleteLater();
         }
 
         d->socket = socket;
-        if (socket)
-        {
+        if (socket) {
             connect(socket, SIGNAL(connected()), this, SLOT(_irc_connected()));
             connect(socket, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
             connect(socket, SIGNAL(readyRead()), this, SLOT(_irc_readData()));
@@ -611,23 +588,19 @@ void IrcSession::setSocket(QAbstractSocket* socket)
 void IrcSession::open()
 {
     Q_D(IrcSession);
-    if (d->host.isEmpty())
-    {
+    if (d->host.isEmpty()) {
         qCritical("IrcSession::open(): host is empty!");
         return;
     }
-    if (d->userName.isEmpty())
-    {
+    if (d->userName.isEmpty()) {
         qCritical("IrcSession::open(): userName is empty!");
         return;
     }
-    if (d->nickName.isEmpty())
-    {
+    if (d->nickName.isEmpty()) {
         qCritical("IrcSession::open(): nickName is empty!");
         return;
     }
-    if (d->realName.isEmpty())
-    {
+    if (d->realName.isEmpty()) {
         qCritical("IrcSession::open(): realName is empty!");
         return;
     }
@@ -656,8 +629,7 @@ void IrcSession::close()
 bool IrcSession::sendCommand(IrcCommand* command)
 {
     bool res = false;
-    if (command)
-    {
+    if (command) {
         QTextCodec* codec = QTextCodec::codecForName(command->encoding());
         Q_ASSERT(codec);
         res = sendData(codec->fromUnicode(command->toString()));
@@ -675,8 +647,7 @@ bool IrcSession::sendData(const QByteArray& data)
 {
     Q_D(IrcSession);
     qint64 bytes = -1;
-    if (d->socket)
-    {
+    if (d->socket) {
         static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
         if (dbg) qDebug() << "->" << data;
         bytes = d->socket->write(data + QByteArray("\r\n"));

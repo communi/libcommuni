@@ -40,8 +40,7 @@ bool IrcMessageParser::parse(const QByteArray& data)
     QByteArray process = data;
 
     // parse <prefix>
-    if (process.startsWith(':'))
-    {
+    if (process.startsWith(':')) {
         d.prefix = process.mid(1, process.indexOf(' ') - 1);
         process.remove(0, d.prefix.length() + 2);
     }
@@ -51,16 +50,12 @@ bool IrcMessageParser::parse(const QByteArray& data)
     process.remove(0, d.command.length() + 1);
 
     // parse <params>
-    while (!process.isEmpty())
-    {
-        if (process.startsWith(':'))
-        {
+    while (!process.isEmpty()) {
+        if (process.startsWith(':')) {
             process.remove(0, 1);
             d.params += process;
             process.clear();
-        }
-        else
-        {
+        } else {
             QByteArray param = process.mid(0, process.indexOf(' '));
             process.remove(0, param.length() + 1);
             d.params += param;

@@ -38,8 +38,8 @@ void tst_IrcMessageDecoder::testEncoding_data()
     QTest::newRow("empty") << QByteArray("") << QByteArray("UTF-8");
     QTest::newRow("space") << QByteArray(" ") << QByteArray("UTF-8");
     QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("UTF-8");
-    foreach (const QByteArray& codec, QTextCodec::availableCodecs())
-        QTest::newRow(codec) << codec << QTextCodec::codecForName(codec)->name();
+    foreach(const QByteArray & codec, QTextCodec::availableCodecs())
+    QTest::newRow(codec) << codec << QTextCodec::codecForName(codec)->name();
 }
 
 void tst_IrcMessageDecoder::testEncoding()

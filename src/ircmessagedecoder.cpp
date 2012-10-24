@@ -60,19 +60,15 @@ QString IrcMessageDecoder::decode(const QByteArray& data) const
     // TODO: not thread safe
     static QByteArray pluginKey;
     static bool initialized = false;
-    if (!initialized)
-    {
+    if (!initialized) {
         pluginKey = const_cast<IrcMessageDecoder*>(this)->initialize();
         initialized = true;
     }
 
     QTextCodec* codec = 0;
-    if (IsUTF8Text(data, data.length()))
-    {
+    if (IsUTF8Text(data, data.length())) {
         codec = QTextCodec::codecForName("UTF-8");
-    }
-    else
-    {
+    } else {
         QByteArray name = d.fallback->name();
         IrcCodecPlugin* plugin = irc_codec_plugins()->value(pluginKey);
         if (plugin)
@@ -90,8 +86,7 @@ QByteArray IrcMessageDecoder::initialize()
 {
     bool loaded = loadPlugins();
     QByteArray pluginKey = irc_plugin_key;
-    if (!pluginKey.isEmpty() && !irc_codec_plugins()->contains(pluginKey))
-    {
+    if (!pluginKey.isEmpty() && !irc_codec_plugins()->contains(pluginKey)) {
         qWarning() << "IrcMessageDecoder:" << pluginKey << "plugin not loaded";
         if (loaded)
             qWarning() << "IrcMessageDecoder: available plugins:" << irc_codec_plugins()->keys();
@@ -114,10 +109,8 @@ static QStringList pluginPaths()
 {
     QStringList paths = QCoreApplication::libraryPaths();
     const QByteArray env = qgetenv("COMMUNI_PLUGIN_PATH");
-    if (!env.isEmpty())
-    {
-        foreach (const QString& path, QFile::decodeName(env).split(COMMUNI_PATH_SEPARATOR, QString::SkipEmptyParts))
-        {
+    if (!env.isEmpty()) {
+        foreach(const QString & path, QFile::decodeName(env).split(COMMUNI_PATH_SEPARATOR, QString::SkipEmptyParts)) {
             QString canonicalPath = QDir(path).canonicalPath();
             if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))
                 paths += canonicalPath;
@@ -128,14 +121,12 @@ static QStringList pluginPaths()
 
 bool IrcMessageDecoder::loadPlugins()
 {
-    foreach (const QString& path, pluginPaths())
-    {
+    foreach(const QString & path, pluginPaths()) {
         QDir dir(path);
         if (!dir.cd("communi"))
             continue;
 
-        foreach (const QFileInfo& file, dir.entryInfoList(QDir::Files))
-        {
+        foreach(const QFileInfo & file, dir.entryInfoList(QDir::Files)) {
             QPluginLoader loader(file.absoluteFilePath());
             IrcCodecPlugin* plugin = qobject_cast<IrcCodecPlugin*>(loader.instance());
             if (plugin)

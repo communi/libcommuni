@@ -21,8 +21,7 @@
 
 class COMMUNI_EXPORT IrcMessageParser
 {
-    struct Data
-    {
+    struct Data {
         bool valid;
         QByteArray data;
         QByteArray prefix;
@@ -33,13 +32,23 @@ class COMMUNI_EXPORT IrcMessageParser
 public:
     IrcMessageParser();
 
-    bool parse(const QByteArray &data);
+    bool parse(const QByteArray& data);
 
-    bool isValid() const { return d.valid; }
-    QByteArray data() const { return d.data; }
-    QByteArray prefix() const { return d.prefix; }
-    QByteArray command() const { return d.command; }
-    QList<QByteArray> params() const { return d.params; }
+    bool isValid() const {
+        return d.valid;
+    }
+    QByteArray data() const {
+        return d.data;
+    }
+    QByteArray prefix() const {
+        return d.prefix;
+    }
+    QByteArray command() const {
+        return d.command;
+    }
+    QList<QByteArray> params() const {
+        return d.params;
+    }
 
 private:
     Data d;

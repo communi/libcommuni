@@ -26,18 +26,15 @@ class DeclarativeIrcSender : public QObject
 public:
     explicit DeclarativeIrcSender(QObject* parent = 0) : QObject(parent) { }
 
-    Q_INVOKABLE static QString name(const IrcSender& sender)
-    {
+    Q_INVOKABLE static QString name(const IrcSender& sender) {
         return sender.name();
     }
 
-    Q_INVOKABLE static QString user(const IrcSender& sender)
-    {
+    Q_INVOKABLE static QString user(const IrcSender& sender) {
         return sender.user();
     }
 
-    Q_INVOKABLE static QString host(const IrcSender& sender)
-    {
+    Q_INVOKABLE static QString host(const IrcSender& sender) {
         return sender.host();
     }
 };
@@ -53,16 +50,14 @@ class CommuniPlugin : public QDeclarativeExtensionPlugin
     Q_OBJECT
 
 public:
-    virtual void initializeEngine(QDeclarativeEngine* engine, const char* uri)
-    {
+    virtual void initializeEngine(QDeclarativeEngine* engine, const char* uri) {
         QDeclarativeExtensionPlugin::initializeEngine(engine, uri);
 
         QDeclarativeContext* context = engine->rootContext();
         context->setContextProperty("IrcSender", new DeclarativeIrcSender(context));
     }
 
-    void registerTypes(const char *uri)
-    {
+    void registerTypes(const char* uri) {
         qmlRegisterType<IrcSession>(uri, 1, 0, "IrcSession");
         qmlRegisterType<IrcCommand>(uri, 1, 0, "IrcCommand");
         qmlRegisterType<IrcMessage>(uri, 1, 0, "IrcMessage");

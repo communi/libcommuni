@@ -56,8 +56,7 @@ QString IrcUtil::messageToHtml(const QString& message)
     processed.replace(QLatin1Char('\''), QLatin1String("&apos;"));
     processed.replace(QLatin1Char('\t'), QLatin1String("&nbsp;"));
 
-    enum
-    {
+    enum {
         None            = 0x0,
         Bold            = 0x1,
         Color           = 0x2,
@@ -71,15 +70,12 @@ QString IrcUtil::messageToHtml(const QString& message)
     int pos = 0;
     int depth = 0;
     bool parseColor = false;
-    while (pos < processed.size())
-    {
-        if (parseColor)
-        {
+    while (pos < processed.size()) {
+        if (parseColor) {
             // fg(,bg)
             QRegExp rx(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
             int idx = rx.indexIn(processed, pos);
-            if (idx == pos)
-            {
+            if (idx == pos) {
                 bool ok = false;
                 QStringList styles;
                 processed.remove(idx, rx.matchedLength());
@@ -101,136 +97,111 @@ QString IrcUtil::messageToHtml(const QString& message)
         }
 
         QString replacement;
-        switch (processed.at(pos).unicode())
-        {
-        case '\x02': // bold
-            if (state & Bold)
-            {
-                depth--;
-                replacement = QLatin1String("</span>");
-            }
-            else
-            {
-                depth++;
-                replacement = QLatin1String("<span style='font-weight: bold'>");
-            }
-            state ^= Bold;
-            break;
+        switch (processed.at(pos).unicode()) {
+            case '\x02': // bold
+                if (state & Bold) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    replacement = QLatin1String("<span style='font-weight: bold'>");
+                }
+                state ^= Bold;
+                break;
 
-        case '\x03': // color
-            if (state & Color)
-            {
-                depth--;
-                replacement = QLatin1String("</span>");
-            }
-            else
-            {
-                depth++;
-                replacement = QLatin1String("<span style='%1'>");
-            }
-            state ^= Color;
-            parseColor = state & Color;
-            break;
+            case '\x03': // color
+                if (state & Color) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    replacement = QLatin1String("<span style='%1'>");
+                }
+                state ^= Color;
+                parseColor = state & Color;
+                break;
 
-        //case '\x09': // italic
-        case '\x1d': // italic
-            if (state & Italic)
-            {
-                depth--;
-                replacement = QLatin1String("</span>");
-            }
-            else
-            {
-                depth++;
-                replacement = QLatin1String("<span style='font-style: italic'>");
-            }
-            state ^= Italic;
-            break;
+                //case '\x09': // italic
+            case '\x1d': // italic
+                if (state & Italic) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    replacement = QLatin1String("<span style='font-style: italic'>");
+                }
+                state ^= Italic;
+                break;
 
-        case '\x13': // strike-through
-            if (state & StrikeThrough)
-            {
-                depth--;
-                replacement = QLatin1String("</span>");
-            }
-            else
-            {
-                depth++;
-                replacement = QLatin1String("<span style='text-decoration: line-through'>");
-            }
-            state ^= StrikeThrough;
-            break;
+            case '\x13': // strike-through
+                if (state & StrikeThrough) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    replacement = QLatin1String("<span style='text-decoration: line-through'>");
+                }
+                state ^= StrikeThrough;
+                break;
 
-        case '\x15': // underline
-        case '\x1f': // underline
-            if (state & Underline)
-            {
-                depth--;
-                replacement = QLatin1String("</span>");
-            }
-            else
-            {
-                depth++;
-                replacement = QLatin1String("<span style='text-decoration: underline'>");
-            }
-            state ^= Underline;
-            break;
+            case '\x15': // underline
+            case '\x1f': // underline
+                if (state & Underline) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    replacement = QLatin1String("<span style='text-decoration: underline'>");
+                }
+                state ^= Underline;
+                break;
 
-        case '\x16': // inverse
-            if (state & Inverse)
-            {
-                depth--;
-                replacement = QLatin1String("</span>");
-            }
-            else
-            {
-                depth++;
-                replacement = QLatin1String("<span style='font-weight: bold'>");
-            }
-            state ^= Inverse;
-            break;
+            case '\x16': // inverse
+                if (state & Inverse) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    replacement = QLatin1String("<span style='font-weight: bold'>");
+                }
+                state ^= Inverse;
+                break;
 
-        case '\x0f': // none
-            if (depth > 0)
-                replacement = QString(QLatin1String("</span>")).repeated(depth);
-            else
-                processed.remove(pos--, 1); // must rewind back for ++pos below...
-            state = None;
-            depth = 0;
-            break;
+            case '\x0f': // none
+                if (depth > 0)
+                    replacement = QString(QLatin1String("</span>")).repeated(depth);
+                else
+                    processed.remove(pos--, 1); // must rewind back for ++pos below...
+                state = None;
+                depth = 0;
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
 
-        if (!replacement.isEmpty())
-        {
+        if (!replacement.isEmpty()) {
             processed.replace(pos, 1, replacement);
             pos += replacement.length();
-        }
-        else
-        {
+        } else {
             ++pos;
         }
     }
 
     pos = 0;
-    while ((pos = URL_PATTERN.indexIn(processed, pos)) >= 0)
-    {
+    while ((pos = URL_PATTERN.indexIn(processed, pos)) >= 0) {
         int len = URL_PATTERN.matchedLength();
         QString href = processed.mid(pos, len);
 
         // Don't consider trailing &gt; as part of the link.
         QString append;
-        if (href.endsWith(QLatin1String("&gt;")))
-        {
+        if (href.endsWith(QLatin1String("&gt;"))) {
             append.append(href.right(4));
             href.chop(4);
         }
 
         // Don't consider trailing comma or semi-colon as part of the link.
-        if (href.endsWith(QLatin1Char(',')) || href.endsWith(QLatin1Char(';')))
-        {
+        if (href.endsWith(QLatin1Char(',')) || href.endsWith(QLatin1Char(';'))) {
             append.append(href.right(1));
             href.chop(1);
         }
@@ -239,16 +210,14 @@ QString IrcUtil::messageToHtml(const QString& message)
         // there's an opening parenthesis preceding in the beginning of the
         // URL or there is no opening parenthesis in the URL at all.
         if (pos > 0 && href.endsWith(QLatin1Char(')'))
-            && (processed.at(pos-1) == QLatin1Char('(')
-            || !href.contains(QLatin1Char('('))))
-        {
+                && (processed.at(pos - 1) == QLatin1Char('(')
+                    || !href.contains(QLatin1Char('(')))) {
             append.prepend(href.right(1));
             href.chop(1);
         }
 
         // Qt doesn't support (?<=pattern) so we do it here
-        if (pos > 0 && processed.at(pos-1).isLetterOrNumber())
-        {
+        if (pos > 0 && processed.at(pos - 1).isLetterOrNumber()) {
             pos++;
             continue;
         }
@@ -276,25 +245,24 @@ QString IrcUtil::messageToHtml(const QString& message)
 */
 QString IrcUtil::colorCodeToName(int code, const QString& defaultColor)
 {
-    switch (code)
-    {
-    case 0:  return QLatin1String("white");
-    case 1:  return QLatin1String("black");
-    case 2:  return QLatin1String("navy");
-    case 3:  return QLatin1String("green");
-    case 4:  return QLatin1String("red");
-    case 5:  return QLatin1String("maroon");
-    case 6:  return QLatin1String("purple");
-    case 7:  return QLatin1String("orange");
-    case 8:  return QLatin1String("yellow");
-    case 9:  return QLatin1String("lime");
-    case 10: return QLatin1String("darkcyan");
-    case 11: return QLatin1String("cyan");
-    case 12: return QLatin1String("blue");
-    case 13: return QLatin1String("magenta");
-    case 14: return QLatin1String("gray");
-    case 15: return QLatin1String("lightgray");
-    default: return defaultColor;
+    switch (code) {
+        case 0:  return QLatin1String("white");
+        case 1:  return QLatin1String("black");
+        case 2:  return QLatin1String("navy");
+        case 3:  return QLatin1String("green");
+        case 4:  return QLatin1String("red");
+        case 5:  return QLatin1String("maroon");
+        case 6:  return QLatin1String("purple");
+        case 7:  return QLatin1String("orange");
+        case 8:  return QLatin1String("yellow");
+        case 9:  return QLatin1String("lime");
+        case 10: return QLatin1String("darkcyan");
+        case 11: return QLatin1String("cyan");
+        case 12: return QLatin1String("blue");
+        case 13: return QLatin1String("magenta");
+        case 14: return QLatin1String("gray");
+        case 15: return QLatin1String("lightgray");
+        default: return defaultColor;
     }
 }
 
