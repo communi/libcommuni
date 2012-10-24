@@ -349,7 +349,7 @@ QString IrcCommand::toString() const
 /*!
     Creates a new ADMIN command with type IrcCommand::Admin and optional parameter \a server.
 
-    The command shows admin info for the specified \a server,
+    This command shows admin info for the specified \a server,
     or the current server if not specified.
  */
 IrcCommand* IrcCommand::createAdmin(const QString& server)
@@ -405,7 +405,7 @@ IrcCommand* IrcCommand::createCtcpRequest(const QString& target, const QString& 
 /*!
     Creates a new INFO command with type IrcCommand::Info and optional parameter \a server.
 
-    The command shows info for the specified \a server,
+    This command shows info for the specified \a server,
     or the current server if not specified.
  */
 IrcCommand* IrcCommand::createInfo(const QString& server)
@@ -416,7 +416,7 @@ IrcCommand* IrcCommand::createInfo(const QString& server)
 /*!
     Creates a new INVITE command with type IrcCommand::Invite and parameters \a user and \a channel.
 
-    The command invites \a user to the \a channel. The channel does not have to exist, but
+    This command invites \a user to the \a channel. The channel does not have to exist, but
     if it does, only members of the channel are allowed to invite other clients. if the
     channel mode +i (invite-only) is set, only channel operators may invite other clients.
  */
@@ -428,7 +428,7 @@ IrcCommand* IrcCommand::createInvite(const QString& user, const QString& channel
 /*!
     Creates a new JOIN command with type IrcCommand::Join and parameters \a channel and optional \a key.
 
-    The command joins the \a channel using \a key if specified.
+    This command joins the \a channel using \a key if specified.
     If the channel does not exist, it will be created.
  */
 IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key)
@@ -439,7 +439,7 @@ IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key)
 /*!
     Creates a new KICK command with type IrcCommand::Kick and parameters \a channel, \a user and optional \a reason.
 
-    The command forcibly removes \a user from \a channel,
+    This command forcibly removes \a user from \a channel,
     and may only be issued by channel operators.
  */
 IrcCommand* IrcCommand::createKick(const QString& channel, const QString& user, const QString& reason)
@@ -450,9 +450,9 @@ IrcCommand* IrcCommand::createKick(const QString& channel, const QString& user, 
 /*!
     Creates a new KNOCK command with type IrcCommand::Knock and parameters \a channel and optional \a message.
 
-    The command sends an invitation request to a \a channel with an optional \a message.
+    This command sends an invitation request to a \a channel with an optional \a message.
 
-    \note This command is not formally defined by an RFC, but is supported by most major IRC daemons.
+    \note The command is not formally defined by an RFC, but is supported by most major IRC daemons.
     Support is indicated in a RPL_ISUPPORT reply (numeric 005) with the KNOCK keyword.
  */
 IrcCommand* IrcCommand::createKnock(const QString& channel, const QString& message)
@@ -463,7 +463,7 @@ IrcCommand* IrcCommand::createKnock(const QString& channel, const QString& messa
 /*!
     Creates a new LIST command with type IrcCommand::List and optional parameters \a channels and \a server.
 
-    The command lists all channels on the server. If \a channels are given, it will list the channel topics.
+    This command lists all channels on the server. If \a channels are given, it will list the channel topics.
     If \a server is given, the command will be forwarded to \a server for evaluation.
  */
 IrcCommand* IrcCommand::createList(const QStringList& channels, const QString& server)
@@ -473,6 +473,8 @@ IrcCommand* IrcCommand::createList(const QStringList& channels, const QString& s
 
 /*!
     Creates a new PRIVMSG command with type IrcCommand::Message and parameters \a target and \a message.
+
+    This command sends \a message to \a target, which is usually a user or channel.
  */
 IrcCommand* IrcCommand::createMessage(const QString& target, const QString& message)
 {
@@ -482,7 +484,7 @@ IrcCommand* IrcCommand::createMessage(const QString& target, const QString& mess
 /*!
     Creates a new MODE command with type IrcCommand::Mode and parameters \a target, \a mode and optional \a arg.
 
-    The command is used to set both user and channel modes.
+    This command is used to set both user and channel modes.
  */
 IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg)
 {
@@ -492,7 +494,7 @@ IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, c
 /*!
     Creates a new NAMES command with type IrcCommand::Names and parameter \a channel.
 
-    The command lists all users on the \a channels, optionally limiting to the given \a server.
+    This command lists all users on the \a channels, optionally limiting to the given \a server.
 
     If \a channels is omitted, all users are shown, grouped by channel name with
     all users who are not on a channel being shown as part of channel "*".
@@ -505,6 +507,8 @@ IrcCommand* IrcCommand::createNames(const QStringList& channels, const QString& 
 
 /*!
     Creates a new NICK command with type IrcCommand::Nick and parameter \a nick.
+
+    This command allows a client to change their IRC nickname.
  */
 IrcCommand* IrcCommand::createNick(const QString& nick)
 {
@@ -513,6 +517,10 @@ IrcCommand* IrcCommand::createNick(const QString& nick)
 
 /*!
     Creates a new NOTICE command with type IrcCommand::Notice and parameters \a target and \a message.
+
+    This command sends \a notice to \a target, which is usually a user or channel.
+
+    \note The command works similarly to PRIVMSG, except automatic replies must never be sent in reply to NOTICE messages.
  */
 IrcCommand* IrcCommand::createNotice(const QString& target, const QString& message)
 {
@@ -521,6 +529,8 @@ IrcCommand* IrcCommand::createNotice(const QString& target, const QString& messa
 
 /*!
     Creates a new PART command with type IrcCommand::Part and parameters \a channel and optional \a reason.
+
+    This command causes the client to leave the specified channel.
  */
 IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason)
 {
@@ -545,6 +555,10 @@ IrcCommand* IrcCommand::createQuote(const QStringList& parameters)
 
 /*!
     Creates a new TOPIC command with type IrcCommand::Topic and parameters \a channel and optional \a topic.
+
+    This command allows the client to query or set the channel topic on \a channel.
+    If \a topic is given, it sets the channel topic to \a topic.
+    If channel mode +t is set, only a channel operator may set the topic.
  */
 IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic)
 {
@@ -564,6 +578,8 @@ IrcCommand* IrcCommand::createWho(const QString& mask, bool operators)
 
 /*!
     Creates a new WHOIS command with type IrcCommand::Whois and parameter \a user.
+
+    This command returns information about \a user.
  */
 IrcCommand* IrcCommand::createWhois(const QString& user)
 {
