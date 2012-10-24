@@ -687,7 +687,7 @@ bool IrcSession::sendData(const QByteArray& data)
 /*!
     Sends raw \a message to the server.
 
-    \note The \message is sent using UTF-8 encoding.
+    \note The \a message is sent using UTF-8 encoding.
 
     \sa sendData(), sendCommand()
  */
