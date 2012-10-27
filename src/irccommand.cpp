@@ -198,6 +198,11 @@
  */
 
 /*!
+    \var IrcCommand::Stats
+    \brief A stats command (STATS) is used to query server statistics.
+ */
+
+/*!
     \var IrcCommand::Topic
     \brief A topic command (TOPIC) is used to change or view the topic of a channel.
  */
@@ -355,6 +360,7 @@ QString IrcCommand::toString() const
         case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
         case Quit:          return QString("QUIT :%1").arg(p0); // reason
         case Quote:         return d->parameters.join(" ");
+        case Stats:         return QString("STATS %1 %2").arg(p0, p1); // query, server
         case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
         case Who:           return QString("WHO %1").arg(p0); // user
         case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
@@ -589,6 +595,17 @@ IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason
 IrcCommand* IrcCommand::createPart(const QStringList& channels, const QString& reason)
 {
     return IrcCommandPrivate::createCommand(Part, QStringList() << channels.join(",") << reason);
+}
+
+/*!
+    Creates a new STATS command with type IrcCommand::Stats and parameters \a query and optional \a server.
+
+    This command queries statistics about the specified \a server,
+    or the current server if not specified.
+ */
+IrcCommand* IrcCommand::createStats(const QString& query, const QString& server)
+{
+    return IrcCommandPrivate::createCommand(Stats, QStringList() << query << server);
 }
 
 /*!
