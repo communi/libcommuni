@@ -539,7 +539,7 @@ IrcCommand* IrcCommand::createMessage(const QString& target, const QString& mess
 }
 
 /*!
-    Creates a new MODE command with type IrcCommand::Mode and parameters \a target, \a mode and optional \a arg.
+    Creates a new MODE command with type IrcCommand::Mode and parameters \a target and optional \a mode and \a arg.
 
     This command is used to set both user and channel modes.
  */
