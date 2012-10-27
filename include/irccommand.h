@@ -101,6 +101,7 @@ public:
     Q_INVOKABLE static IrcCommand* createPart(const QString& channel, const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createPart(const QStringList& channels, const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createQuit(const QString& reason = QString());
+    Q_INVOKABLE static IrcCommand* createQuote(const QString& raw);
     Q_INVOKABLE static IrcCommand* createQuote(const QStringList& parameters);
     Q_INVOKABLE static IrcCommand* createStats(const QString& query, const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createTime(const QString& server = QString());

@@ -630,6 +630,14 @@ IrcCommand* IrcCommand::createQuit(const QString& reason)
 }
 
 /*!
+    Creates a new QUOTE command with type IrcCommand::Quote and \a raw.
+ */
+IrcCommand* IrcCommand::createQuote(const QString& raw)
+{
+    return IrcCommandPrivate::createCommand(Quote, QStringList() << raw);
+}
+
+/*!
     Creates a new QUOTE command with type IrcCommand::Quote and \a parameters.
  */
 IrcCommand* IrcCommand::createQuote(const QStringList& parameters)
