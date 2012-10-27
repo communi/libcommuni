@@ -163,6 +163,11 @@
  */
 
 /*!
+    \var IrcCommand::Motd
+    \brief A message of the day command (MOTD) is used to query the message of the day.
+ */
+
+/*!
     \var IrcCommand::Names
     \brief A names command (NAMES) is used to list all nicknames on a channel.
  */
@@ -343,6 +348,7 @@ QString IrcCommand::toString() const
         case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
         case Message:       return QString("PRIVMSG %1 :%2").arg(p0, p1); // target, msg
         case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg
+        case Motd:          return QString("MOTD %1").arg(p0); // server
         case Names:         return QString("NAMES %1").arg(p0); // chan
         case Nick:          return QString("NICK %1").arg(p0); // nick
         case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
@@ -510,6 +516,17 @@ IrcCommand* IrcCommand::createMessage(const QString& target, const QString& mess
 IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg)
 {
     return IrcCommandPrivate::createCommand(Mode, QStringList() << target << mode << arg);
+}
+
+/*!
+    Creates a new MOTD command with type IrcCommand::Motd and optional parameter \a server.
+
+    This command shows the message of the day on the specified \a server,
+    or the current server if not specified.
+ */
+IrcCommand* IrcCommand::createMotd(const QString& server)
+{
+    return IrcCommandPrivate::createCommand(Motd, QStringList() << server);
 }
 
 /*!

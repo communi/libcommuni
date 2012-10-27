@@ -46,6 +46,7 @@ public:
         List,
         Message,
         Mode,
+        Motd,
         Names,
         Nick,
         Notice,
@@ -87,6 +88,7 @@ public:
     Q_INVOKABLE static IrcCommand* createList(const QStringList& channels = QStringList(), const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createMessage(const QString& target, const QString& message);
     Q_INVOKABLE static IrcCommand* createMode(const QString& target, const QString& mode, const QString& arg = QString());
+    Q_INVOKABLE static IrcCommand* createMotd(const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createNames(const QString& channel = QString(), const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createNames(const QStringList& channels, const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createNick(const QString& nick);
