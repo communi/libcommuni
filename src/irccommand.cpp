@@ -203,6 +203,11 @@
  */
 
 /*!
+    \var IrcCommand::Time
+    \brief A time command (TIME) is used to query local server time.
+ */
+
+/*!
     \var IrcCommand::Topic
     \brief A topic command (TOPIC) is used to change or view the topic of a channel.
  */
@@ -361,6 +366,7 @@ QString IrcCommand::toString() const
         case Quit:          return QString("QUIT :%1").arg(p0); // reason
         case Quote:         return d->parameters.join(" ");
         case Stats:         return QString("STATS %1 %2").arg(p0, p1); // query, server
+        case Time:          return QString("TIME %1").arg(p0); // server
         case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
         case Who:           return QString("WHO %1").arg(p0); // user
         case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
@@ -598,17 +604,6 @@ IrcCommand* IrcCommand::createPart(const QStringList& channels, const QString& r
 }
 
 /*!
-    Creates a new STATS command with type IrcCommand::Stats and parameters \a query and optional \a server.
-
-    This command queries statistics about the specified \a server,
-    or the current server if not specified.
- */
-IrcCommand* IrcCommand::createStats(const QString& query, const QString& server)
-{
-    return IrcCommandPrivate::createCommand(Stats, QStringList() << query << server);
-}
-
-/*!
     Creates a new QUIT command with type IrcCommand::Quit and optional parameter \a reason.
  */
 IrcCommand* IrcCommand::createQuit(const QString& reason)
@@ -622,6 +617,28 @@ IrcCommand* IrcCommand::createQuit(const QString& reason)
 IrcCommand* IrcCommand::createQuote(const QStringList& parameters)
 {
     return IrcCommandPrivate::createCommand(Quote, parameters);
+}
+
+/*!
+    Creates a new STATS command with type IrcCommand::Stats and parameters \a query and optional \a server.
+
+    This command queries statistics about the specified \a server,
+    or the current server if not specified.
+ */
+IrcCommand* IrcCommand::createStats(const QString& query, const QString& server)
+{
+    return IrcCommandPrivate::createCommand(Stats, QStringList() << query << server);
+}
+
+/*!
+    Creates a new TIME command with type IrcCommand::Time and options parameter \a server.
+
+    This command queries local time of the specified \a server,
+    or the current server if not specified.
+ */
+IrcCommand* IrcCommand::createTime(const QString& server)
+{
+    return IrcCommandPrivate::createCommand(Time, QStringList() << server);
 }
 
 /*!

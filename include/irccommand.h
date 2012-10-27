@@ -54,6 +54,7 @@ public:
         Quit,
         Quote,
         Stats,
+        Time,
         Topic,
         Who,
         Whois,
@@ -96,9 +97,10 @@ public:
     Q_INVOKABLE static IrcCommand* createNotice(const QString& target, const QString& notice);
     Q_INVOKABLE static IrcCommand* createPart(const QString& channel, const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createPart(const QStringList& channels, const QString& reason = QString());
-    Q_INVOKABLE static IrcCommand* createStats(const QString& query, const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createQuit(const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createQuote(const QStringList& parameters);
+    Q_INVOKABLE static IrcCommand* createStats(const QString& query, const QString& server = QString());
+    Q_INVOKABLE static IrcCommand* createTime(const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createTopic(const QString& channel, const QString& topic = QString());
     Q_INVOKABLE static IrcCommand* createWho(const QString& mask, bool operators = false);
     Q_INVOKABLE static IrcCommand* createWhois(const QString& user);
