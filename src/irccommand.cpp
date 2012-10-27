@@ -218,6 +218,11 @@
  */
 
 /*!
+    \var IrcCommand::Users
+    \brief A users command (USERS) is used to query server users.
+ */
+
+/*!
     \var IrcCommand::Version
     \brief A version command (VERSION) is used to query server version.
  */
@@ -379,6 +384,7 @@ QString IrcCommand::toString() const
         case Time:          return QString("TIME %1").arg(p0); // server
         case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
         case Trace:         return QString("TRACE %1").arg(p0); // target
+        case Users:         return QString("USERS %1").arg(p0); // server
         case Version:       return QString("VERSION %1").arg(p0); // server
         case Who:           return QString("WHO %1").arg(p0); // user
         case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
@@ -675,6 +681,17 @@ IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic
 IrcCommand* IrcCommand::createTrace(const QString& target)
 {
     return IrcCommandPrivate::createCommand(Trace, QStringList() << target);
+}
+
+/*!
+    Creates a new USERS command with type IrcCommand::Users and optional parameter \a server.
+
+    This command queries the users of the specified \a server,
+    or the current server if not specified.
+ */
+IrcCommand* IrcCommand::createUsers(const QString& server)
+{
+    return IrcCommandPrivate::createCommand(Users, QStringList() << server);
 }
 
 /*!

@@ -57,6 +57,7 @@ public:
         Time,
         Topic,
         Trace,
+        Users,
         Version,
         Who,
         Whois,
@@ -105,6 +106,7 @@ public:
     Q_INVOKABLE static IrcCommand* createTime(const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createTopic(const QString& channel, const QString& topic = QString());
     Q_INVOKABLE static IrcCommand* createTrace(const QString& target);
+    Q_INVOKABLE static IrcCommand* createUsers(const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createVersion(const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createWho(const QString& mask, bool operators = false);
     Q_INVOKABLE static IrcCommand* createWhois(const QString& user);
