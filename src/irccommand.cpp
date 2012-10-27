@@ -213,6 +213,16 @@
  */
 
 /*!
+    \var IrcCommand::Trace
+    \brief A trace command (TRACE) is used to trace the connection path to a target.
+ */
+
+/*!
+    \var IrcCommand::Version
+    \brief A version command (VERSION) is used to query server version.
+ */
+
+/*!
     \var IrcCommand::Who
     \brief A who command (WHO) is used to generate a query which returns a list of matching users.
  */
@@ -368,6 +378,8 @@ QString IrcCommand::toString() const
         case Stats:         return QString("STATS %1 %2").arg(p0, p1); // query, server
         case Time:          return QString("TIME %1").arg(p0); // server
         case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, p1); // chan, topic
+        case Trace:         return QString("TRACE %1").arg(p0); // target
+        case Version:       return QString("VERSION %1").arg(p0); // server
         case Who:           return QString("WHO %1").arg(p0); // user
         case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
         case Whowas:        return QString("WHOWAS %1 %1").arg(p0); // user
@@ -631,7 +643,7 @@ IrcCommand* IrcCommand::createStats(const QString& query, const QString& server)
 }
 
 /*!
-    Creates a new TIME command with type IrcCommand::Time and options parameter \a server.
+    Creates a new TIME command with type IrcCommand::Time and optional parameter \a server.
 
     This command queries local time of the specified \a server,
     or the current server if not specified.
@@ -651,6 +663,29 @@ IrcCommand* IrcCommand::createTime(const QString& server)
 IrcCommand* IrcCommand::createTopic(const QString& channel, const QString& topic)
 {
     return IrcCommandPrivate::createCommand(Topic, QStringList() << channel << topic);
+}
+
+/*!
+    Creates a new TRACE command with type IrcCommand::Trace and optional parameter \a target.
+
+    This command traces the connection path across the IRC network
+    to the current server or to a specific \a target (server or client)
+    in a similar method to traceroute.
+ */
+IrcCommand* IrcCommand::createTrace(const QString& target)
+{
+    return IrcCommandPrivate::createCommand(Trace, QStringList() << target);
+}
+
+/*!
+    Creates a new VERSION command with type IrcCommand::Version and optional parameter \a server.
+
+    This command queries the version of the specified \a server,
+    or the current server if not specified.
+ */
+IrcCommand* IrcCommand::createVersion(const QString& server)
+{
+    return IrcCommandPrivate::createCommand(Version, QStringList() << server);
 }
 
 /*!
