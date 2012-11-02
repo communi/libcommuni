@@ -25,6 +25,7 @@
 #include "ircutil.h"
 #include <QStringList>
 #include <QRegExp>
+#include <QHash>
 
 /*!
     \file ircutil.h
@@ -239,30 +240,47 @@ QString IrcUtil::messageToHtml(const QString& message)
     return processed;
 }
 
+static QHash<int, QString>& irc_colors()
+{
+    static QHash<int, QString> x;
+    if (x.isEmpty()) {
+        x.insert(0, QLatin1String("white"));
+        x.insert(1, QLatin1String("black"));
+        x.insert(2, QLatin1String("navy"));
+        x.insert(3, QLatin1String("green"));
+        x.insert(4, QLatin1String("red"));
+        x.insert(5, QLatin1String("maroon"));
+        x.insert(6, QLatin1String("purple"));
+        x.insert(7, QLatin1String("orange"));
+        x.insert(8, QLatin1String("yellow"));
+        x.insert(9, QLatin1String("lime"));
+        x.insert(10, QLatin1String("darkcyan"));
+        x.insert(11, QLatin1String("cyan"));
+        x.insert(12, QLatin1String("blue"));
+        x.insert(13, QLatin1String("magenta"));
+        x.insert(14, QLatin1String("gray"));
+        x.insert(15, QLatin1String("lightgray"));
+    }
+    return x;
+}
+
 /*!
     Converts a color \a code to a color name. If the color \a code
     is unknown, the function returns \a defaultColor.
+
+    \sa setColorName()
 */
 QString IrcUtil::colorCodeToName(int code, const QString& defaultColor)
 {
-    switch (code) {
-        case 0:  return QLatin1String("white");
-        case 1:  return QLatin1String("black");
-        case 2:  return QLatin1String("navy");
-        case 3:  return QLatin1String("green");
-        case 4:  return QLatin1String("red");
-        case 5:  return QLatin1String("maroon");
-        case 6:  return QLatin1String("purple");
-        case 7:  return QLatin1String("orange");
-        case 8:  return QLatin1String("yellow");
-        case 9:  return QLatin1String("lime");
-        case 10: return QLatin1String("darkcyan");
-        case 11: return QLatin1String("cyan");
-        case 12: return QLatin1String("blue");
-        case 13: return QLatin1String("magenta");
-        case 14: return QLatin1String("gray");
-        case 15: return QLatin1String("lightgray");
-        default: return defaultColor;
-    }
+    return irc_colors().value(code, defaultColor);
 }
 
+/*!
+    Assigns a \a color name for \a code.
+
+    \sa colorCodeToName()
+*/
+void IrcUtil::setColorName(int code, const QString& color)
+{
+    irc_colors().insert(code, color);
+}
