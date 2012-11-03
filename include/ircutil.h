@@ -22,28 +22,7 @@ class COMMUNI_EXPORT IrcUtil
 {
 public:
     static QString messageToHtml(const QString& message);
-
-    enum ColorCode {
-        White = 0,
-        Black = 1,
-        Blue = 2, Navy = 2,
-        Green = 3,
-        Red = 4,
-        Brown = 5, Maroon = 5,
-        Purple = 6,
-        Orange = 7, Olive = 7,
-        Yellow = 8,
-        LightGreen = 9, Lime = 9,
-        DarkCyan = 10, Teal = 10,
-        LightCyan = 11, Cyan = 11, Aqua = 11,
-        LightBlue = 12, RoyalBlue = 12,
-        Pink = 13, Fuchsia = 13,
-        Grey = 14, Gray = 14, DarkGrey = 14, DarkGray = 14,
-        LightGrey = 15, LightGray = 15, Silver = 15
-    };
-
     static QString colorCodeToName(uint code, const QString& defaultColor = QLatin1String("black"));
-    static void setColorName(uint code, const QString& color);
 };
 
 #endif // IRCUTIL_H

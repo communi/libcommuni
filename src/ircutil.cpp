@@ -23,6 +23,7 @@
 */
 
 #include "ircutil.h"
+#include "ircpalette.h"
 #include <QStringList>
 #include <QRegExp>
 #include <QHash>
@@ -240,48 +241,10 @@ QString IrcUtil::messageToHtml(const QString& message)
     return processed;
 }
 
-static QHash<uint, QString>& irc_colors()
-{
-    static QHash<uint, QString> x;
-    if (x.isEmpty()) {
-        // http://www.mirc.com/colors.html
-        x.insert(IrcUtil::White, QLatin1String("white"));
-        x.insert(IrcUtil::Black, QLatin1String("black"));
-        x.insert(IrcUtil::Blue, QLatin1String("navy"));
-        x.insert(IrcUtil::Green, QLatin1String("green"));
-        x.insert(IrcUtil::Red, QLatin1String("red"));
-        x.insert(IrcUtil::Brown, QLatin1String("maroon"));
-        x.insert(IrcUtil::Purple, QLatin1String("purple"));
-        x.insert(IrcUtil::Orange, QLatin1String("olive"));
-        x.insert(IrcUtil::Yellow, QLatin1String("yellow"));
-        x.insert(IrcUtil::LightGreen, QLatin1String("lime"));
-        x.insert(IrcUtil::DarkCyan, QLatin1String("teal"));
-        x.insert(IrcUtil::LightCyan, QLatin1String("aqua"));
-        x.insert(IrcUtil::LightBlue, QLatin1String("royalblue"));
-        x.insert(IrcUtil::Pink, QLatin1String("fuchsia"));
-        x.insert(IrcUtil::DarkGray, QLatin1String("gray"));
-        x.insert(IrcUtil::LightGray, QLatin1String("lightgray"));
-    }
-    return x;
-}
-
 /*!
-    Converts a color \a code to a color name. If the color \a code
-    is unknown, the function returns \a defaultColor.
-
-    \sa setColorName()
+    \deprecated Use IrcPalette::colorName() instead.
 */
 QString IrcUtil::colorCodeToName(uint code, const QString& defaultColor)
 {
-    return irc_colors().value(code, defaultColor);
-}
-
-/*!
-    Assigns a \a color name for \a code.
-
-    \sa colorCodeToName()
-*/
-void IrcUtil::setColorName(uint code, const QString& color)
-{
-    irc_colors().insert(code, color);
+    return IrcPalette::colorName(code, defaultColor);
 }
