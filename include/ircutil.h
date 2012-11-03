@@ -22,7 +22,7 @@ class COMMUNI_EXPORT IrcUtil
 {
 public:
     static QString messageToHtml(const QString& message);
-    static QString colorCodeToName(uint code, const QString& defaultColor = QLatin1String("black"));
+    static QString colorCodeToName(int code, const QString& defaultColor = QLatin1String("black"));
 };
 
 #endif // IRCUTIL_H

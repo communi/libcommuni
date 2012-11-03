@@ -244,7 +244,7 @@ QString IrcUtil::messageToHtml(const QString& message)
 /*!
     \deprecated Use IrcPalette::colorName() instead.
 */
-QString IrcUtil::colorCodeToName(uint code, const QString& defaultColor)
+QString IrcUtil::colorCodeToName(int code, const QString& defaultColor)
 {
     return IrcPalette::colorName(code, defaultColor);
 }
