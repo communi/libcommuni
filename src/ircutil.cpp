@@ -85,12 +85,12 @@ QString IrcUtil::messageToHtml(const QString& message)
                 // foreground
                 int code = rx.cap(1).toInt(&ok);
                 if (ok)
-                    styles += QString(QLatin1String("color:%1")).arg(colorCodeToName(code, QLatin1String("black")));
+                    styles += QString(QLatin1String("color:%1")).arg(IrcPalette::colorName(code, QLatin1String("black")));
 
                 // background
                 code = rx.cap(2).toInt(&ok);
                 if (ok)
-                    styles += QString(QLatin1String("background-color:%1")).arg(colorCodeToName(code, QLatin1String("transparent")));
+                    styles += QString(QLatin1String("background-color:%1")).arg(IrcPalette::colorName(code, QLatin1String("transparent")));
 
                 processed = processed.arg(styles.join(QLatin1String(";")));
             }
