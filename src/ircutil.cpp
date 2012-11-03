@@ -240,27 +240,27 @@ QString IrcUtil::messageToHtml(const QString& message)
     return processed;
 }
 
-static QHash<int, QString>& irc_colors()
+static QHash<uint, QString>& irc_colors()
 {
-    static QHash<int, QString> x;
+    static QHash<uint, QString> x;
     if (x.isEmpty()) {
         // http://www.mirc.com/colors.html
-        x.insert(0, QLatin1String("white"));
-        x.insert(1, QLatin1String("black"));
-        x.insert(2, QLatin1String("navy"));
-        x.insert(3, QLatin1String("green"));
-        x.insert(4, QLatin1String("red"));
-        x.insert(5, QLatin1String("maroon"));
-        x.insert(6, QLatin1String("purple"));
-        x.insert(7, QLatin1String("olive"));
-        x.insert(8, QLatin1String("yellow"));
-        x.insert(9, QLatin1String("lime"));
-        x.insert(10, QLatin1String("teal"));
-        x.insert(11, QLatin1String("aqua"));
-        x.insert(12, QLatin1String("royalblue"));
-        x.insert(13, QLatin1String("fuchsia"));
-        x.insert(14, QLatin1String("gray"));
-        x.insert(15, QLatin1String("lightgray"));
+        x.insert(IrcUtil::White, QLatin1String("white"));
+        x.insert(IrcUtil::Black, QLatin1String("black"));
+        x.insert(IrcUtil::Blue, QLatin1String("navy"));
+        x.insert(IrcUtil::Green, QLatin1String("green"));
+        x.insert(IrcUtil::Red, QLatin1String("red"));
+        x.insert(IrcUtil::Brown, QLatin1String("maroon"));
+        x.insert(IrcUtil::Purple, QLatin1String("purple"));
+        x.insert(IrcUtil::Orange, QLatin1String("olive"));
+        x.insert(IrcUtil::Yellow, QLatin1String("yellow"));
+        x.insert(IrcUtil::LightGreen, QLatin1String("lime"));
+        x.insert(IrcUtil::DarkCyan, QLatin1String("teal"));
+        x.insert(IrcUtil::LightCyan, QLatin1String("aqua"));
+        x.insert(IrcUtil::LightBlue, QLatin1String("royalblue"));
+        x.insert(IrcUtil::Pink, QLatin1String("fuchsia"));
+        x.insert(IrcUtil::DarkGray, QLatin1String("gray"));
+        x.insert(IrcUtil::LightGray, QLatin1String("lightgray"));
     }
     return x;
 }
@@ -271,7 +271,7 @@ static QHash<int, QString>& irc_colors()
 
     \sa setColorName()
 */
-QString IrcUtil::colorCodeToName(int code, const QString& defaultColor)
+QString IrcUtil::colorCodeToName(uint code, const QString& defaultColor)
 {
     return irc_colors().value(code, defaultColor);
 }
@@ -281,7 +281,7 @@ QString IrcUtil::colorCodeToName(int code, const QString& defaultColor)
 
     \sa colorCodeToName()
 */
-void IrcUtil::setColorName(int code, const QString& color)
+void IrcUtil::setColorName(uint code, const QString& color)
 {
     irc_colors().insert(code, color);
 }
