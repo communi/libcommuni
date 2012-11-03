@@ -244,6 +244,7 @@ static QHash<int, QString>& irc_colors()
 {
     static QHash<int, QString> x;
     if (x.isEmpty()) {
+        // http://www.mirc.com/colors.html
         x.insert(0, QLatin1String("white"));
         x.insert(1, QLatin1String("black"));
         x.insert(2, QLatin1String("navy"));
@@ -251,13 +252,13 @@ static QHash<int, QString>& irc_colors()
         x.insert(4, QLatin1String("red"));
         x.insert(5, QLatin1String("maroon"));
         x.insert(6, QLatin1String("purple"));
-        x.insert(7, QLatin1String("orange"));
+        x.insert(7, QLatin1String("olive"));
         x.insert(8, QLatin1String("yellow"));
         x.insert(9, QLatin1String("lime"));
-        x.insert(10, QLatin1String("darkcyan"));
-        x.insert(11, QLatin1String("cyan"));
-        x.insert(12, QLatin1String("blue"));
-        x.insert(13, QLatin1String("magenta"));
+        x.insert(10, QLatin1String("teal"));
+        x.insert(11, QLatin1String("aqua"));
+        x.insert(12, QLatin1String("royalblue"));
+        x.insert(13, QLatin1String("fuchsia"));
         x.insert(14, QLatin1String("gray"));
         x.insert(15, QLatin1String("lightgray"));
     }
