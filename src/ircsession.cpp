@@ -147,7 +147,7 @@
 
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     q_ptr(session),
-    encoding("UTF-8"),
+    encoding("ISO-8859-15"),
     buffer(),
     socket(0),
     host(),
@@ -352,9 +352,12 @@ IrcSession::~IrcSession()
 /*!
     This property holds the FALLBACK encoding for received messages.
 
-    The fallback encoding is used when the auto-detection of message
+    The fallback encoding is used when the message is detected not
+    to be valid UTF-8 and the consequent auto-detection of message
     encoding fails. See QTextCodec::availableCodes() for the list of
-    supported encodings. The default value is UTF-8.
+    supported encodings.
+
+    The default value is ISO-8859-15.
 
     \par Access functions:
     \li QByteArray <b>encoding</b>() const

@@ -35,7 +35,7 @@ private slots:
 void tst_IrcMessageDecoder::testDefaults()
 {
     IrcMessageDecoder decoder;
-    QCOMPARE(decoder.encoding(), QByteArray("UTF-8"));
+    QCOMPARE(decoder.encoding(), QByteArray("ISO-8859-15"));
 }
 
 void tst_IrcMessageDecoder::testEncoding_data()
@@ -43,10 +43,10 @@ void tst_IrcMessageDecoder::testEncoding_data()
     QTest::addColumn<QByteArray>("encoding");
     QTest::addColumn<QByteArray>("actual");
 
-    QTest::newRow("null") << QByteArray() << QByteArray("UTF-8");
-    QTest::newRow("empty") << QByteArray("") << QByteArray("UTF-8");
-    QTest::newRow("space") << QByteArray(" ") << QByteArray("UTF-8");
-    QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("UTF-8");
+    QTest::newRow("null") << QByteArray() << QByteArray("ISO-8859-15");
+    QTest::newRow("empty") << QByteArray("") << QByteArray("ISO-8859-15");
+    QTest::newRow("space") << QByteArray(" ") << QByteArray("ISO-8859-15");
+    QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("ISO-8859-15");
     foreach(const QByteArray & codec, QTextCodec::availableCodecs())
     QTest::newRow(codec) << codec << QTextCodec::codecForName(codec)->name();
 }

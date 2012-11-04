@@ -37,7 +37,7 @@ COMMUNI_EXPORT void irc_set_codec_plugin(const QByteArray& key)
 
 IrcMessageDecoder::IrcMessageDecoder()
 {
-    d.fallback = QTextCodec::codecForName("UTF-8");
+    d.fallback = QTextCodec::codecForName("ISO-8859-15");
 }
 
 IrcMessageDecoder::~IrcMessageDecoder()
