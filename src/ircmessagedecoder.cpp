@@ -116,15 +116,20 @@ static QStringList pluginPaths()
                 paths += canonicalPath;
         }
     }
+    static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
+    if (dbg) qDebug() << "IrcMessageDecoder: plugin paths:" << paths;
     return paths;
 }
 
 bool IrcMessageDecoder::loadPlugins()
 {
+    static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
     foreach(QObject* instance, QPluginLoader::staticInstances()) {
         IrcCodecPlugin* plugin = qobject_cast<IrcCodecPlugin*>(instance);
-        if (plugin)
+        if (plugin) {
             irc_codec_plugins()->insert(plugin->key(), plugin);
+            if (dbg) qDebug() << "IrcMessageDecoder: loaded static plugin:" << plugin->key();
+        }
     }
 
     foreach(const QString & path, pluginPaths()) {
@@ -135,8 +140,10 @@ bool IrcMessageDecoder::loadPlugins()
         foreach(const QFileInfo & file, dir.entryInfoList(QDir::Files)) {
             QPluginLoader loader(file.absoluteFilePath());
             IrcCodecPlugin* plugin = qobject_cast<IrcCodecPlugin*>(loader.instance());
-            if (plugin)
+            if (plugin) {
                 irc_codec_plugins()->insert(plugin->key(), plugin);
+                if (dbg) qDebug() << "IrcMessageDecoder: loaded dynamic plugin:" << plugin->key() << file.fileName();
+            }
         }
     }
     return !irc_codec_plugins()->isEmpty();
