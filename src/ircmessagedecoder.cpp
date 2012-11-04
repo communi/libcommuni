@@ -95,7 +95,7 @@ QByteArray IrcMessageDecoder::initialize()
         qWarning() << "IrcMessageDecoder: no plugins available";
 
     if (pluginKey.isEmpty() && !irc_codec_plugins()->isEmpty())
-        pluginKey = irc_codec_plugins()->keys().first();
+        pluginKey = irc_codec_plugins()->keys().last();
     return pluginKey;
 }
 
