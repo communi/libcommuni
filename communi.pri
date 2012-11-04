@@ -19,7 +19,9 @@ CONFIG(debug, debug|release) {
     UI_DIR = release
 }
 
-isEmpty(COMMUNI_LIBDIR):COMMUNI_LIBDIR = $$PWD/lib
+isEmpty(COMMUNI_BUILDDIR):COMMUNI_BUILDDIR = $$OUT_PWD
+COMMUNI_LIBDIR = $$COMMUNI_BUILDDIR/lib
+COMMUNI_PLUGINSDIR = $$COMMUNI_BUILDDIR/plugins/communi
 
 macx:!qt_no_framework {
     QMAKE_LFLAGS += -F$$COMMUNI_LIBDIR # inject before system frameworks
@@ -45,8 +47,8 @@ static_icu|static_uchardet {
     REAL_TEMPLATE = $$TEMPLATE
     TEMPLATE = fakelib
     contains(REAL_TEMPLATE, .*app) {
-        static_icu:LIBS += -L$$PWD/plugins/communi -l$$qtLibraryTarget(icuplugin)
-        static_uchardet:LIBS += -L$$PWD/plugins/communi -l$$qtLibraryTarget(uchardetplugin)
+        static_icu:LIBS += -L$$COMMUNI_PLUGINSDIR -l$$qtLibraryTarget(icuplugin)
+        static_uchardet:LIBS += -L$$COMMUNI_PLUGINSDIR -l$$qtLibraryTarget(uchardetplugin)
     }
     TEMPLATE = $$REAL_TEMPLATE
 
