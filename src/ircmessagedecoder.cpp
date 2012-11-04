@@ -121,6 +121,12 @@ static QStringList pluginPaths()
 
 bool IrcMessageDecoder::loadPlugins()
 {
+    foreach(QObject* instance, QPluginLoader::staticInstances()) {
+        IrcCodecPlugin* plugin = qobject_cast<IrcCodecPlugin*>(instance);
+        if (plugin)
+            irc_codec_plugins()->insert(plugin->key(), plugin);
+    }
+
     foreach(const QString & path, pluginPaths()) {
         QDir dir(path);
         if (!dir.cd("communi"))

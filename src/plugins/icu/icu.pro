@@ -4,6 +4,7 @@
 
 TARGET = icuplugin
 DESTDIR = ../../../plugins/communi
+static_icu:CONFIG += static
 
 SOURCES += plugin.cpp
 include(icu.pri)

@@ -4,6 +4,7 @@
 
 TARGET = uchardetplugin
 DESTDIR = ../../../plugins/communi
+static_uchardet:CONFIG += static
 
 SOURCES += plugin.cpp
 include(../../3rdparty/uchardet-0.0.1/uchardet.pri)

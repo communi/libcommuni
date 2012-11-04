@@ -37,3 +37,18 @@ macx:!qt_no_framework {
     TEMPLATE = $$REAL_TEMPLATE
     !no_rpath:QMAKE_RPATHDIR += $$COMMUNI_LIBDIR
 }
+
+static_icu|static_uchardet {
+    static_icu:DEFINES += COMMUNI_STATIC_ICU_PLUGIN
+    static_uchardet:DEFINES += COMMUNI_STATIC_UCHARDET_PLUGIN
+
+    REAL_TEMPLATE = $$TEMPLATE
+    TEMPLATE = fakelib
+    contains(REAL_TEMPLATE, .*app) {
+        static_icu:LIBS += -L$$PWD/plugins/communi -l$$qtLibraryTarget(icuplugin)
+        static_uchardet:LIBS += -L$$PWD/plugins/communi -l$$qtLibraryTarget(uchardetplugin)
+    }
+    TEMPLATE = $$REAL_TEMPLATE
+
+    static_icu:include(src/plugins/icu/icu.pri)
+}
