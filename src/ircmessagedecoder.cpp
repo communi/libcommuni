@@ -117,7 +117,7 @@ static QStringList pluginPaths()
         }
     }
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qDebug() << "IrcMessageDecoder: plugin paths:" << paths;
+    if (dbg) qDebug() << "IrcMessageDecoder: dynamic plugin paths:" << paths;
     return paths;
 }
 
@@ -142,7 +142,7 @@ bool IrcMessageDecoder::loadPlugins()
             IrcCodecPlugin* plugin = qobject_cast<IrcCodecPlugin*>(loader.instance());
             if (plugin) {
                 irc_codec_plugins()->insert(plugin->key(), plugin);
-                if (dbg) qDebug() << "IrcMessageDecoder: loaded dynamic plugin:" << plugin->key() << file.fileName();
+                if (dbg) qDebug() << "IrcMessageDecoder: loaded dynamic plugin:" << file.fileName();
             }
         }
     }

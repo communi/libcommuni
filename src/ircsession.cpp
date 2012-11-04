@@ -200,7 +200,7 @@ void IrcSessionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcSession);
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qWarning() << "IrcSessionPrivate::_irc_error():" << error;
+    if (dbg) qWarning() << "IrcSession: socket error:" << error;
     setConnected(false);
     setActive(false);
     emit q->socketError(error);
@@ -214,7 +214,7 @@ void IrcSessionPrivate::_irc_state(QAbstractSocket::SocketState state)
         setConnected(false);
 
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qDebug() << "IrcSessionPrivate::_irc_state():" << state;
+    if (dbg) qDebug() << "IrcSession: socket state:" << state << host;
     emit q->socketStateChanged(state);
 }
 
