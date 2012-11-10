@@ -1,6 +1,16 @@
 1.3.0
 -----
-- Symbian support has been removed
+- Removed Symbian support
+- Added support for static codec plugins
+- The default FALLBACK encoding changed from UTF-8 to ISO-8859-15
+  - UTF-8 did not make much sense as the default fallback encoding,
+    since the fallback is only used when the message is detected NOT
+    to be valid UTF-8 and the auto-detection fails
+- API changes:
+  - Added IrcCommand types and createXxx() methods:
+    - admin/info/knock/list/motd/stats/time/trace/users/version/who
+  - Added IrcPalette for managing (m)IRC colors
+  - Deprecated IrcUtil::colorCodeToName()
 
 1.2.0
 -----
