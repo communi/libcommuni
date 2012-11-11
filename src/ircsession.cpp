@@ -687,7 +687,9 @@ IrcCommand* IrcSession::createCtcpReply(IrcPrivateMessage* request) const
         reply = "TIME " + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat);
     else if (type == "VERSION")
         reply = QString("VERSION Communi ") + Irc::version();
-    return IrcCommand::createCtcpReply(request->sender().name(), reply);
+    if (!reply.isEmpty())
+        return IrcCommand::createCtcpReply(request->sender().name(), reply);
+    return 0;
 }
 
 #ifndef QT_NO_DEBUG_STREAM
