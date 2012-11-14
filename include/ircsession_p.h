@@ -53,6 +53,7 @@ public:
     bool active;
     bool connected;
     QSet<QString> capabilities;
+    QHash<QString, QString> info;
 };
 
 #endif // IRCSESSION_P_H

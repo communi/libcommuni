@@ -15,6 +15,7 @@
 
 #include "ircsession.h"
 #include "ircsession_p.h"
+#include "ircsessioninfo.h"
 #include "irccommand.h"
 #include "ircmessage.h"
 #include "ircsender.h"
@@ -145,6 +146,12 @@
     This signal is emitted when the nick \a name has changed.
  */
 
+/*!
+    \fn void IrcSession::sessionInfoReceived(const IrcSessionInfo& info)
+
+    This signal is emitted when the session \a info has been received.
+ */
+
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     q_ptr(session),
     encoding("ISO-8859-15"),
@@ -248,12 +255,20 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
     IrcMessage* msg = IrcMessage::fromData(line, encoding, q);
     if (msg) {
         switch (msg->type()) {
-            case IrcMessage::Numeric:
-                if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_WELCOME) {
+            case IrcMessage::Numeric: {
+                IrcNumericMessage* numeric = static_cast<IrcNumericMessage*>(msg);
+                if (numeric->code() == Irc::RPL_WELCOME) {
                     setNick(msg->parameters().value(0));
                     setConnected(true);
+                } else if (numeric->code() == Irc::RPL_ISUPPORT) {
+                    foreach (const QString& param, msg->parameters().mid(1)) {
+                        QStringList keyValue = param.split("=", QString::SkipEmptyParts);
+                        info.insert(keyValue.value(0), keyValue.value(1));
+                    }
+                    emit q->sessionInfoReceived(IrcSessionInfo(q));
                 }
                 break;
+            }
             case IrcMessage::Ping:
                 q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
                 break;

@@ -22,6 +22,7 @@
 
 class IrcCommand;
 class IrcMessage;
+class IrcSessionInfo;
 class IrcPrivateMessage;
 class IrcSessionPrivate;
 
@@ -95,6 +96,8 @@ Q_SIGNALS:
     void activeChanged(bool active);
     void connectedChanged(bool connected);
 
+    void sessionInfoReceived(const IrcSessionInfo& info);
+
 protected:
     virtual IrcCommand* createCtcpReply(IrcPrivateMessage* request) const;
 
@@ -102,7 +105,10 @@ private:
     QScopedPointer<IrcSessionPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcSession)
     Q_DISABLE_COPY(IrcSession)
+
+    // TODO: IrcSessionPrivate::get(IrcSession*)
     friend class IrcMessage;
+    friend class IrcSessionInfo;
     friend class tst_IrcMessage;
 
     Q_PRIVATE_SLOT(d_func(), void _irc_connected())
