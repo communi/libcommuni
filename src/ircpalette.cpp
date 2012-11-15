@@ -27,7 +27,96 @@
     \ingroup utility
     \brief The IrcPalette class provides IRC color names
 
-    \sa http://www.mirc.com/colors.html
+    \sa <a href="http://www.mirc.com/colors.html">mIRC Colors</a>
+ */
+
+/*!
+    \enum IrcPalette::Color
+    This enum describes the built-in colors in the palette.
+
+    The default values are
+    <a href="http://www.w3.org/TR/SVG/types.html#ColorKeywords">SVG color keyword names</a>
+    provided by the World Wide Web Consortium
+ */
+
+/*!
+    \var IrcPalette::White
+    \brief The default value is "white"
+ */
+
+/*!
+    \var IrcPalette::Black
+    \brief The default value is "black"
+ */
+
+/*!
+    \var IrcPalette::Blue
+    \brief The default value is "navy"
+ */
+
+/*!
+    \var IrcPalette::Green
+    \brief The default value is "green"
+ */
+
+/*!
+    \var IrcPalette::Red
+    \brief The default value is "red"
+ */
+
+/*!
+    \var IrcPalette::Brown
+    \brief The default value is "maroon"
+ */
+
+/*!
+    \var IrcPalette::Purple
+    \brief The default value is "purple"
+ */
+
+/*!
+    \var IrcPalette::Orange
+    \brief The default value is "olive"
+ */
+
+/*!
+    \var IrcPalette::Yellow
+    \brief The default value is "yellow"
+ */
+
+/*!
+    \var IrcPalette::LightGreen
+    \brief The default value is "lime"
+ */
+
+/*!
+    \var IrcPalette::Cyan
+    \brief The default value is "teal"
+ */
+
+/*!
+    \var IrcPalette::LightCyan
+    \brief The default value is "aqua"
+ */
+
+/*!
+    \var IrcPalette::LightBlue
+    \brief The default value is "royalblue"
+ */
+
+/*!
+    \var IrcPalette::Pink
+    \brief The default value is "fuchsia"
+ */
+
+/*!
+    \var IrcPalette::Gray
+    \brief The default value is "gray"
+ */
+
+/*!
+    \var IrcPalette::LightGray
+    \brief The default value is "lightgray"
  */
 
 class IrcPalettePrivate : public QSharedData
@@ -93,22 +182,22 @@ IrcPalette::~IrcPalette()
 }
 
 /*!
-    Converts a color \a code to a color name. If the color \a code
-    is unknown, the function returns \a defaultColor.
+    Converts a \a color to a color name. If the \a color
+    is unknown, the function returns the \a fallback color name.
 
     \sa setColorName()
 */
-QString IrcPalette::colorName(uint code, const QString& defaultColor) const
+QString IrcPalette::colorName(uint color, const QString& fallback) const
 {
-    return d->colors.value(code, defaultColor);
+    return d->colors.value(color, fallback);
 }
 
 /*!
-    Assigns a \a color name for \a code.
+    Assigns a \a name for \a color.
 
     \sa colorName()
 */
-void IrcPalette::setColorName(uint code, const QString& color)
+void IrcPalette::setColorName(uint color, const QString& name)
 {
-    d->colors.insert(code, color);
+    d->colors.insert(color, name);
 }

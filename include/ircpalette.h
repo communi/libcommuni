@@ -29,7 +29,7 @@ public:
     IrcPalette& operator=(const IrcPalette& other);
     ~IrcPalette();
 
-    enum ColorCode {
+    enum Color {
         White = 0,
         Black = 1,
         Blue = 2,
@@ -48,8 +48,8 @@ public:
         LightGray = 15
     };
 
-    QString colorName(uint code, const QString& defaultColor = QLatin1String("black")) const;
-    void setColorName(uint code, const QString& color);
+    QString colorName(uint color, const QString& fallback = QLatin1String("black")) const;
+    void setColorName(uint color, const QString& name);
 
 private:
     QSharedDataPointer<IrcPalettePrivate> d;
