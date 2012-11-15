@@ -16,12 +16,13 @@
 #define IRCUTIL_H
 
 #include <IrcGlobal>
-#include <QString>
+#include <IrcPalette>
+#include <QtCore/qstring.h>
 
 class COMMUNI_EXPORT IrcUtil
 {
 public:
-    static QString messageToHtml(const QString& message);
+    static QString messageToHtml(const QString& message, const IrcPalette& palette = IrcPalette());
     Q_DECL_DEPRECATED static QString colorCodeToName(int code, const QString& defaultColor = QLatin1String("black"));
 };
 

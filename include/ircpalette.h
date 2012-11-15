@@ -16,11 +16,19 @@
 #define IRCPALETTE_H
 
 #include <IrcGlobal>
-#include <QString>
+#include <QtCore/qstring.h>
+#include <QtCore/qshareddata.h>
+
+class IrcPalettePrivate;
 
 class COMMUNI_EXPORT IrcPalette
 {
 public:
+    IrcPalette();
+    IrcPalette(const IrcPalette& other);
+    IrcPalette& operator=(const IrcPalette& other);
+    ~IrcPalette();
+
     enum ColorCode {
         White = 0,
         Black = 1,
@@ -40,8 +48,11 @@ public:
         LightGray = 15
     };
 
-    static QString colorName(uint code, const QString& defaultColor = QLatin1String("black"));
-    static void setColorName(uint code, const QString& color);
+    QString colorName(uint code, const QString& defaultColor = QLatin1String("black")) const;
+    void setColorName(uint code, const QString& color);
+
+private:
+    QSharedDataPointer<IrcPalettePrivate> d;
 };
 
-#endif // IRCUTIL_H
+#endif // IRCPALETTE_H

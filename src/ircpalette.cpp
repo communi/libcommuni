@@ -30,7 +30,13 @@
     \sa http://www.mirc.com/colors.html
  */
 
-static QHash<uint, QString>& irc_colors()
+class IrcPalettePrivate : public QSharedData
+{
+public:
+    QHash<uint, QString> colors;
+};
+
+static QHash<uint, QString>& irc_default_colors()
 {
     static QHash<uint, QString> x;
     if (x.isEmpty()) {
@@ -55,14 +61,46 @@ static QHash<uint, QString>& irc_colors()
 }
 
 /*!
+    Constructs a new palette.
+ */
+IrcPalette::IrcPalette() : d(new IrcPalettePrivate)
+{
+    d->colors = irc_default_colors();
+}
+
+/*!
+    Constructs a copy of \a other palette.
+ */
+IrcPalette::IrcPalette(const IrcPalette& other) : d(other.d)
+{
+}
+
+/*!
+    Assigns an \a other palette to this.
+ */
+IrcPalette& IrcPalette::operator=(const IrcPalette& other)
+{
+    if (this != &other)
+        d = other.d;
+    return *this;
+}
+
+/*!
+    Destructs the palette.
+ */
+IrcPalette::~IrcPalette()
+{
+}
+
+/*!
     Converts a color \a code to a color name. If the color \a code
     is unknown, the function returns \a defaultColor.
 
     \sa setColorName()
 */
-QString IrcPalette::colorName(uint code, const QString& defaultColor)
+QString IrcPalette::colorName(uint code, const QString& defaultColor) const
 {
-    return irc_colors().value(code, defaultColor);
+    return d->colors.value(code, defaultColor);
 }
 
 /*!
@@ -72,5 +110,5 @@ QString IrcPalette::colorName(uint code, const QString& defaultColor)
 */
 void IrcPalette::setColorName(uint code, const QString& color)
 {
-    irc_colors().insert(code, color);
+    d->colors.insert(code, color);
 }

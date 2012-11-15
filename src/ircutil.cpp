@@ -23,7 +23,6 @@
 */
 
 #include "ircutil.h"
-#include "ircpalette.h"
 #include <QStringList>
 #include <QRegExp>
 #include <QHash>
@@ -42,13 +41,13 @@
 static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
 
 /*!
-    Converts \a message to HTML. This function parses the
-    message and replaces IRC-style formatting like colors,
-    bold and underline to the corresponding HTML formatting.
+    Converts \a message to HTML using \a palette. This function
+    parses the message and replaces IRC-style formatting like
+    colors, bold and underline to the corresponding HTML formatting.
     Furthermore, this function detects URLs and replaces
     them with appropriate HTML hyperlinks.
 */
-QString IrcUtil::messageToHtml(const QString& message)
+QString IrcUtil::messageToHtml(const QString& message, const IrcPalette& palette)
 {
     QString processed = message;
     processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
@@ -85,12 +84,12 @@ QString IrcUtil::messageToHtml(const QString& message)
                 // foreground
                 int code = rx.cap(1).toInt(&ok);
                 if (ok)
-                    styles += QString(QLatin1String("color:%1")).arg(IrcPalette::colorName(code, QLatin1String("black")));
+                    styles += QString(QLatin1String("color:%1")).arg(palette.colorName(code, QLatin1String("black")));
 
                 // background
                 code = rx.cap(2).toInt(&ok);
                 if (ok)
-                    styles += QString(QLatin1String("background-color:%1")).arg(IrcPalette::colorName(code, QLatin1String("transparent")));
+                    styles += QString(QLatin1String("background-color:%1")).arg(palette.colorName(code, QLatin1String("transparent")));
 
                 processed = processed.arg(styles.join(QLatin1String(";")));
             }
@@ -246,5 +245,5 @@ QString IrcUtil::messageToHtml(const QString& message)
 */
 QString IrcUtil::colorCodeToName(int code, const QString& defaultColor)
 {
-    return IrcPalette::colorName(code, defaultColor);
+    return IrcPalette().colorName(code, defaultColor);
 }
