@@ -171,6 +171,9 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
 void IrcSessionPrivate::_irc_connected()
 {
     Q_Q(IrcSession);
+    if (socket->inherits("QSslSocket"))
+        QMetaObject::invokeMethod(socket, "startClientEncryption");
+
     emit q->connecting();
 
     // Send CAP LS first; if the server understands it this will
@@ -196,11 +199,8 @@ void IrcSessionPrivate::_irc_disconnected()
 
 void IrcSessionPrivate::_irc_reconnect()
 {
-    if (socket) {
+    if (socket)
         socket->connectToHost(host, port);
-        if (socket->inherits("QSslSocket"))
-            QMetaObject::invokeMethod(socket, "startClientEncryption");
-    }
 }
 
 void IrcSessionPrivate::_irc_error(QAbstractSocket::SocketError error)
