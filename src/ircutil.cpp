@@ -40,6 +40,24 @@
 
 static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
 
+static QPair<int, int> parseColors(const QString& message, int pos)
+{
+    // fg(,bg)
+    QPair<int, int> color = qMakePair(-1, -1);
+    QRegExp rx(QLatin1String("(\\d{2})(?:,(\\d{2}))?"));
+    int idx = rx.indexIn(message, pos);
+    if (idx == pos) {
+        bool ok = false;
+        int fg = rx.cap(1).toInt(&ok);
+        if (ok)
+            color.first = fg;
+        int bg = rx.cap(2).toInt(&ok);
+        if (ok)
+            color.second = bg;
+    }
+    return color;
+}
+
 /*!
     Converts \a message to HTML using \a palette. This function
     parses the message and replaces IRC-style formatting like
@@ -60,7 +78,6 @@ QString IrcUtil::messageToHtml(const QString& message, const IrcPalette& palette
     enum {
         None            = 0x0,
         Bold            = 0x1,
-        Color           = 0x2,
         Italic          = 0x4,
         StrikeThrough   = 0x8,
         Underline       = 0x10,
@@ -70,33 +87,8 @@ QString IrcUtil::messageToHtml(const QString& message, const IrcPalette& palette
 
     int pos = 0;
     int depth = 0;
-    bool parseColor = false;
+    QPair<int, int> colors;
     while (pos < processed.size()) {
-        if (parseColor) {
-            // fg(,bg)
-            QRegExp rx(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
-            int idx = rx.indexIn(processed, pos);
-            if (idx == pos) {
-                bool ok = false;
-                QStringList styles;
-                processed.remove(idx, rx.matchedLength());
-
-                // foreground
-                int code = rx.cap(1).toInt(&ok);
-                if (ok)
-                    styles += QString(QLatin1String("color:%1")).arg(palette.colorName(code, QLatin1String("black")));
-
-                // background
-                code = rx.cap(2).toInt(&ok);
-                if (ok)
-                    styles += QString(QLatin1String("background-color:%1")).arg(palette.colorName(code, QLatin1String("transparent")));
-
-                processed = processed.arg(styles.join(QLatin1String(";")));
-            }
-            parseColor = false;
-            continue;
-        }
-
         QString replacement;
         switch (processed.at(pos).unicode()) {
             case '\x02': // bold
@@ -111,15 +103,22 @@ QString IrcUtil::messageToHtml(const QString& message, const IrcPalette& palette
                 break;
 
             case '\x03': // color
-                if (state & Color) {
+                colors = parseColors(processed, pos + 1);
+                if (colors.first == -1) {
                     depth--;
                     replacement = QLatin1String("</span>");
                 } else {
                     depth++;
-                    replacement = QLatin1String("<span style='%1'>");
+                    QStringList styles;
+                    styles += QString(QLatin1String("color:%1")).arg(palette.colorName(colors.first, QLatin1String("black")));
+                    if (colors.second != -1)
+                        styles += QString(QLatin1String("background-color:%1")).arg(palette.colorName(colors.second, QLatin1String("transparent")));
+                    replacement = QString(QLatin1String("<span style='%1'>")).arg(styles.join(QLatin1String(";")));
+                    // \x03FF(,BB)
+                    processed.replace(pos, colors.second != -1 ? 6 : 3, replacement);
+                    pos += replacement.length();
+                    continue;
                 }
-                state ^= Color;
-                parseColor = state & Color;
                 break;
 
                 //case '\x09': // italic
