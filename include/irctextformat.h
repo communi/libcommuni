@@ -26,7 +26,7 @@ class IrcTextFormatPrivate;
 class COMMUNI_EXPORT IrcTextFormat
 {
 public:
-    explicit IrcTextFormat();
+    IrcTextFormat();
     IrcTextFormat(const IrcTextFormat& other);
     IrcTextFormat& operator=(const IrcTextFormat& other);
     ~IrcTextFormat();
