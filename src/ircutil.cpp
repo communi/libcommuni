@@ -40,22 +40,23 @@
 
 static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
 
-static QPair<int, int> parseColors(const QString& message, int pos)
+static bool parseColors(const QString& message, int pos, int* len, int *fg, int *bg)
 {
     // fg(,bg)
-    QPair<int, int> color = qMakePair(-1, -1);
-    QRegExp rx(QLatin1String("(\\d{2})(?:,(\\d{2}))?"));
+    *len = 0;
+    *fg = -1;
+    *bg = -1;
+    QRegExp rx(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
     int idx = rx.indexIn(message, pos);
     if (idx == pos) {
+        *len = rx.matchedLength();
+        *fg = rx.cap(1).toInt();
         bool ok = false;
-        int fg = rx.cap(1).toInt(&ok);
+        int tmp = rx.cap(2).toInt(&ok);
         if (ok)
-            color.first = fg;
-        int bg = rx.cap(2).toInt(&ok);
-        if (ok)
-            color.second = bg;
+            *bg = tmp;
     }
-    return color;
+    return *len > 0;
 }
 
 /*!
@@ -86,8 +87,10 @@ QString IrcUtil::messageToHtml(const QString& message, const IrcPalette& palette
     int state = None;
 
     int pos = 0;
+    int len = 0;
+    int fg = -1;
+    int bg = -1;
     int depth = 0;
-    QPair<int, int> colors;
     while (pos < processed.size()) {
         QString replacement;
         switch (processed.at(pos).unicode()) {
@@ -103,21 +106,20 @@ QString IrcUtil::messageToHtml(const QString& message, const IrcPalette& palette
                 break;
 
             case '\x03': // color
-                colors = parseColors(processed, pos + 1);
-                if (colors.first == -1) {
-                    depth--;
-                    replacement = QLatin1String("</span>");
-                } else {
+                if (parseColors(processed, pos + 1, &len, &fg, &bg)) {
                     depth++;
                     QStringList styles;
-                    styles += QString(QLatin1String("color:%1")).arg(palette.colorName(colors.first, QLatin1String("black")));
-                    if (colors.second != -1)
-                        styles += QString(QLatin1String("background-color:%1")).arg(palette.colorName(colors.second, QLatin1String("transparent")));
+                    styles += QString(QLatin1String("color:%1")).arg(palette.colorName(fg, QLatin1String("black")));
+                    if (bg != -1)
+                        styles += QString(QLatin1String("background-color:%1")).arg(palette.colorName(bg, QLatin1String("transparent")));
                     replacement = QString(QLatin1String("<span style='%1'>")).arg(styles.join(QLatin1String(";")));
                     // \x03FF(,BB)
-                    processed.replace(pos, colors.second != -1 ? 6 : 3, replacement);
+                    processed.replace(pos, len + 1, replacement);
                     pos += replacement.length();
                     continue;
+                } else {
+                    depth--;
+                    replacement = QLatin1String("</span>");
                 }
                 break;
 
