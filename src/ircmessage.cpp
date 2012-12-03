@@ -318,6 +318,11 @@ QByteArray IrcMessage::encoding() const
 void IrcMessage::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcMessage);
+    extern bool irc_is_supported_encoding(const QByteArray& encoding); // ircdecoder.cpp
+    if (!irc_is_supported_encoding(encoding)) {
+        qWarning() << "IrcMessage::setEncoding(): unsupported encoding" << encoding;
+        return;
+    }
     d->encoding = encoding;
 }
 

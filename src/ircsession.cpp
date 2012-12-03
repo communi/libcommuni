@@ -385,8 +385,8 @@ QByteArray IrcSession::encoding() const
 void IrcSession::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcSession);
-    if (!QTextCodec::availableCodecs().contains(encoding))
-    {
+    extern bool irc_is_supported_encoding(const QByteArray& encoding); // ircdecoder.cpp
+    if (!irc_is_supported_encoding(encoding)) {
         qWarning() << "IrcSession::setEncoding(): unsupported encoding" << encoding;
         return;
     }
