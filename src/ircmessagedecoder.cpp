@@ -35,6 +35,12 @@ COMMUNI_EXPORT void irc_set_codec_plugin(const QByteArray& key)
     irc_plugin_key = key;
 }
 
+COMMUNI_EXPORT bool irc_is_supported_encoding(const QByteArray& encoding)
+{
+    static QSet<QByteArray> codecs = QTextCodec::availableCodecs().toSet();
+    return codecs.contains(encoding);
+}
+
 IrcMessageDecoder::IrcMessageDecoder()
 {
     d.fallback = QTextCodec::codecForName("ISO-8859-15");
@@ -51,8 +57,7 @@ QByteArray IrcMessageDecoder::encoding() const
 
 void IrcMessageDecoder::setEncoding(const QByteArray& encoding)
 {
-    if (QTextCodec::availableCodecs().contains(encoding))
-        d.fallback = QTextCodec::codecForName(encoding);
+    d.fallback = QTextCodec::codecForName(encoding);
 }
 
 QString IrcMessageDecoder::decode(const QByteArray& data) const
