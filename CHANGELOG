@@ -1,6 +1,11 @@
-1.3.0
+1.2.1
 -----
-- Symbian support has been removed
+- Fixed #24: IrcSessionPrivate::_q_error() is too verbose
+- Fixed #25: IrcSessionPrivate::processLine() should not respond to
+  CTCP requests
+- Qt 5 specific build fixes
+- Made the default fallback encoding ISO-8859-1
+- Fixed a performance bottleneck in IrcDecoder::setEncoding()
 
 1.2.0
 -----
