@@ -2,7 +2,6 @@
 # Communi
 ######################################################################
 
-TEMPLATE = subdirs
+SOURCES += tst_ircmessagedecoder.cpp
 
-SUBDIRS += ircmessagedecoder
-!no_examples:SUBDIRS += messageformatter
+include(../benchmarks.pri)
