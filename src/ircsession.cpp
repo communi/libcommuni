@@ -290,8 +290,8 @@ void IrcSessionPrivate::processLine(const QByteArray& line)
                     IrcCapabilityMessage* capMsg = static_cast<IrcCapabilityMessage*>(msg);
                     QString subCommand = capMsg->subCommand();
                     if (subCommand == "LS") {
-                        foreach(const QString & cap, capMsg->capabilities())
-                        capabilities.insert(cap);
+                        foreach (const QString& cap, capMsg->capabilities())
+                            capabilities.insert(cap);
 
                         QStringList params = capMsg->parameters();
                         if (params.value(params.count() - 1) != QLatin1String("*")) {

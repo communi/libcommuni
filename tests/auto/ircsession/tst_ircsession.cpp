@@ -195,8 +195,8 @@ void tst_IrcSession::testEncoding_data()
     QTest::newRow("empty") << QByteArray("") << QByteArray("ISO-8859-15");
     QTest::newRow("space") << QByteArray(" ") << QByteArray("ISO-8859-15");
     QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("ISO-8859-15");
-    foreach(const QByteArray & codec, QTextCodec::availableCodecs())
-    QTest::newRow(codec) << codec << codec;
+    foreach (const QByteArray& codec, QTextCodec::availableCodecs())
+        QTest::newRow(codec) << codec << codec;
 }
 
 void tst_IrcSession::testEncoding()

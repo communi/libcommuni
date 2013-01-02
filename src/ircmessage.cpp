@@ -289,8 +289,8 @@ QStringList IrcMessage::parameters() const
 {
     Q_D(const IrcMessage);
     QStringList params;
-    foreach(const QByteArray & param, d->parser.params())
-    params += d->decodeData(param);
+    foreach (const QByteArray& param, d->parser.params())
+        params += d->decodeData(param);
     return params;
 }
 
