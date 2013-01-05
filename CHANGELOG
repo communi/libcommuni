@@ -12,6 +12,21 @@
   - Added IrcPalette for managing (m)IRC colors
   - Deprecated IrcUtil::colorCodeToName()
 
+1.2.2
+-----
+- Qt 5.0.0 final specific build fixes
+- Fixed CTCP reply handling
+- Fixed SSL connections
+
+1.2.1
+-----
+- Fixed #24: IrcSessionPrivate::_q_error() is too verbose
+- Fixed #25: IrcSessionPrivate::processLine() should not respond to
+  CTCP requests
+- Qt 5 specific build fixes
+- Made the default fallback encoding ISO-8859-1
+- Fixed a performance bottleneck in IrcDecoder::setEncoding()
+
 1.2.0
 -----
 - Qt 5 support
