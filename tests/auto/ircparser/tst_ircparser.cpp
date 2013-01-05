@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 J-P Nurmi <jpnurmi@gmail.com>
+ * Copyright (C) 2008-2013 J-P Nurmi <jpnurmi@gmail.com>
  *
  * This test is free, and not covered by LGPL license. There is no
  * restriction applied to their modification, redistribution, using and so on.
