@@ -78,7 +78,7 @@ IrcTextFormat::~IrcTextFormat()
 }
 
 /*!
-    TODO
+    Returns the palette used for color formatting.
  */
 IrcPalette IrcTextFormat::palette() const
 {
@@ -86,7 +86,7 @@ IrcPalette IrcTextFormat::palette() const
 }
 
 /*!
-    TODO
+    Sets the \a palette used for color formatting.
  */
 void IrcTextFormat::setPalette(const IrcPalette& palette)
 {
@@ -94,7 +94,7 @@ void IrcTextFormat::setPalette(const IrcPalette& palette)
 }
 
 /*!
-    TODO
+    Returns the regular expression used for matching URLs.
  */
 QRegExp IrcTextFormat::urlRegExp() const
 {
@@ -102,7 +102,7 @@ QRegExp IrcTextFormat::urlRegExp() const
 }
 
 /*!
-    TODO
+    Sets the regular expression used for matching URLs.
  */
 void IrcTextFormat::setUrlRegExp(const QRegExp& rx)
 {
@@ -134,7 +134,7 @@ static bool parseColors(const QString& message, int pos, int* len, int *fg, int 
     the corresponding HTML formatting. Furthermore, this function detects
     URLs and replaces them with appropriate HTML hyperlinks.
 
-    \sa palette,
+    \sa palette, urlRegExp
 */
 QString IrcTextFormat::messageToHtml(const QString& message) const
 {
