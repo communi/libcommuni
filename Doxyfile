@@ -1485,7 +1485,8 @@ SKIP_FUNCTION_MACROS   = YES
 # If a tag file is not located in the directory in which doxygen
 # is run, you must also specify the path to the tagfile here.
 
-TAGFILES               = $(QTDIR)/doc/html/qt.tags="http://doc.qt.nokia.com"
+TAGFILES               = $(QTDOC)/qtcore/qtcore.tags="http://qt-project.org/doc/qt-5.0/qtcore" \
+                         $(QTDOC)/qtnetwork/qtnetwork.tags="http://qt-project.org/doc/qt-5.0/qtnetwork"
 
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create
 # a tag file that is based on the input files it reads.
