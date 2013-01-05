@@ -72,8 +72,8 @@ void tst_MessageFormatter::testFormatHtml_data()
     qRegisterMetaType<QStringList>();
 
     QStringList USERS_UC;
-    foreach(const QString & user, USERS_100)
-    USERS_UC += user.toUpper();
+    foreach (const QString& user, USERS_100)
+        USERS_UC += user.toUpper();
 
     QTest::addColumn<QString>("message");
     QTest::addColumn<QStringList>("users");
