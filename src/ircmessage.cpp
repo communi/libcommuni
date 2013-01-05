@@ -397,6 +397,9 @@ IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, 
     This property is \c true if this is user's own message; otherwise \c false.
 
     A message is considered own if the sender matches IrcSession::nickName.
+
+    \par Access functions:
+    \li bool <b>isOwn</b>() const
 */
 bool IrcMessage::isOwn() const
 {
@@ -410,6 +413,9 @@ bool IrcMessage::isOwn() const
 
     A message is considered valid if the sender is valid
     and the parameters match the message.
+
+    \par Access functions:
+    \li bool <b>isValid</b>() const
  */
 bool IrcMessage::isValid() const
 {
