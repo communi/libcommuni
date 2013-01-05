@@ -106,11 +106,6 @@ private:
     Q_DECLARE_PRIVATE(IrcSession)
     Q_DISABLE_COPY(IrcSession)
 
-    // TODO: IrcSessionPrivate::get(IrcSession*)
-    friend class IrcMessage;
-    friend class IrcSessionInfo;
-    friend class tst_IrcMessage;
-
     Q_PRIVATE_SLOT(d_func(), void _irc_connected())
     Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
     Q_PRIVATE_SLOT(d_func(), void _irc_reconnect())

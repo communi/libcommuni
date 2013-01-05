@@ -97,7 +97,7 @@ public:
 IrcSessionInfo::IrcSessionInfo(const IrcSession* session) : d(new IrcSessionInfoPrivate)
 {
     Q_ASSERT(session);
-    d->info = session->d_func()->info;
+    d->info = IrcSessionPrivate::get(session)->info;
     d->valid = !d->info.isEmpty();
 }
 

@@ -15,6 +15,8 @@
 #ifndef IRCSESSION_P_H
 #define IRCSESSION_P_H
 
+#include "ircsession.h"
+
 #include <QSet>
 #include <QString>
 #include <QByteArray>
@@ -40,6 +42,11 @@ public:
     void setNick(const QString& nick);
     void setActive(bool active);
     void setConnected(bool connected);
+
+    static IrcSessionPrivate* get(const IrcSession* session)
+    {
+        return session->d_ptr.data();
+    }
 
     IrcSession* q_ptr;
     QByteArray encoding;

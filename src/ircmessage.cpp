@@ -348,7 +348,7 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
             if (sender.isValid() && sender.name() == session->nickName())
                 message->d_ptr->flags |= Own;
 
-            if (session->d_ptr->capabilities.contains("identify-msg") &&
+            if (IrcSessionPrivate::get(session)->capabilities.contains("identify-msg") &&
                     (message->d_ptr->type == Private || message->d_ptr->type == Notice)) {
                 QString msg = message->property("message").toString();
                 if (msg.startsWith("+"))

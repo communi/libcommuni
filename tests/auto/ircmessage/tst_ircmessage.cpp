@@ -405,7 +405,7 @@ void tst_IrcMessage::testPrivateMessage()
     QFETCH(uint, flags);
 
     IrcSession session;
-    session.d_ptr->capabilities += "identify-msg";
+    IrcSessionPrivate::get(&session)->capabilities += "identify-msg";
 
     IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Private);
