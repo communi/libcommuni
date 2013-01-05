@@ -62,19 +62,15 @@ QString IrcDecoder::decode(const QByteArray& data) const
     // TODO: not thread safe
     static QByteArray pluginKey;
     static bool initialized = false;
-    if (!initialized)
-    {
+    if (!initialized) {
         pluginKey = const_cast<IrcDecoder*>(this)->initialize();
         initialized = true;
     }
 
     QTextCodec* codec = 0;
-    if (irc_is_utf8(data))
-    {
+    if (irc_is_utf8(data)) {
         codec = QTextCodec::codecForName("UTF-8");
-    }
-    else
-    {
+    } else {
         QByteArray name = d.fallback->name();
         IrcCodecPlugin* plugin = irc_codec_plugins()->value(pluginKey);
         if (plugin)
@@ -92,8 +88,7 @@ QByteArray IrcDecoder::initialize()
 {
     bool loaded = loadPlugins();
     QByteArray pluginKey = irc_plugin_key;
-    if (!pluginKey.isEmpty() && !irc_codec_plugins()->contains(pluginKey))
-    {
+    if (!pluginKey.isEmpty() && !irc_codec_plugins()->contains(pluginKey)) {
         qWarning() << "IrcDecoder:" << pluginKey << "plugin not loaded";
         if (loaded)
             qWarning() << "IrcDecoder: available plugins:" << irc_codec_plugins()->keys();
@@ -116,10 +111,8 @@ static QStringList pluginPaths()
 {
     QStringList paths = QCoreApplication::libraryPaths();
     const QByteArray env = qgetenv("COMMUNI_PLUGIN_PATH");
-    if (!env.isEmpty())
-    {
-        foreach (const QString& path, QFile::decodeName(env).split(COMMUNI_PATH_SEPARATOR, QString::SkipEmptyParts))
-        {
+    if (!env.isEmpty()) {
+        foreach(const QString & path, QFile::decodeName(env).split(COMMUNI_PATH_SEPARATOR, QString::SkipEmptyParts)) {
             QString canonicalPath = QDir(path).canonicalPath();
             if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))
                 paths += canonicalPath;
@@ -130,14 +123,12 @@ static QStringList pluginPaths()
 
 bool IrcDecoder::loadPlugins()
 {
-    foreach (const QString& path, pluginPaths())
-    {
+    foreach(const QString & path, pluginPaths()) {
         QDir dir(path);
         if (!dir.cd("communi"))
             continue;
 
-        foreach (const QFileInfo& file, dir.entryInfoList(QDir::Files))
-        {
+        foreach(const QFileInfo & file, dir.entryInfoList(QDir::Files)) {
             QPluginLoader loader(file.absoluteFilePath());
             IrcCodecPlugin* plugin = qobject_cast<IrcCodecPlugin*>(loader.instance());
             if (plugin)
@@ -179,24 +170,18 @@ bool IrcDecoder::loadPlugins()
 bool irc_is_utf8(const QByteArray& utf8)
 {
     int clen = 0;
-    for (int i = 0; i < utf8.length(); i += clen)
-    {
-        if (UTF8_1Byte(utf8[i]))
-        {
+    for (int i = 0; i < utf8.length(); i += clen) {
+        if (UTF8_1Byte(utf8[i])) {
             clen = 1;
-        }
-        else if (UTF8_2Bytes(utf8[i]))
-        {
+        } else if (UTF8_2Bytes(utf8[i])) {
             clen = 2;
             // No enough trail bytes
             if ((i + clen) > utf8.length())
                 return false;
             // 0000 0000 - 0000 007F : should encode in less bytes
-            if (0 ==  (utf8[i] & 0x1E))
+            if (0 == (utf8[i] & 0x1E))
                 return false;
-        }
-        else if (UTF8_3Bytes(utf8[i]))
-        {
+        } else if (UTF8_3Bytes(utf8[i])) {
             clen = 3;
             // No enough trail bytes
             if ((i + clen) > utf8.length())
@@ -204,49 +189,40 @@ bool irc_is_utf8(const QByteArray& utf8)
             // a single Surrogate should not show in 3 bytes UTF8, instead,
             // the pair should be intepreted as one single UCS4 char and
             // encoded UTF8 in 4 bytes
-            if ((0xED == utf8[i]) && (0xA0 == (utf8[i+1] & 0xA0)))
+            if ((0xED == utf8[i]) && (0xA0 == (utf8[i + 1] & 0xA0)))
                 return false;
             // 0000 0000 - 0000 07FF : should encode in less bytes
-            if ((0 == (utf8[i] & 0x0F)) && (0 == (utf8[i+1] & 0x20)))
+            if ((0 == (utf8[i] & 0x0F)) && (0 == (utf8[i + 1] & 0x20)))
                 return false;
-        }
-        else if (UTF8_4Bytes(utf8[i]))
-        {
+        } else if (UTF8_4Bytes(utf8[i])) {
             clen = 4;
             // No enough trail bytes
             if ((i + clen) > utf8.length())
                 return false;
             // 0000 0000 - 0000 FFFF : should encode in less bytes
-            if ((0 == (utf8[i] & 0x07 )) && (0 == (utf8[i+1] & 0x30)))
+            if ((0 == (utf8[i] & 0x07)) && (0 == (utf8[i + 1] & 0x30)))
                 return false;
-        }
-        else if (UTF8_5Bytes(utf8[i]))
-        {
+        } else if (UTF8_5Bytes(utf8[i])) {
             clen = 5;
             // No enough trail bytes
             if ((i + clen) > utf8.length())
                 return false;
             // 0000 0000 - 001F FFFF : should encode in less bytes
-            if ((0 == (utf8[i] & 0x03 )) && (0 == (utf8[i+1] & 0x38)))
+            if ((0 == (utf8[i] & 0x03)) && (0 == (utf8[i + 1] & 0x38)))
                 return false;
-        }
-        else if (UTF8_6Bytes(utf8[i]))
-        {
+        } else if (UTF8_6Bytes(utf8[i])) {
             clen = 6;
             // No enough trail bytes
             if ((i + clen) > utf8.length())
                 return false;
             // 0000 0000 - 03FF FFFF : should encode in less bytes
-            if ((0 == (utf8[i] & 0x01)) && (0 == (utf8[i+1] & 0x3E)))
+            if ((0 == (utf8[i] & 0x01)) && (0 == (utf8[i + 1] & 0x3E)))
                 return false;
-        }
-        else
-        {
+        } else {
             return false;
         }
-        for (int j = 1; j < clen; ++j)
-        {
-            if (!UTF8_ValidTrialByte(utf8[i+j])) // Trail bytes invalid
+        for (int j = 1; j < clen; ++j) {
+            if (!UTF8_ValidTrialByte(utf8[i + j])) // Trail bytes invalid
                 return false;
         }
     }

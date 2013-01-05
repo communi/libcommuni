@@ -55,11 +55,9 @@ QByteArray IcuPlugin::codecForData(const QByteArray& data)
 {
     QByteArray encoding;
     UErrorCode status = U_ZERO_ERROR;
-    if (ucsd)
-    {
+    if (ucsd) {
         ucsdet_setText(ucsd, data.constData(), data.length(), &status);
-        if (!U_FAILURE(status))
-        {
+        if (!U_FAILURE(status)) {
             const UCharsetMatch* match = ucsdet_detect(ucsd, &status);
             if (match && !U_FAILURE(status))
                 encoding = ucsdet_getName(match, &status);

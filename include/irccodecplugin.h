@@ -19,8 +19,7 @@
 #include <QtCore/qplugin.h>
 #include <QtCore/qbytearray.h>
 
-struct COMMUNI_EXPORT IrcCodecInterface
-{
+struct COMMUNI_EXPORT IrcCodecInterface {
     virtual QByteArray key() const = 0;
     virtual QByteArray codecForData(const QByteArray& data) = 0;
 };

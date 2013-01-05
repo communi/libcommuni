@@ -24,8 +24,7 @@ class COMMUNI_EXPORT Irc : public QObject
     Q_ENUMS(Code Message)
 
 public:
-    enum Code
-    {
+    enum Code {
         RPL_WELCOME = 1,
         RPL_YOURHOST = 2,
         RPL_CREATED = 3,

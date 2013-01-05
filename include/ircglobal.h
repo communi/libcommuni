@@ -47,7 +47,7 @@
     session->setSocket(new QSslSocket(session));
 #endif
     \endcode
-    
+
     \sa COMMUNI_VERSION_STR and Irc::version().
  */
 #define COMMUNI_VERSION 0x010201

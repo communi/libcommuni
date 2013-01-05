@@ -185,8 +185,7 @@ QString IrcMessagePrivate::decodeData(const QByteArray& data) const
 static const QMetaObject* irc_command_meta_object(const QString& command)
 {
     static QHash<QString, const QMetaObject*> metaObjects;
-    if (metaObjects.isEmpty())
-    {
+    if (metaObjects.isEmpty()) {
         metaObjects.insert("NICK", &IrcNickMessage::staticMetaObject);
         metaObjects.insert("QUIT", &IrcQuitMessage::staticMetaObject);
         metaObjects.insert("JOIN", &IrcJoinMessage::staticMetaObject);
@@ -204,8 +203,7 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
     }
 
     const QMetaObject* metaObject = metaObjects.value(command.toUpper());
-    if (!metaObject)
-    {
+    if (!metaObject) {
         bool ok = false;
         command.toInt(&ok);
         if (ok)
@@ -291,8 +289,8 @@ QStringList IrcMessage::parameters() const
 {
     Q_D(const IrcMessage);
     QStringList params;
-    foreach (const QByteArray& param, d->parser.params())
-        params += d->decodeData(param);
+    foreach(const QByteArray & param, d->parser.params())
+    params += d->decodeData(param);
     return params;
 }
 
@@ -318,7 +316,7 @@ QByteArray IrcMessage::encoding() const
 void IrcMessage::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcMessage);
-    extern bool irc_is_supported_encoding(const QByteArray& encoding); // ircdecoder.cpp
+    extern bool irc_is_supported_encoding(const QByteArray & encoding); // ircdecoder.cpp
     if (!irc_is_supported_encoding(encoding)) {
         qWarning() << "IrcMessage::setEncoding(): unsupported encoding" << encoding;
         return;
@@ -334,8 +332,7 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
     IrcMessage* message = 0;
 
     IrcParser parser;
-    if (parser.parse(data))
-    {
+    if (parser.parse(data)) {
         const QMetaObject* metaObject = irc_command_meta_object(parser.command());
         Q_ASSERT(metaObject);
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
@@ -343,15 +340,13 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
         message->d_ptr->parser = parser;
 
         IrcSession* session = qobject_cast<IrcSession*>(parent);
-        if (session)
-        {
+        if (session) {
             IrcSender sender = message->sender();
             if (sender.isValid() && sender.name() == session->nickName())
                 message->d_ptr->flags |= Own;
 
             if (session->d_ptr->capabilities.contains("identify-msg") &&
-               (message->d_ptr->type == Private || message->d_ptr->type == Notice))
-            {
+                    (message->d_ptr->type == Private || message->d_ptr->type == Notice)) {
                 QString msg = message->property("message").toString();
                 if (msg.startsWith("+"))
                     message->d_ptr->flags |= Identified;
@@ -902,8 +897,7 @@ QString IrcNoticeMessage::message() const
     QString msg = d->decodeParam(1);
     if (d->flags & (Identified | Unidentified))
         msg.remove(0, 1);
-    if (isReply())
-    {
+    if (isReply()) {
         msg.remove(0, 1);
         msg.chop(1);
     }

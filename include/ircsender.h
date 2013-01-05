@@ -29,14 +29,26 @@ public:
     QString prefix() const;
     void setPrefix(const QString& prefix);
 
-    QString name() const { return n; }
-    void setName(const QString& name) { n = name; }
+    QString name() const {
+        return n;
+    }
+    void setName(const QString& name) {
+        n = name;
+    }
 
-    QString user() const { return u; }
-    void setUser(const QString& user) { u = user; }
+    QString user() const {
+        return u;
+    }
+    void setUser(const QString& user) {
+        u = user;
+    }
 
-    QString host() const { return h; }
-    void setHost(const QString& host) { h = host; }
+    QString host() const {
+        return h;
+    }
+    void setHost(const QString& host) {
+        h = host;
+    }
 
 private:
     QString n;

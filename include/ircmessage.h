@@ -37,8 +37,7 @@ class COMMUNI_EXPORT IrcMessage : public QObject
     Q_FLAGS(Flags)
 
 public:
-    enum Type
-    {
+    enum Type {
         Unknown,
         Nick,
         Quit,
@@ -57,8 +56,7 @@ public:
         Capability
     };
 
-    enum Flag
-    {
+    enum Flag {
         None = 0x0,
         Own = 0x1,
         Identified = 0x2,

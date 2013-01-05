@@ -36,8 +36,7 @@ private:
     QByteArray initialize();
     bool loadPlugins();
 
-    struct Data
-    {
+    struct Data {
         QTextCodec* fallback;
     } d;
 };

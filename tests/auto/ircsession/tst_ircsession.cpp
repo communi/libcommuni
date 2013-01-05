@@ -195,8 +195,8 @@ void tst_IrcSession::testEncoding_data()
     QTest::newRow("empty") << QByteArray("") << QByteArray("UTF-8");
     QTest::newRow("space") << QByteArray(" ") << QByteArray("UTF-8");
     QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("UTF-8");
-    foreach (const QByteArray& codec, QTextCodec::availableCodecs())
-        QTest::newRow(codec) << codec << codec;
+    foreach(const QByteArray & codec, QTextCodec::availableCodecs())
+    QTest::newRow(codec) << codec << codec;
 }
 
 void tst_IrcSession::testEncoding()

@@ -30,8 +30,7 @@ class COMMUNI_EXPORT IrcCommand : public QObject
     Q_ENUMS(Type)
 
 public:
-    enum Type
-    {
+    enum Type {
         Custom,
 
         // connection registration
