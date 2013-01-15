@@ -9,6 +9,7 @@ INSTALL_BINS=
 INSTALL_HEADERS=
 INSTALL_PLUGINS=
 INSTALL_IMPORTS=
+INSTALL_QML=
 
 BUILD_PLUGINS=yes
 BUILD_EXAMPLES=yes
@@ -35,7 +36,7 @@ while [ "$#" -gt 0 ]; do
     UNKNOWN_ARG=no
     case "$1" in
     #Qt style options that pass an argument
-    -libdir|-bindir|-headerdir|-plugindir|-importdir)
+    -libdir|-bindir|-headerdir|-plugindir|-importdir|-qmldir)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -83,6 +84,9 @@ while [ "$#" -gt 0 ]; do
         ;;
     importdir)
         INSTALL_IMPORTS="$VAL"
+        ;;
+    qmldir)
+        INSTALL_QML="$VAL"
         ;;
     nomake)
         case "$1" in
@@ -179,8 +183,10 @@ Installation options:
                                (default QT_INSTALL_HEADERS/Communi)
     -plugindir <dir> ......... Plugins will be installed to <dir>/communi
                                (default QT_INSTALL_PLUGINS/communi)
-    -importdir <dir> ......... Imports for QML will be installed to <dir>/Communi
+    -importdir <dir> ......... Imports for QtQuick1 will be installed to <dir>/Communi
                                (default QT_INSTALL_IMPORTS/Communi)
+    -qmldir <dir> ............ Imports for QtQuick2 will be installed to <dir>/Communi
+                               (default QT_INSTALL_QML/Communi)
 
 Configure options:
 
@@ -209,6 +215,7 @@ fi
 [ "$INSTALL_HEADERS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_HEADERS=$INSTALL_HEADERS"
 [ "$INSTALL_PLUGINS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_PLUGINS=$INSTALL_PLUGINS"
 [ "$INSTALL_IMPORTS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_IMPORTS=$INSTALL_IMPORTS"
+[ "$INSTALL_QML" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_QML=$INSTALL_QML"
 
 [ "$BUILD_PLUGINS" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_plugins"
 [ "$BUILD_EXAMPLES" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_examples"
