@@ -13,11 +13,7 @@ CONFIG += ordered
 }
 
 !no_tests {
-    contains(MEEGO_EDITION,harmattan) {
-        message(Tests not supported on Meego Harmattan)
-    } else {
-        SUBDIRS += tests
-    }
+    SUBDIRS += tests
 } else {
     message(Tests disabled)
 }
@@ -52,22 +48,10 @@ OTHER_FILES += TODO
 OTHER_FILES += VERSION
 OTHER_FILES += features/communi.prf
 
-contains(MEEGO_EDITION,harmattan) {
-    OTHER_FILES += qtc_packaging/debian_harmattan/rules
-    OTHER_FILES += qtc_packaging/debian_harmattan/README
-    OTHER_FILES += qtc_packaging/debian_harmattan/manifest.aegis
-    OTHER_FILES += qtc_packaging/debian_harmattan/copyright
-    OTHER_FILES += qtc_packaging/debian_harmattan/control
-    OTHER_FILES += qtc_packaging/debian_harmattan/compat
-    OTHER_FILES += qtc_packaging/debian_harmattan/changelog
-}
-
-!contains(MEEGO_EDITION,harmattan) {
-    mkspecs.files += features/communi.prf
-    mkspecs.files += $$OUT_PWD/communi-config.prf
-    mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
-    INSTALLS += mkspecs
-}
+mkspecs.files += features/communi.prf
+mkspecs.files += $$OUT_PWD/communi-config.prf
+mkspecs.path = $$[QT_INSTALL_DATA]/mkspecs/features
+INSTALLS += mkspecs
 
 include(version.pri)
 !build_pass {

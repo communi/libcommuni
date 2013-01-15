@@ -70,25 +70,9 @@ SOURCES += ircutil.cpp
 
 include(3rdparty/mozilla/mozilla.pri)
 
-isEmpty(COMMUNI_INSTALL_LIBS) {
-    contains(MEEGO_EDITION,harmattan) {
-        COMMUNI_INSTALL_LIBS = /opt/communi/lib
-    } else {
-        COMMUNI_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
-    }
-}
-
-isEmpty(COMMUNI_INSTALL_BINS) {
-    contains(MEEGO_EDITION,harmattan) {
-        COMMUNI_INSTALL_BINS = /opt/communi/bin
-    } else {
-        COMMUNI_INSTALL_BINS = $$[QT_INSTALL_BINS]
-    }
-}
-
-isEmpty(COMMUNI_INSTALL_HEADERS) {
-    COMMUNI_INSTALL_HEADERS = $$[QT_INSTALL_HEADERS]/Communi
-}
+isEmpty(COMMUNI_INSTALL_LIBS):COMMUNI_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
+isEmpty(COMMUNI_INSTALL_BINS):COMMUNI_INSTALL_BINS = $$[QT_INSTALL_BINS]
+isEmpty(COMMUNI_INSTALL_HEADERS):COMMUNI_INSTALL_HEADERS = $$[QT_INSTALL_HEADERS]/Communi
 
 target.path = $$COMMUNI_INSTALL_LIBS
 INSTALLS += target
@@ -109,7 +93,7 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
         QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
     }
     QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$COMMUNI_INSTALL_LIBS/
-} else:!contains(MEEGO_EDITION,harmattan) {
+} else {
     headers.files = $$PUB_HEADERS $$CONV_HEADERS
     headers.path = $$COMMUNI_INSTALL_HEADERS
     INSTALLS += headers

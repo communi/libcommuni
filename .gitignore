@@ -54,7 +54,6 @@ build-stamp
 configure-stamp
 /debian
 /examples/bot/bot
-/examples/mobile/communi
 /tests/auto/irccommand/irccommand
 /tests/auto/ircmessage/ircmessage
 /tests/auto/ircmessagedecoder/ircmessagedecoder
