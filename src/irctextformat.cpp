@@ -25,7 +25,7 @@
 #include "irctextformat.h"
 #include <QStringList>
 
-static QRegExp URL_PATTERN(QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})"), Qt::CaseInsensitive);
+static const QLatin1String URL_PATTERN("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})");
 
 /*!
     \file irctextformat.h
@@ -50,7 +50,7 @@ public:
  */
 IrcTextFormat::IrcTextFormat() : d(new IrcTextFormatPrivate)
 {
-    d->rx = URL_PATTERN;
+    d->rx = QRegExp(URL_PATTERN, Qt::CaseInsensitive);
 }
 
 /*!
