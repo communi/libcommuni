@@ -24,6 +24,7 @@
 
 #include "irctextformat.h"
 #include <QStringList>
+#include <QRegExp>
 
 static const QLatin1String URL_PATTERN("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})");
 
@@ -41,7 +42,7 @@ static const QLatin1String URL_PATTERN("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|
 class IrcTextFormatPrivate : public QSharedData
 {
 public:
-    QRegExp rx;
+    QString urlPattern;
     IrcPalette palette;
 };
 
@@ -50,7 +51,7 @@ public:
  */
 IrcTextFormat::IrcTextFormat() : d(new IrcTextFormatPrivate)
 {
-    d->rx = QRegExp(URL_PATTERN, Qt::CaseInsensitive);
+    d->urlPattern = URL_PATTERN;
 }
 
 /*!
@@ -94,19 +95,19 @@ void IrcTextFormat::setPalette(const IrcPalette& palette)
 }
 
 /*!
-    Returns the regular expression used for matching URLs.
+    Returns the regular expression pattern used for matching URLs.
  */
-QRegExp IrcTextFormat::urlRegExp() const
+QString IrcTextFormat::urlPattern() const
 {
-    return d->rx;
+    return d->urlPattern;
 }
 
 /*!
-    Sets the regular expression used for matching URLs.
+    Sets the regular expression pattern used for matching URLs.
  */
-void IrcTextFormat::setUrlRegExp(const QRegExp& rx)
+void IrcTextFormat::setUrlPattern(const QString& pattern)
 {
-    d->rx = rx;
+    d->urlPattern = pattern;
 }
 
 static bool parseColors(const QString& message, int pos, int* len, int *fg, int *bg)
@@ -261,8 +262,9 @@ QString IrcTextFormat::messageToHtml(const QString& message) const
     }
 
     pos = 0;
-    while ((pos = d->rx.indexIn(processed, pos)) >= 0) {
-        int len = d->rx.matchedLength();
+    QRegExp rx(d->urlPattern);
+    while ((pos = rx.indexIn(processed, pos)) >= 0) {
+        int len = rx.matchedLength();
         QString href = processed.mid(pos, len);
 
         // Don't consider trailing &gt; as part of the link.
@@ -295,9 +297,9 @@ QString IrcTextFormat::messageToHtml(const QString& message) const
         }
 
         QString protocol;
-        if (d->rx.cap(1).startsWith(QLatin1String("www."), Qt::CaseInsensitive))
+        if (rx.cap(1).startsWith(QLatin1String("www."), Qt::CaseInsensitive))
             protocol = QLatin1String("http://");
-        else if (d->rx.cap(1).isEmpty())
+        else if (rx.cap(1).isEmpty())
             protocol = QLatin1String("mailto:");
 
         QString source = href;

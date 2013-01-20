@@ -18,7 +18,6 @@
 #include <IrcGlobal>
 #include <IrcPalette>
 #include <QtCore/qstring.h>
-#include <QtCore/qregexp.h>
 #include <QtCore/qshareddata.h>
 
 class IrcTextFormatPrivate;
@@ -34,8 +33,8 @@ public:
     IrcPalette palette() const;
     void setPalette(const IrcPalette& palette);
 
-    QRegExp urlRegExp() const;
-    void setUrlRegExp(const QRegExp& rx);
+    QString urlPattern() const;
+    void setUrlPattern(const QString& pattern);
 
     QString messageToHtml(const QString& message) const;
 
