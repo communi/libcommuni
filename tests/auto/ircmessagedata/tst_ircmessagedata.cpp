@@ -8,33 +8,35 @@
  * program, but you don't have to.
  */
 
-#include "ircmessageparser_p.h"
+#include "ircmessagedata_p.h"
 #include <QtTest/QtTest>
 
-class tst_IrcMessageParser : public QObject
+class tst_IrcMessageData : public QObject
 {
     Q_OBJECT
 
 private slots:
     void testDefaults();
 
-    void testParse_data();
-    void testParse();
+    void testFromData_data();
+    void testFromData();
 };
 
-void tst_IrcMessageParser::testDefaults()
+void tst_IrcMessageData::testDefaults()
 {
-    IrcMessageParser parser;
-    QVERIFY(parser.prefix().isNull());
-    QVERIFY(parser.command().isNull());
-    QVERIFY(parser.params().isEmpty());
+    IrcMessageData data;
+    QVERIFY(!data.valid);
+    QVERIFY(data.data.isNull());
+    QVERIFY(data.prefix.isNull());
+    QVERIFY(data.command.isNull());
+    QVERIFY(data.params.isEmpty());
 }
 
 typedef QList<QByteArray> QByteArrayList;
 Q_DECLARE_METATYPE(QByteArrayList)
-void tst_IrcMessageParser::testParse_data()
+void tst_IrcMessageData::testFromData_data()
 {
-    QTest::addColumn<bool>("result");
+    QTest::addColumn<bool>("valid");
     QTest::addColumn<QByteArray>("line");
     QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QByteArray>("command");
@@ -54,21 +56,21 @@ void tst_IrcMessageParser::testParse_data()
     QTest::newRow(":pfx cmd 1 2 :3") << true << QByteArray(":pfx cmd 1 2 :3") << QByteArray("pfx") << QByteArray("cmd") << (QByteArrayList() << "1" << "2" << "3");
 }
 
-void tst_IrcMessageParser::testParse()
+void tst_IrcMessageData::testFromData()
 {
-    QFETCH(bool, result);
+    QFETCH(bool, valid);
     QFETCH(QByteArray, line);
     QFETCH(QByteArray, prefix);
     QFETCH(QByteArray, command);
     QFETCH(QByteArrayList, params);
 
-    IrcMessageParser parser;
-    QCOMPARE(parser.parse(line), result);
-    QCOMPARE(parser.prefix(), prefix);
-    QCOMPARE(parser.command(), command);
-    QCOMPARE(parser.params(), params);
+    IrcMessageData data = IrcMessageData::fromData(line);
+    QCOMPARE(data.valid, valid);
+    QCOMPARE(data.prefix, prefix);
+    QCOMPARE(data.command, command);
+    QCOMPARE(data.params, params);
 }
 
-QTEST_MAIN(tst_IrcMessageParser)
+QTEST_MAIN(tst_IrcMessageData)
 
-#include "tst_ircmessageparser.moc"
+#include "tst_ircmessagedata.moc"

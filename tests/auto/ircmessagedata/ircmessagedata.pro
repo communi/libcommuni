@@ -2,6 +2,6 @@
 # Communi
 ######################################################################
 
-SOURCES += tst_ircmessageparser.cpp
+SOURCES += tst_ircmessagedata.cpp
 
 include (../auto.pri)
