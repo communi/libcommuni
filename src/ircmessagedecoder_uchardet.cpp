@@ -12,12 +12,25 @@
 * License for more details.
 */
 
-#include "irccodecplugin.h"
+#include "ircmessagedecoder_p.h"
+#include "uchardet.h"
 
-IrcCodecPlugin::IrcCodecPlugin(QObject* parent) : QObject(parent)
+#define UCD(x) reinterpret_cast<uchardet_t>(x)
+
+void IrcMessageDecoder::initialize()
 {
+    d.detector = uchardet_new();
 }
 
-IrcCodecPlugin::~IrcCodecPlugin()
+void IrcMessageDecoder::uninitialize()
 {
+    uchardet_delete(UCD(d.detector));
+}
+
+QByteArray IrcMessageDecoder::codecForData(const QByteArray &data) const
+{
+    uchardet_reset(UCD(d.detector));
+    uchardet_handle_data(UCD(d.detector), data.constData(), data.length());
+    uchardet_data_end(UCD(d.detector));
+    return uchardet_get_charset(UCD(d.detector));
 }

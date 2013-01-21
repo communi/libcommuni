@@ -11,15 +11,6 @@
 #include "ircmessagedecoder_p.h"
 #include <QtTest/QtTest>
 #include <QtCore/QTextCodec>
-#include <QtCore/QtPlugin>
-
-#ifdef COMMUNI_STATIC_ICU_PLUGIN
-    Q_IMPORT_PLUGIN(icuplugin)
-#endif
-
-#ifdef COMMUNI_STATIC_UCHARDET_PLUGIN
-    Q_IMPORT_PLUGIN(uchardetplugin)
-#endif
 
 class tst_IrcMessageDecoder : public QObject
 {

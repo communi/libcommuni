@@ -6,12 +6,6 @@ TEMPLATE = subdirs
 SUBDIRS += src
 CONFIG += ordered
 
-!no_plugins {
-    SUBDIRS += src/plugins
-} else {
-    message(Plugins disabled)
-}
-
 !no_tests {
     SUBDIRS += tests
 } else {

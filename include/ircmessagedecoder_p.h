@@ -19,8 +19,6 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qtextcodec.h>
 
-class IrcCodecPlugin;
-
 class COMMUNI_EXPORT IrcMessageDecoder
 {
 public:
@@ -33,10 +31,12 @@ public:
     QString decode(const QByteArray& data) const;
 
 private:
-    QByteArray initialize();
-    bool loadPlugins();
+    void initialize();
+    void uninitialize();
+    QByteArray codecForData(const QByteArray& data) const;
 
     struct Data {
+        void* detector;
         QTextCodec* fallback;
     } d;
 };

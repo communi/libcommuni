@@ -7,15 +7,13 @@ SOURCE_TREE=`cd "$SOURCE_TREE"; /bin/pwd`
 INSTALL_LIBS=
 INSTALL_BINS=
 INSTALL_HEADERS=
-INSTALL_PLUGINS=
 INSTALL_IMPORTS=
 INSTALL_QML=
 
-BUILD_PLUGINS=yes
 BUILD_EXAMPLES=yes
 BUILD_TESTS=yes
 
-BUILD_UCHARDET=yes
+BUILD_UCHARDET=auto
 BUILD_ICU=auto
 
 QMAKE_CONFIG=
@@ -36,7 +34,7 @@ while [ "$#" -gt 0 ]; do
     UNKNOWN_ARG=no
     case "$1" in
     #Qt style options that pass an argument
-    -libdir|-bindir|-headerdir|-plugindir|-importdir|-qmldir)
+    -libdir|-bindir|-headerdir|-importdir|-qmldir)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -79,9 +77,6 @@ while [ "$#" -gt 0 ]; do
     headerdir)
         INSTALL_HEADERS="$VAL"
         ;;
-    plugindir)
-        INSTALL_PLUGINS="$VAL"
-        ;;
     importdir)
         INSTALL_IMPORTS="$VAL"
         ;;
@@ -90,10 +85,6 @@ while [ "$#" -gt 0 ]; do
         ;;
     nomake)
         case "$1" in
-        plugins)
-            BUILD_PLUGINS=no
-            shift
-            ;;
         examples)
             BUILD_EXAMPLES=no
             shift
@@ -110,9 +101,6 @@ while [ "$#" -gt 0 ]; do
         ;;
     make)
         case "$1" in
-        plugins)
-            BUILD_PLUGINS=yes
-            ;;
         examples)
             BUILD_EXAMPLES=yes
             ;;
@@ -181,8 +169,6 @@ Installation options:
                                (default QT_INSTALL_BINS)
     -headerdir <dir> ......... Headers will be installed to <dir>
                                (default QT_INSTALL_HEADERS/Communi)
-    -plugindir <dir> ......... Plugins will be installed to <dir>/communi
-                               (default QT_INSTALL_PLUGINS/communi)
     -importdir <dir> ......... Imports for QtQuick1 will be installed to <dir>/Communi
                                (default QT_INSTALL_IMPORTS/Communi)
     -qmldir <dir> ............ Imports for QtQuick2 will be installed to <dir>/Communi
@@ -194,7 +180,7 @@ Configure options:
     -qmake ................... qmake to use
     -config (config) ......... Additional configuration options recognized by qmake
     -make (part) ............. Add part to the list of parts to be built at
-                               make time (available parts: plugins examples tests)
+                               make time (available parts: examples tests)
     -nomake (part) ........... Exclude part from the list of parts to be built
 
 Additional options:
@@ -213,11 +199,9 @@ fi
 [ "$INSTALL_LIBS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_LIBS=$INSTALL_LIBS"
 [ "$INSTALL_BINS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_BINS=$INSTALL_BINS"
 [ "$INSTALL_HEADERS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_HEADERS=$INSTALL_HEADERS"
-[ "$INSTALL_PLUGINS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_PLUGINS=$INSTALL_PLUGINS"
 [ "$INSTALL_IMPORTS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_IMPORTS=$INSTALL_IMPORTS"
 [ "$INSTALL_QML" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_QML=$INSTALL_QML"
 
-[ "$BUILD_PLUGINS" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_plugins"
 [ "$BUILD_EXAMPLES" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_examples"
 [ "$BUILD_TESTS" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_tests"
 
@@ -244,11 +228,8 @@ echo "Communi build configuration:"
 if [ "$QMAKE_CONFIG" != "" ]; then
     echo "Configuration ...................$QMAKE_CONFIG"
 fi
-echo "Plugins ......................... $BUILD_PLUGINS"
-if [ "$BUILD_PLUGINS" = "yes" ]; then
-    echo "  uchardet support .............. $BUILD_UCHARDET"
-    echo "  ICU support ................... $BUILD_ICU"
-fi
+echo "uchardet support ................ $BUILD_UCHARDET"
+echo "ICU support ..................... $BUILD_ICU"
 echo "Examples ........................ $BUILD_EXAMPLES"
 echo "Tests ........................... $BUILD_TESTS"
 echo

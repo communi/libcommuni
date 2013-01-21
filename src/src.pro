@@ -26,7 +26,6 @@ CONFIG(debug, debug|release) {
 
 CONV_HEADERS += ../include/Irc
 CONV_HEADERS += ../include/IrcCommand
-CONV_HEADERS += ../include/IrcCodecPlugin
 CONV_HEADERS += ../include/IrcGlobal
 CONV_HEADERS += ../include/IrcMessage
 CONV_HEADERS += ../include/IrcPalette
@@ -38,7 +37,6 @@ CONV_HEADERS += ../include/IrcUtil
 
 PUB_HEADERS += ../include/irc.h
 PUB_HEADERS += ../include/irccommand.h
-PUB_HEADERS += ../include/irccodecplugin.h
 PUB_HEADERS += ../include/ircglobal.h
 PUB_HEADERS += ../include/ircmessage.h
 PUB_HEADERS += ../include/ircpalette.h
@@ -57,7 +55,6 @@ HEADERS += $$PRIV_HEADERS
 
 SOURCES += irc.cpp
 SOURCES += irccommand.cpp
-SOURCES += irccodecplugin.cpp
 SOURCES += ircmessage.cpp
 SOURCES += ircmessagedecoder.cpp
 SOURCES += ircmessageparser.cpp
@@ -97,4 +94,21 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
     headers.files = $$PUB_HEADERS $$CONV_HEADERS
     headers.path = $$COMMUNI_INSTALL_HEADERS
     INSTALLS += headers
+}
+
+# respect the (no_)icu/(no_)uchardet config if specified,
+# otherwise try to automatically detect using pkg-config
+include(3rdparty/pkg.pri)
+!icu:!no_icu:!uchardet:!no_uchardet {
+    pkgExists(icu)|pkgExists(icu-i18n):CONFIG += icu
+}
+
+CONFIG(icu, icu|no_icu) {
+    DEFINES += COMMUNI_ICU
+    SOURCES += ircmessagedecoder_icu.cpp
+    include(3rdparty/icu/icu.pri)
+} else {
+    DEFINES += COMMUNI_UCHARDET
+    SOURCES += ircmessagedecoder_uchardet.cpp
+    include(3rdparty/uchardet-0.0.1/uchardet.pri)
 }
