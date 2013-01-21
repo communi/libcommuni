@@ -138,6 +138,9 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
+    h|help)
+        OPT_HELP=yes
+        ;;
     *)
         UNKNOWN_OPT=yes
         ;;
