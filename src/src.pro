@@ -33,7 +33,6 @@ CONV_HEADERS += ../include/IrcSender
 CONV_HEADERS += ../include/IrcSession
 CONV_HEADERS += ../include/IrcSessionInfo
 CONV_HEADERS += ../include/IrcTextFormat
-CONV_HEADERS += ../include/IrcUtil
 
 PUB_HEADERS += ../include/irc.h
 PUB_HEADERS += ../include/irccommand.h
@@ -44,7 +43,6 @@ PUB_HEADERS += ../include/ircsender.h
 PUB_HEADERS += ../include/ircsession.h
 PUB_HEADERS += ../include/ircsessioninfo.h
 PUB_HEADERS += ../include/irctextformat.h
-PUB_HEADERS += ../include/ircutil.h
 
 PRIV_HEADERS += ../include/ircmessagedecoder_p.h
 PRIV_HEADERS += ../include/ircmessageparser_p.h
@@ -63,7 +61,6 @@ SOURCES += ircsender.cpp
 SOURCES += ircsession.cpp
 SOURCES += ircsessioninfo.cpp
 SOURCES += irctextformat.cpp
-SOURCES += ircutil.cpp
 
 include(3rdparty/mozilla/mozilla.pri)
 

@@ -19,7 +19,6 @@
 #include "irccommand.h"
 #include "ircmessage.h"
 #include "ircsender.h"
-#include "ircutil.h"
 #include "irc.h"
 #include <QLocale>
 #include <QDateTime>
