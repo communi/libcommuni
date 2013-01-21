@@ -152,6 +152,8 @@ class IrcMessagePrivate
 {
 public:
     IrcMessagePrivate();
+    void init(IrcMessage* message);
+
     QString decodeParam(int index) const;
     QString decodeData(const QByteArray& data) const;
 
@@ -181,6 +183,22 @@ QString IrcMessagePrivate::decodeData(const QByteArray& data) const
     static IrcMessageDecoder decoder;
     decoder.setEncoding(encoding);
     return decoder.decode(data);
+}
+
+void IrcMessagePrivate::init(IrcMessage* message)
+{
+    IrcSender sender = message->sender();
+    if (sender.isValid() && sender.name() == session->nickName())
+        flags |= IrcMessage::Own;
+
+    if (IrcSessionPrivate::get(session)->capabilities.contains("identify-msg") &&
+            (type == IrcMessage::Private || type == IrcMessage::Notice)) {
+        QString msg = message->property("message").toString();
+        if (msg.startsWith("+"))
+            flags |= IrcMessage::Identified;
+        else if (msg.startsWith("-"))
+            flags |= IrcMessage::Unidentified;
+    }
 }
 
 static const QMetaObject* irc_command_meta_object(const QString& command)
@@ -355,20 +373,29 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcSession* session)
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcSession*, session)));
         Q_ASSERT(message);
         message->d_ptr->message = messageData;
-
-        IrcSender sender = message->sender();
-        if (sender.isValid() && sender.name() == session->nickName())
-            message->d_ptr->flags |= Own;
-
-        if (IrcSessionPrivate::get(session)->capabilities.contains("identify-msg") &&
-                (message->d_ptr->type == Private || message->d_ptr->type == Notice)) {
-            QString msg = message->property("message").toString();
-            if (msg.startsWith("+"))
-                message->d_ptr->flags |= Identified;
-            else if (msg.startsWith("-"))
-                message->d_ptr->flags |= Unidentified;
-        }
+        message->d_ptr->init(message);
     }
+    return message;
+}
+
+/*!
+    Creates a new message from \a sender, \a command and \a parameters with \a session.
+ */
+IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& command, const QStringList& parameters, IrcSession* session)
+{
+    const QMetaObject* metaObject = irc_command_meta_object(command);
+    Q_ASSERT(metaObject);
+    IrcMessage* message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcSession*, session)));
+    Q_ASSERT(message);
+
+    IrcMessageData data;
+    data.prefix = sender.toUtf8();
+    data.command = command.toUtf8();
+    foreach (const QString& param, parameters)
+        data.params += param.toUtf8();
+    data.valid = !command.isEmpty();
+    message->d_ptr->message = data;
+    message->d_ptr->init(message);
     return message;
 }
 
