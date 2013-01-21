@@ -16,7 +16,7 @@
 #include "ircsession.h"
 #include "ircsession_p.h"
 #include "irccommand.h"
-#include "ircmessageparser_p.h"
+#include "ircmessagedata_p.h"
 #include "ircmessagedecoder_p.h"
 #include <QVariant>
 #include <QDebug>
@@ -158,7 +158,7 @@ public:
     IrcMessage::Type type;
     IrcMessage::Flags flags;
     QByteArray encoding;
-    IrcMessageParser parser;
+    IrcMessageData message;
 };
 
 IrcMessagePrivate::IrcMessagePrivate() :
@@ -168,12 +168,12 @@ IrcMessagePrivate::IrcMessagePrivate() :
 
 QString IrcMessagePrivate::decodeParam(int index) const
 {
-    return decodeData(parser.params().value(index));
+    return decodeData(message.params.value(index));
 }
 
 QString IrcMessagePrivate::decodeData(const QByteArray& data) const
 {
-    if (!parser.isValid())
+    if (!message.valid)
         return QString();
 
     // TODO: not thread safe
@@ -264,7 +264,7 @@ IrcMessage::Flags IrcMessage::flags() const
 IrcSender IrcMessage::sender() const
 {
     Q_D(const IrcMessage);
-    return IrcSender(d->decodeData(d->parser.prefix()));
+    return IrcSender(d->decodeData(d->message.prefix));
 }
 
 /*!
@@ -276,7 +276,7 @@ IrcSender IrcMessage::sender() const
 QString IrcMessage::command() const
 {
     Q_D(const IrcMessage);
-    return d->decodeData(d->parser.command());
+    return d->decodeData(d->message.command);
 }
 
 /*!
@@ -289,7 +289,7 @@ QStringList IrcMessage::parameters() const
 {
     Q_D(const IrcMessage);
     QStringList params;
-    foreach (const QByteArray& param, d->parser.params())
+    foreach (const QByteArray& param, d->message.params)
         params += d->decodeData(param);
     return params;
 }
@@ -334,13 +334,13 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
 {
     IrcMessage* message = 0;
 
-    IrcMessageParser parser;
-    if (parser.parse(data)) {
-        const QMetaObject* metaObject = irc_command_meta_object(parser.command());
+    IrcMessageData messageData = IrcMessageData::fromData(data);
+    if (messageData.valid) {
+        const QMetaObject* metaObject = irc_command_meta_object(messageData.command);
         Q_ASSERT(metaObject);
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
         Q_ASSERT(message);
-        message->d_ptr->parser = parser;
+        message->d_ptr->message = messageData;
 
         IrcSession* session = qobject_cast<IrcSession*>(parent);
         if (session) {
@@ -420,7 +420,7 @@ bool IrcMessage::isOwn() const
 bool IrcMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->parser.isValid() && sender().isValid();
+    return d->message.valid && sender().isValid();
 }
 
 /*!
@@ -429,7 +429,7 @@ bool IrcMessage::isValid() const
 QByteArray IrcMessage::toData() const
 {
     Q_D(const IrcMessage);
-    return d->parser.data();
+    return d->message.data;
 }
 
 /*!
@@ -440,7 +440,7 @@ QByteArray IrcMessage::toData() const
 QString IrcMessage::toString() const
 {
     Q_D(const IrcMessage);
-    return QString::fromUtf8(d->parser.data());
+    return QString::fromUtf8(d->message.data);
 }
 
 /*!
@@ -840,7 +840,7 @@ QString IrcPrivateMessage::message() const
 bool IrcPrivateMessage::isAction() const
 {
     Q_D(const IrcMessage);
-    QByteArray msg = d->parser.params().value(1);
+    QByteArray msg = d->message.params.value(1);
     if (d->flags & (Identified | Unidentified))
         msg.remove(0, 1);
     return msg.startsWith("\1ACTION ") && msg.endsWith('\1');
@@ -856,7 +856,7 @@ bool IrcPrivateMessage::isAction() const
 bool IrcPrivateMessage::isRequest() const
 {
     Q_D(const IrcMessage);
-    QByteArray msg = d->parser.params().value(1);
+    QByteArray msg = d->message.params.value(1);
     if (d->flags & (Identified | Unidentified))
         msg.remove(0, 1);
     return msg.startsWith('\1') && msg.endsWith('\1') && !isAction();
@@ -923,7 +923,7 @@ QString IrcNoticeMessage::message() const
 bool IrcNoticeMessage::isReply() const
 {
     Q_D(const IrcMessage);
-    return d->parser.params().value(1).startsWith('\1') && d->parser.params().value(1).endsWith('\1');
+    return d->message.params.value(1).startsWith('\1') && d->message.params.value(1).endsWith('\1');
 }
 
 bool IrcNoticeMessage::isValid() const
@@ -1052,7 +1052,7 @@ int IrcNumericMessage::code() const
 {
     Q_D(const IrcMessage);
     bool ok = false;
-    int number = d->parser.command().toInt(&ok);
+    int number = d->message.command.toInt(&ok);
     return ok ? number : -1;
 }
 
@@ -1104,8 +1104,8 @@ QStringList IrcCapabilityMessage::capabilities() const
 {
     Q_D(const IrcMessage);
     QStringList caps;
-    if (d->parser.params().count() > 2)
-        caps = d->decodeData(d->parser.params().last()).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    if (d->message.params.count() > 2)
+        caps = d->decodeData(d->message.params.last()).split(QLatin1Char(' '), QString::SkipEmptyParts);
     return caps;
 }
 

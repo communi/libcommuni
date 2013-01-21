@@ -12,20 +12,11 @@
 * License for more details.
 */
 
-#include "ircmessageparser_p.h"
+#include "ircmessagedata_p.h"
 
-IrcMessageParser::IrcMessageParser()
+IrcMessageData IrcMessageData::fromData(const QByteArray& data)
 {
-    d.valid = false;
-}
-
-bool IrcMessageParser::parse(const QByteArray& data)
-{
-    d.data = data;
-    d.valid = false;
-    d.prefix.clear();
-    d.command.clear();
-    d.params.clear();
+    IrcMessageData message;
 
     // From RFC 1459:
     //  <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
@@ -41,27 +32,27 @@ bool IrcMessageParser::parse(const QByteArray& data)
 
     // parse <prefix>
     if (process.startsWith(':')) {
-        d.prefix = process.mid(1, process.indexOf(' ') - 1);
-        process.remove(0, d.prefix.length() + 2);
+        message.prefix = process.mid(1, process.indexOf(' ') - 1);
+        process.remove(0, message.prefix.length() + 2);
     }
 
     // parse <command>
-    d.command = process.mid(0, process.indexOf(' '));
-    process.remove(0, d.command.length() + 1);
+    message.command = process.mid(0, process.indexOf(' '));
+    process.remove(0, message.command.length() + 1);
 
     // parse <params>
     while (!process.isEmpty()) {
         if (process.startsWith(':')) {
             process.remove(0, 1);
-            d.params += process;
+            message.params += process;
             process.clear();
         } else {
             QByteArray param = process.mid(0, process.indexOf(' '));
             process.remove(0, param.length() + 1);
-            d.params += param;
+            message.params += param;
         }
     }
 
-    d.valid = !d.command.isEmpty() && process.trimmed().isEmpty();
-    return d.valid;
+    message.valid = !message.command.isEmpty() && process.trimmed().isEmpty();
+    return message;
 }
