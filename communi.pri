@@ -27,8 +27,8 @@ macx:!qt_no_framework {
     LIBS += -framework Communi
     install_name {
         QMAKE_POST_LINK = install_name_tool -change \
-            "$$[QT_INSTALL_LIBS]/Communi.framework/Versions/1/Communi" \
-            "$$COMMUNI_LIBDIR/Communi.framework/Versions/1/Communi" $$TARGET
+            "$$[QT_INSTALL_LIBS]/Communi.framework/Versions/2/Communi" \
+            "$$COMMUNI_LIBDIR/Communi.framework/Versions/2/Communi" $$TARGET
     }
 } else {
     REAL_TEMPLATE = $$TEMPLATE
