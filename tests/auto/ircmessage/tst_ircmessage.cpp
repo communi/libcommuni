@@ -50,8 +50,9 @@ private slots:
 
 void tst_IrcMessage::testDefaults()
 {
-    IrcMessage msg;
+    IrcMessage msg(0);
     QVERIFY(!msg.isValid());
+    QVERIFY(!msg.session());
     QVERIFY(msg.type() == IrcMessage::Unknown);
     QVERIFY(msg.flags() == IrcMessage::None);
     QVERIFY(msg.sender().prefix().isNull());
@@ -76,7 +77,8 @@ void tst_IrcMessage::testErrorMessage()
     QFETCH(QByteArray, data);
     QFETCH(QString, error);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Error);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("error").toString(), error);
@@ -107,7 +109,8 @@ void tst_IrcMessage::testInviteMessage()
     QFETCH(QString, channel);
     QFETCH(QString, user);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Invite);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
@@ -137,7 +140,8 @@ void tst_IrcMessage::testJoinMessage()
     QFETCH(QByteArray, data);
     QFETCH(QString, channel);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Join);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
@@ -171,7 +175,8 @@ void tst_IrcMessage::testKickMessage()
     QFETCH(QString, user);
     QFETCH(QString, reason);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Kick);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
@@ -203,7 +208,8 @@ void tst_IrcMessage::testNickMessage()
     QFETCH(QByteArray, data);
     QFETCH(QString, nick);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Nick);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("nick").toString(), nick);
@@ -236,7 +242,8 @@ void tst_IrcMessage::testNoticeMessage()
     QFETCH(QString, msg);
     QFETCH(bool, reply);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Notice);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
@@ -268,7 +275,8 @@ void tst_IrcMessage::testNumericMessage()
     QFETCH(QByteArray, data);
     QFETCH(int, code);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Numeric);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("code").toInt(), code);
@@ -313,7 +321,8 @@ void tst_IrcMessage::testModeMessage()
     QFETCH(QString, mode);
     QFETCH(QString, argument);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Mode);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
@@ -348,7 +357,8 @@ void tst_IrcMessage::testPartMessage()
     QFETCH(QString, channel);
     QFETCH(QString, reason);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Part);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
@@ -443,7 +453,8 @@ void tst_IrcMessage::testQuitMessage()
     QFETCH(QByteArray, data);
     QFETCH(QString, reason);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Quit);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("reason").toString(), reason);
@@ -474,7 +485,8 @@ void tst_IrcMessage::testTopicMessage()
     QFETCH(QString, channel);
     QFETCH(QString, topic);
 
-    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", this);
+    IrcSession session;
+    IrcMessage* message = IrcMessage::fromData(data, "UTF-8", &session);
     QCOMPARE(message->type(), IrcMessage::Topic);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);

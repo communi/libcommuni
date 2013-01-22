@@ -20,12 +20,14 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 
+class IrcSession;
 class IrcCommand;
 class IrcMessagePrivate;
 
 class COMMUNI_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(IrcSession* session READ session)
     Q_PROPERTY(Type type READ type)
     Q_PROPERTY(Flags flags READ flags)
     Q_PROPERTY(bool own READ isOwn)
@@ -64,8 +66,10 @@ public:
     };
     Q_DECLARE_FLAGS(Flags, Flag)
 
-    Q_INVOKABLE explicit IrcMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcMessage(IrcSession* session);
     virtual ~IrcMessage();
+
+    IrcSession* session() const;
 
     Type type() const;
     Flags flags() const;
@@ -81,13 +85,13 @@ public:
     void setEncoding(const QByteArray& encoding);
 
     Q_INVOKABLE QByteArray toData() const;
-    Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, QObject* parent = 0);
-    Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, const QByteArray& encoding, QObject* parent = 0);
+    Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, IrcSession* session);
+    Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, const QByteArray& encoding, IrcSession* session);
 
     Q_DECL_DEPRECATED QString toString() const;
-    Q_DECL_DEPRECATED static IrcMessage* fromString(const QString& str, QObject* parent = 0);
+    Q_DECL_DEPRECATED static IrcMessage* fromString(const QString& str, IrcSession* session);
 
-    Q_INVOKABLE static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, QObject* parent = 0);
+    Q_INVOKABLE static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, IrcSession* session);
 
 protected:
     QScopedPointer<IrcMessagePrivate> d_ptr;
@@ -103,7 +107,7 @@ class COMMUNI_EXPORT IrcNickMessage : public IrcMessage
     Q_PROPERTY(QString nick READ nick)
 
 public:
-    Q_INVOKABLE explicit IrcNickMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcNickMessage(IrcSession* session);
 
     QString nick() const;
 
@@ -119,7 +123,7 @@ class COMMUNI_EXPORT IrcQuitMessage : public IrcMessage
     Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcQuitMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcQuitMessage(IrcSession* session);
 
     QString reason() const;
 
@@ -135,7 +139,7 @@ class COMMUNI_EXPORT IrcJoinMessage : public IrcMessage
     Q_PROPERTY(QString channel READ channel)
 
 public:
-    Q_INVOKABLE explicit IrcJoinMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcJoinMessage(IrcSession* session);
 
     QString channel() const;
 
@@ -152,7 +156,7 @@ class COMMUNI_EXPORT IrcPartMessage : public IrcMessage
     Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcPartMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcPartMessage(IrcSession* session);
 
     QString channel() const;
     QString reason() const;
@@ -170,7 +174,7 @@ class COMMUNI_EXPORT IrcTopicMessage : public IrcMessage
     Q_PROPERTY(QString topic READ topic)
 
 public:
-    Q_INVOKABLE explicit IrcTopicMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcTopicMessage(IrcSession* session);
 
     QString channel() const;
     QString topic() const;
@@ -188,7 +192,7 @@ class COMMUNI_EXPORT IrcInviteMessage : public IrcMessage
     Q_PROPERTY(QString channel READ channel)
 
 public:
-    Q_INVOKABLE explicit IrcInviteMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcInviteMessage(IrcSession* session);
 
     QString user() const;
     QString channel() const;
@@ -207,7 +211,7 @@ class COMMUNI_EXPORT IrcKickMessage : public IrcMessage
     Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcKickMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcKickMessage(IrcSession* session);
 
     QString channel() const;
     QString user() const;
@@ -227,7 +231,7 @@ class COMMUNI_EXPORT IrcModeMessage : public IrcMessage
     Q_PROPERTY(QString argument READ argument)
 
 public:
-    Q_INVOKABLE explicit IrcModeMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcModeMessage(IrcSession* session);
 
     QString target() const;
     QString mode() const;
@@ -248,7 +252,7 @@ class COMMUNI_EXPORT IrcPrivateMessage : public IrcMessage
     Q_PROPERTY(bool request READ isRequest)
 
 public:
-    Q_INVOKABLE explicit IrcPrivateMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcPrivateMessage(IrcSession* session);
 
     QString target() const;
     QString message() const;
@@ -269,7 +273,7 @@ class COMMUNI_EXPORT IrcNoticeMessage : public IrcMessage
     Q_PROPERTY(bool reply READ isReply)
 
 public:
-    Q_INVOKABLE explicit IrcNoticeMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcNoticeMessage(IrcSession* session);
 
     QString target() const;
     QString message() const;
@@ -287,7 +291,7 @@ class COMMUNI_EXPORT IrcPingMessage : public IrcMessage
     Q_PROPERTY(QString argument READ argument)
 
 public:
-    Q_INVOKABLE explicit IrcPingMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcPingMessage(IrcSession* session);
 
     QString argument() const;
 
@@ -303,7 +307,7 @@ class COMMUNI_EXPORT IrcPongMessage : public IrcMessage
     Q_PROPERTY(QString argument READ argument)
 
 public:
-    Q_INVOKABLE explicit IrcPongMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcPongMessage(IrcSession* session);
 
     QString argument() const;
 
@@ -319,7 +323,7 @@ class COMMUNI_EXPORT IrcErrorMessage : public IrcMessage
     Q_PROPERTY(QString error READ error)
 
 public:
-    Q_INVOKABLE explicit IrcErrorMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcErrorMessage(IrcSession* session);
 
     QString error() const;
 
@@ -335,7 +339,7 @@ class COMMUNI_EXPORT IrcNumericMessage : public IrcMessage
     Q_PROPERTY(int code READ code)
 
 public:
-    Q_INVOKABLE explicit IrcNumericMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcNumericMessage(IrcSession* session);
 
     int code() const;
 
@@ -352,7 +356,7 @@ class COMMUNI_EXPORT IrcCapabilityMessage : public IrcMessage
     Q_PROPERTY(QStringList capabilities READ capabilities)
 
 public:
-    Q_INVOKABLE explicit IrcCapabilityMessage(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcCapabilityMessage(IrcSession* session);
 
     QString subCommand() const;
     QStringList capabilities() const;

@@ -155,6 +155,7 @@ public:
     QString decodeParam(int index) const;
     QString decodeData(const QByteArray& data) const;
 
+    IrcSession* session;
     IrcMessage::Type type;
     IrcMessage::Flags flags;
     QByteArray encoding;
@@ -162,7 +163,7 @@ public:
 };
 
 IrcMessagePrivate::IrcMessagePrivate() :
-    type(IrcMessage::Unknown), flags(IrcMessage::None), encoding("ISO-8859-15")
+    session(0), type(IrcMessage::Unknown), flags(IrcMessage::None), encoding("ISO-8859-15")
 {
 }
 
@@ -215,11 +216,12 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
 }
 
 /*!
-    Constructs a new IrcMessage with \a parent.
+    Constructs a new IrcMessage with \a session.
  */
-IrcMessage::IrcMessage(QObject* parent) : QObject(parent), d_ptr(new IrcMessagePrivate)
+IrcMessage::IrcMessage(IrcSession* session) : QObject(session), d_ptr(new IrcMessagePrivate)
 {
     Q_D(IrcMessage);
+    d->session = session;
     d->type = Unknown;
     d->flags = None;
 }
@@ -229,6 +231,18 @@ IrcMessage::IrcMessage(QObject* parent) : QObject(parent), d_ptr(new IrcMessageP
  */
 IrcMessage::~IrcMessage()
 {
+}
+
+/*!
+    This property holds the message session.
+
+    \par Access functions:
+    \li IrcSession* <b>session</b>() const
+ */
+IrcSession* IrcMessage::session() const
+{
+    Q_D(const IrcMessage);
+    return d->session;
 }
 
 /*!
@@ -328,9 +342,9 @@ void IrcMessage::setEncoding(const QByteArray& encoding)
 }
 
 /*!
-    Creates a new message from \a data and \a parent.
+    Creates a new message from \a data and \a session.
  */
-IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
+IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcSession* session)
 {
     IrcMessage* message = 0;
 
@@ -338,24 +352,21 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
     if (messageData.valid) {
         const QMetaObject* metaObject = irc_command_meta_object(messageData.command);
         Q_ASSERT(metaObject);
-        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(QObject*, parent)));
+        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcSession*, session)));
         Q_ASSERT(message);
         message->d_ptr->message = messageData;
 
-        IrcSession* session = qobject_cast<IrcSession*>(parent);
-        if (session) {
-            IrcSender sender = message->sender();
-            if (sender.isValid() && sender.name() == session->nickName())
-                message->d_ptr->flags |= Own;
+        IrcSender sender = message->sender();
+        if (sender.isValid() && sender.name() == session->nickName())
+            message->d_ptr->flags |= Own;
 
-            if (IrcSessionPrivate::get(session)->capabilities.contains("identify-msg") &&
-                    (message->d_ptr->type == Private || message->d_ptr->type == Notice)) {
-                QString msg = message->property("message").toString();
-                if (msg.startsWith("+"))
-                    message->d_ptr->flags |= Identified;
-                else if (msg.startsWith("-"))
-                    message->d_ptr->flags |= Unidentified;
-            }
+        if (IrcSessionPrivate::get(session)->capabilities.contains("identify-msg") &&
+                (message->d_ptr->type == Private || message->d_ptr->type == Notice)) {
+            QString msg = message->property("message").toString();
+            if (msg.startsWith("+"))
+                message->d_ptr->flags |= Identified;
+            else if (msg.startsWith("-"))
+                message->d_ptr->flags |= Unidentified;
         }
     }
     return message;
@@ -364,11 +375,11 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, QObject* parent)
 /*!
     This is an overloaded function.
 
-    This convenience function creates a new message from \a data, \a encoding and \a parent.
+    This convenience function creates a new message from \a data, \a encoding and \a session.
  */
-IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encoding, QObject* parent)
+IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encoding, IrcSession* session)
 {
-    IrcMessage* message = fromData(data, parent);
+    IrcMessage* message = fromData(data, session);
     if (message)
         message->setEncoding(encoding);
     return message;
@@ -379,17 +390,17 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encod
     \deprecated
     \sa fromData()
  */
-IrcMessage* IrcMessage::fromString(const QString& str, QObject* parent)
+IrcMessage* IrcMessage::fromString(const QString& str, IrcSession* session)
 {
-    return fromData(str.toUtf8(), "UTF-8", parent);
+    return fromData(str.toUtf8(), "UTF-8", session);
 }
 
 /*!
-    Creates a new message from \a sender and \a command with \a parent.
+    Creates a new message from \a sender and \a command with \a session.
  */
-IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, QObject* parent)
+IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, IrcSession* session)
 {
-    return fromData(":" + sender.toUtf8() + " " + command->toString().toUtf8(), "UTF-8", parent);
+    return fromData(":" + sender.toUtf8() + " " + command->toString().toUtf8(), "UTF-8", session);
 }
 
 /*!
@@ -420,7 +431,7 @@ bool IrcMessage::isOwn() const
 bool IrcMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->message.valid && sender().isValid();
+    return d->session && d->message.valid && sender().isValid();
 }
 
 /*!
@@ -450,9 +461,9 @@ QString IrcMessage::toString() const
  */
 
 /*!
-    Constructs a new IrcNickMessage with \a parent.
+    Constructs a new IrcNickMessage with \a session.
  */
-IrcNickMessage::IrcNickMessage(QObject* parent) : IrcMessage(parent)
+IrcNickMessage::IrcNickMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Nick;
@@ -482,9 +493,9 @@ bool IrcNickMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcQuitMessage with \a parent.
+    Constructs a new IrcQuitMessage with \a session.
  */
-IrcQuitMessage::IrcQuitMessage(QObject* parent) : IrcMessage(parent)
+IrcQuitMessage::IrcQuitMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Quit;
@@ -514,9 +525,9 @@ bool IrcQuitMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcJoinMessage with \a parent.
+    Constructs a new IrcJoinMessage with \a session.
  */
-IrcJoinMessage::IrcJoinMessage(QObject* parent) : IrcMessage(parent)
+IrcJoinMessage::IrcJoinMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Join;
@@ -546,9 +557,9 @@ bool IrcJoinMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcPartMessage with \a parent.
+    Constructs a new IrcPartMessage with \a session.
  */
-IrcPartMessage::IrcPartMessage(QObject* parent) : IrcMessage(parent)
+IrcPartMessage::IrcPartMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Part;
@@ -590,9 +601,9 @@ bool IrcPartMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcTopicMessage with \a parent.
+    Constructs a new IrcTopicMessage with \a session.
  */
-IrcTopicMessage::IrcTopicMessage(QObject* parent) : IrcMessage(parent)
+IrcTopicMessage::IrcTopicMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Topic;
@@ -634,9 +645,9 @@ bool IrcTopicMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcInviteMessage with \a parent.
+    Constructs a new IrcInviteMessage with \a session.
  */
-IrcInviteMessage::IrcInviteMessage(QObject* parent) : IrcMessage(parent)
+IrcInviteMessage::IrcInviteMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Invite;
@@ -678,9 +689,9 @@ bool IrcInviteMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcKickMessage with \a parent.
+    Constructs a new IrcKickMessage with \a session.
  */
-IrcKickMessage::IrcKickMessage(QObject* parent) : IrcMessage(parent)
+IrcKickMessage::IrcKickMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Kick;
@@ -734,9 +745,9 @@ bool IrcKickMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcModeMessage with \a parent.
+    Constructs a new IrcModeMessage with \a session.
  */
-IrcModeMessage::IrcModeMessage(QObject* parent) : IrcMessage(parent)
+IrcModeMessage::IrcModeMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Mode;
@@ -790,9 +801,9 @@ bool IrcModeMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcPrivateMessage with \a parent.
+    Constructs a new IrcPrivateMessage with \a session.
  */
-IrcPrivateMessage::IrcPrivateMessage(QObject* parent) : IrcMessage(parent)
+IrcPrivateMessage::IrcPrivateMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Private;
@@ -874,9 +885,9 @@ bool IrcPrivateMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcNoticeMessage with \a parent.
+    Constructs a new IrcNoticeMessage with \a session.
  */
-IrcNoticeMessage::IrcNoticeMessage(QObject* parent) : IrcMessage(parent)
+IrcNoticeMessage::IrcNoticeMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Notice;
@@ -938,9 +949,9 @@ bool IrcNoticeMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcPingMessage with \a parent.
+    Constructs a new IrcPingMessage with \a session.
  */
-IrcPingMessage::IrcPingMessage(QObject* parent) : IrcMessage(parent)
+IrcPingMessage::IrcPingMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Ping;
@@ -970,9 +981,9 @@ bool IrcPingMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcPongMessage with \a parent.
+    Constructs a new IrcPongMessage with \a session.
  */
-IrcPongMessage::IrcPongMessage(QObject* parent) : IrcMessage(parent)
+IrcPongMessage::IrcPongMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Pong;
@@ -1002,9 +1013,9 @@ bool IrcPongMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcErrorMessage with \a parent.
+    Constructs a new IrcErrorMessage with \a session.
  */
-IrcErrorMessage::IrcErrorMessage(QObject* parent) : IrcMessage(parent)
+IrcErrorMessage::IrcErrorMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Error;
@@ -1034,9 +1045,9 @@ bool IrcErrorMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcNumericMessage with \a parent.
+    Constructs a new IrcNumericMessage with \a session.
  */
-IrcNumericMessage::IrcNumericMessage(QObject* parent) : IrcMessage(parent)
+IrcNumericMessage::IrcNumericMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Numeric;
@@ -1068,9 +1079,9 @@ bool IrcNumericMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcCapabilityMessage with \a parent.
+    Constructs a new IrcCapabilityMessage with \a session.
  */
-IrcCapabilityMessage::IrcCapabilityMessage(QObject* parent) : IrcMessage(parent)
+IrcCapabilityMessage::IrcCapabilityMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
     d->type = Capability;

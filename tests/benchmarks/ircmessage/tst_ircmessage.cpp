@@ -9,6 +9,7 @@
  */
 
 #include "ircmessage.h"
+#include "ircsession.h"
 #include <QtTest/QtTest>
 #include <QtCore/QTextCodec>
 
@@ -53,14 +54,16 @@ void tst_IrcMessage::testFromData()
 {
     QFETCH(QByteArray, data);
 
+    IrcSession session;
     QBENCHMARK {
-        IrcMessage::fromData(data, "ISO-8859-1", this);
+        IrcMessage::fromData(data, "ISO-8859-1", &session);
     }
 }
 
 void tst_IrcMessage::testEncoding()
 {
-    IrcMessage message;
+    IrcSession session;
+    IrcMessage message(&session);
     foreach (const QByteArray& codec, QTextCodec::availableCodecs()) {
         QBENCHMARK {
             message.setEncoding(codec);
