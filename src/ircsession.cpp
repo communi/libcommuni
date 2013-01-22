@@ -16,6 +16,7 @@
 #include "ircsession.h"
 #include "ircsession_p.h"
 #include "ircsessioninfo.h"
+#include "ircprotocol_p.h"
 #include "irccommand.h"
 #include "ircmessage.h"
 #include "ircsender.h"
@@ -154,7 +155,7 @@
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     q_ptr(session),
     encoding("ISO-8859-15"),
-    buffer(),
+    protocol(0),
     socket(0),
     host(),
     port(6667),
@@ -175,19 +176,9 @@ void IrcSessionPrivate::_irc_connected()
 
     emit q->connecting();
 
-    // Send CAP LS first; if the server understands it this will
-    // temporarily pause the handshake until CAP END is sent, so we
-    // know whether the server supports the CAP extension.
-    capabilities.clear();
-    q->sendData("CAP LS");
-
     QString password;
     emit q->password(&password);
-    if (!password.isEmpty())
-        q->sendRaw(QString("PASS %1").arg(password));
-
-    q->sendCommand(IrcCommand::createNick(nickName));
-    q->sendRaw(QString("USER %1 hostname servername :%2").arg(userName, realName));
+    protocol->login(password);
 }
 
 void IrcSessionPrivate::_irc_disconnected()
@@ -220,92 +211,16 @@ void IrcSessionPrivate::_irc_state(QAbstractSocket::SocketState state)
 
 void IrcSessionPrivate::_irc_readData()
 {
-    buffer += socket->readAll();
-    // try reading RFC compliant message lines first
-    readLines("\r\n");
-    // fall back to RFC incompliant lines...
-    readLines("\n");
+    protocol->receive();
 }
 
-void IrcSessionPrivate::readLines(const QByteArray& delimiter)
-{
-    int i = -1;
-    while ((i = buffer.indexOf(delimiter)) != -1) {
-        QByteArray line = buffer.left(i).trimmed();
-        buffer = buffer.mid(i + delimiter.length());
-        if (!line.isEmpty())
-            processLine(line);
-    }
-}
-
-void IrcSessionPrivate::processLine(const QByteArray& line)
+void IrcSessionPrivate::setProtocol(IrcProtocol* proto)
 {
     Q_Q(IrcSession);
-
-    static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qDebug() << line;
-
-    IrcMessage* msg = IrcMessage::fromData(line, encoding, q);
-    if (msg) {
-        switch (msg->type()) {
-            case IrcMessage::Numeric: {
-                IrcNumericMessage* numeric = static_cast<IrcNumericMessage*>(msg);
-                if (numeric->code() == Irc::RPL_WELCOME) {
-                    setNick(msg->parameters().value(0));
-                    setConnected(true);
-                } else if (numeric->code() == Irc::RPL_ISUPPORT) {
-                    foreach (const QString& param, msg->parameters().mid(1)) {
-                        QStringList keyValue = param.split("=", QString::SkipEmptyParts);
-                        info.insert(keyValue.value(0), keyValue.value(1));
-                    }
-                    emit q->sessionInfoReceived(IrcSessionInfo(q));
-                }
-                break;
-            }
-            case IrcMessage::Ping:
-                q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
-                break;
-            case IrcMessage::Private: {
-                IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
-                if (privMsg->isRequest()) {
-                    IrcCommand* reply = q->createCtcpReply(privMsg);
-                    if (reply)
-                        q->sendCommand(reply);
-                }
-                break;
-            }
-            case IrcMessage::Nick:
-                if (msg->isOwn())
-                    setNick(static_cast<IrcNickMessage*>(msg)->nick());
-                break;
-            case IrcMessage::Capability:
-                if (!connected) {
-                    IrcCapabilityMessage* capMsg = static_cast<IrcCapabilityMessage*>(msg);
-                    QString subCommand = capMsg->subCommand();
-                    if (subCommand == "LS") {
-                        foreach (const QString& cap, capMsg->capabilities())
-                            capabilities.insert(cap);
-
-                        QStringList params = capMsg->parameters();
-                        if (params.value(params.count() - 1) != QLatin1String("*")) {
-                            QStringList request;
-                            emit q->capabilities(capabilities.toList(), &request);
-                            if (!request.isEmpty())
-                                q->sendCommand(IrcCommand::createCapability("REQ", request));
-                            else
-                                q->sendData("CAP END");
-                        }
-                    } else if (subCommand == "ACK" || subCommand == "NAK") {
-                        q->sendData("CAP END");
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-
-        emit q->messageReceived(msg);
-        msg->deleteLater();
+    if (protocol != proto) {
+        if (protocol && protocol->parent() == q)
+            delete protocol;
+        protocol = proto;
     }
 }
 
@@ -338,12 +253,78 @@ void IrcSessionPrivate::setConnected(bool value)
     }
 }
 
+void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
+{
+    Q_Q(IrcSession);
+    switch (msg->type()) {
+        case IrcMessage::Numeric: {
+            IrcNumericMessage* numeric = static_cast<IrcNumericMessage*>(msg);
+            if (numeric->code() == Irc::RPL_WELCOME) {
+                setNick(msg->parameters().value(0));
+                setConnected(true);
+            } else if (numeric->code() == Irc::RPL_ISUPPORT) {
+                foreach (const QString& param, msg->parameters().mid(1)) {
+                    QStringList keyValue = param.split("=", QString::SkipEmptyParts);
+                    info.insert(keyValue.value(0), keyValue.value(1));
+                }
+                emit q->sessionInfoReceived(IrcSessionInfo(q));
+            }
+            break;
+        }
+        case IrcMessage::Ping:
+            q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
+            break;
+        case IrcMessage::Private: {
+            IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
+            if (privMsg->isRequest()) {
+                IrcCommand* reply = q->createCtcpReply(privMsg);
+                if (reply)
+                    q->sendCommand(reply);
+            }
+            break;
+        }
+        case IrcMessage::Nick:
+            if (msg->isOwn())
+                setNick(static_cast<IrcNickMessage*>(msg)->nick());
+            break;
+        case IrcMessage::Capability:
+            if (!connected) {
+                IrcCapabilityMessage* capMsg = static_cast<IrcCapabilityMessage*>(msg);
+                QString subCommand = capMsg->subCommand();
+                if (subCommand == "LS") {
+                    foreach (const QString& cap, capMsg->capabilities())
+                        capabilities.insert(cap);
+
+                    QStringList params = capMsg->parameters();
+                    if (params.value(params.count() - 1) != QLatin1String("*")) {
+                        QStringList request;
+                        emit q->capabilities(capabilities.toList(), &request);
+                        if (!request.isEmpty())
+                            q->sendCommand(IrcCommand::createCapability("REQ", request));
+                        else
+                            q->sendData("CAP END");
+                    }
+                } else if (subCommand == "ACK" || subCommand == "NAK") {
+                    q->sendData("CAP END");
+                }
+            }
+            break;
+        default:
+            break;
+    }
+
+    emit q->messageReceived(msg);
+    msg->deleteLater();
+}
+
 /*!
     Constructs a new IRC session with \a parent.
  */
 IrcSession::IrcSession(QObject* parent) : QObject(parent), d_ptr(new IrcSessionPrivate(this))
 {
+    Q_D(IrcSession);
     setSocket(new QTcpSocket(this));
+    d->setProtocol(new IrcProtocol(this));
     qRegisterMetaType<IrcSender>("IrcSender");
 }
 
@@ -659,13 +640,12 @@ bool IrcSession::sendCommand(IrcCommand* command)
 bool IrcSession::sendData(const QByteArray& data)
 {
     Q_D(IrcSession);
-    qint64 bytes = -1;
     if (d->socket) {
         static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
         if (dbg) qDebug() << "->" << data;
-        bytes = d->socket->write(data + QByteArray("\r\n"));
+        return d->protocol->send(data);
     }
-    return bytes != -1;
+    return false;
 }
 
 /*!

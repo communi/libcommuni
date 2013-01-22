@@ -102,6 +102,8 @@ protected:
     virtual IrcCommand* createCtcpReply(IrcPrivateMessage* request) const;
 
 private:
+    friend class IrcProtocol;
+    friend class IrcProtocolPrivate;
     QScopedPointer<IrcSessionPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcSession)
     Q_DISABLE_COPY(IrcSession)
