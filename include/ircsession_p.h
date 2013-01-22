@@ -32,7 +32,6 @@ public:
 
     void _irc_connected();
     void _irc_disconnected();
-    void _irc_reconnect();
     void _irc_error(QAbstractSocket::SocketError error);
     void _irc_state(QAbstractSocket::SocketState state);
     void _irc_readData();

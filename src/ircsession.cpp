@@ -196,12 +196,6 @@ void IrcSessionPrivate::_irc_disconnected()
     emit q->disconnected();
 }
 
-void IrcSessionPrivate::_irc_reconnect()
-{
-    if (socket)
-        socket->connectToHost(host, port);
-}
-
 void IrcSessionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcSession);
@@ -622,7 +616,8 @@ void IrcSession::open()
         qCritical("IrcSession::open(): realName is empty!");
         return;
     }
-    d->_irc_reconnect();
+    if (d->socket)
+        d->socket->connectToHost(d->host, d->port);
 }
 
 /*!
