@@ -373,52 +373,6 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcSession* session)
 }
 
 /*!
-    This is an overloaded function.
-
-    This convenience function creates a new message from \a data, \a encoding and \a session.
- */
-IrcMessage* IrcMessage::fromData(const QByteArray& data, const QByteArray& encoding, IrcSession* session)
-{
-    IrcMessage* message = fromData(data, session);
-    if (message)
-        message->setEncoding(encoding);
-    return message;
-}
-
-/*!
-    \internal
-    \deprecated
-    \sa fromData()
- */
-IrcMessage* IrcMessage::fromString(const QString& str, IrcSession* session)
-{
-    return fromData(str.toUtf8(), "UTF-8", session);
-}
-
-/*!
-    Creates a new message from \a sender and \a command with \a session.
- */
-IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, IrcSession* session)
-{
-    return fromData(":" + sender.toUtf8() + " " + command->toString().toUtf8(), "UTF-8", session);
-}
-
-/*!
-    \property bool IrcMessage::own
-    This property is \c true if this is user's own message; otherwise \c false.
-
-    A message is considered own if the sender matches IrcSession::nickName.
-
-    \par Access functions:
-    \li bool <b>isOwn</b>() const
-*/
-bool IrcMessage::isOwn() const
-{
-    Q_D(const IrcMessage);
-    return d->flags & Own;
-}
-
-/*!
     \property bool IrcMessage::valid
     This property is \c true if the message is valid; otherwise \c false.
 
@@ -441,17 +395,6 @@ QByteArray IrcMessage::toData() const
 {
     Q_D(const IrcMessage);
     return d->message.data;
-}
-
-/*!
-    \internal
-    \deprecated
-    \sa sendData()
- */
-QString IrcMessage::toString() const
-{
-    Q_D(const IrcMessage);
-    return QString::fromUtf8(d->message.data);
 }
 
 /*!

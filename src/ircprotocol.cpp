@@ -59,9 +59,11 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
     if (dbg) qDebug() << line;
 
-    IrcMessage* msg = IrcMessage::fromData(line, session->encoding(), session);
-    if (msg)
+    IrcMessage* msg = IrcMessage::fromData(line, session);
+    if (msg) {
+        msg->setEncoding(session->encoding());
         q->receiveMessage(msg);
+    }
 }
 
 IrcProtocol::IrcProtocol(IrcSession* session) : QObject(session), d_ptr(new IrcProtocolPrivate(this))

@@ -284,7 +284,7 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
             break;
         }
         case IrcMessage::Nick:
-            if (msg->isOwn())
+            if (msg->flags() & IrcMessage::Own)
                 setNick(static_cast<IrcNickMessage*>(msg)->nick());
             break;
         case IrcMessage::Capability:

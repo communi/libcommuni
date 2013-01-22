@@ -56,7 +56,7 @@ void tst_IrcMessage::testFromData()
 
     IrcSession session;
     QBENCHMARK {
-        IrcMessage::fromData(data, "ISO-8859-1", &session);
+        IrcMessage::fromData(data, &session);
     }
 }
 

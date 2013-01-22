@@ -30,7 +30,6 @@ class COMMUNI_EXPORT IrcMessage : public QObject
     Q_PROPERTY(IrcSession* session READ session)
     Q_PROPERTY(Type type READ type)
     Q_PROPERTY(Flags flags READ flags)
-    Q_PROPERTY(bool own READ isOwn)
     Q_PROPERTY(bool valid READ isValid)
     Q_PROPERTY(IrcSender sender READ sender)
     Q_PROPERTY(QString command READ command)
@@ -78,7 +77,6 @@ public:
     QString command() const;
     QStringList parameters() const;
 
-    bool isOwn() const;
     virtual bool isValid() const;
 
     QByteArray encoding() const;
@@ -86,12 +84,6 @@ public:
 
     Q_INVOKABLE QByteArray toData() const;
     Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, IrcSession* session);
-    Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, const QByteArray& encoding, IrcSession* session);
-
-    Q_DECL_DEPRECATED QString toString() const;
-    Q_DECL_DEPRECATED static IrcMessage* fromString(const QString& str, IrcSession* session);
-
-    Q_INVOKABLE static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, IrcSession* session);
 
 protected:
     QScopedPointer<IrcMessagePrivate> d_ptr;
