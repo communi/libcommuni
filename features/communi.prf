@@ -3,4 +3,15 @@
 ######################################################################
 
 include(communi-config.prf)
-qtAddLibrary(Communi)
+
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/Communi
+DEPENDPATH += $$[QT_INSTALL_HEADERS]/Communi
+
+macx:!qt_no_framework {
+    LIBS += -framework Communi
+} else {
+    REAL_TEMPLATE = $$TEMPLATE
+    TEMPLATE = fakelib
+    LIBS += -l$$qtLibraryTarget(Communi)
+    TEMPLATE = $$REAL_TEMPLATE
+}
