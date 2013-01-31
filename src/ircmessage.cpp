@@ -160,12 +160,13 @@ public:
     IrcSession* session;
     IrcMessage::Type type;
     IrcMessage::Flags flags;
+    QDateTime timeStamp;
     QByteArray encoding;
     IrcMessageData message;
 };
 
 IrcMessagePrivate::IrcMessagePrivate() :
-    session(0), type(IrcMessage::Unknown), flags(IrcMessage::None), encoding("ISO-8859-15")
+    session(0), type(IrcMessage::Unknown), flags(IrcMessage::None), timeStamp(QDateTime::currentDateTime()), encoding("ISO-8859-15")
 {
 }
 
@@ -324,6 +325,25 @@ QStringList IrcMessage::parameters() const
     foreach (const QByteArray& param, d->message.params)
         params += d->decodeData(param);
     return params;
+}
+
+/*!
+    This property holds the message time stamp.
+
+    \par Access functions:
+    \li QDateTime <b>timeStamp</b>() const
+    \li void <b>setTimeStamp</b>(const QDateTime& timeStamp)
+ */
+QDateTime IrcMessage::timeStamp() const
+{
+    Q_D(const IrcMessage);
+    return d->timeStamp;
+}
+
+void IrcMessage::setTimeStamp(const QDateTime& timeStamp)
+{
+    Q_D(IrcMessage);
+    d->timeStamp = timeStamp;
 }
 
 /*!

@@ -18,6 +18,7 @@
 #include <IrcGlobal>
 #include <IrcSender>
 #include <QtCore/qobject.h>
+#include <QtCore/qdatetime.h>
 #include <QtCore/qstringlist.h>
 
 class IrcSession;
@@ -34,6 +35,7 @@ class COMMUNI_EXPORT IrcMessage : public QObject
     Q_PROPERTY(IrcSender sender READ sender)
     Q_PROPERTY(QString command READ command)
     Q_PROPERTY(QStringList parameters READ parameters)
+    Q_PROPERTY(QDateTime timeStamp READ timeStamp WRITE setTimeStamp)
     Q_ENUMS(Type Flag)
     Q_FLAGS(Flags)
 
@@ -78,6 +80,9 @@ public:
     QStringList parameters() const;
 
     virtual bool isValid() const;
+
+    QDateTime timeStamp() const;
+    void setTimeStamp(const QDateTime& timeStamp);
 
     QByteArray encoding() const;
     void setEncoding(const QByteArray& encoding);
