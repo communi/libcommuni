@@ -317,6 +317,7 @@ QString IrcMessage::command() const
 
     \par Access functions:
     \li QStringList <b>parameters</b>() const
+    \li void <b>setParameters</b>(const QStringList& parameters)
  */
 QStringList IrcMessage::parameters() const
 {
@@ -325,6 +326,14 @@ QStringList IrcMessage::parameters() const
     foreach (const QByteArray& param, d->message.params)
         params += d->decodeData(param);
     return params;
+}
+
+void IrcMessage::setParameters(const QStringList& parameters)
+{
+    Q_D(IrcMessage);
+    d->message.params.clear();
+    foreach (const QString& param, parameters)
+        d->message.params += param.toUtf8();
 }
 
 /*!
