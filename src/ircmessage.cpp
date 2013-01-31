@@ -289,18 +289,6 @@ IrcMessage::Flags IrcMessage::flags() const
 }
 
 /*!
-    This property holds the message sender.
-
-    \par Access functions:
-    \li IrcSender <b>sender</b>() const
- */
-IrcSender IrcMessage::sender() const
-{
-    Q_D(const IrcMessage);
-    return IrcSender(d->decodeData(d->message.prefix));
-}
-
-/*!
     This property holds the message command.
 
     \par Access functions:
@@ -310,6 +298,25 @@ QString IrcMessage::command() const
 {
     Q_D(const IrcMessage);
     return d->decodeData(d->message.command);
+}
+
+/*!
+    This property holds the message sender.
+
+    \par Access functions:
+    \li IrcSender <b>sender</b>() const
+    \li void <b>setSender</b>(const IrcSender& sender)
+ */
+IrcSender IrcMessage::sender() const
+{
+    Q_D(const IrcMessage);
+    return IrcSender(d->decodeData(d->message.prefix));
+}
+
+void IrcMessage::setSender(const IrcSender& sender)
+{
+    Q_D(IrcMessage);
+    d->message.prefix = sender.prefix().toUtf8();
 }
 
 /*!

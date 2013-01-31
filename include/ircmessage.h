@@ -32,8 +32,8 @@ class COMMUNI_EXPORT IrcMessage : public QObject
     Q_PROPERTY(Type type READ type)
     Q_PROPERTY(Flags flags READ flags)
     Q_PROPERTY(bool valid READ isValid)
-    Q_PROPERTY(IrcSender sender READ sender)
     Q_PROPERTY(QString command READ command)
+    Q_PROPERTY(IrcSender sender READ sender WRITE setSender)
     Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
     Q_PROPERTY(QDateTime timeStamp READ timeStamp WRITE setTimeStamp)
     Q_ENUMS(Type Flag)
@@ -74,9 +74,10 @@ public:
 
     Type type() const;
     Flags flags() const;
+    QString command() const;
 
     IrcSender sender() const;
-    QString command() const;
+    void setSender(const IrcSender& sender);
 
     QStringList parameters() const;
     void setParameters(const QStringList& parameters);
