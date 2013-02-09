@@ -22,6 +22,7 @@
 
 class IrcCommand;
 class IrcMessage;
+class IrcProtocol;
 class IrcSessionInfo;
 class IrcPrivateMessage;
 class IrcSessionPrivate;
@@ -100,6 +101,9 @@ Q_SIGNALS:
 
 protected:
     virtual IrcCommand* createCtcpReply(IrcPrivateMessage* request) const;
+
+    IrcProtocol* protocol() const;
+    void setProtocol(IrcProtocol* protocol);
 
 private:
     friend class IrcProtocol;

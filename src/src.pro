@@ -39,6 +39,7 @@ PUB_HEADERS += ../include/irccommand.h
 PUB_HEADERS += ../include/ircglobal.h
 PUB_HEADERS += ../include/ircmessage.h
 PUB_HEADERS += ../include/ircpalette.h
+PUB_HEADERS += ../include/ircprotocol.h
 PUB_HEADERS += ../include/ircsender.h
 PUB_HEADERS += ../include/ircsession.h
 PUB_HEADERS += ../include/ircsessioninfo.h
@@ -46,7 +47,6 @@ PUB_HEADERS += ../include/irctextformat.h
 
 PRIV_HEADERS += ../include/ircmessagedata_p.h
 PRIV_HEADERS += ../include/ircmessagedecoder_p.h
-PRIV_HEADERS += ../include/ircprotocol_p.h
 PRIV_HEADERS += ../include/ircsession_p.h
 
 HEADERS += $$PUB_HEADERS

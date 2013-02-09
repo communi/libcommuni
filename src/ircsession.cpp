@@ -16,7 +16,7 @@
 #include "ircsession.h"
 #include "ircsession_p.h"
 #include "ircsessioninfo.h"
-#include "ircprotocol_p.h"
+#include "ircprotocol.h"
 #include "irccommand.h"
 #include "ircmessage.h"
 #include "ircsender.h"
@@ -214,16 +214,6 @@ void IrcSessionPrivate::_irc_readData()
     protocol->receive();
 }
 
-void IrcSessionPrivate::setProtocol(IrcProtocol* proto)
-{
-    Q_Q(IrcSession);
-    if (protocol != proto) {
-        if (protocol && protocol->parent() == q)
-            delete protocol;
-        protocol = proto;
-    }
-}
-
 void IrcSessionPrivate::setNick(const QString& nick)
 {
     Q_Q(IrcSession);
@@ -322,9 +312,8 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
  */
 IrcSession::IrcSession(QObject* parent) : QObject(parent), d_ptr(new IrcSessionPrivate(this))
 {
-    Q_D(IrcSession);
     setSocket(new QTcpSocket(this));
-    d->setProtocol(new IrcProtocol(this));
+    setProtocol(new IrcProtocol(this));
     qRegisterMetaType<IrcSender>("IrcSender");
 }
 
@@ -680,6 +669,28 @@ IrcCommand* IrcSession::createCtcpReply(IrcPrivateMessage* request) const
     if (!reply.isEmpty())
         return IrcCommand::createCtcpReply(request->sender().name(), reply);
     return 0;
+}
+
+/*!
+    \internal
+ */
+IrcProtocol* IrcSession::protocol() const
+{
+    Q_D(const IrcSession);
+    return d->protocol;
+}
+
+/*!
+    \internal
+ */
+void IrcSession::setProtocol(IrcProtocol* proto)
+{
+    Q_D(IrcSession);
+    if (d->protocol != proto) {
+        if (d->protocol && d->protocol->parent() == this)
+            delete d->protocol;
+        d->protocol = proto;
+    }
 }
 
 #ifndef QT_NO_DEBUG_STREAM

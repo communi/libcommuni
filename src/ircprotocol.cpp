@@ -13,7 +13,7 @@
 * License for more details.
 */
 
-#include "ircprotocol_p.h"
+#include "ircprotocol.h"
 #include "ircsession_p.h"
 #include "ircsessioninfo.h"
 #include "ircsession.h"

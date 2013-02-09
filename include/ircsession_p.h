@@ -16,7 +16,6 @@
 #define IRCSESSION_P_H
 
 #include "ircsession.h"
-#include "ircprotocol_p.h"
 
 #include <QSet>
 #include <QString>
@@ -24,7 +23,7 @@
 #include <QMultiHash>
 #include <QAbstractSocket>
 
-class COMMUNI_EXPORT IrcSessionPrivate
+class IrcSessionPrivate
 {
     Q_DECLARE_PUBLIC(IrcSession)
 
@@ -37,7 +36,6 @@ public:
     void _irc_state(QAbstractSocket::SocketState state);
     void _irc_readData();
 
-    void setProtocol(IrcProtocol* protocol);
     void setNick(const QString& nick);
     void setActive(bool active);
     void setConnected(bool connected);
