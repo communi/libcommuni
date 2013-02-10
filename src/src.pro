@@ -106,8 +106,10 @@ CONFIG(icu, icu|no_icu) {
     DEFINES += COMMUNI_ICU
     SOURCES += ircmessagedecoder_icu.cpp
     include(3rdparty/icu/icu.pri)
+    !build_pass:message(Building with ICU backend)
 } else {
     DEFINES += COMMUNI_UCHARDET
     SOURCES += ircmessagedecoder_uchardet.cpp
     include(3rdparty/uchardet-0.0.1/uchardet.pri)
+    !build_pass:message(Building with uchardet backend)
 }
