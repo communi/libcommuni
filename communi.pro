@@ -73,9 +73,3 @@ include(version.pri)
         message(Building Communi $$COMMUNI_VERSION)
     }
 }
-
-lessThan(QT_MAJOR_VERSION, 5) {
-    lessThan(QT_MAJOR_VERSION, 4) | lessThan(QT_MINOR_VERSION, 7) {
-        message(Declarative support disabled. Use Qt 4.7 or later to enable declarative support.)
-    }
-}
