@@ -1,3 +1,14 @@
+2.0.0
+-----
+- Focus on easy deployment
+  - Support/promote static builds
+  - Removed all plugins
+- Removed all deprecated classes and methods
+- Radically simplified examples
+- API changes:
+  - Removed IrcUtil
+  - ...
+
 1.3.0
 -----
 - Removed Symbian support
