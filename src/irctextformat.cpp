@@ -272,6 +272,12 @@ QString IrcTextFormat::messageToHtml(const QString& message) const
             href.chop(4);
         }
 
+        // Don't consider trailing &quot; as part of the link.
+        if (href.endsWith(QLatin1String("&quot;"))) {
+            append.append(href.right(6));
+            href.chop(6);
+        }
+
         // Don't consider trailing comma or semi-colon as part of the link.
         if (href.endsWith(QLatin1Char(',')) || href.endsWith(QLatin1Char(';'))) {
             append.append(href.right(1));
