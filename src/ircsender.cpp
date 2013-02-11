@@ -34,17 +34,30 @@
 class IrcSenderPrivate : public QSharedData
 {
 public:
+    void init();
+
+    bool dirty;
     QString prefix;
     QString name;
     QString user;
     QString host;
 };
 
+void IrcSenderPrivate::init()
+{
+    QRegExp rx("([^!@\\s]+)(![^@\\s]+)?(@\\S+)?");
+    bool match = rx.exactMatch(prefix.trimmed());
+    name = match ? rx.cap(1) : QString();
+    user = match ? rx.cap(2).mid(1) : QString();
+    host = match ? rx.cap(3).mid(1) : QString();
+}
+
 /*!
     Constructs an invalid IrcSender.
  */
 IrcSender::IrcSender() : d(new IrcSenderPrivate)
 {
+    d->dirty = false;
 }
 
 /*!
@@ -52,7 +65,8 @@ IrcSender::IrcSender() : d(new IrcSenderPrivate)
  */
 IrcSender::IrcSender(const QString& prefix) : d(new IrcSenderPrivate)
 {
-    setPrefix(prefix);
+    d->dirty = false;
+    d->prefix = prefix;
 }
 
 /*!
@@ -86,6 +100,8 @@ IrcSender::~IrcSender()
  */
 bool IrcSender::isValid() const
 {
+    if (d->name.isEmpty())
+        d->init();
     return !d->name.isEmpty();
 }
 
@@ -94,13 +110,13 @@ bool IrcSender::isValid() const
  */
 QString IrcSender::prefix() const
 {
-    if (!isValid())
-        return QString();
-
-    QString pfx = d->name;
-    if (!d->user.isEmpty()) pfx += "!" + d->user;
-    if (!d->host.isEmpty()) pfx += "@" + d->host;
-    return pfx;
+    if (d->dirty) {
+        d->prefix = d->name;
+        if (!d->user.isEmpty()) d->prefix += "!" + d->user;
+        if (!d->host.isEmpty()) d->prefix += "@" + d->host;
+        d->dirty = false;
+    }
+    return d->prefix;
 }
 
 /*!
@@ -110,11 +126,11 @@ QString IrcSender::prefix() const
  */
 void IrcSender::setPrefix(const QString& prefix)
 {
-    QRegExp rx("([^!@\\s]+)(![^@\\s]+)?(@\\S+)?");
-    bool match = rx.exactMatch(prefix.trimmed());
-    d->name = match ? rx.cap(1) : QString();
-    d->user = match ? rx.cap(2).mid(1) : QString();
-    d->host = match ? rx.cap(3).mid(1) : QString();
+    d->prefix = prefix;
+    d->name.clear();
+    d->user.clear();
+    d->host.clear();
+    d->dirty = false;
 }
 
 /*!
@@ -127,6 +143,8 @@ void IrcSender::setPrefix(const QString& prefix)
  */
 QString IrcSender::name() const
 {
+    if (d->name.isEmpty())
+        d->init();
     return d->name;
 }
 
@@ -141,6 +159,7 @@ QString IrcSender::name() const
 void IrcSender::setName(const QString& name)
 {
     d->name = name;
+    d->dirty = true;
 }
 
 /*!
@@ -153,6 +172,8 @@ void IrcSender::setName(const QString& name)
  */
 QString IrcSender::user() const
 {
+    if (d->user.isEmpty())
+        d->init();
     return d->user;
 }
 
@@ -167,6 +188,7 @@ QString IrcSender::user() const
 void IrcSender::setUser(const QString& user)
 {
     d->user = user;
+    d->dirty = true;
 }
 
 /*!
@@ -179,6 +201,8 @@ void IrcSender::setUser(const QString& user)
  */
 QString IrcSender::host() const
 {
+    if (d->host.isEmpty())
+        d->init();
     return d->host;
 }
 
@@ -193,4 +217,5 @@ QString IrcSender::host() const
 void IrcSender::setHost(const QString& host)
 {
     d->host = host;
+    d->dirty = true;
 }
