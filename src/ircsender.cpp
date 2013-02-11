@@ -13,7 +13,6 @@
 */
 
 #include "ircsender.h"
-#include <QRegExp>
 
 /*!
     \file ircsender.h
@@ -45,11 +44,28 @@ public:
 
 void IrcSenderPrivate::init()
 {
-    QRegExp rx("([^!@\\s]+)(![^@\\s]+)?(@\\S+)?");
-    bool match = rx.exactMatch(prefix.trimmed());
-    name = match ? rx.cap(1) : QString();
-    user = match ? rx.cap(2).mid(1) : QString();
-    host = match ? rx.cap(3).mid(1) : QString();
+    name.clear();
+    user.clear();
+    host.clear();
+
+    if (prefix.contains(QLatin1Char(' ')))
+        return;
+
+    const int len = prefix.length();
+    const int ex = prefix.indexOf(QLatin1Char('!'));
+    const int at = prefix.indexOf(QLatin1Char('@'));
+
+    if (ex > 0 && at > 0 && ex + 1 < at && at < len - 1) {
+        name = prefix.mid(0, ex);
+        user = prefix.mid(ex + 1, at - ex - 1);
+        host = prefix.mid(at + 1);
+    } else if (ex > 0 && ex < len - 1 && at == -1) {
+        name = prefix.mid(0, ex);
+        user = prefix.mid(ex + 1);
+    } else if (at > 0 && at < len - 1 && ex == -1) {
+        name = prefix.mid(0, at);
+        host = prefix.mid(at + 1);
+    }
 }
 
 /*!
@@ -66,7 +82,7 @@ IrcSender::IrcSender() : d(new IrcSenderPrivate)
 IrcSender::IrcSender(const QString& prefix) : d(new IrcSenderPrivate)
 {
     d->dirty = false;
-    d->prefix = prefix;
+    d->prefix = prefix.trimmed();
 }
 
 /*!
@@ -112,8 +128,8 @@ QString IrcSender::prefix() const
 {
     if (d->dirty) {
         d->prefix = d->name;
-        if (!d->user.isEmpty()) d->prefix += "!" + d->user;
-        if (!d->host.isEmpty()) d->prefix += "@" + d->host;
+        if (!d->user.isEmpty()) d->prefix += QLatin1Char('!') + d->user;
+        if (!d->host.isEmpty()) d->prefix += QLatin1Char('@') + d->host;
         d->dirty = false;
     }
     return d->prefix;
@@ -126,7 +142,7 @@ QString IrcSender::prefix() const
  */
 void IrcSender::setPrefix(const QString& prefix)
 {
-    d->prefix = prefix;
+    d->prefix = prefix.trimmed();
     d->name.clear();
     d->user.clear();
     d->host.clear();
