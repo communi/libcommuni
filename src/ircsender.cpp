@@ -55,7 +55,9 @@ void IrcSenderPrivate::init()
     const int ex = prefix.indexOf(QLatin1Char('!'));
     const int at = prefix.indexOf(QLatin1Char('@'));
 
-    if (ex > 0 && at > 0 && ex + 1 < at && at < len - 1) {
+    if (ex == -1 && at == -1) {
+        name = prefix;
+    } else if (ex > 0 && at > 0 && ex + 1 < at && at < len - 1) {
         name = prefix.mid(0, ex);
         user = prefix.mid(ex + 1, at - ex - 1);
         host = prefix.mid(at + 1);
