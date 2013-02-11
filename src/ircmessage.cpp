@@ -192,8 +192,8 @@ void IrcMessagePrivate::init(IrcMessage* message)
     if (sender.isValid() && sender.name() == session->nickName())
         flags |= IrcMessage::Own;
 
-    if (IrcSessionPrivate::get(session)->capabilities.contains("identify-msg") &&
-            (type == IrcMessage::Private || type == IrcMessage::Notice)) {
+    if ((type == IrcMessage::Private || type == IrcMessage::Notice) &&
+            IrcSessionPrivate::get(session)->capabilities.contains("identify-msg")) {
         QString msg = message->property("message").toString();
         if (msg.startsWith("+"))
             flags |= IrcMessage::Identified;
