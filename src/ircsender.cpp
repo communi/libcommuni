@@ -31,66 +31,52 @@
     </pre>
  */
 
-/*!
-    \fn QString IrcSender::name() const
-    Returns the name.
-
-    <pre>
-    &lt;prefix&gt; ::= <b>&lt;servername&gt;</b> | <b>&lt;nick&gt;</b> [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
-    </pre>
- */
-
-/*!
-    \fn void IrcSender::setName(const QString& name)
-    Sets the name.
-
-    <pre>
-    &lt;prefix&gt; ::= <b>&lt;servername&gt;</b> | <b>&lt;nick&gt;</b> [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
-    </pre>
- */
+class IrcSenderPrivate : public QSharedData
+{
+public:
+    QString prefix;
+    QString name;
+    QString user;
+    QString host;
+};
 
 /*!
-    \fn QString IrcSender::user() const
-    Returns the user.
-
-    <pre>
-    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' <b>&lt;user&gt;</b> ] [ '@' &lt;host&gt; ]
-    </pre>
+    Constructs an invalid IrcSender.
  */
+IrcSender::IrcSender() : d(new IrcSenderPrivate)
+{
+}
 
 /*!
-    \fn void IrcSender::setUser(const QString& user)
-    Sets the user.
-
-    <pre>
-    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' <b>&lt;user&gt;</b> ] [ '@' &lt;host&gt; ]
-    </pre>
+    Constructs a new IrcSender initialized to \a prefix.
  */
-
-/*!
-    \fn QString IrcSender::host() const
-    Returns the host.
-
-    <pre>
-    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' &lt;user&gt; ] [ '@' <b>&lt;host&gt;</b> ]
-    </pre>
- */
-
-/*!
-    \fn void IrcSender::setHost(const QString& host)
-    Sets the host.
-
-    <pre>
-    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' &lt;user&gt; ] [ '@' <b>&lt;host&gt;</b> ]
-    </pre>
- */
-
-/*!
-    Constructs a new IrcSender, optionally initializing to \a prefix.
- */
-IrcSender::IrcSender(const QString& prefix)
+IrcSender::IrcSender(const QString& prefix) : d(new IrcSenderPrivate)
 {
     setPrefix(prefix);
+}
+
+/*!
+    Constructs a copy of \a other IrcSender.
+ */
+IrcSender::IrcSender(const IrcSender& other) : d(other.d)
+{
+}
+
+/*!
+    Assigns an \a other IrcSender to this.
+ */
+IrcSender& IrcSender::operator=(const IrcSender& other)
+{
+    if (this != &other)
+        d = other.d;
+    return *this;
+}
+
+/*!
+    Destructs the IrcSender.
+ */
+IrcSender::~IrcSender()
+{
 }
 
 /*!
@@ -100,7 +86,7 @@ IrcSender::IrcSender(const QString& prefix)
  */
 bool IrcSender::isValid() const
 {
-    return !n.isEmpty();
+    return !d->name.isEmpty();
 }
 
 /*!
@@ -111,9 +97,9 @@ QString IrcSender::prefix() const
     if (!isValid())
         return QString();
 
-    QString pfx = n;
-    if (!u.isEmpty()) pfx += "!" + u;
-    if (!h.isEmpty()) pfx += "@" + h;
+    QString pfx = d->name;
+    if (!d->user.isEmpty()) pfx += "!" + d->user;
+    if (!d->host.isEmpty()) pfx += "@" + d->host;
     return pfx;
 }
 
@@ -126,7 +112,85 @@ void IrcSender::setPrefix(const QString& prefix)
 {
     QRegExp rx("([^!@\\s]+)(![^@\\s]+)?(@\\S+)?");
     bool match = rx.exactMatch(prefix.trimmed());
-    n = match ? rx.cap(1) : QString();
-    u = match ? rx.cap(2).mid(1) : QString();
-    h = match ? rx.cap(3).mid(1) : QString();
+    d->name = match ? rx.cap(1) : QString();
+    d->user = match ? rx.cap(2).mid(1) : QString();
+    d->host = match ? rx.cap(3).mid(1) : QString();
+}
+
+/*!
+    \fn QString IrcSender::name() const
+    Returns the name.
+
+    <pre>
+    &lt;prefix&gt; ::= <b>&lt;servername&gt;</b> | <b>&lt;nick&gt;</b> [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
+    </pre>
+ */
+QString IrcSender::name() const
+{
+    return d->name;
+}
+
+/*!
+    \fn void IrcSender::setName(const QString& name)
+    Sets the name.
+
+    <pre>
+    &lt;prefix&gt; ::= <b>&lt;servername&gt;</b> | <b>&lt;nick&gt;</b> [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
+    </pre>
+ */
+void IrcSender::setName(const QString& name)
+{
+    d->name = name;
+}
+
+/*!
+    \fn QString IrcSender::user() const
+    Returns the user.
+
+    <pre>
+    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' <b>&lt;user&gt;</b> ] [ '@' &lt;host&gt; ]
+    </pre>
+ */
+QString IrcSender::user() const
+{
+    return d->user;
+}
+
+/*!
+    \fn void IrcSender::setUser(const QString& user)
+    Sets the user.
+
+    <pre>
+    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' <b>&lt;user&gt;</b> ] [ '@' &lt;host&gt; ]
+    </pre>
+ */
+void IrcSender::setUser(const QString& user)
+{
+    d->user = user;
+}
+
+/*!
+    \fn QString IrcSender::host() const
+    Returns the host.
+
+    <pre>
+    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' &lt;user&gt; ] [ '@' <b>&lt;host&gt;</b> ]
+    </pre>
+ */
+QString IrcSender::host() const
+{
+    return d->host;
+}
+
+/*!
+    \fn void IrcSender::setHost(const QString& host)
+    Sets the host.
+
+    <pre>
+    &lt;prefix&gt; ::= &lt;servername&gt; | &lt;nick&gt; [ '!' &lt;user&gt; ] [ '@' <b>&lt;host&gt;</b> ]
+    </pre>
+ */
+void IrcSender::setHost(const QString& host)
+{
+    d->host = host;
 }

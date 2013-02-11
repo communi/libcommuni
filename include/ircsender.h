@@ -18,42 +18,35 @@
 #include <IrcGlobal>
 #include <QtCore/qstring.h>
 #include <QtCore/qmetatype.h>
+#include <QtCore/qshareddata.h>
+
+class IrcSenderPrivate;
 
 class COMMUNI_EXPORT IrcSender
 {
 public:
-    IrcSender(const QString& prefix = QString());
+    IrcSender();
+    IrcSender(const QString& prefix);
+    IrcSender(const IrcSender& other);
+    IrcSender& operator=(const IrcSender& other);
+    ~IrcSender();
 
     bool isValid() const;
 
     QString prefix() const;
     void setPrefix(const QString& prefix);
 
-    QString name() const {
-        return n;
-    }
-    void setName(const QString& name) {
-        n = name;
-    }
+    QString name() const;
+    void setName(const QString& name);
 
-    QString user() const {
-        return u;
-    }
-    void setUser(const QString& user) {
-        u = user;
-    }
+    QString user() const;
+    void setUser(const QString& user);
 
-    QString host() const {
-        return h;
-    }
-    void setHost(const QString& host) {
-        h = host;
-    }
+    QString host() const;
+    void setHost(const QString& host);
 
 private:
-    QString n;
-    QString u;
-    QString h;
+    mutable QSharedDataPointer<IrcSenderPrivate> d;
 };
 
 Q_DECLARE_METATYPE(IrcSender)
