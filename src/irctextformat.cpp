@@ -49,7 +49,7 @@ public:
  */
 IrcTextFormat::IrcTextFormat() : d(new IrcTextFormatPrivate)
 {
-    d->urlPattern = QLatin1String("((www\\.(?!\\.)|(ssh|fish|irc|amarok|(f|sf|ht)tp(|s))://)(\\.?[\\d\\w/,\\':~\\^\\?=;#@\\-\\+\\%\\*\\{\\}\\!\\(\\)\\[\\]]|&)+)|""([-.\\d\\w]+@[-.\\d\\w]{2,}\\.[\\w]{2,})");
+    d->urlPattern = QString("\\b((?:(?:([a-z][\\w\\.-]+:/{1,3})|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|\\}\\]|[^\\s`!()\\[\\]{};:'\".,<>?%1%2%3%4%5%6])|[a-z0-9.\\-+_]+@[a-z0-9.\\-]+[.][a-z]{1,5}[^\\s/`!()\\[\\]{};:'\".,<>?%1%2%3%4%5%6]))").arg(QChar(0x00AB)).arg(QChar(0x00BB)).arg(QChar(0x201C)).arg(QChar(0x201D)).arg(QChar(0x2018)).arg(QChar(0x2019));
 }
 
 /*!
@@ -138,12 +138,14 @@ static bool parseColors(const QString& message, int pos, int* len, int *fg, int 
 QString IrcTextFormat::messageToHtml(const QString& message) const
 {
     QString processed = message;
-    processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
+
+    // TODO:
+    //processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
     processed.replace(QLatin1Char('<'), QLatin1String("&lt;"));
-    processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
-    processed.replace(QLatin1Char('"'), QLatin1String("&quot;"));
-    processed.replace(QLatin1Char('\''), QLatin1String("&apos;"));
-    processed.replace(QLatin1Char('\t'), QLatin1String("&nbsp;"));
+    //processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
+    //processed.replace(QLatin1Char('"'), QLatin1String("&quot;"));
+    //processed.replace(QLatin1Char('\''), QLatin1String("&apos;"));
+    //processed.replace(QLatin1Char('\t'), QLatin1String("&nbsp;"));
 
     enum {
         None            = 0x0,
@@ -265,51 +267,18 @@ QString IrcTextFormat::messageToHtml(const QString& message) const
         int len = rx.matchedLength();
         QString href = processed.mid(pos, len);
 
-        // Don't consider trailing &gt; as part of the link.
-        QString append;
-        if (href.endsWith(QLatin1String("&gt;"))) {
-            append.append(href.right(4));
-            href.chop(4);
-        }
-
-        // Don't consider trailing &quot; as part of the link.
-        if (href.endsWith(QLatin1String("&quot;"))) {
-            append.append(href.right(6));
-            href.chop(6);
-        }
-
-        // Don't consider trailing comma or semi-colon as part of the link.
-        if (href.endsWith(QLatin1Char(',')) || href.endsWith(QLatin1Char(';'))) {
-            append.append(href.right(1));
-            href.chop(1);
-        }
-
-        // Don't consider trailing closing parenthesis part of the link when
-        // there's an opening parenthesis preceding in the beginning of the
-        // URL or there is no opening parenthesis in the URL at all.
-        if (pos > 0 && href.endsWith(QLatin1Char(')'))
-                && (processed.at(pos - 1) == QLatin1Char('(')
-                    || !href.contains(QLatin1Char('(')))) {
-            append.prepend(href.right(1));
-            href.chop(1);
-        }
-
-        // Qt doesn't support (?<=pattern) so we do it here
-        if (pos > 0 && processed.at(pos - 1).isLetterOrNumber()) {
-            pos++;
-            continue;
-        }
-
         QString protocol;
-        if (rx.cap(1).startsWith(QLatin1String("www."), Qt::CaseInsensitive))
-            protocol = QLatin1String("http://");
-        else if (rx.cap(1).isEmpty())
-            protocol = QLatin1String("mailto:");
+        if (rx.cap(2).isEmpty())
+        {
+            if (rx.cap(1).contains(QLatin1Char('@')))
+                protocol = QLatin1String("mailto:");
+            else if (rx.cap(1).startsWith(QLatin1String("ftp."), Qt::CaseInsensitive))
+                protocol = QLatin1String("ftp://");
+            else
+                protocol = QLatin1String("http://");
+        }
 
-        QString source = href;
-        source.replace(QLatin1String("&amp;"), QLatin1String("&"));
-
-        QString link = QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, source, href) + append;
+        QString link = QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, href, href);
         processed.replace(pos, len, link);
         pos += link.length();
     }
