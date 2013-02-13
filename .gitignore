@@ -50,3 +50,4 @@ configure-stamp
 /tests/auto/ircsession/ircsession
 /tests/benchmarks/ircmessage/ircmessage
 /tests/benchmarks/ircmessagedecoder/ircmessagedecoder
+/tests/benchmarks/irctextformat/irctextformat
