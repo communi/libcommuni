@@ -12,11 +12,18 @@
 * License for more details.
 */
 
-#ifndef IRCMESSAGEDATA_P_H
-#define IRCMESSAGEDATA_P_H
+#ifndef IRCMESSAGE_P_H
+#define IRCMESSAGE_P_H
 
 #include <QtCore/qlist.h>
+#include <QtCore/qstring.h>
 #include <QtCore/qbytearray.h>
+#include <QtCore/qstringlist.h>
+
+#include "ircsender.h"
+#include "ircmessage.h"
+
+class IrcSession;
 
 class IrcMessageData
 {
@@ -32,4 +39,36 @@ public:
     QList<QByteArray> params;
 };
 
-#endif // IRCMESSAGEDATA_P_H
+class IrcMessageContent
+{
+public:
+    IrcMessageContent() : dirty(true) { }
+
+    static IrcMessageContent fromData(const IrcMessageData& data, const QByteArray& encoding);
+
+    bool dirty;
+    IrcSender sender;
+    QString command;
+    QStringList params;
+};
+
+class IrcMessagePrivate
+{
+public:
+    IrcMessagePrivate();
+
+    IrcSender sender() const;
+    QString command() const;
+    QStringList params() const;
+    QString param(int index) const;
+
+    IrcSession* session;
+    IrcMessage::Type type;
+    QDateTime timeStamp;
+    QByteArray encoding;
+    IrcMessageData message;
+    mutable IrcMessageContent content;
+    mutable int flags;
+};
+
+#endif // IRCMESSAGE_P_H

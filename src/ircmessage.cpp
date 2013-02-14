@@ -13,11 +13,10 @@
 */
 
 #include "ircmessage.h"
+#include "ircmessage_p.h"
 #include "ircsession.h"
 #include "ircsession_p.h"
 #include "irccommand.h"
-#include "ircmessagedata_p.h"
-#include "ircmessagedecoder_p.h"
 #include <QVariant>
 #include <QDebug>
 
@@ -148,60 +147,6 @@
     \brief The message is unidentified.
  */
 
-class IrcMessagePrivate
-{
-public:
-    IrcMessagePrivate();
-    void init(IrcMessage* message);
-
-    QString decodeParam(int index) const;
-    QString decodeData(const QByteArray& data) const;
-
-    IrcSession* session;
-    IrcMessage::Type type;
-    IrcMessage::Flags flags;
-    QDateTime timeStamp;
-    QByteArray encoding;
-    IrcMessageData message;
-};
-
-IrcMessagePrivate::IrcMessagePrivate() :
-    session(0), type(IrcMessage::Unknown), flags(IrcMessage::None), timeStamp(QDateTime::currentDateTime()), encoding("ISO-8859-15")
-{
-}
-
-QString IrcMessagePrivate::decodeParam(int index) const
-{
-    return decodeData(message.params.value(index));
-}
-
-QString IrcMessagePrivate::decodeData(const QByteArray& data) const
-{
-    if (!message.valid)
-        return QString();
-
-    // TODO: not thread safe
-    static IrcMessageDecoder decoder;
-    decoder.setEncoding(encoding);
-    return decoder.decode(data);
-}
-
-void IrcMessagePrivate::init(IrcMessage* message)
-{
-    IrcSender sender = message->sender();
-    if (sender.isValid() && sender.name() == session->nickName())
-        flags |= IrcMessage::Own;
-
-    if ((type == IrcMessage::Private || type == IrcMessage::Notice) &&
-            IrcSessionPrivate::get(session)->capabilities.contains("identify-msg")) {
-        QString msg = message->property("message").toString();
-        if (msg.startsWith("+"))
-            flags |= IrcMessage::Identified;
-        else if (msg.startsWith("-"))
-            flags |= IrcMessage::Unidentified;
-    }
-}
-
 static const QMetaObject* irc_command_meta_object(const QString& command)
 {
     static QHash<QString, const QMetaObject*> metaObjects;
@@ -241,8 +186,6 @@ IrcMessage::IrcMessage(IrcSession* session) : QObject(session), d_ptr(new IrcMes
 {
     Q_D(IrcMessage);
     d->session = session;
-    d->type = Unknown;
-    d->flags = None;
 }
 
 /*!
@@ -285,7 +228,22 @@ IrcMessage::Type IrcMessage::type() const
 IrcMessage::Flags IrcMessage::flags() const
 {
     Q_D(const IrcMessage);
-    return d->flags;
+    if (d->flags == -1) {
+        d->flags = IrcMessage::None;
+        IrcSender sender = d->sender();
+        if (sender.isValid() && sender.name() == d->session->nickName())
+            d->flags |= IrcMessage::Own;
+
+        if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
+                IrcSessionPrivate::get(d->session)->capabilities.contains("identify-msg")) {
+            QString msg = property("message").toString();
+            if (msg.startsWith("+"))
+                d->flags |= IrcMessage::Identified;
+            else if (msg.startsWith("-"))
+                d->flags |= IrcMessage::Unidentified;
+        }
+    }
+    return IrcMessage::Flags(d->flags);
 }
 
 /*!
@@ -297,7 +255,7 @@ IrcMessage::Flags IrcMessage::flags() const
 QString IrcMessage::command() const
 {
     Q_D(const IrcMessage);
-    return d->decodeData(d->message.command);
+    return d->command();
 }
 
 /*!
@@ -310,13 +268,14 @@ QString IrcMessage::command() const
 IrcSender IrcMessage::sender() const
 {
     Q_D(const IrcMessage);
-    return IrcSender(d->decodeData(d->message.prefix));
+    return d->sender();
 }
 
 void IrcMessage::setSender(const IrcSender& sender)
 {
     Q_D(IrcMessage);
     d->message.prefix = sender.prefix().toUtf8();
+    d->content.dirty = true;
 }
 
 /*!
@@ -329,10 +288,7 @@ void IrcMessage::setSender(const IrcSender& sender)
 QStringList IrcMessage::parameters() const
 {
     Q_D(const IrcMessage);
-    QStringList params;
-    foreach (const QByteArray& param, d->message.params)
-        params += d->decodeData(param);
-    return params;
+    return d->params();
 }
 
 void IrcMessage::setParameters(const QStringList& parameters)
@@ -341,6 +297,7 @@ void IrcMessage::setParameters(const QStringList& parameters)
     d->message.params.clear();
     foreach (const QString& param, parameters)
         d->message.params += param.toUtf8();
+    d->content.dirty = true;
 }
 
 /*!
@@ -393,6 +350,7 @@ void IrcMessage::setEncoding(const QByteArray& encoding)
         return;
     }
     d->encoding = encoding;
+    d->content.dirty = true;
 }
 
 /*!
@@ -409,7 +367,6 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcSession* session)
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcSession*, session)));
         Q_ASSERT(message);
         message->d_ptr->message = messageData;
-        message->d_ptr->init(message);
     }
     return message;
 }
@@ -431,7 +388,6 @@ IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& com
         data.params += param.toUtf8();
     data.valid = !command.isEmpty();
     message->d_ptr->message = data;
-    message->d_ptr->init(message);
     return message;
 }
 
@@ -484,7 +440,7 @@ IrcNickMessage::IrcNickMessage(IrcSession* session) : IrcMessage(session)
 QString IrcNickMessage::nick() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 bool IrcNickMessage::isValid() const
@@ -516,7 +472,7 @@ IrcQuitMessage::IrcQuitMessage(IrcSession* session) : IrcMessage(session)
 QString IrcQuitMessage::reason() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 bool IrcQuitMessage::isValid() const
@@ -548,7 +504,7 @@ IrcJoinMessage::IrcJoinMessage(IrcSession* session) : IrcMessage(session)
 QString IrcJoinMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 bool IrcJoinMessage::isValid() const
@@ -580,7 +536,7 @@ IrcPartMessage::IrcPartMessage(IrcSession* session) : IrcMessage(session)
 QString IrcPartMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 /*!
@@ -592,7 +548,7 @@ QString IrcPartMessage::channel() const
 QString IrcPartMessage::reason() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(1);
+    return d->param(1);
 }
 
 bool IrcPartMessage::isValid() const
@@ -624,7 +580,7 @@ IrcTopicMessage::IrcTopicMessage(IrcSession* session) : IrcMessage(session)
 QString IrcTopicMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 /*!
@@ -636,7 +592,7 @@ QString IrcTopicMessage::channel() const
 QString IrcTopicMessage::topic() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(1);
+    return d->param(1);
 }
 
 bool IrcTopicMessage::isValid() const
@@ -668,7 +624,7 @@ IrcInviteMessage::IrcInviteMessage(IrcSession* session) : IrcMessage(session)
 QString IrcInviteMessage::user() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 /*!
@@ -680,7 +636,7 @@ QString IrcInviteMessage::user() const
 QString IrcInviteMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(1);
+    return d->param(1);
 }
 
 bool IrcInviteMessage::isValid() const
@@ -712,7 +668,7 @@ IrcKickMessage::IrcKickMessage(IrcSession* session) : IrcMessage(session)
 QString IrcKickMessage::channel() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 /*!
@@ -724,7 +680,7 @@ QString IrcKickMessage::channel() const
 QString IrcKickMessage::user() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(1);
+    return d->param(1);
 }
 
 /*!
@@ -736,7 +692,7 @@ QString IrcKickMessage::user() const
 QString IrcKickMessage::reason() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(2);
+    return d->param(2);
 }
 
 bool IrcKickMessage::isValid() const
@@ -768,7 +724,7 @@ IrcModeMessage::IrcModeMessage(IrcSession* session) : IrcMessage(session)
 QString IrcModeMessage::target() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 /*!
@@ -780,7 +736,7 @@ QString IrcModeMessage::target() const
 QString IrcModeMessage::mode() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(1);
+    return d->param(1);
 }
 
 /*!
@@ -792,7 +748,7 @@ QString IrcModeMessage::mode() const
 QString IrcModeMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(2);
+    return d->param(2);
 }
 
 bool IrcModeMessage::isValid() const
@@ -824,7 +780,7 @@ IrcPrivateMessage::IrcPrivateMessage(IrcSession* session) : IrcMessage(session)
 QString IrcPrivateMessage::target() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 /*!
@@ -836,8 +792,8 @@ QString IrcPrivateMessage::target() const
 QString IrcPrivateMessage::message() const
 {
     Q_D(const IrcMessage);
-    QString msg = d->decodeParam(1);
-    if (d->flags & (Identified | Unidentified))
+    QString msg = d->param(1);
+    if (flags() & (Identified | Unidentified))
         msg.remove(0, 1);
     const bool act = isAction();
     const bool req = isRequest();
@@ -858,7 +814,7 @@ bool IrcPrivateMessage::isAction() const
 {
     Q_D(const IrcMessage);
     QByteArray msg = d->message.params.value(1);
-    if (d->flags & (Identified | Unidentified))
+    if (flags() & (Identified | Unidentified))
         msg.remove(0, 1);
     return msg.startsWith("\1ACTION ") && msg.endsWith('\1');
 }
@@ -874,7 +830,7 @@ bool IrcPrivateMessage::isRequest() const
 {
     Q_D(const IrcMessage);
     QByteArray msg = d->message.params.value(1);
-    if (d->flags & (Identified | Unidentified))
+    if (flags() & (Identified | Unidentified))
         msg.remove(0, 1);
     return msg.startsWith('\1') && msg.endsWith('\1') && !isAction();
 }
@@ -908,7 +864,7 @@ IrcNoticeMessage::IrcNoticeMessage(IrcSession* session) : IrcMessage(session)
 QString IrcNoticeMessage::target() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 /*!
@@ -920,8 +876,8 @@ QString IrcNoticeMessage::target() const
 QString IrcNoticeMessage::message() const
 {
     Q_D(const IrcMessage);
-    QString msg = d->decodeParam(1);
-    if (d->flags & (Identified | Unidentified))
+    QString msg = d->param(1);
+    if (flags() & (Identified | Unidentified))
         msg.remove(0, 1);
     if (isReply()) {
         msg.remove(0, 1);
@@ -972,7 +928,7 @@ IrcPingMessage::IrcPingMessage(IrcSession* session) : IrcMessage(session)
 QString IrcPingMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 bool IrcPingMessage::isValid() const
@@ -1004,7 +960,7 @@ IrcPongMessage::IrcPongMessage(IrcSession* session) : IrcMessage(session)
 QString IrcPongMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(1);
+    return d->param(1);
 }
 
 bool IrcPongMessage::isValid() const
@@ -1036,7 +992,7 @@ IrcErrorMessage::IrcErrorMessage(IrcSession* session) : IrcMessage(session)
 QString IrcErrorMessage::error() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(0);
+    return d->param(0);
 }
 
 bool IrcErrorMessage::isValid() const
@@ -1105,7 +1061,7 @@ IrcCapabilityMessage::IrcCapabilityMessage(IrcSession* session) : IrcMessage(ses
 QString IrcCapabilityMessage::subCommand() const
 {
     Q_D(const IrcMessage);
-    return d->decodeParam(1);
+    return d->param(1);
 }
 
 /*!
@@ -1121,8 +1077,9 @@ QStringList IrcCapabilityMessage::capabilities() const
 {
     Q_D(const IrcMessage);
     QStringList caps;
-    if (d->message.params.count() > 2)
-        caps = d->decodeData(d->message.params.last()).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    QStringList params = d->params();
+    if (params.count() > 2)
+        caps = params.last().split(QLatin1Char(' '), QString::SkipEmptyParts);
     return caps;
 }
 

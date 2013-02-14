@@ -12,7 +12,41 @@
 * License for more details.
 */
 
-#include "ircmessagedata_p.h"
+#include "ircmessage_p.h"
+#include "ircmessagedecoder_p.h"
+
+IrcMessagePrivate::IrcMessagePrivate() :
+    session(0), type(IrcMessage::Unknown), timeStamp(QDateTime::currentDateTime()), encoding("ISO-8859-15"), flags(-1)
+{
+}
+
+IrcSender IrcMessagePrivate::sender() const
+{
+    if (content.dirty)
+        content = IrcMessageContent::fromData(message, encoding);
+    return content.sender;
+}
+
+QString IrcMessagePrivate::command() const
+{
+    if (content.dirty)
+        content = IrcMessageContent::fromData(message, encoding);
+    return content.command;
+}
+
+QStringList IrcMessagePrivate::params() const
+{
+    if (content.dirty)
+        content = IrcMessageContent::fromData(message, encoding);
+    return content.params;
+}
+
+QString IrcMessagePrivate::param(int index) const
+{
+    if (content.dirty)
+        content = IrcMessageContent::fromData(message, encoding);
+    return content.params.value(index);
+}
 
 IrcMessageData IrcMessageData::fromData(const QByteArray& data)
 {
@@ -55,4 +89,21 @@ IrcMessageData IrcMessageData::fromData(const QByteArray& data)
 
     message.valid = !message.command.isEmpty() && process.trimmed().isEmpty();
     return message;
+}
+
+IrcMessageContent IrcMessageContent::fromData(const IrcMessageData& data, const QByteArray& encoding)
+{
+    IrcMessageContent content;
+    if (data.valid) {
+        // TODO: not thread safe
+        static IrcMessageDecoder decoder;
+        decoder.setEncoding(encoding);
+
+        content.sender = IrcSender(decoder.decode(data.prefix));
+        content.command = decoder.decode(data.command);
+        foreach (const QByteArray& param, data.params)
+            content.params += decoder.decode(param);
+        content.dirty = false;
+    }
+    return content;
 }
