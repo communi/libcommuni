@@ -162,6 +162,7 @@ QString IrcTextFormat::messageToHtml(const QString& message) const
     int fg = -1;
     int bg = -1;
     int depth = 0;
+    bool potentialUrl = false;
     while (pos < processed.size()) {
         QString replacement;
         switch (processed.at(pos).unicode()) {
@@ -249,6 +250,15 @@ QString IrcTextFormat::messageToHtml(const QString& message) const
                 depth = 0;
                 break;
 
+            case '.':
+            case '/':
+            case ':':
+                // a dot, slash or colon NOT surrounded by a space indicates a potential URL
+                if (!potentialUrl && pos > 0 && !processed.at(pos - 1).isSpace()
+                        && pos < processed.length() - 1 && !processed.at(pos + 1).isSpace())
+                    potentialUrl = true;
+                break;
+
             default:
                 break;
         }
@@ -261,26 +271,28 @@ QString IrcTextFormat::messageToHtml(const QString& message) const
         }
     }
 
-    pos = 0;
-    QRegExp rx(d->urlPattern);
-    while ((pos = rx.indexIn(processed, pos)) >= 0) {
-        int len = rx.matchedLength();
-        QString href = processed.mid(pos, len);
+    if (potentialUrl) {
+        pos = 0;
+        QRegExp rx(d->urlPattern);
+        while ((pos = rx.indexIn(processed, pos)) >= 0) {
+            int len = rx.matchedLength();
+            QString href = processed.mid(pos, len);
 
-        QString protocol;
-        if (rx.cap(2).isEmpty())
-        {
-            if (rx.cap(1).contains(QLatin1Char('@')))
-                protocol = QLatin1String("mailto:");
-            else if (rx.cap(1).startsWith(QLatin1String("ftp."), Qt::CaseInsensitive))
-                protocol = QLatin1String("ftp://");
-            else
-                protocol = QLatin1String("http://");
+            QString protocol;
+            if (rx.cap(2).isEmpty())
+            {
+                if (rx.cap(1).contains(QLatin1Char('@')))
+                    protocol = QLatin1String("mailto:");
+                else if (rx.cap(1).startsWith(QLatin1String("ftp."), Qt::CaseInsensitive))
+                    protocol = QLatin1String("ftp://");
+                else
+                    protocol = QLatin1String("http://");
+            }
+
+            QString link = QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, href, href);
+            processed.replace(pos, len, link);
+            pos += link.length();
         }
-
-        QString link = QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, href, href);
-        processed.replace(pos, len, link);
-        pos += link.length();
     }
 
     return processed;
