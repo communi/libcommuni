@@ -13,6 +13,7 @@
 */
 
 #include "ircmessagedecoder_p.h"
+#include <IrcGlobal>
 #include <QSet>
 
 extern "C" {

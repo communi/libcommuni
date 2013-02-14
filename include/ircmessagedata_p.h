@@ -15,11 +15,10 @@
 #ifndef IRCMESSAGEDATA_P_H
 #define IRCMESSAGEDATA_P_H
 
-#include <IrcGlobal>
 #include <QtCore/qlist.h>
 #include <QtCore/qbytearray.h>
 
-class COMMUNI_EXPORT IrcMessageData
+class IrcMessageData
 {
 public:
     IrcMessageData() : valid(false) { }

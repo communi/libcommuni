@@ -15,11 +15,10 @@
 #ifndef IRCMESSAGEDECODER_P_H
 #define IRCMESSAGEDECODER_P_H
 
-#include <IrcGlobal>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qtextcodec.h>
 
-class COMMUNI_EXPORT IrcMessageDecoder
+class IrcMessageDecoder
 {
 public:
     IrcMessageDecoder();
