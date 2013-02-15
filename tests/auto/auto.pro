@@ -6,7 +6,10 @@ TEMPLATE = subdirs
 
 SUBDIRS += irccommand
 SUBDIRS += ircmessage
-SUBDIRS += ircmessagedata
-SUBDIRS += ircmessagedecoder
 SUBDIRS += ircsender
 SUBDIRS += ircsession
+
+private_tests {
+    SUBDIRS += ircmessagedata
+    SUBDIRS += ircmessagedecoder
+}
