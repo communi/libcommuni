@@ -36,7 +36,7 @@ public:
     QString urlPattern() const;
     void setUrlPattern(const QString& pattern);
 
-    QString messageToHtml(const QString& message) const;
+    QString toHtml(const QString& text) const;
 
 private:
     mutable QSharedDataPointer<IrcTextFormatPrivate> d;

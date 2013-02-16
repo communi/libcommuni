@@ -128,16 +128,18 @@ static bool parseColors(const QString& message, int pos, int* len, int *fg, int 
 }
 
 /*!
-    Converts \a message to HTML using. This function parses the message
-    and replaces IRC-style formatting like colors, bold and underline to
-    the corresponding HTML formatting. Furthermore, this function detects
-    URLs and replaces them with appropriate HTML hyperlinks.
+    Converts \a text to HTML. This function parses the text and replaces
+    IRC-style formatting like colors, bold and underline to the corresponding
+    HTML formatting. Furthermore, this function detects URLs and replaces
+    them with appropriate HTML hyperlinks.
+
+    \note URL detection can be disabled by setting an empty urlRegExp.
 
     \sa palette, urlRegExp
 */
-QString IrcTextFormat::messageToHtml(const QString& message) const
+QString IrcTextFormat::toHtml(const QString& text) const
 {
-    QString processed = message;
+    QString processed = text;
 
     // TODO:
     //processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
@@ -271,7 +273,7 @@ QString IrcTextFormat::messageToHtml(const QString& message) const
         }
     }
 
-    if (potentialUrl) {
+    if (potentialUrl && !d->urlPattern.isEmpty()) {
         pos = 0;
         QRegExp rx(d->urlPattern);
         while ((pos = rx.indexIn(processed, pos)) >= 0) {

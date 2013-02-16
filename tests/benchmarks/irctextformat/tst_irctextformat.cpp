@@ -16,13 +16,13 @@ class tst_IrcTextFormat : public QObject
     Q_OBJECT
 
 private slots:
-    void testMessageToHtml_data();
-    void testMessageToHtml();
+    void testToHtml_data();
+    void testToHtml();
 };
 
-void tst_IrcTextFormat::testMessageToHtml_data()
+void tst_IrcTextFormat::testToHtml_data()
 {
-    QTest::addColumn<QString>("message");
+    QTest::addColumn<QString>("text");
 
     QTest::newRow("info") << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://freenode.net/faq.shtml#gettinghelp");
     QTest::newRow("topic") << QString("Communi 1.2.2 - IRC framework || Home: http://communi.github.com || Docs: http://communi.github.com/doc || MeeGo: http://store.ovi.com/content/219150");
@@ -30,13 +30,13 @@ void tst_IrcTextFormat::testMessageToHtml_data()
     QTest::newRow("welcome") << QString("Welcome to the Communi development lounge. Communi for MeeGo/Symbian users are kindly asked to submit a review in Nokia Store.");
 }
 
-void tst_IrcTextFormat::testMessageToHtml()
+void tst_IrcTextFormat::testToHtml()
 {
-    QFETCH(QString, message);
+    QFETCH(QString, text);
 
     IrcTextFormat format;
     QBENCHMARK {
-        format.messageToHtml(message);
+        format.toHtml(text);
     }
 }
 
