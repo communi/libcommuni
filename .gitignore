@@ -35,13 +35,8 @@ communi-config.prf
 *.Debug
 *.Release
 moc_*.cpp
-*.changes
-*.deb
-build-stamp
-configure-stamp
-/debian
-/qtc_packaging
 /examples/bot/bot
+/examples/client/client
 /tests/auto/irccommand/irccommand
 /tests/auto/ircmessage/ircmessage
 /tests/auto/ircmessagedata/ircmessagedata
