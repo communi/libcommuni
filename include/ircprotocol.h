@@ -40,6 +40,9 @@ public:
     virtual bool send(const QByteArray& data);
 
 protected:
+    void setActive(bool active);
+    void setConnected(bool connected);
+    void setNick(const QString& nick);
     void receiveMessage(IrcMessage* message);
 
 private:

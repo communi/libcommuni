@@ -119,6 +119,27 @@ bool IrcProtocol::send(const QByteArray& data)
     return socket()->write(data + QByteArray("\r\n")) != -1;
 }
 
+void IrcProtocol::setActive(bool active)
+{
+    Q_D(IrcProtocol);
+    IrcSessionPrivate* priv = IrcSessionPrivate::get(d->session);
+    priv->setActive(active);
+}
+
+void IrcProtocol::setConnected(bool connected)
+{
+    Q_D(IrcProtocol);
+    IrcSessionPrivate* priv = IrcSessionPrivate::get(d->session);
+    priv->setConnected(connected);
+}
+
+void IrcProtocol::setNick(const QString& nick)
+{
+    Q_D(IrcProtocol);
+    IrcSessionPrivate* priv = IrcSessionPrivate::get(d->session);
+    priv->setNick(nick);
+}
+
 void IrcProtocol::receiveMessage(IrcMessage* message)
 {
     Q_D(IrcProtocol);
