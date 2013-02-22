@@ -15,28 +15,23 @@
 #include "irc.h"
 #include <QMetaEnum>
 
-/*! \mainpage Communi - a cross-platform IRC client library written with Qt 4
+/*! \mainpage Communi - a cross-platform IRC framework written with Qt
 
     \section introduction Introduction
 
-    Communi, formerly known as LibIrcClient-Qt, is a cross-platform IRC
-    client library written with Qt 4. IRC (Internet Relay Chat protocol)
-    is a simple text-based communication protocol.
+    Communi is a cross-platform IRC framework written with Qt. IRC (Internet
+    Relay Chat protocol) is a simple text-based communication protocol.
 
     \section install Installation
 
-    To compile Communi, do the standard mantra:
+    To build and install Communi, do the standard mantra:
     \code
     $ qmake
     $ make
     $ sudo make install
     \endcode
 
-    The default build config is resolved by qmake. To build Communi
-    specifically in release or debug mode, you may pass additional
-    "-config release" or "-config debug" parameters to qmake, respectively.
-    Furthermore, in order to build a static version of Communi, you
-    may pass "-config static".
+    See the INSTALL file for more details.
 
     \section usage Usage
 
