@@ -372,6 +372,14 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcSession* session)
 }
 
 /*!
+    Creates a new message from \a sender and \a command with \a session.
+ */
+IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, IrcSession* session)
+{
+    return fromData(":" + sender.toUtf8() + " " + command->toString().toUtf8(), session);
+}
+
+/*!
     Creates a new message from \a sender, \a command and \a parameters with \a session.
  */
 IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& command, const QStringList& parameters, IrcSession* session)

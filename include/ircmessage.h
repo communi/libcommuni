@@ -92,6 +92,7 @@ public:
 
     Q_INVOKABLE QByteArray toData() const;
     Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, IrcSession* session);
+    Q_INVOKABLE static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, IrcSession* session);
     Q_INVOKABLE static IrcMessage* fromParameters(const QString& sender, const QString& command, const QStringList& parameters, IrcSession* session);
 
 protected:
