@@ -1,28 +1,30 @@
 2.0.0
 -----
+- Removed all deprecated classes and methods
 - Focus on easy deployment
   - Support/promote static builds
   - Removed all plugins
-- Removed all deprecated classes and methods
-- Radically simplified examples
-- API changes:
-  - Removed IrcUtil
-  - ...
-
-1.3.0
------
 - Removed Symbian support
-- Removed the unmaintained MeeGo example
-- Added support for static codec plugins
 - The default FALLBACK encoding changed from UTF-8 to ISO-8859-15
   - UTF-8 did not make much sense as the default fallback encoding,
     since the fallback is only used when the message is detected NOT
     to be valid UTF-8 and the auto-detection fails
+- Radically simplified examples
 - API changes:
-  - Added IrcCommand types and createXxx() methods:
-    - admin/info/knock/list/motd/stats/time/trace/users/version/who
-  - Added IrcPalette for managing (m)IRC colors
-  - Deprecated IrcUtil::colorCodeToName()
+  - Removed:
+    - IrcUtil
+    - IrcCodecPlugin
+    - IrcMessage::isOwn
+    - IrcMessage::toString()
+    - IrcMessage::fromString()
+    - IrcCommand::Type & IrcCommand::createXxx() for:
+      - admin/info/knock/list/motd/stats/time/trace/users/version/who
+  - Added:
+    - IrcPalette
+    - IrcTextFormat
+    - IrcSessionInfo
+    - IrcMessage::session
+    - IrcMessage::timeStamp
 
 1.2.2
 -----
