@@ -28,7 +28,7 @@
 #  else
 #    define COMMUNI_EXPORT Q_DECL_IMPORT
 #  endif
-#elif defined(COMMUNI_STATIC)
+#elif defined(COMMUNI_STATIC) || defined(BUILD_COMMUNI)
 #  define COMMUNI_EXPORT
 #else
 #  error Installation problem: either COMMUNI_SHARED or COMMUNI_STATIC must be defined!

@@ -2,8 +2,8 @@
 -----
 - Removed all deprecated classes and methods
 - Focus on easy deployment
-  - Support/promote static builds
   - Removed all plugins
+  - Better support for static builds and including(src.pri)
 - Removed Symbian support
 - The default FALLBACK encoding changed from UTF-8 to ISO-8859-15
   - UTF-8 did not make much sense as the default fallback encoding,
