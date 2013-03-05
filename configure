@@ -8,6 +8,7 @@ INSTALL_PREFIX=
 INSTALL_LIBS=
 INSTALL_BINS=
 INSTALL_HEADERS=
+INSTALL_FEATURES=
 
 BUILD_EXAMPLES=yes
 BUILD_TESTS=yes
@@ -33,7 +34,7 @@ while [ "$#" -gt 0 ]; do
     UNKNOWN_ARG=no
     case "$1" in
     #Qt style options that pass an argument
-    -prefix|-libdir|-bindir|-headerdir)
+    -prefix|-libdir|-bindir|-headerdir|-featuredir)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -78,6 +79,9 @@ while [ "$#" -gt 0 ]; do
         ;;
     headerdir)
         INSTALL_HEADERS="$VAL"
+        ;;
+    featuredir)
+        INSTALL_FEATURES="$VAL"
         ;;
     nomake)
         case "$1" in
@@ -169,6 +173,8 @@ Installation options:
                                (default QT_INSTALL_BINS)
     -headerdir <dir> ......... Headers will be installed to <dir>
                                (default QT_INSTALL_HEADERS/Communi)
+    -featuredir <dir> ........ Features will be installed to <dir>
+                               (default QT_INSTALL_DATA/mkspecs/features)
 
 Configure options:
 
@@ -196,10 +202,17 @@ if [ "$INSTALL_PREFIX" != "" ]; then
     [ "$INSTALL_LIBS" = "" ] && INSTALL_LIBS="$INSTALL_PREFIX/lib"
     [ "$INSTALL_BINS" = "" ] && INSTALL_BINS="$INSTALL_PREFIX/bin"
     [ "$INSTALL_HEADERS" = "" ] && INSTALL_HEADERS="$INSTALL_PREFIX/include"
+    [ "$INSTALL_FEATURES" = "" ] && INSTALL_FEATURES="$INSTALL_PREFIX/features"
 fi
 [ "$INSTALL_LIBS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_LIBS=$INSTALL_LIBS"
 [ "$INSTALL_BINS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_BINS=$INSTALL_BINS"
 [ "$INSTALL_HEADERS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_HEADERS=$INSTALL_HEADERS"
+[ "$INSTALL_FEATURES" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_FEATURES=$INSTALL_FEATURES"
+
+[ "$INSTALL_LIBS" = "" ] && INSTALL_LIBS="$(QMAKE -query QT_INSTALL_LIBS)"
+[ "$INSTALL_BINS" = "" ] && INSTALL_BINS="$(QMAKE -query QT_INSTALL_BINS)"
+[ "$INSTALL_HEADERS" = "" ] && INSTALL_HEADERS="$(QMAKE -query QT_INSTALL_HEADERS)/Communi"
+[ "$INSTALL_FEATURES" = "" ] && INSTALL_FEATURES="$(QMAKE -query QT_INSTALL_DATA)/mkspecs/features"
 
 [ "$BUILD_EXAMPLES" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_examples"
 [ "$BUILD_TESTS" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_tests"
@@ -232,15 +245,10 @@ echo "ICU support ..................... $BUILD_ICU"
 echo "Examples ........................ $BUILD_EXAMPLES"
 echo "Tests ........................... $BUILD_TESTS"
 echo
-if [ "$INSTALL_LIBS" != "" ]; then
-    echo "Install libs .................... $INSTALL_LIBS"
-fi
-if [ "$INSTALL_BINS" != "" ]; then
-    echo "Install binaries ................ $INSTALL_BINS"
-fi
-if [ "$INSTALL_HEADERS" != "" ]; then
-    echo "Install headers ................. $INSTALL_HEADERS"
-fi
-[ "$INSTALL_LIBS" != "" ] || [ "$INSTALL_BINS" != "" ] || [ "$INSTALL_HEADERS" != "" ] && echo
+echo "Install libs .................... $INSTALL_LIBS"
+#echo "Install binaries ................ $INSTALL_BINS"
+echo "Install headers ................. $INSTALL_HEADERS"
+echo "Install features ................ $INSTALL_FEATURES"
+echo
 echo Communi is now configured for building. Just run \'make\'.
 echo
