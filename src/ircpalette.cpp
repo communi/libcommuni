@@ -23,9 +23,23 @@
 /*!
     \class IrcPalette ircpalette.h <IrcPalette>
     \ingroup utility
-    \brief The IrcPalette class provides IRC color names
+    \brief The IrcPalette class specifies IRC color names
 
-    \sa <a href="http://www.mirc.com/colors.html">mIRC Colors</a>
+    IrcPalette is used to specify the desired IRC color palette when
+    converting IRC-style formatted messages to HTML using IrcTextFormat.
+
+    \code
+    IrcPalette palette;
+    palette.setColorName(IrcPalette::Red, "#ff3333");
+    palette.setColorName(IrcPalette::Green, "#33ff33");
+    palette.setColorName(IrcPalette::Blue, "#3333ff");
+
+    IrcTextFormat format;
+    format.setPalette(palette);
+    QString html = format.toHtml(message);
+    \endcode
+
+    \sa IrcTextFormat, <a href="http://www.mirc.com/colors.html">mIRC colors</a>, <a href="http://www.w3.org/TR/SVG/types.html#ColorKeywords">SVG color keyword names</a>
  */
 
 /*!
@@ -156,7 +170,7 @@ IrcPalette::IrcPalette() : d(new IrcPalettePrivate)
 }
 
 /*!
-    Constructs a copy of \a other palette.
+    Constructs a copy of an \a other palette.
  */
 IrcPalette::IrcPalette(const IrcPalette& other) : d(other.d)
 {
@@ -180,7 +194,7 @@ IrcPalette::~IrcPalette()
 }
 
 /*!
-    Converts a \a color to a color name. If the \a color
+    Converts a \a color code to a color name. If the \a color code
     is unknown, the function returns the \a fallback color name.
 
     \sa setColorName()
@@ -191,9 +205,20 @@ QString IrcPalette::colorName(uint color, const QString& fallback) const
 }
 
 /*!
-    Assigns a \a name for \a color.
+    Assigns a \a name for \a color code.
 
-    \sa colorName()
+    The color \a name may be in one of these formats:
+
+    \li #RGB (each of R, G, and B is a single hex digit)
+    \li #RRGGBB
+    \li #RRRGGGBBB
+    \li #RRRRGGGGBBBB
+    \li A name from the list of colors defined in the list of <a href="http://www.w3.org/TR/SVG/types.html#ColorKeywords">SVG color keyword names</a>
+        provided by the World Wide Web Consortium; for example, "steelblue" or "gainsboro". These color names work on all platforms. Note that these
+        color names are not the same as defined by the Qt::GlobalColor enums, e.g. "green" and Qt::green does not refer to the same color.
+    \li transparent - representing the absence of a color.
+
+    \sa colorName(), QColor::setNamedColor()
 */
 void IrcPalette::setColorName(uint color, const QString& name)
 {
