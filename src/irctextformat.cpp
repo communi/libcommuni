@@ -32,7 +32,22 @@
 /*!
     \class IrcTextFormat irctextformat.h <IrcTextFormat>
     \ingroup utility
-    \brief The IrcUtil class provides methods for text formatting.
+    \brief The IrcTextFormat class provides methods for text formatting.
+
+    IrcTextFormat is used to convert IRC-style formatted messages to either
+    plain text or HTML. When converting to plain text, the IRC-style formatting
+    (colors, bold, underline etc.) are simply stripped away. When converting
+    to HTML, the IRC-style formatting is converted to the corresponding HTML
+    formatting.
+
+    \code
+    IrcTextFormat format;
+    // optionally adjust the palette and/or the URL regular expression pattern
+    QString html = format.toHtml(message);
+    QString text = format.toPlainText(message);
+    \endcode
+
+    \sa IrcPalette
  */
 
 class IrcTextFormatPrivate : public QSharedData
@@ -132,13 +147,14 @@ static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, 
 
 /*!
     Converts \a text to HTML. This function parses the text and replaces
-    IRC-style formatting like colors, bold and underline to the corresponding
+    IRC-style formatting (colors, bold, underline etc.) to the corresponding
     HTML formatting. Furthermore, this function detects URLs and replaces
     them with appropriate HTML hyperlinks.
 
-    \note URL detection can be disabled by setting an empty urlRegExp.
+    \note URL detection can be disabled by setting an empty
+          regular expression pattern used for matching URLs.
 
-    \sa palette, urlRegExp, toPlainText()
+    \sa palette, urlPattern, toPlainText()
 */
 QString IrcTextFormat::toHtml(const QString& text) const
 {
@@ -305,7 +321,7 @@ QString IrcTextFormat::toHtml(const QString& text) const
 
 /*!
     Converts \a text to plain text. This function parses the text and
-    strips away IRC-style formatting like colors, bold and underline.
+    strips away IRC-style formatting (colors, bold, underline etc.)
 
     \sa toHtml()
 */
