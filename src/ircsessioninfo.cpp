@@ -247,7 +247,7 @@ static int numericValue(const QString& key, const QString& parameter)
 /*!
     Returns the limit of entries in the list per mode, or -1 if the limitation is not known.
 
-    \sa limit(), channelLimit(), targetLimit()
+    \sa numericLimit(), channelLimit(), targetLimit()
  */
 int IrcSessionInfo::modeLimit(const QString& mode) const
 {
@@ -259,7 +259,7 @@ int IrcSessionInfo::modeLimit(const QString& mode) const
 /*!
     Returns the limit for a \a type of channels, or -1 if the limitation is not known.
 
-    \sa limit(), modeLimit(), targetLimit()
+    \sa numericLimit(), modeLimit(), targetLimit()
  */
 int IrcSessionInfo::channelLimit(const QString& type) const
 {
@@ -271,7 +271,7 @@ int IrcSessionInfo::channelLimit(const QString& type) const
 /*!
     Returns the target limit for a \a command, or -1 if the limitation is not known.
 
-    \sa limit(), modeLimit(), channelLimit()
+    \sa numericLimit(), modeLimit(), channelLimit()
  */
 int IrcSessionInfo::targetLimit(const QString& command) const
 {
