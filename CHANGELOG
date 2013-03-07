@@ -1,6 +1,5 @@
 2.0.0
 -----
-- Removed all deprecated classes and methods
 - Focus on easy deployment
   - Removed all plugins
   - Better support for static builds and including(src.pri)
@@ -10,21 +9,27 @@
     since the fallback is only used when the message is detected NOT
     to be valid UTF-8 and the auto-detection fails
 - Radically simplified examples
+- Removed all deprecated classes and methods
 - API changes:
-  - Removed:
-    - IrcUtil
-    - IrcCodecPlugin
-    - IrcMessage::isOwn
-    - IrcMessage::toString()
-    - IrcMessage::fromString()
-    - IrcCommand::Type & IrcCommand::createXxx() for:
-      - admin/info/knock/list/motd/stats/time/trace/users/version/who
   - Added:
     - IrcPalette
     - IrcTextFormat
     - IrcSessionInfo
     - IrcMessage::session
     - IrcMessage::timeStamp
+    - IrcCommand::Type & IrcCommand::createXxx() for:
+      - admin/info/knock/list/motd/stats/time/trace/users/version/who
+  - Removed:
+    - IrcUtil
+      - use IrcTextFormat & IrcPalette instead
+    - IrcCodecPlugin
+      - use qmake -config icu or -config uchardet instead
+    - IrcMessage::isOwn
+      - use IrcMessage::flags() & IrcMessage::Own instead
+    - IrcMessage::toString()
+      - use IrcMessage::toData() instead
+    - IrcMessage::fromString()
+      - use IrcMessage::fromData/Command/Parameters() instead
 
 1.2.2
 -----
