@@ -595,8 +595,10 @@ void IrcSession::open()
 void IrcSession::close()
 {
     Q_D(IrcSession);
-    if (d->socket)
+    if (d->socket) {
+        d->socket->abort();
         d->socket->disconnectFromHost();
+    }
 }
 
 /*!
