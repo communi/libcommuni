@@ -27,7 +27,9 @@ isEmpty(PKGCONFIG) {
             }
         }
         INCLUDEPATH += $$ICU_DIR/include
-        LIBS += -L$$ICU_DIR/lib -licuuc
+        contains(QMAKE_TARGET.arch, x86_64):LIBS += -L$$ICU_DIR/lib64
+        else:LIBS += -L$$ICU_DIR/lib
+        LIBS += -licuuc
 
         # icudata vs. icudt
         exists($$ICU_DIR/bin/icudata*.dll):LIBS += -licudata
