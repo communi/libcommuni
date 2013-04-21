@@ -33,6 +33,27 @@ while [ "$#" -gt 0 ]; do
     CURRENT_OPT="$1"
     UNKNOWN_ARG=no
     case "$1" in
+    #Autoconf style options
+    --enable-*)
+        VAR=`echo $1 | sed "s,^--enable-\(.*\),\1,"`
+        VAL=yes
+        ;;
+    --disable-*)
+        VAR=`echo $1 | sed "s,^--disable-\(.*\),\1,"`
+        VAL=no
+        ;;
+    --*=*)
+        VAR=`echo $1 | sed "s,^--\(.*\)=.*,\1,"`
+        VAL=`echo $1 | sed "s,^--.*=\(.*\),\1,"`
+        ;;
+    --no-*)
+        VAR=`echo $1 | sed "s,^--no-\(.*\),\1,"`
+        VAL=no
+        ;;
+    --*)
+        VAR=`echo $1 | sed "s,^--\(.*\),\1,"`
+        VAL=yes
+        ;;
     #Qt style options that pass an argument
     -prefix|-libdir|-bindir|-headerdir|-featuredir)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
