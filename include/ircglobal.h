@@ -50,7 +50,7 @@
 
     \sa COMMUNI_VERSION_STR and Irc::version().
  */
-#define COMMUNI_VERSION 0x020000
+#define COMMUNI_VERSION 0x020100
 
 /*!
     \def COMMUNI_VERSION_STR
@@ -60,7 +60,7 @@
 
     \sa Irc::version() and COMMUNI_VERSION.
  */
-#define COMMUNI_VERSION_STR "2.0.0"
+#define COMMUNI_VERSION_STR "2.1.0"
 
 #ifndef QT_FORWARD_DECLARE_CLASS
 #   define QT_FORWARD_DECLARE_CLASS(name) class name;
