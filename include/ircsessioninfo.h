@@ -56,6 +56,9 @@ public:
     int channelLimit(const QString& type = QString()) const;
     int targetLimit(const QString& command = QString()) const;
 
+    QStringList availableCapabilities() const;
+    QStringList activeCapabilities() const;
+
 private:
     mutable QSharedDataPointer<IrcSessionInfoPrivate> d;
 };

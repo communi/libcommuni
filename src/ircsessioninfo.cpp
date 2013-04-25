@@ -15,6 +15,7 @@
 #include "ircsessioninfo.h"
 #include "ircsession_p.h"
 #include "ircsession.h"
+#include <QPointer>
 
 /*!
     \file ircsessioninfo.h
@@ -29,7 +30,8 @@
     IrcSessionInfo provides various session information. This includes
     the network name, supported channel type prefixes, channel user mode
     letters and prefix characters, and various numerical limitations,
-    such as the maximum nick, channel, topic and message lengths.
+    such as the maximum nick, channel, topic and message lengths, and
+    available and active capabilities.
 
     \note A valid IrcSessionInfo can only be constructed at any time
           after the IrcSession::sessionInfoReceived() signal has been
@@ -88,6 +90,7 @@ public:
     QString network;
     QStringList modes, prefixes, channelTypes;
     int modeLimit, channelLimit, targetLimit;
+    QPointer<IrcSession> session;
 };
 
 /*!
@@ -98,6 +101,7 @@ IrcSessionInfo::IrcSessionInfo(const IrcSession* session) : d(new IrcSessionInfo
     Q_ASSERT(session);
     d->info = IrcSessionPrivate::get(session)->info;
     d->valid = !d->info.isEmpty();
+    d->session = const_cast<IrcSession*>(session);
 }
 
 /*!
@@ -278,4 +282,28 @@ int IrcSessionInfo::targetLimit(const QString& command) const
     if (d->targetLimit == -1)
         d->targetLimit = numericValue(command, d->info.take("TARGMAX"));
     return d->targetLimit;
+}
+
+/*!
+    Returns the available capabilities.
+
+    \sa IrcSession::capabilities(), IrcCapabilityMessage, IrcCommand::createCapability()
+ */
+QStringList IrcSessionInfo::availableCapabilities() const
+{
+    if (d->session)
+        return IrcSessionPrivate::get(d->session)->availableCaps.toList();
+    return QStringList();
+}
+
+/*!
+    Returns the active capabilities.
+
+    \sa IrcSession::capabilities(), IrcCapabilityMessage, IrcCommand::createCapability()
+ */
+QStringList IrcSessionInfo::activeCapabilities() const
+{
+    if (d->session)
+        return IrcSessionPrivate::get(d->session)->activeCaps.toList();
+    return QStringList();
 }
