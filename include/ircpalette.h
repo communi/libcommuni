@@ -29,6 +29,9 @@ public:
     IrcPalette& operator=(const IrcPalette& other);
     ~IrcPalette();
 
+    bool operator==(const IrcPalette& other) const;
+    bool operator!=(const IrcPalette& other) const;
+
     enum Color {
         White = 0,
         Black = 1,

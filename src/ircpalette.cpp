@@ -194,6 +194,28 @@ IrcPalette::~IrcPalette()
 }
 
 /*!
+    Returns \c true if this palette is same than the \a other;
+    otherwise returns \c false.
+
+    \sa operator!=()
+ */
+bool IrcPalette::operator==(const IrcPalette& other) const
+{
+    return d == other.d || d->colors == other.d->colors;
+}
+
+/*!
+    Returns \c true if this palette is different from the \a other;
+    otherwise returns \c false.
+
+    \sa operator==()
+ */
+bool IrcPalette::operator!=(const IrcPalette& other) const
+{
+    return !(*this == other);
+}
+
+/*!
     Converts a \a color code to a color name. If the \a color code
     is unknown, the function returns the \a fallback color name.
 
