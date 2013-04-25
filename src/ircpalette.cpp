@@ -246,3 +246,17 @@ void IrcPalette::setColorName(uint color, const QString& name)
 {
     d->colors.insert(color, name);
 }
+
+#ifndef QT_NO_DATASTREAM
+QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette)
+{
+    ds << palette.d->colors;
+    return ds;
+}
+
+QDataStream& operator>>(QDataStream& ds, IrcPalette& palette)
+{
+    ds >> palette.d->colors;
+    return ds;
+}
+#endif // QT_NO_DATASTREAM

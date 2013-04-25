@@ -18,6 +18,7 @@
 #include <IrcGlobal>
 #include <QtCore/qstring.h>
 #include <QtCore/qshareddata.h>
+#include <QtCore/qdatastream.h>
 
 class IrcPalettePrivate;
 
@@ -55,7 +56,17 @@ public:
     void setColorName(uint color, const QString& name);
 
 private:
+#ifndef QT_NO_DATASTREAM
+    friend QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette);
+    friend QDataStream& operator>>(QDataStream& ds, IrcPalette& palette);
+#endif // QT_NO_DATASTREAM
+
     QSharedDataPointer<IrcPalettePrivate> d;
 };
+
+#ifndef QT_NO_DATASTREAM
+COMMUNI_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette);
+COMMUNI_EXPORT QDataStream& operator>>(QDataStream& ds, IrcPalette& palette);
+#endif // QT_NO_DATASTREAM
 
 #endif // IRCPALETTE_H
