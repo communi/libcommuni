@@ -119,7 +119,7 @@ IrcSender::~IrcSender()
  */
 bool IrcSender::operator==(const IrcSender& other) const
 {
-    return prefix() == other.prefix();
+    return d == other.d || prefix() == other.prefix();
 }
 
 /*!
@@ -130,7 +130,7 @@ bool IrcSender::operator==(const IrcSender& other) const
  */
 bool IrcSender::operator!=(const IrcSender& other) const
 {
-    return prefix() != other.prefix();
+    return !(*this == other);
 }
 
 /*!
