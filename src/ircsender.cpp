@@ -261,6 +261,10 @@ void IrcSender::setHost(const QString& host)
 }
 
 #ifndef QT_NO_DEBUG_STREAM
+/*!
+    \relates IrcSender
+    Writes a \a sender and returns a reference to the stream.
+*/
 QDebug operator<<(QDebug debug, const IrcSender& sender)
 {
     debug.nospace() << "IrcSender(" << qPrintable(sender.prefix()) << ")";

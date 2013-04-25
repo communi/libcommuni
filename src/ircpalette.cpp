@@ -248,12 +248,20 @@ void IrcPalette::setColorName(uint color, const QString& name)
 }
 
 #ifndef QT_NO_DATASTREAM
+/*!
+    \relates IrcPalette
+    Writes a \a palette and returns a reference to the stream.
+*/
 QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette)
 {
     ds << palette.d->colors;
     return ds;
 }
 
+/*!
+    \relates IrcPalette
+    Reads a \a palette and returns a reference to the stream.
+*/
 QDataStream& operator>>(QDataStream& ds, IrcPalette& palette)
 {
     ds >> palette.d->colors;

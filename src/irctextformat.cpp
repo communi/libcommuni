@@ -382,12 +382,20 @@ QString IrcTextFormat::toPlainText(const QString& text) const
 }
 
 #ifndef QT_NO_DATASTREAM
+/*!
+    \relates IrcTextFormat
+    Writes a text \a format and returns a reference to the stream.
+*/
 QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format)
 {
     ds << format.d->palette << format.d->urlPattern;
     return ds;
 }
 
+/*!
+    \relates IrcTextFormat
+    Reads a text \a format and returns a reference to the stream.
+*/
 QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format)
 {
     ds >> format.d->palette >> format.d->urlPattern;
