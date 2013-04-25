@@ -112,6 +112,28 @@ IrcSender::~IrcSender()
 }
 
 /*!
+    Returns \c true if this sender is same than the \a other;
+    otherwise returns \c false.
+
+    \sa operator!=()
+ */
+bool IrcSender::operator==(const IrcSender& other) const
+{
+    return prefix() == other.prefix();
+}
+
+/*!
+    Returns \c true if this sender is different from the \a other;
+    otherwise returns \c false.
+
+    \sa operator==()
+ */
+bool IrcSender::operator!=(const IrcSender& other) const
+{
+    return prefix() != other.prefix();
+}
+
+/*!
     Returns \c true if the sender is valid; otherwise \c false.
 
     A sender is considered valid if the name is not empty.

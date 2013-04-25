@@ -32,6 +32,9 @@ public:
     IrcSender& operator=(const IrcSender& other);
     ~IrcSender();
 
+    bool operator==(const IrcSender& other) const;
+    bool operator!=(const IrcSender& other) const;
+
     bool isValid() const;
 
     QString prefix() const;
