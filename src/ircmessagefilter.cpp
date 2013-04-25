@@ -70,13 +70,24 @@
     };
     \endcode
 
-    \sa IrcSession::installMessageFilter()
+    \sa IrcSession::installMessageFilter(), IrcSession::removeMessageFilter()
  */
 
+/*!
+    Constructs a new message filter.
+ */
 IrcMessageFilter::IrcMessageFilter() : d_ptr(new IrcMessageFilterPrivate)
 {
 }
 
+/*!
+    Destructs the message filter.
+
+    The message filter is automatically removed from any session(s)
+    it is installed on.
+
+    \sa IrcSession::removeMessageFilter()
+ */
 IrcMessageFilter::~IrcMessageFilter()
 {
     Q_D(IrcMessageFilter);
@@ -85,3 +96,14 @@ IrcMessageFilter::~IrcMessageFilter()
             session->removeMessageFilter(this);
     }
 }
+
+/*!
+    \fn virtual bool IrcMessageFilter::messageFilter(IrcMessage* message) = 0
+
+    Reimplement this function to filter messages from installed sessions.
+
+    Return \c true to filter the message out, i.e. stop it being handled further;
+    otherwise return \c false.
+
+    \sa IrcSession::installMessageFilter()
+ */
