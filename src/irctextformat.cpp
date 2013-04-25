@@ -90,6 +90,28 @@ IrcTextFormat::~IrcTextFormat()
 }
 
 /*!
+    Returns \c true if this text format is same than the \a other;
+    otherwise returns \c false.
+
+    \sa operator!=()
+ */
+bool IrcTextFormat::operator==(const IrcTextFormat& other) const
+{
+    return d == other.d || (d->urlPattern == other.d->urlPattern && d->palette == other.d->palette);
+}
+
+/*!
+    Returns \c true if this text format is different from the \a other;
+    otherwise returns \c false.
+
+    \sa operator==()
+ */
+bool IrcTextFormat::operator!=(const IrcTextFormat& other) const
+{
+    return !(*this == other);
+}
+
+/*!
     Returns the palette used for color formatting.
  */
 IrcPalette IrcTextFormat::palette() const

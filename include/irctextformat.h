@@ -30,6 +30,9 @@ public:
     IrcTextFormat& operator=(const IrcTextFormat& other);
     ~IrcTextFormat();
 
+    bool operator==(const IrcTextFormat& other) const;
+    bool operator!=(const IrcTextFormat& other) const;
+
     IrcPalette palette() const;
     void setPalette(const IrcPalette& palette);
 
