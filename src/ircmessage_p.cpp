@@ -87,6 +87,7 @@ IrcMessageData IrcMessageData::fromData(const QByteArray& data)
         }
     }
 
+    message.data = data;
     message.valid = !message.command.isEmpty() && process.trimmed().isEmpty();
     return message;
 }
