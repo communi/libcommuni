@@ -380,3 +380,17 @@ QString IrcTextFormat::toPlainText(const QString& text) const
 
     return processed;
 }
+
+#ifndef QT_NO_DATASTREAM
+QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format)
+{
+    ds << format.d->palette << format.d->urlPattern;
+    return ds;
+}
+
+QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format)
+{
+    ds >> format.d->palette >> format.d->urlPattern;
+    return ds;
+}
+#endif // QT_NO_DATASTREAM
