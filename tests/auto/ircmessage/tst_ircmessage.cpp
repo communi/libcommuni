@@ -9,7 +9,6 @@
 
 #include "ircmessage.h"
 #include "ircsession.h"
-#include "ircsession_p.h"
 #include <QtTest/QtTest>
 
 class tst_IrcMessage : public QObject
@@ -414,7 +413,6 @@ void tst_IrcMessage::testPrivateMessage()
     QFETCH(uint, flags);
 
     IrcSession session;
-    IrcSessionPrivate::get(&session)->capabilities += "identify-msg";
 
     IrcMessage* message = IrcMessage::fromData(data, &session);
     QCOMPARE(message->type(), IrcMessage::Private);

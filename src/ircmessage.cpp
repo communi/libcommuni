@@ -235,7 +235,7 @@ IrcMessage::Flags IrcMessage::flags() const
             d->flags |= IrcMessage::Own;
 
         if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
-                IrcSessionPrivate::get(d->session)->capabilities.contains("identify-msg")) {
+                IrcSessionPrivate::get(d->session)->activeCaps.contains("identify-msg")) {
             QString msg = property("message").toString();
             if (msg.startsWith("+"))
                 d->flags |= IrcMessage::Identified;

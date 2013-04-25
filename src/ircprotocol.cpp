@@ -94,7 +94,6 @@ void IrcProtocol::login(const QString& password)
     // Send CAP LS first; if the server understands it this will
     // temporarily pause the handshake until CAP END is sent, so we
     // know whether the server supports the CAP extension.
-    IrcSessionPrivate::get(d->session)->capabilities.clear();
     d->session->sendData("CAP LS");
 
     if (!password.isEmpty())

@@ -163,7 +163,8 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     realName(),
     active(false),
     connected(false),
-    capabilities()
+    activeCaps(),
+    availableCaps()
 {
 }
 
@@ -177,6 +178,10 @@ void IrcSessionPrivate::_irc_connected()
 
     QString password;
     emit q->password(&password);
+
+    activeCaps.clear();
+    availableCaps.clear();
+
     protocol->login(password);
 }
 
@@ -282,18 +287,22 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
                 QString subCommand = capMsg->subCommand();
                 if (subCommand == "LS") {
                     foreach (const QString& cap, capMsg->capabilities())
-                        capabilities.insert(cap);
+                        availableCaps.insert(cap);
 
                     QStringList params = capMsg->parameters();
                     if (params.value(params.count() - 1) != QLatin1String("*")) {
                         QStringList request;
-                        emit q->capabilities(capabilities.toList(), &request);
+                        emit q->capabilities(availableCaps.toList(), &request);
                         if (!request.isEmpty())
                             q->sendCommand(IrcCommand::createCapability("REQ", request));
                         else
                             q->sendData("CAP END");
                     }
-                } else if (subCommand == "ACK" || subCommand == "NAK") {
+                } else if (subCommand == "ACK") {
+                    foreach (const QString& cap, capMsg->capabilities())
+                        activeCaps.insert(cap);
+                    q->sendData("CAP END");
+                } else if (subCommand == "NAK") {
                     q->sendData("CAP END");
                 }
             }

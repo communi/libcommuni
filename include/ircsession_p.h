@@ -57,7 +57,8 @@ public:
     QString realName;
     bool active;
     bool connected;
-    QSet<QString> capabilities;
+    QSet<QString> activeCaps;
+    QSet<QString> availableCaps;
     QHash<QString, QString> info;
 };
 
