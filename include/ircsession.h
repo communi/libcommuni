@@ -24,6 +24,7 @@ class IrcCommand;
 class IrcMessage;
 class IrcProtocol;
 class IrcSessionInfo;
+class IrcMessageFilter;
 class IrcPrivateMessage;
 class IrcSessionPrivate;
 
@@ -72,6 +73,9 @@ public:
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
     Q_INVOKABLE bool sendData(const QByteArray& data);
     Q_INVOKABLE bool sendRaw(const QString& message);
+
+    void installMessageFilter(IrcMessageFilter* filter);
+    void removeMessageFilter(IrcMessageFilter* filter);
 
 public Q_SLOTS:
     void open();

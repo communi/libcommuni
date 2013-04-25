@@ -60,6 +60,7 @@ public:
     QSet<QString> activeCaps;
     QSet<QString> availableCaps;
     QHash<QString, QString> info;
+    QList<IrcMessageFilter*> filters;
 };
 
 #endif // IRCSESSION_P_H

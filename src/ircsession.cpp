@@ -15,6 +15,7 @@
 #include "ircsession.h"
 #include "ircsession_p.h"
 #include "ircsessioninfo.h"
+#include "ircmessagefilter_p.h"
 #include "ircprotocol.h"
 #include "irccommand.h"
 #include "ircmessage.h"
@@ -324,7 +325,12 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
             break;
     }
 
-    emit q->messageReceived(msg);
+    bool filtered = false;
+    for (int i = filters.count() - 1; !filtered && i >= 0; --i)
+        filtered |= filters.at(i)->messageFilter(msg);
+
+    if (!filtered)
+        emit q->messageReceived(msg);
     msg->deleteLater();
 }
 
@@ -670,6 +676,41 @@ bool IrcSession::sendData(const QByteArray& data)
 bool IrcSession::sendRaw(const QString& message)
 {
     return sendData(message.toUtf8());
+}
+
+/*!
+    Installs a message \a filter on this session.
+
+    A message filter receives all messages that are sent to this session.
+    The message filter receives events via its messageFilter() function.
+    The messageFilter() function must return \c true if the message should
+    be filtered, (i.e. stopped); otherwise it must return \c false.
+
+    If multiple message filters are installed on the same session, the filter
+    that was installed last is activated first.
+
+    \sa removeEventFilter(), IrcMessageFilter::messageFilter()
+ */
+void IrcSession::installMessageFilter(IrcMessageFilter* filter)
+{
+    Q_D(IrcSession);
+    d->filters += filter;
+    IrcMessageFilterPrivate::get(filter)->sessions.append(this);
+}
+
+/*!
+    Removes a message \a filter from this session.
+
+    The request is ignored if such an event filter has not been installed.
+    All message filters for this session are automatically removed when this session is destroyed.
+
+    \sa installEventFilter()
+ */
+void IrcSession::removeMessageFilter(IrcMessageFilter* filter)
+{
+    Q_D(IrcSession);
+    d->filters.removeAll(filter);
+    IrcMessageFilterPrivate::get(filter)->sessions.removeAll(this);
 }
 
 /*!
