@@ -237,3 +237,11 @@ void IrcSender::setHost(const QString& host)
     d->host = host;
     d->dirty = true;
 }
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const IrcSender& sender)
+{
+    debug.nospace() << "IrcSender(" << qPrintable(sender.prefix()) << ")";
+    return debug.space();
+}
+#endif // QT_NO_DEBUG_STREAM

@@ -16,6 +16,7 @@
 #define IRCSENDER_H
 
 #include <IrcGlobal>
+#include <QtCore/qdebug.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qmetatype.h>
 #include <QtCore/qshareddata.h>
@@ -50,5 +51,9 @@ private:
 };
 
 Q_DECLARE_METATYPE(IrcSender)
+
+#ifndef QT_NO_DEBUG_STREAM
+COMMUNI_EXPORT QDebug operator<<(QDebug debug, const IrcSender& sender);
+#endif // QT_NO_DEBUG_STREAM
 
 #endif // IRCSENDER_H
