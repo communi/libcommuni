@@ -44,8 +44,8 @@ public:
 
 private:
 #ifndef QT_NO_DATASTREAM
-    friend QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format);
-    friend QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format);
+    friend COMMUNI_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format);
+    friend COMMUNI_EXPORT QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format);
 #endif // QT_NO_DATASTREAM
 
     mutable QSharedDataPointer<IrcTextFormatPrivate> d;

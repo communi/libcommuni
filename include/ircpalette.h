@@ -57,8 +57,8 @@ public:
 
 private:
 #ifndef QT_NO_DATASTREAM
-    friend QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette);
-    friend QDataStream& operator>>(QDataStream& ds, IrcPalette& palette);
+    friend COMMUNI_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette);
+    friend COMMUNI_EXPORT QDataStream& operator>>(QDataStream& ds, IrcPalette& palette);
 #endif // QT_NO_DATASTREAM
 
     QSharedDataPointer<IrcPalettePrivate> d;
