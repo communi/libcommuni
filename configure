@@ -198,6 +198,11 @@ EOF
     exit 0
 fi
 
+if [ ! -f "$QMAKE" ]; then
+    echo "ERROR: Unable to find qmake. Try $0 -qmake /path/to/qmake."
+    exit 1
+fi
+
 if [ "$INSTALL_PREFIX" != "" ]; then
     [ "$INSTALL_LIBS" = "" ] && INSTALL_LIBS="$INSTALL_PREFIX/lib"
     [ "$INSTALL_BINS" = "" ] && INSTALL_BINS="$INSTALL_PREFIX/bin"
@@ -209,10 +214,10 @@ fi
 [ "$INSTALL_HEADERS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_HEADERS=$INSTALL_HEADERS"
 [ "$INSTALL_FEATURES" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS COMMUNI_INSTALL_FEATURES=$INSTALL_FEATURES"
 
-[ "$INSTALL_LIBS" = "" ] && INSTALL_LIBS="$(QMAKE -query QT_INSTALL_LIBS)"
-[ "$INSTALL_BINS" = "" ] && INSTALL_BINS="$(QMAKE -query QT_INSTALL_BINS)"
-[ "$INSTALL_HEADERS" = "" ] && INSTALL_HEADERS="$(QMAKE -query QT_INSTALL_HEADERS)/Communi"
-[ "$INSTALL_FEATURES" = "" ] && INSTALL_FEATURES="$(QMAKE -query QT_INSTALL_DATA)/mkspecs/features"
+[ "$INSTALL_LIBS" = "" ] && INSTALL_LIBS=`$QMAKE -query QT_INSTALL_LIBS`
+[ "$INSTALL_BINS" = "" ] && INSTALL_BINS=`$QMAKE -query QT_INSTALL_BINS`
+[ "$INSTALL_HEADERS" = "" ] && INSTALL_HEADERS=`$QMAKE -query QT_INSTALL_HEADERS`/Communi
+[ "$INSTALL_FEATURES" = "" ] && INSTALL_FEATURES=`$QMAKE -query QT_INSTALL_DATA`mkspecs/features
 
 [ "$BUILD_EXAMPLES" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_examples"
 [ "$BUILD_TESTS" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_tests"
@@ -220,10 +225,6 @@ fi
 [ "$BUILD_UCHARDET" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_uchardet"
 [ "$BUILD_ICU" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_icu"
 
-if [ ! -f "$QMAKE" ]; then
-    echo "ERROR: Unable to find qmake. Try $0 -qmake /path/to/qmake."
-    exit 1
-fi
 [ "$QMAKE_SPEC" != "" ] && QMAKE_SPEC="-spec $QMAKE_SPEC"
 
 echo
