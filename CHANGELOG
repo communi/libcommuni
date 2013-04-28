@@ -1,3 +1,10 @@
+2.0.1
+-----
+- Fixed IrcMessage::toData()
+- Fixed identify-msg capability handling
+- Fixed ICU linking on 64-bit Windows
+- Fixed IrcSession::close() to abort connecting
+
 2.0.0
 -----
 - Focus on easy deployment
