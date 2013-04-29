@@ -12,25 +12,25 @@
 * License for more details.
 */
 
-#ifndef IRCLAGMETER_H
-#define IRCLAGMETER_H
+#ifndef IRCLAGTIMER_H
+#define IRCLAGTIMER_H
 
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
 class IrcSession;
-class IrcLagMeterPrivate;
+class IrcLagTimerPrivate;
 
-class COMMUNI_EXPORT IrcLagMeter : public QObject
+class COMMUNI_EXPORT IrcLagTimer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qint64 lag READ lag NOTIFY lagChanged)
     Q_PROPERTY(int interval READ interval WRITE setInterval)
 
 public:
-    explicit IrcLagMeter(IrcSession* session);
-    virtual ~IrcLagMeter();
+    explicit IrcLagTimer(IrcSession* session);
+    virtual ~IrcLagTimer();
 
     IrcSession* session() const;
 
@@ -43,13 +43,13 @@ signals:
     void lagChanged(int lag);
 
 private:
-    QScopedPointer<IrcLagMeterPrivate> d_ptr;
-    Q_DECLARE_PRIVATE(IrcLagMeter)
-    Q_DISABLE_COPY(IrcLagMeter)
+    QScopedPointer<IrcLagTimerPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcLagTimer)
+    Q_DISABLE_COPY(IrcLagTimer)
 
     Q_PRIVATE_SLOT(d_func(), void _irc_connected())
     Q_PRIVATE_SLOT(d_func(), void _irc_pingServer())
     Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
 };
 
-#endif // IRCLAGMETER_H
+#endif // IRCLAGTIMER_H

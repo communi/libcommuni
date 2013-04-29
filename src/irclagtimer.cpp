@@ -12,7 +12,7 @@
 * License for more details.
 */
 
-#include "irclagmeter.h"
+#include "irclagtimer.h"
 #include "ircsession.h"
 #include "ircmessage.h"
 #include "irccommand.h"
@@ -23,28 +23,28 @@
 static const int DEFAULT_INTERVAL = 60;
 
 /*!
-    \file irclagmeter.h
-    \brief #include &lt;IrcLagMeter&gt;
+    \file irclagtimer.h
+    \brief #include &lt;IrcLagTimer&gt;
  */
 
 /*!
-    \class IrcLagMeter irclagmeter.h IrcSession
+    \class IrcLagTimer irclagtimer.h <IrcLagTimer>
     \ingroup utility
-    \brief The IrcLagMeter class provides IRC session lag meter.
+    \brief The IrcLagTimer class provides lag timer for an IRC session.
  */
 
 /*!
-    \fn void IrcLagMeter::lagChanged(qint64 lag)
+    \fn void IrcLagTimer::lagChanged(qint64 lag)
 
     This signal is emitted when the \a lag has changed.
  */
 
-class IrcLagMeterPrivate : public IrcMessageFilter
+class IrcLagTimerPrivate : public IrcMessageFilter
 {
-    Q_DECLARE_PUBLIC(IrcLagMeter)
+    Q_DECLARE_PUBLIC(IrcLagTimer)
 
 public:
-    IrcLagMeterPrivate(IrcSession* session, IrcLagMeter* meter);
+    IrcLagTimerPrivate(IrcSession* session, IrcLagTimer* q);
 
     bool messageFilter(IrcMessage* msg);
     bool processPongReply(IrcPongMessage* msg);
@@ -55,30 +55,30 @@ public:
 
     void updateLag(qint64 value);
 
-    IrcLagMeter* q_ptr;
+    IrcLagTimer* q_ptr;
     IrcSession* session;
     QTimer timer;
     int interval;
     qint64 lag;
 };
 
-IrcLagMeterPrivate::IrcLagMeterPrivate(IrcSession* session, IrcLagMeter* meter)
-    : q_ptr(meter), session(session), interval(-1), lag(-1)
+IrcLagTimerPrivate::IrcLagTimerPrivate(IrcSession* session, IrcLagTimer* q)
+    : q_ptr(q), session(session), interval(-1), lag(-1)
 {
     session->installMessageFilter(this);
-    QObject::connect(&timer, SIGNAL(timeout()), meter, SLOT(_irc_pingServer()));
-    QObject::connect(session, SIGNAL(connected()), meter, SLOT(_irc_connected()));
-    QObject::connect(session, SIGNAL(disconnected()), meter, SLOT(_irc_disconnected()));
+    QObject::connect(&timer, SIGNAL(timeout()), q, SLOT(_irc_pingServer()));
+    QObject::connect(session, SIGNAL(connected()), q, SLOT(_irc_connected()));
+    QObject::connect(session, SIGNAL(disconnected()), q, SLOT(_irc_disconnected()));
 }
 
-bool IrcLagMeterPrivate::messageFilter(IrcMessage* msg)
+bool IrcLagTimerPrivate::messageFilter(IrcMessage* msg)
 {
     if (msg->type() == IrcMessage::Pong)
         return processPongReply(static_cast<IrcPongMessage*>(msg));
     return false;
 }
 
-bool IrcLagMeterPrivate::processPongReply(IrcPongMessage* msg)
+bool IrcLagTimerPrivate::processPongReply(IrcPongMessage* msg)
 {
     // TODO: configurable format?
     if (msg->argument().startsWith("communi/")) {
@@ -92,13 +92,13 @@ bool IrcLagMeterPrivate::processPongReply(IrcPongMessage* msg)
     return false;
 }
 
-void IrcLagMeterPrivate::_irc_connected()
+void IrcLagTimerPrivate::_irc_connected()
 {
     if (interval > 0)
         timer.start();
 }
 
-void IrcLagMeterPrivate::_irc_pingServer()
+void IrcLagTimerPrivate::_irc_pingServer()
 {
     // TODO: configurable format?
     QString argument = QString("communi/%1").arg(QDateTime::currentMSecsSinceEpoch());
@@ -108,16 +108,16 @@ void IrcLagMeterPrivate::_irc_pingServer()
     session->sendData("PING " + argument.toUtf8());
 }
 
-void IrcLagMeterPrivate::_irc_disconnected()
+void IrcLagTimerPrivate::_irc_disconnected()
 {
     updateLag(-1);
     if (timer.isActive())
         timer.stop();
 }
 
-void IrcLagMeterPrivate::updateLag(qint64 value)
+void IrcLagTimerPrivate::updateLag(qint64 value)
 {
-    Q_Q(IrcLagMeter);
+    Q_Q(IrcLagTimer);
     if (lag != value) {
         lag = qMax(-1ll, value);
         emit q->lagChanged(lag);
@@ -125,17 +125,17 @@ void IrcLagMeterPrivate::updateLag(qint64 value)
 }
 
 /*!
-    Constructs a new lag meter for \a session.
+    Constructs a new lag timer for \a session.
  */
-IrcLagMeter::IrcLagMeter(IrcSession* session) : QObject(session), d_ptr(new IrcLagMeterPrivate(session, this))
+IrcLagTimer::IrcLagTimer(IrcSession* session) : QObject(session), d_ptr(new IrcLagTimerPrivate(session, this))
 {
     setInterval(DEFAULT_INTERVAL);
 }
 
 /*!
-    Destructs the lag meter session.
+    Destructs the lag timer.
  */
-IrcLagMeter::~IrcLagMeter()
+IrcLagTimer::~IrcLagTimer()
 {
 }
 
@@ -145,9 +145,9 @@ IrcLagMeter::~IrcLagMeter()
     \par Access functions:
     \li IrcSession* <b>session</b>() const
  */
-IrcSession* IrcLagMeter::session() const
+IrcSession* IrcLagTimer::session() const
 {
-    Q_D(const IrcLagMeter);
+    Q_D(const IrcLagTimer);
     return d->session;
 }
 
@@ -157,14 +157,14 @@ IrcSession* IrcLagMeter::session() const
     The value is \c -1 when
     \li the session is not connected,
     \li the lag has not yet been measured, or
-    \li the lag meter is disabled (interval <= 0s).
+    \li the lag timer is disabled (interval <= 0s).
 
     \par Access functions:
     \li qint64 <b>lag</b>() const
  */
-qint64 IrcLagMeter::lag() const
+qint64 IrcLagTimer::lag() const
 {
-    Q_D(const IrcLagMeter);
+    Q_D(const IrcLagTimer);
     return d->lag;
 }
 
@@ -178,15 +178,15 @@ qint64 IrcLagMeter::lag() const
     \li int <b>interval</b>() const
     \li void <b>setInterval</b>(int seconds)
  */
-int IrcLagMeter::interval() const
+int IrcLagTimer::interval() const
 {
-    Q_D(const IrcLagMeter);
+    Q_D(const IrcLagTimer);
     return d->interval;
 }
 
-void IrcLagMeter::setInterval(int seconds)
+void IrcLagTimer::setInterval(int seconds)
 {
-    Q_D(IrcLagMeter);
+    Q_D(IrcLagTimer);
     if (d->interval != seconds) {
         d->interval = seconds;
         if (seconds > 0) {
@@ -201,4 +201,4 @@ void IrcLagMeter::setInterval(int seconds)
     }
 }
 
-#include "moc_irclagmeter.cpp"
+#include "moc_irclagtimer.cpp"
