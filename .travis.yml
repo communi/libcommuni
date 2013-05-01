@@ -4,4 +4,8 @@ compiler:
   - clang
 script: ./configure && make && make check
 notifications:
-  irc: "irc.freenode.org#communi"
+  irc:
+    channels:
+      - "irc.freenode.org#communi"
+    template:
+      - "Build details: %{build_url}"
