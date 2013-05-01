@@ -10,7 +10,6 @@
 #include "ircmessage.h"
 #include "ircsession.h"
 #include <QtTest/QtTest>
-#include <QtCore/QTextCodec>
 
 static const QByteArray MSG_32_5("Vestibulum eu libero eget metus.");
 static const QByteArray MSG_64_9("Phasellus enim dui, sodales sed tincidunt quis, ultricies metus.");
@@ -25,8 +24,6 @@ class tst_IrcMessage : public QObject
 private slots:
     void testFromData_data();
     void testFromData();
-
-    void testEncoding();
 };
 
 void tst_IrcMessage::testFromData_data()
@@ -56,17 +53,6 @@ void tst_IrcMessage::testFromData()
     IrcSession session;
     QBENCHMARK {
         IrcMessage::fromData(data, &session);
-    }
-}
-
-void tst_IrcMessage::testEncoding()
-{
-    IrcSession session;
-    IrcMessage message(&session);
-    foreach (const QByteArray& codec, QTextCodec::availableCodecs()) {
-        QBENCHMARK {
-            message.setEncoding(codec);
-        }
     }
 }
 
