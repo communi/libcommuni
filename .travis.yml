@@ -4,8 +4,12 @@ compiler:
   - clang
 script: ./configure && make && make check
 notifications:
+  email: false
   irc:
     channels:
       - "irc.freenode.org#communi"
     template:
-      - "Build details: %{build_url}"
+      - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
+      - "Build details : %{build_url}"
+    use_notice: true
+    skip_join: true
