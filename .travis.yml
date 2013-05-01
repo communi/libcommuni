@@ -4,4 +4,4 @@ compiler:
   - clang
 script: ./configure && make && make check
 notifications:
-  irc: "irc.freenode.org#jpnurmi"
+  irc: "irc.freenode.org#communi"
