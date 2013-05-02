@@ -217,7 +217,7 @@ fi
 [ "$INSTALL_LIBS" = "" ] && INSTALL_LIBS=`$QMAKE -query QT_INSTALL_LIBS`
 [ "$INSTALL_BINS" = "" ] && INSTALL_BINS=`$QMAKE -query QT_INSTALL_BINS`
 [ "$INSTALL_HEADERS" = "" ] && INSTALL_HEADERS=`$QMAKE -query QT_INSTALL_HEADERS`/Communi
-[ "$INSTALL_FEATURES" = "" ] && INSTALL_FEATURES=`$QMAKE -query QT_INSTALL_DATA`mkspecs/features
+[ "$INSTALL_FEATURES" = "" ] && INSTALL_FEATURES=`$QMAKE -query QT_INSTALL_DATA`/mkspecs/features
 
 [ "$BUILD_EXAMPLES" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_examples"
 [ "$BUILD_TESTS" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_tests"
