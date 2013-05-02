@@ -379,6 +379,8 @@ QString IrcCommand::toString() const
         case Nick:          return QString("NICK %1").arg(p0); // nick
         case Notice:        return QString("NOTICE %1 :%2").arg(p0, p1); // target, msg
         case Part:          return p1.isNull() ? QString("PART %1").arg(p0) : QString("PART %1 :%2").arg(p0, p1); // chan, reason
+        case Ping:          return QString("PING %1").arg(p0); // argument
+        case Pong:          return QString("PONG %1").arg(p0); // argument
         case Quit:          return QString("QUIT :%1").arg(p0); // reason
         case Quote:         return d->parameters.join(" ");
         case Stats:         return QString("STATS %1 %2").arg(p0, p1); // query, server
@@ -620,6 +622,22 @@ IrcCommand* IrcCommand::createPart(const QString& channel, const QString& reason
 IrcCommand* IrcCommand::createPart(const QStringList& channels, const QString& reason)
 {
     return IrcCommandPrivate::createCommand(Part, QStringList() << channels.join(",") << reason);
+}
+
+/*!
+    Creates a new PING command with type IrcCommand::Ping and \a argument.
+ */
+IrcCommand* IrcCommand::createPing(const QString& argument)
+{
+    return IrcCommandPrivate::createCommand(Ping, QStringList() << argument);
+}
+
+/*!
+    Creates a new PONG command with type IrcCommand::Pong and \a argument.
+ */
+IrcCommand* IrcCommand::createPong(const QString& argument)
+{
+    return IrcCommandPrivate::createCommand(Pong, QStringList() << argument);
 }
 
 /*!

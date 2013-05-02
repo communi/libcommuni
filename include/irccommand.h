@@ -51,6 +51,8 @@ public:
         Nick,
         Notice,
         Part,
+        Ping,
+        Pong,
         Quit,
         Quote,
         Stats,
@@ -100,6 +102,8 @@ public:
     Q_INVOKABLE static IrcCommand* createNotice(const QString& target, const QString& notice);
     Q_INVOKABLE static IrcCommand* createPart(const QString& channel, const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createPart(const QStringList& channels, const QString& reason = QString());
+    Q_INVOKABLE static IrcCommand* createPing(const QString& argument);
+    Q_INVOKABLE static IrcCommand* createPong(const QString& argument);
     Q_INVOKABLE static IrcCommand* createQuit(const QString& reason = QString());
     Q_INVOKABLE static IrcCommand* createQuote(const QString& raw);
     Q_INVOKABLE static IrcCommand* createQuote(const QStringList& parameters);

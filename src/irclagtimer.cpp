@@ -110,10 +110,8 @@ void IrcLagTimerPrivate::_irc_pingServer()
 #if QT_VERSION >= 0x040700
     // TODO: configurable format?
     QString argument = QString("communi/%1").arg(QDateTime::currentMSecsSinceEpoch());
-    // TODO: add IrcCommand::createPing(const QString& argument)
-    //IrcCommand* cmd = IrcCommand::createPing(argument);
-    //session->sendCommand(cmd);
-    session->sendData("PING " + argument.toUtf8());
+    IrcCommand* cmd = IrcCommand::createPing(argument);
+    session->sendCommand(cmd);
 #endif // QT_VERSION
 }
 
