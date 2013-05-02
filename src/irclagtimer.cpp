@@ -30,7 +30,10 @@ static const int DEFAULT_INTERVAL = 60;
 /*!
     \class IrcLagTimer irclagtimer.h <IrcLagTimer>
     \ingroup utility
-    \brief The IrcLagTimer class provides lag timer for an IRC session.
+    \brief The IrcLagTimer class provides a timer for measuring IRC session lag.
+
+    \note IrcLagTimer relies on functionality introduced in Qt 4.7.0, and is
+          therefore not functional when built against earlier versions of Qt.
  */
 
 /*!
@@ -80,6 +83,7 @@ bool IrcLagTimerPrivate::messageFilter(IrcMessage* msg)
 
 bool IrcLagTimerPrivate::processPongReply(IrcPongMessage* msg)
 {
+#if QT_VERSION >= 0x040700
     // TODO: configurable format?
     if (msg->argument().startsWith("communi/")) {
         bool ok = false;
@@ -89,30 +93,37 @@ bool IrcLagTimerPrivate::processPongReply(IrcPongMessage* msg)
             return true;
         }
     }
+#endif // QT_VERSION
     return false;
 }
 
 void IrcLagTimerPrivate::_irc_connected()
 {
+#if QT_VERSION >= 0x040700
     if (interval > 0)
         timer.start();
+#endif // QT_VERSION
 }
 
 void IrcLagTimerPrivate::_irc_pingServer()
 {
+#if QT_VERSION >= 0x040700
     // TODO: configurable format?
     QString argument = QString("communi/%1").arg(QDateTime::currentMSecsSinceEpoch());
     // TODO: add IrcCommand::createPing(const QString& argument)
     //IrcCommand* cmd = IrcCommand::createPing(argument);
     //session->sendCommand(cmd);
     session->sendData("PING " + argument.toUtf8());
+#endif // QT_VERSION
 }
 
 void IrcLagTimerPrivate::_irc_disconnected()
 {
+#if QT_VERSION >= 0x040700
     updateLag(-1);
     if (timer.isActive())
         timer.stop();
+#endif // QT_VERSION
 }
 
 void IrcLagTimerPrivate::updateLag(qint64 value)
@@ -156,8 +167,9 @@ IrcSession* IrcLagTimer::session() const
 
     The value is \c -1 when
     \li the session is not connected,
-    \li the lag has not yet been measured, or
-    \li the lag timer is disabled (interval <= 0s).
+    \li the lag has not yet been measured,
+    \li the lag timer is disabled (interval <= 0s), or
+    \li the Qt version is too old (4.7.0 or later is required).
 
     \par Access functions:
     \li qint64 <b>lag</b>() const
@@ -189,6 +201,7 @@ void IrcLagTimer::setInterval(int seconds)
     Q_D(IrcLagTimer);
     if (d->interval != seconds) {
         d->interval = seconds;
+#if QT_VERSION >= 0x040700
         if (seconds > 0) {
             d->timer.setInterval(seconds * 1000);
             if (!d->timer.isActive() && d->session->isConnected())
@@ -198,6 +211,7 @@ void IrcLagTimer::setInterval(int seconds)
                 d->timer.stop();
             d->updateLag(-1);
         }
+#endif // QT_VERSION
     }
 }
 
