@@ -74,7 +74,9 @@ public:
 
     Type type() const;
     Flags flags() const;
+
     QString command() const;
+    void setCommand(const QString& command);
 
     IrcSender sender() const;
     void setSender(const IrcSender& sender);

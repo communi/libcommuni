@@ -251,11 +251,18 @@ IrcMessage::Flags IrcMessage::flags() const
 
     \par Access functions:
     \li QString <b>command</b>() const
+    \li void <b>setCommand</b>(const QString& command)
  */
 QString IrcMessage::command() const
 {
     Q_D(const IrcMessage);
     return d->command();
+}
+
+void IrcMessage::setCommand(const QString& command)
+{
+    Q_D(IrcMessage);
+    d->setCommand(command);
 }
 
 /*!
@@ -384,7 +391,7 @@ IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& com
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcSession*, session)));
         Q_ASSERT(message);
         message->setSender(sender);
-        message->d_ptr->setCommand(command); // TODO: make public
+        message->setCommand(command);
         message->setParameters(parameters);
     }
     return message;
