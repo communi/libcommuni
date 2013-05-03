@@ -33,6 +33,7 @@ PUB_HEADERS += $$PWD/../include/ircsessioninfo.h
 PUB_HEADERS += $$PWD/../include/irctextformat.h
 
 PRIV_HEADERS += $$PWD/../include/ircmessage_p.h
+PRIV_HEADERS += $$PWD/../include/ircmessagebuilder_p.h
 PRIV_HEADERS += $$PWD/../include/ircmessagedecoder_p.h
 PRIV_HEADERS += $$PWD/../include/ircmessagefilter_p.h
 PRIV_HEADERS += $$PWD/../include/ircsession_p.h
@@ -45,6 +46,7 @@ SOURCES += $$PWD/irccommand.cpp
 SOURCES += $$PWD/irclagtimer.cpp
 SOURCES += $$PWD/ircmessage.cpp
 SOURCES += $$PWD/ircmessage_p.cpp
+SOURCES += $$PWD/ircmessagebuilder.cpp
 SOURCES += $$PWD/ircmessagedecoder.cpp
 SOURCES += $$PWD/ircmessagefilter.cpp
 SOURCES += $$PWD/ircpalette.cpp

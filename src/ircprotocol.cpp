@@ -15,6 +15,7 @@
 #include "ircprotocol.h"
 #include "ircsession_p.h"
 #include "ircsessioninfo.h"
+#include "ircmessagebuilder_p.h"
 #include "ircsession.h"
 #include "ircmessage.h"
 #include "irccommand.h"
@@ -33,6 +34,7 @@ public:
 
     IrcProtocol* q_ptr;
     IrcSession* session;
+    IrcMessageBuilder* builder;
     QByteArray buffer;
 };
 
@@ -62,6 +64,8 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
     if (msg) {
         msg->setEncoding(session->encoding());
         q->receiveMessage(msg);
+        if (msg->type() == IrcMessage::Numeric)
+            builder->processMessage(static_cast<IrcNumericMessage*>(msg));
     }
 }
 
@@ -69,6 +73,8 @@ IrcProtocol::IrcProtocol(IrcSession* session) : QObject(session), d_ptr(new IrcP
 {
     Q_D(IrcProtocol);
     d->session = session;
+    d->builder = new IrcMessageBuilder(session);
+    connect(d->builder, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveMessage(IrcMessage*)));
 }
 
 IrcProtocol::~IrcProtocol()

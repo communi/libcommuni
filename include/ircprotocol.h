@@ -39,7 +39,7 @@ public:
     virtual void receive();
     virtual bool send(const QByteArray& data);
 
-protected:
+protected Q_SLOTS:
     void setActive(bool active);
     void setConnected(bool connected);
     void setNick(const QString& nick);
