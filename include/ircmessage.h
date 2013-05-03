@@ -56,7 +56,8 @@ public:
         Pong,
         Error,
         Numeric,
-        Capability
+        Capability,
+        Motd
     };
 
     enum Flag {
@@ -369,6 +370,22 @@ public:
 
 private:
     Q_DISABLE_COPY(IrcCapabilityMessage)
+};
+
+class COMMUNI_EXPORT IrcMotdMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QStringList lines READ lines)
+
+public:
+    Q_INVOKABLE explicit IrcMotdMessage(IrcSession* session);
+
+    QStringList lines() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcMotdMessage)
 };
 
 #ifndef QT_NO_DEBUG_STREAM

@@ -1104,6 +1104,30 @@ bool IrcCapabilityMessage::isValid() const
     return IrcMessage::isValid();
 }
 
+IrcMotdMessage::IrcMotdMessage(IrcSession* session) : IrcMessage(session)
+{
+    Q_D(IrcMessage);
+    d->type = Motd;
+}
+
+/*!
+    This property holds the message of the day lines.
+
+    \par Access functions:
+    \li QStringList <b>lines</b>() const
+ */
+QStringList IrcMotdMessage::lines() const
+{
+    Q_D(const IrcMessage);
+    return d->params().mid(1);
+}
+
+bool IrcMotdMessage::isValid() const
+{
+    Q_D(const IrcMessage);
+    return d->session && sender().isValid() && !d->params().isEmpty();
+}
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const IrcMessage* message)
 {
