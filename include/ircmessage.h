@@ -57,7 +57,8 @@ public:
         Error,
         Numeric,
         Capability,
-        Motd
+        Motd,
+        Names
     };
 
     enum Flag {
@@ -386,6 +387,24 @@ public:
 
 private:
     Q_DISABLE_COPY(IrcMotdMessage)
+};
+
+class COMMUNI_EXPORT IrcNamesMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString channel READ channel)
+    Q_PROPERTY(QStringList names READ names)
+
+public:
+    Q_INVOKABLE explicit IrcNamesMessage(IrcSession* session);
+
+    QString channel() const;
+    QStringList names() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcNamesMessage)
 };
 
 #ifndef QT_NO_DEBUG_STREAM

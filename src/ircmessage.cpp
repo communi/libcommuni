@@ -1128,6 +1128,51 @@ bool IrcMotdMessage::isValid() const
     return d->session && sender().isValid() && !d->params().isEmpty();
 }
 
+/*!
+    \class IrcNamesMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief The IrcNamesMessage class represents a names list IRC message.
+ */
+
+/*!
+    Constructs a new IrcNamesMessage with \a session.
+ */
+IrcNamesMessage::IrcNamesMessage(IrcSession* session) : IrcMessage(session)
+{
+    Q_D(IrcMessage);
+    d->type = Names;
+}
+
+/*!
+    This property holds the channel.
+
+    \par Access functions:
+    \li QString <b>channel</b>() const
+ */
+QString IrcNamesMessage::channel() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+/*!
+    This property holds the list of names.
+
+    \par Access functions:
+    \li QStringList <b>names</b>() const
+ */
+QStringList IrcNamesMessage::names() const
+{
+    Q_D(const IrcMessage);
+    return d->params().mid(1);
+}
+
+bool IrcNamesMessage::isValid() const
+{
+    Q_D(const IrcMessage);
+    return d->session && sender().isValid() && !d->params().isEmpty();
+}
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const IrcMessage* message)
 {

@@ -37,6 +37,25 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
     case Irc::RPL_ENDOFMOTD:
         d.message->setTimeStamp(message->timeStamp());
         emit messageReceived(d.message);
+        d.message = 0;
+        break;
+
+    case Irc::RPL_NAMREPLY: {
+        if (!d.message)
+            d.message = new IrcNamesMessage(d.session);
+        d.message->setSender(message->sender());
+        d.message->setCommand(QLatin1String("NAMES"));
+        int count = message->parameters().count();
+        QString channel = message->parameters().value(count - 2);
+        QStringList names = d.message->parameters().mid(1);
+        names += message->parameters().value(count - 1).split(QLatin1Char(' '), QString::SkipEmptyParts);
+        d.message->setParameters(QStringList() << channel << names);
+        break;
+    }
+    case Irc::RPL_ENDOFNAMES:
+        d.message->setTimeStamp(message->timeStamp());
+        emit messageReceived(d.message);
+        d.message = 0;
         break;
     }
 }
