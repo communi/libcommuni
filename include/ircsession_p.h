@@ -23,8 +23,6 @@
 #include <QMultiHash>
 #include <QAbstractSocket>
 
-class IrcMessageBuilder;
-
 class IrcSessionPrivate
 {
     Q_DECLARE_PUBLIC(IrcSession)
