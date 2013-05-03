@@ -25,31 +25,36 @@
 
 class IrcSession;
 
+template <class T>
+class IrcExplicitValue
+{
+public:
+    IrcExplicitValue() : exp(false), null(true) { }
+    IrcExplicitValue(const T& value) : v(value), exp(false), null(false) { }
+
+    bool isNull() const { return null; }
+    bool isExplicit() const { return exp; }
+
+    const T& value() const { return v; }
+    void setValue(const T& value) { v = value; exp = true; null = false; }
+
+    void clear() { v = T(); exp = false; null = true; }
+
+private:
+    T v;
+    bool exp;
+    bool null;
+};
+
 class IrcMessageData
 {
 public:
-    IrcMessageData() : valid(false) { }
-
     static IrcMessageData fromData(const QByteArray& data);
 
-    bool valid;
-    QByteArray data;
+    QByteArray content;
     QByteArray prefix;
     QByteArray command;
     QList<QByteArray> params;
-};
-
-class IrcMessageContent
-{
-public:
-    IrcMessageContent() : dirty(true) { }
-
-    static IrcMessageContent fromData(const IrcMessageData& data, const QByteArray& encoding);
-
-    bool dirty;
-    IrcSender sender;
-    QString command;
-    QStringList params;
 };
 
 class IrcMessagePrivate
@@ -58,17 +63,30 @@ public:
     IrcMessagePrivate();
 
     IrcSender sender() const;
+    void setSender(const IrcSender& sender);
+
     QString command() const;
+    void setCommand(const QString& command);
+
     QStringList params() const;
     QString param(int index) const;
+    void setParams(const QStringList& params);
+
+    void invalidate();
+
+    static QString decode(const QByteArray& data, const QByteArray& encoding);
 
     IrcSession* session;
     IrcMessage::Type type;
     QDateTime timeStamp;
     QByteArray encoding;
-    IrcMessageData message;
-    mutable IrcMessageContent content;
     mutable int flags;
+    IrcMessageData data;
+
+private:
+    mutable IrcExplicitValue<IrcSender> m_sender;
+    mutable IrcExplicitValue<QString> m_command;
+    mutable IrcExplicitValue<QStringList> m_params;
 };
 
 #endif // IRCMESSAGE_P_H

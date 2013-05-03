@@ -22,35 +22,60 @@ IrcMessagePrivate::IrcMessagePrivate() :
 
 IrcSender IrcMessagePrivate::sender() const
 {
-    if (content.dirty)
-        content = IrcMessageContent::fromData(message, encoding);
-    return content.sender;
+    if (!m_sender.isExplicit() && m_sender.isNull() && !data.prefix.isNull())
+        m_sender = IrcSender(decode(data.prefix, encoding));
+    return m_sender.value();
+}
+
+void IrcMessagePrivate::setSender(const IrcSender& sender)
+{
+    m_sender.setValue(sender);
 }
 
 QString IrcMessagePrivate::command() const
 {
-    if (content.dirty)
-        content = IrcMessageContent::fromData(message, encoding);
-    return content.command;
+    if (!m_command.isExplicit() && m_command.isNull() && !data.command.isNull())
+        m_command = decode(data.command, encoding);
+    return m_command.value();
+}
+
+void IrcMessagePrivate::setCommand(const QString& command)
+{
+    m_command.setValue(command);
 }
 
 QStringList IrcMessagePrivate::params() const
 {
-    if (content.dirty)
-        content = IrcMessageContent::fromData(message, encoding);
-    return content.params;
+    if (!m_params.isExplicit() && m_params.isNull() && !data.params.isEmpty()) {
+        QStringList params;
+        foreach (const QByteArray& param, data.params)
+            params += decode(param, encoding);
+        m_params = params;
+    }
+    return m_params.value();
 }
 
 QString IrcMessagePrivate::param(int index) const
 {
-    if (content.dirty)
-        content = IrcMessageContent::fromData(message, encoding);
-    return content.params.value(index);
+    return params().value(index);
+}
+
+void IrcMessagePrivate::setParams(const QStringList& params)
+{
+    m_params.setValue(params);
+}
+
+void IrcMessagePrivate::invalidate()
+{
+    m_command.clear();
+    m_sender.clear();
+    m_params.clear();
 }
 
 IrcMessageData IrcMessageData::fromData(const QByteArray& data)
 {
     IrcMessageData message;
+    message.content = data;
 
     // From RFC 1459:
     //  <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
@@ -87,24 +112,13 @@ IrcMessageData IrcMessageData::fromData(const QByteArray& data)
         }
     }
 
-    message.data = data;
-    message.valid = !message.command.isEmpty() && process.trimmed().isEmpty();
     return message;
 }
 
-IrcMessageContent IrcMessageContent::fromData(const IrcMessageData& data, const QByteArray& encoding)
+QString IrcMessagePrivate::decode(const QByteArray& data, const QByteArray& encoding)
 {
-    IrcMessageContent content;
-    if (data.valid) {
-        // TODO: not thread safe
-        static IrcMessageDecoder decoder;
-        decoder.setEncoding(encoding);
-
-        content.sender = IrcSender(decoder.decode(data.prefix));
-        content.command = decoder.decode(data.command);
-        foreach (const QByteArray& param, data.params)
-            content.params += decoder.decode(param);
-        content.dirty = false;
-    }
-    return content;
+    // TODO: not thread safe
+    static IrcMessageDecoder decoder;
+    decoder.setEncoding(encoding);
+    return decoder.decode(data);
 }
