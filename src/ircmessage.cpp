@@ -1059,7 +1059,7 @@ IrcCapabilityMessage::IrcCapabilityMessage(IrcSession* session) : IrcMessage(ses
 /*!
     This property holds the subcommand.
 
-    The defined capability subcommands are:
+    The following capability subcommands are defined:
     LS, LIST, REQ, ACK, NAK, CLEAR, END
 
     \par Access functions:
@@ -1072,13 +1072,13 @@ QString IrcCapabilityMessage::subCommand() const
 }
 
 /*!
-    This property holds the subcommand.
+    This property holds the capabilities.
 
-    The following capability subcommands are defined:
-    LS, LIST, REQ, ACK, NAK, CLEAR, END
+    A list of capabilities may exist for the following
+    subcommands: LS, LIST, REQ, ACK and NAK.
 
     \par Access functions:
-    \li QString <b>subCommand</b>() const
+    \li QStringList <b>capabilities</b>() const
  */
 QStringList IrcCapabilityMessage::capabilities() const
 {
@@ -1090,20 +1090,20 @@ QStringList IrcCapabilityMessage::capabilities() const
     return caps;
 }
 
-/*!
-    This property holds the capabilities.
-
-    A list of capabilities may exist for the following
-    subcommands: LS, LIST, REQ, ACK and NAK.
-
-    \par Access functions:
-    \li QStringList <b>capabilities</b>() const
- */
 bool IrcCapabilityMessage::isValid() const
 {
     return IrcMessage::isValid();
 }
 
+/*!
+    \class IrcMotdMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief The IrcMotdMessage class represents a message of the day IRC message.
+ */
+
+/*!
+    Constructs a new IrcMotdMessage with \a session.
+ */
 IrcMotdMessage::IrcMotdMessage(IrcSession* session) : IrcMessage(session)
 {
     Q_D(IrcMessage);
