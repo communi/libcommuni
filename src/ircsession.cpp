@@ -632,9 +632,13 @@ void IrcSession::close()
 /*!
     Sends a \a command to the server.
 
-    \warning The command must be allocated on the heap since the session
-    will take ownership of the command and delete it once it has been sent.
-    It is not safe to access the command after it has been sent.
+    \note If the command has a valid parent, it is an indication that
+    the caller of this method is be responsible for freeing the command.
+    If the command does not have a valid parent (like the commands
+    created via various IrcCommand::createXxx() methods) the session
+    will take ownership of the command and delete it once it has been
+    sent. Thus, the command must have been allocated on the heap and
+    it is not safe to access the command after it has been sent.
 
     \sa sendData()
  */
@@ -645,7 +649,8 @@ bool IrcSession::sendCommand(IrcCommand* command)
         QTextCodec* codec = QTextCodec::codecForName(command->encoding());
         Q_ASSERT(codec);
         res = sendData(codec->fromUnicode(command->toString()));
-        command->deleteLater();
+        if (!command->parent())
+            command->deleteLater();
     }
     return res;
 }
