@@ -1,3 +1,15 @@
+2.1.0
+-----
+- Introduced IrcMessageFilter and IrcLagTimer
+- Added IrcSessionInfo::availableCapabilities() and activeCapabilities()
+- Added QDebug stream operators for IrcSender
+- Added QDataStream operators for IrcPalette and IrcTextFormat
+- Added comparison operators for IrcSender, IrcPalette and IrcTextFormat
+- Added IrcCommand::createPing()
+- Added IrcMotdMessage and IrcNamesMessage
+- Made IrcSession::sendCommand() only delete parentless commands
+- Fixes and improvements to the congigure script
+
 2.0.1
 -----
 - Fixed IrcMessage::toData()
