@@ -113,7 +113,7 @@
 /*!
     \fn void IrcSession::messageReceived(IrcMessage* message)
 
-    This signal is emitted whenever a \a message is received.
+    This signal is emitted whenever any type of \a message is received.
  */
 
 /*!
@@ -329,8 +329,66 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
     for (int i = filters.count() - 1; !filtered && i >= 0; --i)
         filtered |= filters.at(i)->messageFilter(msg);
 
-    if (!filtered)
+    if (!filtered) {
         emit q->messageReceived(msg);
+
+        switch (msg->type()) {
+        case IrcMessage::Nick:
+            emit q->nickMessageReceived(static_cast<IrcNickMessage*>(msg));
+            break;
+        case IrcMessage::Quit:
+            emit q->quitMessageReceived(static_cast<IrcQuitMessage*>(msg));
+            break;
+        case IrcMessage::Join:
+            emit q->joinMessageReceived(static_cast<IrcJoinMessage*>(msg));
+            break;
+        case IrcMessage::Part:
+            emit q->partMessageReceived(static_cast<IrcPartMessage*>(msg));
+            break;
+        case IrcMessage::Topic:
+            emit q->topicMessageReceived(static_cast<IrcTopicMessage*>(msg));
+            break;
+        case IrcMessage::Invite:
+            emit q->inviteMessageReceived(static_cast<IrcInviteMessage*>(msg));
+            break;
+        case IrcMessage::Kick:
+            emit q->kickMessageReceived(static_cast<IrcKickMessage*>(msg));
+            break;
+        case IrcMessage::Mode:
+            emit q->modeMessageReceived(static_cast<IrcModeMessage*>(msg));
+            break;
+        case IrcMessage::Private:
+            emit q->privateMessageReceived(static_cast<IrcPrivateMessage*>(msg));
+            break;
+        case IrcMessage::Notice:
+            emit q->noticeMessageReceived(static_cast<IrcNoticeMessage*>(msg));
+            break;
+        case IrcMessage::Ping:
+            emit q->pingMessageReceived(static_cast<IrcPingMessage*>(msg));
+            break;
+        case IrcMessage::Pong:
+            emit q->pongMessageReceived(static_cast<IrcPongMessage*>(msg));
+            break;
+        case IrcMessage::Error:
+            emit q->errorMessageReceived(static_cast<IrcErrorMessage*>(msg));
+            break;
+        case IrcMessage::Numeric:
+            emit q->numericMessageReceived(static_cast<IrcNumericMessage*>(msg));
+            break;
+        case IrcMessage::Capability:
+            emit q->capabilityMessageReceived(static_cast<IrcCapabilityMessage*>(msg));
+            break;
+        case IrcMessage::Motd:
+            emit q->motdMessageReceived(static_cast<IrcMotdMessage*>(msg));
+            break;
+        case IrcMessage::Names:
+            emit q->namesMessageReceived(static_cast<IrcNamesMessage*>(msg));
+            break;
+        case IrcMessage::Unknown:
+        default:
+            break;
+        }
+    }
     msg->deleteLater();
 }
 

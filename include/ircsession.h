@@ -16,16 +16,15 @@
 #define IRCSESSION_H
 
 #include <IrcGlobal>
+#include <IrcMessage>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
 
 class IrcCommand;
-class IrcMessage;
 class IrcProtocol;
 class IrcSessionInfo;
 class IrcMessageFilter;
-class IrcPrivateMessage;
 class IrcSessionPrivate;
 
 class COMMUNI_EXPORT IrcSession : public QObject
@@ -91,6 +90,24 @@ Q_SIGNALS:
     void socketStateChanged(QAbstractSocket::SocketState state);
 
     void messageReceived(IrcMessage* message);
+
+    void capabilityMessageReceived(IrcCapabilityMessage* message);
+    void errorMessageReceived(IrcErrorMessage* message);
+    void inviteMessageReceived(IrcInviteMessage* message);
+    void joinMessageReceived(IrcJoinMessage* message);
+    void kickMessageReceived(IrcKickMessage* message);
+    void modeMessageReceived(IrcModeMessage* message);
+    void namesMessageReceived(IrcNamesMessage* message);
+    void nickMessageReceived(IrcNickMessage* message);
+    void noticeMessageReceived(IrcNoticeMessage* message);
+    void numericMessageReceived(IrcNumericMessage* message);
+    void motdMessageReceived(IrcMotdMessage* message);
+    void partMessageReceived(IrcPartMessage* message);
+    void pingMessageReceived(IrcPingMessage* message);
+    void pongMessageReceived(IrcPongMessage* message);
+    void privateMessageReceived(IrcPrivateMessage* message);
+    void quitMessageReceived(IrcQuitMessage* message);
+    void topicMessageReceived(IrcTopicMessage* message);
 
     void hostChanged(const QString& host);
     void portChanged(int port);
