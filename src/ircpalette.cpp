@@ -23,7 +23,7 @@
 /*!
     \class IrcPalette ircpalette.h <IrcPalette>
     \ingroup utility
-    \brief The IrcPalette class specifies IRC color names
+    \brief Specifies a palette of colors.
 
     IrcPalette is used to specify the desired IRC color palette when
     converting IRC-style formatted messages to HTML using IrcTextFormat.

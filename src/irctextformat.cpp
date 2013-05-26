@@ -32,7 +32,7 @@
 /*!
     \class IrcTextFormat irctextformat.h <IrcTextFormat>
     \ingroup utility
-    \brief The IrcTextFormat class provides methods for text formatting.
+    \brief Provides methods for text formatting.
 
     IrcTextFormat is used to convert IRC-style formatted messages to either
     plain text or HTML. When converting to plain text, the IRC-style formatting

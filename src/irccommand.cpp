@@ -24,7 +24,7 @@
 /*!
     \class IrcCommand irccommand.h <IrcCommand>
     \ingroup core
-    \brief The IrcCommand class provides the most common IRC commands.
+    \brief Provides the most common commands.
 
     The IrcCommand class supports the most common IRC commands out of the box,
     and can be extended for custom commands as well. See IrcCommand::Type for
