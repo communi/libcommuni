@@ -21,7 +21,7 @@
 class COMMUNI_EXPORT Irc : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Code Message)
+    Q_ENUMS(Code)
 
 public:
     enum Code {
