@@ -11,8 +11,10 @@ win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 include(../version.pri)
 !win32:VERSION = $$COMMUNI_VERSION
 
-DESTDIR = ../lib
-DLLDESTDIR = ../bin
+isEmpty(COMMUNI_BUILDDIR):COMMUNI_BUILDDIR = $$OUT_PWD/..
+
+DESTDIR = $$COMMUNI_BUILDDIR/lib
+DLLDESTDIR = $$COMMUNI_BUILDDIR/bin
 CONFIG(debug, debug|release) {
     OBJECTS_DIR = debug
     MOC_DIR = debug
