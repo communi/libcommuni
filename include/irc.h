@@ -21,9 +21,12 @@
 class COMMUNI_EXPORT Irc : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Code)
+    Q_ENUMS(Code ItemDataRole)
 
 public:
+    Q_INVOKABLE static const char* version();
+    Q_INVOKABLE static const char* toString(int code);
+
     enum Code {
         RPL_WELCOME = 1,
         RPL_YOURHOST = 2,
@@ -467,8 +470,14 @@ public:
         ERR_NUMERIC_ERR = 999
     };
 
-    Q_INVOKABLE static const char* version();
-    Q_INVOKABLE static const char* toString(int code);
+    enum ItemDataRole {
+        UserRole = Qt::UserRole,
+        ChannelRole = UserRole,
+        NameRole,
+        PrefixRole,
+        ModeRole,
+        TitleRole
+    };
 };
 
 #endif // IRC_H

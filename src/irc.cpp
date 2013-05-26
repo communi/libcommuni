@@ -55,6 +55,42 @@
 
     \defgroup utility Utility classes
     \brief Miscellaneous utility classes.
+
+    \defgroup models Model classes
+    \brief Models to keep track of channels and users.
+
+    \section chanmodel Channels
+
+    In order to keep track of channels, create an instance of IrcChannelModel
+    and it will notify via signals when channels are added and/or removed.
+    You can also use IrcChannelModel directly as a data model for Qt's item
+    views - both in C++ and QML.
+
+    \code
+    IrcSession* session = new IrcSession(this);
+    IrcChannelModel* model = new IrcChannelModel(session);
+    connect(model, SIGNAL(channelAdded(IrcChannel*)), this, SLOT(onChannelAdded(IrcChannel*)));
+    connect(model, SIGNAL(channelRemoved(IrcChannel*)), this, SLOT(onChannelRemoved(IrcChannel*)));
+    channelListView->setModel(model);
+    \endcode
+
+    \section usermodel Channel users
+
+    In order to keep track of channel users, use an instance of IrcUserModel
+    provided by IrcChannel. It will notify via signals when users are added
+    and/or removed. You can also use IrcUserModel directly as a data model
+    for Qt's item views - both in C++ and QML.
+
+    \code
+    void ChatView::onChannelAdded(IrcChannel* channel)
+    {
+        IrcUserModel* model = channel->model();
+        connect(model, SIGNAL(userAdded(IrcUser*)), this, SLOT(onUserAdded(IrcUser*)));
+        connect(model, SIGNAL(userRemoved(IrcUser*)), this, SLOT(onUserRemoved(IrcUser*)));
+        nickCompleter->setModel(model);
+        userListView->setModel(model->proxy());
+    }
+    \endcode
  */
 
 /*!
@@ -1860,4 +1896,41 @@ const char* Irc::toString(int code)
 /*!
     \var Irc::ERR_NUMERIC_ERR
     \brief 999
+ */
+
+/*!
+    \enum Irc::ItemDataRole
+    This enum describes the available item data roles.
+
+    \sa IrcChannelModel, IrcUserModel
+ */
+
+/*!
+    \var Irc::UserRole
+    \brief User object (IrcUser*)
+ */
+
+/*!
+    \var Irc::ChannelRole
+    \brief Channel object (IrcChannel*)
+ */
+
+/*!
+    \var Irc::NameRole
+    \brief Channel/user name (QString)
+ */
+
+/*!
+    \var Irc::PrefixRole
+    \brief Channel/user prefix (QString)
+ */
+
+/*!
+    \var Irc::ModeRole
+    \brief User mode (QString)
+ */
+
+/*!
+    \var Irc::TitleRole
+    \brief Channel/user prefix and name (QString)
  */
