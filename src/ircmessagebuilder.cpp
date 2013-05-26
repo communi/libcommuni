@@ -57,5 +57,16 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         emit messageReceived(d.message);
         d.message = 0;
         break;
+
+    case Irc::RPL_TOPIC:
+    case Irc::RPL_NOTOPIC:
+        d.message = new IrcTopicMessage(d.session);
+        d.message->setSender(message->sender());
+        d.message->setTimeStamp(message->timeStamp());
+        d.message->setCommand(QLatin1String("TOPIC"));
+        d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2) << QString::number(message->code()));
+        emit messageReceived(d.message);
+        d.message = 0;
+        break;
     }
 }

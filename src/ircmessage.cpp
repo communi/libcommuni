@@ -17,6 +17,7 @@
 #include "ircsession.h"
 #include "ircsession_p.h"
 #include "irccommand.h"
+#include "irc.h"
 #include <QVariant>
 #include <QDebug>
 
@@ -600,6 +601,27 @@ QString IrcTopicMessage::topic() const
     Q_D(const IrcMessage);
     return d->param(1);
 }
+
+/*!
+    This property holds whether the message is a reply.
+
+    Topic messages are sent in three situations:
+    \li as a notification of a topic change (\c false),
+    \li as a reply when joining a channel (\c true), or
+    \li as a reply when explicitly querying the channel topic (\c true).
+
+    \par Access functions:
+    \li bool <b>isReply</b>() const
+
+    \sa Irc::RPL_TOPIC, Irc::RPL_NOTOPIC, IrcTopicCommand
+ */
+bool IrcTopicMessage::isReply() const
+{
+    Q_D(const IrcMessage);
+    int rpl = d->param(2).toInt();
+    return rpl == Irc::RPL_TOPIC || rpl == Irc::RPL_NOTOPIC;
+}
+
 
 bool IrcTopicMessage::isValid() const
 {

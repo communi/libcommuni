@@ -178,12 +178,14 @@ class COMMUNI_EXPORT IrcTopicMessage : public IrcMessage
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel)
     Q_PROPERTY(QString topic READ topic)
+    Q_PROPERTY(bool reply READ isReply)
 
 public:
     Q_INVOKABLE explicit IrcTopicMessage(IrcSession* session);
 
     QString channel() const;
     QString topic() const;
+    bool isReply() const;
 
     bool isValid() const;
 
