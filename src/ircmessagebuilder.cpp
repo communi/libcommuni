@@ -63,8 +63,8 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         d.message = new IrcTopicMessage(d.session);
         d.message->setSender(message->sender());
         d.message->setTimeStamp(message->timeStamp());
-        d.message->setCommand(QLatin1String("TOPIC"));
-        d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2) << QString::number(message->code()));
+        d.message->setCommand(QString::number(message->code()));
+        d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
         emit messageReceived(d.message);
         d.message = 0;
         break;

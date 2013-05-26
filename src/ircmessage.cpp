@@ -618,7 +618,7 @@ QString IrcTopicMessage::topic() const
 bool IrcTopicMessage::isReply() const
 {
     Q_D(const IrcMessage);
-    int rpl = d->param(2).toInt();
+    int rpl = d->command().toInt();
     return rpl == Irc::RPL_TOPIC || rpl == Irc::RPL_NOTOPIC;
 }
 
