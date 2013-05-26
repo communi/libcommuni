@@ -22,7 +22,7 @@ CONFIG(debug, debug|release) {
 isEmpty(COMMUNI_BUILDDIR):COMMUNI_BUILDDIR = $$OUT_PWD
 COMMUNI_LIBDIR = $$COMMUNI_BUILDDIR/lib
 
-macx:!qt_no_framework {
+!contains(DEFINES, COMMUNI_STATIC):macx:!qt_no_framework {
     QMAKE_LFLAGS += -F$$COMMUNI_LIBDIR # inject before system frameworks
     LIBS += -framework Communi
     install_name {
