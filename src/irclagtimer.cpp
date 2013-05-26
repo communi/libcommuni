@@ -169,8 +169,11 @@ IrcSession* IrcLagTimer::session() const
     \li the lag timer is disabled (interval <= 0s), or
     \li the Qt version is too old (4.7.0 or later is required).
 
-    \par Access functions:
+    \par Access function:
     \li qint64 <b>lag</b>() const
+
+    \par Notifier signal:
+    \li void <b>lagChanged</b>(qint64 lag)
  */
 qint64 IrcLagTimer::lag() const
 {
