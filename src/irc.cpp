@@ -48,13 +48,13 @@
     \li IrcCommand represents a command sent to an IRC server via IrcSession::sendCommand().
 
     \defgroup core Core classes
-    \brief The list of core classes to get started with.
+    \brief The core classes to get started with.
 
     \defgroup message Message classes
-    \brief The list of available IRC message classes.
+    \brief Available IRC message classes.
 
     \defgroup utility Utility classes
-    \brief The list of utility classes.
+    \brief Miscellaneous utility classes.
  */
 
 /*!

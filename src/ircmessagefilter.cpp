@@ -24,7 +24,7 @@
 /*!
     \class IrcMessageFilter ircmessagefilter.h.h <IrcMessageFilter>
     \ingroup utility
-    \brief The IrcMessageFilter class provides an interface for filtering messages
+    \brief Provides an interface for filtering messages
 
     IrcMessageFilter may be used to intercept messages before
     IrcSession::messageReceived() is emitted and the messages get delivered

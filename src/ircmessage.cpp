@@ -30,7 +30,7 @@
     \class IrcMessage ircmessage.h <IrcMessage>
     \ingroup core
     \ingroup message
-    \brief The IrcMessage class is the base class of all IRC message classes.
+    \brief The base class of all messages.
 
     IRC messages are received from an IRC server. IrcSession translates received
     messages into IrcMessage instances and emits the IrcSession::messageReceived()
@@ -190,7 +190,7 @@ IrcMessage::IrcMessage(IrcSession* session) : QObject(session), d_ptr(new IrcMes
 }
 
 /*!
-    Destructs the IRC message.
+    Destructs the message.
  */
 IrcMessage::~IrcMessage()
 {
@@ -426,7 +426,7 @@ QByteArray IrcMessage::toData() const
 /*!
     \class IrcNickMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcNickMessage class represents a nick IRC message.
+    \brief Represents a nick message.
  */
 
 /*!
@@ -458,7 +458,7 @@ bool IrcNickMessage::isValid() const
 /*!
     \class IrcQuitMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcQuitMessage class represents a quit IRC message.
+    \brief Represents a quit message.
  */
 
 /*!
@@ -490,7 +490,7 @@ bool IrcQuitMessage::isValid() const
 /*!
     \class IrcJoinMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcJoinMessage class represents a join IRC message.
+    \brief Represents a join message.
  */
 
 /*!
@@ -522,7 +522,7 @@ bool IrcJoinMessage::isValid() const
 /*!
     \class IrcPartMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcPartMessage class represents a part IRC message.
+    \brief Represents a part message.
  */
 
 /*!
@@ -566,7 +566,7 @@ bool IrcPartMessage::isValid() const
 /*!
     \class IrcTopicMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcTopicMessage class represents a topic IRC message.
+    \brief Represents a topic message.
  */
 
 /*!
@@ -631,7 +631,7 @@ bool IrcTopicMessage::isValid() const
 /*!
     \class IrcInviteMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcInviteMessage class represents an invite IRC message.
+    \brief Represents an invite message.
  */
 
 /*!
@@ -675,7 +675,7 @@ bool IrcInviteMessage::isValid() const
 /*!
     \class IrcKickMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcKickMessage class represents a kick IRC message.
+    \brief Represents a kick message.
  */
 
 /*!
@@ -731,7 +731,7 @@ bool IrcKickMessage::isValid() const
 /*!
     \class IrcModeMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcModeMessage class represents a mode IRC message.
+    \brief Represents a mode message.
  */
 
 /*!
@@ -787,7 +787,7 @@ bool IrcModeMessage::isValid() const
 /*!
     \class IrcPrivateMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcPrivateMessage class represents a private IRC message.
+    \brief Represents a private message.
  */
 
 /*!
@@ -871,7 +871,7 @@ bool IrcPrivateMessage::isValid() const
 /*!
     \class IrcNoticeMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcNoticeMessage class represents a notice IRC message.
+    \brief Represents a notice message.
  */
 
 /*!
@@ -936,7 +936,7 @@ bool IrcNoticeMessage::isValid() const
 /*!
     \class IrcPingMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcPingMessage class represents a ping IRC message.
+    \brief Represents a ping message.
  */
 
 /*!
@@ -968,7 +968,7 @@ bool IrcPingMessage::isValid() const
 /*!
     \class IrcPongMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcPongMessage class represents a pong IRC message.
+    \brief Represents a pong message.
  */
 
 /*!
@@ -1000,7 +1000,7 @@ bool IrcPongMessage::isValid() const
 /*!
     \class IrcErrorMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcErrorMessage class represents an error IRC message.
+    \brief Represents an error message.
  */
 
 /*!
@@ -1032,7 +1032,7 @@ bool IrcErrorMessage::isValid() const
 /*!
     \class IrcNumericMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcNumericMessage class represents a numeric IRC message.
+    \brief Represents a numeric message.
  */
 
 /*!
@@ -1066,7 +1066,7 @@ bool IrcNumericMessage::isValid() const
 /*!
     \class IrcCapabilityMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcCapabilityMessage class represents a capability IRC message.
+    \brief Represents a capability message.
  */
 
 /*!
@@ -1120,7 +1120,7 @@ bool IrcCapabilityMessage::isValid() const
 /*!
     \class IrcMotdMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcMotdMessage class represents a message of the day IRC message.
+    \brief Represents a message of the day.
  */
 
 /*!
@@ -1153,7 +1153,7 @@ bool IrcMotdMessage::isValid() const
 /*!
     \class IrcNamesMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief The IrcNamesMessage class represents a names list IRC message.
+    \brief Represents a names list message.
  */
 
 /*!

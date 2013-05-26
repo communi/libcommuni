@@ -35,9 +35,7 @@
 /*!
     \class IrcSession ircsession.h IrcSession
     \ingroup core
-    \brief The IrcSession class provides an IRC session.
-
-    IrcSession provides means to establish a connection to an IRC server.
+    \brief Provides means to establish a connection to an IRC server.
 
     IrcSession works asynchronously ie. it is non-blocking, emitting signals
     to notify when the state of connection changes or data has arrived. The

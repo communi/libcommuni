@@ -25,7 +25,7 @@
 /*!
     \class IrcSessionInfo ircsessioninfo.h IrcSessionInfo
     \ingroup utility
-    \brief The IrcSessionInfo class provides IRC session information.
+    \brief Provides session information.
 
     IrcSessionInfo provides various session information. This includes
     the network name, supported channel type prefixes, channel user mode

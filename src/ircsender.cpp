@@ -22,7 +22,7 @@
 /*!
     \class IrcSender ircsender.h <IrcSender>
     \ingroup utility
-    \brief The IrcSender class is a helper class for handling IRC message sender prefixes.
+    \brief A helper class for handling message sender prefixes.
 
     An IRC message sender prefix as specified in RFC 1459:
     <pre>
