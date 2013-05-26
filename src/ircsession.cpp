@@ -37,14 +37,39 @@
     \ingroup core
     \brief Provides means to establish a connection to an IRC server.
 
-    IrcSession works asynchronously ie. it is non-blocking, emitting signals
-    to notify when the state of connection changes or data has arrived. The
-    asynchronous approach depends on an event loop. See QCoreApplication::exec()
-    for more details.
+    \section session Session management
 
-    Example usage:
+    Before \ref open() "opening" a session, it must be first initialized
+    with \ref host, \ref userName, \ref nickName and \ref realName.
+
+    The connection status may be queried at any time via \ref active
+    "isActive()" and \ref connected "isConnected()". Changes in the
+    connection status are informed via the following signals:
+    \li connecting()   - The underlying socket has been connected, but
+                         the IRC connection is not yet fully established.
+    \li connected()    - The IRC connection has been established,
+                         and the session is ready to start sending commands.
+    \li disconnected() - The session has been disconnected.
+
+    \section messages Receiving messages
+
+    Whenever a message is received from the server, the messageReceived()
+    signal is emitted. Also message type specific signals are provided
+    for convenience. See messageReceived() and IrcMessage and its
+    subclasses for more details.
+
+    \section commands Sending commands
+
+    Sending commands to a server is most conveniently done by creating
+    them via the various static \ref IrcCommand "IrcCommand::createXxx()"
+    methods and passing them to sendCommand(). Also sendData() is provided
+    for more low-level access.
+
+    \section example Example
+
     \code
     IrcSession* session = new IrcSession(this);
+    connect(session, SIGNAL(connected()), this, SLOT(onConnected())); // ready to send commands
     connect(session, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(onMessageReceived(IrcMessage*)));
     session->setHost("irc.server.com");
     session->setUserName("me");
@@ -112,36 +137,25 @@
     \fn void IrcSession::messageReceived(IrcMessage* message)
 
     This signal is emitted whenever any type of \a message is received.
- */
 
-/*!
-    \fn void IrcSession::hostChanged(const QString& host)
-
-    This signal is emitted when the \a host has changed.
- */
-
-/*!
-    \fn void IrcSession::portChanged(int port)
-
-    This signal is emitted when the \a port has changed.
- */
-
-/*!
-    \fn void IrcSession::userNameChanged(const QString& name)
-
-    This signal is emitted when the user \a name has changed.
- */
-
-/*!
-    \fn void IrcSession::realNameChanged(const QString& name)
-
-    This signal is emitted when the real \a name has changed.
- */
-
-/*!
-    \fn void IrcSession::nickNameChanged(const QString& name)
-
-    This signal is emitted when the nick \a name has changed.
+    In addition, message type specific signals are provided for convenience:
+    \li void <b>capabilityMessageReceived</b>(\ref IrcCapabilityMessage* message)
+    \li void <b>errorMessageReceived</b>(\ref IrcErrorMessage* message)
+    \li void <b>inviteMessageReceived</b>(\ref IrcInviteMessage* message)
+    \li void <b>joinMessageReceived</b>(\ref IrcJoinMessage* message)
+    \li void <b>kickMessageReceived</b>(\ref IrcKickMessage* message)
+    \li void <b>modeMessageReceived</b>(\ref IrcModeMessage* message)
+    \li void <b>namesMessageReceived</b>(\ref IrcNamesMessage* message)
+    \li void <b>nickMessageReceived</b>(\ref IrcNickMessage* message)
+    \li void <b>noticeMessageReceived</b>(\ref IrcNoticeMessage* message)
+    \li void <b>numericMessageReceived</b>(\ref IrcNumericMessage* message)
+    \li void <b>motdMessageReceived</b>(\ref IrcMotdMessage* message)
+    \li void <b>partMessageReceived</b>(\ref IrcPartMessage* message)
+    \li void <b>pingMessageReceived</b>(\ref IrcPingMessage* message)
+    \li void <b>pongMessageReceived</b>(\ref IrcPongMessage* message)
+    \li void <b>privateMessageReceived</b>(\ref IrcPrivateMessage* message)
+    \li void <b>quitMessageReceived</b>(\ref IrcQuitMessage* message)
+    \li void <b>topicMessageReceived</b>(\ref IrcTopicMessage* message)
  */
 
 /*!
@@ -414,11 +428,11 @@ IrcSession::~IrcSession()
     This property holds the FALLBACK encoding for received messages.
 
     The fallback encoding is used when the message is detected not
-    to be valid UTF-8 and the consequent auto-detection of message
-    encoding fails. See QTextCodec::availableCodes() for the list of
+    to be valid \c UTF-8 and the consequent auto-detection of message
+    encoding fails. See QTextCodec::availableCodecs() for the list of
     supported encodings.
 
-    The default value is ISO-8859-15.
+    The default value is \c ISO-8859-15.
 
     \par Access functions:
     \li QByteArray <b>encoding</b>() const
@@ -449,6 +463,9 @@ void IrcSession::setEncoding(const QByteArray& encoding)
     \par Access functions:
     \li QString <b>host</b>() const
     \li void <b>setHost</b>(const QString& host)
+
+    \par Notifier signal:
+    \li void <b>hostChanged</b>(const QString& host)
  */
 QString IrcSession::host() const
 {
@@ -475,6 +492,9 @@ void IrcSession::setHost(const QString& host)
     \par Access functions:
     \li int <b>port</b>() const
     \li void <b>setPort</b>(int port)
+
+    \par Notifier signal:
+    \li void <b>portChanged</b>(int port)
  */
 int IrcSession::port() const
 {
@@ -501,6 +521,9 @@ void IrcSession::setPort(int port)
     \par Access functions:
     \li QString <b>userName</b>() const
     \li void <b>setUserName</b>(const QString& name)
+
+    \par Notifier signal:
+    \li void <b>userNameChanged</b>(const QString& name)
  */
 QString IrcSession::userName() const
 {
@@ -526,6 +549,9 @@ void IrcSession::setUserName(const QString& name)
     \par Access functions:
     \li QString <b>nickName</b>() const
     \li void <b>setNickName</b>(const QString& name)
+
+    \par Notifier signal:
+    \li void <b>nickNameChanged</b>(const QString& name)
  */
 QString IrcSession::nickName() const
 {
@@ -553,6 +579,9 @@ void IrcSession::setNickName(const QString& name)
     \par Access functions:
     \li QString <b>realName</b>() const
     \li void <b>setRealName</b>(const QString& name)
+
+    \par Notifier signal:
+    \li void <b>realNameChanged</b>(const QString& name)
  */
 QString IrcSession::realName() const
 {
@@ -580,6 +609,9 @@ void IrcSession::setRealName(const QString& name)
 
     \par Access functions:
     \li bool <b>isActive</b>() const
+
+    \par Notifier signal:
+    \li void <b>activeChanged</b>(bool active)
  */
 bool IrcSession::isActive() const
 {
@@ -598,6 +630,9 @@ bool IrcSession::isActive() const
 
     \par Access functions:
     \li bool <b>isConnected</b>() const
+
+    \par Notifier signals:
+    \li void <b>connectedChanged</b>(bool connected)
  */
 bool IrcSession::isConnected() const
 {
@@ -614,8 +649,8 @@ bool IrcSession::isConnected() const
     calls QSslSocket::startClientEncryption() while connecting.
 
     \par Access functions:
-    \li QAbstractSocket* <b>socket</b>() const
-    \li void <b>setSocket</b>(QAbstractSocket* socket)
+    \li \ref QAbstractSocket* <b>socket</b>() const
+    \li void <b>setSocket</b>(\ref QAbstractSocket* socket)
  */
 QAbstractSocket* IrcSession::socket() const
 {
@@ -674,7 +709,15 @@ void IrcSession::open()
 }
 
 /*!
-    Closes the connection to the server.
+    Immediately closes the connection to the server.
+
+    \note Calling close() when the session is connected makes
+    the connection close immediately and thus leads to
+    "remote host closed the connection". In order to quit
+    gracefully, send a QUIT command and let the server handle
+    closing the connection.
+
+    \sa IrcCommand::createQuit()
  */
 void IrcSession::close()
 {
@@ -750,7 +793,7 @@ bool IrcSession::sendRaw(const QString& message)
     If multiple message filters are installed on the same session, the filter
     that was installed last is activated first.
 
-    \sa removeEventFilter(), IrcMessageFilter::messageFilter()
+    \sa removeMessageFilter()
  */
 void IrcSession::installMessageFilter(IrcMessageFilter* filter)
 {
@@ -765,7 +808,7 @@ void IrcSession::installMessageFilter(IrcMessageFilter* filter)
     The request is ignored if such an event filter has not been installed.
     All message filters for this session are automatically removed when this session is destroyed.
 
-    \sa installEventFilter()
+    \sa installMessageFilter()
  */
 void IrcSession::removeMessageFilter(IrcMessageFilter* filter)
 {
