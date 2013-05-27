@@ -251,7 +251,7 @@ fi
 echo
 echo "Running $QMAKE $QMAKE_SPEC..."
 
-$QMAKE $QMAKE_SPEC $QMAKE_DEBUG $QMAKE_PARAMS "CONFIG+=$QMAKE_CONFIG" -r $SOURCE_TREE/communi.pro
+$QMAKE $QMAKE_SPEC $QMAKE_DEBUG $QMAKE_PARAMS "CONFIG+=$QMAKE_CONFIG" -r $SOURCE_TREE/libcommuni.pro
 if [ $? != 0 ]; then
     echo "ERROR: qmake run failed."
     exit 1
