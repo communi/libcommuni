@@ -25,7 +25,7 @@ class IrcSessionInfoPrivate;
 class COMMUNI_EXPORT IrcSessionInfo
 {
 public:
-    explicit IrcSessionInfo(const IrcSession* session);
+    explicit IrcSessionInfo(const IrcSession* session = 0);
     IrcSessionInfo(const IrcSessionInfo& other);
     IrcSessionInfo& operator=(const IrcSessionInfo& other);
     ~IrcSessionInfo();

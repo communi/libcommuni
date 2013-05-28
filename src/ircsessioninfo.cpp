@@ -98,8 +98,8 @@ public:
  */
 IrcSessionInfo::IrcSessionInfo(const IrcSession* session) : d(new IrcSessionInfoPrivate)
 {
-    Q_ASSERT(session);
-    d->info = IrcSessionPrivate::get(session)->info;
+    if (session)
+        d->info = IrcSessionPrivate::get(session)->info;
     d->valid = !d->info.isEmpty();
     d->session = const_cast<IrcSession*>(session);
 }
@@ -141,7 +141,7 @@ IrcSessionInfo::~IrcSessionInfo()
  */
 bool IrcSessionInfo::isValid() const
 {
-    return d->valid;
+    return d->session && d->valid;
 }
 
 /*!
