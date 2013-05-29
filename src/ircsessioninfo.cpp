@@ -269,13 +269,13 @@ QStringList IrcSessionInfo::channelModes(IrcSessionInfo::ModeTypes types) const
         d->channelModes = d->info.take("CHANMODES").split(",", QString::SkipEmptyParts);
     QStringList modes;
     if (types & TypeA)
-        modes += d->channelModes.value(TypeA).split("", QString::SkipEmptyParts);
+        modes += d->channelModes.value(0).split("", QString::SkipEmptyParts);
     if (types & TypeB)
-        modes += d->channelModes.value(TypeB).split("", QString::SkipEmptyParts);
+        modes += d->channelModes.value(1).split("", QString::SkipEmptyParts);
     if (types & TypeC)
-        modes += d->channelModes.value(TypeC).split("", QString::SkipEmptyParts);
+        modes += d->channelModes.value(2).split("", QString::SkipEmptyParts);
     if (types & TypeD)
-        modes += d->channelModes.value(TypeD).split("", QString::SkipEmptyParts);
+        modes += d->channelModes.value(3).split("", QString::SkipEmptyParts);
     return modes;
 }
 
