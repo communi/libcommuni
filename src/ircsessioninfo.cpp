@@ -41,6 +41,52 @@
  */
 
 /*!
+    \enum IrcSessionInfo::ModeType
+    This enum describes the channel mode types.
+ */
+
+/*!
+    \var IrcSessionInfo::TypeA
+    \brief Type A modes
+
+    Modes that add or remove an address to or from a list.
+    These modes always take a parameter when sent by the server to a
+    client; when sent by a client, they may be specified without a
+    parameter, which requests the server to display the current
+    contents of the corresponding list on the channel to the client.
+ */
+
+/*!
+    \var IrcSessionInfo::TypeB
+    \brief Type B modes
+
+    Modes that change a setting on the channel. These modes
+    always take a parameter.
+ */
+
+/*!
+    \var IrcSessionInfo::TypeC
+    \brief Type C modes
+
+    Modes that change a setting on the channel. These modes
+    take a parameter only when set; the parameter is absent when the
+    mode is removed both in the client's and server's MODE command.
+ */
+
+/*!
+    \var IrcSessionInfo::TypeD
+    \brief Type D modes
+
+    Modes that change a setting on the channel. These modes
+    never take a parameter.
+ */
+
+/*!
+    \var IrcSessionInfo::AllTypes
+    \brief All type modes
+ */
+
+/*!
     \enum IrcSessionInfo::Limit
     This enum describes the numerical limit types.
  */
@@ -88,7 +134,7 @@ public:
     bool valid;
     QHash<QString, QString> info;
     QString network;
-    QStringList modes, prefixes, channelTypes;
+    QStringList modes, prefixes, channelTypes, channelModes;
     int modeLimit, channelLimit, targetLimit;
     QPointer<IrcSession> session;
 };
@@ -185,16 +231,6 @@ QStringList IrcSessionInfo::prefixes() const
 }
 
 /*!
-    Returns the supported channel type prefix characters.
- */
-QStringList IrcSessionInfo::channelTypes() const
-{
-    if (d->channelTypes.isEmpty())
-        d->channelTypes = d->info.take("CHANTYPES").split("", QString::SkipEmptyParts);
-    return d->channelTypes;
-}
-
-/*!
     Converts a channel user mode letter to a prefix character.
 
     \sa modes(), prefixToMode()
@@ -212,6 +248,35 @@ QString IrcSessionInfo::modeToPrefix(const QString& mode) const
 QString IrcSessionInfo::prefixToMode(const QString& prefix) const
 {
     return modes().value(prefixes().indexOf(prefix));
+}
+
+/*!
+    Returns the supported channel type prefix characters.
+ */
+QStringList IrcSessionInfo::channelTypes() const
+{
+    if (d->channelTypes.isEmpty())
+        d->channelTypes = d->info.take("CHANTYPES").split("", QString::SkipEmptyParts);
+    return d->channelTypes;
+}
+
+/*!
+    Returns the supported channel modes for \a type.
+ */
+QStringList IrcSessionInfo::channelModes(IrcSessionInfo::ModeTypes types) const
+{
+    if (d->channelModes.isEmpty())
+        d->channelModes = d->info.take("CHANMODES").split(",", QString::SkipEmptyParts);
+    QStringList modes;
+    if (types & TypeA)
+        modes += d->channelModes.value(TypeA).split("", QString::SkipEmptyParts);
+    if (types & TypeB)
+        modes += d->channelModes.value(TypeB).split("", QString::SkipEmptyParts);
+    if (types & TypeC)
+        modes += d->channelModes.value(TypeC).split("", QString::SkipEmptyParts);
+    if (types & TypeD)
+        modes += d->channelModes.value(TypeD).split("", QString::SkipEmptyParts);
+    return modes;
 }
 
 /*!

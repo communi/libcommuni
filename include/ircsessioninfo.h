@@ -36,10 +36,22 @@ public:
 
     QStringList modes() const;
     QStringList prefixes() const;
-    QStringList channelTypes() const;
 
     QString modeToPrefix(const QString& mode) const;
     QString prefixToMode(const QString& prefix) const;
+
+    QStringList channelTypes() const;
+
+    enum ModeType {
+        TypeA    = 0x1,
+        TypeB    = 0x2,
+        TypeC    = 0x4,
+        TypeD    = 0x8,
+        AllTypes = 0xf
+    };
+    Q_DECLARE_FLAGS(ModeTypes, ModeType)
+
+    QStringList channelModes(ModeTypes types) const;
 
     enum Limit {
         NickLength,
@@ -50,6 +62,7 @@ public:
         AwayReasonLength,
         ModeCount
     };
+
     int numericLimit(Limit limit) const;
 
     int modeLimit(const QString& mode = QString()) const;
@@ -62,5 +75,7 @@ public:
 private:
     mutable QSharedDataPointer<IrcSessionInfoPrivate> d;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(IrcSessionInfo::ModeTypes)
 
 #endif // IRCSESSIONINFO_H
