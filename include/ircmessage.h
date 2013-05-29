@@ -237,6 +237,8 @@ class COMMUNI_EXPORT IrcModeMessage : public IrcMessage
     Q_PROPERTY(QString target READ target)
     Q_PROPERTY(QString mode READ mode)
     Q_PROPERTY(QString argument READ argument)
+    Q_PROPERTY(Kind kind READ kind)
+    Q_ENUMS(Kind)
 
 public:
     Q_INVOKABLE explicit IrcModeMessage(IrcSession* session);
@@ -244,6 +246,9 @@ public:
     QString target() const;
     QString mode() const;
     QString argument() const;
+
+    enum Kind { Channel, User };
+    Kind kind() const;
 
     bool isValid() const;
 

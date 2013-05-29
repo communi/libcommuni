@@ -16,6 +16,7 @@
 #include "ircmessage_p.h"
 #include "ircsession.h"
 #include "ircsession_p.h"
+#include "ircsessioninfo.h"
 #include "irccommand.h"
 #include "irc.h"
 #include <QVariant>
@@ -735,6 +736,21 @@ bool IrcKickMessage::isValid() const
  */
 
 /*!
+    \enum IrcModeMessage::Kind
+    This enum describes the kind of modes.
+ */
+
+/*!
+    \var IrcModeMessage::Channel
+    \brief Channel mode
+ */
+
+/*!
+    \var IrcModeMessage::User
+    \brief User mode
+ */
+
+/*!
     Constructs a new IrcModeMessage with \a session.
  */
 IrcModeMessage::IrcModeMessage(IrcSession* session) : IrcMessage(session)
@@ -777,6 +793,24 @@ QString IrcModeMessage::argument() const
 {
     Q_D(const IrcMessage);
     return d->param(2);
+}
+
+/*!
+    This property holds the kind of the mode.
+
+    \par Access functions:
+    \li Kind <b>kind</b>() const
+ */
+IrcModeMessage::Kind IrcModeMessage::kind() const
+{
+    Q_D(const IrcMessage);
+    IrcSessionInfo info(d->session);
+    QString m = mode();
+    if (m.startsWith(QLatin1Char('+')) || m.startsWith(QLatin1Char('-')))
+        m.remove(0, 1);
+    if (info.channelModes(IrcSessionInfo::AllTypes).contains(m))
+        return Channel;
+    return User;
 }
 
 bool IrcModeMessage::isValid() const
