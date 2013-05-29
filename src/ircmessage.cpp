@@ -623,7 +623,6 @@ bool IrcTopicMessage::isReply() const
     return rpl == Irc::RPL_TOPIC || rpl == Irc::RPL_NOTOPIC;
 }
 
-
 bool IrcTopicMessage::isValid() const
 {
     return IrcMessage::isValid() && !channel().isEmpty();
@@ -796,6 +795,24 @@ QString IrcModeMessage::argument() const
 }
 
 /*!
+    This property holds whether the message is a reply.
+
+    Mode messages are sent when a mode changes (\c false)
+    and when joining a channel (\c true).
+
+    \par Access functions:
+    \li bool <b>isReply</b>() const
+
+    \sa Irc::RPL_CHANNELMODEIS
+ */
+bool IrcModeMessage::isReply() const
+{
+    Q_D(const IrcMessage);
+    int rpl = d->command().toInt();
+    return rpl == Irc::RPL_CHANNELMODEIS;
+}
+
+/*!
     This property holds the kind of the mode.
 
     \par Access functions:
@@ -805,12 +822,16 @@ IrcModeMessage::Kind IrcModeMessage::kind() const
 {
     Q_D(const IrcMessage);
     IrcSessionInfo info(d->session);
+    QStringList channelModes = info.channelModes(IrcSessionInfo::AllTypes);
     QString m = mode();
     if (m.startsWith(QLatin1Char('+')) || m.startsWith(QLatin1Char('-')))
         m.remove(0, 1);
-    if (info.channelModes(IrcSessionInfo::AllTypes).contains(m))
-        return Channel;
-    return User;
+    while (!m.isEmpty()) {
+        if (!channelModes.contains(m.at(0)))
+            return User;
+        m.remove(0, 1);
+    }
+    return Channel;
 }
 
 bool IrcModeMessage::isValid() const

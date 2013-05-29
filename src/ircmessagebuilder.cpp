@@ -68,5 +68,15 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         emit messageReceived(d.message);
         d.message = 0;
         break;
+
+    case Irc::RPL_CHANNELMODEIS:
+        d.message = new IrcModeMessage(d.session);
+        d.message->setSender(message->sender());
+        d.message->setTimeStamp(message->timeStamp());
+        d.message->setCommand(QString::number(message->code()));
+        d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
+        emit messageReceived(d.message);
+        d.message = 0;
+        break;
     }
 }

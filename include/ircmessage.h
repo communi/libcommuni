@@ -237,6 +237,7 @@ class COMMUNI_EXPORT IrcModeMessage : public IrcMessage
     Q_PROPERTY(QString target READ target)
     Q_PROPERTY(QString mode READ mode)
     Q_PROPERTY(QString argument READ argument)
+    Q_PROPERTY(bool reply READ isReply)
     Q_PROPERTY(Kind kind READ kind)
     Q_ENUMS(Kind)
 
@@ -246,6 +247,7 @@ public:
     QString target() const;
     QString mode() const;
     QString argument() const;
+    bool isReply() const;
 
     enum Kind { Channel, User };
     Kind kind() const;
