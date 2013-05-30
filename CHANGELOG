@@ -1,3 +1,18 @@
+2.2.0
+-----
+- Introduced IrcChannelModel and IrcUserModel
+- Added IrcSession::xxxMessageReceived(IrcXxxMessage*) signals
+- Allowed constructing an invalid IrcSessionInfo
+- Added IrcSessionInfo::channelModes(A|B|C|D)
+- Added IrcModeMessage::Kind { Channel, User }
+- Added IrcTopicMessage::isReply() and IrcModeMessage::isReply()
+  - NOTE: Notice that there is no need to catch RPL_TOPIC, RPL_NOTOPIC
+          or RPL_CHANNELMODEIS anymore. These numeric replies are now
+          composed to IrcTopicMessage and IrcModeMessage.
+- Improved submodule support:
+  https://github.com/communi/libcommuni/wiki/Submodule
+- Overall documentation improvements
+
 2.1.0
 -----
 - Introduced IrcMessageFilter and IrcLagTimer
