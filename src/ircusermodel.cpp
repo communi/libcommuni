@@ -183,7 +183,7 @@ void IrcUserModelPrivate::addUsers(const QStringList& names)
         if (activitySort)
             q->beginInsertRows(QModelIndex(), 0, unique.count() - 1);
         else
-            q->beginInsertRows(QModelIndex(), userList.count(), unique.count() - 1);
+            q->beginInsertRows(QModelIndex(), userList.count(), userList.count() + unique.count() - 1);
         QHash<QString, QString>::const_iterator it = unique.constBegin();
         while (it != unique.constEnd()) {
             IrcUser* user = new IrcUser(q);
