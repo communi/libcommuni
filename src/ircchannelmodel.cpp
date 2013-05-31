@@ -293,6 +293,15 @@ IrcChannel* IrcChannelModel::channel(const QString& name) const
 }
 
 /*!
+    Returns \c true if the model contains \a name.
+ */
+bool IrcChannelModel::contains(const QString& name) const
+{
+    Q_D(const IrcChannelModel);
+    return d->channelMap.contains(name);
+}
+
+/*!
     This property holds the display role.
 
     The specified data role is returned for Qt::DisplayRole.

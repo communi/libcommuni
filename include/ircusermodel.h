@@ -42,6 +42,7 @@ public:
     QList<IrcUser*> users() const;
     Q_INVOKABLE IrcUser* get(int index) const;
     Q_INVOKABLE IrcUser* user(const QString& name) const;
+    Q_INVOKABLE bool contains(const QString& name) const;
 
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);

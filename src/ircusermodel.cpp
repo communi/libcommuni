@@ -446,6 +446,15 @@ IrcUser* IrcUserModel::user(const QString& name) const
 }
 
 /*!
+    Returns \c true if the model contains \a name.
+ */
+bool IrcUserModel::contains(const QString& name) const
+{
+    Q_D(const IrcUserModel);
+    return d->userMap.contains(name);
+}
+
+/*!
     This property holds the display role.
 
     The specified data role is returned for Qt::DisplayRole.

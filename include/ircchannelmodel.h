@@ -42,6 +42,7 @@ public:
     QList<IrcChannel*> channels() const;
     Q_INVOKABLE IrcChannel* get(int index) const;
     Q_INVOKABLE IrcChannel* channel(const QString& name) const;
+    Q_INVOKABLE bool contains(const QString& name) const;
 
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
