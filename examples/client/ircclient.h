@@ -10,15 +10,17 @@
 #ifndef IRCCLIENT_H
 #define IRCCLIENT_H
 
-#include <QWidget>
+#include <QSplitter>
 
 class IrcSession;
 class IrcMessage;
+class IrcChannel;
 
 QT_FORWARD_DECLARE_CLASS(QLineEdit)
+QT_FORWARD_DECLARE_CLASS(QListView)
 QT_FORWARD_DECLARE_CLASS(QTextEdit)
 
-class IrcClient : public QWidget
+class IrcClient : public QSplitter
 {
     Q_OBJECT
 
@@ -31,6 +33,7 @@ private slots:
     void onConnecting();
     void onDisconnected();
     void onTextEntered();
+    void onChannelAdded(IrcChannel* channel);
     void receiveMessage(IrcMessage* message);
 
 private:
@@ -38,7 +41,9 @@ private:
     void createSession();
 
     QLineEdit* lineEdit;
+    QListView* listView;
     QTextEdit* textEdit;
+
     IrcSession* session;
 };
 

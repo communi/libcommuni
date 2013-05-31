@@ -10,19 +10,25 @@
 #include "ircclient.h"
 #include "ircmessageformatter.h"
 
+#include <QSortFilterProxyModel>
 #include <QVBoxLayout>
 #include <QLineEdit>
+#include <QListView>
 #include <QTextEdit>
 #include <QTime>
 
+#include <Irc>
 #include <IrcSession>
 #include <IrcCommand>
 #include <IrcMessage>
+#include <IrcChannel>
+#include <IrcUserModel>
+#include <IrcChannelModel>
 
 static const char* CHANNEL = "#communi";
 static const char* SERVER = "irc.freenode.net";
 
-IrcClient::IrcClient(QWidget* parent) : QWidget(parent)
+IrcClient::IrcClient(QWidget* parent) : QSplitter(parent)
 {
     createUi();
     createSession();
@@ -67,6 +73,19 @@ void IrcClient::onTextEntered()
     session->sendCommand(command);
 }
 
+void IrcClient::onChannelAdded(IrcChannel* channel)
+{
+    IrcUserModel* model = channel->model();
+    model->setDisplayRole(Irc::NameRole);
+
+    QSortFilterProxyModel* proxy = new QSortFilterProxyModel(model);
+    proxy->setSourceModel(model);
+    proxy->setDynamicSortFilter(true);
+    proxy->sort(0, Qt::AscendingOrder);
+
+    listView->setModel(proxy);
+}
+
 void IrcClient::receiveMessage(IrcMessage* message)
 {
     QString html = IrcMessageFormatter::formatMessage(message);
@@ -76,20 +95,30 @@ void IrcClient::receiveMessage(IrcMessage* message)
 
 void IrcClient::createUi()
 {
-    textEdit = new QTextEdit(this);
+    QWidget* container = new QWidget(this);
+
+    textEdit = new QTextEdit(container);
     textEdit->setReadOnly(true);
     textEdit->append(IrcMessageFormatter::formatMessage(tr("Welcome to the Communi %1 example client.").arg(COMMUNI_VERSION_STR)));
     textEdit->append(IrcMessageFormatter::formatMessage(tr("PS. This example connects %1 and joins %2.").arg(SERVER, CHANNEL)));
 
-    lineEdit = new QLineEdit(this);
+    lineEdit = new QLineEdit(container);
     textEdit->setFocusProxy(lineEdit);
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(onTextEntered()));
 
-    QVBoxLayout* layout = new QVBoxLayout(this);
+    QVBoxLayout* layout = new QVBoxLayout(container);
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->addWidget(textEdit);
     layout->addWidget(lineEdit);
+
+    listView = new QListView(this);
+
+    addWidget(container);
+    addWidget(listView);
+
+    setStretchFactor(0, 4);
+    setStretchFactor(1, 1);
 }
 
 void IrcClient::createSession()
@@ -100,10 +129,13 @@ void IrcClient::createSession()
     connect(session, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
     connect(session, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveMessage(IrcMessage*)));
 
+    IrcChannelModel* model = new IrcChannelModel(session);
+    connect(model, SIGNAL(channelAdded(IrcChannel*)), this, SLOT(onChannelAdded(IrcChannel*)));
+
     qsrand(QTime::currentTime().msec());
 
     session->setHost(SERVER);
     session->setUserName("communi");
-    session->setNickName(tr("Guest%1").arg(qrand() % 99999));
+    session->setNickName(tr("Communi%1").arg(qrand() % 99999));
     session->setRealName(tr("Communi %1 example client").arg(COMMUNI_VERSION_STR));
 }
