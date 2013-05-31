@@ -12,6 +12,7 @@
 
 #include <QSortFilterProxyModel>
 #include <QVBoxLayout>
+#include <QCompleter>
 #include <QLineEdit>
 #include <QListView>
 #include <QTextEdit>
@@ -77,6 +78,7 @@ void IrcClient::onChannelAdded(IrcChannel* channel)
 {
     IrcUserModel* model = channel->model();
     model->setDisplayRole(Irc::NameRole);
+    model->setActivitySortEnabled(true);
 
     QSortFilterProxyModel* proxy = new QSortFilterProxyModel(model);
     proxy->setSourceModel(model);
@@ -84,6 +86,14 @@ void IrcClient::onChannelAdded(IrcChannel* channel)
     proxy->sort(0, Qt::AscendingOrder);
 
     listView->setModel(proxy);
+
+    QCompleter* completer = new QCompleter(lineEdit);
+    completer->setCompletionMode(QCompleter::InlineCompletion);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setCompletionRole(Irc::NameRole);
+    completer->setModel(model);
+
+    lineEdit->setCompleter(completer);
 }
 
 void IrcClient::receiveMessage(IrcMessage* message)
@@ -113,6 +123,7 @@ void IrcClient::createUi()
     layout->addWidget(lineEdit);
 
     listView = new QListView(this);
+    listView->setFocusPolicy(Qt::NoFocus);
 
     addWidget(container);
     addWidget(listView);
