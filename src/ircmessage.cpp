@@ -125,6 +125,16 @@
  */
 
 /*!
+    \var IrcMessage::Motd
+    \brief A message of the day (IrcMotdMessage).
+ */
+
+/*!
+    \var IrcMessage::Names
+    \brief A names message (IrcNamesMessage).
+ */
+
+/*!
     \enum IrcMessage::Flags
     This enum describes the supported message flags.
  */
