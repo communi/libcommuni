@@ -48,6 +48,19 @@
     This signal is emitted when a \a channel is removed from the list of channels.
  */
 
+/*!
+    \fn void IrcChannelModel::messageIgnored(IrcMessage* message)
+
+    This signal is emitted when a message was ignored.
+
+    IrcChannelModel handles only channel specific messages and delivers
+    them to the appropriate IrcChannel instances. When applications decide
+    to handle IrcChannel::messageReceived(), this signal makes it easy to
+    implement handling for the rest, non-channel specific messages.
+
+    \sa IrcSession::messageReceived(), IrcChannel::messageReceived()
+ */
+
 class IrcChannelModelPrivate : public IrcMessageFilter
 {
     Q_DECLARE_PUBLIC(IrcChannelModel)
@@ -77,6 +90,7 @@ IrcChannelModelPrivate::IrcChannelModelPrivate(IrcChannelModel* q) :
 
 bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
 {
+    Q_Q(IrcChannelModel);
     if (msg->type() == IrcMessage::Join && msg->flags() & IrcMessage::Own)
         addChannel(static_cast<IrcJoinMessage*>(msg)->channel().toLower());
 
@@ -102,6 +116,7 @@ bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
             break;
 
         default:
+            emit q->messageIgnored(msg);
             break;
     }
 

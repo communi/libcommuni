@@ -135,12 +135,12 @@ class IrcUserModelPrivate
 
 public:
     void addUsers(const QStringList& users);
-    void removeUser(const QString& user);
-    void renameUser(const QString& from, const QString& to);
-    void promoteUser(const QString& user);
+    bool removeUser(const QString& user);
+    bool renameUser(const QString& from, const QString& to);
+    bool promoteUser(const QString& user);
     void setUserMode(const QString& user, const QString& mode);
 
-    void _irc_processMessage(IrcMessage* message);
+    bool _irc_processMessage(IrcMessage* message);
 
     IrcUserModel* q_ptr;
     bool activitySort;
@@ -206,7 +206,7 @@ void IrcUserModelPrivate::addUsers(const QStringList& names)
     }
 }
 
-void IrcUserModelPrivate::removeUser(const QString& name)
+bool IrcUserModelPrivate::removeUser(const QString& name)
 {
     Q_Q(IrcUserModel);
     if (IrcUser* user = userMap.value(name)) {
@@ -220,11 +220,13 @@ void IrcUserModelPrivate::removeUser(const QString& name)
             emit q->namesChanged(q->names());
             emit q->usersChanged(q->users());
             emit q->countChanged(q->count());
+            return true;
         }
     }
+    return false;
 }
 
-void IrcUserModelPrivate::renameUser(const QString& from, const QString& to)
+bool IrcUserModelPrivate::renameUser(const QString& from, const QString& to)
 {
     Q_Q(IrcUserModel);
     if (IrcUser* user = userMap.value(from)) {
@@ -246,11 +248,13 @@ void IrcUserModelPrivate::renameUser(const QString& from, const QString& to)
             }
             emit q->namesChanged(q->names());
             emit q->usersChanged(q->users());
+            return true;
         }
     }
+    return false;
 }
 
-void IrcUserModelPrivate::promoteUser(const QString& name)
+bool IrcUserModelPrivate::promoteUser(const QString& name)
 {
     Q_Q(IrcUserModel);
     if (IrcUser* user = userMap.value(name)) {
@@ -271,8 +275,10 @@ void IrcUserModelPrivate::promoteUser(const QString& name)
 
             emit q->namesChanged(q->names());
             emit q->usersChanged(q->users());
+            return true;
         }
     }
+    return false;
 }
 
 void IrcUserModelPrivate::setUserMode(const QString& name, const QString& command)
@@ -311,7 +317,7 @@ void IrcUserModelPrivate::setUserMode(const QString& name, const QString& comman
     }
 }
 
-void IrcUserModelPrivate::_irc_processMessage(IrcMessage* message)
+bool IrcUserModelPrivate::_irc_processMessage(IrcMessage* message)
 {
     Q_Q(IrcUserModel);
     if (!info.isValid())
@@ -319,7 +325,7 @@ void IrcUserModelPrivate::_irc_processMessage(IrcMessage* message)
 
     if (message->type() == IrcMessage::Nick) {
         const QString nick = static_cast<IrcNickMessage*>(message)->nick();
-        renameUser(message->sender().name(), nick);
+        return renameUser(message->sender().name(), nick);
     } else if (message->type() == IrcMessage::Join) {
         if (message->flags() & IrcMessage::Own)
             q->clear();
@@ -329,13 +335,13 @@ void IrcUserModelPrivate::_irc_processMessage(IrcMessage* message)
         if (message->flags() & IrcMessage::Own)
             q->clear();
         else
-            removeUser(message->sender().name());
+            return removeUser(message->sender().name());
     } else if (message->type() == IrcMessage::Kick) {
         const QString user = static_cast<IrcKickMessage*>(message)->user();
         if (!user.compare(message->session()->nickName(), Qt::CaseInsensitive))
             q->clear();
         else
-            removeUser(user);
+            return removeUser(user);
     } else if (message->type() == IrcMessage::Mode) {
         const IrcModeMessage* modeMsg = static_cast<IrcModeMessage*>(message);
         if (!modeMsg->argument().isEmpty())
@@ -344,8 +350,9 @@ void IrcUserModelPrivate::_irc_processMessage(IrcMessage* message)
         const QStringList names = static_cast<IrcNamesMessage*>(message)->names();
         addUsers(names);
     } else if (activitySort) {
-        promoteUser(message->sender().name());
+        return promoteUser(message->sender().name());
     }
+    return true;
 }
 
 Q_DECLARE_METATYPE(IrcUser*)

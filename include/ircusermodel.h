@@ -71,7 +71,7 @@ private:
     QScopedPointer<IrcUserModelPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcUserModel)
     Q_DISABLE_COPY(IrcUserModel)
-    Q_PRIVATE_SLOT(d_func(), void _irc_processMessage(IrcMessage*))
+    Q_PRIVATE_SLOT(d_func(), bool _irc_processMessage(IrcMessage*))
 };
 
 #endif // IRCUSERMODEL_H

@@ -20,6 +20,7 @@
 #include <QtCore/qabstractitemmodel.h>
 
 class IrcSession;
+class IrcMessage;
 class IrcChannel;
 class IrcChannelModelPrivate;
 
@@ -56,6 +57,7 @@ Q_SIGNALS:
     void channelRemoved(IrcChannel* channel);
     void channelsChanged(const QList<IrcChannel*>& channels);
     void sessionChanged(IrcSession* session);
+    void messageIgnored(IrcMessage* message);
 
 protected:
     virtual IrcChannel* createChannel(const QString& name);

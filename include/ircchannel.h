@@ -48,6 +48,7 @@ Q_SIGNALS:
     void modeChanged(const QString& mode);
     void topicChanged(const QString& topic);
     void destroyed(IrcChannel* channel);
+    void messageReceived(IrcMessage* message);
 
 private:
     friend class IrcChannelModelPrivate;

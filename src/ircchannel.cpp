@@ -32,6 +32,26 @@
     \sa models
 */
 
+/*!
+    \fn void IrcChannel::messageReceived(IrcMessage* message)
+
+    This signal is emitted when a channel specific message is received.
+
+    The message may one of the following types:
+    - IrcMessage::Join
+    - IrcMessage::Kick
+    - IrcMessage::Mode
+    - IrcMessage::Names
+    - IrcMessage::Nick
+    - IrcMessage::Notice
+    - IrcMessage::Part
+    - IrcMessage::Private
+    - IrcMessage::Quit
+    - IrcMessage::Topic
+
+    \sa IrcSession::messageReceived(), IrcChannelModel::messageIgnored()
+ */
+
 void IrcChannelPrivate::init(const QString& p, const QString& n)
 {
     prefix = p;
@@ -81,6 +101,7 @@ void IrcChannelPrivate::setTopic(const QString& value)
 void IrcChannelPrivate::processMessage(IrcMessage* message)
 {
     Q_Q(IrcChannel);
+    bool handled = true;
     switch (message->type()) {
     case IrcMessage::Mode: {
         IrcModeMessage* modeMsg = static_cast<IrcModeMessage*>(message);
@@ -98,9 +119,11 @@ void IrcChannelPrivate::processMessage(IrcMessage* message)
         break;
     default:
         // TODO: q->model()->d_func()->_irc_processMessage(message);
-        QMetaObject::invokeMethod(q->model(), "_irc_processMessage", Q_ARG(IrcMessage*, message));
+        QMetaObject::invokeMethod(q->model(), "_irc_processMessage", Q_RETURN_ARG(bool, handled), Q_ARG(IrcMessage*, message));
         break;
     }
+    if (handled)
+        emit q->messageReceived(message);
 }
 
 /*!
