@@ -79,6 +79,8 @@ IrcProtocol::IrcProtocol(IrcSession* session) : QObject(session), d_ptr(new IrcP
 
 IrcProtocol::~IrcProtocol()
 {
+    Q_D(IrcProtocol);
+    delete d->builder;
 }
 
 IrcSession* IrcProtocol::session() const
