@@ -70,9 +70,9 @@ public:
 
     bool messageFilter(IrcMessage* message);
 
-    void addChannel(const QString& name);
-    void removeChannel(const QString& name);
-    void processMessage(const QString& name, IrcMessage* message);
+    void addChannel(const QString& title);
+    void removeChannel(const QString& title);
+    void processMessage(const QString& title, IrcMessage* message);
 
     void _irc_channelDestroyed(IrcChannel* channel);
 
@@ -150,18 +150,18 @@ static QString unprefixedChannel(const QString& channel, const QStringList& pref
     return channel.mid(i);
 }
 
-void IrcChannelModelPrivate::addChannel(const QString& name)
+void IrcChannelModelPrivate::addChannel(const QString& title)
 {
     Q_Q(IrcChannelModel);
-    if (!channelMap.contains(name)) {
-        IrcChannel* channel = q->createChannel(name);
+    if (!channelMap.contains(title)) {
+        IrcChannel* channel = q->createChannel(title);
         if (channel) {
             const QStringList prefixes = IrcSessionInfo(session).channelTypes();
-            channel->d_func()->init(channelPrefix(name, prefixes), unprefixedChannel(name, prefixes));
+            channel->d_func()->init(channelPrefix(title, prefixes), unprefixedChannel(title, prefixes));
 
             q->beginInsertRows(QModelIndex(), 0, 0);
             channelList.append(channel);
-            channelMap.insert(name, channel);
+            channelMap.insert(title, channel);
             q->connect(channel, SIGNAL(destroyed(IrcChannel*)), SLOT(_irc_channelDestroyed(IrcChannel*)));
             q->endInsertRows();
             emit q->channelAdded(channel);
@@ -171,17 +171,17 @@ void IrcChannelModelPrivate::addChannel(const QString& name)
     }
 }
 
-void IrcChannelModelPrivate::removeChannel(const QString& name)
+void IrcChannelModelPrivate::removeChannel(const QString& title)
 {
     Q_Q(IrcChannelModel);
-    IrcChannel* channel = channelMap.value(name);
+    IrcChannel* channel = channelMap.value(title);
     if (channel)
         q->destroyChannel(channel);
 }
 
-void IrcChannelModelPrivate::processMessage(const QString& name, IrcMessage* message)
+void IrcChannelModelPrivate::processMessage(const QString& title, IrcMessage* message)
 {
-    IrcChannel* channel = channelMap.value(name);
+    IrcChannel* channel = channelMap.value(title);
     if (channel)
         channel->d_func()->processMessage(message);
 }
@@ -193,7 +193,7 @@ void IrcChannelModelPrivate::_irc_channelDestroyed(IrcChannel* channel)
     if (idx != -1) {
         q->beginRemoveRows(QModelIndex(), idx, idx);
         channelList.removeAt(idx);
-        channelMap.remove(channel->name());
+        channelMap.remove(channel->title());
         q->endRemoveRows();
         emit q->channelRemoved(channel);
         emit q->channelsChanged(channelList);
@@ -299,21 +299,21 @@ IrcChannel* IrcChannelModel::get(int index) const
 }
 
 /*!
-    Returns the channel object for \a name.
+    Returns the channel object for \a title.
  */
-IrcChannel* IrcChannelModel::channel(const QString& name) const
+IrcChannel* IrcChannelModel::channel(const QString& title) const
 {
     Q_D(const IrcChannelModel);
-    return d->channelMap.value(name);
+    return d->channelMap.value(title);
 }
 
 /*!
-    Returns \c true if the model contains \a name.
+    Returns \c true if the model contains \a title.
  */
-bool IrcChannelModel::contains(const QString& name) const
+bool IrcChannelModel::contains(const QString& title) const
 {
     Q_D(const IrcChannelModel);
-    return d->channelMap.contains(name);
+    return d->channelMap.contains(title);
 }
 
 /*!
@@ -355,7 +355,7 @@ void IrcChannelModel::clear()
 }
 
 /*!
-    Creates a channel object for channel \a name.
+    Creates a channel object for channel \a title.
 
     IrcChannelModel will automatically call this factory method when a
     need for the channel object occurs ie. the channel is being joined.
@@ -364,9 +364,9 @@ void IrcChannelModel::clear()
     Reimplement this function in order to alter the default behavior,
     for example to provide a custom IrcChannel subclass.
  */
-IrcChannel* IrcChannelModel::createChannel(const QString& name)
+IrcChannel* IrcChannelModel::createChannel(const QString& title)
 {
-    Q_UNUSED(name);
+    Q_UNUSED(title);
     return new IrcChannel(this);
 }
 

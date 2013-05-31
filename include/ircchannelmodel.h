@@ -42,8 +42,8 @@ public:
     int count() const;
     QList<IrcChannel*> channels() const;
     Q_INVOKABLE IrcChannel* get(int index) const;
-    Q_INVOKABLE IrcChannel* channel(const QString& name) const;
-    Q_INVOKABLE bool contains(const QString& name) const;
+    Q_INVOKABLE IrcChannel* channel(const QString& title) const;
+    Q_INVOKABLE bool contains(const QString& title) const;
 
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
@@ -60,7 +60,7 @@ Q_SIGNALS:
     void messageIgnored(IrcMessage* message);
 
 protected:
-    virtual IrcChannel* createChannel(const QString& name);
+    virtual IrcChannel* createChannel(const QString& title);
     virtual void destroyChannel(IrcChannel* channel);
 
     QHash<int, QByteArray> roleNames() const;
