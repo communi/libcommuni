@@ -2,6 +2,7 @@
 # Communi
 ######################################################################
 
+QT += network
 DEFINES += BUILD_COMMUNI
 
 DEPENDPATH += $$PWD $$PWD/../include
