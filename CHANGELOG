@@ -1,3 +1,10 @@
+2.1.1
+-----
+- Add missing docs for IrcMessage::Motd/Names enum values
+- Enable using communi as a static lib & git submodule
+- Fixed a memory leak in IrcProtocol
+- Other cosmetic docs & build system cleanups and improvements
+
 2.1.0
 -----
 - Introduced IrcMessageFilter and IrcLagTimer
