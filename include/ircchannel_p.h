@@ -28,7 +28,7 @@ public:
     void setMode(const QString& value);
     void setTopic(const QString& value);
 
-    void processMessage(IrcMessage* message);
+    bool processMessage(IrcMessage* message);
 
     IrcChannel* q_ptr;
     mutable IrcUserModel* model;

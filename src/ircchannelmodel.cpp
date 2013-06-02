@@ -72,7 +72,7 @@ public:
 
     void addChannel(const QString& title);
     void removeChannel(const QString& title);
-    void processMessage(const QString& title, IrcMessage* message);
+    bool processMessage(const QString& title, IrcMessage* message);
 
     void _irc_channelDestroyed(IrcChannel* channel);
 
@@ -106,13 +106,15 @@ bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
         case IrcMessage::Kick:
         case IrcMessage::Names:
         case IrcMessage::Topic:
-            processMessage(msg->property("channel").toString().toLower(), msg);
+            if (!processMessage(msg->property("channel").toString().toLower(), msg))
+                emit q->messageIgnored(msg);
             break;
 
         case IrcMessage::Mode:
         case IrcMessage::Notice:
         case IrcMessage::Private:
-            processMessage(msg->property("target").toString().toLower(), msg);
+            if (!processMessage(msg->property("target").toString().toLower(), msg))
+                emit q->messageIgnored(msg);
             break;
 
         default:
@@ -179,11 +181,12 @@ void IrcChannelModelPrivate::removeChannel(const QString& title)
         q->destroyChannel(channel);
 }
 
-void IrcChannelModelPrivate::processMessage(const QString& title, IrcMessage* message)
+bool IrcChannelModelPrivate::processMessage(const QString& title, IrcMessage* message)
 {
     IrcChannel* channel = channelMap.value(title);
     if (channel)
-        channel->d_func()->processMessage(message);
+        return channel->d_func()->processMessage(message);
+    return false;
 }
 
 void IrcChannelModelPrivate::_irc_channelDestroyed(IrcChannel* channel)

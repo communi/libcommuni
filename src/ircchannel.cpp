@@ -98,7 +98,7 @@ void IrcChannelPrivate::setTopic(const QString& value)
     }
 }
 
-void IrcChannelPrivate::processMessage(IrcMessage* message)
+bool IrcChannelPrivate::processMessage(IrcMessage* message)
 {
     Q_Q(IrcChannel);
     bool handled = true;
@@ -124,6 +124,7 @@ void IrcChannelPrivate::processMessage(IrcMessage* message)
     }
     if (handled)
         emit q->messageReceived(message);
+    return handled;
 }
 
 /*!
