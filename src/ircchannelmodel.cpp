@@ -354,6 +354,8 @@ void IrcChannelModel::clear()
         d->channelList.clear();
         d->channelMap.clear();
         endResetModel();
+        emit channelsChanged(QList<IrcChannel*>());
+        emit countChanged(0);
     }
 }
 

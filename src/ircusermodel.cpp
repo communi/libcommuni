@@ -530,6 +530,9 @@ void IrcUserModel::clear()
         d->userList.clear();
         d->userMap.clear();
         endResetModel();
+        emit namesChanged(QStringList());
+        emit usersChanged(QList<IrcUser*>());
+        emit countChanged(0);
     }
 }
 
