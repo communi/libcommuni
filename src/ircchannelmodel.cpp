@@ -161,7 +161,7 @@ void IrcChannelModelPrivate::addChannel(const QString& title)
             const QStringList prefixes = IrcSessionInfo(session).channelTypes();
             channel->d_func()->init(channelPrefix(title, prefixes), unprefixedChannel(title, prefixes));
 
-            q->beginInsertRows(QModelIndex(), 0, 0);
+            q->beginInsertRows(QModelIndex(), channelList.count(), channelList.count());
             channelList.append(channel);
             channelMap.insert(title, channel);
             q->connect(channel, SIGNAL(destroyed(IrcChannel*)), SLOT(_irc_channelDestroyed(IrcChannel*)));
