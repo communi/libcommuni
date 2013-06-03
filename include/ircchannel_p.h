@@ -22,7 +22,7 @@ class IrcChannelPrivate
     Q_DECLARE_PUBLIC(IrcChannel)
 
 public:
-    void init(const QString& p, const QString& n);
+    void init(const QString& title, IrcSession* session);
 
     void changeMode(const QString& value);
     void setMode(const QString& value);
@@ -31,6 +31,7 @@ public:
     bool processMessage(IrcMessage* message);
 
     IrcChannel* q_ptr;
+    IrcSession* session;
     mutable IrcUserModel* model;
     QString name;
     QString prefix;

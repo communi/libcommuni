@@ -15,6 +15,7 @@
 #include "ircchannel.h"
 #include "ircchannel_p.h"
 #include "ircusermodel.h"
+#include "ircsessioninfo.h"
 #include "ircmessage.h"
 
 /*!
@@ -52,10 +53,28 @@
     \sa IrcSession::messageReceived(), IrcChannelModel::messageIgnored()
  */
 
-void IrcChannelPrivate::init(const QString& p, const QString& n)
+static QString channelPrefix(const QString& title, const QStringList& prefixes)
 {
-    prefix = p;
-    name = n;
+    int i = 0;
+    while (i < title.length() && prefixes.contains(title.at(i)))
+        ++i;
+    return title.left(i);
+}
+
+static QString channelName(const QString& title, const QStringList& prefixes)
+{
+    int i = 0;
+    while (i < title.length() && prefixes.contains(title.at(i)))
+        ++i;
+    return title.mid(i);
+}
+
+void IrcChannelPrivate::init(const QString& title, IrcSession* s)
+{
+    const QStringList prefixes = IrcSessionInfo(s).channelTypes();
+    prefix = channelPrefix(title, prefixes);
+    name = channelName(title, prefixes);
+    session = s;
 }
 
 void IrcChannelPrivate::changeMode(const QString& value)
@@ -139,6 +158,7 @@ IrcChannel::IrcChannel(QObject* parent)
 {
     Q_D(IrcChannel);
     d->q_ptr = this;
+    d->session = 0;
     d->model = 0;
 }
 
@@ -218,6 +238,18 @@ QString IrcChannel::topic() const
 {
     Q_D(const IrcChannel);
     return d->topic;
+}
+
+/*!
+    This property holds the session of the channel.
+
+    \par Access function:
+    \li \ref IrcSession* <b>session</b>() const
+ */
+IrcSession* IrcChannel::session() const
+{
+    Q_D(const IrcChannel);
+    return d->session;
 }
 
 /*!

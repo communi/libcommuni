@@ -19,6 +19,7 @@
 #include <QtCore/qobject.h>
 
 class IrcMessage;
+class IrcSession;
 class IrcUserModel;
 class IrcChannelPrivate;
 
@@ -30,6 +31,7 @@ class COMMUNI_EXPORT IrcChannel : public QObject
     Q_PROPERTY(QString prefix READ prefix CONSTANT)
     Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
     Q_PROPERTY(QString topic READ topic NOTIFY topicChanged)
+    Q_PROPERTY(IrcSession* session READ session CONSTANT)
     Q_PROPERTY(IrcUserModel* model READ model CONSTANT)
 
 public:
@@ -42,6 +44,8 @@ public:
 
     QString mode() const;
     QString topic() const;
+
+    IrcSession* session() const;
     IrcUserModel* model() const;
 
 Q_SIGNALS:

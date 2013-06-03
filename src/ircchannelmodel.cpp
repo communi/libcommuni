@@ -136,31 +136,13 @@ bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
     return false;
 }
 
-static QString channelPrefix(const QString& channel, const QStringList& prefixes)
-{
-    int i = 0;
-    while (i < channel.length() && prefixes.contains(channel.at(i)))
-        ++i;
-    return channel.left(i);
-}
-
-static QString unprefixedChannel(const QString& channel, const QStringList& prefixes)
-{
-    int i = 0;
-    while (i < channel.length() && prefixes.contains(channel.at(i)))
-        ++i;
-    return channel.mid(i);
-}
-
 void IrcChannelModelPrivate::addChannel(const QString& title)
 {
     Q_Q(IrcChannelModel);
     if (!channelMap.contains(title)) {
         IrcChannel* channel = q->createChannel(title);
         if (channel) {
-            const QStringList prefixes = IrcSessionInfo(session).channelTypes();
-            channel->d_func()->init(channelPrefix(title, prefixes), unprefixedChannel(title, prefixes));
-
+            channel->d_func()->init(title, session);
             q->beginInsertRows(QModelIndex(), channelList.count(), channelList.count());
             channelList.append(channel);
             channelMap.insert(title, channel);
