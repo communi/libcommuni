@@ -129,6 +129,8 @@ void IrcClient::createUi()
 
     setStretchFactor(0, 4);
     setStretchFactor(1, 1);
+
+    setHandleWidth(1);
 }
 
 void IrcClient::createSession()
