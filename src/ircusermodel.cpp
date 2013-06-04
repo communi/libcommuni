@@ -27,8 +27,6 @@
     \ingroup models
     \brief Keeps track of channel users.
 
-    \note IrcUserModel does not work on its own. Use an instance managed by IrcChannel.
-
     \section sorting Sorting
 
     The order of \ref users is either kepts as sent from the server. Furthermore,
@@ -83,37 +81,6 @@
 
     \sa models
 */
-
-/*!
-    \enum IrcUserModel::DataRole
-    This enum describes the available data roles.
-    \sa roleNames()
- */
-
-/*!
-    \var IrcUserModel::UserRole
-    \brief User object (IrcUser*)
- */
-
-/*!
-    \var IrcUserModel::NameRole
-    \brief User name (QString)
- */
-
-/*!
-    \var IrcUserModel::PrefixRole
-    \brief User prefix (QString)
- */
-
-/*!
-    \var IrcUserModel::ModeRole
-    \brief User mode (QString)
- */
-
-/*!
-    \var IrcUserModel::TitleRole
-    \brief User mode and name (QString)
- */
 
 /*!
     \fn void IrcUserModel::userAdded(IrcUser* user)
