@@ -26,6 +26,11 @@ public:
     void setPrefix(const QString& p);
     void setMode(const QString& m);
 
+    static IrcUserPrivate* get(IrcUser* user)
+    {
+        return user->d_func();
+    }
+
     IrcUser* q_ptr;
     QString name;
     QString prefix;

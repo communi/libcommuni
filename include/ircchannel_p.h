@@ -16,6 +16,13 @@
 #define IRCCHANNEL_P_H
 
 #include "ircchannel.h"
+#include <qstringlist.h>
+#include <qlist.h>
+#include <qmap.h>
+
+class IrcUser;
+class IrcMessage;
+class IrcUserModel;
 
 class IrcChannelPrivate
 {
@@ -28,15 +35,29 @@ public:
     void setMode(const QString& value);
     void setTopic(const QString& value);
 
-    bool processMessage(IrcMessage* message);
+    void addUsers(const QStringList& users);
+    bool removeUser(const QString& user);
+    bool renameUser(const QString& from, const QString& to);
+    void setUserMode(const QString& user, const QString& mode);
+    void clearUsers();
+
+    bool processChannelMessage(IrcMessage* message);
+    bool processUserMessage(IrcMessage* message);
+
+    static IrcChannelPrivate* get(IrcChannel* channel)
+    {
+        return channel->d_func();
+    }
 
     IrcChannel* q_ptr;
     IrcSession* session;
-    mutable IrcUserModel* model;
     QString name;
     QString prefix;
     QString mode;
     QString topic;
+    QList<IrcUser*> userList;
+    QMap<QString, IrcUser*> userMap;
+    QList<IrcUserModel*> models;
 };
 
 #endif // IRCCHANNEL_P_H

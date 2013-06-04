@@ -76,9 +76,8 @@ void IrcClient::onTextEntered()
 
 void IrcClient::onChannelAdded(IrcChannel* channel)
 {
-    IrcUserModel* model = channel->model();
+    IrcUserModel* model = new IrcUserModel(channel);
     model->setDisplayRole(Irc::NameRole);
-    model->setActivitySortEnabled(true);
 
     QSortFilterProxyModel* proxy = new QSortFilterProxyModel(model);
     proxy->setSourceModel(model);

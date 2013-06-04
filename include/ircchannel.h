@@ -20,7 +20,6 @@
 
 class IrcMessage;
 class IrcSession;
-class IrcUserModel;
 class IrcChannelPrivate;
 
 class COMMUNI_EXPORT IrcChannel : public QObject
@@ -32,7 +31,6 @@ class COMMUNI_EXPORT IrcChannel : public QObject
     Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
     Q_PROPERTY(QString topic READ topic NOTIFY topicChanged)
     Q_PROPERTY(IrcSession* session READ session CONSTANT)
-    Q_PROPERTY(IrcUserModel* model READ model CONSTANT)
 
 public:
     explicit IrcChannel(QObject* parent = 0);
@@ -46,7 +44,6 @@ public:
     QString topic() const;
 
     IrcSession* session() const;
-    IrcUserModel* model() const;
 
 Q_SIGNALS:
     void modeChanged(const QString& mode);
@@ -55,7 +52,6 @@ Q_SIGNALS:
     void messageReceived(IrcMessage* message);
 
 private:
-    friend class IrcChannelModelPrivate;
     QScopedPointer<IrcChannelPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcChannel)
     Q_DISABLE_COPY(IrcChannel)

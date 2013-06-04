@@ -21,6 +21,7 @@
 #include <QtCore/qabstractitemmodel.h>
 
 class IrcUser;
+class IrcChannel;
 class IrcMessage;
 class IrcUserModelPrivate;
 
@@ -31,11 +32,14 @@ class COMMUNI_EXPORT IrcUserModel : public QAbstractListModel
     Q_PROPERTY(QStringList names READ names NOTIFY namesChanged)
     Q_PROPERTY(QList<IrcUser*> users READ users NOTIFY usersChanged)
     Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
-    Q_PROPERTY(bool activitySortEnabled READ isActivitySortEnabled WRITE setActivitySortEnabled NOTIFY activitySortEnabledChanged)
+    Q_PROPERTY(IrcChannel* channel READ channel WRITE setChannel NOTIFY channelChanged)
 
 public:
     explicit IrcUserModel(QObject* parent = 0);
     virtual ~IrcUserModel();
+
+    IrcChannel* channel() const;
+    void setChannel(IrcChannel* channel);
 
     int count() const;
     QStringList names() const;
@@ -47,12 +51,6 @@ public:
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
 
-    bool isActivitySortEnabled() const;
-    void setActivitySortEnabled(bool enabled);
-
-public Q_SLOTS:
-    void clear();
-
 Q_SIGNALS:
     void countChanged(int count);
     void userAdded(IrcUser* user);
@@ -60,6 +58,7 @@ Q_SIGNALS:
     void namesChanged(const QStringList& names);
     void usersChanged(const QList<IrcUser*>& users);
     void activitySortEnabledChanged(bool enabled);
+    void channelChanged(IrcChannel* channel);
 
 protected:
     QHash<int, QByteArray> roleNames() const;
@@ -71,7 +70,6 @@ private:
     QScopedPointer<IrcUserModelPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcUserModel)
     Q_DISABLE_COPY(IrcUserModel)
-    Q_PRIVATE_SLOT(d_func(), bool _irc_processMessage(IrcMessage*))
 };
 
 #endif // IRCUSERMODEL_H

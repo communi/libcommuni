@@ -43,7 +43,6 @@ Q_SIGNALS:
     void modeChanged(const QString& mode);
 
 private:
-    friend class IrcUserModelPrivate;
     QScopedPointer<IrcUserPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcUser)
     Q_DISABLE_COPY(IrcUser)

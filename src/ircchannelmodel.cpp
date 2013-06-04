@@ -98,7 +98,7 @@ bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
         case IrcMessage::Nick:
         case IrcMessage::Quit:
             foreach (IrcChannel* channel, channelList)
-                channel->d_func()->processMessage(msg);
+                IrcChannelPrivate::get(channel)->processChannelMessage(msg);
             break;
 
         case IrcMessage::Join:
@@ -142,7 +142,7 @@ void IrcChannelModelPrivate::addChannel(const QString& title)
     if (!channelMap.contains(title)) {
         IrcChannel* channel = q->createChannel(title);
         if (channel) {
-            channel->d_func()->init(title, session);
+            IrcChannelPrivate::get(channel)->init(title, session);
             q->beginInsertRows(QModelIndex(), channelList.count(), channelList.count());
             channelList.append(channel);
             channelMap.insert(title, channel);
@@ -167,7 +167,7 @@ bool IrcChannelModelPrivate::processMessage(const QString& title, IrcMessage* me
 {
     IrcChannel* channel = channelMap.value(title);
     if (channel)
-        return channel->d_func()->processMessage(message);
+        return IrcChannelPrivate::get(channel)->processChannelMessage(message);
     return false;
 }
 
