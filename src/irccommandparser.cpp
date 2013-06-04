@@ -83,9 +83,12 @@ struct IrcCommandInfo
 class IrcCommandParserPrivate
 {
 public:
+    IrcCommandParserPrivate() : prefix(QLatin1Char('/')) { }
+
     QList<IrcCommandInfo> find(const QString& command) const;
     IrcCommand* parse(const IrcCommandInfo& command, QStringList params) const;
 
+    QString prefix;
     QString current;
     QStringList channels;
     QList<IrcCommandInfo> commands;
@@ -279,18 +282,60 @@ void IrcCommandParser::setCurrentTarget(const QString& target)
 }
 
 /*!
+    This property holds the command prefix.
+
+    The default value is "/".
+
+    \par Access function:
+    \li QString <b>prefix</b>() const
+    \li void <b>setPrefix</b>(const QString& prefix)
+
+    \par Notifier signal:
+    \li void <b>prefixChanged</b>(const QString& prefix)
+ */
+QString IrcCommandParser::prefix() const
+{
+    Q_D(const IrcCommandParser);
+    return d->prefix;
+}
+
+void IrcCommandParser::setPrefix(const QString& prefix)
+{
+    Q_D(IrcCommandParser);
+    if (d->prefix != prefix) {
+        d->prefix = prefix;
+        emit prefixChanged(prefix);
+    }
+}
+
+static bool isMessage(const QString& input, const QString& prefix)
+{
+    if (prefix.isEmpty())
+        return false;
+
+    return !input.startsWith(prefix) || input.startsWith(prefix.repeated(2)) || input.startsWith(prefix + QLatin1Char(' '));
+}
+
+/*!
     Parses and returns the command for \a input, or \c 0 if the input is not valid.
  */
 IrcCommand* IrcCommandParser::parse(const QString& input) const
 {
     Q_D(const IrcCommandParser);
-    QStringList params = input.split(QLatin1Char(' '), QString::SkipEmptyParts);
-    if (!params.isEmpty()) {
-        const QString& command = params.takeFirst().toUpper();
-        foreach (const IrcCommandInfo& c, d->find(command)) {
-            IrcCommand* cmd = d->parse(c, params);
-            if (cmd)
-                return cmd;
+    if (isMessage(input, d->prefix)) {
+        QString message = input;
+        if (message.startsWith(d->prefix))
+            message.remove(0, 1);
+        return IrcCommand::createMessage(d->current, message.trimmed());
+    } else {
+        QStringList params = input.mid(d->prefix.length()).split(QLatin1Char(' '), QString::SkipEmptyParts);
+        if (!params.isEmpty()) {
+            const QString& command = params.takeFirst().toUpper();
+            foreach (const IrcCommandInfo& c, d->find(command)) {
+                IrcCommand* cmd = d->parse(c, params);
+                if (cmd)
+                    return cmd;
+            }
         }
     }
     return 0;

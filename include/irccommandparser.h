@@ -28,6 +28,7 @@ class COMMUNI_EXPORT IrcCommandParser : public QObject
     Q_PROPERTY(QStringList commands READ commands NOTIFY commandsChanged)
     Q_PROPERTY(QStringList channels READ channels WRITE setChannels NOTIFY channelsChanged)
     Q_PROPERTY(QString currentTarget READ currentTarget WRITE setCurrentTarget NOTIFY currentTargetChanged)
+    Q_PROPERTY(QString prefix READ prefix WRITE setPrefix NOTIFY prefixChanged)
 
 public:
     explicit IrcCommandParser(QObject* parent = 0);
@@ -44,12 +45,16 @@ public:
     QString currentTarget() const;
     void setCurrentTarget(const QString& target);
 
+    QString prefix() const;
+    void setPrefix(const QString& prefix);
+
     Q_INVOKABLE IrcCommand* parse(const QString& input) const;
 
 Q_SIGNALS:
     void commandsChanged(const QStringList& commands);
     void channelsChanged(const QStringList& channels);
     void currentTargetChanged(const QString& target);
+    void prefixChanged(const QString& prefix);
 
 private:
     QScopedPointer<IrcCommandParserPrivate> d_ptr;
