@@ -1,6 +1,6 @@
 2.2.0
 -----
-- Introduced IrcChannelModel and IrcUserModel
+- Introduced IrcChannelModel, IrcUserModel and IrcCommandParser
 - Added IrcSession::xxxMessageReceived(IrcXxxMessage*) signals
 - Allowed constructing an invalid IrcSessionInfo
 - Added IrcSessionInfo::channelModes(A|B|C|D)
