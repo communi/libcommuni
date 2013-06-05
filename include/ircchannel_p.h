@@ -35,10 +35,10 @@ public:
     void setMode(const QString& value);
     void setTopic(const QString& value);
 
-    void addUsers(const QStringList& users);
-    bool removeUser(const QString& user);
-    bool renameUser(const QString& from, const QString& to);
-    void setUserMode(const QString& user, const QString& mode);
+    void addUsers(const QStringList& users, IrcMessage* message = 0);
+    bool removeUser(const QString& user, IrcMessage* message);
+    bool renameUser(const QString& from, const QString& to, IrcMessage* message);
+    void setUserMode(const QString& user, const QString& mode, IrcMessage* message);
     void clearUsers();
 
     bool processMessage(IrcMessage* message);

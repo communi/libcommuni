@@ -16,7 +16,7 @@
 #include "ircuser_p.h"
 
 /*!
-    \file irccuser.h
+    \file ircuser.h
     \brief #include &lt;IrcUser&gt;
  */
 
@@ -29,6 +29,24 @@
 
     \sa models
 */
+
+/*!
+    \fn void IrcUser::messageReceived(IrcMessage* message)
+
+    This signal is emitted when a user specific channel message is received.
+
+    The message may one of the following types:
+    - IrcMessage::Join
+    - IrcMessage::Kick
+    - IrcMessage::Mode
+    - IrcMessage::Nick
+    - IrcMessage::Notice
+    - IrcMessage::Part
+    - IrcMessage::Private
+    - IrcMessage::Quit
+
+    \sa IrcSession::messageReceived(), IrcChannel::messageReceived(), IrcChannelModel::messageIgnored()
+ */
 
 void IrcUserPrivate::setName(const QString& n)
 {
@@ -55,6 +73,12 @@ void IrcUserPrivate::setMode(const QString& m)
         mode = m;
         emit q->modeChanged(mode);
     }
+}
+
+void IrcUserPrivate::receiveMessage(IrcMessage* message)
+{
+    Q_Q(IrcUser);
+    emit q->messageReceived(message);
 }
 
 /*!

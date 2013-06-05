@@ -53,7 +53,7 @@
     - IrcMessage::Quit
     - IrcMessage::Topic
 
-    \sa IrcSession::messageReceived(), IrcChannelModel::messageIgnored()
+    \sa IrcSession::messageReceived(), IrcUser::messageReceived(), IrcChannelModel::messageIgnored()
  */
 
 static QString namePrefix(const QString& name, const QStringList& prefixes)
@@ -131,7 +131,7 @@ void IrcChannelPrivate::setTopic(const QString& value)
     }
 }
 
-void IrcChannelPrivate::addUsers(const QStringList& names)
+void IrcChannelPrivate::addUsers(const QStringList& names, IrcMessage* message)
 {
     Q_Q(IrcChannel);
     IrcSessionInfo info(session);
@@ -157,6 +157,8 @@ void IrcChannelPrivate::addUsers(const QStringList& names)
             userMap.insert(user->name(), user);
             foreach (IrcUserModel* model, models)
                 emit model->userAdded(user);
+            if (message)
+                priv->receiveMessage(message);
             ++it;
         }
 
@@ -172,11 +174,13 @@ void IrcChannelPrivate::addUsers(const QStringList& names)
     }
 }
 
-bool IrcChannelPrivate::removeUser(const QString& name)
+bool IrcChannelPrivate::removeUser(const QString& name, IrcMessage* message)
 {
     if (IrcUser* user = userMap.value(name)) {
         int idx = userList.indexOf(user);
         if (idx != -1) {
+            IrcUserPrivate::get(user)->receiveMessage(message);
+
             foreach (IrcUserModel* model, models)
                 model->beginRemoveRows(QModelIndex(), idx, idx);
 
@@ -199,12 +203,14 @@ bool IrcChannelPrivate::removeUser(const QString& name)
     return false;
 }
 
-bool IrcChannelPrivate::renameUser(const QString& from, const QString& to)
+bool IrcChannelPrivate::renameUser(const QString& from, const QString& to, IrcMessage* message)
 {
     if (IrcUser* user = userMap.value(from)) {
         IrcUserPrivate::get(user)->setName(to);
         int idx = userList.indexOf(user);
         if (idx != -1) {
+            IrcUserPrivate::get(user)->receiveMessage(message);
+
             const QStringList names = userMap.keys();
             foreach (IrcUserModel* model, models) {
                 QModelIndex index = model->index(idx, 0);
@@ -218,11 +224,13 @@ bool IrcChannelPrivate::renameUser(const QString& from, const QString& to)
     return false;
 }
 
-void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
+void IrcChannelPrivate::setUserMode(const QString& name, const QString& command, IrcMessage* message)
 {
     if (IrcUser* user = userMap.value(name)) {
         int idx = userList.indexOf(user);
         if (idx != -1) {
+            IrcUserPrivate::get(user)->receiveMessage(message);
+
             bool add = true;
             QString mode = user->mode();
             QString prefix = user->prefix();
@@ -328,7 +336,7 @@ bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
     if (message->flags() & IrcMessage::Own)
         clearUsers();
     else
-        addUsers(QStringList() << message->sender().name());
+        addUsers(QStringList() << message->sender().name(), message);
     return true;
 }
 
@@ -338,7 +346,7 @@ bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
         clearUsers();
         return true;
     }
-    return removeUser(message->user());
+    return removeUser(message->user(), message);
 }
 
 bool IrcChannelPrivate::processModeMessage(IrcModeMessage* message)
@@ -350,7 +358,7 @@ bool IrcChannelPrivate::processModeMessage(IrcModeMessage* message)
             changeMode(message->mode());
         return true;
     } else if (!message->argument().isEmpty()) {
-        setUserMode(message->argument(), message->mode());
+        setUserMode(message->argument(), message->mode(), message);
     }
     return true;
 }
@@ -363,12 +371,14 @@ bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
 
 bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
 {
-    return renameUser(message->sender().name(), message->nick());
+    return renameUser(message->sender().name(), message->nick(), message);
 }
 
 bool IrcChannelPrivate::processNoticeMessage(IrcNoticeMessage* message)
 {
-    Q_UNUSED(message);
+    IrcUser* user = userMap.value(message->sender().name());
+    if (user)
+        IrcUserPrivate::get(user)->receiveMessage(message);
     return true;
 }
 
@@ -384,12 +394,14 @@ bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
         clearUsers();
         return true;
     }
-    return removeUser(message->sender().name());
+    return removeUser(message->sender().name(), message);
 }
 
 bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
 {
-    Q_UNUSED(message);
+    IrcUser* user = userMap.value(message->sender().name());
+    if (user)
+        IrcUserPrivate::get(user)->receiveMessage(message);
     return true;
 }
 
@@ -399,7 +411,7 @@ bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
         clearUsers();
         return true;
     }
-    return removeUser(message->sender().name());
+    return removeUser(message->sender().name(), message);
 }
 
 bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
