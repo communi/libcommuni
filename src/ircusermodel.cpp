@@ -346,5 +346,3 @@ QVariant IrcUserModel::data(const QModelIndex& index, int role) const
 
     return QVariant();
 }
-
-#include "moc_ircusermodel.cpp"
