@@ -11,14 +11,21 @@
 #define IRCCLIENT_H
 
 #include <QSplitter>
+#include <QHash>
 
 class IrcSession;
 class IrcMessage;
 class IrcChannel;
+class IrcUserModel;
+class IrcChannelModel;
+class IrcCommandParser;
 
 QT_FORWARD_DECLARE_CLASS(QLineEdit)
 QT_FORWARD_DECLARE_CLASS(QListView)
 QT_FORWARD_DECLARE_CLASS(QTextEdit)
+QT_FORWARD_DECLARE_CLASS(QCompleter)
+QT_FORWARD_DECLARE_CLASS(QModelIndex)
+QT_FORWARD_DECLARE_CLASS(QTextDocument)
 
 class IrcClient : public QSplitter
 {
@@ -32,19 +39,35 @@ private slots:
     void onConnected();
     void onConnecting();
     void onDisconnected();
+
     void onTextEntered();
+
     void onChannelAdded(IrcChannel* channel);
-    void receiveMessage(IrcMessage* message);
+    void onChannelRemoved(IrcChannel* channel);
+    void onChannelActivated(const QModelIndex& index);
+
+    void receiveServerMessage(IrcMessage* message);
+    void receiveChannelMessage(IrcMessage* message);
 
 private:
     void createUi();
+    void createParser();
     void createSession();
 
     QLineEdit* lineEdit;
-    QListView* listView;
     QTextEdit* textEdit;
+    QCompleter* completer;
+    QListView* userList;
+    QListView* channelList;
+
+    IrcCommandParser* parser;
+
+    QTextDocument* serverDocument;
+    QHash<IrcChannel*, QTextDocument*> channelDocuments;
 
     IrcSession* session;
+    IrcChannelModel* channelModel;
+    QHash<IrcChannel*, IrcUserModel*> userModels;
 };
 
 #endif // IRCCLIENT_H

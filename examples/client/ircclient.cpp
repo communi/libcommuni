@@ -11,6 +11,8 @@
 #include "ircmessageformatter.h"
 
 #include <QSortFilterProxyModel>
+#include <QTextDocument>
+#include <QTextCursor>
 #include <QVBoxLayout>
 #include <QCompleter>
 #include <QLineEdit>
@@ -25,14 +27,16 @@
 #include <IrcChannel>
 #include <IrcUserModel>
 #include <IrcChannelModel>
+#include <IrcCommandParser>
 
 static const char* CHANNEL = "#communi";
 static const char* SERVER = "irc.freenode.net";
 
 IrcClient::IrcClient(QWidget* parent) : QSplitter(parent)
 {
-    createUi();
     createSession();
+    createParser();
+    createUi();
 
     session->open();
 }
@@ -41,96 +45,219 @@ IrcClient::~IrcClient()
 {
     if (session->isActive()) {
         session->sendCommand(IrcCommand::createQuit(session->realName()));
+        // let the server process the quit message and close the connection
         session->socket()->waitForDisconnected(1000);
     }
 }
 
 void IrcClient::onConnected()
 {
-    textEdit->append(IrcMessageFormatter::formatMessage("Connected, joining the chat room..."));
+    textEdit->append(IrcMessageFormatter::formatMessage("! Connected to %1.").arg(SERVER));
+    textEdit->append(IrcMessageFormatter::formatMessage("! Joining %1...").arg(CHANNEL));
     session->sendCommand(IrcCommand::createJoin(CHANNEL));
 }
 
 void IrcClient::onConnecting()
 {
-    textEdit->append(IrcMessageFormatter::formatMessage("Connecting the chat server..."));
+    textEdit->append(IrcMessageFormatter::formatMessage("! Connecting %1...").arg(SERVER));
 }
 
 void IrcClient::onDisconnected()
 {
-    textEdit->append(IrcMessageFormatter::formatMessage("Disconnected from the chat server."));
+    textEdit->append(IrcMessageFormatter::formatMessage("! Disconnected from %1.").arg(SERVER));
 }
 
 void IrcClient::onTextEntered()
 {
-    IrcCommand* command = IrcCommand::createMessage(CHANNEL, lineEdit->text());
+    IrcCommand* command = parser->parse(lineEdit->text());
+    if (command) {
+        session->sendCommand(command);
 
-    // echo own messages
-    IrcMessage* msg = IrcMessage::fromCommand(session->nickName(), command, session);
-    receiveMessage(msg);
-    delete msg;
+        // echo own messages (servers do not send our own messages back)
+        if (command->type() == IrcCommand::Message || command->type() == IrcCommand::CtcpAction) {
+            IrcMessage* msg = IrcMessage::fromCommand(session->nickName(), command, session);
+            receiveChannelMessage(msg);
+            delete msg;
+        }
 
-    lineEdit->clear();
-    session->sendCommand(command);
+        lineEdit->clear();
+    }
 }
 
 void IrcClient::onChannelAdded(IrcChannel* channel)
 {
-    IrcUserModel* model = new IrcUserModel(channel);
-    model->setDisplayRole(Irc::NameRole);
+    // joined a channel - start listening to channel specific messages
+    connect(channel, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveChannelMessage(IrcMessage*)));
 
-    QSortFilterProxyModel* proxy = new QSortFilterProxyModel(model);
-    proxy->setSourceModel(model);
-    proxy->setDynamicSortFilter(true);
-    proxy->sort(0, Qt::AscendingOrder);
+    // create a document for storing the channel specific messages
+    QTextDocument* document = new QTextDocument(channel);
+    channelDocuments.insert(channel, document);
 
-    listView->setModel(proxy);
+    // create a model for channel users
+    IrcUserModel* userModel = new IrcUserModel(channel);
+    userModel->setDisplayRole(Irc::NameRole);
+    userModels.insert(channel, userModel);
 
-    QCompleter* completer = new QCompleter(lineEdit);
-    completer->setCompletionMode(QCompleter::InlineCompletion);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setCompletionRole(Irc::NameRole);
-    completer->setModel(model);
+    // keep the command parser aware of the context
+    parser->setChannels(channelModel->titles());
 
-    lineEdit->setCompleter(completer);
+    // activate the new channel
+    int idx = channelModel->channels().indexOf(channel);
+    if (idx != -1)
+        channelList->setCurrentIndex(channelModel->index(idx));
 }
 
-void IrcClient::receiveMessage(IrcMessage* message)
+void IrcClient::onChannelRemoved(IrcChannel* channel)
+{
+    // left a channel - the channel specific models and documents are no longer needed
+    delete userModels.take(channel);
+    delete channelDocuments.take(channel);
+
+    // keep the command parser aware of the context
+    parser->setChannels(channelModel->titles());
+}
+
+void IrcClient::onChannelActivated(const QModelIndex& index)
+{
+    IrcChannel* channel = index.data(Irc::ChannelRole).value<IrcChannel*>();
+
+    // user list and nick completion for the current channel
+    IrcUserModel* userModel = userModels.value(channel);
+    QSortFilterProxyModel* proxy = qobject_cast<QSortFilterProxyModel*>(userList->model());
+    if (proxy)
+        proxy->setSourceModel(userModel);
+    completer->setModel(userModel);
+
+    // document for the current channel
+    QTextDocument* document = channelDocuments.value(channel);
+    if (document)
+        textEdit->setDocument(document);
+    else
+        textEdit->setDocument(serverDocument);
+
+    // keep the command parser aware of the context
+    if (channel)
+        parser->setCurrentTarget(channel->title());
+}
+
+static void appendHtml(QTextDocument* document, const QString& html)
+{
+    QTextCursor cursor(document);
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::End);
+    if (!document->isEmpty())
+        cursor.insertBlock();
+    cursor.insertHtml(html);
+    cursor.endEditBlock();
+}
+
+void IrcClient::receiveServerMessage(IrcMessage* message)
 {
     QString html = IrcMessageFormatter::formatMessage(message);
     if (!html.isEmpty())
-        textEdit->append(html);
+        appendHtml(serverDocument, html);
+}
+
+void IrcClient::receiveChannelMessage(IrcMessage* message)
+{
+    IrcChannel* channel = qobject_cast<IrcChannel*>(sender());
+    if (!channel)
+        channel = channelList->currentIndex().data(Irc::ChannelRole).value<IrcChannel*>();
+
+    QTextDocument* document = channelDocuments.value(channel);
+    if (document) {
+        QString html = IrcMessageFormatter::formatMessage(message);
+        if (!html.isEmpty())
+            appendHtml(document, html);
+    }
 }
 
 void IrcClient::createUi()
 {
-    QWidget* container = new QWidget(this);
+    setWindowTitle(tr("Communi %1 example client").arg(COMMUNI_VERSION_STR));
 
-    textEdit = new QTextEdit(container);
+    // keep track of channels
+    channelModel = new IrcChannelModel(session);
+    channelList = new QListView(this);
+    channelList->setFocusPolicy(Qt::NoFocus);
+    channelList->setModel(channelModel);
+    connect(channelModel, SIGNAL(channelAdded(IrcChannel*)), this, SLOT(onChannelAdded(IrcChannel*)));
+    connect(channelModel, SIGNAL(channelRemoved(IrcChannel*)), this, SLOT(onChannelRemoved(IrcChannel*)));
+
+    // keep track of the current channel, see also onChannelActivated()
+    connect(channelList->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onChannelActivated(QModelIndex)));
+
+    // IrcChannelModel::messageIgnored() is emitted for non-channel specific messages
+    connect(channelModel, SIGNAL(messageIgnored(IrcMessage*)), this, SLOT(receiveServerMessage(IrcMessage*)));
+
+    // create a document for non-channel specific messages
+    serverDocument = new QTextDocument(this);
+
+    // a read-only text editor for showing the messages
+    textEdit = new QTextEdit(this);
+    textEdit->setDocument(serverDocument);
     textEdit->setReadOnly(true);
-    textEdit->append(IrcMessageFormatter::formatMessage(tr("Welcome to the Communi %1 example client.").arg(COMMUNI_VERSION_STR)));
-    textEdit->append(IrcMessageFormatter::formatMessage(tr("PS. This example connects %1 and joins %2.").arg(SERVER, CHANNEL)));
+    textEdit->append(IrcMessageFormatter::formatMessage(tr("! Welcome to the Communi %1 example client.").arg(COMMUNI_VERSION_STR)));
+    textEdit->append(IrcMessageFormatter::formatMessage(tr("! This example connects %1 and joins %2.").arg(SERVER, CHANNEL)));
+    textEdit->append(IrcMessageFormatter::formatMessage(tr("! PS. Available commands: JOIN, ME, NICK, PART")));
 
-    lineEdit = new QLineEdit(container);
+    // a line editor for entering commands
+    lineEdit = new QLineEdit(this);
     textEdit->setFocusProxy(lineEdit);
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(onTextEntered()));
 
+    // nick name completion
+    completer = new QCompleter(lineEdit);
+    completer->setCompletionMode(QCompleter::InlineCompletion);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setCompletionRole(Irc::NameRole);
+    lineEdit->setCompleter(completer);
+
+    // user list in alphabetical order
+    QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
+    proxy->setDynamicSortFilter(true);
+    proxy->sort(0, Qt::AscendingOrder);
+
+    userList = new QListView(this);
+    userList->setFocusPolicy(Qt::NoFocus);
+    userList->setModel(proxy);
+
+    // the rest is just setting up the UI layout...
+    QSplitter* splitter = new QSplitter(this);
+    splitter->setHandleWidth(1);
+    splitter->addWidget(textEdit);
+    splitter->addWidget(userList);
+    splitter->setStretchFactor(0, 5);
+    splitter->setStretchFactor(1, 1);
+
+    QWidget* container = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(container);
     layout->setSpacing(0);
     layout->setMargin(0);
-    layout->addWidget(textEdit);
+    layout->addWidget(splitter);
     layout->addWidget(lineEdit);
 
-    listView = new QListView(this);
-    listView->setFocusPolicy(Qt::NoFocus);
-
+    addWidget(channelList);
     addWidget(container);
-    addWidget(listView);
 
-    setStretchFactor(0, 4);
-    setStretchFactor(1, 1);
+    setStretchFactor(0, 1);
+    setStretchFactor(1, 3);
 
     setHandleWidth(1);
+}
+
+void IrcClient::createParser()
+{
+    // create a command parser and teach it some commands. notice also
+    // that we must keep the command parser aware of the context in:
+    // onChannelAdded(), onChannelRemoved() and onChannelActivated()
+
+    parser = new IrcCommandParser(this);
+    parser->setPrefix("/");
+    parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
+    parser->addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
+    parser->addCommand(IrcCommand::Nick, "NICK <nick>");
+    parser->addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
 }
 
 void IrcClient::createSession()
@@ -139,10 +266,6 @@ void IrcClient::createSession()
     connect(session, SIGNAL(connected()), this, SLOT(onConnected()));
     connect(session, SIGNAL(connecting()), this, SLOT(onConnecting()));
     connect(session, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
-    connect(session, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveMessage(IrcMessage*)));
-
-    IrcChannelModel* model = new IrcChannelModel(session);
-    connect(model, SIGNAL(channelAdded(IrcChannel*)), this, SLOT(onChannelAdded(IrcChannel*)));
 
     qsrand(QTime::currentTime().msec());
 

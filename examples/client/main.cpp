@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     IrcClient client;
-    client.resize(640, 480);
+    client.resize(800, 480);
     client.show();
     return app.exec();
 }
