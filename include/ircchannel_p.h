@@ -48,8 +48,10 @@ public:
     bool processModeMessage(IrcModeMessage* message);
     bool processNamesMessage(IrcNamesMessage* message);
     bool processNickMessage(IrcNickMessage* message);
+    bool processNoticeMessage(IrcNoticeMessage* message);
     bool processNumericMessage(IrcNumericMessage* message);
     bool processPartMessage(IrcPartMessage* message);
+    bool processPrivateMessage(IrcPrivateMessage* message);
     bool processQuitMessage(IrcQuitMessage* message);
     bool processTopicMessage(IrcTopicMessage* message);
 
