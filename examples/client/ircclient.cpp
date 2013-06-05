@@ -203,6 +203,7 @@ void IrcClient::createUi()
 
     // a line editor for entering commands
     lineEdit = new QLineEdit(this);
+    lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     textEdit->setFocusProxy(lineEdit);
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(onTextEntered()));
 
