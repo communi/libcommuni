@@ -94,11 +94,13 @@ bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
     if (msg->type() == IrcMessage::Join && msg->flags() & IrcMessage::Own)
         addChannel(static_cast<IrcJoinMessage*>(msg)->channel().toLower());
 
+    bool processed = false;
     switch (msg->type()) {
         case IrcMessage::Nick:
         case IrcMessage::Quit:
             foreach (IrcChannel* channel, channelList)
-                IrcChannelPrivate::get(channel)->processChannelMessage(msg);
+                IrcChannelPrivate::get(channel)->processMessage(msg);
+            processed = true;
             break;
 
         case IrcMessage::Join:
@@ -106,21 +108,32 @@ bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
         case IrcMessage::Kick:
         case IrcMessage::Names:
         case IrcMessage::Topic:
-            if (!processMessage(msg->property("channel").toString().toLower(), msg))
-                emit q->messageIgnored(msg);
+            processed = processMessage(msg->property("channel").toString(), msg);
             break;
 
         case IrcMessage::Mode:
         case IrcMessage::Notice:
         case IrcMessage::Private:
-            if (!processMessage(msg->property("target").toString().toLower(), msg))
-                emit q->messageIgnored(msg);
+            processed = processMessage(msg->property("target").toString(), msg);
+            break;
+
+        case IrcMessage::Numeric:
+            // TODO: any other special cases besides RPL_NAMREPLY?
+            if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_NAMREPLY) {
+                const int count = msg->parameters().count();
+                const QString channel = msg->parameters().value(count - 2);
+                processed = processMessage(channel, msg);
+            } else {
+                processed = processMessage(msg->parameters().value(1), msg);
+            }
             break;
 
         default:
-            emit q->messageIgnored(msg);
             break;
     }
+
+    if (!processed)
+        emit q->messageIgnored(msg);
 
     if (msg->type() == IrcMessage::Part && msg->flags() & IrcMessage::Own) {
         removeChannel(static_cast<IrcPartMessage*>(msg)->channel().toLower());
@@ -165,9 +178,9 @@ void IrcChannelModelPrivate::removeChannel(const QString& title)
 
 bool IrcChannelModelPrivate::processMessage(const QString& title, IrcMessage* message)
 {
-    IrcChannel* channel = channelMap.value(title);
+    IrcChannel* channel = channelMap.value(title.toLower());
     if (channel)
-        return IrcChannelPrivate::get(channel)->processChannelMessage(message);
+        return IrcChannelPrivate::get(channel)->processMessage(message);
     return false;
 }
 

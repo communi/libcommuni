@@ -17,7 +17,6 @@
 #include "ircusermodel.h"
 #include "ircsessioninfo.h"
 #include "ircsession.h"
-#include "ircmessage.h"
 #include "ircuser_p.h"
 #include "ircsender.h"
 
@@ -277,62 +276,116 @@ void IrcChannelPrivate::clearUsers()
     }
 }
 
-bool IrcChannelPrivate::processChannelMessage(IrcMessage* message)
+bool IrcChannelPrivate::processMessage(IrcMessage* message)
 {
     Q_Q(IrcChannel);
-    bool handled = true;
+    bool processed = false;
     switch (message->type()) {
-    case IrcMessage::Mode: {
-        IrcModeMessage* modeMsg = static_cast<IrcModeMessage*>(message);
-        if (modeMsg->kind() != IrcModeMessage::Channel)
-            processUserMessage(message);
-        else if (modeMsg->isReply())
-            setMode(modeMsg->mode());
-        else
-            changeMode(modeMsg->mode());
+    case IrcMessage::Join:
+        processed = processJoinMessage(static_cast<IrcJoinMessage*>(message));
         break;
-    }
+    case IrcMessage::Kick:
+        processed = processKickMessage(static_cast<IrcKickMessage*>(message));
+        break;
+    case IrcMessage::Mode:
+        processed = processModeMessage(static_cast<IrcModeMessage*>(message));
+        break;
+    case IrcMessage::Names:
+        processed = processNamesMessage(static_cast<IrcNamesMessage*>(message));
+        break;
+    case IrcMessage::Nick:
+        processed = processNickMessage(static_cast<IrcNickMessage*>(message));
+        break;
+    case IrcMessage::Numeric:
+        processed = processNumericMessage(static_cast<IrcNumericMessage*>(message));
+        break;
+    case IrcMessage::Part:
+        processed = processPartMessage(static_cast<IrcPartMessage*>(message));
+        break;
+    case IrcMessage::Quit:
+        processed = processQuitMessage(static_cast<IrcQuitMessage*>(message));
+        break;
     case IrcMessage::Topic:
-        setTopic(static_cast<IrcTopicMessage*>(message)->topic());
+        processed = processTopicMessage(static_cast<IrcTopicMessage*>(message));
         break;
     default:
-        handled = processUserMessage(message);
         break;
     }
-    if (handled)
+    if (processed)
         emit q->messageReceived(message);
-    return handled;
+    return processed;
 }
 
-bool IrcChannelPrivate::processUserMessage(IrcMessage* message)
+bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 {
-    if (message->type() == IrcMessage::Nick) {
-        const QString nick = static_cast<IrcNickMessage*>(message)->nick();
-        return renameUser(message->sender().name(), nick);
-    } else if (message->type() == IrcMessage::Join) {
-        if (message->flags() & IrcMessage::Own)
-            clearUsers();
-        else
-            addUsers(QStringList() << message->sender().name());
-    } else if (message->type() == IrcMessage::Part || message->type() == IrcMessage::Quit) {
-        if (message->flags() & IrcMessage::Own)
-            clearUsers();
-        else
-            return removeUser(message->sender().name());
-    } else if (message->type() == IrcMessage::Kick) {
-        const QString user = static_cast<IrcKickMessage*>(message)->user();
-        if (!user.compare(message->session()->nickName(), Qt::CaseInsensitive))
-            clearUsers();
-        else
-            return removeUser(user);
-    } else if (message->type() == IrcMessage::Mode) {
-        const IrcModeMessage* modeMsg = static_cast<IrcModeMessage*>(message);
-        if (!modeMsg->argument().isEmpty())
-            setUserMode(modeMsg->argument(), modeMsg->mode());
-    } else if (message->type() == IrcMessage::Names) {
-        const QStringList names = static_cast<IrcNamesMessage*>(message)->names();
-        addUsers(names);
+    if (message->flags() & IrcMessage::Own)
+        clearUsers();
+    else
+        addUsers(QStringList() << message->sender().name());
+    return true;
+}
+
+bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
+{
+    if (!message->user().compare(message->session()->nickName(), Qt::CaseInsensitive)) {
+        clearUsers();
+        return true;
     }
+    return removeUser(message->user());
+}
+
+bool IrcChannelPrivate::processModeMessage(IrcModeMessage* message)
+{
+    if (message->kind() == IrcModeMessage::Channel) {
+        if (message->isReply())
+            setMode(message->mode());
+        else
+            changeMode(message->mode());
+        return true;
+    } else if (!message->argument().isEmpty()) {
+        setUserMode(message->argument(), message->mode());
+    }
+    return true;
+}
+
+bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
+{
+    addUsers(message->names());
+    return true;
+}
+
+bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
+{
+    return renameUser(message->sender().name(), message->nick());
+}
+
+bool IrcChannelPrivate::processNumericMessage(IrcNumericMessage* message)
+{
+    Q_UNUSED(message);
+    return true;
+}
+
+bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
+{
+    if (message->flags() & IrcMessage::Own) {
+        clearUsers();
+        return true;
+    }
+    return removeUser(message->sender().name());
+}
+
+bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
+{
+    if (message->flags() & IrcMessage::Own) {
+        clearUsers();
+        return true;
+    }
+    return removeUser(message->sender().name());
+}
+
+bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
+{
+    setTopic(message->topic());
     return true;
 }
 
