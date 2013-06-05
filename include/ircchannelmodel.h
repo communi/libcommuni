@@ -17,6 +17,7 @@
 
 #include <Irc>
 #include <IrcGlobal>
+#include <QtCore/qstringlist.h>
 #include <QtCore/qabstractitemmodel.h>
 
 class IrcSession;
@@ -28,6 +29,7 @@ class COMMUNI_EXPORT IrcChannelModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(QStringList titles READ titles NOTIFY titlesChanged)
     Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(QList<IrcChannel*> channels READ channels NOTIFY channelsChanged)
     Q_PROPERTY(IrcSession* session READ session WRITE setSession NOTIFY sessionChanged)
@@ -40,6 +42,7 @@ public:
     void setSession(IrcSession* session);
 
     int count() const;
+    QStringList titles() const;
     QList<IrcChannel*> channels() const;
     Q_INVOKABLE IrcChannel* get(int index) const;
     Q_INVOKABLE IrcChannel* channel(const QString& title) const;
@@ -55,6 +58,7 @@ Q_SIGNALS:
     void countChanged(int count);
     void channelAdded(IrcChannel* channel);
     void channelRemoved(IrcChannel* channel);
+    void titlesChanged(const QStringList& titles);
     void channelsChanged(const QList<IrcChannel*>& channels);
     void sessionChanged(IrcSession* session);
     void messageIgnored(IrcMessage* message);

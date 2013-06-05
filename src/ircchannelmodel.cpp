@@ -162,6 +162,7 @@ void IrcChannelModelPrivate::addChannel(const QString& title)
             q->connect(channel, SIGNAL(destroyed(IrcChannel*)), SLOT(_irc_channelDestroyed(IrcChannel*)));
             q->endInsertRows();
             emit q->channelAdded(channel);
+            emit q->titlesChanged(channelMap.keys());
             emit q->channelsChanged(channelList);
             emit q->countChanged(channelList.count());
         }
@@ -194,6 +195,7 @@ void IrcChannelModelPrivate::_irc_channelDestroyed(IrcChannel* channel)
         channelMap.remove(channel->title());
         q->endRemoveRows();
         emit q->channelRemoved(channel);
+        emit q->titlesChanged(channelMap.keys());
         emit q->channelsChanged(channelList);
         emit q->countChanged(channelList.count());
     }
@@ -273,6 +275,21 @@ int IrcChannelModel::count() const
 }
 
 /*!
+    This property holds the list of titles in alphabetical order.
+
+    \par Access function:
+    \li QStringList <b>titles</b>() const
+
+    \par Notifier signal:
+    \li void <b>titlesChanged</b>(const QStringList& titles)
+ */
+QStringList IrcChannelModel::titles() const
+{
+    Q_D(const IrcChannelModel);
+    return d->channelMap.keys();
+}
+
+/*!
     This property holds the list of channels.
 
     \par Access function:
@@ -349,6 +366,7 @@ void IrcChannelModel::clear()
         d->channelList.clear();
         d->channelMap.clear();
         endResetModel();
+        emit titlesChanged(QStringList());
         emit channelsChanged(QList<IrcChannel*>());
         emit countChanged(0);
     }
