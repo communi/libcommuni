@@ -193,8 +193,8 @@ int IrcUserModel::count() const
 QStringList IrcUserModel::names() const
 {
     Q_D(const IrcUserModel);
-    if (IrcChannelPrivate* priv = IrcChannelPrivate::get(d->channel))
-        return priv->userMap.keys();
+    if (d->channel)
+        return IrcChannelPrivate::get(d->channel)->userMap.keys();
     return QStringList();
 }
 
@@ -212,8 +212,8 @@ QStringList IrcUserModel::names() const
 QList<IrcUser*> IrcUserModel::users() const
 {
     Q_D(const IrcUserModel);
-    if (IrcChannelPrivate* priv = IrcChannelPrivate::get(d->channel))
-        return priv->userList;
+    if (d->channel)
+        return IrcChannelPrivate::get(d->channel)->userList;
     return QList<IrcUser*>();
 }
 
@@ -232,8 +232,8 @@ IrcUser* IrcUserModel::get(int index) const
 IrcUser* IrcUserModel::user(const QString& name) const
 {
     Q_D(const IrcUserModel);
-    if (IrcChannelPrivate* priv = IrcChannelPrivate::get(d->channel))
-        return priv->userMap.value(name);
+    if (d->channel)
+        return IrcChannelPrivate::get(d->channel)->userMap.value(name);
     return 0;
 }
 
@@ -243,8 +243,8 @@ IrcUser* IrcUserModel::user(const QString& name) const
 bool IrcUserModel::contains(const QString& name) const
 {
     Q_D(const IrcUserModel);
-    if (IrcChannelPrivate* priv = IrcChannelPrivate::get(d->channel))
-        return priv->userMap.contains(name);
+    if (d->channel)
+        return IrcChannelPrivate::get(d->channel)->userMap.contains(name);
     return false;
 }
 
