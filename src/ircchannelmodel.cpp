@@ -201,9 +201,6 @@ void IrcChannelModelPrivate::_irc_channelDestroyed(IrcChannel* channel)
     }
 }
 
-Q_DECLARE_METATYPE(IrcChannel*)
-Q_DECLARE_METATYPE(QList<IrcChannel*>)
-
 /*!
     Constructs a new model with \a parent.
 

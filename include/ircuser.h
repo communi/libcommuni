@@ -50,4 +50,7 @@ private:
     Q_DISABLE_COPY(IrcUser)
 };
 
+Q_DECLARE_METATYPE(IrcUser*)
+Q_DECLARE_METATYPE(QList<IrcUser*>)
+
 #endif // IRCUSER_H

@@ -17,6 +17,8 @@
 
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
+#include <QtCore/qmetatype.h>
+#include <QtCore/qscopedpointer.h>
 
 class IrcMessage;
 class IrcSession;
@@ -56,5 +58,8 @@ private:
     Q_DECLARE_PRIVATE(IrcChannel)
     Q_DISABLE_COPY(IrcChannel)
 };
+
+Q_DECLARE_METATYPE(IrcChannel*)
+Q_DECLARE_METATYPE(QList<IrcChannel*>)
 
 #endif // IRCCHANNEL_H

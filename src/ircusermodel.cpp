@@ -106,9 +106,6 @@ public:
     QPointer<IrcChannel> channel;
 };
 
-Q_DECLARE_METATYPE(IrcUser*)
-Q_DECLARE_METATYPE(QList<IrcUser*>)
-
 /*!
     Constructs a new model with \a parent.
 
