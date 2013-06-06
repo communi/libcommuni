@@ -2,6 +2,7 @@
 -----
 - Introduced IrcChannelModel, IrcUserModel and IrcCommandParser
 - Added IrcSession::xxxMessageReceived(IrcXxxMessage*) signals
+- Added bool IrcSession::secure for convenience
 - Allowed constructing an invalid IrcSessionInfo
 - Added IrcSessionInfo::channelModes(A|B|C|D)
 - Added IrcModeMessage::Kind { Channel, User }
