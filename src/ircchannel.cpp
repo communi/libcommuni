@@ -205,10 +205,11 @@ bool IrcChannelPrivate::removeUser(const QString& name, IrcMessage* message)
 
 bool IrcChannelPrivate::renameUser(const QString& from, const QString& to, IrcMessage* message)
 {
-    if (IrcUser* user = userMap.value(from)) {
+    if (IrcUser* user = userMap.take(from)) {
         IrcUserPrivate::get(user)->setName(to);
         int idx = userList.indexOf(user);
         if (idx != -1) {
+            userMap.insert(to, user);
             IrcUserPrivate::get(user)->receiveMessage(message);
 
             const QStringList names = userMap.keys();
