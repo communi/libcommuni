@@ -26,6 +26,9 @@
 #include <QTcpSocket>
 #include <QTextCodec>
 #include <QStringList>
+#ifndef QT_NO_OPENSSL
+#include <QSslSocket>
+#endif // QT_NO_OPENSSL
 
 /*!
     \file ircsession.h
@@ -651,6 +654,8 @@ bool IrcSession::isConnected() const
     \par Access functions:
     \li \ref QAbstractSocket* <b>socket</b>() const
     \li void <b>setSocket</b>(\ref QAbstractSocket* socket)
+
+    \sa IrcSession::secure
  */
 QAbstractSocket* IrcSession::socket() const
 {
@@ -677,6 +682,62 @@ void IrcSession::setSocket(QAbstractSocket* socket)
             connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_irc_state(QAbstractSocket::SocketState)));
         }
     }
+}
+
+/*!
+    \property bool IrcSession::secure
+    This property holds whether the socket is an SSL socket.
+
+    This property is provided for convenience. Calling
+    \code
+    session->setSecure(true);
+    \endcode
+
+    is equivalent to:
+
+    \code
+    QSslSocket* socket = new QSslSocket(socket);
+    socket->setPeerVerifyMode(QSslSocket::QueryPeer);
+    session->setSocket(socket);
+    \endcode
+
+    \note IrcSession does not handle SSL errors, see
+    QSslSocket::sslErrors() for more details on the subject.
+
+    \par Access functions:
+    \li bool <b>isSecure</b>() const
+    \li void <b>setSecure</b>(bool secure)
+
+    \par Notifier signal:
+    \li void <b>secureChanged</b>(bool secure)
+
+    \sa IrcSession::socket
+ */
+bool IrcSession::isSecure() const
+{
+#ifdef QT_NO_OPENSSL
+    return false;
+#else
+    return qobject_cast<QSslSocket*>(socket());
+#endif // QT_NO_OPENSSL
+}
+
+void IrcSession::setSecure(bool secure)
+{
+#ifdef QT_NO_OPENSSL
+    Q_UNUSED(secure)
+#else
+    QSslSocket* sslSocket = qobject_cast<QSslSocket*>(socket());
+    if (secure && !sslSocket) {
+        sslSocket = new QSslSocket(this);
+        sslSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
+        setSocket(sslSocket);
+        emit secureChanged(true);
+    } else if (!secure && sslSocket) {
+        setSocket(new QTcpSocket(this));
+        emit secureChanged(false);
+    }
+#endif // QT_NO_OPENSSL
 }
 
 /*!

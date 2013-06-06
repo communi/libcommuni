@@ -40,6 +40,7 @@ class COMMUNI_EXPORT IrcSession : public QObject
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
+    Q_PROPERTY(bool secure READ isSecure WRITE setSecure NOTIFY secureChanged)
 
 public:
     explicit IrcSession(QObject* parent = 0);
@@ -68,6 +69,9 @@ public:
 
     QAbstractSocket* socket() const;
     void setSocket(QAbstractSocket* socket);
+
+    bool isSecure() const;
+    void setSecure(bool secure);
 
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
     Q_INVOKABLE bool sendData(const QByteArray& data);
@@ -119,6 +123,7 @@ Q_SIGNALS:
     void connectedChanged(bool connected);
 
     void sessionInfoReceived(const IrcSessionInfo& info);
+    void secureChanged(bool secure);
 
 protected:
     virtual IrcCommand* createCtcpReply(IrcPrivateMessage* request) const;
