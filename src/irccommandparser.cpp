@@ -164,6 +164,29 @@ IrcCommand* IrcCommandParserPrivate::parse(const IrcCommandInfo& command, QStrin
 }
 
 /*!
+    Clears the list of commands.
+
+    \sa reset()
+ */
+void IrcCommandParser::clear()
+{
+    Q_D(IrcCommandParser);
+    d->commands.clear();
+    emit commandsChanged(QStringList());
+}
+
+/*!
+    Resets the channels and the current target.
+
+    \sa clear()
+ */
+void IrcCommandParser::reset()
+{
+    setChannels(QStringList());
+    setCurrentTarget(QString());
+}
+
+/*!
     Constructs a command parser with \a parent.
  */
 IrcCommandParser::IrcCommandParser(QObject* parent) : QObject(parent), d_ptr(new IrcCommandParserPrivate)

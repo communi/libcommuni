@@ -51,6 +51,10 @@ public:
 
     Q_INVOKABLE IrcCommand* parse(const QString& input) const;
 
+public Q_SLOTS:
+    void clear();
+    void reset();
+
 Q_SIGNALS:
     void commandsChanged(const QStringList& commands);
     void channelsChanged(const QStringList& channels);
