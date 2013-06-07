@@ -35,6 +35,7 @@ public:
     virtual ~IrcCommandParser();
 
     QStringList commands() const;
+    QString syntax(const QString& command) const;
 
     Q_INVOKABLE void addCommand(IrcCommand::Type type, const QString& syntax);
     Q_INVOKABLE void removeCommand(IrcCommand::Type type, const QString& syntax = QString());

@@ -198,6 +198,18 @@ QStringList IrcCommandParser::commands() const
 }
 
 /*!
+    Returns the syntax for the given \a command.
+ */
+QString IrcCommandParser::syntax(const QString& command) const
+{
+    Q_D(const IrcCommandParser);
+    IrcCommandInfo info = d->find(command.toUpper()).value(0);
+    if (!info.command.isEmpty())
+        return info.command + QLatin1Char(' ') + info.syntax;
+    return QString();
+}
+
+/*!
     Adds a command with \a type and \a syntax.
  */
 void IrcCommandParser::addCommand(IrcCommand::Type type, const QString& syntax)
