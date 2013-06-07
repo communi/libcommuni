@@ -71,6 +71,21 @@
     parser->setCurrentTarget("jpnurmi");
     parser->setChannels(QStringList() << "#communi" << "#freenode");
     \endcode
+
+    \section custom Custom commands
+
+    The parser also supports such custom client specific commands that
+    are not sent to the server. Since IrcCommand does not know how to
+    handle custom commands, the parser treats them as a special case
+    injecting the command as a first parameter.
+
+    \code
+    IrcParser parser;
+    parser.addCommand(IrcCommand::Custom, "QUERY <user>");
+    IrcCommand* command = parser.parse("/query jpnurmi");
+    Q_ASSERT(command->type() == IrcCommand::Custom);
+    qDebug() << command->parameters; // ("QUERY", "jpnurmi")
+    \endcode
  */
 
 struct IrcCommandInfo
@@ -156,6 +171,8 @@ IrcCommand* IrcCommandParserPrivate::parse(const IrcCommandInfo& command, QStrin
     if (params.count() >= min && params.count() <= max) {
         IrcCommand* cmd = new IrcCommand;
         cmd->setType(command.type);
+        if (command.type == IrcCommand::Custom)
+            params.prepend(command.command);
         cmd->setParameters(params);
         return cmd;
     }
