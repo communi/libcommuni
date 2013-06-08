@@ -87,6 +87,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void connecting();
     void password(QString* password);
+    void nickNameReserved(QString* alternate);
     void capabilities(const QStringList& available, QStringList* request);
     void connected();
     void disconnected();

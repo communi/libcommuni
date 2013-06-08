@@ -1,8 +1,10 @@
 2.2.0
 -----
 - Introduced IrcChannelModel, IrcUserModel and IrcCommandParser
-- Added IrcSession::xxxMessageReceived(IrcXxxMessage*) signals
-- Added bool IrcSession::secure for convenience
+- Added new IrcSession convenience signals
+  - void xxxMessageReceived(IrcXxxMessage* message)
+  - void nickNameReserved(QString* alternate)
+- Added bool IrcSession::secure property
 - Allowed constructing an invalid IrcSessionInfo
 - Added IrcSessionInfo::channelModes(A|B|C|D)
 - Added IrcModeMessage::Kind { Channel, User }

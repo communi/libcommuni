@@ -99,6 +99,15 @@
  */
 
 /*!
+    \fn void IrcSession::nickNameReserved(QString* alternate)
+
+    This signal is emitted when the requested nick name is reserved
+    and an \a alternate nick name should be provided.
+
+    \sa Irc::ERR_NICKNAMEINUSE, Irc::ERR_NICKCOLLISION
+ */
+
+/*!
     \fn void IrcSession::capabilities(const QStringList& available, QStringList* request)
 
     This signal is emitted when the connection capabilities may be requested.
@@ -289,6 +298,11 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
                     info.insert(keyValue.value(0), keyValue.value(1));
                 }
                 emit q->sessionInfoReceived(IrcSessionInfo(q));
+            } else if (numeric->code() == Irc::ERR_NICKNAMEINUSE || numeric->code() == Irc::ERR_NICKCOLLISION) {
+                QString alternate;
+                emit q->nickNameReserved(&alternate);
+                if (!alternate.isEmpty())
+                    q->setNickName(alternate);
             }
             break;
         }
