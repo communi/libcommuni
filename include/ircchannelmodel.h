@@ -47,6 +47,8 @@ public:
     Q_INVOKABLE IrcChannel* get(int index) const;
     Q_INVOKABLE IrcChannel* channel(const QString& title) const;
     Q_INVOKABLE bool contains(const QString& title) const;
+    Q_INVOKABLE IrcChannel* addChannel(const QString& title);
+    Q_INVOKABLE void removeChannel(const QString& title);
 
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
@@ -76,6 +78,7 @@ private:
     Q_DECLARE_PRIVATE(IrcChannelModel)
     Q_DISABLE_COPY(IrcChannelModel)
 
+    Q_PRIVATE_SLOT(d_func(), void _irc_channelChanged())
     Q_PRIVATE_SLOT(d_func(), void _irc_channelDestroyed(IrcChannel*))
 };
 

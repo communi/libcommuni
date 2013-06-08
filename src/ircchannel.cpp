@@ -56,7 +56,7 @@
     \sa IrcSession::messageReceived(), IrcUser::messageReceived(), IrcChannelModel::messageIgnored()
  */
 
-static QString namePrefix(const QString& name, const QStringList& prefixes)
+static QString getPrefix(const QString& name, const QStringList& prefixes)
 {
     int i = 0;
     while (i < name.length() && prefixes.contains(name.at(i)))
@@ -85,9 +85,16 @@ static QString userName(const QString& name, const QStringList& prefixes)
 
 void IrcChannelPrivate::init(const QString& title, IrcSession* s)
 {
-    const QStringList prefixes = IrcSessionInfo(s).channelTypes();
-    prefix = namePrefix(title, prefixes);
-    name = channelName(title, prefixes);
+    const QStringList chanTypes = IrcSessionInfo(s).channelTypes();
+    bool chan = !title.isEmpty() && chanTypes.contains(title.at(0));
+    // TODO: expose as a property?
+    if (chan) {
+        prefix = getPrefix(title, chanTypes);
+        name = channelName(title, chanTypes);
+    } else {
+        prefix.clear();
+        setName(userName(title, IrcSessionInfo(s).prefixes()));
+    }
     session = s;
 }
 
@@ -131,6 +138,16 @@ void IrcChannelPrivate::setTopic(const QString& value)
     }
 }
 
+void IrcChannelPrivate::setName(const QString& value)
+{
+    Q_Q(IrcChannel);
+    if (name != value) {
+        name = value;
+        emit q->nameChanged(name);
+        emit q->titleChanged(q->title());
+    }
+}
+
 void IrcChannelPrivate::addUsers(const QStringList& names, IrcMessage* message)
 {
     Q_Q(IrcChannel);
@@ -139,7 +156,7 @@ void IrcChannelPrivate::addUsers(const QStringList& names, IrcMessage* message)
     foreach (const QString& name, names) {
         QString unprefixed = userName(name, info.prefixes());
         if (!userMap.contains(unprefixed))
-            unique.insert(unprefixed, namePrefix(name, info.prefixes()));
+            unique.insert(unprefixed, getPrefix(name, info.prefixes()));
     }
 
     if (!unique.isEmpty()) {
@@ -372,6 +389,10 @@ bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
 
 bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
 {
+    if (!message->sender().name().compare(name, Qt::CaseInsensitive)) {
+        setName(message->nick());
+        return true;
+    }
     return renameUser(message->sender().name(), message->nick(), message);
 }
 
@@ -412,7 +433,8 @@ bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
         clearUsers();
         return true;
     }
-    return removeUser(message->sender().name(), message);
+    return removeUser(message->sender().name(), message)
+           || !message->sender().name().compare(name, Qt::CaseInsensitive);
 }
 
 bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)

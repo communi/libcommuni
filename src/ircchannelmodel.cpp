@@ -70,10 +70,11 @@ public:
 
     bool messageFilter(IrcMessage* message);
 
-    void addChannel(const QString& title);
+    IrcChannel* addChannel(const QString& title);
     void removeChannel(const QString& title);
     bool processMessage(const QString& title, IrcMessage* message);
 
+    void _irc_channelChanged();
     void _irc_channelDestroyed(IrcChannel* channel);
 
     IrcChannelModel* q_ptr;
@@ -92,7 +93,7 @@ bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
 {
     Q_Q(IrcChannelModel);
     if (msg->type() == IrcMessage::Join && msg->flags() & IrcMessage::Own)
-        addChannel(static_cast<IrcJoinMessage*>(msg)->channel().toLower());
+        addChannel(static_cast<IrcJoinMessage*>(msg)->channel());
 
     bool processed = false;
     switch (msg->type()) {
@@ -114,7 +115,8 @@ bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
         case IrcMessage::Mode:
         case IrcMessage::Notice:
         case IrcMessage::Private:
-            processed = processMessage(msg->property("target").toString(), msg);
+            processed = processMessage(msg->property("target").toString(), msg)
+                     || processMessage(msg->sender().name(), msg);
             break;
 
         case IrcMessage::Numeric:
@@ -136,29 +138,31 @@ bool IrcChannelModelPrivate::messageFilter(IrcMessage* msg)
         emit q->messageIgnored(msg);
 
     if (msg->type() == IrcMessage::Part && msg->flags() & IrcMessage::Own) {
-        removeChannel(static_cast<IrcPartMessage*>(msg)->channel().toLower());
+        removeChannel(static_cast<IrcPartMessage*>(msg)->channel());
     } else if (msg->type() == IrcMessage::Quit && msg->flags() & IrcMessage::Own) {
         foreach (const QString& channel, channelMap.keys())
             removeChannel(channel);
     } else if (msg->type() == IrcMessage::Kick) {
         const IrcKickMessage* kickMsg = static_cast<IrcKickMessage*>(msg);
         if (!kickMsg->user().compare(msg->session()->nickName(), Qt::CaseInsensitive))
-            removeChannel(kickMsg->channel().toLower());
+            removeChannel(kickMsg->channel());
     }
 
     return false;
 }
 
-void IrcChannelModelPrivate::addChannel(const QString& title)
+IrcChannel* IrcChannelModelPrivate::addChannel(const QString& title)
 {
     Q_Q(IrcChannelModel);
-    if (!channelMap.contains(title)) {
-        IrcChannel* channel = q->createChannel(title);
+    IrcChannel* channel = channelMap.value(title.toLower());
+    if (!channel) {
+        channel = q->createChannel(title);
         if (channel) {
             IrcChannelPrivate::get(channel)->init(title, session);
             q->beginInsertRows(QModelIndex(), channelList.count(), channelList.count());
             channelList.append(channel);
             channelMap.insert(title, channel);
+            q->connect(channel, SIGNAL(titleChanged(QString)), SLOT(_irc_channelChanged()));
             q->connect(channel, SIGNAL(destroyed(IrcChannel*)), SLOT(_irc_channelDestroyed(IrcChannel*)));
             q->endInsertRows();
             emit q->channelAdded(channel);
@@ -167,12 +171,13 @@ void IrcChannelModelPrivate::addChannel(const QString& title)
             emit q->countChanged(channelList.count());
         }
     }
+    return channel;
 }
 
 void IrcChannelModelPrivate::removeChannel(const QString& title)
 {
     Q_Q(IrcChannelModel);
-    IrcChannel* channel = channelMap.value(title);
+    IrcChannel* channel = channelMap.value(title.toLower());
     if (channel)
         q->destroyChannel(channel);
 }
@@ -183,6 +188,20 @@ bool IrcChannelModelPrivate::processMessage(const QString& title, IrcMessage* me
     if (channel)
         return IrcChannelPrivate::get(channel)->processMessage(message);
     return false;
+}
+
+void IrcChannelModelPrivate::_irc_channelChanged()
+{
+    Q_Q(IrcChannelModel);
+    // TODO: resolve conflict!
+    IrcChannel* channel = qobject_cast<IrcChannel*>(q->sender());
+    if (channel) {
+        int idx = channelList.indexOf(channel);
+        if (idx != -1) {
+            QModelIndex index = q->index(idx);
+            emit q->dataChanged(index, index);
+        }
+    }
 }
 
 void IrcChannelModelPrivate::_irc_channelDestroyed(IrcChannel* channel)
@@ -326,6 +345,30 @@ bool IrcChannelModel::contains(const QString& title) const
 {
     Q_D(const IrcChannelModel);
     return d->channelMap.contains(title);
+}
+
+/*!
+    Adds a channel with \a title to the model and returns it.
+
+    \note IrcChannelModel automatically keeps track of the channels.
+    Normally you do not need to manually alter the list of channels.
+ */
+IrcChannel* IrcChannelModel::addChannel(const QString& title)
+{
+    Q_D(IrcChannelModel);
+    return d->addChannel(title);
+}
+
+/*!
+    Removes a channel with \a title from the model.
+
+    \note IrcChannelModel automatically keeps track of the channels.
+    Normally you do not need to manually alter the list of channels.
+ */
+void IrcChannelModel::removeChannel(const QString& title)
+{
+    Q_D(IrcChannelModel);
+    d->removeChannel(title);
 }
 
 /*!

@@ -27,8 +27,8 @@ class IrcChannelPrivate;
 class COMMUNI_EXPORT IrcChannel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString title READ title CONSTANT)
-    Q_PROPERTY(QString name READ name CONSTANT)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString prefix READ prefix CONSTANT)
     Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
     Q_PROPERTY(QString topic READ topic NOTIFY topicChanged)
@@ -48,6 +48,8 @@ public:
     IrcSession* session() const;
 
 Q_SIGNALS:
+    void titleChanged(const QString& title);
+    void nameChanged(const QString& name);
     void modeChanged(const QString& mode);
     void topicChanged(const QString& topic);
     void destroyed(IrcChannel* channel);

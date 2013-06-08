@@ -34,6 +34,7 @@ public:
     void changeMode(const QString& value);
     void setMode(const QString& value);
     void setTopic(const QString& value);
+    void setName(const QString& name);
 
     void addUsers(const QStringList& users, IrcMessage* message = 0);
     bool removeUser(const QString& user, IrcMessage* message);
