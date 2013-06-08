@@ -13,11 +13,11 @@
 #include <QSplitter>
 #include <QHash>
 
+class IrcBuffer;
 class IrcSession;
 class IrcMessage;
-class IrcChannel;
 class IrcUserModel;
-class IrcChannelModel;
+class IrcBufferModel;
 class IrcCommandParser;
 
 QT_FORWARD_DECLARE_CLASS(QLineEdit)
@@ -42,12 +42,14 @@ private slots:
 
     void onTextEntered();
 
-    void onChannelAdded(IrcChannel* channel);
-    void onChannelRemoved(IrcChannel* channel);
-    void onChannelActivated(const QModelIndex& index);
+    void onBufferAdded(IrcBuffer* buffer);
+    void onBufferRemoved(IrcBuffer* buffer);
+
+    void onBufferActivated(const QModelIndex& index);
+    void onUserActivated(const QModelIndex& index);
 
     void receiveServerMessage(IrcMessage* message);
-    void receiveChannelMessage(IrcMessage* message);
+    void receiveBufferMessage(IrcMessage* message);
 
 private:
     void createUi();
@@ -58,16 +60,16 @@ private:
     QTextEdit* textEdit;
     QCompleter* completer;
     QListView* userList;
-    QListView* channelList;
+    QListView* bufferList;
 
     IrcCommandParser* parser;
 
     QTextDocument* serverDocument;
-    QHash<IrcChannel*, QTextDocument*> channelDocuments;
+    QHash<IrcBuffer*, QTextDocument*> bufferDocuments;
 
     IrcSession* session;
-    IrcChannelModel* channelModel;
-    QHash<IrcChannel*, IrcUserModel*> userModels;
+    IrcBufferModel* bufferModel;
+    QHash<IrcBuffer*, IrcUserModel*> userModels;
 };
 
 #endif // IRCCLIENT_H

@@ -21,12 +21,13 @@
 #include <QTime>
 
 #include <Irc>
+#include <IrcUser>
+#include <IrcBuffer>
 #include <IrcSession>
 #include <IrcCommand>
 #include <IrcMessage>
-#include <IrcChannel>
 #include <IrcUserModel>
-#include <IrcChannelModel>
+#include <IrcBufferModel>
 #include <IrcCommandParser>
 
 static const char* CHANNEL = "#communi";
@@ -76,7 +77,7 @@ void IrcClient::onTextEntered()
         // echo own messages (servers do not send our own messages back)
         if (command->type() == IrcCommand::Message || command->type() == IrcCommand::CtcpAction) {
             IrcMessage* msg = IrcMessage::fromCommand(session->nickName(), command, session);
-            receiveChannelMessage(msg);
+            receiveBufferMessage(msg);
             delete msg;
         }
 
@@ -84,60 +85,74 @@ void IrcClient::onTextEntered()
     }
 }
 
-void IrcClient::onChannelAdded(IrcChannel* channel)
+void IrcClient::onBufferAdded(IrcBuffer* buffer)
 {
-    // joined a channel - start listening to channel specific messages
-    connect(channel, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveChannelMessage(IrcMessage*)));
+    // joined a buffer - start listening to buffer specific messages
+    connect(buffer, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveBufferMessage(IrcMessage*)));
 
-    // create a document for storing the channel specific messages
-    QTextDocument* document = new QTextDocument(channel);
-    channelDocuments.insert(channel, document);
+    // create a document for storing the buffer specific messages
+    QTextDocument* document = new QTextDocument(buffer);
+    bufferDocuments.insert(buffer, document);
 
-    // create a model for channel users
-    IrcUserModel* userModel = new IrcUserModel(channel);
+    // create a model for buffer users
+    IrcUserModel* userModel = new IrcUserModel(buffer);
     userModel->setDisplayRole(Irc::NameRole);
-    userModels.insert(channel, userModel);
+    userModels.insert(buffer, userModel);
 
     // keep the command parser aware of the context
-    parser->setChannels(channelModel->titles());
+    parser->setChannels(bufferModel->titles());
 
-    // activate the new channel
-    int idx = channelModel->channels().indexOf(channel);
+    // activate the new buffer
+    int idx = bufferModel->buffers().indexOf(buffer);
     if (idx != -1)
-        channelList->setCurrentIndex(channelModel->index(idx));
+        bufferList->setCurrentIndex(bufferModel->index(idx));
 }
 
-void IrcClient::onChannelRemoved(IrcChannel* channel)
+void IrcClient::onBufferRemoved(IrcBuffer* buffer)
 {
-    // left a channel - the channel specific models and documents are no longer needed
-    delete userModels.take(channel);
-    delete channelDocuments.take(channel);
+    // the buffer specific models and documents are no longer needed
+    delete userModels.take(buffer);
+    delete bufferDocuments.take(buffer);
 
     // keep the command parser aware of the context
-    parser->setChannels(channelModel->titles());
+    parser->setChannels(bufferModel->titles()); // TODO
 }
 
-void IrcClient::onChannelActivated(const QModelIndex& index)
+void IrcClient::onBufferActivated(const QModelIndex& index)
 {
-    IrcChannel* channel = index.data(Irc::ChannelRole).value<IrcChannel*>();
+    IrcBuffer* buffer = index.data(Irc::BufferRole).value<IrcBuffer*>();
 
-    // user list and nick completion for the current channel
-    IrcUserModel* userModel = userModels.value(channel);
+    // user list and nick completion for the current buffer
+    IrcUserModel* userModel = userModels.value(buffer);
     QSortFilterProxyModel* proxy = qobject_cast<QSortFilterProxyModel*>(userList->model());
     if (proxy)
         proxy->setSourceModel(userModel);
     completer->setModel(userModel);
 
-    // document for the current channel
-    QTextDocument* document = channelDocuments.value(channel);
+    // document for the current buffer
+    QTextDocument* document = bufferDocuments.value(buffer);
     if (document)
         textEdit->setDocument(document);
     else
         textEdit->setDocument(serverDocument);
 
     // keep the command parser aware of the context
-    if (channel)
-        parser->setCurrentTarget(channel->title());
+    if (buffer)
+        parser->setCurrentTarget(buffer->title());
+}
+
+void IrcClient::onUserActivated(const QModelIndex& index)
+{
+    IrcUser* user = index.data(Irc::UserRole).value<IrcUser*>();
+
+    if (user) {
+        IrcBuffer* buffer = bufferModel->addBuffer(user->name());
+
+        // activate the new query
+        int idx = bufferModel->buffers().indexOf(buffer);
+        if (idx != -1)
+            bufferList->setCurrentIndex(bufferModel->index(idx));
+    }
 }
 
 static void appendHtml(QTextDocument* document, const QString& html)
@@ -158,13 +173,13 @@ void IrcClient::receiveServerMessage(IrcMessage* message)
         appendHtml(serverDocument, html);
 }
 
-void IrcClient::receiveChannelMessage(IrcMessage* message)
+void IrcClient::receiveBufferMessage(IrcMessage* message)
 {
-    IrcChannel* channel = qobject_cast<IrcChannel*>(sender());
-    if (!channel)
-        channel = channelList->currentIndex().data(Irc::ChannelRole).value<IrcChannel*>();
+    IrcBuffer* buffer = qobject_cast<IrcBuffer*>(sender());
+    if (!buffer)
+        buffer = bufferList->currentIndex().data(Irc::BufferRole).value<IrcBuffer*>();
 
-    QTextDocument* document = channelDocuments.value(channel);
+    QTextDocument* document = bufferDocuments.value(buffer);
     if (document) {
         QString html = IrcMessageFormatter::formatMessage(message);
         if (!html.isEmpty())
@@ -176,21 +191,21 @@ void IrcClient::createUi()
 {
     setWindowTitle(tr("Communi %1 example client").arg(COMMUNI_VERSION_STR));
 
-    // keep track of channels
-    channelModel = new IrcChannelModel(session);
-    channelList = new QListView(this);
-    channelList->setFocusPolicy(Qt::NoFocus);
-    channelList->setModel(channelModel);
-    connect(channelModel, SIGNAL(channelAdded(IrcChannel*)), this, SLOT(onChannelAdded(IrcChannel*)));
-    connect(channelModel, SIGNAL(channelRemoved(IrcChannel*)), this, SLOT(onChannelRemoved(IrcChannel*)));
+    // keep track of buffers
+    bufferModel = new IrcBufferModel(session);
+    bufferList = new QListView(this);
+    bufferList->setFocusPolicy(Qt::NoFocus);
+    bufferList->setModel(bufferModel);
+    connect(bufferModel, SIGNAL(bufferAdded(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
+    connect(bufferModel, SIGNAL(bufferRemoved(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
 
-    // keep track of the current channel, see also onChannelActivated()
-    connect(channelList->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onChannelActivated(QModelIndex)));
+    // keep track of the current buffer, see also onBufferActivated()
+    connect(bufferList->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onBufferActivated(QModelIndex)));
 
-    // IrcChannelModel::messageIgnored() is emitted for non-channel specific messages
-    connect(channelModel, SIGNAL(messageIgnored(IrcMessage*)), this, SLOT(receiveServerMessage(IrcMessage*)));
+    // IrcBufferModel::messageIgnored() is emitted for non-buffer specific messages
+    connect(bufferModel, SIGNAL(messageIgnored(IrcMessage*)), this, SLOT(receiveServerMessage(IrcMessage*)));
 
-    // create a document for non-channel specific messages
+    // create a document for non-buffer specific messages
     serverDocument = new QTextDocument(this);
 
     // a read-only text editor for showing the messages
@@ -223,6 +238,9 @@ void IrcClient::createUi()
     userList->setFocusPolicy(Qt::NoFocus);
     userList->setModel(proxy);
 
+    // open a private query when double clicking a user
+    connect(userList, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onUserActivated(QModelIndex)));
+
     // the rest is just setting up the UI layout...
     QSplitter* splitter = new QSplitter(this);
     splitter->setHandleWidth(1);
@@ -238,7 +256,7 @@ void IrcClient::createUi()
     layout->addWidget(splitter);
     layout->addWidget(lineEdit);
 
-    addWidget(channelList);
+    addWidget(bufferList);
     addWidget(container);
 
     setStretchFactor(0, 1);
@@ -251,7 +269,7 @@ void IrcClient::createParser()
 {
     // create a command parser and teach it some commands. notice also
     // that we must keep the command parser aware of the context in:
-    // onChannelAdded(), onChannelRemoved() and onChannelActivated()
+    // onBufferAdded(), onBufferRemoved() and onBufferActivated()
 
     parser = new IrcCommandParser(this);
     parser->setPrefix("/");
