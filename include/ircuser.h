@@ -20,7 +20,7 @@
 #include <QtCore/qmetatype.h>
 #include <QtCore/qscopedpointer.h>
 
-class IrcMessage;
+class IrcBuffer;
 class IrcUserPrivate;
 
 class COMMUNI_EXPORT IrcUser : public QObject
@@ -29,6 +29,7 @@ class COMMUNI_EXPORT IrcUser : public QObject
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString prefix READ prefix NOTIFY prefixChanged)
     Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
+    Q_PROPERTY(IrcBuffer* buffer READ buffer CONSTANT)
 
 public:
     explicit IrcUser(QObject* parent = 0);
@@ -37,6 +38,8 @@ public:
     QString name() const;
     QString prefix() const;
     QString mode() const;
+
+    IrcBuffer* buffer() const;
 
 Q_SIGNALS:
     void nameChanged(const QString& name);

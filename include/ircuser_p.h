@@ -32,6 +32,7 @@ public:
     }
 
     IrcUser* q_ptr;
+    IrcBuffer* buffer;
     QString name;
     QString prefix;
     QString mode;

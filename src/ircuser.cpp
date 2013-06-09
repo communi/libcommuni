@@ -130,3 +130,16 @@ QString IrcUser::mode() const
     Q_D(const IrcUser);
     return d->mode;
 }
+
+
+/*!
+    This property holds the buffer of the user.
+
+    \par Access function:
+    \li \ref IrcBuffer* <b>buffer</b>() const
+ */
+IrcBuffer* IrcUser::buffer() const
+{
+    Q_D(const IrcUser);
+    return d->buffer;
+}
