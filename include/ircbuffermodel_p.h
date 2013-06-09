@@ -1,0 +1,51 @@
+/*
+* Copyright (C) 2008-2013 The Communi Project
+*
+* This library is free software; you can redistribute it and/or modify it
+* under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This library is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+* License for more details.
+*/
+
+#ifndef IRCBUFFERMODEL_P_H
+#define IRCBUFFERMODEL_P_H
+
+#include "ircbuffermodel.h"
+#include "ircmessagefilter.h"
+#include <qpointer.h>
+
+class IrcBufferModelPrivate : public IrcMessageFilter
+{
+    Q_DECLARE_PUBLIC(IrcBufferModel)
+
+public:
+    IrcBufferModelPrivate(IrcBufferModel* q);
+
+    bool messageFilter(IrcMessage* message);
+
+    IrcBuffer* addBuffer(const QString& title);
+    void removeBuffer(const QString& title);
+    bool renameBuffer(IrcBuffer* buffer, const QString& title);
+    bool processMessage(const QString& title, IrcMessage* message, bool create = false);
+
+    void _irc_bufferChanged();
+    void _irc_bufferDestroyed(IrcBuffer* buffer);
+
+    static IrcBufferModelPrivate* get(IrcBufferModel* model)
+    {
+        return model->d_func();
+    }
+
+    IrcBufferModel* q_ptr;
+    Irc::ItemDataRole role;
+    QPointer<IrcSession> session;
+    QList<IrcBuffer*> bufferList;
+    QMap<QString, IrcBuffer*> bufferMap;
+};
+
+#endif // IRCBUFFERMODEL_P_H

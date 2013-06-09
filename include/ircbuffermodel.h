@@ -78,7 +78,6 @@ private:
     Q_DECLARE_PRIVATE(IrcBufferModel)
     Q_DISABLE_COPY(IrcBufferModel)
 
-    Q_PRIVATE_SLOT(d_func(), void _irc_bufferChanged())
     Q_PRIVATE_SLOT(d_func(), void _irc_bufferDestroyed(IrcBuffer*))
 };
 

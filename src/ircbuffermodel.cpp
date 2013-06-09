@@ -13,12 +13,11 @@
 */
 
 #include "ircbuffermodel.h"
-#include "ircmessagefilter.h"
+#include "ircbuffermodel_p.h"
 #include "ircsessioninfo.h"
 #include "ircbuffer_p.h"
 #include "ircmessage.h"
 #include "ircsession.h"
-#include <qpointer.h>
 
 /*!
     \file ircbuffermodel.h
@@ -60,29 +59,6 @@
 
     \sa IrcSession::messageReceived(), IrcBuffer::messageReceived()
  */
-
-class IrcBufferModelPrivate : public IrcMessageFilter
-{
-    Q_DECLARE_PUBLIC(IrcBufferModel)
-
-public:
-    IrcBufferModelPrivate(IrcBufferModel* q);
-
-    bool messageFilter(IrcMessage* message);
-
-    IrcBuffer* addBuffer(const QString& title);
-    void removeBuffer(const QString& title);
-    bool processMessage(const QString& title, IrcMessage* message, bool create = false);
-
-    void _irc_bufferChanged();
-    void _irc_bufferDestroyed(IrcBuffer* buffer);
-
-    IrcBufferModel* q_ptr;
-    Irc::ItemDataRole role;
-    QPointer<IrcSession> session;
-    QList<IrcBuffer*> bufferList;
-    QMap<QString, IrcBuffer*> bufferMap;
-};
 
 IrcBufferModelPrivate::IrcBufferModelPrivate(IrcBufferModel* q) :
     q_ptr(q), role(Irc::TitleRole)
@@ -162,7 +138,6 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
             q->beginInsertRows(QModelIndex(), bufferList.count(), bufferList.count());
             bufferList.append(buffer);
             bufferMap.insert(title, buffer);
-            q->connect(buffer, SIGNAL(titleChanged(QString)), SLOT(_irc_bufferChanged()));
             q->connect(buffer, SIGNAL(destroyed(IrcBuffer*)), SLOT(_irc_bufferDestroyed(IrcBuffer*)));
             q->endInsertRows();
             emit q->bufferAdded(buffer);
@@ -182,6 +157,26 @@ void IrcBufferModelPrivate::removeBuffer(const QString& title)
         q->destroyBuffer(buffer);
 }
 
+bool IrcBufferModelPrivate::renameBuffer(IrcBuffer* buffer, const QString& title)
+{
+    Q_Q(IrcBufferModel);
+    int idx = bufferList.indexOf(buffer);
+    if (idx != -1) {
+        const QString lower = title.toLower();
+
+        if (!bufferMap.contains(lower)) {
+            bufferMap.remove(buffer->title().toLower());
+            bufferMap.insert(lower, buffer);
+
+            QModelIndex index = q->index(idx);
+            emit q->dataChanged(index, index);
+
+            return true;
+        }
+    }
+    return false;
+}
+
 bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* message, bool create)
 {
     IrcBuffer* buffer = bufferMap.value(title.toLower());
@@ -190,20 +185,6 @@ bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* mes
     if (buffer)
         return IrcBufferPrivate::get(buffer)->processMessage(message);
     return false;
-}
-
-void IrcBufferModelPrivate::_irc_bufferChanged()
-{
-    Q_Q(IrcBufferModel);
-    // TODO: resolve conflict!
-    IrcBuffer* buffer = qobject_cast<IrcBuffer*>(q->sender());
-    if (buffer) {
-        int idx = bufferList.indexOf(buffer);
-        if (idx != -1) {
-            QModelIndex index = q->index(idx);
-            emit q->dataChanged(index, index);
-        }
-    }
 }
 
 void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)

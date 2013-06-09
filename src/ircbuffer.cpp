@@ -16,6 +16,7 @@
 #include "ircbuffer_p.h"
 #include "ircusermodel.h"
 #include "ircbuffermodel.h"
+#include "ircbuffermodel_p.h"
 #include "ircsession.h"
 #include "ircuser_p.h"
 #include "ircsender.h"
@@ -384,9 +385,14 @@ bool IrcBufferPrivate::processNamesMessage(IrcNamesMessage* message)
 
 bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
 {
-    if (!message->sender().name().compare(name, Qt::CaseInsensitive)) {
-        setName(message->nick());
-        return true;
+    Q_Q(IrcBuffer);
+    if (type == Irc::Query) {
+        if (!message->sender().name().compare(name, Qt::CaseInsensitive)) {
+            if (IrcBufferModelPrivate::get(model)->renameBuffer(q, message->nick()))
+                setName(message->nick());
+            return true;
+        }
+        return !message->nick().compare(name, Qt::CaseInsensitive);
     }
     return renameUser(message->sender().name(), message->nick());
 }

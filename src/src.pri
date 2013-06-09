@@ -44,6 +44,7 @@ PUB_HEADERS += $$PWD/../include/ircuser.h
 PUB_HEADERS += $$PWD/../include/ircusermodel.h
 
 PRIV_HEADERS += $$PWD/../include/ircbuffer_p.h
+PRIV_HEADERS += $$PWD/../include/ircbuffermodel_p.h
 PRIV_HEADERS += $$PWD/../include/ircmessage_p.h
 PRIV_HEADERS += $$PWD/../include/ircmessagebuilder_p.h
 PRIV_HEADERS += $$PWD/../include/ircmessagedecoder_p.h
