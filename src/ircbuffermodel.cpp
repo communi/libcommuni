@@ -109,7 +109,7 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
         case IrcMessage::Kick:
         case IrcMessage::Names:
         case IrcMessage::Topic:
-            processed = processMessage(msg->property("buffer").toString(), msg);
+            processed = processMessage(msg->property("channel").toString(), msg);
             break;
 
         case IrcMessage::Mode:
@@ -123,8 +123,8 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
             // TODO: any other special cases besides RPL_NAMREPLY?
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_NAMREPLY) {
                 const int count = msg->parameters().count();
-                const QString buffer = msg->parameters().value(count - 2);
-                processed = processMessage(buffer, msg);
+                const QString channel = msg->parameters().value(count - 2);
+                processed = processMessage(channel, msg);
             } else {
                 processed = processMessage(msg->parameters().value(1), msg);
             }
@@ -413,10 +413,10 @@ void IrcBufferModel::clear()
 }
 
 /*!
-    Creates a buffer object for buffer \a title.
+    Creates a buffer object with \a title.
 
     IrcBufferModel will automatically call this factory method when a
-    need for the buffer object occurs ie. the buffer is being joined.
+    need for the buffer object occurs ie. a channel is being joined.
 
     The default implementation creates a new instance of IrcBuffer.
     Reimplement this function in order to alter the default behavior,
@@ -432,8 +432,8 @@ IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
     Destroys the buffer \a model.
 
     IrcBufferModel will automatically call this method when the buffer
-    object is no longer needed ie. the user quit, the buffer was parted,
-    or the user was kicked from the buffer.
+    object is no longer needed ie. the user quit, a channel was left,
+    or the user was kicked from the channel.
 
     The default implementation deletes the buffer object.
     Reimplement this function in order to alter the default behavior,

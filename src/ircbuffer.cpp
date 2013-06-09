@@ -316,23 +316,19 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
     case IrcMessage::Nick:
         processed = processNickMessage(static_cast<IrcNickMessage*>(message));
         break;
-    case IrcMessage::Notice:
-        processed = processNoticeMessage(static_cast<IrcNoticeMessage*>(message));
-        break;
-    case IrcMessage::Numeric:
-        processed = processNumericMessage(static_cast<IrcNumericMessage*>(message));
-        break;
     case IrcMessage::Part:
         processed = processPartMessage(static_cast<IrcPartMessage*>(message));
-        break;
-    case IrcMessage::Private:
-        processed = processPrivateMessage(static_cast<IrcPrivateMessage*>(message));
         break;
     case IrcMessage::Quit:
         processed = processQuitMessage(static_cast<IrcQuitMessage*>(message));
         break;
     case IrcMessage::Topic:
         processed = processTopicMessage(static_cast<IrcTopicMessage*>(message));
+        break;
+    case IrcMessage::Notice:
+    case IrcMessage::Numeric:
+    case IrcMessage::Private:
+        processed = true;
         break;
     default:
         break;
@@ -389,18 +385,6 @@ bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
     return renameUser(message->sender().name(), message->nick());
 }
 
-bool IrcBufferPrivate::processNoticeMessage(IrcNoticeMessage* message)
-{
-    Q_UNUSED(message);
-    return true;
-}
-
-bool IrcBufferPrivate::processNumericMessage(IrcNumericMessage* message)
-{
-    Q_UNUSED(message);
-    return true;
-}
-
 bool IrcBufferPrivate::processPartMessage(IrcPartMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
@@ -408,12 +392,6 @@ bool IrcBufferPrivate::processPartMessage(IrcPartMessage* message)
         return true;
     }
     return removeUser(message->sender().name());
-}
-
-bool IrcBufferPrivate::processPrivateMessage(IrcPrivateMessage* message)
-{
-    Q_UNUSED(message);
-    return true;
 }
 
 bool IrcBufferPrivate::processQuitMessage(IrcQuitMessage* message)
