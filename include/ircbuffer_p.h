@@ -17,6 +17,7 @@
 
 #include "ircbuffer.h"
 #include "ircmessage.h"
+#include "ircsessioninfo.h"
 #include <qstringlist.h>
 #include <qlist.h>
 #include <qmap.h>
@@ -31,7 +32,7 @@ class IrcBufferPrivate
 public:
     IrcBufferPrivate(IrcBuffer* q);
 
-    void init(const QString& title, IrcSession* session);
+    void init(const QString& title, IrcBufferModel* model);
 
     void changeMode(const QString& value);
     void setMode(const QString& value);
@@ -61,7 +62,8 @@ public:
     }
 
     IrcBuffer* q_ptr;
-    IrcSession* session;
+    IrcSessionInfo info;
+    IrcBufferModel* model;
     Irc::BufferType type;
     QString name;
     QString prefix;

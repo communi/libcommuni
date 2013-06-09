@@ -22,7 +22,7 @@
 #include <QtCore/qscopedpointer.h>
 
 class IrcMessage;
-class IrcSession;
+class IrcBufferModel;
 class IrcBufferPrivate;
 
 class COMMUNI_EXPORT IrcBuffer : public QObject
@@ -34,7 +34,7 @@ class COMMUNI_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(QString prefix READ prefix CONSTANT)
     Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
     Q_PROPERTY(QString topic READ topic NOTIFY topicChanged)
-    Q_PROPERTY(IrcSession* session READ session CONSTANT)
+    Q_PROPERTY(IrcBufferModel* model READ model CONSTANT)
 
 public:
     explicit IrcBuffer(QObject* parent = 0);
@@ -49,7 +49,7 @@ public:
     QString mode() const;
     QString topic() const;
 
-    IrcSession* session() const;
+    IrcBufferModel* model() const;
 
 Q_SIGNALS:
     void titleChanged(const QString& title);

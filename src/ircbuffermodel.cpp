@@ -158,7 +158,7 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
     if (!buffer) {
         buffer = q->createBuffer(title);
         if (buffer) {
-            IrcBufferPrivate::get(buffer)->init(title, session);
+            IrcBufferPrivate::get(buffer)->init(title, q);
             q->beginInsertRows(QModelIndex(), bufferList.count(), bufferList.count());
             bufferList.append(buffer);
             bufferMap.insert(title, buffer);

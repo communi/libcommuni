@@ -15,7 +15,7 @@
 #include "ircbuffer.h"
 #include "ircbuffer_p.h"
 #include "ircusermodel.h"
-#include "ircsessioninfo.h"
+#include "ircbuffermodel.h"
 #include "ircsession.h"
 #include "ircuser_p.h"
 #include "ircsender.h"
@@ -84,13 +84,15 @@ static QString userName(const QString& name, const QStringList& prefixes)
 }
 
 IrcBufferPrivate::IrcBufferPrivate(IrcBuffer* q)
-    : q_ptr(q), session(0), type(Irc::Channel)
+    : q_ptr(q), model(0), type(Irc::Channel)
 {
 }
 
-void IrcBufferPrivate::init(const QString& title, IrcSession* s)
+void IrcBufferPrivate::init(const QString& title, IrcBufferModel* m)
 {
-    const QStringList chanTypes = IrcSessionInfo(s).channelTypes();
+    model = m;
+    info = IrcSessionInfo(model->session());
+    const QStringList chanTypes = info.channelTypes();
     if (chanTypes.contains(title.at(0))) {
         type = Irc::Channel;
         prefix = getPrefix(title, chanTypes);
@@ -98,9 +100,8 @@ void IrcBufferPrivate::init(const QString& title, IrcSession* s)
     } else {
         type = Irc::Query;
         prefix.clear();
-        setName(userName(title, IrcSessionInfo(s).prefixes()));
+        setName(userName(title, info.prefixes()));
     }
-    session = s;
 }
 
 void IrcBufferPrivate::changeMode(const QString& value)
@@ -156,12 +157,12 @@ void IrcBufferPrivate::setName(const QString& value)
 void IrcBufferPrivate::addUsers(const QStringList& names)
 {
     Q_Q(IrcBuffer);
-    IrcSessionInfo info(session);
     QHash<QString, QString> unique;
+    const QStringList prefixes = info.prefixes();
     foreach (const QString& name, names) {
-        QString unprefixed = userName(name, info.prefixes());
+        QString unprefixed = userName(name, prefixes);
         if (!userMap.contains(unprefixed))
-            unique.insert(unprefixed, getPrefix(name, info.prefixes()));
+            unique.insert(unprefixed, getPrefix(name, prefixes));
     }
 
     if (!unique.isEmpty()) {
@@ -250,7 +251,6 @@ void IrcBufferPrivate::setUserMode(const QString& name, const QString& command)
             bool add = true;
             QString mode = user->mode();
             QString prefix = user->prefix();
-            const IrcSessionInfo info(session);
             for (int i = 0; i < command.size(); ++i) {
                 QChar c = command.at(i);
                 if (c == QLatin1Char('+')) {
@@ -524,13 +524,13 @@ QString IrcBuffer::topic() const
 }
 
 /*!
-    This property holds the session of the buffer.
+    This property holds the model of the buffer.
 
     \par Access function:
-    \li \ref IrcSession* <b>session</b>() const
+    \li \ref IrcBufferModel* <b>model</b>() const
  */
-IrcSession* IrcBuffer::session() const
+IrcBufferModel* IrcBuffer::model() const
 {
     Q_D(const IrcBuffer);
-    return d->session;
+    return d->model;
 }
