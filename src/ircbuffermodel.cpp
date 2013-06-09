@@ -72,7 +72,7 @@ public:
 
     IrcBuffer* addBuffer(const QString& title);
     void removeBuffer(const QString& title);
-    bool processMessage(const QString& title, IrcMessage* message);
+    bool processMessage(const QString& title, IrcMessage* message, bool create = false);
 
     void _irc_bufferChanged();
     void _irc_bufferDestroyed(IrcBuffer* buffer);
@@ -116,7 +116,7 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
         case IrcMessage::Notice:
         case IrcMessage::Private:
             processed = processMessage(msg->property("target").toString(), msg)
-                     || processMessage(msg->sender().name(), msg);
+                     || processMessage(msg->sender().name(), msg, msg->type() == IrcMessage::Private);
             break;
 
         case IrcMessage::Numeric:
@@ -182,9 +182,11 @@ void IrcBufferModelPrivate::removeBuffer(const QString& title)
         q->destroyBuffer(buffer);
 }
 
-bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* message)
+bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* message, bool create)
 {
     IrcBuffer* buffer = bufferMap.value(title.toLower());
+    if (!buffer && create)
+        buffer = addBuffer(title);
     if (buffer)
         return IrcBufferPrivate::get(buffer)->processMessage(message);
     return false;
@@ -416,7 +418,8 @@ void IrcBufferModel::clear()
     Creates a buffer object with \a title.
 
     IrcBufferModel will automatically call this factory method when a
-    need for the buffer object occurs ie. a channel is being joined.
+    need for the buffer object occurs ie. a channel is being joined
+    or a private message is received.
 
     The default implementation creates a new instance of IrcBuffer.
     Reimplement this function in order to alter the default behavior,
