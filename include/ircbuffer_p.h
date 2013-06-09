@@ -12,10 +12,10 @@
 * License for more details.
 */
 
-#ifndef IRCCHANNEL_P_H
-#define IRCCHANNEL_P_H
+#ifndef IRCBUFFER_P_H
+#define IRCBUFFER_P_H
 
-#include "ircchannel.h"
+#include "ircbuffer.h"
 #include "ircmessage.h"
 #include <qstringlist.h>
 #include <qlist.h>
@@ -24,9 +24,9 @@
 class IrcUser;
 class IrcUserModel;
 
-class IrcChannelPrivate
+class IrcBufferPrivate
 {
-    Q_DECLARE_PUBLIC(IrcChannel)
+    Q_DECLARE_PUBLIC(IrcBuffer)
 
 public:
     void init(const QString& title, IrcSession* session);
@@ -56,12 +56,12 @@ public:
     bool processQuitMessage(IrcQuitMessage* message);
     bool processTopicMessage(IrcTopicMessage* message);
 
-    static IrcChannelPrivate* get(IrcChannel* channel)
+    static IrcBufferPrivate* get(IrcBuffer* buffer)
     {
-        return channel->d_func();
+        return buffer->d_func();
     }
 
-    IrcChannel* q_ptr;
+    IrcBuffer* q_ptr;
     IrcSession* session;
     QString name;
     QString prefix;
@@ -72,4 +72,4 @@ public:
     QList<IrcUserModel*> models;
 };
 
-#endif // IRCCHANNEL_P_H
+#endif // IRCBUFFER_P_H

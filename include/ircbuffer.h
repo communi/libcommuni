@@ -12,8 +12,8 @@
 * License for more details.
 */
 
-#ifndef IRCCHANNEL_H
-#define IRCCHANNEL_H
+#ifndef IRCBUFFER_H
+#define IRCBUFFER_H
 
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
@@ -22,9 +22,9 @@
 
 class IrcMessage;
 class IrcSession;
-class IrcChannelPrivate;
+class IrcBufferPrivate;
 
-class COMMUNI_EXPORT IrcChannel : public QObject
+class COMMUNI_EXPORT IrcBuffer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
@@ -35,8 +35,8 @@ class COMMUNI_EXPORT IrcChannel : public QObject
     Q_PROPERTY(IrcSession* session READ session CONSTANT)
 
 public:
-    explicit IrcChannel(QObject* parent = 0);
-    virtual ~IrcChannel();
+    explicit IrcBuffer(QObject* parent = 0);
+    virtual ~IrcBuffer();
 
     QString title() const;
     QString name() const;
@@ -52,16 +52,16 @@ Q_SIGNALS:
     void nameChanged(const QString& name);
     void modeChanged(const QString& mode);
     void topicChanged(const QString& topic);
-    void destroyed(IrcChannel* channel);
+    void destroyed(IrcBuffer* buffer);
     void messageReceived(IrcMessage* message);
 
 private:
-    QScopedPointer<IrcChannelPrivate> d_ptr;
-    Q_DECLARE_PRIVATE(IrcChannel)
-    Q_DISABLE_COPY(IrcChannel)
+    QScopedPointer<IrcBufferPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcBuffer)
+    Q_DISABLE_COPY(IrcBuffer)
 };
 
-Q_DECLARE_METATYPE(IrcChannel*)
-Q_DECLARE_METATYPE(QList<IrcChannel*>)
+Q_DECLARE_METATYPE(IrcBuffer*)
+Q_DECLARE_METATYPE(QList<IrcBuffer*>)
 
-#endif // IRCCHANNEL_H
+#endif // IRCBUFFER_H

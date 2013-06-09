@@ -12,43 +12,43 @@
 * License for more details.
 */
 
-#ifndef IRCCHANNELMODEL_H
-#define IRCCHANNELMODEL_H
+#ifndef IRCBUFFERMODEL_H
+#define IRCBUFFERMODEL_H
 
 #include <Irc>
 #include <IrcGlobal>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qabstractitemmodel.h>
 
+class IrcBuffer;
 class IrcSession;
 class IrcMessage;
-class IrcChannel;
-class IrcChannelModelPrivate;
+class IrcBufferModelPrivate;
 
-class COMMUNI_EXPORT IrcChannelModel : public QAbstractListModel
+class COMMUNI_EXPORT IrcBufferModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(QStringList titles READ titles NOTIFY titlesChanged)
     Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
-    Q_PROPERTY(QList<IrcChannel*> channels READ channels NOTIFY channelsChanged)
+    Q_PROPERTY(QList<IrcBuffer*> buffers READ buffers NOTIFY buffersChanged)
     Q_PROPERTY(IrcSession* session READ session WRITE setSession NOTIFY sessionChanged)
 
 public:
-    explicit IrcChannelModel(QObject* parent = 0);
-    virtual ~IrcChannelModel();
+    explicit IrcBufferModel(QObject* parent = 0);
+    virtual ~IrcBufferModel();
 
     IrcSession* session() const;
     void setSession(IrcSession* session);
 
     int count() const;
     QStringList titles() const;
-    QList<IrcChannel*> channels() const;
-    Q_INVOKABLE IrcChannel* get(int index) const;
-    Q_INVOKABLE IrcChannel* channel(const QString& title) const;
+    QList<IrcBuffer*> buffers() const;
+    Q_INVOKABLE IrcBuffer* get(int index) const;
+    Q_INVOKABLE IrcBuffer* buffer(const QString& title) const;
     Q_INVOKABLE bool contains(const QString& title) const;
-    Q_INVOKABLE IrcChannel* addChannel(const QString& title);
-    Q_INVOKABLE void removeChannel(const QString& title);
+    Q_INVOKABLE IrcBuffer* addBuffer(const QString& title);
+    Q_INVOKABLE void removeBuffer(const QString& title);
 
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
@@ -58,28 +58,28 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void countChanged(int count);
-    void channelAdded(IrcChannel* channel);
-    void channelRemoved(IrcChannel* channel);
+    void bufferAdded(IrcBuffer* buffer);
+    void bufferRemoved(IrcBuffer* buffer);
     void titlesChanged(const QStringList& titles);
-    void channelsChanged(const QList<IrcChannel*>& channels);
+    void buffersChanged(const QList<IrcBuffer*>& buffers);
     void sessionChanged(IrcSession* session);
     void messageIgnored(IrcMessage* message);
 
 protected:
-    virtual IrcChannel* createChannel(const QString& title);
-    virtual void destroyChannel(IrcChannel* channel);
+    virtual IrcBuffer* createBuffer(const QString& title);
+    virtual void destroyBuffer(IrcBuffer* buffer);
 
     QHash<int, QByteArray> roleNames() const;
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
 private:
-    QScopedPointer<IrcChannelModelPrivate> d_ptr;
-    Q_DECLARE_PRIVATE(IrcChannelModel)
-    Q_DISABLE_COPY(IrcChannelModel)
+    QScopedPointer<IrcBufferModelPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcBufferModel)
+    Q_DISABLE_COPY(IrcBufferModel)
 
-    Q_PRIVATE_SLOT(d_func(), void _irc_channelChanged())
-    Q_PRIVATE_SLOT(d_func(), void _irc_channelDestroyed(IrcChannel*))
+    Q_PRIVATE_SLOT(d_func(), void _irc_bufferChanged())
+    Q_PRIVATE_SLOT(d_func(), void _irc_bufferDestroyed(IrcBuffer*))
 };
 
-#endif // IRCCHANNELMODEL_H
+#endif // IRCBUFFERMODEL_H

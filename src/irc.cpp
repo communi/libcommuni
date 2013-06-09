@@ -61,34 +61,34 @@
 
     \section chanmodel Channels
 
-    In order to keep track of channels, create an instance of IrcChannelModel
-    and it will notify via signals when channels are added and/or removed.
-    You can also use IrcChannelModel directly as a data model for Qt's item
-    views - both in C++ and QML.
+    In order to keep track of channels, create an instance of IrcBufferModel
+    and it will notify via signals when channel and query buffers are added
+    and/or removed. You can also use IrcBufferModel directly as a data model
+    for Qt's item views - both in C++ and QML.
 
     \code
     IrcSession* session = new IrcSession(this);
-    IrcChannelModel* model = new IrcChannelModel(session);
-    connect(model, SIGNAL(channelAdded(IrcChannel*)), this, SLOT(onChannelAdded(IrcChannel*)));
-    connect(model, SIGNAL(channelRemoved(IrcChannel*)), this, SLOT(onChannelRemoved(IrcChannel*)));
-    channelListView->setModel(model);
+    IrcBufferModel* model = new IrcBufferModel(session);
+    connect(model, SIGNAL(bufferAdded(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
+    connect(model, SIGNAL(bufferRemoved(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
+    listView->setModel(model);
     \endcode
 
     \section usermodel Channel users
 
     In order to keep track of channel users, use an instance of IrcUserModel
-    provided by IrcChannel. It will notify via signals when users are added
+    provided by IrcBuffer. It will notify via signals when users are added
     and/or removed. You can also use IrcUserModel directly as a data model
     for Qt's item views - both in C++ and QML.
 
     \code
-    void ChatView::onChannelAdded(IrcChannel* channel)
+    void ChatView::onBufferAdded(IrcBuffer* buffer)
     {
-        IrcUserModel* model = channel->model();
+        IrcUserModel* model = new IrcUserModel(buffer);
         connect(model, SIGNAL(userAdded(IrcUser*)), this, SLOT(onUserAdded(IrcUser*)));
         connect(model, SIGNAL(userRemoved(IrcUser*)), this, SLOT(onUserRemoved(IrcUser*)));
         nickCompleter->setModel(model);
-        userListView->setModel(model->proxy());
+        userListView->setModel(model);
     }
     \endcode
  */
@@ -1902,7 +1902,7 @@ const char* Irc::toString(int code)
     \enum Irc::ItemDataRole
     This enum describes the available item data roles.
 
-    \sa IrcChannelModel, IrcUserModel
+    \sa IrcBufferModel, IrcUserModel
  */
 
 /*!
@@ -1911,8 +1911,8 @@ const char* Irc::toString(int code)
  */
 
 /*!
-    \var Irc::ChannelRole
-    \brief Channel object (IrcChannel*)
+    \var Irc::BufferRole
+    \brief Buffer object (IrcBuffer*)
  */
 
 /*!

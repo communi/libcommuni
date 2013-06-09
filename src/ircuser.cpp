@@ -33,7 +33,7 @@
 /*!
     \fn void IrcUser::messageReceived(IrcMessage* message)
 
-    This signal is emitted when a user specific channel message is received.
+    This signal is emitted when a user specific buffer message is received.
 
     The message may one of the following types:
     - IrcMessage::Join
@@ -45,7 +45,7 @@
     - IrcMessage::Private
     - IrcMessage::Quit
 
-    \sa IrcSession::messageReceived(), IrcChannel::messageReceived(), IrcChannelModel::messageIgnored()
+    \sa IrcSession::messageReceived(), IrcBuffer::messageReceived(), IrcBufferModel::messageIgnored()
  */
 
 void IrcUserPrivate::setName(const QString& n)

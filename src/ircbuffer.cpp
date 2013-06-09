@@ -12,8 +12,8 @@
 * License for more details.
 */
 
-#include "ircchannel.h"
-#include "ircchannel_p.h"
+#include "ircbuffer.h"
+#include "ircbuffer_p.h"
 #include "ircusermodel.h"
 #include "ircsessioninfo.h"
 #include "ircsession.h"
@@ -21,24 +21,24 @@
 #include "ircsender.h"
 
 /*!
-    \file ircchannel.h
-    \brief #include &lt;IrcChannel&gt;
+    \file ircbuffer.h
+    \brief #include &lt;IrcBuffer&gt;
  */
 
 /*!
-    \class IrcChannel ircchannel.h <IrcChannel>
+    \class IrcBuffer ircbuffer.h <IrcBuffer>
     \ingroup models
-    \brief Keeps track of channel status.
+    \brief Keeps track of buffer status.
 
-    \note IrcChannel does not work on its own. Use an instance managed by IrcChannelModel.
+    \note IrcBuffer does not work on its own. Use an instance managed by IrcBufferModel.
 
     \sa models
 */
 
 /*!
-    \fn void IrcChannel::messageReceived(IrcMessage* message)
+    \fn void IrcBuffer::messageReceived(IrcMessage* message)
 
-    This signal is emitted when a channel specific message is received.
+    This signal is emitted when a buffer specific message is received.
 
     The message may one of the following types:
     - IrcMessage::Join
@@ -53,7 +53,7 @@
     - IrcMessage::Quit
     - IrcMessage::Topic
 
-    \sa IrcSession::messageReceived(), IrcUser::messageReceived(), IrcChannelModel::messageIgnored()
+    \sa IrcSession::messageReceived(), IrcUser::messageReceived(), IrcBufferModel::messageIgnored()
  */
 
 static QString getPrefix(const QString& name, const QStringList& prefixes)
@@ -83,7 +83,7 @@ static QString userName(const QString& name, const QStringList& prefixes)
     return copy;
 }
 
-void IrcChannelPrivate::init(const QString& title, IrcSession* s)
+void IrcBufferPrivate::init(const QString& title, IrcSession* s)
 {
     const QStringList chanTypes = IrcSessionInfo(s).channelTypes();
     bool chan = !title.isEmpty() && chanTypes.contains(title.at(0));
@@ -98,7 +98,7 @@ void IrcChannelPrivate::init(const QString& title, IrcSession* s)
     session = s;
 }
 
-void IrcChannelPrivate::changeMode(const QString& value)
+void IrcBufferPrivate::changeMode(const QString& value)
 {
     QString copy = mode;
     bool add = true;
@@ -120,27 +120,27 @@ void IrcChannelPrivate::changeMode(const QString& value)
     setMode(copy);
 }
 
-void IrcChannelPrivate::setMode(const QString& value)
+void IrcBufferPrivate::setMode(const QString& value)
 {
-    Q_Q(IrcChannel);
+    Q_Q(IrcBuffer);
     if (mode != value) {
         mode = value;
         emit q->modeChanged(mode);
     }
 }
 
-void IrcChannelPrivate::setTopic(const QString& value)
+void IrcBufferPrivate::setTopic(const QString& value)
 {
-    Q_Q(IrcChannel);
+    Q_Q(IrcBuffer);
     if (topic != value) {
         topic = value;
         emit q->topicChanged(topic);
     }
 }
 
-void IrcChannelPrivate::setName(const QString& value)
+void IrcBufferPrivate::setName(const QString& value)
 {
-    Q_Q(IrcChannel);
+    Q_Q(IrcBuffer);
     if (name != value) {
         name = value;
         emit q->nameChanged(name);
@@ -148,9 +148,9 @@ void IrcChannelPrivate::setName(const QString& value)
     }
 }
 
-void IrcChannelPrivate::addUsers(const QStringList& names, IrcMessage* message)
+void IrcBufferPrivate::addUsers(const QStringList& names, IrcMessage* message)
 {
-    Q_Q(IrcChannel);
+    Q_Q(IrcBuffer);
     IrcSessionInfo info(session);
     QHash<QString, QString> unique;
     foreach (const QString& name, names) {
@@ -191,7 +191,7 @@ void IrcChannelPrivate::addUsers(const QStringList& names, IrcMessage* message)
     }
 }
 
-bool IrcChannelPrivate::removeUser(const QString& name, IrcMessage* message)
+bool IrcBufferPrivate::removeUser(const QString& name, IrcMessage* message)
 {
     if (IrcUser* user = userMap.value(name)) {
         int idx = userList.indexOf(user);
@@ -220,7 +220,7 @@ bool IrcChannelPrivate::removeUser(const QString& name, IrcMessage* message)
     return false;
 }
 
-bool IrcChannelPrivate::renameUser(const QString& from, const QString& to, IrcMessage* message)
+bool IrcBufferPrivate::renameUser(const QString& from, const QString& to, IrcMessage* message)
 {
     if (IrcUser* user = userMap.take(from)) {
         IrcUserPrivate::get(user)->setName(to);
@@ -242,7 +242,7 @@ bool IrcChannelPrivate::renameUser(const QString& from, const QString& to, IrcMe
     return false;
 }
 
-void IrcChannelPrivate::setUserMode(const QString& name, const QString& command, IrcMessage* message)
+void IrcBufferPrivate::setUserMode(const QString& name, const QString& command, IrcMessage* message)
 {
     if (IrcUser* user = userMap.value(name)) {
         int idx = userList.indexOf(user);
@@ -283,7 +283,7 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command,
     }
 }
 
-void IrcChannelPrivate::clearUsers()
+void IrcBufferPrivate::clearUsers()
 {
     if (!userList.isEmpty()) {
         foreach (IrcUserModel* model, models)
@@ -303,9 +303,9 @@ void IrcChannelPrivate::clearUsers()
     }
 }
 
-bool IrcChannelPrivate::processMessage(IrcMessage* message)
+bool IrcBufferPrivate::processMessage(IrcMessage* message)
 {
-    Q_Q(IrcChannel);
+    Q_Q(IrcBuffer);
     bool processed = false;
     switch (message->type()) {
     case IrcMessage::Join:
@@ -349,7 +349,7 @@ bool IrcChannelPrivate::processMessage(IrcMessage* message)
     return processed;
 }
 
-bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
+bool IrcBufferPrivate::processJoinMessage(IrcJoinMessage* message)
 {
     if (message->flags() & IrcMessage::Own)
         clearUsers();
@@ -358,7 +358,7 @@ bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
     return true;
 }
 
-bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
+bool IrcBufferPrivate::processKickMessage(IrcKickMessage* message)
 {
     if (!message->user().compare(message->session()->nickName(), Qt::CaseInsensitive)) {
         clearUsers();
@@ -367,7 +367,7 @@ bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
     return removeUser(message->user(), message);
 }
 
-bool IrcChannelPrivate::processModeMessage(IrcModeMessage* message)
+bool IrcBufferPrivate::processModeMessage(IrcModeMessage* message)
 {
     if (message->kind() == IrcModeMessage::Channel) {
         if (message->isReply())
@@ -381,13 +381,13 @@ bool IrcChannelPrivate::processModeMessage(IrcModeMessage* message)
     return true;
 }
 
-bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
+bool IrcBufferPrivate::processNamesMessage(IrcNamesMessage* message)
 {
     addUsers(message->names());
     return true;
 }
 
-bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
+bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
 {
     if (!message->sender().name().compare(name, Qt::CaseInsensitive)) {
         setName(message->nick());
@@ -396,7 +396,7 @@ bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
     return renameUser(message->sender().name(), message->nick(), message);
 }
 
-bool IrcChannelPrivate::processNoticeMessage(IrcNoticeMessage* message)
+bool IrcBufferPrivate::processNoticeMessage(IrcNoticeMessage* message)
 {
     IrcUser* user = userMap.value(message->sender().name());
     if (user)
@@ -404,13 +404,13 @@ bool IrcChannelPrivate::processNoticeMessage(IrcNoticeMessage* message)
     return true;
 }
 
-bool IrcChannelPrivate::processNumericMessage(IrcNumericMessage* message)
+bool IrcBufferPrivate::processNumericMessage(IrcNumericMessage* message)
 {
     Q_UNUSED(message);
     return true;
 }
 
-bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
+bool IrcBufferPrivate::processPartMessage(IrcPartMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
         clearUsers();
@@ -419,7 +419,7 @@ bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
     return removeUser(message->sender().name(), message);
 }
 
-bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
+bool IrcBufferPrivate::processPrivateMessage(IrcPrivateMessage* message)
 {
     IrcUser* user = userMap.value(message->sender().name());
     if (user)
@@ -427,7 +427,7 @@ bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
     return true;
 }
 
-bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
+bool IrcBufferPrivate::processQuitMessage(IrcQuitMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
         clearUsers();
@@ -437,35 +437,35 @@ bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
            || !message->sender().name().compare(name, Qt::CaseInsensitive);
 }
 
-bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
+bool IrcBufferPrivate::processTopicMessage(IrcTopicMessage* message)
 {
     setTopic(message->topic());
     return true;
 }
 
 /*!
-    Constructs a new channel object with \a parent.
+    Constructs a new buffer object with \a parent.
 
-    \note IrcChannel does not work on its own. Use an instance managed by IrcChannelModel.
+    \note IrcBuffer does not work on its own. Use an instance managed by IrcBufferModel.
 
-    \sa IrcChannelModel::channelAdded()
+    \sa IrcBufferModel::bufferAdded()
  */
-IrcChannel::IrcChannel(QObject* parent)
-    : QObject(parent), d_ptr(new IrcChannelPrivate)
+IrcBuffer::IrcBuffer(QObject* parent)
+    : QObject(parent), d_ptr(new IrcBufferPrivate)
 {
-    Q_D(IrcChannel);
+    Q_D(IrcBuffer);
     d->q_ptr = this;
     d->session = 0;
 }
 
 /*!
-    Destructs the channel object.
+    Destructs the buffer object.
 
-    \sa IrcChannelModel::channelRemoved()
+    \sa IrcBufferModel::bufferRemoved()
  */
-IrcChannel::~IrcChannel()
+IrcBuffer::~IrcBuffer()
 {
-    Q_D(IrcChannel);
+    Q_D(IrcBuffer);
     qDeleteAll(d->userList);
     d->userList.clear();
     d->userMap.clear();
@@ -475,45 +475,45 @@ IrcChannel::~IrcChannel()
 }
 
 /*!
-    This property holds the channel title.
+    This property holds the buffer title.
 
     The title consists of prefix and name.
 
     \par Access function:
     \li QString <b>title</b>() const
  */
-QString IrcChannel::title() const
+QString IrcBuffer::title() const
 {
-    Q_D(const IrcChannel);
+    Q_D(const IrcBuffer);
     return d->prefix + d->name;
 }
 
 /*!
-    This property holds the channel name.
+    This property holds the buffer name.
 
     \par Access function:
     \li QString <b>name</b>() const
  */
-QString IrcChannel::name() const
+QString IrcBuffer::name() const
 {
-    Q_D(const IrcChannel);
+    Q_D(const IrcBuffer);
     return d->name;
 }
 
 /*!
-    This property holds the channel prefix.
+    This property holds the buffer prefix.
 
     \par Access function:
     \li QString <b>prefix</b>() const
  */
-QString IrcChannel::prefix() const
+QString IrcBuffer::prefix() const
 {
-    Q_D(const IrcChannel);
+    Q_D(const IrcBuffer);
     return d->prefix;
 }
 
 /*!
-    This property holds the channel mode.
+    This property holds the buffer mode.
 
     \par Access function:
     \li QString <b>mode</b>() const
@@ -521,14 +521,14 @@ QString IrcChannel::prefix() const
     \par Notifier signal:
     \li void <b>modeChanged</b>(const QString& mode)
  */
-QString IrcChannel::mode() const
+QString IrcBuffer::mode() const
 {
-    Q_D(const IrcChannel);
+    Q_D(const IrcBuffer);
     return d->mode;
 }
 
 /*!
-    This property holds the channel topic.
+    This property holds the buffer topic.
 
     \par Access function:
     \li QString <b>topic</b>() const
@@ -536,20 +536,20 @@ QString IrcChannel::mode() const
     \par Notifier signal:
     \li void <b>topicChanged</b>(const QString& topic)
  */
-QString IrcChannel::topic() const
+QString IrcBuffer::topic() const
 {
-    Q_D(const IrcChannel);
+    Q_D(const IrcBuffer);
     return d->topic;
 }
 
 /*!
-    This property holds the session of the channel.
+    This property holds the session of the buffer.
 
     \par Access function:
     \li \ref IrcSession* <b>session</b>() const
  */
-IrcSession* IrcChannel::session() const
+IrcSession* IrcBuffer::session() const
 {
-    Q_D(const IrcChannel);
+    Q_D(const IrcBuffer);
     return d->session;
 }

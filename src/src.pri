@@ -9,8 +9,8 @@ DEPENDPATH += $$PWD $$PWD/../include
 INCLUDEPATH += $$PWD $$PWD/../include
 
 CONV_HEADERS += $$PWD/../include/Irc
-CONV_HEADERS += $$PWD/../include/IrcChannel
-CONV_HEADERS += $$PWD/../include/IrcChannelModel
+CONV_HEADERS += $$PWD/../include/IrcBuffer
+CONV_HEADERS += $$PWD/../include/IrcBufferModel
 CONV_HEADERS += $$PWD/../include/IrcCommand
 CONV_HEADERS += $$PWD/../include/IrcCommandParser
 CONV_HEADERS += $$PWD/../include/IrcGlobal
@@ -26,8 +26,8 @@ CONV_HEADERS += $$PWD/../include/IrcUser
 CONV_HEADERS += $$PWD/../include/IrcUserModel
 
 PUB_HEADERS += $$PWD/../include/irc.h
-PUB_HEADERS += $$PWD/../include/ircchannel.h
-PUB_HEADERS += $$PWD/../include/ircchannelmodel.h
+PUB_HEADERS += $$PWD/../include/ircbuffer.h
+PUB_HEADERS += $$PWD/../include/ircbuffermodel.h
 PUB_HEADERS += $$PWD/../include/irccommand.h
 PUB_HEADERS += $$PWD/../include/irccommandparser.h
 PUB_HEADERS += $$PWD/../include/ircglobal.h
@@ -43,7 +43,7 @@ PUB_HEADERS += $$PWD/../include/irctextformat.h
 PUB_HEADERS += $$PWD/../include/ircuser.h
 PUB_HEADERS += $$PWD/../include/ircusermodel.h
 
-PRIV_HEADERS += $$PWD/../include/ircchannel_p.h
+PRIV_HEADERS += $$PWD/../include/ircbuffer_p.h
 PRIV_HEADERS += $$PWD/../include/ircmessage_p.h
 PRIV_HEADERS += $$PWD/../include/ircmessagebuilder_p.h
 PRIV_HEADERS += $$PWD/../include/ircmessagedecoder_p.h
@@ -55,8 +55,8 @@ HEADERS += $$PUB_HEADERS
 HEADERS += $$PRIV_HEADERS
 
 SOURCES += $$PWD/irc.cpp
-SOURCES += $$PWD/ircchannel.cpp
-SOURCES += $$PWD/ircchannelmodel.cpp
+SOURCES += $$PWD/ircbuffer.cpp
+SOURCES += $$PWD/ircbuffermodel.cpp
 SOURCES += $$PWD/irccommand.cpp
 SOURCES += $$PWD/irccommandparser.cpp
 SOURCES += $$PWD/irclagtimer.cpp
