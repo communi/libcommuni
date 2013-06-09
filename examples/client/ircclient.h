@@ -40,6 +40,7 @@ private slots:
     void onConnecting();
     void onDisconnected();
 
+    void onTextEdited();
     void onTextEntered();
 
     void onBufferAdded(IrcBuffer* buffer);

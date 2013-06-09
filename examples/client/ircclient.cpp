@@ -68,9 +68,16 @@ void IrcClient::onDisconnected()
     textEdit->append(IrcMessageFormatter::formatMessage("! Disconnected from %1.").arg(SERVER));
 }
 
+void IrcClient::onTextEdited()
+{
+    // clear the possible error indication
+    lineEdit->setStyleSheet(QString());
+}
+
 void IrcClient::onTextEntered()
 {
-    IrcCommand* command = parser->parse(lineEdit->text());
+    QString input = lineEdit->text();
+    IrcCommand* command = parser->parse(input);
     if (command) {
         session->sendCommand(command);
 
@@ -82,6 +89,15 @@ void IrcClient::onTextEntered()
         }
 
         lineEdit->clear();
+    } else if (input.length() > 1) {
+        QString error;
+        QString command = lineEdit->text().mid(1).split(" ", QString::SkipEmptyParts).value(0).toUpper();
+        if (parser->commands().contains(command))
+            error = tr("[ERROR] Syntax: %1").arg(parser->syntax(command).replace("<", "&lt;").replace(">", "&gt;"));
+        else
+            error = tr("[ERROR] Unknown command: %1").arg(command);
+        textEdit->append(IrcMessageFormatter::formatMessage(error));
+        lineEdit->setStyleSheet("background: salmon");
     }
 }
 
@@ -221,6 +237,7 @@ void IrcClient::createUi()
     lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     textEdit->setFocusProxy(lineEdit);
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(onTextEntered()));
+    connect(lineEdit, SIGNAL(textEdited(QString)), this, SLOT(onTextEdited()));
 
     // nick name completion
     completer = new QCompleter(lineEdit);
@@ -272,7 +289,6 @@ void IrcClient::createParser()
     // onBufferAdded(), onBufferRemoved() and onBufferActivated()
 
     parser = new IrcCommandParser(this);
-    parser->setPrefix("/");
     parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
     parser->addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
     parser->addCommand(IrcCommand::Nick, "NICK <nick>");

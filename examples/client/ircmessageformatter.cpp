@@ -51,6 +51,8 @@ QString IrcMessageFormatter::formatMessage(const QString& message)
             formatted = QObject::tr("<font color='gray'>%1</font>").arg(formatted);
         else if (message.startsWith("*"))
             formatted = QObject::tr("<font color='maroon'>%1</font>").arg(formatted);
+        else if (message.startsWith("["))
+            formatted = QObject::tr("<font color='indianred'>%1</font>").arg(formatted);
         return formatted;
     }
     return QString();
