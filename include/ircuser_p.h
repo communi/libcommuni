@@ -26,8 +26,6 @@ public:
     void setPrefix(const QString& p);
     void setMode(const QString& m);
 
-    void receiveMessage(IrcMessage* message);
-
     static IrcUserPrivate* get(IrcUser* user)
     {
         return user->d_func();

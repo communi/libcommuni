@@ -42,7 +42,6 @@ Q_SIGNALS:
     void nameChanged(const QString& name);
     void prefixChanged(const QString& prefix);
     void modeChanged(const QString& mode);
-    void messageReceived(IrcMessage* message);
 
 private:
     QScopedPointer<IrcUserPrivate> d_ptr;

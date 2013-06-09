@@ -148,7 +148,7 @@ void IrcBufferPrivate::setName(const QString& value)
     }
 }
 
-void IrcBufferPrivate::addUsers(const QStringList& names, IrcMessage* message)
+void IrcBufferPrivate::addUsers(const QStringList& names)
 {
     Q_Q(IrcBuffer);
     IrcSessionInfo info(session);
@@ -174,8 +174,6 @@ void IrcBufferPrivate::addUsers(const QStringList& names, IrcMessage* message)
             userMap.insert(user->name(), user);
             foreach (IrcUserModel* model, models)
                 emit model->userAdded(user);
-            if (message)
-                priv->receiveMessage(message);
             ++it;
         }
 
@@ -191,13 +189,11 @@ void IrcBufferPrivate::addUsers(const QStringList& names, IrcMessage* message)
     }
 }
 
-bool IrcBufferPrivate::removeUser(const QString& name, IrcMessage* message)
+bool IrcBufferPrivate::removeUser(const QString& name)
 {
     if (IrcUser* user = userMap.value(name)) {
         int idx = userList.indexOf(user);
         if (idx != -1) {
-            IrcUserPrivate::get(user)->receiveMessage(message);
-
             foreach (IrcUserModel* model, models)
                 model->beginRemoveRows(QModelIndex(), idx, idx);
 
@@ -220,14 +216,13 @@ bool IrcBufferPrivate::removeUser(const QString& name, IrcMessage* message)
     return false;
 }
 
-bool IrcBufferPrivate::renameUser(const QString& from, const QString& to, IrcMessage* message)
+bool IrcBufferPrivate::renameUser(const QString& from, const QString& to)
 {
     if (IrcUser* user = userMap.take(from)) {
         IrcUserPrivate::get(user)->setName(to);
         int idx = userList.indexOf(user);
         if (idx != -1) {
             userMap.insert(to, user);
-            IrcUserPrivate::get(user)->receiveMessage(message);
 
             const QStringList names = userMap.keys();
             foreach (IrcUserModel* model, models) {
@@ -242,13 +237,11 @@ bool IrcBufferPrivate::renameUser(const QString& from, const QString& to, IrcMes
     return false;
 }
 
-void IrcBufferPrivate::setUserMode(const QString& name, const QString& command, IrcMessage* message)
+void IrcBufferPrivate::setUserMode(const QString& name, const QString& command)
 {
     if (IrcUser* user = userMap.value(name)) {
         int idx = userList.indexOf(user);
         if (idx != -1) {
-            IrcUserPrivate::get(user)->receiveMessage(message);
-
             bool add = true;
             QString mode = user->mode();
             QString prefix = user->prefix();
@@ -354,7 +347,7 @@ bool IrcBufferPrivate::processJoinMessage(IrcJoinMessage* message)
     if (message->flags() & IrcMessage::Own)
         clearUsers();
     else
-        addUsers(QStringList() << message->sender().name(), message);
+        addUsers(QStringList() << message->sender().name());
     return true;
 }
 
@@ -364,7 +357,7 @@ bool IrcBufferPrivate::processKickMessage(IrcKickMessage* message)
         clearUsers();
         return true;
     }
-    return removeUser(message->user(), message);
+    return removeUser(message->user());
 }
 
 bool IrcBufferPrivate::processModeMessage(IrcModeMessage* message)
@@ -376,7 +369,7 @@ bool IrcBufferPrivate::processModeMessage(IrcModeMessage* message)
             changeMode(message->mode());
         return true;
     } else if (!message->argument().isEmpty()) {
-        setUserMode(message->argument(), message->mode(), message);
+        setUserMode(message->argument(), message->mode());
     }
     return true;
 }
@@ -393,14 +386,12 @@ bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
         setName(message->nick());
         return true;
     }
-    return renameUser(message->sender().name(), message->nick(), message);
+    return renameUser(message->sender().name(), message->nick());
 }
 
 bool IrcBufferPrivate::processNoticeMessage(IrcNoticeMessage* message)
 {
-    IrcUser* user = userMap.value(message->sender().name());
-    if (user)
-        IrcUserPrivate::get(user)->receiveMessage(message);
+    Q_UNUSED(message);
     return true;
 }
 
@@ -416,14 +407,12 @@ bool IrcBufferPrivate::processPartMessage(IrcPartMessage* message)
         clearUsers();
         return true;
     }
-    return removeUser(message->sender().name(), message);
+    return removeUser(message->sender().name());
 }
 
 bool IrcBufferPrivate::processPrivateMessage(IrcPrivateMessage* message)
 {
-    IrcUser* user = userMap.value(message->sender().name());
-    if (user)
-        IrcUserPrivate::get(user)->receiveMessage(message);
+    Q_UNUSED(message);
     return true;
 }
 
@@ -433,7 +422,7 @@ bool IrcBufferPrivate::processQuitMessage(IrcQuitMessage* message)
         clearUsers();
         return true;
     }
-    return removeUser(message->sender().name(), message)
+    return removeUser(message->sender().name())
            || !message->sender().name().compare(name, Qt::CaseInsensitive);
 }
 
