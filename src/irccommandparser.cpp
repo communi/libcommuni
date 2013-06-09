@@ -362,7 +362,7 @@ void IrcCommandParser::setPrefix(const QString& prefix)
 
 static bool isMessage(const QString& input, const QString& prefix)
 {
-    if (prefix.isEmpty())
+    if (prefix.isEmpty() || input.isEmpty())
         return false;
 
     return !input.startsWith(prefix) || input.startsWith(prefix.repeated(2)) || input.startsWith(prefix + QLatin1Char(' '));
