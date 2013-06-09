@@ -83,15 +83,20 @@ static QString userName(const QString& name, const QStringList& prefixes)
     return copy;
 }
 
+IrcBufferPrivate::IrcBufferPrivate(IrcBuffer* q)
+    : q_ptr(q), session(0), type(Irc::Channel)
+{
+}
+
 void IrcBufferPrivate::init(const QString& title, IrcSession* s)
 {
     const QStringList chanTypes = IrcSessionInfo(s).channelTypes();
-    bool chan = !title.isEmpty() && chanTypes.contains(title.at(0));
-    // TODO: expose as a property?
-    if (chan) {
+    if (chanTypes.contains(title.at(0))) {
+        type = Irc::Channel;
         prefix = getPrefix(title, chanTypes);
         name = channelName(title, chanTypes);
     } else {
+        type = Irc::Query;
         prefix.clear();
         setName(userName(title, IrcSessionInfo(s).prefixes()));
     }
@@ -418,11 +423,8 @@ bool IrcBufferPrivate::processTopicMessage(IrcTopicMessage* message)
     \sa IrcBufferModel::bufferAdded()
  */
 IrcBuffer::IrcBuffer(QObject* parent)
-    : QObject(parent), d_ptr(new IrcBufferPrivate)
+    : QObject(parent), d_ptr(new IrcBufferPrivate(this))
 {
-    Q_D(IrcBuffer);
-    d->q_ptr = this;
-    d->session = 0;
 }
 
 /*!
@@ -439,6 +441,18 @@ IrcBuffer::~IrcBuffer()
     d->models.clear();
 
     emit destroyed(this);
+}
+
+/*!
+    This property holds the buffer type.
+
+    \par Access function:
+    \li Irc::BufferType <b>type</b>() const
+ */
+Irc::BufferType IrcBuffer::type() const
+{
+    Q_D(const IrcBuffer);
+    return d->type;
 }
 
 /*!

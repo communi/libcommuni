@@ -1934,3 +1934,20 @@ const char* Irc::toString(int code)
     \var Irc::TitleRole
     \brief Channel/user prefix and name (QString)
  */
+
+/*!
+    \enum Irc::BufferType
+    This enum describes the available buffer types.
+
+    \sa IrcBuffer
+ */
+
+/*!
+    \var Irc::Channel
+    \brief A channel buffer
+ */
+
+/*!
+    \var Irc::Query
+    \brief A query buffer
+ */

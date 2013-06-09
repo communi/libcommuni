@@ -15,6 +15,7 @@
 #ifndef IRCBUFFER_H
 #define IRCBUFFER_H
 
+#include <Irc>
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
 #include <QtCore/qmetatype.h>
@@ -27,6 +28,7 @@ class IrcBufferPrivate;
 class COMMUNI_EXPORT IrcBuffer : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(Irc::BufferType type READ type CONSTANT)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString prefix READ prefix CONSTANT)
@@ -37,6 +39,8 @@ class COMMUNI_EXPORT IrcBuffer : public QObject
 public:
     explicit IrcBuffer(QObject* parent = 0);
     virtual ~IrcBuffer();
+
+    Irc::BufferType type() const;
 
     QString title() const;
     QString name() const;

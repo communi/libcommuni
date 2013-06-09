@@ -21,7 +21,7 @@
 class COMMUNI_EXPORT Irc : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Code ItemDataRole)
+    Q_ENUMS(Code ItemDataRole BufferType)
 
 public:
     Q_INVOKABLE static const char* version();
@@ -477,6 +477,11 @@ public:
         PrefixRole,
         ModeRole,
         TitleRole
+    };
+
+    enum BufferType {
+        Channel,
+        Query
     };
 };
 

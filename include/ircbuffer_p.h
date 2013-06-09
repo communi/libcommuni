@@ -29,6 +29,8 @@ class IrcBufferPrivate
     Q_DECLARE_PUBLIC(IrcBuffer)
 
 public:
+    IrcBufferPrivate(IrcBuffer* q);
+
     void init(const QString& title, IrcSession* session);
 
     void changeMode(const QString& value);
@@ -49,10 +51,7 @@ public:
     bool processModeMessage(IrcModeMessage* message);
     bool processNamesMessage(IrcNamesMessage* message);
     bool processNickMessage(IrcNickMessage* message);
-    bool processNoticeMessage(IrcNoticeMessage* message);
-    bool processNumericMessage(IrcNumericMessage* message);
     bool processPartMessage(IrcPartMessage* message);
-    bool processPrivateMessage(IrcPrivateMessage* message);
     bool processQuitMessage(IrcQuitMessage* message);
     bool processTopicMessage(IrcTopicMessage* message);
 
@@ -63,6 +62,7 @@ public:
 
     IrcBuffer* q_ptr;
     IrcSession* session;
+    Irc::BufferType type;
     QString name;
     QString prefix;
     QString mode;
