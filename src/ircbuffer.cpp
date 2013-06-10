@@ -541,3 +541,22 @@ IrcBufferModel* IrcBuffer::model() const
     Q_D(const IrcBuffer);
     return d->model;
 }
+
+/*!
+    Sends a \a command to the server.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    IrcSession* session = buffer->model()->session();
+    session->sendCommand(command);
+    \endcode
+
+    \sa IrcSession::sendCommand()
+ */
+bool IrcBuffer::sendCommand(IrcCommand* command)
+{
+    Q_D(IrcBuffer);
+    if (d->model && d->model->session())
+        return d->model->session()->sendCommand(command);
+    return false;
+}

@@ -21,6 +21,7 @@
 #include <QtCore/qmetatype.h>
 #include <QtCore/qscopedpointer.h>
 
+class IrcCommand;
 class IrcMessage;
 class IrcBufferModel;
 class IrcBufferPrivate;
@@ -50,6 +51,8 @@ public:
     QString topic() const;
 
     IrcBufferModel* model() const;
+
+    Q_INVOKABLE bool sendCommand(IrcCommand* command);
 
 Q_SIGNALS:
     void titleChanged(const QString& title);
