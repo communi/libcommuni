@@ -94,7 +94,7 @@ void IrcBufferPrivate::init(const QString& title, IrcBufferModel* m)
     model = m;
     info = IrcSessionInfo(model->session());
     const QStringList chanTypes = info.channelTypes();
-    if (chanTypes.contains(title.at(0))) {
+    if (!title.isEmpty() && chanTypes.contains(title.at(0))) {
         type = Irc::Channel;
         prefix = getPrefix(title, chanTypes);
         name = channelName(title, chanTypes);
