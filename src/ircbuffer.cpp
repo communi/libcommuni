@@ -531,6 +531,18 @@ QString IrcBuffer::topic() const
 }
 
 /*!
+    This property holds the session of the buffer.
+
+    \par Access function:
+    \li \ref IrcSession* <b>session</b>() const
+ */
+IrcSession* IrcBuffer::session() const
+{
+    Q_D(const IrcBuffer);
+    return d->model->session();
+}
+
+/*!
     This property holds the model of the buffer.
 
     \par Access function:

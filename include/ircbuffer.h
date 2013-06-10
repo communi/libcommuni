@@ -23,6 +23,7 @@
 
 class IrcCommand;
 class IrcMessage;
+class IrcSession;
 class IrcBufferModel;
 class IrcBufferPrivate;
 
@@ -35,6 +36,7 @@ class COMMUNI_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(QString prefix READ prefix CONSTANT)
     Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
     Q_PROPERTY(QString topic READ topic NOTIFY topicChanged)
+    Q_PROPERTY(IrcSession* session READ session CONSTANT)
     Q_PROPERTY(IrcBufferModel* model READ model CONSTANT)
 
 public:
@@ -50,6 +52,7 @@ public:
     QString mode() const;
     QString topic() const;
 
+    IrcSession* session() const;
     IrcBufferModel* model() const;
 
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
