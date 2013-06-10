@@ -25,11 +25,26 @@
 /*!
     \class IrcUserModel ircusermodel.h <IrcUserModel>
     \ingroup models
-    \brief Keeps track of buffer users.
+    \brief Keeps track of channel users.
+
+    In order to keep track of channel users, create an instance of IrcUserModel.
+    It will notify via signals when users are added and/or removed. IrcUserModel
+    can be used directly as a data model for Qt's item views - both in C++ and QML.
+
+    \code
+    void ChatView::onBufferAdded(IrcBuffer* buffer)
+    {
+        IrcUserModel* model = new IrcUserModel(buffer);
+        connect(model, SIGNAL(userAdded(IrcUser*)), this, SLOT(onUserAdded(IrcUser*)));
+        connect(model, SIGNAL(userRemoved(IrcUser*)), this, SLOT(onUserRemoved(IrcUser*)));
+        nickCompleter->setModel(model);
+        userListView->setModel(model);
+    }
+    \endcode
 
     \section sorting Sorting
 
-    The order of \ref users is either kepts as sent from the server. Furthermore,
+    The order of \ref users is kept as sent from the server. Furthermore,
     an alphabetical list of \ref names is provided for convenience.
 
     Whilst these available options cater basic use cases, for more fine-
@@ -165,7 +180,7 @@ void IrcUserModel::setBuffer(IrcBuffer* buffer)
 }
 
 /*!
-    This property holds the number of users on the buffer.
+    This property holds the number of users on the channel.
 
     \par Access function:
     \li int <b>count</b>() const
@@ -275,7 +290,7 @@ void IrcUserModel::setDisplayRole(Irc::ItemDataRole role)
     Role            | Name      | Type     | Example
     --------------- | ----------|----------|--------
     Qt::DisplayRole | "display" | 1)       | -
-    Irc::UserRole   | "user"    | IrcUser* | <object>
+    Irc::UserRole   | "user"    | IrcUser* | &lt;object&gt;
     Irc::NameRole   | "name"    | QString  | "jpnurmi"
     Irc::PrefixRole | "prefix"  | QString  | "@"
     Irc::ModeRole   | "mode"    | QString  | "o"
@@ -296,7 +311,7 @@ QHash<int, QByteArray> IrcUserModel::roleNames() const
 }
 
 /*!
-    Returns the number of users on the buffer.
+    Returns the number of users on the channel.
  */
 int IrcUserModel::rowCount(const QModelIndex& parent) const
 {
@@ -310,7 +325,7 @@ int IrcUserModel::rowCount(const QModelIndex& parent) const
 /*!
     Returns the data for specified \a role referred to by the \a index.
 
-    \sa IrcUserModel::DataRole, roleNames()
+    \sa Irc::ItemDataRole, roleNames()
  */
 QVariant IrcUserModel::data(const QModelIndex& index, int role) const
 {

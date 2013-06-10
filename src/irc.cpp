@@ -59,12 +59,12 @@
     \defgroup models Model classes
     \brief Models to keep track of channels and users.
 
-    \section chanmodel Channels
+    \section chanmodel Channels and queries
 
-    In order to keep track of channels, create an instance of IrcBufferModel
-    and it will notify via signals when channel and query buffers are added
-    and/or removed. You can also use IrcBufferModel directly as a data model
-    for Qt's item views - both in C++ and QML.
+    In order to keep track of channels and queries, create an instance of
+    IrcBufferModel. It will notify via signals when channel and query
+    buffers are added and/or removed. IrcBufferModel can be used directly
+    as a data model for Qt's item views - both in C++ and QML.
 
     \code
     IrcSession* session = new IrcSession(this);
@@ -76,10 +76,9 @@
 
     \section usermodel Channel users
 
-    In order to keep track of channel users, use an instance of IrcUserModel
-    provided by IrcBuffer. It will notify via signals when users are added
-    and/or removed. You can also use IrcUserModel directly as a data model
-    for Qt's item views - both in C++ and QML.
+    In order to keep track of channel users, create an instance of IrcUserModel.
+    It will notify via signals when users are added and/or removed. IrcUserModel
+    can be used directly as a data model for Qt's item views - both in C++ and QML.
 
     \code
     void ChatView::onBufferAdded(IrcBuffer* buffer)

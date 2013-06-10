@@ -29,8 +29,19 @@
     \ingroup models
     \brief Keeps track of buffers.
 
-    IrcBufferModel automatically keeps track of buffers
-    and manages IrcBuffer instances for them.
+    IrcBufferModel automatically keeps track of channel and query buffers
+    and manages IrcBuffer instances for them. It will notify via signals
+    when channel and query buffers are added and/or removed. IrcBufferModel
+    can be used directly as a data model for Qt's item views - both in C++
+    and QML.
+
+    \code
+    IrcSession* session = new IrcSession(this);
+    IrcBufferModel* model = new IrcBufferModel(session);
+    connect(model, SIGNAL(bufferAdded(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
+    connect(model, SIGNAL(bufferRemoved(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
+    listView->setModel(model);
+    \endcode
 
     \sa models
  */
@@ -434,7 +445,7 @@ void IrcBufferModel::destroyBuffer(IrcBuffer* buffer)
     Role            | Name      | Type       | Example
     ----------------|-----------|------------|--------
     Qt::DisplayRole | "display" | 1)         | -
-    Irc::BufferRole | "buffer"  | IrcBuffer* | <object>
+    Irc::BufferRole | "buffer"  | IrcBuffer* | &lt;object&gt;
     Irc::NameRole   | "name"    | QString    | "communi"
     Irc::PrefixRole | "prefix"  | QString    | "#"
     Irc::TitleRole  | "title"   | QString    | "#communi"

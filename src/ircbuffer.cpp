@@ -54,7 +54,7 @@
     - IrcMessage::Quit
     - IrcMessage::Topic
 
-    \sa IrcSession::messageReceived(), IrcUser::messageReceived(), IrcBufferModel::messageIgnored()
+    \sa IrcSession::messageReceived(), IrcBufferModel::messageIgnored()
  */
 
 static QString getPrefix(const QString& name, const QStringList& prefixes)
@@ -501,7 +501,7 @@ QString IrcBuffer::prefix() const
 }
 
 /*!
-    This property holds the buffer mode.
+    This property holds the channel mode.
 
     \par Access function:
     \li QString <b>mode</b>() const
@@ -516,7 +516,7 @@ QString IrcBuffer::mode() const
 }
 
 /*!
-    This property holds the buffer topic.
+    This property holds the channel topic.
 
     \par Access function:
     \li QString <b>topic</b>() const
