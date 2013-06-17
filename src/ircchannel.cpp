@@ -356,6 +356,7 @@ IrcChannel::~IrcChannel()
     d->userList.clear();
     d->userMap.clear();
     d->userModels.clear();
+    emit destroyed(this);
 }
 
 /*!

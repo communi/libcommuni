@@ -45,6 +45,7 @@ public:
     QPointer<IrcSession> session;
     QList<IrcBuffer*> bufferList;
     QMap<QString, IrcBuffer*> bufferMap;
+    QStringList channels;
 };
 
 #endif // IRCBUFFERMODEL_P_H

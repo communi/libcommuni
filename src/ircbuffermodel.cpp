@@ -146,14 +146,18 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
     if (!buffer) {
         buffer = q->createBuffer(title);
         if (buffer) {
+            const bool isChannel = qobject_cast<IrcChannel*>(buffer);
             IrcBufferPrivate::get(buffer)->init(title, q);
             q->beginInsertRows(QModelIndex(), bufferList.count(), bufferList.count());
             bufferList.append(buffer);
             bufferMap.insert(title, buffer);
+            if (isChannel)
+                channels += title;
             q->connect(buffer, SIGNAL(destroyed(IrcBuffer*)), SLOT(_irc_bufferDestroyed(IrcBuffer*)));
             q->endInsertRows();
             emit q->bufferAdded(buffer);
-            emit q->titlesChanged(bufferMap.keys());
+            if (isChannel)
+                emit q->channelsChanged(channels);
             emit q->buffersChanged(bufferList);
             emit q->countChanged(bufferList.count());
         }
@@ -204,12 +208,16 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
     Q_Q(IrcBufferModel);
     int idx = bufferList.indexOf(buffer);
     if (idx != -1) {
+        const bool isChannel = qobject_cast<IrcChannel*>(buffer);
         q->beginRemoveRows(QModelIndex(), idx, idx);
         bufferList.removeAt(idx);
         bufferMap.remove(buffer->title());
+        if (isChannel)
+            channels.removeOne(buffer->title());
         q->endRemoveRows();
         emit q->bufferRemoved(buffer);
-        emit q->titlesChanged(bufferMap.keys());
+        if (isChannel)
+            emit q->channelsChanged(channels);
         emit q->buffersChanged(bufferList);
         emit q->countChanged(bufferList.count());
     }
@@ -286,18 +294,18 @@ int IrcBufferModel::count() const
 }
 
 /*!
-    This property holds the list of titles in alphabetical order.
+    This property holds the list of channel names.
 
     \par Access function:
-    \li QStringList <b>titles</b>() const
+    \li QStringList <b>channels</b>() const
 
     \par Notifier signal:
-    \li void <b>titlesChanged</b>(const QStringList& titles)
+    \li void <b>channelsChanged</b>(const QStringList& channels)
  */
-QStringList IrcBufferModel::titles() const
+QStringList IrcBufferModel::channels() const
 {
     Q_D(const IrcBufferModel);
-    return d->bufferMap.keys();
+    return d->channels;
 }
 
 /*!
@@ -400,8 +408,9 @@ void IrcBufferModel::clear()
         qDeleteAll(d->bufferList);
         d->bufferList.clear();
         d->bufferMap.clear();
+        d->channels.clear();
         endResetModel();
-        emit titlesChanged(QStringList());
+        emit channelsChanged(QStringList());
         emit buffersChanged(QList<IrcBuffer*>());
         emit countChanged(0);
     }

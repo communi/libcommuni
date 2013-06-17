@@ -29,7 +29,7 @@ class COMMUNI_EXPORT IrcBufferModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
-    Q_PROPERTY(QStringList titles READ titles NOTIFY titlesChanged)
+    Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
     Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(QList<IrcBuffer*> buffers READ buffers NOTIFY buffersChanged)
     Q_PROPERTY(IrcSession* session READ session WRITE setSession NOTIFY sessionChanged)
@@ -42,7 +42,7 @@ public:
     void setSession(IrcSession* session);
 
     int count() const;
-    QStringList titles() const;
+    QStringList channels() const;
     QList<IrcBuffer*> buffers() const;
     Q_INVOKABLE IrcBuffer* get(int index) const;
     Q_INVOKABLE IrcBuffer* buffer(const QString& title) const;
@@ -60,8 +60,8 @@ Q_SIGNALS:
     void countChanged(int count);
     void bufferAdded(IrcBuffer* buffer);
     void bufferRemoved(IrcBuffer* buffer);
-    void titlesChanged(const QStringList& titles);
     void buffersChanged(const QList<IrcBuffer*>& buffers);
+    void channelsChanged(const QStringList& channels);
     void sessionChanged(IrcSession* session);
     void messageIgnored(IrcMessage* message);
 
