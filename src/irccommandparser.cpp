@@ -292,6 +292,8 @@ void IrcCommandParser::removeCommand(IrcCommand::Type type, const QString& synta
 
     \par Notifier signal:
     \li void <b>channelsChanged</b>(const QStringList& channels)
+
+    \sa IrcBufferModel::channels()
  */
 QStringList IrcCommandParser::channels() const
 {
