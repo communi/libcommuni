@@ -115,9 +115,6 @@ void IrcClient::onBufferAdded(IrcBuffer* buffer)
     userModel->setDisplayRole(Irc::NameRole);
     userModels.insert(buffer, userModel);
 
-    // keep the command parser aware of the context
-    parser->setChannels(bufferModel->titles());
-
     // activate the new buffer
     int idx = bufferModel->buffers().indexOf(buffer);
     if (idx != -1)
@@ -129,9 +126,6 @@ void IrcClient::onBufferRemoved(IrcBuffer* buffer)
     // the buffer specific models and documents are no longer needed
     delete userModels.take(buffer);
     delete bufferDocuments.take(buffer);
-
-    // keep the command parser aware of the context
-    parser->setChannels(bufferModel->titles()); // TODO
 }
 
 void IrcClient::onBufferActivated(const QModelIndex& index)
@@ -215,6 +209,9 @@ void IrcClient::createUi()
     connect(bufferModel, SIGNAL(bufferAdded(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
     connect(bufferModel, SIGNAL(bufferRemoved(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
 
+    // keep the command parser aware of the context
+    connect(bufferModel, SIGNAL(channelsChanged(QStringList)), parser, SLOT(setChannels(QStringList)));
+
     // keep track of the current buffer, see also onBufferActivated()
     connect(bufferList->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onBufferActivated(QModelIndex)));
 
@@ -285,8 +282,8 @@ void IrcClient::createUi()
 void IrcClient::createParser()
 {
     // create a command parser and teach it some commands. notice also
-    // that we must keep the command parser aware of the context in:
-    // onBufferAdded(), onBufferRemoved() and onBufferActivated()
+    // that we must keep the command parser aware of the context in
+    // createUi() and onBufferActivated()
 
     parser = new IrcCommandParser(this);
     parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
