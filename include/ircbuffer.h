@@ -30,12 +30,9 @@ class IrcBufferPrivate;
 class COMMUNI_EXPORT IrcBuffer : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(Irc::BufferType type READ type CONSTANT)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString prefix READ prefix CONSTANT)
-    Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
-    Q_PROPERTY(QString topic READ topic NOTIFY topicChanged)
     Q_PROPERTY(IrcSession* session READ session CONSTANT)
     Q_PROPERTY(IrcBufferModel* model READ model CONSTANT)
 
@@ -43,14 +40,9 @@ public:
     explicit IrcBuffer(QObject* parent = 0);
     virtual ~IrcBuffer();
 
-    Irc::BufferType type() const;
-
     QString title() const;
     QString name() const;
     QString prefix() const;
-
-    QString mode() const;
-    QString topic() const;
 
     IrcSession* session() const;
     IrcBufferModel* model() const;
@@ -60,12 +52,12 @@ public:
 Q_SIGNALS:
     void titleChanged(const QString& title);
     void nameChanged(const QString& name);
-    void modeChanged(const QString& mode);
-    void topicChanged(const QString& topic);
-    void destroyed(IrcBuffer* buffer);
     void messageReceived(IrcMessage* message);
+    void destroyed(IrcBuffer* buffer);
 
-private:
+protected:
+    IrcBuffer(IrcBufferPrivate& dd, QObject* parent);
+
     QScopedPointer<IrcBufferPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcBuffer)
     Q_DISABLE_COPY(IrcBuffer)

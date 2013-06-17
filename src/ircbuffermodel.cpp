@@ -16,6 +16,7 @@
 #include "ircbuffermodel_p.h"
 #include "ircsessioninfo.h"
 #include "ircbuffer_p.h"
+#include "ircchannel.h"
 #include "ircmessage.h"
 #include "ircsession.h"
 
@@ -413,13 +414,19 @@ void IrcBufferModel::clear()
     need for the buffer object occurs ie. a channel is being joined
     or a private message is received.
 
-    The default implementation creates a new instance of IrcBuffer.
-    Reimplement this function in order to alter the default behavior,
-    for example to provide a custom IrcBuffer subclass.
+    The default implementation creates an instance of IrcChannel if
+    \a title is detected to be a channel, and otherwise an instance
+    of IrcBuffer. Reimplement this function in order to alter the
+    default behavior, for example to provide a custom IrcBuffer or
+    IrcChannel subclass.
  */
 IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
 {
-    Q_UNUSED(title);
+    Q_D(IrcBufferModel);
+    IrcSessionInfo info(d->session);
+    const QStringList chanTypes = info.channelTypes();
+    if (!title.isEmpty() && chanTypes.contains(title.at(0)))
+        return new IrcChannel(this);
     return new IrcBuffer(this);
 }
 
@@ -442,13 +449,14 @@ void IrcBufferModel::destroyBuffer(IrcBuffer* buffer)
 /*!
     The following role names are provided by default:
 
-    Role            | Name      | Type       | Example
-    ----------------|-----------|------------|--------
-    Qt::DisplayRole | "display" | 1)         | -
-    Irc::BufferRole | "buffer"  | IrcBuffer* | &lt;object&gt;
-    Irc::NameRole   | "name"    | QString    | "communi"
-    Irc::PrefixRole | "prefix"  | QString    | "#"
-    Irc::TitleRole  | "title"   | QString    | "#communi"
+    Role             | Name       | Type        | Example
+    -----------------|------------|-------------|--------
+    Qt::DisplayRole  | "display"  | 1)          | -
+    Irc::BufferRole  | "buffer"   | IrcBuffer*  | &lt;object&gt;
+    Irc::ChannelRole | "channel"  | IrcChannel* | &lt;object&gt;
+    Irc::NameRole    | "name"     | QString     | "communi"
+    Irc::PrefixRole  | "prefix"   | QString     | "#"
+    Irc::TitleRole   | "title"    | QString     | "#communi"
 
     1) The type depends on \ref displayRole.
  */
@@ -457,6 +465,7 @@ QHash<int, QByteArray> IrcBufferModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[Qt::DisplayRole] = "display";
     roles[Irc::BufferRole] = "buffer";
+    roles[Irc::ChannelRole] = "channel";
     roles[Irc::NameRole] = "name";
     roles[Irc::PrefixRole] = "prefix";
     roles[Irc::TitleRole] = "title";
@@ -489,6 +498,8 @@ QVariant IrcBufferModel::data(const QModelIndex& index, int role) const
         return data(index, d->role);
     case Irc::BufferRole:
         return QVariant::fromValue(d->bufferList.at(index.row()));
+    case Irc::ChannelRole:
+        return QVariant::fromValue(qobject_cast<IrcChannel*>(d->bufferList.at(index.row())));
     case Irc::NameRole:
         if (IrcBuffer* buffer =  d->bufferList.at(index.row()))
             return buffer->name();

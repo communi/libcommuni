@@ -21,7 +21,7 @@
 #include <QtCore/qabstractitemmodel.h>
 
 class IrcUser;
-class IrcBuffer;
+class IrcChannel;
 class IrcMessage;
 class IrcUserModelPrivate;
 
@@ -32,14 +32,14 @@ class COMMUNI_EXPORT IrcUserModel : public QAbstractListModel
     Q_PROPERTY(QStringList names READ names NOTIFY namesChanged)
     Q_PROPERTY(QList<IrcUser*> users READ users NOTIFY usersChanged)
     Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
-    Q_PROPERTY(IrcBuffer* buffer READ buffer WRITE setBuffer NOTIFY bufferChanged)
+    Q_PROPERTY(IrcChannel* channel READ channel WRITE setChannel NOTIFY channelChanged)
 
 public:
     explicit IrcUserModel(QObject* parent = 0);
     virtual ~IrcUserModel();
 
-    IrcBuffer* buffer() const;
-    void setBuffer(IrcBuffer* buffer);
+    IrcChannel* channel() const;
+    void setChannel(IrcChannel* channel);
 
     int count() const;
     QStringList names() const;
@@ -58,7 +58,7 @@ Q_SIGNALS:
     void namesChanged(const QStringList& names);
     void usersChanged(const QList<IrcUser*>& users);
     void activitySortEnabledChanged(bool enabled);
-    void bufferChanged(IrcBuffer* buffer);
+    void channelChanged(IrcChannel* channel);
 
 protected:
     QHash<int, QByteArray> roleNames() const;
@@ -66,7 +66,7 @@ protected:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
 private:
-    friend class IrcBufferPrivate;
+    friend class IrcChannelPrivate;
     QScopedPointer<IrcUserModelPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcUserModel)
     Q_DISABLE_COPY(IrcUserModel)

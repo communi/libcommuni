@@ -13,7 +13,7 @@
 */
 
 #include "ircusermodel.h"
-#include "ircbuffer_p.h"
+#include "ircchannel_p.h"
 #include "ircuser.h"
 #include <qpointer.h>
 
@@ -32,9 +32,9 @@
     can be used directly as a data model for Qt's item views - both in C++ and QML.
 
     \code
-    void ChatView::onBufferAdded(IrcBuffer* buffer)
+    void ChatView::setChannel(IrcChannel* channel)
     {
-        IrcUserModel* model = new IrcUserModel(buffer);
+        IrcUserModel* model = new IrcUserModel(channel);
         connect(model, SIGNAL(userAdded(IrcUser*)), this, SLOT(onUserAdded(IrcUser*)));
         connect(model, SIGNAL(userRemoved(IrcUser*)), this, SLOT(onUserRemoved(IrcUser*)));
         nickCompleter->setModel(model);
@@ -114,25 +114,25 @@ class IrcUserModelPrivate
 public:
     inline IrcUser* userAt(int index) const
     {
-        return buffer ? IrcBufferPrivate::get(buffer)->userList.value(index) : 0;
+        return channel ? IrcChannelPrivate::get(channel)->userList.value(index) : 0;
     }
 
     Irc::ItemDataRole role;
-    QPointer<IrcBuffer> buffer;
+    QPointer<IrcChannel> channel;
 };
 
 /*!
     Constructs a new model with \a parent.
 
-    \note If \a parent is an instance of IrcBuffer, it will be
-    automatically assigned to \ref IrcUserModel::buffer "buffer".
+    \note If \a parent is an instance of IrcChannel, it will be
+    automatically assigned to \ref IrcUserModel::channel "channel".
  */
 IrcUserModel::IrcUserModel(QObject* parent)
     : QAbstractListModel(parent), d_ptr(new IrcUserModelPrivate)
 {
     Q_D(IrcUserModel);
     d->role = Irc::TitleRole;
-    setBuffer(qobject_cast<IrcBuffer*>(parent));
+    setChannel(qobject_cast<IrcChannel*>(parent));
 
     qRegisterMetaType<IrcUser*>();
     qRegisterMetaType<QList<IrcUser*> >();
@@ -144,38 +144,38 @@ IrcUserModel::IrcUserModel(QObject* parent)
 IrcUserModel::~IrcUserModel()
 {
     Q_D(IrcUserModel);
-    if (d->buffer)
-        IrcBufferPrivate::get(d->buffer)->models.removeOne(this);
+    if (d->channel)
+        IrcChannelPrivate::get(d->channel)->userModels.removeOne(this);
 }
 
 /*!
-    This property holds the buffer.
+    This property holds the channel.
 
     \par Access functions:
-    \li \ref IrcBuffer* <b>buffer</b>() const
-    \li void <b>setBuffer</b>(\ref IrcBuffer* buffer)
+    \li \ref IrcChannel* <b>channel</b>() const
+    \li void <b>setChannel</b>(\ref IrcChannel* channel)
  */
-IrcBuffer* IrcUserModel::buffer() const
+IrcChannel* IrcUserModel::channel() const
 {
     Q_D(const IrcUserModel);
-    return d->buffer;
+    return d->channel;
 }
 
-void IrcUserModel::setBuffer(IrcBuffer* buffer)
+void IrcUserModel::setChannel(IrcChannel* channel)
 {
     Q_D(IrcUserModel);
-    if (d->buffer != buffer) {
+    if (d->channel != channel) {
         beginResetModel();
-        if (d->buffer)
-            IrcBufferPrivate::get(d->buffer)->models.removeOne(this);
+        if (d->channel)
+            IrcChannelPrivate::get(d->channel)->userModels.removeOne(this);
 
-        d->buffer = buffer;
+        d->channel = channel;
 
-        if (d->buffer)
-            IrcBufferPrivate::get(d->buffer)->models.append(this);
+        if (d->channel)
+            IrcChannelPrivate::get(d->channel)->userModels.append(this);
         endResetModel();
 
-        emit bufferChanged(buffer);
+        emit channelChanged(channel);
     }
 }
 
@@ -205,8 +205,8 @@ int IrcUserModel::count() const
 QStringList IrcUserModel::names() const
 {
     Q_D(const IrcUserModel);
-    if (d->buffer)
-        return IrcBufferPrivate::get(d->buffer)->userMap.keys();
+    if (d->channel)
+        return IrcChannelPrivate::get(d->channel)->userMap.keys();
     return QStringList();
 }
 
@@ -224,8 +224,8 @@ QStringList IrcUserModel::names() const
 QList<IrcUser*> IrcUserModel::users() const
 {
     Q_D(const IrcUserModel);
-    if (d->buffer)
-        return IrcBufferPrivate::get(d->buffer)->userList;
+    if (d->channel)
+        return IrcChannelPrivate::get(d->channel)->userList;
     return QList<IrcUser*>();
 }
 
@@ -244,8 +244,8 @@ IrcUser* IrcUserModel::get(int index) const
 IrcUser* IrcUserModel::user(const QString& name) const
 {
     Q_D(const IrcUserModel);
-    if (d->buffer)
-        return IrcBufferPrivate::get(d->buffer)->userMap.value(name);
+    if (d->channel)
+        return IrcChannelPrivate::get(d->channel)->userMap.value(name);
     return 0;
 }
 
@@ -255,8 +255,8 @@ IrcUser* IrcUserModel::user(const QString& name) const
 bool IrcUserModel::contains(const QString& name) const
 {
     Q_D(const IrcUserModel);
-    if (d->buffer)
-        return IrcBufferPrivate::get(d->buffer)->userMap.contains(name);
+    if (d->channel)
+        return IrcChannelPrivate::get(d->channel)->userMap.contains(name);
     return false;
 }
 
@@ -316,10 +316,10 @@ QHash<int, QByteArray> IrcUserModel::roleNames() const
 int IrcUserModel::rowCount(const QModelIndex& parent) const
 {
     Q_D(const IrcUserModel);
-    if (parent.isValid() || !d->buffer)
+    if (parent.isValid() || !d->channel)
         return 0;
 
-    return IrcBufferPrivate::get(d->buffer)->userList.count();
+    return IrcChannelPrivate::get(d->channel)->userList.count();
 }
 
 /*!
@@ -330,7 +330,7 @@ int IrcUserModel::rowCount(const QModelIndex& parent) const
 QVariant IrcUserModel::data(const QModelIndex& index, int role) const
 {
     Q_D(const IrcUserModel);
-    if (!d->buffer || !hasIndex(index.row(), index.column()))
+    if (!d->channel || !hasIndex(index.row(), index.column()))
         return QVariant();
 
     switch (role) {

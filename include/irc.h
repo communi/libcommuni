@@ -472,16 +472,12 @@ public:
 
     enum ItemDataRole {
         UserRole = Qt::UserRole,
-        BufferRole = UserRole,
+        BufferRole,
+        ChannelRole,
         NameRole,
         PrefixRole,
         ModeRole,
         TitleRole
-    };
-
-    enum BufferType {
-        Channel,
-        Query
     };
 };
 

@@ -12,32 +12,33 @@
 * License for more details.
 */
 
-#ifndef IRCBUFFER_P_H
-#define IRCBUFFER_P_H
+#ifndef IRCCHANNEL_P_H
+#define IRCCHANNEL_P_H
 
-#include "ircbuffer.h"
-#include "ircmessage.h"
-#include "ircsessioninfo.h"
+#include "ircchannel.h"
+#include "ircbuffer_p.h"
 #include <qstringlist.h>
 #include <qlist.h>
 #include <qmap.h>
 
-class IrcUser;
-class IrcUserModel;
-
-class IrcBufferPrivate
+class IrcChannelPrivate : public IrcBufferPrivate
 {
-    Q_DECLARE_PUBLIC(IrcBuffer)
+    Q_DECLARE_PUBLIC(IrcChannel)
 
 public:
-    IrcBufferPrivate();
-    virtual ~IrcBufferPrivate();
+    virtual ~IrcChannelPrivate();
 
     virtual void init(const QString& title, IrcBufferModel* model);
 
-    void setName(const QString& name);
+    void changeMode(const QString& value);
+    void setMode(const QString& value);
+    void setTopic(const QString& value);
 
-    bool processMessage(IrcMessage* message);
+    void addUsers(const QStringList& users);
+    bool removeUser(const QString& user);
+    bool renameUser(const QString& from, const QString& to);
+    void setUserMode(const QString& user, const QString& mode);
+    void clearUsers();
 
     virtual bool processJoinMessage(IrcJoinMessage* message);
     virtual bool processKickMessage(IrcKickMessage* message);
@@ -48,15 +49,17 @@ public:
     virtual bool processQuitMessage(IrcQuitMessage* message);
     virtual bool processTopicMessage(IrcTopicMessage* message);
 
-    static IrcBufferPrivate* get(IrcBuffer* buffer)
+    static IrcChannelPrivate* get(IrcChannel* channel)
     {
-        return buffer->d_func();
+        return channel->d_func();
     }
 
-    IrcBuffer* q_ptr;
-    IrcBufferModel* model;
-    QString name;
-    QString prefix;
+    QString mode;
+    QString topic;
+    IrcSessionInfo info;
+    QList<IrcUser*> userList;
+    QMap<QString, IrcUser*> userMap;
+    QList<IrcUserModel*> userModels;
 };
 
-#endif // IRCBUFFER_P_H
+#endif // IRCCHANNEL_P_H
