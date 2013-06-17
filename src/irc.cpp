@@ -81,9 +81,9 @@
     can be used directly as a data model for Qt's item views - both in C++ and QML.
 
     \code
-    void ChatView::onBufferAdded(IrcBuffer* buffer)
+    void ChatView::setChannel(IrcChannel* channel)
     {
-        IrcUserModel* model = new IrcUserModel(buffer);
+        IrcUserModel* model = new IrcUserModel(channel);
         connect(model, SIGNAL(userAdded(IrcUser*)), this, SLOT(onUserAdded(IrcUser*)));
         connect(model, SIGNAL(userRemoved(IrcUser*)), this, SLOT(onUserRemoved(IrcUser*)));
         nickCompleter->setModel(model);

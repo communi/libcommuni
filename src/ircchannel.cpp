@@ -31,7 +31,7 @@
     \ingroup models
     \brief Keeps track of channel status.
 
-    \note IrcChannel does not work on its own. Use an instance managed by IrcChannelModel.
+    \note IrcChannel does not work on its own. Use an instance managed by IrcBufferModel.
 
     \sa models
 */
@@ -333,11 +333,11 @@ bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
 }
 
 /*!
-    Constructs a new buffer object with \a parent.
+    Constructs a new channel object with \a parent.
 
-    \note IrcChannel does not work on its own. Use an instance managed by IrcChannelModel.
+    \note IrcChannel does not work on its own. Use an instance managed by IrcBufferModel.
 
-    \sa IrcChannelModel::bufferAdded()
+    \sa IrcBufferModel::bufferAdded()
  */
 IrcChannel::IrcChannel(QObject* parent)
     : IrcBuffer(*new IrcChannelPrivate, parent)
@@ -345,9 +345,9 @@ IrcChannel::IrcChannel(QObject* parent)
 }
 
 /*!
-    Destructs the buffer object.
+    Destructs the channel object.
 
-    \sa IrcChannelModel::bufferRemoved()
+    \sa IrcBufferModel::bufferRemoved()
  */
 IrcChannel::~IrcChannel()
 {
