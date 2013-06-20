@@ -35,6 +35,7 @@ class COMMUNI_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(QString prefix READ prefix CONSTANT)
     Q_PROPERTY(IrcSession* session READ session CONSTANT)
     Q_PROPERTY(IrcBufferModel* model READ model CONSTANT)
+    Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
 
 public:
     explicit IrcBuffer(QObject* parent = 0);
@@ -47,6 +48,8 @@ public:
     IrcSession* session() const;
     IrcBufferModel* model() const;
 
+    virtual bool isActive() const;
+
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
 
 Q_SIGNALS:
@@ -54,6 +57,7 @@ Q_SIGNALS:
     void nameChanged(const QString& name);
     void messageReceived(IrcMessage* message);
     void destroyed(IrcBuffer* buffer);
+    void activeChanged(bool active);
 
 protected:
     IrcBuffer(IrcBufferPrivate& dd, QObject* parent);
@@ -61,6 +65,7 @@ protected:
     QScopedPointer<IrcBufferPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcBuffer)
     Q_DISABLE_COPY(IrcBuffer)
+    Q_PRIVATE_SLOT(d_func(), void _irc_emitActiveChanged())
 };
 
 Q_DECLARE_METATYPE(IrcBuffer*)

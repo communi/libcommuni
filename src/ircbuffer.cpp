@@ -66,8 +66,10 @@ IrcBufferPrivate::~IrcBufferPrivate()
 
 void IrcBufferPrivate::init(const QString& title, IrcBufferModel* m)
 {
+    Q_Q(IrcBuffer);
     model = m;
     name = title;
+    QObject::connect(m->session(), SIGNAL(connectedChanged(bool)), q, SLOT(_irc_emitActiveChanged()));
 }
 
 void IrcBufferPrivate::setName(const QString& value)
@@ -277,6 +279,29 @@ IrcBufferModel* IrcBuffer::model() const
 }
 
 /*!
+    \property bool IrcBuffer::active
+    This property holds whether the buffer is active.
+
+    A buffer is considered active when the \ref IrcBuffer::session "session"
+    is connected. Furthermore, channel buffers are only considered active when
+    the user is on the channel.
+
+    \par Access function:
+    \li bool <b>isActive</b>() const
+
+    \par Notifier signal:
+    \li void <b>activeChanged</b>(bool active)
+
+    \sa IrcSession::connected
+ */
+bool IrcBuffer::isActive() const
+{
+    if (IrcSession* s = session())
+        return s->isConnected();
+    return false;
+}
+
+/*!
     Sends a \a command to the server.
 
     This method is provided for convenience. It is equal to:
@@ -294,3 +319,5 @@ bool IrcBuffer::sendCommand(IrcCommand* command)
         return d->model->session()->sendCommand(command);
     return false;
 }
+
+#include "moc_ircbuffer.cpp"

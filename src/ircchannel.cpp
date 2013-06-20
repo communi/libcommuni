@@ -63,6 +63,10 @@ static QString userName(const QString& name, const QStringList& prefixes)
     return copy;
 }
 
+IrcChannelPrivate::IrcChannelPrivate() : joined(0), left(0)
+{
+}
+
 IrcChannelPrivate::~IrcChannelPrivate()
 {
 }
@@ -267,10 +271,13 @@ void IrcChannelPrivate::clearUsers()
 
 bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 {
-    if (message->flags() & IrcMessage::Own)
+    if (message->flags() & IrcMessage::Own) {
         clearUsers();
-    else
+        ++joined;
+        _irc_emitActiveChanged();
+    } else {
         addUsers(QStringList() << message->sender().name());
+    }
     return true;
 }
 
@@ -278,6 +285,8 @@ bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
 {
     if (!message->user().compare(message->session()->nickName(), Qt::CaseInsensitive)) {
         clearUsers();
+        ++left;
+        _irc_emitActiveChanged();
         return true;
     }
     return removeUser(message->user());
@@ -312,6 +321,8 @@ bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
         clearUsers();
+        ++left;
+        _irc_emitActiveChanged();
         return true;
     }
     return removeUser(message->sender().name());
@@ -321,6 +332,8 @@ bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
         clearUsers();
+        ++left;
+        _irc_emitActiveChanged();
         return true;
     }
     return removeUser(message->sender().name()) || IrcBufferPrivate::processQuitMessage(message);
@@ -387,4 +400,13 @@ QString IrcChannel::topic() const
 {
     Q_D(const IrcChannel);
     return d->topic;
+}
+
+/*!
+    \reimp
+ */
+bool IrcChannel::isActive() const
+{
+    Q_D(const IrcChannel);
+    return IrcBuffer::isActive() && d->joined > d->left;
 }

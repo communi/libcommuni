@@ -48,6 +48,12 @@ public:
     virtual bool processQuitMessage(IrcQuitMessage* message);
     virtual bool processTopicMessage(IrcTopicMessage* message);
 
+    void _irc_emitActiveChanged()
+    {
+        Q_Q(IrcBuffer);
+        emit q->activeChanged(q->isActive());
+    }
+
     static IrcBufferPrivate* get(IrcBuffer* buffer)
     {
         return buffer->d_func();

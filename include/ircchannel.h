@@ -34,6 +34,8 @@ public:
     QString mode() const;
     QString topic() const;
 
+    virtual bool isActive() const;
+
 Q_SIGNALS:
     void modeChanged(const QString& mode);
     void topicChanged(const QString& topic);

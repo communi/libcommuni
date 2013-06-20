@@ -26,6 +26,7 @@ class IrcChannelPrivate : public IrcBufferPrivate
     Q_DECLARE_PUBLIC(IrcChannel)
 
 public:
+    IrcChannelPrivate();
     virtual ~IrcChannelPrivate();
 
     virtual void init(const QString& title, IrcBufferModel* model);
@@ -56,6 +57,7 @@ public:
 
     QString mode;
     QString topic;
+    int joined, left;
     IrcSessionInfo info;
     QList<IrcUser*> userList;
     QMap<QString, IrcUser*> userMap;
