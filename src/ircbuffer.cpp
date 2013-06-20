@@ -215,6 +215,9 @@ IrcBuffer::~IrcBuffer()
 
     \par Access function:
     \li QString <b>title</b>() const
+
+    \par Notifier signal:
+    \li void <b>titleChanged</b>(const QString& title)
  */
 QString IrcBuffer::title() const
 {
@@ -227,6 +230,9 @@ QString IrcBuffer::title() const
 
     \par Access function:
     \li QString <b>name</b>() const
+
+    \par Notifier signal:
+    \li void <b>nameChanged</b>(const QString& name)
  */
 QString IrcBuffer::name() const
 {
