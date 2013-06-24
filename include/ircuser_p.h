@@ -32,7 +32,7 @@ public:
     }
 
     IrcUser* q_ptr;
-    IrcBuffer* buffer;
+    IrcChannel* channel;
     QString name;
     QString prefix;
     QString mode;

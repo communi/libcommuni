@@ -140,7 +140,7 @@ void IrcChannelPrivate::addUsers(const QStringList& names)
         while (it != unique.constEnd()) {
             IrcUser* user = new IrcUser(q);
             IrcUserPrivate* priv = IrcUserPrivate::get(user);
-            priv->buffer = q;
+            priv->channel = q;
             priv->setName(it.key());
             priv->setPrefix(it.value());
             priv->setMode(info.prefixToMode(it.value()));

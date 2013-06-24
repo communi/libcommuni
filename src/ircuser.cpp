@@ -133,13 +133,13 @@ QString IrcUser::mode() const
 
 
 /*!
-    This property holds the buffer of the user.
+    This property holds the channel of the user.
 
     \par Access function:
-    \li \ref IrcBuffer* <b>buffer</b>() const
+    \li \ref IrcChannel* <b>channel</b>() const
  */
-IrcBuffer* IrcUser::buffer() const
+IrcChannel* IrcUser::channel() const
 {
     Q_D(const IrcUser);
-    return d->buffer;
+    return d->channel;
 }
