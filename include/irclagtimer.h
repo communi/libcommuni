@@ -27,12 +27,14 @@ class COMMUNI_EXPORT IrcLagTimer : public QObject
     Q_OBJECT
     Q_PROPERTY(qint64 lag READ lag NOTIFY lagChanged)
     Q_PROPERTY(int interval READ interval WRITE setInterval)
+    Q_PROPERTY(IrcSession* session READ session WRITE setSession)
 
 public:
-    explicit IrcLagTimer(IrcSession* session);
+    explicit IrcLagTimer(QObject* parent = 0);
     virtual ~IrcLagTimer();
 
     IrcSession* session() const;
+    void setSession(IrcSession* session);
 
     qint64 lag() const;
 

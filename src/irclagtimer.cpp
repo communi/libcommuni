@@ -47,7 +47,7 @@ class IrcLagTimerPrivate : public IrcMessageFilter
     Q_DECLARE_PUBLIC(IrcLagTimer)
 
 public:
-    IrcLagTimerPrivate(IrcSession* session, IrcLagTimer* q);
+    IrcLagTimerPrivate(IrcLagTimer* q);
 
     bool messageFilter(IrcMessage* msg);
     bool processPongReply(IrcPongMessage* msg);
@@ -56,6 +56,7 @@ public:
     void _irc_pingServer();
     void _irc_disconnected();
 
+    void updateTimer();
     void updateLag(qint64 value);
 
     IrcLagTimer* q_ptr;
@@ -65,13 +66,10 @@ public:
     qint64 lag;
 };
 
-IrcLagTimerPrivate::IrcLagTimerPrivate(IrcSession* session, IrcLagTimer* q)
-    : q_ptr(q), session(session), interval(-1), lag(-1)
+IrcLagTimerPrivate::IrcLagTimerPrivate(IrcLagTimer* q)
+    : q_ptr(q), session(0), interval(DEFAULT_INTERVAL), lag(-1)
 {
-    session->installMessageFilter(this);
     QObject::connect(&timer, SIGNAL(timeout()), q, SLOT(_irc_pingServer()));
-    QObject::connect(session, SIGNAL(connected()), q, SLOT(_irc_connected()));
-    QObject::connect(session, SIGNAL(disconnected()), q, SLOT(_irc_disconnected()));
 }
 
 bool IrcLagTimerPrivate::messageFilter(IrcMessage* msg)
@@ -124,6 +122,21 @@ void IrcLagTimerPrivate::_irc_disconnected()
 #endif // QT_VERSION
 }
 
+void IrcLagTimerPrivate::updateTimer()
+{
+#if QT_VERSION >= 0x040700
+    if (session && interval > 0) {
+        timer.setInterval(interval * 1000);
+        if (!timer.isActive() && session->isConnected())
+            timer.start();
+    } else {
+        if (timer.isActive())
+            timer.stop();
+        updateLag(-1);
+    }
+#endif // QT_VERSION
+}
+
 void IrcLagTimerPrivate::updateLag(qint64 value)
 {
     Q_Q(IrcLagTimer);
@@ -134,11 +147,14 @@ void IrcLagTimerPrivate::updateLag(qint64 value)
 }
 
 /*!
-    Constructs a new lag timer for \a session.
+    Constructs a new lag timer with \a parent.
+
+    \note If \a parent is an instance of IrcSession, it will be
+    automatically assigned to \ref IrcLagTimer::session "session".
  */
-IrcLagTimer::IrcLagTimer(IrcSession* session) : QObject(session), d_ptr(new IrcLagTimerPrivate(session, this))
+IrcLagTimer::IrcLagTimer(QObject* parent) : QObject(parent), d_ptr(new IrcLagTimerPrivate(this))
 {
-    setInterval(DEFAULT_INTERVAL);
+    setSession(qobject_cast<IrcSession*>(parent));
 }
 
 /*!
@@ -153,11 +169,32 @@ IrcLagTimer::~IrcLagTimer()
 
     \par Access functions:
     \li IrcSession* <b>session</b>() const
+    \li void <b>setSession</b>(IrcSession* session)
  */
 IrcSession* IrcLagTimer::session() const
 {
     Q_D(const IrcLagTimer);
     return d->session;
+}
+
+void IrcLagTimer::setSession(IrcSession* session)
+{
+    Q_D(IrcLagTimer);
+    if (d->session != session) {
+        if (d->session) {
+            d->session->removeMessageFilter(d);
+            disconnect(session, SIGNAL(connected()), this, SLOT(_irc_connected()));
+            disconnect(session, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
+        }
+        d->session = session;
+        if (session) {
+            session->installMessageFilter(d);
+            connect(session, SIGNAL(connected()), this, SLOT(_irc_connected()));
+            connect(session, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
+        }
+        d->updateLag(-1);
+        d->updateTimer();
+    }
 }
 
 /*!
@@ -202,17 +239,7 @@ void IrcLagTimer::setInterval(int seconds)
     Q_D(IrcLagTimer);
     if (d->interval != seconds) {
         d->interval = seconds;
-#if QT_VERSION >= 0x040700
-        if (seconds > 0) {
-            d->timer.setInterval(seconds * 1000);
-            if (!d->timer.isActive() && d->session->isConnected())
-                d->timer.start();
-        } else {
-            if (d->timer.isActive())
-                d->timer.stop();
-            d->updateLag(-1);
-        }
-#endif // QT_VERSION
+        d->updateTimer();
     }
 }
 
