@@ -421,7 +421,7 @@ bool IrcChannel::isActive() const
     channel->sendCommand(command);
     \endcode
 
-    \sa IrcBuffer::sendCommand()
+    \sa IrcBuffer::sendCommand(), IrcCommand::createPart()
  */
 void IrcChannel::part(const QString& reason)
 {
