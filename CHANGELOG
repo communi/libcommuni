@@ -12,6 +12,7 @@
   - NOTE: Notice that there is no need to catch RPL_TOPIC, RPL_NOTOPIC
           or RPL_CHANNELMODEIS anymore. These numeric replies are now
           composed to IrcTopicMessage and IrcModeMessage.
+- Made IrcLagTimer::session a writable property
 - Improved submodule support:
   https://github.com/communi/libcommuni/wiki/Submodule
 - Overall documentation improvements
