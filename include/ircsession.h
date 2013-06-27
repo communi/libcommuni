@@ -83,6 +83,7 @@ public:
 public Q_SLOTS:
     void open();
     void close();
+    void quit(const QString& reason);
 
 Q_SIGNALS:
     void connecting();

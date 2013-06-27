@@ -5,6 +5,7 @@
   - void xxxMessageReceived(IrcXxxMessage* message)
   - void nickNameReserved(QString* alternate)
 - Added bool IrcSession::secure property
+- Added IrcSession::quit() slot for convenience
 - Allowed constructing an invalid IrcSessionInfo
 - Added IrcSessionInfo::channelModes(A|B|C|D)
 - Added IrcModeMessage::Kind { Channel, User }

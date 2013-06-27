@@ -792,7 +792,7 @@ void IrcSession::open()
     gracefully, send a QUIT command and let the server handle
     closing the connection.
 
-    \sa IrcCommand::createQuit()
+    \sa quit()
  */
 void IrcSession::close()
 {
@@ -801,6 +801,22 @@ void IrcSession::close()
         d->socket->abort();
         d->socket->disconnectFromHost();
     }
+}
+
+/*!
+    Quits with \a reason.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    IrcCommand* command = IrcCommand::createQuit(reason);
+    session->sendCommand(command);
+    \endcode
+
+    \sa IrcCommand::createQuit()
+ */
+void IrcSession::quit(const QString& reason)
+{
+    sendCommand(IrcCommand::createQuit(reason));
 }
 
 /*!
