@@ -306,7 +306,7 @@ bool IrcBuffer::isActive() const
 
     This method is provided for convenience. It is equal to:
     \code
-    IrcSession* session = buffer->model()->session();
+    IrcSession* session = buffer->session();
     session->sendCommand(command);
     \endcode
 

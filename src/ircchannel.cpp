@@ -17,6 +17,7 @@
 #include "ircusermodel.h"
 #include "ircbuffermodel.h"
 #include "ircbuffermodel_p.h"
+#include "irccommand.h"
 #include "ircsession.h"
 #include "ircuser_p.h"
 #include "ircsender.h"
@@ -409,4 +410,20 @@ bool IrcChannel::isActive() const
 {
     Q_D(const IrcChannel);
     return IrcBuffer::isActive() && d->joined > d->left;
+}
+
+/*!
+    Parts the channel with \a reason.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    IrcCommand* command = IrcCommand::createPart(channel->title(), reason);
+    channel->sendCommand(command);
+    \endcode
+
+    \sa IrcBuffer::sendCommand()
+ */
+void IrcChannel::part(const QString& reason)
+{
+    sendCommand(IrcCommand::createPart(title(), reason));
 }
