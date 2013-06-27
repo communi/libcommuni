@@ -142,7 +142,8 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
 IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
 {
     Q_Q(IrcBufferModel);
-    IrcBuffer* buffer = bufferMap.value(title.toLower());
+    const QString lower = title.toLower();
+    IrcBuffer* buffer = bufferMap.value(lower);
     if (!buffer) {
         buffer = q->createBuffer(title);
         if (buffer) {
@@ -150,7 +151,7 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
             IrcBufferPrivate::get(buffer)->init(title, q);
             q->beginInsertRows(QModelIndex(), bufferList.count(), bufferList.count());
             bufferList.append(buffer);
-            bufferMap.insert(title, buffer);
+            bufferMap.insert(lower, buffer);
             if (isChannel)
                 channels += title;
             q->connect(buffer, SIGNAL(destroyed(IrcBuffer*)), SLOT(_irc_bufferDestroyed(IrcBuffer*)));
@@ -211,7 +212,7 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
         const bool isChannel = qobject_cast<IrcChannel*>(buffer);
         q->beginRemoveRows(QModelIndex(), idx, idx);
         bufferList.removeAt(idx);
-        bufferMap.remove(buffer->title());
+        bufferMap.remove(buffer->title().toLower());
         if (isChannel)
             channels.removeOne(buffer->title());
         q->endRemoveRows();
@@ -250,6 +251,7 @@ IrcBufferModel::~IrcBufferModel()
     }
     d->bufferList.clear();
     d->bufferMap.clear();
+    d->channels.clear();
 }
 
 /*!
@@ -338,7 +340,7 @@ IrcBuffer* IrcBufferModel::get(int index) const
 IrcBuffer* IrcBufferModel::buffer(const QString& title) const
 {
     Q_D(const IrcBufferModel);
-    return d->bufferMap.value(title);
+    return d->bufferMap.value(title.toLower());
 }
 
 /*!
@@ -347,7 +349,7 @@ IrcBuffer* IrcBufferModel::buffer(const QString& title) const
 bool IrcBufferModel::contains(const QString& title) const
 {
     Q_D(const IrcBufferModel);
-    return d->bufferMap.contains(title);
+    return d->bufferMap.contains(title.toLower());
 }
 
 /*!
