@@ -15,6 +15,7 @@
 #ifndef IRCBUFFERMODEL_P_H
 #define IRCBUFFERMODEL_P_H
 
+#include "ircbuffer.h"
 #include "ircbuffermodel.h"
 #include "ircmessagefilter.h"
 #include <qpointer.h>
@@ -40,12 +41,24 @@ public:
         return model->d_func();
     }
 
+    static bool bufferLessThan(IrcBuffer* b1, IrcBuffer* b2)
+    {
+        return b1->model()->lessThan(b1, b2);
+    }
+
+    static bool bufferGreaterThan(IrcBuffer* b1, IrcBuffer* b2)
+    {
+        return b2->model()->lessThan(b2, b1);
+    }
+
     IrcBufferModel* q_ptr;
     Irc::ItemDataRole role;
     QPointer<IrcSession> session;
     QList<IrcBuffer*> bufferList;
     QMap<QString, IrcBuffer*> bufferMap;
     QStringList channels;
+    Qt::SortOrder sortOrder;
+    bool dynamicSort;
 };
 
 #endif // IRCBUFFERMODEL_P_H

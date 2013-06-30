@@ -73,7 +73,7 @@
  */
 
 IrcBufferModelPrivate::IrcBufferModelPrivate(IrcBufferModel* q) :
-    q_ptr(q), role(Irc::TitleRole)
+    q_ptr(q), role(Irc::TitleRole), sortOrder(Qt::AscendingOrder), dynamicSort(false)
 {
 }
 
@@ -149,8 +149,13 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
         if (buffer) {
             const bool isChannel = qobject_cast<IrcChannel*>(buffer);
             IrcBufferPrivate::get(buffer)->init(title, q);
-            q->beginInsertRows(QModelIndex(), bufferList.count(), bufferList.count());
-            bufferList.append(buffer);
+            int idx = bufferList.count();
+            if (dynamicSort) {
+                QList<IrcBuffer*>::iterator it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, sortOrder == Qt::AscendingOrder ? bufferLessThan : bufferGreaterThan);
+                idx = it - bufferList.begin();
+            }
+            q->beginInsertRows(QModelIndex(), idx, idx);
+            bufferList.insert(idx, buffer);
             bufferMap.insert(lower, buffer);
             if (isChannel)
                 channels += title;
@@ -400,6 +405,29 @@ void IrcBufferModel::setDisplayRole(Irc::ItemDataRole role)
 }
 
 /*!
+    This property holds whether the model is dynamically sorted.
+
+    The default value is \c false.
+
+    \par Access functions:
+    \li bool <b>dynamicSort</b>() const
+    \li void <b>setDynamicSort</b>(bool dynamic)
+
+    \sa sort(), lessThan()
+ */
+bool IrcBufferModel::dynamicSort() const
+{
+    Q_D(const IrcBufferModel);
+    return d->dynamicSort;
+}
+
+void IrcBufferModel::setDynamicSort(bool dynamic)
+{
+    Q_D(IrcBufferModel);
+    d->dynamicSort = dynamic;
+}
+
+/*!
     Clears the model.
  */
 void IrcBufferModel::clear()
@@ -416,6 +444,38 @@ void IrcBufferModel::clear()
         emit buffersChanged(QList<IrcBuffer*>());
         emit countChanged(0);
     }
+}
+
+/*!
+    \reimp
+    Sorts the model in the given \a order.
+
+    \sa lessThan(), dynamicSort
+ */
+void IrcBufferModel::sort(int column, Qt::SortOrder order)
+{
+    Q_UNUSED(column);
+    Q_D(IrcBufferModel);
+
+    emit layoutAboutToBeChanged();
+
+    QList<IrcBuffer*> persistentBuffers;
+    QModelIndexList oldPersistentIndexes = persistentIndexList();
+    foreach (const QModelIndex& index, oldPersistentIndexes)
+        persistentBuffers += index.data(Irc::BufferRole).value<IrcBuffer*>();
+
+    d->sortOrder = order;
+    if (order == Qt::AscendingOrder)
+        qSort(d->bufferList.begin(), d->bufferList.end(), IrcBufferModelPrivate::bufferLessThan);
+    else
+        qSort(d->bufferList.begin(), d->bufferList.end(), IrcBufferModelPrivate::bufferGreaterThan);
+
+    QModelIndexList newPersistentIndexes;
+    foreach (IrcBuffer* buffer, persistentBuffers)
+        newPersistentIndexes += index(d->bufferList.indexOf(buffer));
+    changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
+
+    emit layoutChanged();
 }
 
 /*!
@@ -455,6 +515,38 @@ IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
 void IrcBufferModel::destroyBuffer(IrcBuffer* buffer)
 {
     delete buffer;
+}
+
+/*!
+    Returns \c true if \a one buffer is "less than" \a another,
+    otherwise returns \c false.
+
+    The default implementation sorts buffers alphabetically
+    and channels before queries. Reimplement this function
+    in order to alter the sort order.
+
+    \sa sort(), dynamicSort
+ */
+bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another) const
+{
+    const QStringList prefixes = IrcSessionInfo(one->session()).channelTypes();
+
+    const QString p1 = one->prefix();
+    const QString p2 = another->prefix();
+
+    const int i1 = !p1.isEmpty() ? prefixes.indexOf(p1.at(0)) : -1;
+    const int i2 = !p2.isEmpty() ? prefixes.indexOf(p2.at(0)) : -1;
+
+    if (i1 >= 0 && i2 < 0)
+        return true;
+    if (i1 < 0 && i2 >= 0)
+        return false;
+    if (i1 >= 0 && i2 >= 0 && i1 != i2)
+        return i1 < i2;
+
+    const QString n1 = one->name();
+    const QString n2 = another->name();
+    return n1.compare(n2, Qt::CaseInsensitive) < 0;
 }
 
 /*!

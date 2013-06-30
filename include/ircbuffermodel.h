@@ -29,6 +29,7 @@ class COMMUNI_EXPORT IrcBufferModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(bool dynamicSort READ dynamicSort WRITE setDynamicSort)
     Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
     Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(QList<IrcBuffer*> buffers READ buffers NOTIFY buffersChanged)
@@ -50,11 +51,15 @@ public:
     Q_INVOKABLE IrcBuffer* addBuffer(const QString& title);
     Q_INVOKABLE void removeBuffer(const QString& title);
 
+    bool dynamicSort() const;
+    void setDynamicSort(bool dynamic);
+
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
 
 public Q_SLOTS:
     void clear();
+    void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
 
 Q_SIGNALS:
     void countChanged(int count);
@@ -68,6 +73,8 @@ Q_SIGNALS:
 protected:
     virtual IrcBuffer* createBuffer(const QString& title);
     virtual void destroyBuffer(IrcBuffer* buffer);
+
+    virtual bool lessThan(IrcBuffer* one, IrcBuffer* another) const;
 
     QHash<int, QByteArray> roleNames() const;
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
