@@ -52,9 +52,9 @@ public:
     void setDisplayRole(Irc::ItemDataRole role);
 
 Q_SIGNALS:
+    void added(IrcUser* user);
+    void removed(IrcUser* user);
     void countChanged(int count);
-    void userAdded(IrcUser* user);
-    void userRemoved(IrcUser* user);
     void namesChanged(const QStringList& names);
     void usersChanged(const QList<IrcUser*>& users);
     void activitySortEnabledChanged(bool enabled);

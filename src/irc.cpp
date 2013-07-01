@@ -84,8 +84,8 @@
     void ChatView::setChannel(IrcChannel* channel)
     {
         IrcUserModel* model = new IrcUserModel(channel);
-        connect(model, SIGNAL(userAdded(IrcUser*)), this, SLOT(onUserAdded(IrcUser*)));
-        connect(model, SIGNAL(userRemoved(IrcUser*)), this, SLOT(onUserRemoved(IrcUser*)));
+        connect(model, SIGNAL(added(IrcUser*)), this, SLOT(onUserAdded(IrcUser*)));
+        connect(model, SIGNAL(removed(IrcUser*)), this, SLOT(onUserRemoved(IrcUser*)));
         nickCompleter->setModel(model);
         userListView->setModel(model);
     }

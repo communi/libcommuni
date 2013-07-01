@@ -148,7 +148,7 @@ void IrcChannelPrivate::addUsers(const QStringList& names)
             userList.append(user);
             userMap.insert(user->name(), user);
             foreach (IrcUserModel* model, userModels)
-                emit model->userAdded(user);
+                emit model->added(user);
             ++it;
         }
 
@@ -180,7 +180,7 @@ bool IrcChannelPrivate::removeUser(const QString& name)
 
             foreach (IrcUserModel* model, userModels) {
                 model->endRemoveRows();
-                emit model->userRemoved(user);
+                emit model->removed(user);
                 emit model->namesChanged(names);
                 emit model->usersChanged(userList);
                 emit model->countChanged(count);

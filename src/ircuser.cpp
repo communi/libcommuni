@@ -62,7 +62,7 @@ void IrcUserPrivate::setMode(const QString& m)
 
     \note IrcUser does not work on its own. Use an instance managed by IrcUserModel.
 
-    \sa IrcUserModel::userAdded()
+    \sa IrcUserModel::added()
  */
 IrcUser::IrcUser(QObject* parent)
     : QObject(parent), d_ptr(new IrcUserPrivate)
@@ -76,7 +76,7 @@ IrcUser::IrcUser(QObject* parent)
 
     \warning Do not delete an instance managed by IrcUserModel.
 
-    \sa IrcUserModel::userRemoved()
+    \sa IrcUserModel::removed()
  */
 IrcUser::~IrcUser()
 {
