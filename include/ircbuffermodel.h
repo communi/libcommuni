@@ -71,8 +71,8 @@ Q_SIGNALS:
     void messageIgnored(IrcMessage* message);
 
 protected:
-    virtual IrcBuffer* createBuffer(const QString& title);
-    virtual void destroyBuffer(IrcBuffer* buffer);
+    virtual IrcBuffer* create(const QString& title);
+    virtual void destroy(IrcBuffer* buffer);
 
     virtual bool lessThan(IrcBuffer* one, IrcBuffer* another) const;
 

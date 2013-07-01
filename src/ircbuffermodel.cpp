@@ -145,7 +145,7 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
     const QString lower = title.toLower();
     IrcBuffer* buffer = bufferMap.value(lower);
     if (!buffer) {
-        buffer = q->createBuffer(title);
+        buffer = q->create(title);
         if (buffer) {
             const bool isChannel = qobject_cast<IrcChannel*>(buffer);
             IrcBufferPrivate::get(buffer)->init(title, q);
@@ -176,7 +176,7 @@ void IrcBufferModelPrivate::removeBuffer(const QString& title)
     Q_Q(IrcBufferModel);
     IrcBuffer* buffer = bufferMap.value(title.toLower());
     if (buffer)
-        q->destroyBuffer(buffer);
+        q->destroy(buffer);
 }
 
 bool IrcBufferModelPrivate::renameBuffer(IrcBuffer* buffer, const QString& title)
@@ -491,7 +491,7 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
     default behavior, for example to provide a custom IrcBuffer or
     IrcChannel subclass.
  */
-IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
+IrcBuffer* IrcBufferModel::create(const QString& title)
 {
     Q_D(IrcBufferModel);
     IrcSessionInfo info(d->session);
@@ -512,7 +512,7 @@ IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
     Reimplement this function in order to alter the default behavior,
     for example to keep the buffer object alive.
  */
-void IrcBufferModel::destroyBuffer(IrcBuffer* buffer)
+void IrcBufferModel::destroy(IrcBuffer* buffer)
 {
     delete buffer;
 }
