@@ -183,8 +183,8 @@ void IrcLagTimer::setSession(IrcSession* session)
     if (d->session != session) {
         if (d->session) {
             d->session->removeMessageFilter(d);
-            disconnect(session, SIGNAL(connected()), this, SLOT(_irc_connected()));
-            disconnect(session, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
+            disconnect(d->session, SIGNAL(connected()), this, SLOT(_irc_connected()));
+            disconnect(d->session, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
         }
         d->session = session;
         if (session) {
