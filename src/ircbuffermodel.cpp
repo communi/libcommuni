@@ -363,7 +363,7 @@ bool IrcBufferModel::contains(const QString& title) const
     \note IrcBufferModel automatically keeps track of the buffers.
     Normally you do not need to manually alter the list of buffers.
  */
-IrcBuffer* IrcBufferModel::addBuffer(const QString& title)
+IrcBuffer* IrcBufferModel::add(const QString& title)
 {
     Q_D(IrcBufferModel);
     return d->addBuffer(title);
@@ -375,7 +375,7 @@ IrcBuffer* IrcBufferModel::addBuffer(const QString& title)
     \note IrcBufferModel automatically keeps track of the buffers.
     Normally you do not need to manually alter the list of buffers.
  */
-void IrcBufferModel::removeBuffer(const QString& title)
+void IrcBufferModel::remove(const QString& title)
 {
     Q_D(IrcBufferModel);
     d->removeBuffer(title);

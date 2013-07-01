@@ -48,8 +48,8 @@ public:
     Q_INVOKABLE IrcBuffer* get(int index) const;
     Q_INVOKABLE IrcBuffer* buffer(const QString& title) const;
     Q_INVOKABLE bool contains(const QString& title) const;
-    Q_INVOKABLE IrcBuffer* addBuffer(const QString& title);
-    Q_INVOKABLE void removeBuffer(const QString& title);
+    Q_INVOKABLE IrcBuffer* add(const QString& title);
+    Q_INVOKABLE void remove(const QString& title);
 
     bool dynamicSort() const;
     void setDynamicSort(bool dynamic);

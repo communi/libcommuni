@@ -156,7 +156,7 @@ void IrcClient::onUserActivated(const QModelIndex& index)
     IrcUser* user = index.data(Irc::UserRole).value<IrcUser*>();
 
     if (user) {
-        IrcBuffer* buffer = bufferModel->addBuffer(user->name());
+        IrcBuffer* buffer = bufferModel->add(user->name());
 
         // activate the new query
         int idx = bufferModel->buffers().indexOf(buffer);
