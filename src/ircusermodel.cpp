@@ -285,6 +285,25 @@ void IrcUserModel::setDisplayRole(Irc::ItemDataRole role)
 }
 
 /*!
+    Returns the model index for \a user.
+ */
+QModelIndex IrcUserModel::index(IrcUser* user) const
+{
+    Q_D(const IrcUserModel);
+    if (d->channel)
+        return index(IrcChannelPrivate::get(d->channel)->userList.indexOf(user));
+    return QModelIndex();
+}
+
+/*!
+    Returns the user for model \a index.
+ */
+IrcUser* IrcUserModel::user(const QModelIndex& index) const
+{
+    return index.data(Irc::UserRole).value<IrcUser*>();
+}
+
+/*!
     The following role names are provided by default:
 
     Role            | Name      | Type     | Example
