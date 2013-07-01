@@ -39,8 +39,8 @@
     \code
     IrcSession* session = new IrcSession(this);
     IrcBufferModel* model = new IrcBufferModel(session);
-    connect(model, SIGNAL(bufferAdded(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
-    connect(model, SIGNAL(bufferRemoved(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
+    connect(model, SIGNAL(added(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
+    connect(model, SIGNAL(removed(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
     listView->setModel(model);
     \endcode
 
@@ -48,13 +48,13 @@
  */
 
 /*!
-    \fn void IrcBufferModel::bufferAdded(IrcBuffer* buffer)
+    \fn void IrcBufferModel::added(IrcBuffer* buffer)
 
     This signal is emitted when a \a buffer is added to the list of buffers.
  */
 
 /*!
-    \fn void IrcBufferModel::bufferRemoved(IrcBuffer* buffer)
+    \fn void IrcBufferModel::removed(IrcBuffer* buffer)
 
     This signal is emitted when a \a buffer is removed from the list of buffers.
  */
@@ -161,7 +161,7 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
                 channels += title;
             q->connect(buffer, SIGNAL(destroyed(IrcBuffer*)), SLOT(_irc_bufferDestroyed(IrcBuffer*)));
             q->endInsertRows();
-            emit q->bufferAdded(buffer);
+            emit q->added(buffer);
             if (isChannel)
                 emit q->channelsChanged(channels);
             emit q->buffersChanged(bufferList);
@@ -221,7 +221,7 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
         if (isChannel)
             channels.removeOne(buffer->title());
         q->endRemoveRows();
-        emit q->bufferRemoved(buffer);
+        emit q->removed(buffer);
         if (isChannel)
             emit q->channelsChanged(channels);
         emit q->buffersChanged(bufferList);

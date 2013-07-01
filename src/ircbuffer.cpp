@@ -191,7 +191,7 @@ bool IrcBufferPrivate::processTopicMessage(IrcTopicMessage* message)
 
     \note IrcBuffer does not work on its own. Use an instance managed by IrcBufferModel.
 
-    \sa IrcBufferModel::bufferAdded()
+    \sa IrcBufferModel::added()
  */
 IrcBuffer::IrcBuffer(QObject* parent)
     : QObject(parent), d_ptr(new IrcBufferPrivate)
@@ -213,7 +213,7 @@ IrcBuffer::IrcBuffer(IrcBufferPrivate& dd, QObject* parent)
 /*!
     Destructs the buffer object.
 
-    \sa IrcBufferModel::bufferRemoved()
+    \sa IrcBufferModel::removed()
  */
 IrcBuffer::~IrcBuffer()
 {

@@ -69,8 +69,8 @@
     \code
     IrcSession* session = new IrcSession(this);
     IrcBufferModel* model = new IrcBufferModel(session);
-    connect(model, SIGNAL(bufferAdded(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
-    connect(model, SIGNAL(bufferRemoved(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
+    connect(model, SIGNAL(added(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
+    connect(model, SIGNAL(removed(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
     listView->setModel(model);
     \endcode
 

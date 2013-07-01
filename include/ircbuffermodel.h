@@ -63,8 +63,8 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void countChanged(int count);
-    void bufferAdded(IrcBuffer* buffer);
-    void bufferRemoved(IrcBuffer* buffer);
+    void added(IrcBuffer* buffer);
+    void removed(IrcBuffer* buffer);
     void buffersChanged(const QList<IrcBuffer*>& buffers);
     void channelsChanged(const QStringList& channels);
     void sessionChanged(IrcSession* session);

@@ -351,7 +351,7 @@ bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
 
     \note IrcChannel does not work on its own. Use an instance managed by IrcBufferModel.
 
-    \sa IrcBufferModel::bufferAdded()
+    \sa IrcBufferModel::added()
  */
 IrcChannel::IrcChannel(QObject* parent)
     : IrcBuffer(*new IrcChannelPrivate, parent)
@@ -361,7 +361,7 @@ IrcChannel::IrcChannel(QObject* parent)
 /*!
     Destructs the channel object.
 
-    \sa IrcBufferModel::bufferRemoved()
+    \sa IrcBufferModel::removed()
  */
 IrcChannel::~IrcChannel()
 {

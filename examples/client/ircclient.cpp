@@ -206,8 +206,8 @@ void IrcClient::createUi()
     bufferList = new QListView(this);
     bufferList->setFocusPolicy(Qt::NoFocus);
     bufferList->setModel(bufferModel);
-    connect(bufferModel, SIGNAL(bufferAdded(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
-    connect(bufferModel, SIGNAL(bufferRemoved(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
+    connect(bufferModel, SIGNAL(added(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
+    connect(bufferModel, SIGNAL(removed(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
 
     // keep the command parser aware of the context
     connect(bufferModel, SIGNAL(channelsChanged(QStringList)), parser, SLOT(setChannels(QStringList)));
