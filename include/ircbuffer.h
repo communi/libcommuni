@@ -31,8 +31,8 @@ class COMMUNI_EXPORT IrcBuffer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
-    Q_PROPERTY(QString prefix READ prefix CONSTANT)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QString prefix READ prefix WRITE setPrefix NOTIFY prefixChanged)
     Q_PROPERTY(IrcSession* session READ session CONSTANT)
     Q_PROPERTY(IrcBufferModel* model READ model CONSTANT)
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
@@ -52,9 +52,14 @@ public:
 
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
 
+public Q_SLOTS:
+    void setName(const QString& name);
+    void setPrefix(const QString& prefix);
+
 Q_SIGNALS:
     void titleChanged(const QString& title);
     void nameChanged(const QString& name);
+    void prefixChanged(const QString& name);
     void messageReceived(IrcMessage* message);
     void destroyed(IrcBuffer* buffer);
     void activeChanged(bool active);

@@ -36,6 +36,7 @@ public:
     virtual void init(const QString& title, IrcBufferModel* model);
 
     void setName(const QString& name);
+    void setPrefix(const QString& prefix);
 
     bool processMessage(IrcMessage* message);
 

@@ -82,6 +82,16 @@ void IrcBufferPrivate::setName(const QString& value)
     }
 }
 
+void IrcBufferPrivate::setPrefix(const QString& value)
+{
+    Q_Q(IrcBuffer);
+    if (prefix != value) {
+        prefix = value;
+        emit q->prefixChanged(prefix);
+        emit q->titleChanged(q->title());
+    }
+}
+
 bool IrcBufferPrivate::processMessage(IrcMessage* message)
 {
     Q_Q(IrcBuffer);
@@ -213,7 +223,7 @@ IrcBuffer::~IrcBuffer()
 /*!
     This property holds the buffer title.
 
-    The title consists of prefix and name.
+    The title consists of \ref prefix and \ref name.
 
     \par Access function:
     \li QString <b>title</b>() const
@@ -232,6 +242,7 @@ QString IrcBuffer::title() const
 
     \par Access function:
     \li QString <b>name</b>() const
+    \li void <b>setName</b>(const QString& name)
 
     \par Notifier signal:
     \li void <b>nameChanged</b>(const QString& name)
@@ -242,16 +253,32 @@ QString IrcBuffer::name() const
     return d->name;
 }
 
+void IrcBuffer::setName(const QString& name)
+{
+    Q_D(IrcBuffer);
+    d->setName(name);
+}
+
 /*!
     This property holds the buffer prefix.
 
     \par Access function:
     \li QString <b>prefix</b>() const
+    \li void <b>setPrefix</b>(const QString& prefix)
+
+    \par Notifier signal:
+    \li void <b>prefixChanged</b>(const QString& prefix)
  */
 QString IrcBuffer::prefix() const
 {
     Q_D(const IrcBuffer);
     return d->prefix;
+}
+
+void IrcBuffer::setPrefix(const QString& prefix)
+{
+    Q_D(IrcBuffer);
+    return d->setPrefix(prefix);
 }
 
 /*!
