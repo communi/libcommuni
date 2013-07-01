@@ -51,6 +51,10 @@ public:
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
 
+    QHash<int, QByteArray> roleNames() const;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+
 Q_SIGNALS:
     void added(IrcUser* user);
     void removed(IrcUser* user);
@@ -59,11 +63,6 @@ Q_SIGNALS:
     void usersChanged(const QList<IrcUser*>& users);
     void activitySortEnabledChanged(bool enabled);
     void channelChanged(IrcChannel* channel);
-
-protected:
-    QHash<int, QByteArray> roleNames() const;
-    int rowCount(const QModelIndex& parent = QModelIndex()) const;
-    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
 private:
     friend class IrcChannelPrivate;

@@ -57,6 +57,10 @@ public:
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
 
+    QHash<int, QByteArray> roleNames() const;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+
 public Q_SLOTS:
     void clear();
     void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
@@ -75,10 +79,6 @@ protected:
     virtual void destroy(IrcBuffer* buffer);
 
     virtual bool lessThan(IrcBuffer* one, IrcBuffer* another) const;
-
-    QHash<int, QByteArray> roleNames() const;
-    int rowCount(const QModelIndex& parent = QModelIndex()) const;
-    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
 private:
     QScopedPointer<IrcBufferModelPrivate> d_ptr;
