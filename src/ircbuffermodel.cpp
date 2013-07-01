@@ -405,6 +405,23 @@ void IrcBufferModel::setDisplayRole(Irc::ItemDataRole role)
 }
 
 /*!
+    Returns the model index for \a buffer.
+ */
+QModelIndex IrcBufferModel::index(IrcBuffer* buffer) const
+{
+    Q_D(const IrcBufferModel);
+    return index(d->bufferList.indexOf(buffer));
+}
+
+/*!
+    Returns the buffer for model \a index.
+ */
+IrcBuffer* IrcBufferModel::buffer(const QModelIndex& index) const
+{
+    return index.data(Irc::BufferRole).value<IrcBuffer*>();
+}
+
+/*!
     This property holds whether the model is dynamically sorted.
 
     The default value is \c false.

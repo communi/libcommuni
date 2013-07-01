@@ -57,6 +57,10 @@ public:
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
 
+    using QAbstractListModel::index;
+    QModelIndex index(IrcBuffer* buffer) const;
+    IrcBuffer* buffer(const QModelIndex& index) const;
+
     QHash<int, QByteArray> roleNames() const;
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
