@@ -418,7 +418,10 @@ QModelIndex IrcBufferModel::index(IrcBuffer* buffer) const
  */
 IrcBuffer* IrcBufferModel::buffer(const QModelIndex& index) const
 {
-    return index.data(Irc::BufferRole).value<IrcBuffer*>();
+    if (!hasIndex(index.row(), index.column()))
+        return 0;
+
+    return static_cast<IrcBuffer*>(index.internalPointer());
 }
 
 /*!
@@ -479,7 +482,7 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
     QList<IrcBuffer*> persistentBuffers;
     QModelIndexList oldPersistentIndexes = persistentIndexList();
     foreach (const QModelIndex& index, oldPersistentIndexes)
-        persistentBuffers += index.data(Irc::BufferRole).value<IrcBuffer*>();
+        persistentBuffers += static_cast<IrcBuffer*>(index.internalPointer());
 
     d->sortOrder = order;
     if (order == Qt::AscendingOrder)
@@ -613,28 +616,42 @@ QVariant IrcBufferModel::data(const QModelIndex& index, int role) const
     if (!hasIndex(index.row(), index.column()))
         return QVariant();
 
+    IrcBuffer* buffer = static_cast<IrcBuffer*>(index.internalPointer());
+
     switch (role) {
     case Qt::DisplayRole:
         return data(index, d->role);
     case Irc::BufferRole:
-        return QVariant::fromValue(d->bufferList.at(index.row()));
+        return QVariant::fromValue(buffer);
     case Irc::ChannelRole:
-        return QVariant::fromValue(qobject_cast<IrcChannel*>(d->bufferList.at(index.row())));
+        return QVariant::fromValue(qobject_cast<IrcChannel*>(buffer));
     case Irc::NameRole:
-        if (IrcBuffer* buffer =  d->bufferList.at(index.row()))
+        if (buffer)
             return buffer->name();
         break;
     case Irc::PrefixRole:
-        if (IrcBuffer* buffer =  d->bufferList.at(index.row()))
+        if (buffer)
             return buffer->prefix();
         break;
     case Irc::TitleRole:
-        if (IrcBuffer* buffer =  d->bufferList.at(index.row()))
+        if (buffer)
             return buffer->title();
         break;
     }
 
     return QVariant();
+}
+
+/*!
+    Returns the index of the item in the model specified by the given \a row, \a column and \a parent index.
+ */
+QModelIndex IrcBufferModel::index(int row, int column, const QModelIndex& parent) const
+{
+    Q_D(const IrcBufferModel);
+    if (!hasIndex(row, column, parent))
+        return QModelIndex();
+
+    return createIndex(row, column, d->bufferList.at(row));
 }
 
 #include "moc_ircbuffermodel.cpp"
