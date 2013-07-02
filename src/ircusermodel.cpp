@@ -300,7 +300,10 @@ QModelIndex IrcUserModel::index(IrcUser* user) const
  */
 IrcUser* IrcUserModel::user(const QModelIndex& index) const
 {
-    return index.data(Irc::UserRole).value<IrcUser*>();
+    if (!hasIndex(index.row(), index.column()))
+        return 0;
+
+    return static_cast<IrcUser*>(index.internalPointer());
 }
 
 /*!
@@ -352,28 +355,42 @@ QVariant IrcUserModel::data(const QModelIndex& index, int role) const
     if (!d->channel || !hasIndex(index.row(), index.column()))
         return QVariant();
 
+    IrcUser* user = static_cast<IrcUser*>(index.internalPointer());
+
     switch (role) {
     case Qt::DisplayRole:
         return data(index, d->role);
     case Irc::UserRole:
-        return QVariant::fromValue(d->userAt(index.row()));
+        return QVariant::fromValue(user);
     case Irc::NameRole:
-        if (IrcUser* user = d->userAt(index.row()))
+        if (user)
             return user->name();
         break;
     case Irc::PrefixRole:
-        if (IrcUser* user = d->userAt(index.row()))
+        if (user)
             return user->prefix();
         break;
     case Irc::ModeRole:
-        if (IrcUser* user = d->userAt(index.row()))
+        if (user)
             return user->mode();
         break;
     case Irc::TitleRole:
-        if (IrcUser* user = d->userAt(index.row()))
+        if (user)
             return user->prefix() + user->name();
         break;
     }
 
     return QVariant();
+}
+
+/*!
+    Returns the index of the item in the model specified by the given \a row, \a column and \a parent index.
+ */
+QModelIndex IrcUserModel::index(int row, int column, const QModelIndex& parent) const
+{
+    Q_D(const IrcUserModel);
+    if (!d->channel || !hasIndex(row, column, parent))
+        return QModelIndex();
+
+    return createIndex(row, column, d->userAt(row));
 }

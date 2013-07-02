@@ -51,13 +51,13 @@ public:
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
 
-    using QAbstractListModel::index;
     QModelIndex index(IrcUser* user) const;
     IrcUser* user(const QModelIndex& index) const;
 
     QHash<int, QByteArray> roleNames() const;
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+    QModelIndex index(int row, int column = 0, const QModelIndex& parent = QModelIndex()) const;
 
 Q_SIGNALS:
     void added(IrcUser* user);
