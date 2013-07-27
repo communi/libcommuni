@@ -368,15 +368,15 @@ QVariant IrcUserModel::data(const QModelIndex& index, int role) const
         break;
     case Irc::PrefixRole:
         if (user)
-            return user->prefix();
+            return user->prefix().left(1);
         break;
     case Irc::ModeRole:
         if (user)
-            return user->mode();
+            return user->mode().left(1);
         break;
     case Irc::TitleRole:
         if (user)
-            return user->prefix() + user->name();
+            return user->prefix().left(1) + user->name();
         break;
     }
 
