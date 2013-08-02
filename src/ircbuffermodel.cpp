@@ -100,11 +100,18 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
             processed = processMessage(msg->property("channel").toString(), msg);
             break;
 
-        case IrcMessage::Mode:
-        case IrcMessage::Notice:
         case IrcMessage::Private:
-            processed = processMessage(msg->property("target").toString(), msg)
-                     || processMessage(msg->sender().name(), msg, msg->type() == IrcMessage::Private);
+            if (IrcPrivateMessage* pm = static_cast<IrcPrivateMessage*>(msg))
+                processed = !pm->isRequest() && (processMessage(pm->target(), pm) || processMessage(pm->sender().name(), pm, true));
+            break;
+
+        case IrcMessage::Notice:
+            if (IrcNoticeMessage* no = static_cast<IrcNoticeMessage*>(msg))
+                processed = !no->isReply() && (processMessage(no->target(), no) || processMessage(no->sender().name(), no));
+            break;
+
+        case IrcMessage::Mode:
+            processed = processMessage(static_cast<IrcModeMessage*>(msg)->target(), msg);
             break;
 
         case IrcMessage::Numeric:
