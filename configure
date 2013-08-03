@@ -46,6 +46,11 @@ while [ "$#" -gt 0 ]; do
         VAR=`echo $1 | sed "s,^--\(.*\)=.*,\1,"`
         VAL=`echo $1 | sed "s,^--.*=\(.*\),\1,"`
         ;;
+    --nomake|--make|--prefix|--libdir|--bindir|--headerdir|--featuredir|--qmake|--spec|--config)
+        VAR=`echo $1 | sed "s,^--\(.*\),\1,"`
+        shift
+        VAL="$1"
+        ;;
     --no-*)
         VAR=`echo $1 | sed "s,^--no-\(.*\),\1,"`
         VAL=no
@@ -55,7 +60,7 @@ while [ "$#" -gt 0 ]; do
         VAL=yes
         ;;
     #Qt style options that pass an argument
-    -prefix|-libdir|-bindir|-headerdir|-featuredir)
+    -nomake|-make|-prefix|-libdir|-bindir|-headerdir|-featuredir|-qmake|-spec|-config)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -105,23 +110,21 @@ while [ "$#" -gt 0 ]; do
         INSTALL_FEATURES="$VAL"
         ;;
     nomake)
-        case "$1" in
+        case "$VAL" in
         examples)
             BUILD_EXAMPLES=no
-            shift
             ;;
         tests)
             BUILD_TESTS=no
-            shift
             ;;
         *)
-            CURRENT_OPT="$1"
+            CURRENT_OPT="$VAL"
             UNKNOWN_OPT=yes
             ;;
         esac
         ;;
     make)
-        case "$1" in
+        case "$VAL" in
         examples)
             BUILD_EXAMPLES=yes
             ;;
@@ -129,11 +132,10 @@ while [ "$#" -gt 0 ]; do
             BUILD_TESTS=yes
             ;;
         *)
-            CURRENT_OPT="$1"
+            CURRENT_OPT="$VAL"
             UNKNOWN_OPT=yes
             ;;
         esac
-        shift
         ;;
     verbose)
         QMAKE_CONFIG="$QMAKE_CONFIG verbose"
@@ -142,16 +144,13 @@ while [ "$#" -gt 0 ]; do
         QMAKE_CONFIG="$QMAKE_CONFIG static"
         ;;
     qmake)
-        QMAKE="$1"
-        shift
+        QMAKE="$VAL"
         ;;
     spec)
-        QMAKE_SPEC="$1"
-        shift
+        QMAKE_SPEC="$VAL"
         ;;
     config)
-        QMAKE_CONFIG="$QMAKE_CONFIG $1"
-        shift
+        QMAKE_CONFIG="$QMAKE_CONFIG $VAL"
         ;;
     d)
         QMAKE_DEBUG="$QMAKE_DEBUG -d"
