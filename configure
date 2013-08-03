@@ -135,6 +135,9 @@ while [ "$#" -gt 0 ]; do
         esac
         shift
         ;;
+    verbose)
+        QMAKE_CONFIG="$QMAKE_CONFIG verbose"
+        ;;
     static)
         QMAKE_CONFIG="$QMAKE_CONFIG static"
         ;;
@@ -199,6 +202,7 @@ Installation options:
 
 Configure options:
 
+    -verbose ................. Verbose build output
     -static .................. Build static library
     -qmake ................... qmake to use
     -config (config) ......... Additional configuration options recognized by qmake
