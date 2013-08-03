@@ -61,12 +61,12 @@ while [ "$#" -gt 0 ]; do
         VAL="$1"
         ;;
     #Qt style no options
-    -no-*)
+    -no-uchardet|-no-icu)
         VAR=`echo $1 | sed 's,^-no-\(.*\),\1,'`
         VAL=no
         ;;
     #Qt style yes options
-    -uchardet|-icu|-static)
+    -uchardet|-icu)
         VAR=`echo $1 | sed 's,^-\(.*\),\1,'`
         VAL=yes
         ;;
