@@ -21,6 +21,7 @@
 #include <QtCore/qmetatype.h>
 #include <QtCore/qscopedpointer.h>
 
+class IrcChannel;
 class IrcCommand;
 class IrcMessage;
 class IrcSession;
@@ -36,6 +37,7 @@ class COMMUNI_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(IrcSession* session READ session CONSTANT)
     Q_PROPERTY(IrcBufferModel* model READ model CONSTANT)
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
+    Q_PROPERTY(bool channel READ isChannel CONSTANT)
 
 public:
     explicit IrcBuffer(QObject* parent = 0);
@@ -44,6 +46,9 @@ public:
     QString title() const;
     QString name() const;
     QString prefix() const;
+
+    bool isChannel() const;
+    IrcChannel* toChannel();
 
     IrcSession* session() const;
     IrcBufferModel* model() const;

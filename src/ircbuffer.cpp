@@ -17,6 +17,7 @@
 #include "ircbuffermodel.h"
 #include "ircbuffermodel_p.h"
 #include "ircsession.h"
+#include "ircchannel.h"
 #include "ircsender.h"
 
 /*!
@@ -279,6 +280,31 @@ void IrcBuffer::setPrefix(const QString& prefix)
 {
     Q_D(IrcBuffer);
     return d->setPrefix(prefix);
+}
+
+/*!
+    \property bool IrcBuffer::channel
+    This property holds whether the buffer is a channel.
+
+    \par Access function:
+    \li bool <b>isChannel</b>() const
+
+    \sa toChannel()
+ */
+bool IrcBuffer::isChannel() const
+{
+    return inherits("IrcChannel");
+}
+
+/*!
+    Returns the buffer cast to a IrcChannel,
+    if the class is actually a channel, \c 0 otherwise.
+
+    \sa isChannel()
+*/
+IrcChannel* IrcBuffer::toChannel()
+{
+    return qobject_cast<IrcChannel*>(this);
 }
 
 /*!
