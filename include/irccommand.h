@@ -112,7 +112,7 @@ public:
     Q_INVOKABLE static IrcCommand* createTopic(const QString& channel, const QString& topic = QString());
     Q_INVOKABLE static IrcCommand* createTrace(const QString& target = QString());
     Q_INVOKABLE static IrcCommand* createUsers(const QString& server = QString());
-    Q_INVOKABLE static IrcCommand* createVersion(const QString& server = QString());
+    Q_INVOKABLE static IrcCommand* createVersion(const QString& user = QString());
     Q_INVOKABLE static IrcCommand* createWho(const QString& mask, bool operators = false);
     Q_INVOKABLE static IrcCommand* createWhois(const QString& user);
     Q_INVOKABLE static IrcCommand* createWhowas(const QString& user, int count = 1);

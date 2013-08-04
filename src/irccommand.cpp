@@ -224,7 +224,7 @@
 
 /*!
     \var IrcCommand::Version
-    \brief A version command (VERSION) is used to query server version.
+    \brief A version command (VERSION) is used to query user or server version.
  */
 
 /*!
@@ -395,7 +395,7 @@ QString IrcCommand::toString() const
         case Topic:         return p1.isNull() ? QString("TOPIC %1").arg(p0) : QString("TOPIC %1 :%2").arg(p0, d->params(1)); // chan, topic
         case Trace:         return QString("TRACE %1").arg(p0); // target
         case Users:         return QString("USERS %1").arg(p0); // server
-        case Version:       return QString("VERSION %1").arg(p0); // server
+        case Version:       return p0.isNull() ? QString("VERSION") : QString("PRIVMSG %1 :\1VERSION\1").arg(p0); // user
         case Who:           return QString("WHO %1").arg(p0); // user
         case Whois:         return QString("WHOIS %1 %1").arg(p0); // user
         case Whowas:        return QString("WHOWAS %1 %1").arg(p0); // user
@@ -729,14 +729,14 @@ IrcCommand* IrcCommand::createUsers(const QString& server)
 }
 
 /*!
-    Creates a new VERSION command with type IrcCommand::Version and optional parameter \a server.
+    Creates a new command with type IrcCommand::Version and optional parameter \a user.
 
-    This command queries the version of the specified \a server,
-    or the current server if not specified.
+    This command queries the version of the specified \a user's client (CTCP REQUEST VERSION),
+    or the current server (VERSION) if not specified.
  */
-IrcCommand* IrcCommand::createVersion(const QString& server)
+IrcCommand* IrcCommand::createVersion(const QString& user)
 {
-    return IrcCommandPrivate::createCommand(Version, QStringList() << server);
+    return IrcCommandPrivate::createCommand(Version, QStringList() << user);
 }
 
 /*!
