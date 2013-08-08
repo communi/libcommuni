@@ -73,6 +73,8 @@ Q_SIGNALS:
     void countChanged(int count);
     void added(IrcBuffer* buffer);
     void removed(IrcBuffer* buffer);
+    void aboutToBeAdded(IrcBuffer* buffer);
+    void aboutToBeRemoved(IrcBuffer* buffer);
     void buffersChanged(const QList<IrcBuffer*>& buffers);
     void channelsChanged(const QStringList& channels);
     void sessionChanged(IrcSession* session);

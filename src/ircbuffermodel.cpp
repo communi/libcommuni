@@ -60,6 +60,18 @@
  */
 
 /*!
+    \fn void IrcBufferModel::aboutToBeAdded(IrcBuffer* buffer)
+
+    This signal is emitted just before a \a buffer is added to the list of buffers.
+ */
+
+/*!
+    \fn void IrcBufferModel::aboutToBeRemoved(IrcBuffer* buffer)
+
+    This signal is emitted just before a \a buffer is removed from the list of buffers.
+ */
+
+/*!
     \fn void IrcBufferModel::messageIgnored(IrcMessage* message)
 
     This signal is emitted when a message was ignored.
@@ -161,6 +173,7 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
                 QList<IrcBuffer*>::iterator it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, sortOrder == Qt::AscendingOrder ? bufferLessThan : bufferGreaterThan);
                 idx = it - bufferList.begin();
             }
+            emit q->aboutToBeAdded(buffer);
             q->beginInsertRows(QModelIndex(), idx, idx);
             bufferList.insert(idx, buffer);
             bufferMap.insert(lower, buffer);
@@ -222,6 +235,7 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
     int idx = bufferList.indexOf(buffer);
     if (idx != -1) {
         const bool isChannel = qobject_cast<IrcChannel*>(buffer);
+        emit q->aboutToBeRemoved(buffer);
         q->beginRemoveRows(QModelIndex(), idx, idx);
         bufferList.removeAt(idx);
         bufferMap.remove(buffer->title().toLower());
