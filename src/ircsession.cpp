@@ -312,6 +312,7 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
                 default:
                     break;
             }
+            break;
         }
         case IrcMessage::Ping:
             q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
