@@ -1,5 +1,6 @@
 2.2.0
 -----
+- Implemented SASL support (http://freenode.net/sasl)
 - Introduced IrcBufferModel, IrcUserModel and IrcCommandParser
 - Added new IrcSession convenience signals
   - void xxxMessageReceived(IrcXxxMessage* message)

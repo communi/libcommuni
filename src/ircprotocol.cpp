@@ -60,6 +60,15 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
     if (dbg) qDebug() << line;
 
+    if (line.startsWith("AUTHENTICATE")) {
+        const QList<QByteArray> args = line.split(' ');
+        const bool auth = args.count() == 2 && args.at(1) == "+";
+        q->authenticate(auth && session->isSecure());
+        if (!session->isConnected())
+            session->sendData("CAP END");
+        return;
+    }
+
     IrcMessage* msg = IrcMessage::fromData(line, session);
     if (msg) {
         msg->setEncoding(session->encoding());
@@ -95,7 +104,7 @@ QAbstractSocket* IrcProtocol::socket() const
     return d->session->socket();
 }
 
-void IrcProtocol::login(const QString& password)
+void IrcProtocol::initialize()
 {
     Q_D(IrcProtocol);
 
@@ -104,11 +113,27 @@ void IrcProtocol::login(const QString& password)
     // know whether the server supports the CAP extension.
     d->session->sendData("CAP LS");
 
-    if (!password.isEmpty())
-        d->session->sendRaw(QString("PASS %1").arg(password));
+    if (!d->session->isSecure())
+        authenticate(false);
 
     d->session->sendCommand(IrcCommand::createNick(d->session->nickName()));
     d->session->sendRaw(QString("USER %1 hostname servername :%2").arg(d->session->userName(), d->session->realName()));
+}
+
+void IrcProtocol::authenticate(bool secure)
+{
+    Q_D(IrcProtocol);
+    QString passwd;
+    emit d->session->password(&passwd);
+    if (!passwd.isEmpty()) {
+        if (secure) {
+            const QByteArray userName = d->session->userName().toUtf8();
+            const QByteArray data = userName + '\0' + userName + '\0' + passwd.toUtf8();
+            d->session->sendData("AUTHENTICATE " + data.toBase64());
+        } else {
+            d->session->sendRaw(QString("PASS %1").arg(passwd));
+        }
+    }
 }
 
 void IrcProtocol::receive()

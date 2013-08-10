@@ -196,18 +196,16 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
 void IrcSessionPrivate::_irc_connected()
 {
     Q_Q(IrcSession);
-    if (socket->inherits("QSslSocket"))
+    const bool secure = q->isSecure();
+    if (secure)
         QMetaObject::invokeMethod(socket, "startClientEncryption");
-
-    emit q->connecting();
-
-    QString password;
-    emit q->password(&password);
 
     activeCaps.clear();
     availableCaps.clear();
 
-    protocol->login(password);
+    emit q->connecting();
+
+    protocol->initialize();
 }
 
 void IrcSessionPrivate::_irc_disconnected()
@@ -349,12 +347,19 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
                     }
                 }
             } else if (subCommand == "ACK" || subCommand == "NAK") {
+                bool auth = false;
                 if (subCommand == "ACK") {
-                    foreach (const QString& cap, capMsg->capabilities())
+                    foreach (const QString& cap, capMsg->capabilities()) {
                         handleCapability(&activeCaps, cap);
+                        if (cap == "sasl")
+                            auth = q->sendData("AUTHENTICATE PLAIN"); // TODO: methods
+                    }
                 }
-                if (!connected)
+                if (!connected && !auth) {
+                    if (q->isSecure())
+                        protocol->authenticate(false);
                     q->sendData("CAP END");
+                }
             }
             break;
         }

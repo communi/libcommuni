@@ -35,7 +35,9 @@ public:
     IrcSession* session() const;
     QAbstractSocket* socket() const;
 
-    virtual void login(const QString& password = QString());
+    virtual void initialize();
+    virtual void authenticate(bool secure);
+
     virtual void receive();
     virtual bool send(const QByteArray& data);
 
