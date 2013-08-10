@@ -172,7 +172,7 @@ bool IrcChannelPrivate::removeUser(const QString& name)
             foreach (IrcUserModel* model, userModels)
                 model->beginRemoveRows(QModelIndex(), idx, idx);
 
-            delete userList.takeAt(idx);
+            userList.removeAt(idx);
             userMap.remove(name);
 
             const int count = userList.count();
@@ -185,6 +185,8 @@ bool IrcChannelPrivate::removeUser(const QString& name)
                 emit model->usersChanged(userList);
                 emit model->countChanged(count);
             }
+
+            user->deleteLater();
             return true;
         }
     }
