@@ -39,6 +39,11 @@ public:
     void setNick(const QString& nick);
     void setActive(bool active);
     void setConnected(bool connected);
+
+    void handleNumericMessage(IrcNumericMessage* msg);
+    void handlePrivateMessage(IrcPrivateMessage* msg);
+    void handleCapabilityMessage(IrcCapabilityMessage* msg);
+
     void receiveMessage(IrcMessage* msg);
 
     static IrcSessionPrivate* get(const IrcSession* session)

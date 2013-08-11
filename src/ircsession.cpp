@@ -270,6 +270,44 @@ void IrcSessionPrivate::setConnected(bool value)
     }
 }
 
+void IrcSessionPrivate::handleNumericMessage(IrcNumericMessage* msg)
+{
+    Q_Q(IrcSession);
+    switch (msg->code()) {
+    case Irc::RPL_WELCOME:
+        setNick(msg->parameters().value(0));
+        setConnected(true);
+        break;
+    case Irc::RPL_ISUPPORT:
+        foreach (const QString& param, msg->parameters().mid(1)) {
+            QStringList keyValue = param.split("=", QString::SkipEmptyParts);
+            info.insert(keyValue.value(0), keyValue.value(1));
+        }
+        emit q->sessionInfoReceived(IrcSessionInfo(q));
+        break;
+    case Irc::ERR_NICKNAMEINUSE:
+    case Irc::ERR_NICKCOLLISION: {
+        QString alternate;
+        emit q->nickNameReserved(&alternate);
+        if (!alternate.isEmpty())
+            q->setNickName(alternate);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void IrcSessionPrivate::handlePrivateMessage(IrcPrivateMessage* msg)
+{
+    Q_Q(IrcSession);
+    if (msg->isRequest()) {
+        IrcCommand* reply = q->createCtcpReply(msg);
+        if (reply)
+            q->sendCommand(reply);
+    }
+}
+
 static void handleCapability(QSet<QString>* caps, const QString& cap)
 {
     Q_ASSERT(caps);
@@ -281,90 +319,65 @@ static void handleCapability(QSet<QString>* caps, const QString& cap)
         caps->insert(cap);
 }
 
+void IrcSessionPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
+{
+    Q_Q(IrcSession);
+    const QString subCommand = msg->subCommand();
+    if (subCommand == "LS") {
+        foreach (const QString& cap, msg->capabilities())
+            handleCapability(&availableCaps, cap);
+
+        if (!connected) {
+            const QStringList params = msg->parameters();
+            if (params.value(params.count() - 1) != QLatin1String("*")) {
+                QStringList request;
+                emit q->capabilities(availableCaps.toList(), &request);
+                if (!request.isEmpty())
+                    q->sendCommand(IrcCommand::createCapability("REQ", request));
+                else
+                    q->sendData("CAP END");
+            }
+        }
+    } else if (subCommand == "ACK" || subCommand == "NAK") {
+        bool auth = false;
+        if (subCommand == "ACK") {
+            foreach (const QString& cap, msg->capabilities()) {
+                handleCapability(&activeCaps, cap);
+                if (cap == "sasl")
+                    auth = q->sendData("AUTHENTICATE PLAIN"); // TODO: methods
+            }
+        }
+
+        if (!connected && !auth) {
+            if (q->isSecure())
+                protocol->authenticate(false);
+            q->sendData("CAP END");
+        }
+    }
+}
+
 void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
 {
     Q_Q(IrcSession);
     switch (msg->type()) {
-        case IrcMessage::Numeric: {
-            IrcNumericMessage* numeric = static_cast<IrcNumericMessage*>(msg);
-            switch (numeric->code()) {
-                case Irc::RPL_WELCOME:
-                    setNick(msg->parameters().value(0));
-                    setConnected(true);
-                    break;
-                case Irc::RPL_ISUPPORT:
-                    foreach (const QString& param, msg->parameters().mid(1)) {
-                        QStringList keyValue = param.split("=", QString::SkipEmptyParts);
-                        info.insert(keyValue.value(0), keyValue.value(1));
-                    }
-                    emit q->sessionInfoReceived(IrcSessionInfo(q));
-                    break;
-                case Irc::ERR_NICKNAMEINUSE:
-                case Irc::ERR_NICKCOLLISION: {
-                    QString alternate;
-                    emit q->nickNameReserved(&alternate);
-                    if (!alternate.isEmpty())
-                        q->setNickName(alternate);
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
-        case IrcMessage::Ping:
-            q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
-            break;
-        case IrcMessage::Private: {
-            IrcPrivateMessage* privMsg = static_cast<IrcPrivateMessage*>(msg);
-            if (privMsg->isRequest()) {
-                IrcCommand* reply = q->createCtcpReply(privMsg);
-                if (reply)
-                    q->sendCommand(reply);
-            }
-            break;
-        }
-        case IrcMessage::Nick:
-            if (msg->flags() & IrcMessage::Own)
-                setNick(static_cast<IrcNickMessage*>(msg)->nick());
-            break;
-        case IrcMessage::Capability: {
-            IrcCapabilityMessage* capMsg = static_cast<IrcCapabilityMessage*>(msg);
-            QString subCommand = capMsg->subCommand();
-            if (subCommand == "LS") {
-                foreach (const QString& cap, capMsg->capabilities())
-                    handleCapability(&availableCaps, cap);
-
-                if (!connected) {
-                    QStringList params = capMsg->parameters();
-                    if (params.value(params.count() - 1) != QLatin1String("*")) {
-                        QStringList request;
-                        emit q->capabilities(availableCaps.toList(), &request);
-                        if (!request.isEmpty())
-                            q->sendCommand(IrcCommand::createCapability("REQ", request));
-                        else
-                            q->sendData("CAP END");
-                    }
-                }
-            } else if (subCommand == "ACK" || subCommand == "NAK") {
-                bool auth = false;
-                if (subCommand == "ACK") {
-                    foreach (const QString& cap, capMsg->capabilities()) {
-                        handleCapability(&activeCaps, cap);
-                        if (cap == "sasl")
-                            auth = q->sendData("AUTHENTICATE PLAIN"); // TODO: methods
-                    }
-                }
-                if (!connected && !auth) {
-                    if (q->isSecure())
-                        protocol->authenticate(false);
-                    q->sendData("CAP END");
-                }
-            }
-            break;
-        }
-        default:
-            break;
+    case IrcMessage::Numeric:
+        handleNumericMessage(static_cast<IrcNumericMessage*>(msg));
+        break;
+    case IrcMessage::Ping:
+        q->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
+        break;
+    case IrcMessage::Private:
+        handlePrivateMessage(static_cast<IrcPrivateMessage*>(msg));
+        break;
+    case IrcMessage::Nick:
+        if (msg->flags() & IrcMessage::Own)
+            setNick(static_cast<IrcNickMessage*>(msg)->nick());
+        break;
+    case IrcMessage::Capability:
+        handleCapabilityMessage(static_cast<IrcCapabilityMessage*>(msg));
+        break;
+    default:
+        break;
     }
 
     bool filtered = false;
