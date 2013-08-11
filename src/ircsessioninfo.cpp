@@ -14,6 +14,7 @@
 
 #include "ircsessioninfo.h"
 #include "ircsession_p.h"
+#include "ircprotocol.h"
 #include "ircsession.h"
 #include <QPointer>
 
@@ -357,7 +358,7 @@ int IrcSessionInfo::targetLimit(const QString& command) const
 QStringList IrcSessionInfo::availableCapabilities() const
 {
     if (d->session)
-        return IrcSessionPrivate::get(d->session)->availableCaps.toList();
+        return IrcSessionPrivate::get(d->session)->protocol->availableCapabilities();
     return QStringList();
 }
 
@@ -369,6 +370,6 @@ QStringList IrcSessionInfo::availableCapabilities() const
 QStringList IrcSessionInfo::activeCapabilities() const
 {
     if (d->session)
-        return IrcSessionPrivate::get(d->session)->activeCaps.toList();
+        return IrcSessionPrivate::get(d->session)->protocol->activeCapabilities();
     return QStringList();
 }

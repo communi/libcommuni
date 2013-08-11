@@ -17,10 +17,10 @@
 
 #include "ircsession.h"
 
-#include <QSet>
+#include <QList>
+#include <QHash>
 #include <QString>
 #include <QByteArray>
-#include <QMultiHash>
 #include <QAbstractSocket>
 
 class IrcSessionPrivate
@@ -39,11 +39,7 @@ public:
     void setNick(const QString& nick);
     void setActive(bool active);
     void setConnected(bool connected);
-
-    void handleNumericMessage(IrcNumericMessage* msg);
-    void handlePrivateMessage(IrcPrivateMessage* msg);
-    void handleCapabilityMessage(IrcCapabilityMessage* msg);
-
+    void setInfo(const QHash<QString, QString>& info);
     void receiveMessage(IrcMessage* msg);
 
     static IrcSessionPrivate* get(const IrcSession* session)
@@ -62,8 +58,6 @@ public:
     QString realName;
     bool active;
     bool connected;
-    QSet<QString> activeCaps;
-    QSet<QString> availableCaps;
     QHash<QString, QString> info;
     QList<IrcMessageFilter*> filters;
 };

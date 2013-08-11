@@ -16,7 +16,9 @@
 #define IRCPROTOCOL_H
 
 #include <IrcGlobal>
+#include <QtCore/qhash.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qstringlist.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
 
@@ -35,16 +37,21 @@ public:
     IrcSession* session() const;
     QAbstractSocket* socket() const;
 
-    virtual void initialize();
+    virtual void open();
     virtual void authenticate(bool secure);
 
-    virtual void receive();
-    virtual bool send(const QByteArray& data);
+    virtual void read();
+    virtual bool write(const QByteArray& data);
+
+    virtual QStringList availableCapabilities() const;
+    virtual QStringList activeCapabilities() const;
 
 protected Q_SLOTS:
     void setActive(bool active);
     void setConnected(bool connected);
     void setNick(const QString& nick);
+    void setInfo(const QHash<QString, QString>& info);
+
     void receiveMessage(IrcMessage* message);
 
 private:
