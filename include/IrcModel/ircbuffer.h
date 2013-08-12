@@ -28,7 +28,7 @@ class IrcSession;
 class IrcBufferModel;
 class IrcBufferPrivate;
 
-class COMMUNI_EXPORT IrcBuffer : public QObject
+class COMMUNI_MODEL_EXPORT IrcBuffer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)

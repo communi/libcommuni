@@ -12,24 +12,42 @@
 * License for more details.
 */
 
-#ifndef IRCGLOBAL_H
-#define IRCGLOBAL_H
+#ifndef IRCCOREGLOBAL_H
+#define IRCCOREGLOBAL_H
 
 #include <QtCore/qglobal.h>
 
 /*!
-    \file ircglobal.h
-    \brief #include &lt;IrcGlobal&gt;
+    \file irccoreglobal.h
+    \brief #include &lt;IrcCoreGlobal&gt;
  */
 
 #if defined(COMMUNI_SHARED)
-#  if defined(BUILD_COMMUNI)
-#    define COMMUNI_EXPORT Q_DECL_EXPORT
+#
+#  if defined(BUILD_COMMUNI_CORE)
+#    define COMMUNI_CORE_EXPORT Q_DECL_EXPORT
 #  else
-#    define COMMUNI_EXPORT Q_DECL_IMPORT
+#    define COMMUNI_CORE_EXPORT Q_DECL_IMPORT
 #  endif
-#elif defined(COMMUNI_STATIC) || defined(BUILD_COMMUNI)
-#  define COMMUNI_EXPORT
+#
+#  if defined(BUILD_COMMUNI_MODEL)
+#    define COMMUNI_MODEL_EXPORT Q_DECL_EXPORT
+#  else
+#    define COMMUNI_MODEL_EXPORT Q_DECL_IMPORT
+#  endif
+#
+#  if defined(BUILD_COMMUNI_UTIL)
+#    define COMMUNI_UTIL_EXPORT Q_DECL_EXPORT
+#  else
+#    define COMMUNI_UTIL_EXPORT Q_DECL_IMPORT
+#  endif
+#
+#elif defined(COMMUNI_STATIC) || defined(BUILD_COMMUNI_CORE) || defined(BUILD_COMMUNI_MODEL) || defined(BUILD_COMMUNI_UTIL)
+#
+#    define COMMUNI_CORE_EXPORT
+#    define COMMUNI_MODEL_EXPORT
+#    define COMMUNI_UTIL_EXPORT
+#
 #else
 #  error Installation problem: either COMMUNI_SHARED or COMMUNI_STATIC must be defined!
 #endif
@@ -66,4 +84,4 @@
 #   define QT_FORWARD_DECLARE_CLASS(name) class name;
 #endif // QT_FORWARD_DECLARE_CLASS
 
-#endif // IRCGLOBAL_H
+#endif // IRCCOREGLOBAL_H

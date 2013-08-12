@@ -20,7 +20,7 @@ extern "C" {
     int IsUTF8Text(const char* utf8, int len);
 }
 
-COMMUNI_EXPORT bool irc_is_supported_encoding(const QByteArray& encoding)
+COMMUNI_CORE_EXPORT bool irc_is_supported_encoding(const QByteArray& encoding)
 {
     static QSet<QByteArray> codecs = QTextCodec::availableCodecs().toSet();
     return codecs.contains(encoding);

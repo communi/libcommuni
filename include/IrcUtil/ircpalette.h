@@ -22,7 +22,7 @@
 
 class IrcPalettePrivate;
 
-class COMMUNI_EXPORT IrcPalette
+class COMMUNI_UTIL_EXPORT IrcPalette
 {
 public:
     IrcPalette();
@@ -57,16 +57,16 @@ public:
 
 private:
 #ifndef QT_NO_DATASTREAM
-    friend COMMUNI_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette);
-    friend COMMUNI_EXPORT QDataStream& operator>>(QDataStream& ds, IrcPalette& palette);
+    friend COMMUNI_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette);
+    friend COMMUNI_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcPalette& palette);
 #endif // QT_NO_DATASTREAM
 
     QSharedDataPointer<IrcPalettePrivate> d;
 };
 
 #ifndef QT_NO_DATASTREAM
-COMMUNI_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette);
-COMMUNI_EXPORT QDataStream& operator>>(QDataStream& ds, IrcPalette& palette);
+COMMUNI_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette);
+COMMUNI_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcPalette& palette);
 #endif // QT_NO_DATASTREAM
 
 #endif // IRCPALETTE_H

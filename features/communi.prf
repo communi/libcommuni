@@ -2,6 +2,8 @@
 # Communi
 ######################################################################
 
+isEmpty(COMMUNI):error(Usage: \"CONFIG += communi\" and \"COMMUNI += <module(s)>\" \(available modules: core model util\))
+
 include(communi-config.prf)
 
 isEmpty(COMMUNI_INSTALL_LIBS):COMMUNI_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
@@ -9,14 +11,31 @@ isEmpty(COMMUNI_INSTALL_BINS):COMMUNI_INSTALL_BINS = $$[QT_INSTALL_BINS]
 isEmpty(COMMUNI_INSTALL_HEADERS):COMMUNI_INSTALL_HEADERS = $$[QT_INSTALL_HEADERS]/Communi
 
 macx:!qt_no_framework {
-    INCLUDEPATH += $$COMMUNI_INSTALL_LIBS/Communi.framework/Headers
     QMAKE_FRAMEWORKPATH += $$COMMUNI_INSTALL_LIBS
-    LIBS += -framework Communi
 } else {
     INCLUDEPATH += $$COMMUNI_INSTALL_HEADERS
     DEPENDPATH += $$COMMUNI_INSTALL_HEADERS
-    REAL_TEMPLATE = $$TEMPLATE
-    TEMPLATE = fakelib
-    LIBS += -L$$COMMUNI_INSTALL_LIBS -l$$qtLibraryTarget(Communi)
-    TEMPLATE = $$REAL_TEMPLATE
+    LIBS += -L$$COMMUNI_INSTALL_LIBS
+}
+
+COMMUNI_MODULES =
+for (MODULE, COMMUNI) {
+    MODULE = $$lower($$MODULE)
+    isEqual(MODULE, "core"):COMMUNI_MODULES *= IrcCore
+    else:isEqual(MODULE, "model"):COMMUNI_MODULES *= IrcModel
+    else:isEqual(MODULE, "util"):COMMUNI_MODULES *= IrcUtil
+}
+
+for (COMMUNI_MODULE, COMMUNI_MODULES) {
+    macx:!qt_no_framework {
+        INCLUDEPATH += $$COMMUNI_INSTALL_LIBS/$${COMMUNI_MODULE}.framework/Headers
+        LIBS += -framework $$COMMUNI_MODULE
+    } else {
+        INCLUDEPATH += $$COMMUNI_INSTALL_HEADERS/$$COMMUNI_MODULE
+        DEPENDPATH += $$COMMUNI_INSTALL_HEADERS/$$COMMUNI_MODULE
+        REAL_TEMPLATE = $$TEMPLATE
+        TEMPLATE = fakelib
+        LIBS += -l$$qtLibraryTarget($$COMMUNI_MODULE)
+        TEMPLATE = $$REAL_TEMPLATE
+    }
 }

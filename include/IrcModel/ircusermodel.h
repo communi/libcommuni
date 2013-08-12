@@ -25,7 +25,7 @@ class IrcChannel;
 class IrcMessage;
 class IrcUserModelPrivate;
 
-class COMMUNI_EXPORT IrcUserModel : public QAbstractListModel
+class COMMUNI_MODEL_EXPORT IrcUserModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)

@@ -23,7 +23,7 @@
 
 class IrcSenderPrivate;
 
-class COMMUNI_EXPORT IrcSender
+class COMMUNI_CORE_EXPORT IrcSender
 {
 public:
     IrcSender();
@@ -56,7 +56,7 @@ private:
 Q_DECLARE_METATYPE(IrcSender)
 
 #ifndef QT_NO_DEBUG_STREAM
-COMMUNI_EXPORT QDebug operator<<(QDebug debug, const IrcSender& sender);
+COMMUNI_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcSender& sender);
 #endif // QT_NO_DEBUG_STREAM
 
 #endif // IRCSENDER_H

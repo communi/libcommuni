@@ -22,7 +22,7 @@
 class IrcSession;
 class IrcSessionInfoPrivate;
 
-class COMMUNI_EXPORT IrcSessionInfo
+class COMMUNI_CORE_EXPORT IrcSessionInfo
 {
 public:
     explicit IrcSessionInfo(const IrcSession* session = 0);

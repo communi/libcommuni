@@ -22,7 +22,7 @@
 
 class IrcCommandParserPrivate;
 
-class COMMUNI_EXPORT IrcCommandParser : public QObject
+class COMMUNI_UTIL_EXPORT IrcCommandParser : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList commands READ commands NOTIFY commandsChanged)
