@@ -171,10 +171,14 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             if (params.value(params.count() - 1) != QLatin1String("*")) {
                 QStringList request;
                 emit session->capabilities(availableCaps.toList(), &request);
-                if (!request.isEmpty())
+                if (!request.isEmpty()) {
                     session->sendCommand(IrcCommand::createCapability("REQ", request));
-                else
+                } else {
+                    // TODO: #14: SASL over non-SSL connection
+                    if (session->isSecure())
+                        q->authenticate(false);
                     session->sendData("CAP END");
+                }
             }
         }
     } else if (subCommand == "ACK" || subCommand == "NAK") {
@@ -188,6 +192,7 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
         }
 
         if (!connected && !auth) {
+            // TODO: #14: SASL over non-SSL connection
             if (session->isSecure())
                 q->authenticate(false);
             session->sendData("CAP END");
