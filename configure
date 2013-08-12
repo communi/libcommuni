@@ -3,6 +3,7 @@
 BUILD_TREE=`/bin/pwd`
 SOURCE_TREE=`dirname $0`
 SOURCE_TREE=`cd "$SOURCE_TREE"; /bin/pwd`
+CONFIG_VARS="$BUILD_TREE/.config.vars"
 
 INSTALL_PREFIX=
 INSTALL_LIBS=
@@ -23,6 +24,10 @@ QMAKE_SPEC=
 OPT_HELP=no
 
 QMAKE=`which qmake || which qmake-qt4` 2>/dev/null
+
+if [ -f "$CONFIG_VARS" ]; then
+    rm "$CONFIG_VARS"
+fi
 
 #-------------------------------------------------------------------------------
 # parse command line arguments
@@ -46,7 +51,7 @@ while [ "$#" -gt 0 ]; do
         VAR=`echo $1 | sed "s,^--\(.*\)=.*,\1,"`
         VAL=`echo $1 | sed "s,^--.*=\(.*\),\1,"`
         ;;
-    --nomake|--make|--prefix|--libdir|--bindir|--headerdir|--featuredir|--qmake|--spec|--config)
+    --nomake|--make|--prefix|--libdir|--bindir|--headerdir|--featuredir|--qmake|--spec|--config|--var)
         VAR=`echo $1 | sed "s,^--\(.*\),\1,"`
         shift
         VAL="$1"
@@ -60,7 +65,7 @@ while [ "$#" -gt 0 ]; do
         VAL=yes
         ;;
     #Qt style options that pass an argument
-    -nomake|-make|-prefix|-libdir|-bindir|-headerdir|-featuredir|-qmake|-spec|-config)
+    -nomake|-make|-prefix|-libdir|-bindir|-headerdir|-featuredir|-qmake|-spec|-config|-var)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -152,6 +157,9 @@ while [ "$#" -gt 0 ]; do
     config)
         QMAKE_CONFIG="$QMAKE_CONFIG $VAL"
         ;;
+    var)
+        echo "$VAL" >> "$CONFIG_VARS"
+        ;;
     d)
         QMAKE_DEBUG="$QMAKE_DEBUG -d"
         ;;
@@ -205,6 +213,9 @@ Configure options:
     -static .................. Build static library
     -qmake ................... qmake to use
     -config (config) ......... Additional configuration options recognized by qmake
+                               (eg. -config warn_off)
+    -var (value) ............. Additional variables recognized by qmake
+                               (eg. -var "QMAKE_LFLAGS += -L/path/to/icu")
     -make (part) ............. Add part to the list of parts to be built at
                                make time (available parts: examples tests)
     -nomake (part) ........... Exclude part from the list of parts to be built

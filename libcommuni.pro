@@ -24,6 +24,7 @@ lessThan(QT_MAJOR_VERSION, 5) {
     }
 }
 
+CONFIG_VARS = $${OUT_PWD}$${QMAKE_DIR_SEP}.config.vars
 QMAKE_CACHE = $${OUT_PWD}$${QMAKE_DIR_SEP}.qmake.cache
 COMMUNI_CONFIG = $${OUT_PWD}$${QMAKE_DIR_SEP}communi-config.prf
 
@@ -33,6 +34,10 @@ static {
 } else {
     system(echo DEFINES+=COMMUNI_SHARED > $$QMAKE_CACHE)
     system(echo DEFINES+=COMMUNI_SHARED > $$COMMUNI_CONFIG)
+}
+
+exists($$CONFIG_VARS) {
+    system(echo include\\\($$CONFIG_VARS\\\) >> $$QMAKE_CACHE)
 }
 
 isEmpty(COMMUNI_INSTALL_LIBS):COMMUNI_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
