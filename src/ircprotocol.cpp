@@ -70,7 +70,8 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
     if (line.startsWith("AUTHENTICATE")) {
         const QList<QByteArray> args = line.split(' ');
         const bool auth = args.count() == 2 && args.at(1) == "+";
-        q->authenticate(auth && session->isSecure());
+        if (auth)
+            q->authenticate(true);
         if (!session->isConnected())
             session->sendData("CAP END");
         return;
@@ -174,9 +175,7 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
                 if (!request.isEmpty()) {
                     session->sendCommand(IrcCommand::createCapability("REQ", request));
                 } else {
-                    // TODO: #14: SASL over non-SSL connection
-                    if (session->isSecure())
-                        q->authenticate(false);
+                    q->authenticate(false);
                     session->sendData("CAP END");
                 }
             }
@@ -192,9 +191,7 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
         }
 
         if (!connected && !auth) {
-            // TODO: #14: SASL over non-SSL connection
-            if (session->isSecure())
-                q->authenticate(false);
+            q->authenticate(false);
             session->sendData("CAP END");
         }
     }
@@ -229,7 +226,6 @@ QAbstractSocket* IrcProtocol::socket() const
 void IrcProtocol::open()
 {
     Q_D(IrcProtocol);
-
     const bool secure = d->session->isSecure();
     if (secure)
         QMetaObject::invokeMethod(socket(), "startClientEncryption");
@@ -241,9 +237,6 @@ void IrcProtocol::open()
     // temporarily pause the handshake until CAP END is sent, so we
     // know whether the server supports the CAP extension.
     d->session->sendData("CAP LS");
-
-    if (!d->session->isSecure())
-        authenticate(false);
 
     d->session->sendCommand(IrcCommand::createNick(d->session->nickName()));
     d->session->sendRaw(QString("USER %1 hostname servername :%2").arg(d->session->userName(), d->session->realName()));
