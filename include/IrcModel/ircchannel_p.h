@@ -16,6 +16,7 @@
 #define IRCCHANNEL_P_H
 
 #include "ircchannel.h"
+#include "ircnetwork.h"
 #include "ircbuffer_p.h"
 #include <qstringlist.h>
 #include <qlist.h>
@@ -58,7 +59,7 @@ public:
     QString mode;
     QString topic;
     int joined, left;
-    IrcSessionInfo info;
+    IrcNetwork info;
     QList<IrcUser*> userList;
     QMap<QString, IrcUser*> userMap;
     QList<IrcUserModel*> userModels;

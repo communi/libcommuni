@@ -17,7 +17,6 @@
 
 #include "ircbuffer.h"
 #include "ircmessage.h"
-#include "ircsessioninfo.h"
 #include <qstringlist.h>
 #include <qlist.h>
 #include <qmap.h>

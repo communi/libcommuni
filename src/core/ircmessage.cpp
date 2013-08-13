@@ -16,7 +16,7 @@
 #include "ircmessage_p.h"
 #include "ircsession.h"
 #include "ircsession_p.h"
-#include "ircsessioninfo.h"
+#include "ircnetwork.h"
 #include "irccommand.h"
 #include "irc.h"
 #include <QVariant>
@@ -247,7 +247,7 @@ IrcMessage::Flags IrcMessage::flags() const
             d->flags |= IrcMessage::Own;
 
         if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
-                IrcSessionInfo(d->session).activeCapabilities().contains("identify-msg")) {
+                IrcNetwork(d->session).activeCapabilities().contains("identify-msg")) {
             QString msg = property("message").toString();
             if (msg.startsWith("+"))
                 d->flags |= IrcMessage::Identified;
@@ -831,8 +831,8 @@ bool IrcModeMessage::isReply() const
 IrcModeMessage::Kind IrcModeMessage::kind() const
 {
     Q_D(const IrcMessage);
-    IrcSessionInfo info(d->session);
-    QStringList channelModes = info.channelModes(IrcSessionInfo::AllTypes);
+    IrcNetwork info(d->session);
+    QStringList channelModes = info.channelModes(IrcNetwork::AllTypes);
     QString m = mode();
     if (m.startsWith(QLatin1Char('+')) || m.startsWith(QLatin1Char('-')))
         m.remove(0, 1);

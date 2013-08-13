@@ -14,8 +14,8 @@
 
 #include "ircprotocol.h"
 #include "ircsession_p.h"
-#include "ircsessioninfo.h"
 #include "ircmessagebuilder_p.h"
+#include "ircnetwork.h"
 #include "ircsession.h"
 #include "ircmessage.h"
 #include "irccommand.h"

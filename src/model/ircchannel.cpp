@@ -76,7 +76,7 @@ void IrcChannelPrivate::init(const QString& title, IrcBufferModel* m)
 {
     IrcBufferPrivate::init(title, m);
 
-    info = IrcSessionInfo(model->session());
+    info = IrcNetwork(model->session());
     const QStringList chanTypes = info.channelTypes();
     prefix = getPrefix(title, chanTypes);
     name = channelName(title, chanTypes);

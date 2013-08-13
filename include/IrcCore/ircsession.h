@@ -23,7 +23,7 @@
 
 class IrcCommand;
 class IrcProtocol;
-class IrcSessionInfo;
+class IrcNetwork;
 class IrcMessageFilter;
 class IrcSessionPrivate;
 
@@ -124,7 +124,7 @@ Q_SIGNALS:
     void activeChanged(bool active);
     void connectedChanged(bool connected);
 
-    void sessionInfoReceived(const IrcSessionInfo& info);
+    void sessionInfoReceived(const IrcNetwork& info);
     void secureChanged(bool secure);
 
 protected:

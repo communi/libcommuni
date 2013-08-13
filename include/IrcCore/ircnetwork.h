@@ -12,23 +12,23 @@
 * License for more details.
 */
 
-#ifndef IRCSESSIONINFO_H
-#define IRCSESSIONINFO_H
+#ifndef IRCNETWORK_H
+#define IRCNETWORK_H
 
 #include <IrcGlobal>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qshareddata.h>
 
 class IrcSession;
-class IrcSessionInfoPrivate;
+class IrcNetworkPrivate;
 
-class IRC_CORE_EXPORT IrcSessionInfo
+class IRC_CORE_EXPORT IrcNetwork
 {
 public:
-    explicit IrcSessionInfo(const IrcSession* session = 0);
-    IrcSessionInfo(const IrcSessionInfo& other);
-    IrcSessionInfo& operator=(const IrcSessionInfo& other);
-    ~IrcSessionInfo();
+    explicit IrcNetwork(const IrcSession* session = 0);
+    IrcNetwork(const IrcNetwork& other);
+    IrcNetwork& operator=(const IrcNetwork& other);
+    ~IrcNetwork();
 
     bool isValid() const;
 
@@ -73,9 +73,9 @@ public:
     QStringList activeCapabilities() const;
 
 private:
-    mutable QSharedDataPointer<IrcSessionInfoPrivate> d;
+    mutable QSharedDataPointer<IrcNetworkPrivate> d;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(IrcSessionInfo::ModeTypes)
+Q_DECLARE_OPERATORS_FOR_FLAGS(IrcNetwork::ModeTypes)
 
-#endif // IRCSESSIONINFO_H
+#endif // IRCNETWORK_H

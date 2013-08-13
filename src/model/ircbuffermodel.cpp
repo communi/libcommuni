@@ -14,8 +14,8 @@
 
 #include "ircbuffermodel.h"
 #include "ircbuffermodel_p.h"
-#include "ircsessioninfo.h"
 #include "ircbuffer_p.h"
+#include "ircnetwork.h"
 #include "ircchannel.h"
 #include "ircmessage.h"
 #include "ircsession.h"
@@ -535,7 +535,7 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
 IrcBuffer* IrcBufferModel::create(const QString& title)
 {
     Q_D(IrcBufferModel);
-    IrcSessionInfo info(d->session);
+    IrcNetwork info(d->session);
     const QStringList chanTypes = info.channelTypes();
     if (!title.isEmpty() && chanTypes.contains(title.at(0)))
         return new IrcChannel(this);
@@ -570,7 +570,7 @@ void IrcBufferModel::destroy(IrcBuffer* buffer)
  */
 bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another) const
 {
-    const QStringList prefixes = IrcSessionInfo(one->session()).channelTypes();
+    const QStringList prefixes = IrcNetwork(one->session()).channelTypes();
 
     const QString p1 = one->prefix();
     const QString p2 = another->prefix();

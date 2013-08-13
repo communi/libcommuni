@@ -14,9 +14,9 @@
 
 #include "ircsession.h"
 #include "ircsession_p.h"
-#include "ircsessioninfo.h"
 #include "ircmessagefilter_p.h"
 #include "ircprotocol.h"
+#include "ircnetwork.h"
 #include "irccommand.h"
 #include "ircmessage.h"
 #include "ircsender.h"
@@ -171,7 +171,7 @@
  */
 
 /*!
-    \fn void IrcSession::sessionInfoReceived(const IrcSessionInfo& info)
+    \fn void IrcSession::sessionInfoReceived(const IrcNetwork& info)
 
     This signal is emitted when the session \a info has been received.
  */
@@ -266,7 +266,7 @@ void IrcSessionPrivate::setInfo(const QHash<QString, QString>& value)
     Q_Q(IrcSession);
     if (info != value) {
         info.unite(value);
-        emit q->sessionInfoReceived(IrcSessionInfo(q));
+        emit q->sessionInfoReceived(IrcNetwork(q));
     }
 }
 

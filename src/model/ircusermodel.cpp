@@ -60,7 +60,7 @@
             setSourceModel(userModel);
         }
 
-        // IrcSessionInfo::prefixes()
+        // IrcNetwork::prefixes()
         void sortByPrefixes(const QStringList& prefixes)
         {
             m_prefixes = prefixes;

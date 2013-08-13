@@ -12,29 +12,29 @@
 * License for more details.
 */
 
-#include "ircsessioninfo.h"
+#include "ircnetwork.h"
 #include "ircsession_p.h"
 #include "ircprotocol.h"
 #include "ircsession.h"
 #include <QPointer>
 
 /*!
-    \file ircsessioninfo.h
-    \brief #include &lt;IrcSessionInfo&gt;
+    \file ircnetwork.h
+    \brief #include &lt;IrcNetwork&gt;
  */
 
 /*!
-    \class IrcSessionInfo ircsessioninfo.h IrcSessionInfo
+    \class IrcNetwork ircnetwork.h IrcNetwork
     \ingroup utility
-    \brief Provides session information.
+    \brief Provides network information.
 
-    IrcSessionInfo provides various session information. This includes
+    IrcNetwork provides various IRC network information. This includes
     the network name, supported channel type prefixes, channel user mode
     letters and prefix characters, and various numerical limitations,
     such as the maximum nick, channel, topic and message lengths, and
     available and active capabilities.
 
-    \note A valid IrcSessionInfo can only be constructed at any time
+    \note A valid IrcNetwork can only be constructed at any time
           after the IrcSession::sessionInfoReceived() signal has been
           emitted.
 
@@ -42,12 +42,12 @@
  */
 
 /*!
-    \enum IrcSessionInfo::ModeType
+    \enum IrcNetwork::ModeType
     This enum describes the channel mode types.
  */
 
 /*!
-    \var IrcSessionInfo::TypeA
+    \var IrcNetwork::TypeA
     \brief Type A modes
 
     Modes that add or remove an address to or from a list.
@@ -58,7 +58,7 @@
  */
 
 /*!
-    \var IrcSessionInfo::TypeB
+    \var IrcNetwork::TypeB
     \brief Type B modes
 
     Modes that change a setting on the channel. These modes
@@ -66,7 +66,7 @@
  */
 
 /*!
-    \var IrcSessionInfo::TypeC
+    \var IrcNetwork::TypeC
     \brief Type C modes
 
     Modes that change a setting on the channel. These modes
@@ -75,7 +75,7 @@
  */
 
 /*!
-    \var IrcSessionInfo::TypeD
+    \var IrcNetwork::TypeD
     \brief Type D modes
 
     Modes that change a setting on the channel. These modes
@@ -83,54 +83,54 @@
  */
 
 /*!
-    \var IrcSessionInfo::AllTypes
+    \var IrcNetwork::AllTypes
     \brief All type modes
  */
 
 /*!
-    \enum IrcSessionInfo::Limit
+    \enum IrcNetwork::Limit
     This enum describes the numerical limit types.
  */
 
 /*!
-    \var IrcSessionInfo::NickLength
+    \var IrcNetwork::NickLength
     \brief The maximum nick name length
  */
 
 /*!
-    \var IrcSessionInfo::ChannelLength
+    \var IrcNetwork::ChannelLength
     \brief The maximum channel name length
  */
 
 /*!
-    \var IrcSessionInfo::TopicLength
+    \var IrcNetwork::TopicLength
     \brief The maximum channel topic length
  */
 
 /*!
-    \var IrcSessionInfo::MessageLength
+    \var IrcNetwork::MessageLength
     \brief The maximum message length
  */
 
 /*!
-    \var IrcSessionInfo::KickReasonLength
+    \var IrcNetwork::KickReasonLength
     \brief The maximum kick reason length
  */
 
 /*!
-    \var IrcSessionInfo::AwayReasonLength
+    \var IrcNetwork::AwayReasonLength
     \brief The maximum away reason length
  */
 
 /*!
-    \var IrcSessionInfo::ModeCount
+    \var IrcNetwork::ModeCount
     \brief The maximum number of channel modes allowed per mode command
  */
 
-class IrcSessionInfoPrivate : public QSharedData
+class IrcNetworkPrivate : public QSharedData
 {
 public:
-    IrcSessionInfoPrivate() : valid(false), modeLimit(-1), channelLimit(-1), targetLimit(-1) { }
+    IrcNetworkPrivate() : valid(false), modeLimit(-1), channelLimit(-1), targetLimit(-1) { }
 
     bool valid;
     QHash<QString, QString> info;
@@ -143,7 +143,7 @@ public:
 /*!
     Constructs a new info object for IRC \a session.
  */
-IrcSessionInfo::IrcSessionInfo(const IrcSession* session) : d(new IrcSessionInfoPrivate)
+IrcNetwork::IrcNetwork(const IrcSession* session) : d(new IrcNetworkPrivate)
 {
     if (session)
         d->info = IrcSessionPrivate::get(session)->info;
@@ -154,14 +154,14 @@ IrcSessionInfo::IrcSessionInfo(const IrcSession* session) : d(new IrcSessionInfo
 /*!
     Constructs a copy of \a other IRC session info object.
  */
-IrcSessionInfo::IrcSessionInfo(const IrcSessionInfo& other) : d(other.d)
+IrcNetwork::IrcNetwork(const IrcNetwork& other) : d(other.d)
 {
 }
 
 /*!
     Assigns an \a other IRC session info object to this.
  */
-IrcSessionInfo& IrcSessionInfo::operator=(const IrcSessionInfo& other)
+IrcNetwork& IrcNetwork::operator=(const IrcNetwork& other)
 {
     if (this != &other)
         d = other.d;
@@ -171,22 +171,22 @@ IrcSessionInfo& IrcSessionInfo::operator=(const IrcSessionInfo& other)
 /*!
     Destructs the IRC session info.
  */
-IrcSessionInfo::~IrcSessionInfo()
+IrcNetwork::~IrcNetwork()
 {
 }
 
 /*!
     Returns \c true if the info object is valid, \c false otherwise.
 
-    \note A valid IrcSessionInfo can only be constructed at any time
+    \note A valid IrcNetwork can only be constructed at any time
           after the IrcSession::sessionInfoReceived() signal has been
-          emitted. Constructing an IrcSessionInfo before the session
+          emitted. Constructing an IrcNetwork before the session
           information has been received results to an invalid
-          IrcSessionInfo.
+          IrcNetwork.
 
     \sa isValid(), IrcSession::sessionInfoReceived()
  */
-bool IrcSessionInfo::isValid() const
+bool IrcNetwork::isValid() const
 {
     return d->session && d->valid;
 }
@@ -194,7 +194,7 @@ bool IrcSessionInfo::isValid() const
 /*!
     Returns the IRC network name.
  */
-QString IrcSessionInfo::network() const
+QString IrcNetwork::network() const
 {
     if (d->network.isEmpty())
         d->network = d->info.take("NETWORK");
@@ -206,7 +206,7 @@ QString IrcSessionInfo::network() const
 
     \sa prefixes(), modeToPrefix()
  */
-QStringList IrcSessionInfo::modes() const
+QStringList IrcNetwork::modes() const
 {
     if (d->modes.isEmpty()) {
         QString pfx = d->info.take("PREFIX");
@@ -221,7 +221,7 @@ QStringList IrcSessionInfo::modes() const
 
     \sa modes(), prefixToMode()
  */
-QStringList IrcSessionInfo::prefixes() const
+QStringList IrcNetwork::prefixes() const
 {
     if (d->prefixes.isEmpty()) {
         QString pfx = d->info.take("PREFIX");
@@ -236,7 +236,7 @@ QStringList IrcSessionInfo::prefixes() const
 
     \sa modes(), prefixToMode()
  */
-QString IrcSessionInfo::modeToPrefix(const QString& mode) const
+QString IrcNetwork::modeToPrefix(const QString& mode) const
 {
     return prefixes().value(modes().indexOf(mode));
 }
@@ -246,7 +246,7 @@ QString IrcSessionInfo::modeToPrefix(const QString& mode) const
 
     \sa prefixes(), modeToPrefix()
  */
-QString IrcSessionInfo::prefixToMode(const QString& prefix) const
+QString IrcNetwork::prefixToMode(const QString& prefix) const
 {
     return modes().value(prefixes().indexOf(prefix));
 }
@@ -254,7 +254,7 @@ QString IrcSessionInfo::prefixToMode(const QString& prefix) const
 /*!
     Returns the supported channel type prefix characters.
  */
-QStringList IrcSessionInfo::channelTypes() const
+QStringList IrcNetwork::channelTypes() const
 {
     if (d->channelTypes.isEmpty())
         d->channelTypes = d->info.take("CHANTYPES").split("", QString::SkipEmptyParts);
@@ -264,7 +264,7 @@ QStringList IrcSessionInfo::channelTypes() const
 /*!
     Returns the supported channel modes for \a type.
  */
-QStringList IrcSessionInfo::channelModes(IrcSessionInfo::ModeTypes types) const
+QStringList IrcNetwork::channelModes(IrcNetwork::ModeTypes types) const
 {
     if (d->channelModes.isEmpty())
         d->channelModes = d->info.take("CHANMODES").split(",", QString::SkipEmptyParts);
@@ -285,7 +285,7 @@ QStringList IrcSessionInfo::channelModes(IrcSessionInfo::ModeTypes types) const
 
     \sa modeLimit(), channelLimit(), targetLimit()
  */
-int IrcSessionInfo::numericLimit(Limit limit) const
+int IrcNetwork::numericLimit(Limit limit) const
 {
     QString key;
     switch (limit) {
@@ -319,7 +319,7 @@ static int numericValue(const QString& key, const QString& parameter)
 
     \sa numericLimit(), channelLimit(), targetLimit()
  */
-int IrcSessionInfo::modeLimit(const QString& mode) const
+int IrcNetwork::modeLimit(const QString& mode) const
 {
     if (d->modeLimit == -1)
         d->modeLimit = numericValue(mode, d->info.take("MAXLIST"));
@@ -331,7 +331,7 @@ int IrcSessionInfo::modeLimit(const QString& mode) const
 
     \sa numericLimit(), modeLimit(), targetLimit()
  */
-int IrcSessionInfo::channelLimit(const QString& type) const
+int IrcNetwork::channelLimit(const QString& type) const
 {
     if (d->channelLimit == -1)
         d->channelLimit = numericValue(type, d->info.take("CHANLIMIT"));
@@ -343,7 +343,7 @@ int IrcSessionInfo::channelLimit(const QString& type) const
 
     \sa numericLimit(), modeLimit(), channelLimit()
  */
-int IrcSessionInfo::targetLimit(const QString& command) const
+int IrcNetwork::targetLimit(const QString& command) const
 {
     if (d->targetLimit == -1)
         d->targetLimit = numericValue(command, d->info.take("TARGMAX"));
@@ -355,7 +355,7 @@ int IrcSessionInfo::targetLimit(const QString& command) const
 
     \sa IrcSession::capabilities(), IrcCapabilityMessage, IrcCommand::createCapability()
  */
-QStringList IrcSessionInfo::availableCapabilities() const
+QStringList IrcNetwork::availableCapabilities() const
 {
     if (d->session)
         return IrcSessionPrivate::get(d->session)->protocol->availableCapabilities();
@@ -367,7 +367,7 @@ QStringList IrcSessionInfo::availableCapabilities() const
 
     \sa IrcSession::capabilities(), IrcCapabilityMessage, IrcCommand::createCapability()
  */
-QStringList IrcSessionInfo::activeCapabilities() const
+QStringList IrcNetwork::activeCapabilities() const
 {
     if (d->session)
         return IrcSessionPrivate::get(d->session)->protocol->activeCapabilities();
