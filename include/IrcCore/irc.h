@@ -18,7 +18,7 @@
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
 
-class COMMUNI_CORE_EXPORT Irc : public QObject
+class IRC_CORE_EXPORT Irc : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Code ItemDataRole BufferType)

@@ -22,7 +22,7 @@
 
 class IrcTextFormatPrivate;
 
-class COMMUNI_UTIL_EXPORT IrcTextFormat
+class IRC_UTIL_EXPORT IrcTextFormat
 {
 public:
     IrcTextFormat();
@@ -44,16 +44,16 @@ public:
 
 private:
 #ifndef QT_NO_DATASTREAM
-    friend COMMUNI_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format);
-    friend COMMUNI_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format);
+    friend IRC_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format);
+    friend IRC_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format);
 #endif // QT_NO_DATASTREAM
 
     mutable QSharedDataPointer<IrcTextFormatPrivate> d;
 };
 
 #ifndef QT_NO_DATASTREAM
-COMMUNI_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format);
-COMMUNI_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format);
+IRC_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format);
+IRC_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format);
 #endif // QT_NO_DATASTREAM
 
 #endif // IRCTEXTFORMAT_H

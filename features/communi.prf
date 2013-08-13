@@ -18,24 +18,24 @@ macx:!qt_no_framework {
     LIBS += -L$$COMMUNI_INSTALL_LIBS
 }
 
-COMMUNI_MODULES =
+IRC_MODULES =
 for(MODULE, COMMUNI) {
     MODULE = $$lower($$MODULE)
-    isEqual(MODULE, "core"):COMMUNI_MODULES *= IrcCore
-    else:isEqual(MODULE, "model"):COMMUNI_MODULES *= IrcModel
-    else:isEqual(MODULE, "util"):COMMUNI_MODULES *= IrcUtil
+    isEqual(MODULE, "core"):IRC_MODULES *= IrcCore
+    else:isEqual(MODULE, "model"):IRC_MODULES *= IrcModel
+    else:isEqual(MODULE, "util"):IRC_MODULES *= IrcUtil
 }
 
-for(COMMUNI_MODULE, COMMUNI_MODULES) {
+for(IRC_MODULE, IRC_MODULES) {
     macx:!qt_no_framework {
-        INCLUDEPATH += $$COMMUNI_INSTALL_LIBS/$${COMMUNI_MODULE}.framework/Headers
-        LIBS += -framework $$COMMUNI_MODULE
+        INCLUDEPATH += $$COMMUNI_INSTALL_LIBS/$${IRC_MODULE}.framework/Headers
+        LIBS += -framework $$IRC_MODULE
     } else {
-        INCLUDEPATH += $$COMMUNI_INSTALL_HEADERS/$$COMMUNI_MODULE
-        DEPENDPATH += $$COMMUNI_INSTALL_HEADERS/$$COMMUNI_MODULE
+        INCLUDEPATH += $$COMMUNI_INSTALL_HEADERS/$$IRC_MODULE
+        DEPENDPATH += $$COMMUNI_INSTALL_HEADERS/$$IRC_MODULE
         REAL_TEMPLATE = $$TEMPLATE
         TEMPLATE = fakelib
-        LIBS += -l$$qtLibraryTarget($$COMMUNI_MODULE)
+        LIBS += -l$$qtLibraryTarget($$IRC_MODULE)
         TEMPLATE = $$REAL_TEMPLATE
     }
 }

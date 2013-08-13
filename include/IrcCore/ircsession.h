@@ -27,7 +27,7 @@ class IrcSessionInfo;
 class IrcMessageFilter;
 class IrcSessionPrivate;
 
-class COMMUNI_CORE_EXPORT IrcSession : public QObject
+class IRC_CORE_EXPORT IrcSession : public QObject
 {
     Q_OBJECT
 
@@ -148,7 +148,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-COMMUNI_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcSession* session);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcSession* session);
 #endif // QT_NO_DEBUG_STREAM
 
 #endif // IRCSESSION_H

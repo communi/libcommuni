@@ -2,7 +2,7 @@
 # Communi
 ######################################################################
 
-DEFINES += BUILD_COMMUNI_CORE
+DEFINES += BUILD_IRC_CORE
 
 INCDIR = $$PWD/../../include/IrcCore
 
@@ -59,11 +59,11 @@ include(../3rdparty/pkg.pri)
 }
 
 CONFIG(icu, icu|no_icu) {
-    DEFINES += COMMUNI_ICU
+    DEFINES += HAVE_ICU
     SOURCES += $$PWD/ircmessagedecoder_icu.cpp
     include(../3rdparty/icu/icu.pri)
 } else {
-    DEFINES += COMMUNI_UCHARDET
+    DEFINES += HAVE_UCHARDET
     SOURCES += $$PWD/ircmessagedecoder_uchardet.cpp
     include(../3rdparty/uchardet-0.0.1/uchardet.pri)
 }

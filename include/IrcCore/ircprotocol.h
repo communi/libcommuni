@@ -26,7 +26,7 @@ class IrcSession;
 class IrcMessage;
 class IrcProtocolPrivate;
 
-class COMMUNI_CORE_EXPORT IrcProtocol : public QObject
+class IRC_CORE_EXPORT IrcProtocol : public QObject
 {
     Q_OBJECT
 

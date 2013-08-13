@@ -23,7 +23,7 @@
 class IrcChannel;
 class IrcUserPrivate;
 
-class COMMUNI_MODEL_EXPORT IrcUser : public QObject
+class IRC_MODEL_EXPORT IrcUser : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)

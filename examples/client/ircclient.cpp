@@ -199,7 +199,7 @@ void IrcClient::receiveBufferMessage(IrcMessage* message)
 
 void IrcClient::createUi()
 {
-    setWindowTitle(tr("Communi %1 example client").arg(COMMUNI_VERSION_STR));
+    setWindowTitle(tr("Communi %1 example client").arg(IRC_VERSION_STR));
 
     // keep track of buffers
     bufferModel = new IrcBufferModel(session);
@@ -225,7 +225,7 @@ void IrcClient::createUi()
     textEdit = new QTextEdit(this);
     textEdit->setDocument(serverDocument);
     textEdit->setReadOnly(true);
-    textEdit->append(IrcMessageFormatter::formatMessage(tr("! Welcome to the Communi %1 example client.").arg(COMMUNI_VERSION_STR)));
+    textEdit->append(IrcMessageFormatter::formatMessage(tr("! Welcome to the Communi %1 example client.").arg(IRC_VERSION_STR)));
     textEdit->append(IrcMessageFormatter::formatMessage(tr("! This example connects %1 and joins %2.").arg(SERVER, CHANNEL)));
     textEdit->append(IrcMessageFormatter::formatMessage(tr("! PS. Available commands: JOIN, ME, NICK, PART")));
 
@@ -304,5 +304,5 @@ void IrcClient::createSession()
     session->setHost(SERVER);
     session->setUserName("communi");
     session->setNickName(tr("Communi%1").arg(qrand() % 99999));
-    session->setRealName(tr("Communi %1 example client").arg(COMMUNI_VERSION_STR));
+    session->setRealName(tr("Communi %1 example client").arg(IRC_VERSION_STR));
 }

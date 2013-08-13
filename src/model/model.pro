@@ -2,10 +2,10 @@
 # Communi
 ######################################################################
 
-COMMUNI_MODULE = IrcModel
+IRC_MODULE = IrcModel
 include(model.pri)
 include(../module_build.pri)
 include(../module_install.pri)
 
-COMMUNI_MODULES = IrcCore
+IRC_MODULES = IrcCore
 include(../module_deps.pri)

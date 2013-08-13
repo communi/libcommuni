@@ -22,7 +22,7 @@
 class IrcSession;
 class IrcLagTimerPrivate;
 
-class COMMUNI_UTIL_EXPORT IrcLagTimer : public QObject
+class IRC_UTIL_EXPORT IrcLagTimer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qint64 lag READ lag NOTIFY lagChanged)

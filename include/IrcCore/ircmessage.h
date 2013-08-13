@@ -25,7 +25,7 @@ class IrcSession;
 class IrcCommand;
 class IrcMessagePrivate;
 
-class COMMUNI_CORE_EXPORT IrcMessage : public QObject
+class IRC_CORE_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(IrcSession* session READ session)
@@ -107,7 +107,7 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IrcMessage::Flags)
 
-class COMMUNI_CORE_EXPORT IrcNickMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcNickMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString nick READ nick)
@@ -123,7 +123,7 @@ private:
     Q_DISABLE_COPY(IrcNickMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcQuitMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcQuitMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString reason READ reason)
@@ -139,7 +139,7 @@ private:
     Q_DISABLE_COPY(IrcQuitMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcJoinMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcJoinMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel)
@@ -155,7 +155,7 @@ private:
     Q_DISABLE_COPY(IrcJoinMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcPartMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcPartMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel)
@@ -173,7 +173,7 @@ private:
     Q_DISABLE_COPY(IrcPartMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcTopicMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcTopicMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel)
@@ -193,7 +193,7 @@ private:
     Q_DISABLE_COPY(IrcTopicMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcInviteMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcInviteMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString user READ user)
@@ -211,7 +211,7 @@ private:
     Q_DISABLE_COPY(IrcInviteMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcKickMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcKickMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel)
@@ -231,7 +231,7 @@ private:
     Q_DISABLE_COPY(IrcKickMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcModeMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcModeMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString target READ target)
@@ -258,7 +258,7 @@ private:
     Q_DISABLE_COPY(IrcModeMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcPrivateMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcPrivateMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString target READ target)
@@ -280,7 +280,7 @@ private:
     Q_DISABLE_COPY(IrcPrivateMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcNoticeMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcNoticeMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString target READ target)
@@ -300,7 +300,7 @@ private:
     Q_DISABLE_COPY(IrcNoticeMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcPingMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcPingMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString argument READ argument)
@@ -316,7 +316,7 @@ private:
     Q_DISABLE_COPY(IrcPingMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcPongMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcPongMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString argument READ argument)
@@ -332,7 +332,7 @@ private:
     Q_DISABLE_COPY(IrcPongMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcErrorMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcErrorMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString error READ error)
@@ -348,7 +348,7 @@ private:
     Q_DISABLE_COPY(IrcErrorMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcNumericMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcNumericMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(int code READ code)
@@ -364,7 +364,7 @@ private:
     Q_DISABLE_COPY(IrcNumericMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcCapabilityMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcCapabilityMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString subCommand READ subCommand)
@@ -382,7 +382,7 @@ private:
     Q_DISABLE_COPY(IrcCapabilityMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcMotdMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcMotdMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QStringList lines READ lines)
@@ -398,7 +398,7 @@ private:
     Q_DISABLE_COPY(IrcMotdMessage)
 };
 
-class COMMUNI_CORE_EXPORT IrcNamesMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcNamesMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel)
@@ -417,7 +417,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-COMMUNI_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcMessage* message);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcMessage* message);
 #endif // QT_NO_DEBUG_STREAM
 
 #endif // IRCMESSAGE_H

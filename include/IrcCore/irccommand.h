@@ -21,7 +21,7 @@
 
 class IrcCommandPrivate;
 
-class COMMUNI_CORE_EXPORT IrcCommand : public QObject
+class IRC_CORE_EXPORT IrcCommand : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
@@ -124,7 +124,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-COMMUNI_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcCommand* command);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcCommand* command);
 #endif // QT_NO_DEBUG_STREAM
 
 #endif // IRCCOMMAND_H

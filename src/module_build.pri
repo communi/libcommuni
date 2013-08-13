@@ -2,10 +2,10 @@
 # Communi
 ######################################################################
 
-isEmpty(COMMUNI_MODULE):error(COMMUNI_MODULE must be set)
+isEmpty(IRC_MODULE):error(IRC_MODULE must be set)
 
 TEMPLATE = lib
-TARGET = $$qtLibraryTarget($$COMMUNI_MODULE)
+TARGET = $$qtLibraryTarget($$IRC_MODULE)
 QT = core network
 !verbose:CONFIG += silent
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all

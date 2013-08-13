@@ -21,7 +21,7 @@
 class IrcMessage;
 class IrcMessageFilterPrivate;
 
-class COMMUNI_CORE_EXPORT IrcMessageFilter
+class IRC_CORE_EXPORT IrcMessageFilter
 {
 public:
     IrcMessageFilter();

@@ -2,7 +2,7 @@
 # Communi
 ######################################################################
 
-DEFINES += BUILD_COMMUNI_MODEL
+DEFINES += BUILD_IRC_MODEL
 
 INCDIR = $$PWD/../../include/IrcModel
 

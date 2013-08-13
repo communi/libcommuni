@@ -107,11 +107,11 @@
     Returns the version number of Communi at run-time as a string (for example, "1.2.3").
     This may be a different version than the version the application was compiled against.
 
-    \sa COMMUNI_VERSION and COMMUNI_VERSION_STR
+    \sa IRC_VERSION and IRC_VERSION_STR
  */
 const char* Irc::version()
 {
-    return COMMUNI_VERSION_STR;
+    return IRC_VERSION_STR;
 }
 
 /*!

@@ -2,7 +2,7 @@
 # Communi
 ######################################################################
 
-DEFINES += BUILD_COMMUNI_UTIL
+DEFINES += BUILD_IRC_UTIL
 
 INCDIR = $$PWD/../../include/IrcUtil
 

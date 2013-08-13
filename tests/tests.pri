@@ -18,5 +18,5 @@ CONFIG(debug, debug|release) {
 
 COMMUNI_BUILDDIR = $$OUT_PWD/../../..
 
-COMMUNI_MODULES = IrcCore IrcModel IrcUtil
+IRC_MODULES = IrcCore IrcModel IrcUtil
 include(../src/module_deps.pri)

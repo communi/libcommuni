@@ -2,7 +2,7 @@
 # Communi
 ######################################################################
 
-isEmpty(COMMUNI_MODULE):error(COMMUNI_MODULE must be set)
+isEmpty(IRC_MODULE):error(IRC_MODULE must be set)
 
 isEmpty(COMMUNI_INSTALL_LIBS):COMMUNI_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
 isEmpty(COMMUNI_INSTALL_BINS):COMMUNI_INSTALL_BINS = $$[QT_INSTALL_BINS]
@@ -29,6 +29,6 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
     QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$COMMUNI_INSTALL_LIBS/
 } else {
     headers.files = $$PUB_HEADERS $$CONV_HEADERS
-    headers.path = $$COMMUNI_INSTALL_HEADERS/$$COMMUNI_MODULE
+    headers.path = $$COMMUNI_INSTALL_HEADERS/$$IRC_MODULE
     INSTALLS += headers
 }

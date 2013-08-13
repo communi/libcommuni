@@ -21,7 +21,7 @@
 
 class IrcChannelPrivate;
 
-class COMMUNI_MODEL_EXPORT IrcChannel : public IrcBuffer
+class IRC_MODEL_EXPORT IrcChannel : public IrcBuffer
 {
     Q_OBJECT
     Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
