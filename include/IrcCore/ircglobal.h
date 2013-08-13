@@ -12,14 +12,14 @@
 * License for more details.
 */
 
-#ifndef IRCCOREGLOBAL_H
-#define IRCCOREGLOBAL_H
+#ifndef IRCGLOBAL_H
+#define IRCGLOBAL_H
 
 #include <QtCore/qglobal.h>
 
 /*!
-    \file irccoreglobal.h
-    \brief #include &lt;IrcCoreGlobal&gt;
+    \file ircglobal.h
+    \brief #include &lt;IrcGlobal&gt;
  */
 
 #if defined(COMMUNI_SHARED)
@@ -84,4 +84,4 @@
 #   define QT_FORWARD_DECLARE_CLASS(name) class name;
 #endif // QT_FORWARD_DECLARE_CLASS
 
-#endif // IRCCOREGLOBAL_H
+#endif // IRCGLOBAL_H
