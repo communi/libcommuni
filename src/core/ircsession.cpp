@@ -179,6 +179,7 @@
 IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     q_ptr(session),
     encoding("ISO-8859-15"),
+    network(0),
     protocol(0),
     socket(0),
     host(),
@@ -194,7 +195,6 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
 void IrcSessionPrivate::_irc_connected()
 {
     Q_Q(IrcSession);
-    info.clear();
     emit q->connecting();
     protocol->open();
 }
@@ -258,15 +258,6 @@ void IrcSessionPrivate::setConnected(bool value)
         emit q->connectedChanged(connected);
         if (connected)
             emit q->connected();
-    }
-}
-
-void IrcSessionPrivate::setInfo(const QHash<QString, QString>& value)
-{
-    Q_Q(IrcSession);
-    if (info != value) {
-        info.unite(value);
-        emit q->sessionInfoReceived(IrcNetwork(q));
     }
 }
 
@@ -345,6 +336,8 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
  */
 IrcSession::IrcSession(QObject* parent) : QObject(parent), d_ptr(new IrcSessionPrivate(this))
 {
+    Q_D(IrcSession);
+    d->network = new IrcNetwork(this);
     setSocket(new QTcpSocket(this));
     setProtocol(new IrcProtocol(this));
     qRegisterMetaType<IrcSender>("IrcSender");
@@ -671,6 +664,12 @@ void IrcSession::setSecure(bool secure)
         emit secureChanged(false);
     }
 #endif // QT_NO_OPENSSL
+}
+
+const IrcNetwork* IrcSession::network() const
+{
+    Q_D(const IrcSession);
+    return d->network;
 }
 
 /*!

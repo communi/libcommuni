@@ -59,7 +59,6 @@ public:
     QString mode;
     QString topic;
     int joined, left;
-    IrcNetwork info;
     QList<IrcUser*> userList;
     QMap<QString, IrcUser*> userMap;
     QList<IrcUserModel*> userModels;

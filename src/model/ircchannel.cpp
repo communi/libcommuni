@@ -76,8 +76,8 @@ void IrcChannelPrivate::init(const QString& title, IrcBufferModel* m)
 {
     IrcBufferPrivate::init(title, m);
 
-    info = IrcNetwork(model->session());
-    const QStringList chanTypes = info.channelTypes();
+    const IrcNetwork* network = model->session()->network();
+    const QStringList chanTypes = network->channelTypes();
     prefix = getPrefix(title, chanTypes);
     name = channelName(title, chanTypes);
 }
@@ -126,7 +126,8 @@ void IrcChannelPrivate::addUsers(const QStringList& names)
 {
     Q_Q(IrcChannel);
     QHash<QString, QString> unique;
-    const QStringList prefixes = info.prefixes();
+    const IrcNetwork* network = model->session()->network();
+    const QStringList prefixes = network->prefixes();
     foreach (const QString& name, names) {
         QString unprefixed = userName(name, prefixes);
         if (!userMap.contains(unprefixed))
@@ -144,7 +145,7 @@ void IrcChannelPrivate::addUsers(const QStringList& names)
             priv->channel = q;
             priv->setName(it.key());
             priv->setPrefix(it.value());
-            priv->setMode(info.prefixToMode(it.value()));
+            priv->setMode(network->prefixToMode(it.value()));
             userList.append(user);
             userMap.insert(user->name(), user);
             foreach (IrcUserModel* model, userModels)
@@ -222,6 +223,7 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
             bool add = true;
             QString mode = user->mode();
             QString prefix = user->prefix();
+            const IrcNetwork* network = model->session()->network();
             for (int i = 0; i < command.size(); ++i) {
                 QChar c = command.at(i);
                 if (c == QLatin1Char('+')) {
@@ -229,7 +231,7 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
                 } else if (c == QLatin1Char('-')) {
                     add = false;
                 } else {
-                    QString p = info.modeToPrefix(c);
+                    QString p = network->modeToPrefix(c);
                     if (add) {
                         if (!mode.contains(c))
                             mode += c;

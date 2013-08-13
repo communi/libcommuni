@@ -15,7 +15,7 @@
 #include "ircprotocol.h"
 #include "ircsession_p.h"
 #include "ircmessagebuilder_p.h"
-#include "ircnetwork.h"
+#include "ircnetwork_p.h"
 #include "ircsession.h"
 #include "ircmessage.h"
 #include "irccommand.h"
@@ -316,7 +316,7 @@ void IrcProtocol::setNick(const QString& nick)
 void IrcProtocol::setInfo(const QHash<QString, QString>& info)
 {
     Q_D(IrcProtocol);
-    IrcSessionPrivate* priv = IrcSessionPrivate::get(d->session);
+    IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->session->network());
     priv->setInfo(info);
 }
 

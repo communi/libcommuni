@@ -39,7 +39,6 @@ public:
     void setNick(const QString& nick);
     void setActive(bool active);
     void setConnected(bool connected);
-    void setInfo(const QHash<QString, QString>& info);
     void receiveMessage(IrcMessage* msg);
 
     static IrcSessionPrivate* get(const IrcSession* session)
@@ -49,6 +48,7 @@ public:
 
     IrcSession* q_ptr;
     QByteArray encoding;
+    IrcNetwork* network;
     IrcProtocol* protocol;
     QAbstractSocket* socket;
     QString host;
@@ -58,7 +58,6 @@ public:
     QString realName;
     bool active;
     bool connected;
-    QHash<QString, QString> info;
     QList<IrcMessageFilter*> filters;
 };
 

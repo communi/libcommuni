@@ -16,19 +16,20 @@
 #define IRCNETWORK_H
 
 #include <IrcGlobal>
+#include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
-#include <QtCore/qshareddata.h>
+#include <QtCore/qscopedpointer.h>
 
 class IrcSession;
 class IrcNetworkPrivate;
 
-class IRC_CORE_EXPORT IrcNetwork
+class IRC_CORE_EXPORT IrcNetwork : public QObject
 {
+    Q_OBJECT
+
 public:
-    explicit IrcNetwork(const IrcSession* session = 0);
-    IrcNetwork(const IrcNetwork& other);
-    IrcNetwork& operator=(const IrcNetwork& other);
-    ~IrcNetwork();
+    explicit IrcNetwork(IrcSession* session);
+    virtual ~IrcNetwork();
 
     bool isValid() const;
 
@@ -73,7 +74,9 @@ public:
     QStringList activeCapabilities() const;
 
 private:
-    mutable QSharedDataPointer<IrcNetworkPrivate> d;
+    QScopedPointer<IrcNetworkPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcNetwork)
+    Q_DISABLE_COPY(IrcNetwork)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IrcNetwork::ModeTypes)

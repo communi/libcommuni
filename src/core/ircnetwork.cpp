@@ -13,6 +13,7 @@
 */
 
 #include "ircnetwork.h"
+#include "ircnetwork_p.h"
 #include "ircsession_p.h"
 #include "ircprotocol.h"
 #include "ircsession.h"
@@ -127,45 +128,28 @@
     \brief The maximum number of channel modes allowed per mode command
  */
 
-class IrcNetworkPrivate : public QSharedData
-{
-public:
-    IrcNetworkPrivate() : valid(false), modeLimit(-1), channelLimit(-1), targetLimit(-1) { }
-
-    bool valid;
-    QHash<QString, QString> info;
-    QString network;
-    QStringList modes, prefixes, channelTypes, channelModes;
-    int modeLimit, channelLimit, targetLimit;
-    QPointer<IrcSession> session;
-};
-
-/*!
-    Constructs a new info object for IRC \a session.
- */
-IrcNetwork::IrcNetwork(const IrcSession* session) : d(new IrcNetworkPrivate)
-{
-    if (session)
-        d->info = IrcSessionPrivate::get(session)->info;
-    d->valid = !d->info.isEmpty();
-    d->session = const_cast<IrcSession*>(session);
-}
-
-/*!
-    Constructs a copy of \a other IRC session info object.
- */
-IrcNetwork::IrcNetwork(const IrcNetwork& other) : d(other.d)
+IrcNetworkPrivate::IrcNetworkPrivate(IrcNetwork* network) :
+    q_ptr(network), valid(false), modeLimit(-1), channelLimit(-1), targetLimit(-1)
 {
 }
 
-/*!
-    Assigns an \a other IRC session info object to this.
- */
-IrcNetwork& IrcNetwork::operator=(const IrcNetwork& other)
+void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& value)
 {
-    if (this != &other)
-        d = other.d;
-    return *this;
+//    Q_Q(IrcNetwork);
+    if (info != value) {
+        info.unite(value);
+        // TODO: emit the appropriate change signals
+//        emit q->sessionInfoReceived(IrcNetwork(q));
+    }
+}
+
+/*!
+    Constructs a new network object for IRC \a session.
+ */
+IrcNetwork::IrcNetwork(IrcSession* session) : QObject(session), d_ptr(new IrcNetworkPrivate(this))
+{
+    Q_D(IrcNetwork);
+    d->session = session;
 }
 
 /*!
@@ -188,6 +172,7 @@ IrcNetwork::~IrcNetwork()
  */
 bool IrcNetwork::isValid() const
 {
+    Q_D(const IrcNetwork);
     return d->session && d->valid;
 }
 
@@ -196,6 +181,7 @@ bool IrcNetwork::isValid() const
  */
 QString IrcNetwork::network() const
 {
+    Q_D(const IrcNetwork);
     if (d->network.isEmpty())
         d->network = d->info.take("NETWORK");
     return d->network;
@@ -208,6 +194,7 @@ QString IrcNetwork::network() const
  */
 QStringList IrcNetwork::modes() const
 {
+    Q_D(const IrcNetwork);
     if (d->modes.isEmpty()) {
         QString pfx = d->info.take("PREFIX");
         d->modes = pfx.mid(1, pfx.indexOf(')') - 1).split("", QString::SkipEmptyParts);
@@ -223,6 +210,7 @@ QStringList IrcNetwork::modes() const
  */
 QStringList IrcNetwork::prefixes() const
 {
+    Q_D(const IrcNetwork);
     if (d->prefixes.isEmpty()) {
         QString pfx = d->info.take("PREFIX");
         d->modes = pfx.mid(1, pfx.indexOf(')') - 1).split("", QString::SkipEmptyParts);
@@ -256,6 +244,7 @@ QString IrcNetwork::prefixToMode(const QString& prefix) const
  */
 QStringList IrcNetwork::channelTypes() const
 {
+    Q_D(const IrcNetwork);
     if (d->channelTypes.isEmpty())
         d->channelTypes = d->info.take("CHANTYPES").split("", QString::SkipEmptyParts);
     return d->channelTypes;
@@ -266,6 +255,7 @@ QStringList IrcNetwork::channelTypes() const
  */
 QStringList IrcNetwork::channelModes(IrcNetwork::ModeTypes types) const
 {
+    Q_D(const IrcNetwork);
     if (d->channelModes.isEmpty())
         d->channelModes = d->info.take("CHANMODES").split(",", QString::SkipEmptyParts);
     QStringList modes;
@@ -287,6 +277,7 @@ QStringList IrcNetwork::channelModes(IrcNetwork::ModeTypes types) const
  */
 int IrcNetwork::numericLimit(Limit limit) const
 {
+    Q_D(const IrcNetwork);
     QString key;
     switch (limit) {
         case NickLength:        key = QLatin1String("NICKLEN"); break;
@@ -321,6 +312,7 @@ static int numericValue(const QString& key, const QString& parameter)
  */
 int IrcNetwork::modeLimit(const QString& mode) const
 {
+    Q_D(const IrcNetwork);
     if (d->modeLimit == -1)
         d->modeLimit = numericValue(mode, d->info.take("MAXLIST"));
     return d->modeLimit;
@@ -333,6 +325,7 @@ int IrcNetwork::modeLimit(const QString& mode) const
  */
 int IrcNetwork::channelLimit(const QString& type) const
 {
+    Q_D(const IrcNetwork);
     if (d->channelLimit == -1)
         d->channelLimit = numericValue(type, d->info.take("CHANLIMIT"));
     return d->channelLimit;
@@ -345,6 +338,7 @@ int IrcNetwork::channelLimit(const QString& type) const
  */
 int IrcNetwork::targetLimit(const QString& command) const
 {
+    Q_D(const IrcNetwork);
     if (d->targetLimit == -1)
         d->targetLimit = numericValue(command, d->info.take("TARGMAX"));
     return d->targetLimit;
@@ -357,6 +351,7 @@ int IrcNetwork::targetLimit(const QString& command) const
  */
 QStringList IrcNetwork::availableCapabilities() const
 {
+    Q_D(const IrcNetwork);
     if (d->session)
         return IrcSessionPrivate::get(d->session)->protocol->availableCapabilities();
     return QStringList();
@@ -369,6 +364,7 @@ QStringList IrcNetwork::availableCapabilities() const
  */
 QStringList IrcNetwork::activeCapabilities() const
 {
+    Q_D(const IrcNetwork);
     if (d->session)
         return IrcSessionPrivate::get(d->session)->protocol->activeCapabilities();
     return QStringList();

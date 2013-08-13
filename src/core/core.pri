@@ -34,6 +34,7 @@ PRIV_HEADERS  = $$INCDIR/ircmessage_p.h
 PRIV_HEADERS += $$INCDIR/ircmessagebuilder_p.h
 PRIV_HEADERS += $$INCDIR/ircmessagedecoder_p.h
 PRIV_HEADERS += $$INCDIR/ircmessagefilter_p.h
+PRIV_HEADERS += $$INCDIR/ircnetwork_p.h
 PRIV_HEADERS += $$INCDIR/ircsession_p.h
 
 HEADERS += $$PUB_HEADERS

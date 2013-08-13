@@ -17,13 +17,13 @@
 
 #include <IrcGlobal>
 #include <IrcMessage>
+#include <IrcNetwork>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
 
 class IrcCommand;
 class IrcProtocol;
-class IrcNetwork;
 class IrcMessageFilter;
 class IrcSessionPrivate;
 
@@ -41,6 +41,7 @@ class IRC_CORE_EXPORT IrcSession : public QObject
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
     Q_PROPERTY(bool secure READ isSecure WRITE setSecure NOTIFY secureChanged)
+    Q_PROPERTY(const IrcNetwork* network READ network CONSTANT)
 
 public:
     explicit IrcSession(QObject* parent = 0);
@@ -72,6 +73,8 @@ public:
 
     bool isSecure() const;
     void setSecure(bool secure);
+
+    const IrcNetwork* network() const;
 
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
     Q_INVOKABLE bool sendData(const QByteArray& data);
@@ -124,7 +127,6 @@ Q_SIGNALS:
     void activeChanged(bool active);
     void connectedChanged(bool connected);
 
-    void sessionInfoReceived(const IrcNetwork& info);
     void secureChanged(bool secure);
 
 protected:
