@@ -7,6 +7,9 @@ script:
   - ./configure -config private_tests
   - make
   - make check
+  - sudo make install
+  - cd tests/build
+  - qmake && make
 notifications:
   email: false
   irc:
