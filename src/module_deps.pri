@@ -12,7 +12,7 @@ COMMUNI_INCDIR = $$COMMUNI_SOURCEDIR/include
 
 INCLUDEPATH += $$COMMUNI_INCDIR
 
-for (COMMUNI_MODULE, COMMUNI_MODULES) {
+for(COMMUNI_MODULE, COMMUNI_MODULES) {
     !contains(DEFINES, COMMUNI_STATIC):macx:!qt_no_framework {
         INCLUDEPATH += $$COMMUNI_LIBDIR/$${COMMUNI_MODULE}.framework/Headers
         QMAKE_LFLAGS += -F$$COMMUNI_LIBDIR # inject before system frameworks

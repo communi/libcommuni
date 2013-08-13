@@ -19,14 +19,14 @@ macx:!qt_no_framework {
 }
 
 COMMUNI_MODULES =
-for (MODULE, COMMUNI) {
+for(MODULE, COMMUNI) {
     MODULE = $$lower($$MODULE)
     isEqual(MODULE, "core"):COMMUNI_MODULES *= IrcCore
     else:isEqual(MODULE, "model"):COMMUNI_MODULES *= IrcModel
     else:isEqual(MODULE, "util"):COMMUNI_MODULES *= IrcUtil
 }
 
-for (COMMUNI_MODULE, COMMUNI_MODULES) {
+for(COMMUNI_MODULE, COMMUNI_MODULES) {
     macx:!qt_no_framework {
         INCLUDEPATH += $$COMMUNI_INSTALL_LIBS/$${COMMUNI_MODULE}.framework/Headers
         LIBS += -framework $$COMMUNI_MODULE
