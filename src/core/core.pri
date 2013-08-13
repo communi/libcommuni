@@ -11,6 +11,7 @@ INCLUDEPATH += $$PWD $$INCDIR
 
 CONV_HEADERS  = $$INCDIR/Irc
 CONV_HEADERS += $$INCDIR/IrcCommand
+CONV_HEADERS += $$INCDIR/IrcCore
 CONV_HEADERS += $$INCDIR/IrcGlobal
 CONV_HEADERS += $$INCDIR/IrcMessage
 CONV_HEADERS += $$INCDIR/IrcMessageFilter
@@ -20,6 +21,7 @@ CONV_HEADERS += $$INCDIR/IrcSessionInfo
 
 PUB_HEADERS  = $$INCDIR/irc.h
 PUB_HEADERS += $$INCDIR/irccommand.h
+PUB_HEADERS += $$INCDIR/irccore.h
 PUB_HEADERS += $$INCDIR/ircglobal.h
 PUB_HEADERS += $$INCDIR/ircmessage.h
 PUB_HEADERS += $$INCDIR/ircmessagefilter.h

@@ -13,11 +13,13 @@ CONV_HEADERS  = $$INCDIR/IrcCommandParser
 CONV_HEADERS += $$INCDIR/IrcLagTimer
 CONV_HEADERS += $$INCDIR/IrcPalette
 CONV_HEADERS += $$INCDIR/IrcTextFormat
+CONV_HEADERS += $$INCDIR/IrcUtil
 
 PUB_HEADERS  = $$INCDIR/irccommandparser.h
 PUB_HEADERS += $$INCDIR/irclagtimer.h
 PUB_HEADERS += $$INCDIR/ircpalette.h
 PUB_HEADERS += $$INCDIR/irctextformat.h
+PUB_HEADERS += $$INCDIR/ircutil.h
 
 PRIV_HEADERS  =
 
