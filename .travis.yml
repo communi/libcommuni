@@ -2,12 +2,9 @@ language: cpp
 compiler:
   - gcc
   - clang
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq libicu-dev
 script:
   - qmake -v
-  - ./configure -verbose -config private_tests -icu -var "QMAKE_CXX=$(CXX)" -var "QMAKE_CC=$(CC)"
+  - ./configure -verbose -config private_tests -var "QMAKE_CXX=${CXX}" -var "QMAKE_CC=${CC}"
   - make
   - make check
   - sudo make install
