@@ -30,6 +30,11 @@ public:
 
     void setInfo(const QHash<QString, QString>& info);
 
+    void setName(const QString& name);
+    void setModes(const QStringList& modes);
+    void setPrefixes(const QStringList& prefixes);
+    void setChannelTypes(const QStringList& types);
+
     static IrcNetworkPrivate* get(const IrcNetwork* network)
     {
         return network->d_ptr.data();
@@ -38,10 +43,9 @@ public:
     IrcNetwork* q_ptr;
     QPointer<IrcSession> session;
     bool valid;
-    mutable QHash<QString, QString> info;
-    mutable QString network;
-    mutable QStringList modes, prefixes, channelTypes, channelModes;
-    mutable int modeLimit, channelLimit, targetLimit;
+    QString name;
+    QStringList modes, prefixes, channelTypes, channelModes;
+    QHash<QString, int> numericLimits, modeLimits, channelLimits, targetLimits;
 };
 
 #endif // IRCNETWORK_P_H

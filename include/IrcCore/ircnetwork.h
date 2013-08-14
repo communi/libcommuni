@@ -26,6 +26,12 @@ class IrcNetworkPrivate;
 class IRC_CORE_EXPORT IrcNetwork : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+    Q_PROPERTY(QStringList modes READ modes NOTIFY modesChanged)
+    Q_PROPERTY(QStringList prefixes READ prefixes NOTIFY prefixesChanged)
+    Q_PROPERTY(QStringList channelTypes READ channelTypes NOTIFY channelTypesChanged)
+    Q_PROPERTY(QStringList availableCapabilities READ availableCapabilities NOTIFY availableCapabilitiesChanged)
+    Q_PROPERTY(QStringList activeCapabilities READ activeCapabilities NOTIFY activeCapabilitiesChanged)
 
 public:
     explicit IrcNetwork(IrcSession* session);
@@ -33,13 +39,13 @@ public:
 
     bool isValid() const;
 
-    QString network() const;
+    QString name() const;
 
     QStringList modes() const;
     QStringList prefixes() const;
 
-    QString modeToPrefix(const QString& mode) const;
-    QString prefixToMode(const QString& prefix) const;
+    Q_INVOKABLE QString modeToPrefix(const QString& mode) const;
+    Q_INVOKABLE QString prefixToMode(const QString& prefix) const;
 
     QStringList channelTypes() const;
 
@@ -72,6 +78,14 @@ public:
 
     QStringList availableCapabilities() const;
     QStringList activeCapabilities() const;
+
+Q_SIGNALS:
+    void nameChanged(const QString& name);
+    void modesChanged(const QStringList& modes);
+    void prefixesChanged(const QStringList& prefixes);
+    void channelTypesChanged(const QStringList& types);
+    void availableCapabilitiesChanged(const QStringList& capabilities);
+    void activeCapabilitiesChanged(const QStringList& capabilities);
 
 private:
     QScopedPointer<IrcNetworkPrivate> d_ptr;

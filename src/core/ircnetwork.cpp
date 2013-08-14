@@ -128,18 +128,89 @@
     \brief The maximum number of channel modes allowed per mode command
  */
 
-IrcNetworkPrivate::IrcNetworkPrivate(IrcNetwork* network) :
-    q_ptr(network), valid(false), modeLimit(-1), channelLimit(-1), targetLimit(-1)
+IrcNetworkPrivate::IrcNetworkPrivate(IrcNetwork* network) : q_ptr(network), valid(false)
 {
 }
 
-void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& value)
+static QHash<QString, int> numericValues(const QString& parameter)
 {
-//    Q_Q(IrcNetwork);
-    if (info != value) {
-        info.unite(value);
-        // TODO: emit the appropriate change signals
-//        emit q->sessionInfoReceived(IrcNetwork(q));
+    QHash<QString, int> values;
+    const QStringList keyValues = parameter.split(",", QString::SkipEmptyParts);
+    foreach (const QString& keyValue, keyValues)
+        values.insert(keyValue.section(":", 0, 0), keyValue.section(":", 1, 1).toInt());
+    return values;
+}
+
+void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& info)
+{
+    valid = !info.isEmpty();
+
+    if (info.contains("NETWORK"))
+        setName(info.value("NETWORK"));
+    if (info.contains("PREFIX")) {
+        const QString pfx = info.value("PREFIX");
+        setModes(pfx.mid(1, pfx.indexOf(')') - 1).split("", QString::SkipEmptyParts));
+        setPrefixes(pfx.mid(pfx.indexOf(')') + 1).split("", QString::SkipEmptyParts));
+    }
+    if (info.contains("CHANTYPES"))
+        setChannelTypes(info.value("CHANTYPES").split("", QString::SkipEmptyParts));
+
+    // TODO:
+    if (info.contains("NICKLEN"))
+        numericLimits.insert("NICKLEN", info.value("NICKLEN").toInt());
+    if (info.contains("CHANNELLEN"))
+        numericLimits.insert("CHANNELLEN", info.value("CHANNELLEN").toInt());
+    if (info.contains("TOPICLEN"))
+        numericLimits.insert("TOPICLEN", info.value("TOPICLEN").toInt());
+    if (info.contains("KICKLEN"))
+        numericLimits.insert("KICKLEN", info.value("KICKLEN").toInt());
+    if (info.contains("AWAYLEN"))
+        numericLimits.insert("AWAYLEN", info.value("AWAYLEN").toInt());
+    if (info.contains("MODES"))
+        numericLimits.insert("MODES", info.value("MODES").toInt());
+    if (info.contains("CHANMODES"))
+        channelModes = info.value("CHANMODES").split(",", QString::SkipEmptyParts);
+    if (info.contains("MAXLIST"))
+        modeLimits = numericValues(info.value("MAXLIST"));
+    if (info.contains("CHANLIMIT"))
+        channelLimits = numericValues(info.value("CHANLIMIT"));
+    if (info.contains("TARGMAX"))
+        targetLimits = numericValues(info.value("TARGMAX"));
+}
+
+void IrcNetworkPrivate::setName(const QString& value)
+{
+    Q_Q(IrcNetwork);
+    if (name != value) {
+        name = value;
+        emit q->nameChanged(value);
+    }
+}
+
+void IrcNetworkPrivate::setModes(const QStringList& value)
+{
+    Q_Q(IrcNetwork);
+    if (modes != value) {
+        modes = value;
+        emit q->modesChanged(value);
+    }
+}
+
+void IrcNetworkPrivate::setPrefixes(const QStringList& value)
+{
+    Q_Q(IrcNetwork);
+    if (prefixes != value) {
+        prefixes = value;
+        emit q->prefixesChanged(value);
+    }
+}
+
+void IrcNetworkPrivate::setChannelTypes(const QStringList& value)
+{
+    Q_Q(IrcNetwork);
+    if (channelTypes != value) {
+        channelTypes = value;
+        emit q->channelTypesChanged(value);
     }
 }
 
@@ -179,12 +250,10 @@ bool IrcNetwork::isValid() const
 /*!
     Returns the IRC network name.
  */
-QString IrcNetwork::network() const
+QString IrcNetwork::name() const
 {
     Q_D(const IrcNetwork);
-    if (d->network.isEmpty())
-        d->network = d->info.take("NETWORK");
-    return d->network;
+    return d->name;
 }
 
 /*!
@@ -195,11 +264,6 @@ QString IrcNetwork::network() const
 QStringList IrcNetwork::modes() const
 {
     Q_D(const IrcNetwork);
-    if (d->modes.isEmpty()) {
-        QString pfx = d->info.take("PREFIX");
-        d->modes = pfx.mid(1, pfx.indexOf(')') - 1).split("", QString::SkipEmptyParts);
-        d->prefixes = pfx.mid(pfx.indexOf(')') + 1).split("", QString::SkipEmptyParts);
-    }
     return d->modes;
 }
 
@@ -211,11 +275,6 @@ QStringList IrcNetwork::modes() const
 QStringList IrcNetwork::prefixes() const
 {
     Q_D(const IrcNetwork);
-    if (d->prefixes.isEmpty()) {
-        QString pfx = d->info.take("PREFIX");
-        d->modes = pfx.mid(1, pfx.indexOf(')') - 1).split("", QString::SkipEmptyParts);
-        d->prefixes = pfx.mid(pfx.indexOf(')') + 1).split("", QString::SkipEmptyParts);
-    }
     return d->prefixes;
 }
 
@@ -226,7 +285,8 @@ QStringList IrcNetwork::prefixes() const
  */
 QString IrcNetwork::modeToPrefix(const QString& mode) const
 {
-    return prefixes().value(modes().indexOf(mode));
+    Q_D(const IrcNetwork);
+    return d->prefixes.value(d->modes.indexOf(mode));
 }
 
 /*!
@@ -236,7 +296,8 @@ QString IrcNetwork::modeToPrefix(const QString& mode) const
  */
 QString IrcNetwork::prefixToMode(const QString& prefix) const
 {
-    return modes().value(prefixes().indexOf(prefix));
+    Q_D(const IrcNetwork);
+    return d->modes.value(d->prefixes.indexOf(prefix));
 }
 
 /*!
@@ -245,8 +306,6 @@ QString IrcNetwork::prefixToMode(const QString& prefix) const
 QStringList IrcNetwork::channelTypes() const
 {
     Q_D(const IrcNetwork);
-    if (d->channelTypes.isEmpty())
-        d->channelTypes = d->info.take("CHANTYPES").split("", QString::SkipEmptyParts);
     return d->channelTypes;
 }
 
@@ -256,8 +315,6 @@ QStringList IrcNetwork::channelTypes() const
 QStringList IrcNetwork::channelModes(IrcNetwork::ModeTypes types) const
 {
     Q_D(const IrcNetwork);
-    if (d->channelModes.isEmpty())
-        d->channelModes = d->info.take("CHANMODES").split(",", QString::SkipEmptyParts);
     QStringList modes;
     if (types & TypeA)
         modes += d->channelModes.value(0).split("", QString::SkipEmptyParts);
@@ -289,20 +346,7 @@ int IrcNetwork::numericLimit(Limit limit) const
         case ModeCount:         key = QLatin1String("MODES"); break;
         default:                break;
     }
-    return d->info.value(key, "-1").toInt();
-}
-
-/*!
-    \internal
- */
-static int numericValue(const QString& key, const QString& parameter)
-{
-    QStringList keyValues = parameter.split(",", QString::SkipEmptyParts);
-    foreach (const QString& keyValue, keyValues) {
-        if (!keyValue.section(":", 0, 0).compare(key, Qt::CaseInsensitive))
-            return keyValue.section(":", 1, 1).toInt();
-    }
-    return -1;
+    return d->numericLimits.value(key, -1);
 }
 
 /*!
@@ -313,9 +357,7 @@ static int numericValue(const QString& key, const QString& parameter)
 int IrcNetwork::modeLimit(const QString& mode) const
 {
     Q_D(const IrcNetwork);
-    if (d->modeLimit == -1)
-        d->modeLimit = numericValue(mode, d->info.take("MAXLIST"));
-    return d->modeLimit;
+    return d->modeLimits.value(mode);
 }
 
 /*!
@@ -326,9 +368,7 @@ int IrcNetwork::modeLimit(const QString& mode) const
 int IrcNetwork::channelLimit(const QString& type) const
 {
     Q_D(const IrcNetwork);
-    if (d->channelLimit == -1)
-        d->channelLimit = numericValue(type, d->info.take("CHANLIMIT"));
-    return d->channelLimit;
+    return d->channelLimits.value(type);
 }
 
 /*!
@@ -339,9 +379,7 @@ int IrcNetwork::channelLimit(const QString& type) const
 int IrcNetwork::targetLimit(const QString& command) const
 {
     Q_D(const IrcNetwork);
-    if (d->targetLimit == -1)
-        d->targetLimit = numericValue(command, d->info.take("TARGMAX"));
-    return d->targetLimit;
+    return d->targetLimits.value(command);
 }
 
 /*!
