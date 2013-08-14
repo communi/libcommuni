@@ -20,6 +20,8 @@
 #include "ircmessage.h"
 #include "ircconnection.h"
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircbuffermodel.h
     \brief #include &lt;IrcBufferModel&gt;
@@ -676,3 +678,5 @@ QModelIndex IrcBufferModel::index(int row, int column, const QModelIndex& parent
 }
 
 #include "moc_ircbuffermodel.cpp"
+
+IRC_END_NAMESPACE

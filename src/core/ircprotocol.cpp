@@ -22,6 +22,8 @@
 #include "irc.h"
 #include <QDebug>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcProtocolPrivate
 {
     Q_DECLARE_PUBLIC(IrcProtocol)
@@ -325,3 +327,5 @@ void IrcProtocol::receiveMessage(IrcMessage* message)
     IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->receiveMessage(message);
 }
+
+IRC_END_NAMESPACE

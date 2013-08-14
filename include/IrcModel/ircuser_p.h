@@ -17,6 +17,8 @@
 
 #include "ircuser.h"
 
+IRC_BEGIN_NAMESPACE
+
 class IrcUserPrivate
 {
     Q_DECLARE_PUBLIC(IrcUser)
@@ -37,5 +39,7 @@ public:
     QString prefix;
     QString mode;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCUSER_P_H

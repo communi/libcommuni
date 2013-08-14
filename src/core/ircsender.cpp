@@ -14,6 +14,8 @@
 
 #include "ircsender.h"
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircsender.h
     \brief #include &lt;IrcSender&gt;
@@ -271,3 +273,5 @@ QDebug operator<<(QDebug debug, const IrcSender& sender)
     return debug.space();
 }
 #endif // QT_NO_DEBUG_STREAM
+
+IRC_END_NAMESPACE

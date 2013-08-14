@@ -16,6 +16,8 @@
 #include "ircmessagefilter_p.h"
 #include "ircconnection.h"
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircmessagefilter.h
     \brief #include &lt;IrcMessageFilter&gt;
@@ -107,3 +109,5 @@ IrcMessageFilter::~IrcMessageFilter()
 
     \sa IrcConnection::installMessageFilter()
  */
+
+IRC_END_NAMESPACE

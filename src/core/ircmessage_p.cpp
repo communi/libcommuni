@@ -15,6 +15,8 @@
 #include "ircmessage_p.h"
 #include "ircmessagedecoder_p.h"
 
+IRC_BEGIN_NAMESPACE
+
 IrcMessagePrivate::IrcMessagePrivate() :
     connection(0), type(IrcMessage::Unknown), timeStamp(QDateTime::currentDateTime()), encoding("ISO-8859-15"), flags(-1)
 {
@@ -122,3 +124,5 @@ QString IrcMessagePrivate::decode(const QByteArray& data, const QByteArray& enco
     decoder.setEncoding(encoding);
     return decoder.decode(data);
 }
+
+IRC_END_NAMESPACE

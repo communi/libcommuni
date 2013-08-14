@@ -15,6 +15,8 @@
 #include "ircuser.h"
 #include "ircuser_p.h"
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircuser.h
     \brief #include &lt;IrcUser&gt;
@@ -143,3 +145,5 @@ IrcChannel* IrcUser::channel() const
     Q_D(const IrcUser);
     return d->channel;
 }
+
+IRC_END_NAMESPACE

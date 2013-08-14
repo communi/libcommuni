@@ -15,6 +15,8 @@
 #include "ircpalette.h"
 #include <QHash>
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircpalette.h
     \brief #include &lt;IrcPalette&gt;
@@ -268,3 +270,5 @@ QDataStream& operator>>(QDataStream& ds, IrcPalette& palette)
     return ds;
 }
 #endif // QT_NO_DATASTREAM
+
+IRC_END_NAMESPACE

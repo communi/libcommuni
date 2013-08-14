@@ -80,4 +80,24 @@
  */
 #define IRC_VERSION_STR "3.0.0"
 
+#ifdef IRC_NAMESPACE
+
+# define IRC_PREPEND_NAMESPACE(name) ::IRC_NAMESPACE::name
+# define IRC_USE_NAMESPACE using namespace ::IRC_NAMESPACE;
+# define IRC_BEGIN_NAMESPACE namespace IRC_NAMESPACE {
+# define IRC_END_NAMESPACE }
+# define IRC_FORWARD_DECLARE_CLASS(name) \
+    IRC_BEGIN_NAMESPACE class name; IRC_END_NAMESPACE \
+    using IRC_PREPEND_NAMESPACE(name);
+
+#else
+
+# define IRC_PREPEND_NAMESPACE(name) ::name
+# define IRC_USE_NAMESPACE
+# define IRC_BEGIN_NAMESPACE
+# define IRC_END_NAMESPACE
+# define IRC_FORWARD_DECLARE_CLASS(name) class name;
+
+#endif // IRC_NAMESPACE
+
 #endif // IRCGLOBAL_H

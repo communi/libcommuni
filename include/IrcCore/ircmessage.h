@@ -21,6 +21,8 @@
 #include <QtCore/qdatetime.h>
 #include <QtCore/qstringlist.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcConnection;
 class IrcCommand;
 class IrcMessagePrivate;
@@ -419,5 +421,7 @@ private:
 #ifndef QT_NO_DEBUG_STREAM
 IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcMessage* message);
 #endif // QT_NO_DEBUG_STREAM
+
+IRC_END_NAMESPACE
 
 #endif // IRCMESSAGE_H

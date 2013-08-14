@@ -17,6 +17,8 @@
 #include "ircuser.h"
 #include <qpointer.h>
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircusermodel.h
     \brief #include &lt;IrcUserModel&gt;
@@ -394,3 +396,7 @@ QModelIndex IrcUserModel::index(int row, int column, const QModelIndex& parent) 
 
     return createIndex(row, column, d->userAt(row));
 }
+
+#include "moc_ircusermodel.cpp"
+
+IRC_END_NAMESPACE

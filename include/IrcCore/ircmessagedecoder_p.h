@@ -15,8 +15,11 @@
 #ifndef IRCMESSAGEDECODER_P_H
 #define IRCMESSAGEDECODER_P_H
 
+#include <IrcGlobal>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qtextcodec.h>
+
+IRC_BEGIN_NAMESPACE
 
 class IrcMessageDecoder
 {
@@ -39,5 +42,7 @@ private:
         QTextCodec* fallback;
     } d;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCMESSAGEDECODER_P_H

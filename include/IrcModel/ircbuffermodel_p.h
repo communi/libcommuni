@@ -20,6 +20,8 @@
 #include "ircmessagefilter.h"
 #include <qpointer.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcBufferModelPrivate : public IrcMessageFilter
 {
     Q_DECLARE_PUBLIC(IrcBufferModel)
@@ -60,5 +62,7 @@ public:
     Qt::SortOrder sortOrder;
     bool dynamicSort;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCBUFFERMODEL_P_H

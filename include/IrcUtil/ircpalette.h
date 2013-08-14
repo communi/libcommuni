@@ -20,6 +20,8 @@
 #include <QtCore/qshareddata.h>
 #include <QtCore/qdatastream.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcPalettePrivate;
 
 class IRC_UTIL_EXPORT IrcPalette
@@ -68,5 +70,7 @@ private:
 IRC_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcPalette& palette);
 IRC_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcPalette& palette);
 #endif // QT_NO_DATASTREAM
+
+IRC_END_NAMESPACE
 
 #endif // IRCPALETTE_H

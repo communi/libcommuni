@@ -22,6 +22,8 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcConnection;
 class IrcMessage;
 class IrcProtocolPrivate;
@@ -59,5 +61,7 @@ private:
     Q_DECLARE_PRIVATE(IrcProtocol)
     Q_DISABLE_COPY(IrcProtocol)
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCPROTOCOL_H

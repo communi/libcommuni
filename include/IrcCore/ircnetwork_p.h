@@ -21,6 +21,8 @@
 #include <QString>
 #include <QPointer>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcNetworkPrivate
 {
     Q_DECLARE_PUBLIC(IrcNetwork)
@@ -47,5 +49,7 @@ public:
     QStringList modes, prefixes, channelTypes, channelModes;
     QHash<QString, int> numericLimits, modeLimits, channelLimits, targetLimits;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCNETWORK_P_H

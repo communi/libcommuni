@@ -21,6 +21,8 @@
 #include <qlist.h>
 #include <qmap.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcUser;
 class IrcUserModel;
 
@@ -64,5 +66,7 @@ public:
     QString name;
     QString prefix;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCBUFFER_P_H

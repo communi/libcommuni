@@ -22,6 +22,8 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcCommand;
 class IrcProtocol;
 class IrcMessageFilter;
@@ -156,5 +158,7 @@ private:
 #ifndef QT_NO_DEBUG_STREAM
 IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcConnection* connection);
 #endif // QT_NO_DEBUG_STREAM
+
+IRC_END_NAMESPACE
 
 #endif // IRCCONNECTION_H

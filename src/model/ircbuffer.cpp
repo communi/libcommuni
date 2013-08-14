@@ -20,6 +20,8 @@
 #include "ircchannel.h"
 #include "ircsender.h"
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircbuffer.h
     \brief #include &lt;IrcBuffer&gt;
@@ -372,5 +374,7 @@ bool IrcBuffer::sendCommand(IrcCommand* command)
         return d->model->connection()->sendCommand(command);
     return false;
 }
+
+IRC_END_NAMESPACE
 
 #include "moc_ircbuffer.cpp"

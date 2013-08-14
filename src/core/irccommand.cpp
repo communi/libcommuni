@@ -16,6 +16,8 @@
 #include <QTextCodec>
 #include <QDebug>
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file irccommand.h
     \brief #include &lt;IrcCommand&gt;
@@ -787,3 +789,5 @@ QDebug operator<<(QDebug debug, const IrcCommand* command)
     return debug.space();
 }
 #endif // QT_NO_DEBUG_STREAM
+
+IRC_END_NAMESPACE

@@ -19,6 +19,8 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcConnection;
 class IrcLagTimerPrivate;
 
@@ -53,5 +55,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _irc_pingServer())
     Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCLAGTIMER_H

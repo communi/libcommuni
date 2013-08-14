@@ -22,6 +22,8 @@
 #include <QVariant>
 #include <QDebug>
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircmessage.h
     \brief #include &lt;IrcMessage&gt;
@@ -1286,3 +1288,5 @@ QDebug operator<<(QDebug debug, const IrcMessage* message)
     return debug.space();
 }
 #endif // QT_NO_DEBUG_STREAM
+
+IRC_END_NAMESPACE

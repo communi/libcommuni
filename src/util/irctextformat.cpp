@@ -24,6 +24,8 @@
 #include <QStringList>
 #include <QRegExp>
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file irctextformat.h
     \brief #include &lt;IrcTextFormat&gt;
@@ -402,3 +404,5 @@ QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format)
     return ds;
 }
 #endif // QT_NO_DATASTREAM
+
+IRC_END_NAMESPACE

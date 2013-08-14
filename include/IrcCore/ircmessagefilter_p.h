@@ -20,6 +20,8 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qpointer.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcConnection;
 
 class IrcMessageFilterPrivate
@@ -32,5 +34,7 @@ public:
 
     QList<QPointer<IrcConnection> > connections;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCMESSAGEFILTER_P_H

@@ -15,6 +15,8 @@
 #include "irc.h"
 #include <QMetaEnum>
 
+IRC_BEGIN_NAMESPACE
+
 /*! \mainpage Communi - a cross-platform IRC framework written with Qt
 
     \section introduction Introduction
@@ -1938,3 +1940,5 @@ const char* Irc::toString(int code)
     \var Irc::TitleRole
     \brief Channel/user prefix and name (QString)
  */
+
+IRC_END_NAMESPACE

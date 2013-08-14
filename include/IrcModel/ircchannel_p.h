@@ -22,6 +22,8 @@
 #include <qlist.h>
 #include <qmap.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcChannelPrivate : public IrcBufferPrivate
 {
     Q_DECLARE_PUBLIC(IrcChannel)
@@ -63,5 +65,7 @@ public:
     QMap<QString, IrcUser*> userMap;
     QList<IrcUserModel*> userModels;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCCHANNEL_P_H

@@ -21,6 +21,8 @@
 #include <QtCore/qmetatype.h>
 #include <QtCore/qscopedpointer.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcChannel;
 class IrcCommand;
 class IrcMessage;
@@ -78,7 +80,9 @@ protected:
     Q_PRIVATE_SLOT(d_func(), void _irc_emitActiveChanged())
 };
 
-Q_DECLARE_METATYPE(IrcBuffer*)
-Q_DECLARE_METATYPE(QList<IrcBuffer*>)
+IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcBuffer*))
+Q_DECLARE_METATYPE(QList<IRC_PREPEND_NAMESPACE(IrcBuffer*)>)
 
 #endif // IRCBUFFER_H

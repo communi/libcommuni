@@ -20,6 +20,8 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qshareddata.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcTextFormatPrivate;
 
 class IRC_UTIL_EXPORT IrcTextFormat
@@ -55,5 +57,7 @@ private:
 IRC_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format);
 IRC_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format);
 #endif // QT_NO_DATASTREAM
+
+IRC_END_NAMESPACE
 
 #endif // IRCTEXTFORMAT_H

@@ -20,6 +20,8 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qabstractitemmodel.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcUser;
 class IrcChannel;
 class IrcMessage;
@@ -74,5 +76,7 @@ private:
     Q_DECLARE_PRIVATE(IrcUserModel)
     Q_DISABLE_COPY(IrcUserModel)
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCUSERMODEL_H

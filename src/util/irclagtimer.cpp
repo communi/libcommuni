@@ -20,6 +20,8 @@
 #include <QDateTime>
 #include <QTimer>
 
+IRC_BEGIN_NAMESPACE
+
 static const int DEFAULT_INTERVAL = 60;
 
 /*!
@@ -242,5 +244,7 @@ void IrcLagTimer::setInterval(int seconds)
         d->updateTimer();
     }
 }
+
+IRC_END_NAMESPACE
 
 #include "moc_irclagtimer.cpp"

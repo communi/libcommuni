@@ -23,6 +23,8 @@
 #include <QByteArray>
 #include <QAbstractSocket>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcConnectionPrivate
 {
     Q_DECLARE_PUBLIC(IrcConnection)
@@ -61,5 +63,7 @@ public:
     bool connected;
     QList<IrcMessageFilter*> filters;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCCONNECTION_P_H

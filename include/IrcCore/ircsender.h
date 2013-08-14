@@ -21,6 +21,8 @@
 #include <QtCore/qmetatype.h>
 #include <QtCore/qshareddata.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcSenderPrivate;
 
 class IRC_CORE_EXPORT IrcSender
@@ -53,10 +55,12 @@ private:
     mutable QSharedDataPointer<IrcSenderPrivate> d;
 };
 
-Q_DECLARE_METATYPE(IrcSender)
-
 #ifndef QT_NO_DEBUG_STREAM
 IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcSender& sender);
 #endif // QT_NO_DEBUG_STREAM
+
+IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcSender))
 
 #endif // IRCSENDER_H

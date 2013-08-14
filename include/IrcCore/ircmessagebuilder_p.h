@@ -15,8 +15,11 @@
 #ifndef IRCMESSAGEBUILDER_P_H
 #define IRCMESSAGEBUILDER_P_H
 
+#include <IrcGlobal>
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
+
+IRC_BEGIN_NAMESPACE
 
 class IrcConnection;
 class IrcMessage;
@@ -40,5 +43,7 @@ private:
         IrcMessage* message;
     } d;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCMESSAGEBUILDER_P_H

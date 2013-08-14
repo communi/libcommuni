@@ -15,6 +15,8 @@
 #include "ircmessagedecoder_p.h"
 #include "uchardet.h"
 
+IRC_BEGIN_NAMESPACE
+
 #define UCD(x) reinterpret_cast<uchardet_t>(x)
 
 void IrcMessageDecoder::initialize()
@@ -34,3 +36,5 @@ QByteArray IrcMessageDecoder::codecForData(const QByteArray &data) const
     uchardet_data_end(UCD(d.detector));
     return uchardet_get_charset(UCD(d.detector));
 }
+
+IRC_END_NAMESPACE

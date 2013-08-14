@@ -20,6 +20,8 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qabstractitemmodel.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcBuffer;
 class IrcConnection;
 class IrcMessage;
@@ -93,5 +95,7 @@ private:
 
     Q_PRIVATE_SLOT(d_func(), void _irc_bufferDestroyed(IrcBuffer*))
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCBUFFERMODEL_H

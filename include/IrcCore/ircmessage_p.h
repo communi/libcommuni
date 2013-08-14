@@ -23,6 +23,8 @@
 #include "ircsender.h"
 #include "ircmessage.h"
 
+IRC_BEGIN_NAMESPACE
+
 class IrcConnection;
 
 template <class T>
@@ -88,5 +90,7 @@ private:
     mutable IrcExplicitValue<QString> m_command;
     mutable IrcExplicitValue<QStringList> m_params;
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCMESSAGE_P_H

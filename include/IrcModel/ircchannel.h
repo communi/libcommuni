@@ -19,6 +19,8 @@
 #include <IrcBuffer>
 #include <QtCore/qmetatype.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcChannelPrivate;
 
 class IRC_MODEL_EXPORT IrcChannel : public IrcBuffer
@@ -48,7 +50,9 @@ private:
     Q_DISABLE_COPY(IrcChannel)
 };
 
-Q_DECLARE_METATYPE(IrcChannel*)
-Q_DECLARE_METATYPE(QList<IrcChannel*>)
+IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcChannel*))
+Q_DECLARE_METATYPE(QList<IRC_PREPEND_NAMESPACE(IrcChannel*)>)
 
 #endif // IRCCHANNEL

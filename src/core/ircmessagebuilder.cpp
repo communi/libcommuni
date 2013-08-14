@@ -16,6 +16,8 @@
 #include "ircmessage.h"
 #include "irc.h"
 
+IRC_BEGIN_NAMESPACE
+
 IrcMessageBuilder::IrcMessageBuilder(IrcConnection* connection)
 {
     d.connection = connection;
@@ -80,3 +82,5 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         break;
     }
 }
+
+IRC_END_NAMESPACE

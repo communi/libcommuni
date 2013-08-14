@@ -18,6 +18,8 @@
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IRC_CORE_EXPORT Irc : public QObject
 {
     Q_OBJECT
@@ -480,5 +482,7 @@ public:
         TitleRole
     };
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRC_H

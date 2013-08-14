@@ -15,6 +15,8 @@
 #include "irccommandparser.h"
 #include <climits>
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file irccommandparser.h
     \brief #include &lt;IrcCommandParser&gt;
@@ -394,3 +396,5 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
     }
     return 0;
 }
+
+IRC_END_NAMESPACE

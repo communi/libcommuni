@@ -20,6 +20,8 @@
 #include <QtCore/qmetatype.h>
 #include <QtCore/qscopedpointer.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcChannel;
 class IrcUserPrivate;
 
@@ -52,7 +54,9 @@ private:
     Q_DISABLE_COPY(IrcUser)
 };
 
-Q_DECLARE_METATYPE(IrcUser*)
-Q_DECLARE_METATYPE(QList<IrcUser*>)
+IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcUser*))
+Q_DECLARE_METATYPE(QList<IRC_PREPEND_NAMESPACE(IrcUser*)>)
 
 #endif // IRCUSER_H

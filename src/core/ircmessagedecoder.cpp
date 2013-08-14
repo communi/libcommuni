@@ -20,6 +20,8 @@ extern "C" {
     int IsUTF8Text(const char* utf8, int len);
 }
 
+IRC_BEGIN_NAMESPACE
+
 IRC_CORE_EXPORT bool irc_is_supported_encoding(const QByteArray& encoding)
 {
     static QSet<QByteArray> codecs = QTextCodec::availableCodecs().toSet();
@@ -62,3 +64,5 @@ QString IrcMessageDecoder::decode(const QByteArray& data) const
     Q_ASSERT(codec);
     return codec->toUnicode(data);
 }
+
+IRC_END_NAMESPACE

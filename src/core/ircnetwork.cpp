@@ -19,6 +19,8 @@
 #include "ircconnection.h"
 #include <QPointer>
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircnetwork.h
     \brief #include &lt;IrcNetwork&gt;
@@ -407,3 +409,5 @@ QStringList IrcNetwork::activeCapabilities() const
         return IrcConnectionPrivate::get(d->connection)->protocol->activeCapabilities();
     return QStringList();
 }
+
+IRC_END_NAMESPACE

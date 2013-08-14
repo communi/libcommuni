@@ -15,6 +15,8 @@
 #include "ircmessagedecoder_p.h"
 #include <unicode/ucsdet.h>
 
+IRC_BEGIN_NAMESPACE
+
 #define UCSD(x) reinterpret_cast<UCharsetDetector*>(x)
 
 void IrcMessageDecoder::initialize()
@@ -46,3 +48,5 @@ QByteArray IrcMessageDecoder::codecForData(const QByteArray &data) const
         qWarning("IrcMessageDecoder::codecForData() failed: %s", u_errorName(status));
     return encoding;
 }
+
+IRC_END_NAMESPACE

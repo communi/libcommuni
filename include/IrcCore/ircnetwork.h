@@ -20,6 +20,8 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qscopedpointer.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcConnection;
 class IrcNetworkPrivate;
 
@@ -94,5 +96,7 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IrcNetwork::ModeTypes)
+
+IRC_END_NAMESPACE
 
 #endif // IRCNETWORK_H

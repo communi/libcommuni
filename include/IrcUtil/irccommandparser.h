@@ -20,6 +20,8 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcCommandParserPrivate;
 
 class IRC_UTIL_EXPORT IrcCommandParser : public QObject
@@ -65,5 +67,7 @@ private:
     Q_DECLARE_PRIVATE(IrcCommandParser)
     Q_DISABLE_COPY(IrcCommandParser)
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCCOMMANDPARSER_H

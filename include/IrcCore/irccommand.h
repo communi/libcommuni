@@ -19,6 +19,8 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcCommandPrivate;
 
 class IRC_CORE_EXPORT IrcCommand : public QObject
@@ -126,5 +128,7 @@ private:
 #ifndef QT_NO_DEBUG_STREAM
 IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcCommand* command);
 #endif // QT_NO_DEBUG_STREAM
+
+IRC_END_NAMESPACE
 
 #endif // IRCCOMMAND_H

@@ -18,6 +18,8 @@
 #include <IrcGlobal>
 #include <QtCore/qscopedpointer.h>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcMessage;
 class IrcMessageFilterPrivate;
 
@@ -34,5 +36,7 @@ protected:
     Q_DECLARE_PRIVATE(IrcMessageFilter)
     Q_DISABLE_COPY(IrcMessageFilter)
 };
+
+IRC_END_NAMESPACE
 
 #endif // IRCMESSAGEFILTER_H

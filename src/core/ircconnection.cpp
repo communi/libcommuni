@@ -30,6 +30,8 @@
 #include <QSslSocket>
 #endif // QT_NO_OPENSSL
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircconnection.h
     \brief #include &lt;IrcConnection&gt;
@@ -904,5 +906,7 @@ QDebug operator<<(QDebug debug, const IrcConnection* connection)
     return debug.space();
 }
 #endif // QT_NO_DEBUG_STREAM
+
+IRC_END_NAMESPACE
 
 #include "moc_ircconnection.cpp"

@@ -22,6 +22,8 @@
 #include "ircuser_p.h"
 #include "ircsender.h"
 
+IRC_BEGIN_NAMESPACE
+
 /*!
     \file ircchannel.h
     \brief #include &lt;IrcChannel&gt;
@@ -431,3 +433,5 @@ void IrcChannel::part(const QString& reason)
 {
     sendCommand(IrcCommand::createPart(title(), reason));
 }
+
+IRC_END_NAMESPACE
