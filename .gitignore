@@ -44,7 +44,7 @@ moc_*.cpp
 /tests/auto/ircmessagedata/tst_ircmessagedata
 /tests/auto/ircmessagedecoder/tst_ircmessagedecoder
 /tests/auto/ircsender/tst_ircsender
-/tests/auto/ircsession/tst_ircsession
+/tests/auto/ircconnection/tst_ircconnection
 /tests/benchmarks/ircmessage/tst_ircmessage
 /tests/benchmarks/ircmessagedecoder/tst_ircmessagedecoder
 /tests/benchmarks/irctextformat/tst_irctextformat

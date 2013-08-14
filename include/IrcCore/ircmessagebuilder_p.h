@@ -18,7 +18,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 
-class IrcSession;
+class IrcConnection;
 class IrcMessage;
 class IrcNumericMessage;
 
@@ -27,7 +27,7 @@ class IrcMessageBuilder : public QObject
     Q_OBJECT
 
 public:
-    IrcMessageBuilder(IrcSession* session);
+    IrcMessageBuilder(IrcConnection* connection);
 
     void processMessage(IrcNumericMessage* message);
 
@@ -36,7 +36,7 @@ Q_SIGNALS:
 
 private:
     struct Data {
-        IrcSession* session;
+        IrcConnection* connection;
         IrcMessage* message;
     } d;
 };

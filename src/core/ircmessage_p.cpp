@@ -16,7 +16,7 @@
 #include "ircmessagedecoder_p.h"
 
 IrcMessagePrivate::IrcMessagePrivate() :
-    session(0), type(IrcMessage::Unknown), timeStamp(QDateTime::currentDateTime()), encoding("ISO-8859-15"), flags(-1)
+    connection(0), type(IrcMessage::Unknown), timeStamp(QDateTime::currentDateTime()), encoding("ISO-8859-15"), flags(-1)
 {
 }
 

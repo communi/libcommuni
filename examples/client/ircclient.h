@@ -14,7 +14,7 @@
 #include <QHash>
 
 class IrcBuffer;
-class IrcSession;
+class IrcConnection;
 class IrcMessage;
 class IrcUserModel;
 class IrcBufferModel;
@@ -55,7 +55,7 @@ private slots:
 private:
     void createUi();
     void createParser();
-    void createSession();
+    void createConnection();
 
     QLineEdit* lineEdit;
     QTextEdit* textEdit;
@@ -68,7 +68,7 @@ private:
     QTextDocument* serverDocument;
     QHash<IrcBuffer*, QTextDocument*> bufferDocuments;
 
-    IrcSession* session;
+    IrcConnection* connection;
     IrcBufferModel* bufferModel;
     QHash<IrcBuffer*, IrcUserModel*> userModels;
 };

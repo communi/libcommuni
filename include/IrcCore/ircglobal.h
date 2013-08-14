@@ -62,7 +62,7 @@
     \code
  #if IRC_VERSION >= 0x000300
      // SSL support since version 0.3.0
-     session->setSocket(new QSslSocket(session));
+     connection->setSocket(new QSslSocket(connection));
  #endif
     \endcode
 

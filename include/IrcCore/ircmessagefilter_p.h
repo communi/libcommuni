@@ -20,7 +20,7 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qpointer.h>
 
-class IrcSession;
+class IrcConnection;
 
 class IrcMessageFilterPrivate
 {
@@ -30,7 +30,7 @@ public:
         return filter->d_ptr.data();
     }
 
-    QList<QPointer<IrcSession> > sessions;
+    QList<QPointer<IrcConnection> > connections;
 };
 
 #endif // IRCMESSAGEFILTER_P_H

@@ -43,9 +43,9 @@
     This adds the necessary include paths and linker rules in order to use the library.
 
     Communi in a nutshell:
-    \li IrcSession manages the connection to an IRC server
-    \li IrcMessage represents a message received from an IRC server via IrcSession::messageReceived().
-    \li IrcCommand represents a command sent to an IRC server via IrcSession::sendCommand().
+    \li IrcConnection manages the connection to an IRC server
+    \li IrcMessage represents a message received from an IRC server via IrcConnection::messageReceived().
+    \li IrcCommand represents a command sent to an IRC server via IrcConnection::sendCommand().
 
     \defgroup core Core classes
     \brief The core classes to get started with.
@@ -67,8 +67,8 @@
     as a data model for Qt's item views - both in C++ and QML.
 
     \code
-    IrcSession* session = new IrcSession(this);
-    IrcBufferModel* model = new IrcBufferModel(session);
+    IrcConnection* connection = new IrcConnection(this);
+    IrcBufferModel* model = new IrcBufferModel(connection);
     connect(model, SIGNAL(added(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
     connect(model, SIGNAL(removed(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
     listView->setModel(model);

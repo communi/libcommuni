@@ -29,7 +29,7 @@
     The IrcCommand class supports the most common IRC commands out of the box,
     and can be extended for custom commands as well. See IrcCommand::Type for
     the list of built-in command types. IRC commands, as in IrcCommand instances,
-    are sent to the IRC server via IrcSession::sendCommand().
+    are sent to the IRC server via IrcConnection::sendCommand().
 
     \section create Creating commands
 
@@ -37,7 +37,7 @@
     IrcCommand::createXxx() methods.
 
     \warning IrcCommand instances must be allocated on the heap, since
-    IrcSession::sendCommand() takes ownership of the command and deletes
+    IrcConnection::sendCommand() takes ownership of the command and deletes
     it once it has been sent.
 
     \section custom Custom commands
@@ -45,7 +45,7 @@
     A "custom command" here refers to command types not listed in IrcCommand::Type,
     the list of built-in command types. There are two ways to send custom commands:
     \li by passing the string representation of a command directly to
-    IrcSession::sendRaw() or
+    IrcConnection::sendRaw() or
     \li by subclassing IrcCommand and reimplementing
     IrcCommand::toString(), which essentially creates the string representation
     of the command.
@@ -77,7 +77,7 @@
     };
     \endcode
 
-    \sa IrcSession::sendCommand(), IrcSession::sendRaw(), IrcCommand::Type
+    \sa IrcConnection::sendCommand(), IrcConnection::sendRaw(), IrcCommand::Type
  */
 
 /*!
@@ -189,7 +189,7 @@
 
 /*!
     \var IrcCommand::Quit
-    \brief A quit command (QUIT) is used to end a client session.
+    \brief A quit command (QUIT) is used to end a client connection.
  */
 
 /*!
@@ -325,7 +325,7 @@ void IrcCommand::setParameters(const QStringList& parameters)
 
 /*!
     This property holds the encoding that is used when
-    sending the command via IrcSession::sendCommand().
+    sending the command via IrcConnection::sendCommand().
 
     See QTextCodec::availableCodes() for the list of
     supported encodings. The default value is "UTF-8".

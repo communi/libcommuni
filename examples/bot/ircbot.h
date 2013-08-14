@@ -10,9 +10,9 @@
 #ifndef IRCBOT_H
 #define IRCBOT_H
 
-#include <IrcSession>
+#include <IrcConnection>
 
-class IrcBot : public IrcSession
+class IrcBot : public IrcConnection
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel WRITE setChannel)

@@ -12,10 +12,10 @@
 * License for more details.
 */
 
-#ifndef IRCSESSION_P_H
-#define IRCSESSION_P_H
+#ifndef IRCCONNECTION_P_H
+#define IRCCONNECTION_P_H
 
-#include "ircsession.h"
+#include "ircconnection.h"
 
 #include <QList>
 #include <QHash>
@@ -23,12 +23,12 @@
 #include <QByteArray>
 #include <QAbstractSocket>
 
-class IrcSessionPrivate
+class IrcConnectionPrivate
 {
-    Q_DECLARE_PUBLIC(IrcSession)
+    Q_DECLARE_PUBLIC(IrcConnection)
 
 public:
-    IrcSessionPrivate(IrcSession* session);
+    IrcConnectionPrivate(IrcConnection* connection);
 
     void _irc_connected();
     void _irc_disconnected();
@@ -41,12 +41,12 @@ public:
     void setConnected(bool connected);
     void receiveMessage(IrcMessage* msg);
 
-    static IrcSessionPrivate* get(const IrcSession* session)
+    static IrcConnectionPrivate* get(const IrcConnection* connection)
     {
-        return session->d_ptr.data();
+        return connection->d_ptr.data();
     }
 
-    IrcSession* q_ptr;
+    IrcConnection* q_ptr;
     QByteArray encoding;
     IrcNetwork* network;
     IrcProtocol* protocol;
@@ -61,4 +61,4 @@ public:
     QList<IrcMessageFilter*> filters;
 };
 
-#endif // IRCSESSION_P_H
+#endif // IRCCONNECTION_P_H

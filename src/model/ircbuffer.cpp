@@ -16,7 +16,7 @@
 #include "ircbuffer_p.h"
 #include "ircbuffermodel.h"
 #include "ircbuffermodel_p.h"
-#include "ircsession.h"
+#include "ircconnection.h"
 #include "ircchannel.h"
 #include "ircsender.h"
 
@@ -53,7 +53,7 @@
     - IrcMessage::Quit
     - IrcMessage::Topic
 
-    \sa IrcSession::messageReceived(), IrcBufferModel::messageIgnored()
+    \sa IrcConnection::messageReceived(), IrcBufferModel::messageIgnored()
  */
 
 IrcBufferPrivate::IrcBufferPrivate()
@@ -70,7 +70,7 @@ void IrcBufferPrivate::init(const QString& title, IrcBufferModel* m)
     Q_Q(IrcBuffer);
     model = m;
     name = title;
-    QObject::connect(m->session(), SIGNAL(connectedChanged(bool)), q, SLOT(_irc_emitActiveChanged()));
+    QObject::connect(m->connection(), SIGNAL(connectedChanged(bool)), q, SLOT(_irc_emitActiveChanged()));
 }
 
 void IrcBufferPrivate::setName(const QString& value)
@@ -308,15 +308,15 @@ IrcChannel* IrcBuffer::toChannel()
 }
 
 /*!
-    This property holds the session of the buffer.
+    This property holds the connection of the buffer.
 
     \par Access function:
-    \li \ref IrcSession* <b>session</b>() const
+    \li \ref IrcConnection* <b>connection</b>() const
  */
-IrcSession* IrcBuffer::session() const
+IrcConnection* IrcBuffer::connection() const
 {
     Q_D(const IrcBuffer);
-    return d->model->session();
+    return d->model->connection();
 }
 
 /*!
@@ -335,7 +335,7 @@ IrcBufferModel* IrcBuffer::model() const
     \property bool IrcBuffer::active
     This property holds whether the buffer is active.
 
-    A buffer is considered active when the \ref IrcBuffer::session "session"
+    A buffer is considered active when the \ref IrcBuffer::connection "connection"
     is connected. Furthermore, channel buffers are only considered active when
     the user is on the channel.
 
@@ -345,11 +345,11 @@ IrcBufferModel* IrcBuffer::model() const
     \par Notifier signal:
     \li void <b>activeChanged</b>(bool active)
 
-    \sa IrcSession::connected
+    \sa IrcConnection::connected
  */
 bool IrcBuffer::isActive() const
 {
-    if (IrcSession* s = session())
+    if (IrcConnection* s = connection())
         return s->isConnected();
     return false;
 }
@@ -359,17 +359,17 @@ bool IrcBuffer::isActive() const
 
     This method is provided for convenience. It is equal to:
     \code
-    IrcSession* session = buffer->session();
-    session->sendCommand(command);
+    IrcConnection* connection = buffer->connection();
+    connection->sendCommand(command);
     \endcode
 
-    \sa IrcSession::sendCommand()
+    \sa IrcConnection::sendCommand()
  */
 bool IrcBuffer::sendCommand(IrcCommand* command)
 {
     Q_D(IrcBuffer);
-    if (d->model && d->model->session())
-        return d->model->session()->sendCommand(command);
+    if (d->model && d->model->connection())
+        return d->model->connection()->sendCommand(command);
     return false;
 }
 

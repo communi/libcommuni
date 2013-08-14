@@ -18,7 +18,7 @@
 #include "ircnetwork.h"
 #include "ircchannel.h"
 #include "ircmessage.h"
-#include "ircsession.h"
+#include "ircconnection.h"
 
 /*!
     \file ircbuffermodel.h
@@ -37,8 +37,8 @@
     and QML.
 
     \code
-    IrcSession* session = new IrcSession(this);
-    IrcBufferModel* model = new IrcBufferModel(session);
+    IrcConnection* connection = new IrcConnection(this);
+    IrcBufferModel* model = new IrcBufferModel(connection);
     connect(model, SIGNAL(added(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
     connect(model, SIGNAL(removed(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
     listView->setModel(model);
@@ -81,7 +81,7 @@
     to handle IrcBuffer::messageReceived(), this signal makes it easy to
     implement handling for the rest, non-buffer specific messages.
 
-    \sa IrcSession::messageReceived(), IrcBuffer::messageReceived()
+    \sa IrcConnection::messageReceived(), IrcBuffer::messageReceived()
  */
 
 IrcBufferModelPrivate::IrcBufferModelPrivate(IrcBufferModel* q) :
@@ -151,7 +151,7 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
             removeBuffer(buffer);
     } else if (msg->type() == IrcMessage::Kick) {
         const IrcKickMessage* kickMsg = static_cast<IrcKickMessage*>(msg);
-        if (!kickMsg->user().compare(msg->session()->nickName(), Qt::CaseInsensitive))
+        if (!kickMsg->user().compare(msg->connection()->nickName(), Qt::CaseInsensitive))
             removeBuffer(kickMsg->channel());
     }
 
@@ -253,13 +253,13 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
 /*!
     Constructs a new model with \a parent.
 
-    \note If \a parent is an instance of IrcSession, it will be
-    automatically assigned to \ref IrcBufferModel::session "session".
+    \note If \a parent is an instance of IrcConnection, it will be
+    automatically assigned to \ref IrcBufferModel::connection "connection".
  */
 IrcBufferModel::IrcBufferModel(QObject* parent)
     : QAbstractListModel(parent), d_ptr(new IrcBufferModelPrivate(this))
 {
-    setSession(qobject_cast<IrcSession*>(parent));
+    setConnection(qobject_cast<IrcConnection*>(parent));
 
     qRegisterMetaType<IrcBuffer*>();
     qRegisterMetaType<QList<IrcBuffer*> >();
@@ -281,29 +281,29 @@ IrcBufferModel::~IrcBufferModel()
 }
 
 /*!
-    This property holds the session.
+    This property holds the connection.
 
     \par Access functions:
-    \li \ref IrcSession* <b>session</b>() const
-    \li void <b>setSession</b>(\ref IrcSession* session)
+    \li \ref IrcConnection* <b>connection</b>() const
+    \li void <b>setConnection</b>(\ref IrcConnection* connection)
 
-    \warning Changing the session on the fly is not supported.
+    \warning Changing the connection on the fly is not supported.
  */
-IrcSession* IrcBufferModel::session() const
+IrcConnection* IrcBufferModel::connection() const
 {
     Q_D(const IrcBufferModel);
-    return d->session;
+    return d->connection;
 }
 
-void IrcBufferModel::setSession(IrcSession* session)
+void IrcBufferModel::setConnection(IrcConnection* connection)
 {
     Q_D(IrcBufferModel);
-    if (d->session != session) {
-        if (d->session)
-            qFatal("IrcBufferModel::setSession(): changing the session on the fly is not supported.");
-        d->session = session;
-        d->session->installMessageFilter(d);
-        emit sessionChanged(session);
+    if (d->connection != connection) {
+        if (d->connection)
+            qFatal("IrcBufferModel::setConnection(): changing the connection on the fly is not supported.");
+        d->connection = connection;
+        d->connection->installMessageFilter(d);
+        emit connectionChanged(connection);
     }
 }
 
@@ -535,7 +535,7 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
 IrcBuffer* IrcBufferModel::create(const QString& title)
 {
     Q_D(IrcBufferModel);
-    IrcNetwork info(d->session);
+    IrcNetwork info(d->connection);
     const QStringList chanTypes = info.channelTypes();
     if (!title.isEmpty() && chanTypes.contains(title.at(0)))
         return new IrcChannel(this);
@@ -570,7 +570,7 @@ void IrcBufferModel::destroy(IrcBuffer* buffer)
  */
 bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another) const
 {
-    const QStringList prefixes = IrcNetwork(one->session()).channelTypes();
+    const QStringList prefixes = IrcNetwork(one->connection()).channelTypes();
 
     const QString p1 = one->prefix();
     const QString p2 = another->prefix();

@@ -12,8 +12,8 @@
 * License for more details.
 */
 
-#include "ircsession.h"
-#include "ircsession_p.h"
+#include "ircconnection.h"
+#include "ircconnection_p.h"
 #include "ircmessagefilter_p.h"
 #include "ircprotocol.h"
 #include "ircnetwork.h"
@@ -31,18 +31,18 @@
 #endif // QT_NO_OPENSSL
 
 /*!
-    \file ircsession.h
-    \brief #include &lt;IrcSession&gt;
+    \file ircconnection.h
+    \brief #include &lt;IrcConnection&gt;
  */
 
 /*!
-    \class IrcSession ircsession.h IrcSession
+    \class IrcConnection ircconnection.h IrcConnection
     \ingroup core
     \brief Provides means to establish a connection to an IRC server.
 
-    \section session Session management
+    \section connection Connection management
 
-    Before \ref open() "opening" a session, it must be first initialized
+    Before \ref open() "opening" a connection, it must be first initialized
     with \ref host, \ref userName, \ref nickName and \ref realName.
 
     The connection status may be queried at any time via \ref active
@@ -51,8 +51,8 @@
     \li connecting()   - The underlying socket has been connected, but
                          the IRC connection is not yet fully established.
     \li connected()    - The IRC connection has been established,
-                         and the session is ready to start sending commands.
-    \li disconnected() - The session has been disconnected.
+                         and the connection is ready to start sending commands.
+    \li disconnected() - The connection has been disconnected.
 
     \section messages Receiving messages
 
@@ -71,35 +71,35 @@
     \section example Example
 
     \code
-    IrcSession* session = new IrcSession(this);
-    connect(session, SIGNAL(connected()), this, SLOT(onConnected())); // ready to send commands
-    connect(session, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(onMessageReceived(IrcMessage*)));
-    session->setHost("irc.server.com");
-    session->setUserName("me");
-    session->setNickName("myself");
-    session->setRealName("And I");
-    session->open();
+    IrcConnection* connection = new IrcConnection(this);
+    connect(connection, SIGNAL(connected()), this, SLOT(onConnected())); // ready to send commands
+    connect(connection, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(onMessageReceived(IrcMessage*)));
+    connection->setHost("irc.server.com");
+    connection->setUserName("me");
+    connection->setNickName("myself");
+    connection->setRealName("And I");
+    connection->open();
     \endcode
 
     \sa IrcMessage and IrcCommand
  */
 
 /*!
-    \fn void IrcSession::connecting()
+    \fn void IrcConnection::connecting()
 
     This signal is emitted when the connection is being established.
  */
 
 /*!
-    \fn void IrcSession::password(QString* password)
+    \fn void IrcConnection::password(QString* password)
 
     This signal is emitted when the connection \a password may be set.
 
-    \note IrcSession does not store the password.
+    \note IrcConnection does not store the password.
  */
 
 /*!
-    \fn void IrcSession::nickNameReserved(QString* alternate)
+    \fn void IrcConnection::nickNameReserved(QString* alternate)
 
     This signal is emitted when the requested nick name is reserved
     and an \a alternate nick name should be provided.
@@ -108,14 +108,14 @@
  */
 
 /*!
-    \fn void IrcSession::capabilities(const QStringList& available, QStringList* request)
+    \fn void IrcConnection::capabilities(const QStringList& available, QStringList* request)
 
     This signal is emitted when the connection capabilities may be requested.
     Fill the \a request with capabilities from the \a available capabilities.
  */
 
 /*!
-    \fn void IrcSession::connected()
+    \fn void IrcConnection::connected()
 
     This signal is emitted when the connection has been established ie.
     the welcome message has been received and the server is ready to receive commands.
@@ -124,13 +124,13 @@
  */
 
 /*!
-    \fn void IrcSession::disconnected()
+    \fn void IrcConnection::disconnected()
 
-    This signal is emitted when the session has been disconnected.
+    This signal is emitted when the connection has been disconnected.
  */
 
 /*!
-    \fn void IrcSession::socketError(QAbstractSocket::SocketError error)
+    \fn void IrcConnection::socketError(QAbstractSocket::SocketError error)
 
     This signal is emitted whenever a socket \a error occurs.
 
@@ -138,7 +138,7 @@
  */
 
 /*!
-    \fn void IrcSession::socketStateChanged(QAbstractSocket::SocketState state)
+    \fn void IrcConnection::socketStateChanged(QAbstractSocket::SocketState state)
 
     This signal is emitted whenever the socket's \a state changes.
 
@@ -146,7 +146,7 @@
  */
 
 /*!
-    \fn void IrcSession::messageReceived(IrcMessage* message)
+    \fn void IrcConnection::messageReceived(IrcMessage* message)
 
     This signal is emitted whenever any type of \a message is received.
 
@@ -171,13 +171,13 @@
  */
 
 /*!
-    \fn void IrcSession::sessionInfoReceived(const IrcNetwork& info)
+    \fn void IrcConnection::connectionInfoReceived(const IrcNetwork& info)
 
-    This signal is emitted when the session \a info has been received.
+    This signal is emitted when the connection \a info has been received.
  */
 
-IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
-    q_ptr(session),
+IrcConnectionPrivate::IrcConnectionPrivate(IrcConnection* connection) :
+    q_ptr(connection),
     encoding("ISO-8859-15"),
     network(0),
     protocol(0),
@@ -192,67 +192,67 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
 {
 }
 
-void IrcSessionPrivate::_irc_connected()
+void IrcConnectionPrivate::_irc_connected()
 {
-    Q_Q(IrcSession);
+    Q_Q(IrcConnection);
     emit q->connecting();
     protocol->open();
 }
 
-void IrcSessionPrivate::_irc_disconnected()
+void IrcConnectionPrivate::_irc_disconnected()
 {
-    Q_Q(IrcSession);
+    Q_Q(IrcConnection);
     emit q->disconnected();
 }
 
-void IrcSessionPrivate::_irc_error(QAbstractSocket::SocketError error)
+void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
-    Q_Q(IrcSession);
+    Q_Q(IrcConnection);
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qWarning() << "IrcSession: socket error:" << error;
+    if (dbg) qWarning() << "IrcConnection: socket error:" << error;
     setConnected(false);
     setActive(false);
     emit q->socketError(error);
 }
 
-void IrcSessionPrivate::_irc_state(QAbstractSocket::SocketState state)
+void IrcConnectionPrivate::_irc_state(QAbstractSocket::SocketState state)
 {
-    Q_Q(IrcSession);
+    Q_Q(IrcConnection);
     setActive(state != QAbstractSocket::UnconnectedState);
     if (state != QAbstractSocket::ConnectedState)
         setConnected(false);
 
     static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
-    if (dbg) qDebug() << "IrcSession: socket state:" << state << host;
+    if (dbg) qDebug() << "IrcConnection: socket state:" << state << host;
     emit q->socketStateChanged(state);
 }
 
-void IrcSessionPrivate::_irc_readData()
+void IrcConnectionPrivate::_irc_readData()
 {
     protocol->read();
 }
 
-void IrcSessionPrivate::setNick(const QString& nick)
+void IrcConnectionPrivate::setNick(const QString& nick)
 {
-    Q_Q(IrcSession);
+    Q_Q(IrcConnection);
     if (nickName != nick) {
         nickName = nick;
         emit q->nickNameChanged(nick);
     }
 }
 
-void IrcSessionPrivate::setActive(bool value)
+void IrcConnectionPrivate::setActive(bool value)
 {
-    Q_Q(IrcSession);
+    Q_Q(IrcConnection);
     if (active != value) {
         active = value;
         emit q->activeChanged(active);
     }
 }
 
-void IrcSessionPrivate::setConnected(bool value)
+void IrcConnectionPrivate::setConnected(bool value)
 {
-    Q_Q(IrcSession);
+    Q_Q(IrcConnection);
     if (connected != value) {
         connected = value;
         emit q->connectedChanged(connected);
@@ -261,9 +261,9 @@ void IrcSessionPrivate::setConnected(bool value)
     }
 }
 
-void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
+void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
 {
-    Q_Q(IrcSession);
+    Q_Q(IrcConnection);
     bool filtered = false;
     for (int i = filters.count() - 1; !filtered && i >= 0; --i)
         filtered |= filters.at(i)->messageFilter(msg);
@@ -332,11 +332,11 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
 }
 
 /*!
-    Constructs a new IRC session with \a parent.
+    Constructs a new IRC connection with \a parent.
  */
-IrcSession::IrcSession(QObject* parent) : QObject(parent), d_ptr(new IrcSessionPrivate(this))
+IrcConnection::IrcConnection(QObject* parent) : QObject(parent), d_ptr(new IrcConnectionPrivate(this))
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     d->network = new IrcNetwork(this);
     setSocket(new QTcpSocket(this));
     setProtocol(new IrcProtocol(this));
@@ -344,11 +344,11 @@ IrcSession::IrcSession(QObject* parent) : QObject(parent), d_ptr(new IrcSessionP
 }
 
 /*!
-    Destructs the IRC session.
+    Destructs the IRC connection.
  */
-IrcSession::~IrcSession()
+IrcConnection::~IrcConnection()
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (d->socket)
         d->socket->close();
 }
@@ -369,18 +369,18 @@ IrcSession::~IrcSession()
 
     \sa QTextCodec::availableCodecs(), QTextCodec::codecForLocale()
  */
-QByteArray IrcSession::encoding() const
+QByteArray IrcConnection::encoding() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->encoding;
 }
 
-void IrcSession::setEncoding(const QByteArray& encoding)
+void IrcConnection::setEncoding(const QByteArray& encoding)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     extern bool irc_is_supported_encoding(const QByteArray& encoding); // ircmessagedecoder.cpp
     if (!irc_is_supported_encoding(encoding)) {
-        qWarning() << "IrcSession::setEncoding(): unsupported encoding" << encoding;
+        qWarning() << "IrcConnection::setEncoding(): unsupported encoding" << encoding;
         return;
     }
     d->encoding = encoding;
@@ -396,17 +396,17 @@ void IrcSession::setEncoding(const QByteArray& encoding)
     \par Notifier signal:
     \li void <b>hostChanged</b>(const QString& host)
  */
-QString IrcSession::host() const
+QString IrcConnection::host() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->host;
 }
 
-void IrcSession::setHost(const QString& host)
+void IrcConnection::setHost(const QString& host)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (isActive())
-        qWarning("IrcSession::setHost() has no effect until re-connect");
+        qWarning("IrcConnection::setHost() has no effect until re-connect");
     if (d->host != host) {
         d->host = host;
         emit hostChanged(host);
@@ -425,17 +425,17 @@ void IrcSession::setHost(const QString& host)
     \par Notifier signal:
     \li void <b>portChanged</b>(int port)
  */
-int IrcSession::port() const
+int IrcConnection::port() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->port;
 }
 
-void IrcSession::setPort(int port)
+void IrcConnection::setPort(int port)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (isActive())
-        qWarning("IrcSession::setPort() has no effect until re-connect");
+        qWarning("IrcConnection::setPort() has no effect until re-connect");
     if (d->port != port) {
         d->port = port;
         emit portChanged(port);
@@ -454,17 +454,17 @@ void IrcSession::setPort(int port)
     \par Notifier signal:
     \li void <b>userNameChanged</b>(const QString& name)
  */
-QString IrcSession::userName() const
+QString IrcConnection::userName() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->userName;
 }
 
-void IrcSession::setUserName(const QString& name)
+void IrcConnection::setUserName(const QString& name)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (isActive())
-        qWarning("IrcSession::setUserName() has no effect until re-connect");
+        qWarning("IrcConnection::setUserName() has no effect until re-connect");
     QString user = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
     if (d->userName != user) {
         d->userName = user;
@@ -482,15 +482,15 @@ void IrcSession::setUserName(const QString& name)
     \par Notifier signal:
     \li void <b>nickNameChanged</b>(const QString& name)
  */
-QString IrcSession::nickName() const
+QString IrcConnection::nickName() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->nickName;
 }
 
-void IrcSession::setNickName(const QString& name)
+void IrcConnection::setNickName(const QString& name)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     QString nick = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
     if (d->nickName != nick) {
         if (isActive())
@@ -512,17 +512,17 @@ void IrcSession::setNickName(const QString& name)
     \par Notifier signal:
     \li void <b>realNameChanged</b>(const QString& name)
  */
-QString IrcSession::realName() const
+QString IrcConnection::realName() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->realName;
 }
 
-void IrcSession::setRealName(const QString& name)
+void IrcConnection::setRealName(const QString& name)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (isActive())
-        qWarning("IrcSession::setRealName() has no effect until re-connect");
+        qWarning("IrcConnection::setRealName() has no effect until re-connect");
     if (d->realName != name) {
         d->realName = name;
         emit realNameChanged(name);
@@ -530,10 +530,10 @@ void IrcSession::setRealName(const QString& name)
 }
 
 /*!
-    \property bool IrcSession::active
-    This property holds whether the session is active.
+    \property bool IrcConnection::active
+    This property holds whether the connection is active.
 
-    The session is considered active when the socket
+    The connection is considered active when the socket
     state is not QAbstractSocket::UnconnectedState.
 
     \par Access functions:
@@ -542,17 +542,17 @@ void IrcSession::setRealName(const QString& name)
     \par Notifier signal:
     \li void <b>activeChanged</b>(bool active)
  */
-bool IrcSession::isActive() const
+bool IrcConnection::isActive() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->active;
 }
 
 /*!
-    \property bool IrcSession::connected
-    This property holds whether the session is connected.
+    \property bool IrcConnection::connected
+    This property holds whether the connection is connected.
 
-    The session is considered connected when the welcome message
+    The connection is considered connected when the welcome message
     has been received and the server is ready to receive commands.
 
     \sa Irc::RPL_WELCOME
@@ -563,35 +563,35 @@ bool IrcSession::isActive() const
     \par Notifier signals:
     \li void <b>connectedChanged</b>(bool connected)
  */
-bool IrcSession::isConnected() const
+bool IrcConnection::isConnected() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->connected;
 }
 
 /*!
-    This property holds the socket. IrcSession creates an instance of QTcpSocket by default.
+    This property holds the socket. IrcConnection creates an instance of QTcpSocket by default.
 
     The previously set socket is deleted if its parent is \c this.
 
-    \note IrcSession supports QSslSocket in the way that it automatically
+    \note IrcConnection supports QSslSocket in the way that it automatically
     calls QSslSocket::startClientEncryption() while connecting.
 
     \par Access functions:
     \li \ref QAbstractSocket* <b>socket</b>() const
     \li void <b>setSocket</b>(\ref QAbstractSocket* socket)
 
-    \sa IrcSession::secure
+    \sa IrcConnection::secure
  */
-QAbstractSocket* IrcSession::socket() const
+QAbstractSocket* IrcConnection::socket() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->socket;
 }
 
-void IrcSession::setSocket(QAbstractSocket* socket)
+void IrcConnection::setSocket(QAbstractSocket* socket)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (d->socket != socket) {
         if (d->socket) {
             d->socket->disconnect(this);
@@ -611,12 +611,12 @@ void IrcSession::setSocket(QAbstractSocket* socket)
 }
 
 /*!
-    \property bool IrcSession::secure
+    \property bool IrcConnection::secure
     This property holds whether the socket is an SSL socket.
 
     This property is provided for convenience. Calling
     \code
-    session->setSecure(true);
+    connection->setSecure(true);
     \endcode
 
     is equivalent to:
@@ -624,10 +624,10 @@ void IrcSession::setSocket(QAbstractSocket* socket)
     \code
     QSslSocket* socket = new QSslSocket(socket);
     socket->setPeerVerifyMode(QSslSocket::QueryPeer);
-    session->setSocket(socket);
+    connection->setSocket(socket);
     \endcode
 
-    \note IrcSession does not handle SSL errors, see
+    \note IrcConnection does not handle SSL errors, see
     QSslSocket::sslErrors() for more details on the subject.
 
     \par Access functions:
@@ -637,9 +637,9 @@ void IrcSession::setSocket(QAbstractSocket* socket)
     \par Notifier signal:
     \li void <b>secureChanged</b>(bool secure)
 
-    \sa IrcSession::socket
+    \sa IrcConnection::socket
  */
-bool IrcSession::isSecure() const
+bool IrcConnection::isSecure() const
 {
 #ifdef QT_NO_OPENSSL
     return false;
@@ -648,7 +648,7 @@ bool IrcSession::isSecure() const
 #endif // QT_NO_OPENSSL
 }
 
-void IrcSession::setSecure(bool secure)
+void IrcConnection::setSecure(bool secure)
 {
 #ifdef QT_NO_OPENSSL
     Q_UNUSED(secure)
@@ -666,9 +666,9 @@ void IrcSession::setSecure(bool secure)
 #endif // QT_NO_OPENSSL
 }
 
-const IrcNetwork* IrcSession::network() const
+const IrcNetwork* IrcConnection::network() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->network;
 }
 
@@ -678,23 +678,23 @@ const IrcNetwork* IrcSession::network() const
     \note The function merely outputs a warnings and returns immediately if
     either \ref host, \ref userName, \ref nickName or \ref realName is empty.
  */
-void IrcSession::open()
+void IrcConnection::open()
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (d->host.isEmpty()) {
-        qCritical("IrcSession::open(): host is empty!");
+        qCritical("IrcConnection::open(): host is empty!");
         return;
     }
     if (d->userName.isEmpty()) {
-        qCritical("IrcSession::open(): userName is empty!");
+        qCritical("IrcConnection::open(): userName is empty!");
         return;
     }
     if (d->nickName.isEmpty()) {
-        qCritical("IrcSession::open(): nickName is empty!");
+        qCritical("IrcConnection::open(): nickName is empty!");
         return;
     }
     if (d->realName.isEmpty()) {
-        qCritical("IrcSession::open(): realName is empty!");
+        qCritical("IrcConnection::open(): realName is empty!");
         return;
     }
     if (d->socket)
@@ -704,7 +704,7 @@ void IrcSession::open()
 /*!
     Immediately closes the connection to the server.
 
-    \note Calling close() when the session is connected makes
+    \note Calling close() when the connection is connected makes
     the connection close immediately and thus leads to
     "remote host closed the connection". In order to quit
     gracefully, send a QUIT command and let the server handle
@@ -712,9 +712,9 @@ void IrcSession::open()
 
     \sa quit()
  */
-void IrcSession::close()
+void IrcConnection::close()
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (d->socket) {
         d->socket->abort();
         d->socket->disconnectFromHost();
@@ -727,12 +727,12 @@ void IrcSession::close()
     This method is provided for convenience. It is equal to:
     \code
     IrcCommand* command = IrcCommand::createQuit(reason);
-    session->sendCommand(command);
+    connection->sendCommand(command);
     \endcode
 
     \sa IrcCommand::createQuit()
  */
-void IrcSession::quit(const QString& reason)
+void IrcConnection::quit(const QString& reason)
 {
     sendCommand(IrcCommand::createQuit(reason));
 }
@@ -743,14 +743,14 @@ void IrcSession::quit(const QString& reason)
     \note If the command has a valid parent, it is an indication that
     the caller of this method is be responsible for freeing the command.
     If the command does not have a valid parent (like the commands
-    created via various IrcCommand::createXxx() methods) the session
+    created via various IrcCommand::createXxx() methods) the connection
     will take ownership of the command and delete it once it has been
     sent. Thus, the command must have been allocated on the heap and
     it is not safe to access the command after it has been sent.
 
     \sa sendData()
  */
-bool IrcSession::sendCommand(IrcCommand* command)
+bool IrcConnection::sendCommand(IrcCommand* command)
 {
     bool res = false;
     if (command) {
@@ -768,9 +768,9 @@ bool IrcSession::sendCommand(IrcCommand* command)
 
     \sa sendCommand()
  */
-bool IrcSession::sendData(const QByteArray& data)
+bool IrcConnection::sendData(const QByteArray& data)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (d->socket) {
         static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
         if (dbg) qDebug() << "->" << data;
@@ -786,44 +786,44 @@ bool IrcSession::sendData(const QByteArray& data)
 
     \sa sendData(), sendCommand()
  */
-bool IrcSession::sendRaw(const QString& message)
+bool IrcConnection::sendRaw(const QString& message)
 {
     return sendData(message.toUtf8());
 }
 
 /*!
-    Installs a message \a filter on this session.
+    Installs a message \a filter on this connection.
 
-    A message filter receives all messages that are sent to this session.
+    A message filter receives all messages that are sent to this connection.
     The message filter receives events via its messageFilter() function.
     The messageFilter() function must return \c true if the message should
     be filtered, (i.e. stopped); otherwise it must return \c false.
 
-    If multiple message filters are installed on the same session, the filter
+    If multiple message filters are installed on the same connection, the filter
     that was installed last is activated first.
 
     \sa removeMessageFilter()
  */
-void IrcSession::installMessageFilter(IrcMessageFilter* filter)
+void IrcConnection::installMessageFilter(IrcMessageFilter* filter)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     d->filters += filter;
-    IrcMessageFilterPrivate::get(filter)->sessions.append(this);
+    IrcMessageFilterPrivate::get(filter)->connections.append(this);
 }
 
 /*!
-    Removes a message \a filter from this session.
+    Removes a message \a filter from this connection.
 
     The request is ignored if such an event filter has not been installed.
-    All message filters for this session are automatically removed when this session is destroyed.
+    All message filters for this connection are automatically removed when this connection is destroyed.
 
     \sa installMessageFilter()
  */
-void IrcSession::removeMessageFilter(IrcMessageFilter* filter)
+void IrcConnection::removeMessageFilter(IrcMessageFilter* filter)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     d->filters.removeAll(filter);
-    IrcMessageFilterPrivate::get(filter)->sessions.removeAll(this);
+    IrcMessageFilterPrivate::get(filter)->connections.removeAll(this);
 }
 
 /*!
@@ -833,7 +833,7 @@ void IrcSession::removeMessageFilter(IrcMessageFilter* filter)
 
     Reimplement this function in order to alter or omit the default replies.
  */
-IrcCommand* IrcSession::createCtcpReply(IrcPrivateMessage* request) const
+IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
 {
     QString reply;
     QString type = request->message().split(" ", QString::SkipEmptyParts).value(0).toUpper();
@@ -851,18 +851,18 @@ IrcCommand* IrcSession::createCtcpReply(IrcPrivateMessage* request) const
 /*!
     \internal
  */
-IrcProtocol* IrcSession::protocol() const
+IrcProtocol* IrcConnection::protocol() const
 {
-    Q_D(const IrcSession);
+    Q_D(const IrcConnection);
     return d->protocol;
 }
 
 /*!
     \internal
  */
-void IrcSession::setProtocol(IrcProtocol* proto)
+void IrcConnection::setProtocol(IrcProtocol* proto)
 {
-    Q_D(IrcSession);
+    Q_D(IrcConnection);
     if (d->protocol != proto) {
         if (d->protocol && d->protocol->parent() == this)
             delete d->protocol;
@@ -871,19 +871,19 @@ void IrcSession::setProtocol(IrcProtocol* proto)
 }
 
 #ifndef QT_NO_DEBUG_STREAM
-QDebug operator<<(QDebug debug, const IrcSession* session)
+QDebug operator<<(QDebug debug, const IrcConnection* connection)
 {
-    if (!session)
-        return debug << "IrcSession(0x0) ";
-    debug.nospace() << session->metaObject()->className() << '(' << (void*) session;
-    if (!session->objectName().isEmpty())
-        debug << ", name = " << session->objectName();
-    if (!session->host().isEmpty())
-        debug << ", host = " << session->host()
-              << ", port = " << session->port();
+    if (!connection)
+        return debug << "IrcConnection(0x0) ";
+    debug.nospace() << connection->metaObject()->className() << '(' << (void*) connection;
+    if (!connection->objectName().isEmpty())
+        debug << ", name = " << connection->objectName();
+    if (!connection->host().isEmpty())
+        debug << ", host = " << connection->host()
+              << ", port = " << connection->port();
     debug << ')';
     return debug.space();
 }
 #endif // QT_NO_DEBUG_STREAM
 
-#include "moc_ircsession.cpp"
+#include "moc_ircconnection.cpp"

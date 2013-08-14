@@ -20,7 +20,7 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qscopedpointer.h>
 
-class IrcSession;
+class IrcConnection;
 class IrcNetworkPrivate;
 
 class IRC_CORE_EXPORT IrcNetwork : public QObject
@@ -34,7 +34,7 @@ class IRC_CORE_EXPORT IrcNetwork : public QObject
     Q_PROPERTY(QStringList activeCapabilities READ activeCapabilities NOTIFY activeCapabilitiesChanged)
 
 public:
-    explicit IrcNetwork(IrcSession* session);
+    explicit IrcNetwork(IrcConnection* connection);
     virtual ~IrcNetwork();
 
     bool isValid() const;

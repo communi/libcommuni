@@ -18,7 +18,7 @@
 #include "ircbuffermodel.h"
 #include "ircbuffermodel_p.h"
 #include "irccommand.h"
-#include "ircsession.h"
+#include "ircconnection.h"
 #include "ircuser_p.h"
 #include "ircsender.h"
 
@@ -76,7 +76,7 @@ void IrcChannelPrivate::init(const QString& title, IrcBufferModel* m)
 {
     IrcBufferPrivate::init(title, m);
 
-    const IrcNetwork* network = model->session()->network();
+    const IrcNetwork* network = model->connection()->network();
     const QStringList chanTypes = network->channelTypes();
     prefix = getPrefix(title, chanTypes);
     name = channelName(title, chanTypes);
@@ -126,7 +126,7 @@ void IrcChannelPrivate::addUsers(const QStringList& names)
 {
     Q_Q(IrcChannel);
     QHash<QString, QString> unique;
-    const IrcNetwork* network = model->session()->network();
+    const IrcNetwork* network = model->connection()->network();
     const QStringList prefixes = network->prefixes();
     foreach (const QString& name, names) {
         QString unprefixed = userName(name, prefixes);
@@ -223,7 +223,7 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
             bool add = true;
             QString mode = user->mode();
             QString prefix = user->prefix();
-            const IrcNetwork* network = model->session()->network();
+            const IrcNetwork* network = model->connection()->network();
             for (int i = 0; i < command.size(); ++i) {
                 QChar c = command.at(i);
                 if (c == QLatin1Char('+')) {
@@ -288,7 +288,7 @@ bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 
 bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
 {
-    if (!message->user().compare(message->session()->nickName(), Qt::CaseInsensitive)) {
+    if (!message->user().compare(message->connection()->nickName(), Qt::CaseInsensitive)) {
         clearUsers();
         ++left;
         _irc_emitActiveChanged();

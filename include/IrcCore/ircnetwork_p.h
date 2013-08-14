@@ -41,7 +41,7 @@ public:
     }
 
     IrcNetwork* q_ptr;
-    QPointer<IrcSession> session;
+    QPointer<IrcConnection> connection;
     bool valid;
     QString name;
     QStringList modes, prefixes, channelTypes, channelModes;

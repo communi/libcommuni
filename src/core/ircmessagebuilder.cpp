@@ -16,9 +16,9 @@
 #include "ircmessage.h"
 #include "irc.h"
 
-IrcMessageBuilder::IrcMessageBuilder(IrcSession* session)
+IrcMessageBuilder::IrcMessageBuilder(IrcConnection* connection)
 {
-    d.session = session;
+    d.connection = connection;
     d.message = 0;
 }
 
@@ -26,7 +26,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
 {
     switch (message->code()) {
     case Irc::RPL_MOTDSTART:
-        d.message = new IrcMotdMessage(d.session);
+        d.message = new IrcMotdMessage(d.connection);
         d.message->setSender(message->sender());
         d.message->setCommand(QLatin1String("MOTD"));
         d.message->setParameters(QStringList(message->parameters().value(0)));
@@ -42,7 +42,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
 
     case Irc::RPL_NAMREPLY: {
         if (!d.message)
-            d.message = new IrcNamesMessage(d.session);
+            d.message = new IrcNamesMessage(d.connection);
         d.message->setSender(message->sender());
         d.message->setCommand(QLatin1String("NAMES"));
         int count = message->parameters().count();
@@ -60,7 +60,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
 
     case Irc::RPL_TOPIC:
     case Irc::RPL_NOTOPIC:
-        d.message = new IrcTopicMessage(d.session);
+        d.message = new IrcTopicMessage(d.connection);
         d.message->setSender(message->sender());
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
@@ -70,7 +70,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         break;
 
     case Irc::RPL_CHANNELMODEIS:
-        d.message = new IrcModeMessage(d.session);
+        d.message = new IrcModeMessage(d.connection);
         d.message->setSender(message->sender());
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));

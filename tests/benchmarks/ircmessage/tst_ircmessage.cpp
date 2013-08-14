@@ -8,7 +8,7 @@
  */
 
 #include "ircmessage.h"
-#include "ircsession.h"
+#include "ircconnection.h"
 #include <QtTest/QtTest>
 
 static const QByteArray MSG_32_5("Vestibulum eu libero eget metus.");
@@ -50,9 +50,9 @@ void tst_IrcMessage::testFromData()
 {
     QFETCH(QByteArray, data);
 
-    IrcSession session;
+    IrcConnection connection;
     QBENCHMARK {
-        IrcMessage::fromData(data, &session);
+        IrcMessage::fromData(data, &connection);
     }
 }
 

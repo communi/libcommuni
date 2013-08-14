@@ -12,8 +12,8 @@
 * License for more details.
 */
 
-#ifndef IRCSESSION_H
-#define IRCSESSION_H
+#ifndef IRCCONNECTION_H
+#define IRCCONNECTION_H
 
 #include <IrcGlobal>
 #include <IrcMessage>
@@ -25,9 +25,9 @@
 class IrcCommand;
 class IrcProtocol;
 class IrcMessageFilter;
-class IrcSessionPrivate;
+class IrcConnectionPrivate;
 
-class IRC_CORE_EXPORT IrcSession : public QObject
+class IRC_CORE_EXPORT IrcConnection : public QObject
 {
     Q_OBJECT
 
@@ -44,8 +44,8 @@ class IRC_CORE_EXPORT IrcSession : public QObject
     Q_PROPERTY(const IrcNetwork* network READ network CONSTANT)
 
 public:
-    explicit IrcSession(QObject* parent = 0);
-    virtual ~IrcSession();
+    explicit IrcConnection(QObject* parent = 0);
+    virtual ~IrcConnection();
 
     QString host() const;
     void setHost(const QString& host);
@@ -138,9 +138,9 @@ protected:
 private:
     friend class IrcProtocol;
     friend class IrcProtocolPrivate;
-    QScopedPointer<IrcSessionPrivate> d_ptr;
-    Q_DECLARE_PRIVATE(IrcSession)
-    Q_DISABLE_COPY(IrcSession)
+    QScopedPointer<IrcConnectionPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcConnection)
+    Q_DISABLE_COPY(IrcConnection)
 
     Q_PRIVATE_SLOT(d_func(), void _irc_connected())
     Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
@@ -150,7 +150,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcSession* session);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcConnection* connection);
 #endif // QT_NO_DEBUG_STREAM
 
-#endif // IRCSESSION_H
+#endif // IRCCONNECTION_H

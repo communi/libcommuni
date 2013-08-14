@@ -14,7 +14,7 @@
 
 #include "ircmessagefilter.h"
 #include "ircmessagefilter_p.h"
-#include "ircsession.h"
+#include "ircconnection.h"
 
 /*!
     \file ircmessagefilter.h
@@ -27,9 +27,9 @@
     \brief Provides an interface for filtering messages
 
     IrcMessageFilter may be used to intercept messages before
-    IrcSession::messageReceived() is emitted and the messages get delivered
+    IrcConnection::messageReceived() is emitted and the messages get delivered
     further. In order to use IrcMessageFilter, it must be installed via
-    IrcSession::installMessageFilter().
+    IrcConnection::installMessageFilter().
 
     Message filtering is mostly useful for handling specific replies before
     the rest of the application receives it. This way there is no need to
@@ -54,7 +54,7 @@
             //
             //     QString argument = QString("communi/%1").arg(QDateTime::currentMSecsSinceEpoch());
             //     IrcCommand* cmd = IrcCommand::createPing(argument);
-            //     session->sendCommand(cmd);
+            //     connection->sendCommand(cmd);
 
             if (msg->argument().startsWith("communi/")) {
                 bool ok = false;
@@ -70,7 +70,7 @@
     };
     \endcode
 
-    \sa IrcSession::installMessageFilter(), IrcSession::removeMessageFilter()
+    \sa IrcConnection::installMessageFilter(), IrcConnection::removeMessageFilter()
  */
 
 /*!
@@ -83,27 +83,27 @@ IrcMessageFilter::IrcMessageFilter() : d_ptr(new IrcMessageFilterPrivate)
 /*!
     Destructs the message filter.
 
-    The message filter is automatically removed from any session(s)
+    The message filter is automatically removed from any connection(s)
     it is installed on.
 
-    \sa IrcSession::removeMessageFilter()
+    \sa IrcConnection::removeMessageFilter()
  */
 IrcMessageFilter::~IrcMessageFilter()
 {
     Q_D(IrcMessageFilter);
-    foreach (QPointer<IrcSession> session, d->sessions) {
-        if (session)
-            session->removeMessageFilter(this);
+    foreach (QPointer<IrcConnection> connection, d->connections) {
+        if (connection)
+            connection->removeMessageFilter(this);
     }
 }
 
 /*!
     \fn virtual bool IrcMessageFilter::messageFilter(IrcMessage* message) = 0
 
-    Reimplement this function to filter messages from installed sessions.
+    Reimplement this function to filter messages from installed connections.
 
     Return \c true to filter the message out, i.e. stop it being handled further;
     otherwise return \c false.
 
-    \sa IrcSession::installMessageFilter()
+    \sa IrcConnection::installMessageFilter()
  */

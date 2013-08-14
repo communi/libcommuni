@@ -9,7 +9,7 @@
 
 #include "irc.h"
 #include "irccommand.h"
-#include "ircsession.h"
+#include "ircconnection.h"
 #include "ircmessage.h"
 #include <QtTest/QtTest>
 #include <QtCore/QTextCodec>
@@ -19,7 +19,7 @@
 #include <QtNetwork/QSslSocket>
 #endif
 
-class tst_IrcSession : public QObject
+class tst_IrcConnection : public QObject
 {
     Q_OBJECT
 
@@ -50,7 +50,7 @@ private slots:
     void testSocket_data();
     void testSocket();
 
-    void testSession();
+    void testConnection();
     void testSendCommand();
     void testSendData();
 
@@ -58,30 +58,30 @@ private:
     QTcpServer server;
 };
 
-void tst_IrcSession::initTestCase()
+void tst_IrcConnection::initTestCase()
 {
     server.listen();
 }
 
-void tst_IrcSession::cleanupTestCase()
+void tst_IrcConnection::cleanupTestCase()
 {
     server.close();
 }
 
-void tst_IrcSession::testDefaults()
+void tst_IrcConnection::testDefaults()
 {
-    IrcSession session;
-    QVERIFY(session.host().isNull());
-    QCOMPARE(session.port(), 6667);
-    QVERIFY(session.userName().isNull());
-    QVERIFY(session.nickName().isNull());
-    QVERIFY(session.realName().isNull());
-    QCOMPARE(session.encoding(), QByteArray("ISO-8859-15"));
-    QVERIFY(session.socket());
-    QVERIFY(session.socket()->inherits("QAbstractSocket"));
+    IrcConnection connection;
+    QVERIFY(connection.host().isNull());
+    QCOMPARE(connection.port(), 6667);
+    QVERIFY(connection.userName().isNull());
+    QVERIFY(connection.nickName().isNull());
+    QVERIFY(connection.realName().isNull());
+    QCOMPARE(connection.encoding(), QByteArray("ISO-8859-15"));
+    QVERIFY(connection.socket());
+    QVERIFY(connection.socket()->inherits("QAbstractSocket"));
 }
 
-void tst_IrcSession::testHost_data()
+void tst_IrcConnection::testHost_data()
 {
     QTest::addColumn<QString>("host");
 
@@ -92,16 +92,16 @@ void tst_IrcSession::testHost_data()
     QTest::newRow(qPrintable(server.serverAddress().toString())) << server.serverAddress().toString();
 }
 
-void tst_IrcSession::testHost()
+void tst_IrcConnection::testHost()
 {
     QFETCH(QString, host);
 
-    IrcSession session;
-    session.setHost(host);
-    QCOMPARE(session.host(), host);
+    IrcConnection connection;
+    connection.setHost(host);
+    QCOMPARE(connection.host(), host);
 }
 
-void tst_IrcSession::testPort_data()
+void tst_IrcConnection::testPort_data()
 {
     QTest::addColumn<int>("port");
 
@@ -113,16 +113,16 @@ void tst_IrcSession::testPort_data()
     QTest::newRow(qPrintable(QString::number(server.serverPort()))) << static_cast<int>(server.serverPort());
 }
 
-void tst_IrcSession::testPort()
+void tst_IrcConnection::testPort()
 {
     QFETCH(int, port);
 
-    IrcSession session;
-    session.setPort(port);
-    QCOMPARE(session.port(), port);
+    IrcConnection connection;
+    connection.setPort(port);
+    QCOMPARE(connection.port(), port);
 }
 
-void tst_IrcSession::testUserName_data()
+void tst_IrcConnection::testUserName_data()
 {
     QTest::addColumn<QString>("name");
     QTest::addColumn<QString>("result");
@@ -133,17 +133,17 @@ void tst_IrcSession::testUserName_data()
     QTest::newRow("spaces") << QString(" foo bar ") << QString("foo");
 }
 
-void tst_IrcSession::testUserName()
+void tst_IrcConnection::testUserName()
 {
     QFETCH(QString, name);
     QFETCH(QString, result);
 
-    IrcSession session;
-    session.setUserName(name);
-    QCOMPARE(session.userName(), result);
+    IrcConnection connection;
+    connection.setUserName(name);
+    QCOMPARE(connection.userName(), result);
 }
 
-void tst_IrcSession::testNickName_data()
+void tst_IrcConnection::testNickName_data()
 {
     QTest::addColumn<QString>("name");
     QTest::addColumn<QString>("result");
@@ -154,17 +154,17 @@ void tst_IrcSession::testNickName_data()
     QTest::newRow("spaces") << QString(" foo bar ") << QString("foo");
 }
 
-void tst_IrcSession::testNickName()
+void tst_IrcConnection::testNickName()
 {
     QFETCH(QString, name);
     QFETCH(QString, result);
 
-    IrcSession session;
-    session.setNickName(name);
-    QCOMPARE(session.nickName(), result);
+    IrcConnection connection;
+    connection.setNickName(name);
+    QCOMPARE(connection.nickName(), result);
 }
 
-void tst_IrcSession::testRealName_data()
+void tst_IrcConnection::testRealName_data()
 {
     QTest::addColumn<QString>("name");
     QTest::addColumn<QString>("result");
@@ -175,17 +175,17 @@ void tst_IrcSession::testRealName_data()
     QTest::newRow("spaces") << QString(" foo bar ") << QString(" foo bar ");
 }
 
-void tst_IrcSession::testRealName()
+void tst_IrcConnection::testRealName()
 {
     QFETCH(QString, name);
     QFETCH(QString, result);
 
-    IrcSession session;
-    session.setRealName(name);
-    QCOMPARE(session.realName(), result);
+    IrcConnection connection;
+    connection.setRealName(name);
+    QCOMPARE(connection.realName(), result);
 }
 
-void tst_IrcSession::testEncoding_data()
+void tst_IrcConnection::testEncoding_data()
 {
     QTest::addColumn<QByteArray>("encoding");
     QTest::addColumn<QByteArray>("actual");
@@ -198,18 +198,18 @@ void tst_IrcSession::testEncoding_data()
         QTest::newRow(codec) << codec << codec;
 }
 
-void tst_IrcSession::testEncoding()
+void tst_IrcConnection::testEncoding()
 {
     QFETCH(QByteArray, encoding);
     QFETCH(QByteArray, actual);
 
-    IrcSession session;
-    session.setEncoding(encoding);
-    QCOMPARE(session.encoding(), actual);
+    IrcConnection connection;
+    connection.setEncoding(encoding);
+    QCOMPARE(connection.encoding(), actual);
 }
 
 Q_DECLARE_METATYPE(QAbstractSocket*)
-void tst_IrcSession::testSocket_data()
+void tst_IrcConnection::testSocket_data()
 {
     QTest::addColumn<QAbstractSocket*>("socket");
 
@@ -220,28 +220,28 @@ void tst_IrcSession::testSocket_data()
 #endif
 }
 
-void tst_IrcSession::testSocket()
+void tst_IrcConnection::testSocket()
 {
     QFETCH(QAbstractSocket*, socket);
 
-    IrcSession session;
-    session.setSocket(socket);
-    QCOMPARE(session.socket(), socket);
+    IrcConnection connection;
+    connection.setSocket(socket);
+    QCOMPARE(connection.socket(), socket);
 }
 
 Q_DECLARE_METATYPE(QString*)
 Q_DECLARE_METATYPE(IrcMessage*)
-void tst_IrcSession::testSession()
+void tst_IrcConnection::testConnection()
 {
     qRegisterMetaType<QString*>();
     qRegisterMetaType<IrcMessage*>();
 
-    IrcSession session;
-    QSignalSpy connectingSpy(&session, SIGNAL(connecting()));
-    QSignalSpy passwordSpy(&session, SIGNAL(password(QString*)));
-    QSignalSpy connectedSpy(&session, SIGNAL(connected()));
-    QSignalSpy disconnectedSpy(&session, SIGNAL(disconnected()));
-    QSignalSpy messageReceivedSpy(&session, SIGNAL(messageReceived(IrcMessage*)));
+    IrcConnection connection;
+    QSignalSpy connectingSpy(&connection, SIGNAL(connecting()));
+    QSignalSpy passwordSpy(&connection, SIGNAL(password(QString*)));
+    QSignalSpy connectedSpy(&connection, SIGNAL(connected()));
+    QSignalSpy disconnectedSpy(&connection, SIGNAL(disconnected()));
+    QSignalSpy messageReceivedSpy(&connection, SIGNAL(messageReceived(IrcMessage*)));
 
     QVERIFY(connectingSpy.isValid());
     QVERIFY(passwordSpy.isValid());
@@ -249,67 +249,67 @@ void tst_IrcSession::testSession()
     QVERIFY(disconnectedSpy.isValid());
     QVERIFY(messageReceivedSpy.isValid());
 
-    session.setUserName("user");
-    session.setNickName("nick");
-    session.setRealName("real");
-    session.setHost(server.serverAddress().toString());
-    session.setPort(server.serverPort());
+    connection.setUserName("user");
+    connection.setNickName("nick");
+    connection.setRealName("real");
+    connection.setHost(server.serverAddress().toString());
+    connection.setPort(server.serverPort());
 
-    session.open();
+    connection.open();
     QVERIFY(server.waitForNewConnection(2000));
     QTcpSocket* serverSocket = server.nextPendingConnection();
     QVERIFY(serverSocket);
 
-    QVERIFY(session.socket()->waitForConnected());
+    QVERIFY(connection.socket()->waitForConnected());
     QCOMPARE(connectingSpy.count(), 1);
     QCOMPARE(passwordSpy.count(), 1);
 
     QVERIFY(serverSocket->write(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n"));
     QVERIFY(serverSocket->waitForBytesWritten());
-    QVERIFY(session.socket()->waitForReadyRead());
+    QVERIFY(connection.socket()->waitForReadyRead());
     QCOMPARE(connectedSpy.count(), 1);
 
-    session.close();
-    session.socket()->waitForDisconnected();
+    connection.close();
+    connection.socket()->waitForDisconnected();
     QCOMPARE(disconnectedSpy.count(), 1);
 }
 
-void tst_IrcSession::testSendCommand()
+void tst_IrcConnection::testSendCommand()
 {
-    IrcSession session;
-    QVERIFY(!session.sendCommand(0));
-    QVERIFY(!session.sendCommand(IrcCommand::createQuit()));
+    IrcConnection connection;
+    QVERIFY(!connection.sendCommand(0));
+    QVERIFY(!connection.sendCommand(IrcCommand::createQuit()));
 
-    session.setUserName("user");
-    session.setNickName("nick");
-    session.setRealName("real");
-    session.setHost(server.serverAddress().toString());
-    session.setPort(server.serverPort());
-    session.open();
-    QVERIFY(session.socket()->waitForConnected());
+    connection.setUserName("user");
+    connection.setNickName("nick");
+    connection.setRealName("real");
+    connection.setHost(server.serverAddress().toString());
+    connection.setPort(server.serverPort());
+    connection.open();
+    QVERIFY(connection.socket()->waitForConnected());
 
-    QVERIFY(!session.sendCommand(0));
-    QVERIFY(session.sendCommand(IrcCommand::createQuit()));
-    session.close();
+    QVERIFY(!connection.sendCommand(0));
+    QVERIFY(connection.sendCommand(IrcCommand::createQuit()));
+    connection.close();
 }
 
-void tst_IrcSession::testSendData()
+void tst_IrcConnection::testSendData()
 {
-    IrcSession session;
-    QVERIFY(!session.sendData("QUIT"));
+    IrcConnection connection;
+    QVERIFY(!connection.sendData("QUIT"));
 
-    session.setUserName("user");
-    session.setNickName("nick");
-    session.setRealName("real");
-    session.setHost(server.serverAddress().toString());
-    session.setPort(server.serverPort());
-    session.open();
-    QVERIFY(session.socket()->waitForConnected());
+    connection.setUserName("user");
+    connection.setNickName("nick");
+    connection.setRealName("real");
+    connection.setHost(server.serverAddress().toString());
+    connection.setPort(server.serverPort());
+    connection.open();
+    QVERIFY(connection.socket()->waitForConnected());
 
-    QVERIFY(session.sendData("QUIT"));
-    session.close();
+    QVERIFY(connection.sendData("QUIT"));
+    connection.close();
 }
 
-QTEST_MAIN(tst_IrcSession)
+QTEST_MAIN(tst_IrcConnection)
 
-#include "tst_ircsession.moc"
+#include "tst_ircconnection.moc"

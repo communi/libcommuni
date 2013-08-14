@@ -21,14 +21,14 @@
 #include <QtCore/qdatetime.h>
 #include <QtCore/qstringlist.h>
 
-class IrcSession;
+class IrcConnection;
 class IrcCommand;
 class IrcMessagePrivate;
 
 class IRC_CORE_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(IrcSession* session READ session)
+    Q_PROPERTY(IrcConnection* connection READ connection)
     Q_PROPERTY(Type type READ type)
     Q_PROPERTY(Flags flags READ flags)
     Q_PROPERTY(bool valid READ isValid)
@@ -69,10 +69,10 @@ public:
     };
     Q_DECLARE_FLAGS(Flags, Flag)
 
-    Q_INVOKABLE explicit IrcMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcMessage(IrcConnection* connection);
     virtual ~IrcMessage();
 
-    IrcSession* session() const;
+    IrcConnection* connection() const;
 
     Type type() const;
     Flags flags() const;
@@ -95,9 +95,9 @@ public:
     void setEncoding(const QByteArray& encoding);
 
     Q_INVOKABLE QByteArray toData() const;
-    Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, IrcSession* session);
-    Q_INVOKABLE static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, IrcSession* session);
-    Q_INVOKABLE static IrcMessage* fromParameters(const QString& sender, const QString& command, const QStringList& parameters, IrcSession* session);
+    Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, IrcConnection* connection);
+    Q_INVOKABLE static IrcMessage* fromCommand(const QString& sender, IrcCommand* command, IrcConnection* connection);
+    Q_INVOKABLE static IrcMessage* fromParameters(const QString& sender, const QString& command, const QStringList& parameters, IrcConnection* connection);
 
 protected:
     QScopedPointer<IrcMessagePrivate> d_ptr;
@@ -113,7 +113,7 @@ class IRC_CORE_EXPORT IrcNickMessage : public IrcMessage
     Q_PROPERTY(QString nick READ nick)
 
 public:
-    Q_INVOKABLE explicit IrcNickMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcNickMessage(IrcConnection* connection);
 
     QString nick() const;
 
@@ -129,7 +129,7 @@ class IRC_CORE_EXPORT IrcQuitMessage : public IrcMessage
     Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcQuitMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcQuitMessage(IrcConnection* connection);
 
     QString reason() const;
 
@@ -145,7 +145,7 @@ class IRC_CORE_EXPORT IrcJoinMessage : public IrcMessage
     Q_PROPERTY(QString channel READ channel)
 
 public:
-    Q_INVOKABLE explicit IrcJoinMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcJoinMessage(IrcConnection* connection);
 
     QString channel() const;
 
@@ -162,7 +162,7 @@ class IRC_CORE_EXPORT IrcPartMessage : public IrcMessage
     Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcPartMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcPartMessage(IrcConnection* connection);
 
     QString channel() const;
     QString reason() const;
@@ -181,7 +181,7 @@ class IRC_CORE_EXPORT IrcTopicMessage : public IrcMessage
     Q_PROPERTY(bool reply READ isReply)
 
 public:
-    Q_INVOKABLE explicit IrcTopicMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcTopicMessage(IrcConnection* connection);
 
     QString channel() const;
     QString topic() const;
@@ -200,7 +200,7 @@ class IRC_CORE_EXPORT IrcInviteMessage : public IrcMessage
     Q_PROPERTY(QString channel READ channel)
 
 public:
-    Q_INVOKABLE explicit IrcInviteMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcInviteMessage(IrcConnection* connection);
 
     QString user() const;
     QString channel() const;
@@ -219,7 +219,7 @@ class IRC_CORE_EXPORT IrcKickMessage : public IrcMessage
     Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcKickMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcKickMessage(IrcConnection* connection);
 
     QString channel() const;
     QString user() const;
@@ -242,7 +242,7 @@ class IRC_CORE_EXPORT IrcModeMessage : public IrcMessage
     Q_ENUMS(Kind)
 
 public:
-    Q_INVOKABLE explicit IrcModeMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcModeMessage(IrcConnection* connection);
 
     QString target() const;
     QString mode() const;
@@ -267,7 +267,7 @@ class IRC_CORE_EXPORT IrcPrivateMessage : public IrcMessage
     Q_PROPERTY(bool request READ isRequest)
 
 public:
-    Q_INVOKABLE explicit IrcPrivateMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcPrivateMessage(IrcConnection* connection);
 
     QString target() const;
     QString message() const;
@@ -288,7 +288,7 @@ class IRC_CORE_EXPORT IrcNoticeMessage : public IrcMessage
     Q_PROPERTY(bool reply READ isReply)
 
 public:
-    Q_INVOKABLE explicit IrcNoticeMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcNoticeMessage(IrcConnection* connection);
 
     QString target() const;
     QString message() const;
@@ -306,7 +306,7 @@ class IRC_CORE_EXPORT IrcPingMessage : public IrcMessage
     Q_PROPERTY(QString argument READ argument)
 
 public:
-    Q_INVOKABLE explicit IrcPingMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcPingMessage(IrcConnection* connection);
 
     QString argument() const;
 
@@ -322,7 +322,7 @@ class IRC_CORE_EXPORT IrcPongMessage : public IrcMessage
     Q_PROPERTY(QString argument READ argument)
 
 public:
-    Q_INVOKABLE explicit IrcPongMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcPongMessage(IrcConnection* connection);
 
     QString argument() const;
 
@@ -338,7 +338,7 @@ class IRC_CORE_EXPORT IrcErrorMessage : public IrcMessage
     Q_PROPERTY(QString error READ error)
 
 public:
-    Q_INVOKABLE explicit IrcErrorMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcErrorMessage(IrcConnection* connection);
 
     QString error() const;
 
@@ -354,7 +354,7 @@ class IRC_CORE_EXPORT IrcNumericMessage : public IrcMessage
     Q_PROPERTY(int code READ code)
 
 public:
-    Q_INVOKABLE explicit IrcNumericMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcNumericMessage(IrcConnection* connection);
 
     int code() const;
 
@@ -371,7 +371,7 @@ class IRC_CORE_EXPORT IrcCapabilityMessage : public IrcMessage
     Q_PROPERTY(QStringList capabilities READ capabilities)
 
 public:
-    Q_INVOKABLE explicit IrcCapabilityMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcCapabilityMessage(IrcConnection* connection);
 
     QString subCommand() const;
     QStringList capabilities() const;
@@ -388,7 +388,7 @@ class IRC_CORE_EXPORT IrcMotdMessage : public IrcMessage
     Q_PROPERTY(QStringList lines READ lines)
 
 public:
-    Q_INVOKABLE explicit IrcMotdMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcMotdMessage(IrcConnection* connection);
 
     QStringList lines() const;
 
@@ -405,7 +405,7 @@ class IRC_CORE_EXPORT IrcNamesMessage : public IrcMessage
     Q_PROPERTY(QStringList names READ names)
 
 public:
-    Q_INVOKABLE explicit IrcNamesMessage(IrcSession* session);
+    Q_INVOKABLE explicit IrcNamesMessage(IrcConnection* connection);
 
     QString channel() const;
     QStringList names() const;

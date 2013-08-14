@@ -11,7 +11,7 @@
 #include <IrcCommand>
 #include <IrcMessage>
 
-IrcBot::IrcBot(QObject* parent) : IrcSession(parent)
+IrcBot::IrcBot(QObject* parent) : IrcConnection(parent)
 {
     connect(this, SIGNAL(connected()), this, SLOT(onConnected()));
     connect(this, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(onMessageReceived(IrcMessage*)));

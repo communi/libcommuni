@@ -13,7 +13,7 @@
 */
 
 #include "irclagtimer.h"
-#include "ircsession.h"
+#include "ircconnection.h"
 #include "ircmessage.h"
 #include "irccommand.h"
 #include "ircmessagefilter.h"
@@ -60,14 +60,14 @@ public:
     void updateLag(qint64 value);
 
     IrcLagTimer* q_ptr;
-    IrcSession* session;
+    IrcConnection* connection;
     QTimer timer;
     int interval;
     qint64 lag;
 };
 
 IrcLagTimerPrivate::IrcLagTimerPrivate(IrcLagTimer* q)
-    : q_ptr(q), session(0), interval(DEFAULT_INTERVAL), lag(-1)
+    : q_ptr(q), connection(0), interval(DEFAULT_INTERVAL), lag(-1)
 {
     QObject::connect(&timer, SIGNAL(timeout()), q, SLOT(_irc_pingServer()));
 }
@@ -109,7 +109,7 @@ void IrcLagTimerPrivate::_irc_pingServer()
     // TODO: configurable format?
     QString argument = QString("communi/%1").arg(QDateTime::currentMSecsSinceEpoch());
     IrcCommand* cmd = IrcCommand::createPing(argument);
-    session->sendCommand(cmd);
+    connection->sendCommand(cmd);
 #endif // QT_VERSION
 }
 
@@ -125,9 +125,9 @@ void IrcLagTimerPrivate::_irc_disconnected()
 void IrcLagTimerPrivate::updateTimer()
 {
 #if QT_VERSION >= 0x040700
-    if (session && interval > 0) {
+    if (connection && interval > 0) {
         timer.setInterval(interval * 1000);
-        if (!timer.isActive() && session->isConnected())
+        if (!timer.isActive() && connection->isConnected())
             timer.start();
     } else {
         if (timer.isActive())
@@ -149,12 +149,12 @@ void IrcLagTimerPrivate::updateLag(qint64 value)
 /*!
     Constructs a new lag timer with \a parent.
 
-    \note If \a parent is an instance of IrcSession, it will be
-    automatically assigned to \ref IrcLagTimer::session "session".
+    \note If \a parent is an instance of IrcConnection, it will be
+    automatically assigned to \ref IrcLagTimer::connection "connection".
  */
 IrcLagTimer::IrcLagTimer(QObject* parent) : QObject(parent), d_ptr(new IrcLagTimerPrivate(this))
 {
-    setSession(qobject_cast<IrcSession*>(parent));
+    setConnection(qobject_cast<IrcConnection*>(parent));
 }
 
 /*!
@@ -165,32 +165,32 @@ IrcLagTimer::~IrcLagTimer()
 }
 
 /*!
-    This property holds the associated session.
+    This property holds the associated connection.
 
     \par Access functions:
-    \li IrcSession* <b>session</b>() const
-    \li void <b>setSession</b>(IrcSession* session)
+    \li IrcConnection* <b>connection</b>() const
+    \li void <b>setConnection</b>(IrcConnection* connection)
  */
-IrcSession* IrcLagTimer::session() const
+IrcConnection* IrcLagTimer::connection() const
 {
     Q_D(const IrcLagTimer);
-    return d->session;
+    return d->connection;
 }
 
-void IrcLagTimer::setSession(IrcSession* session)
+void IrcLagTimer::setConnection(IrcConnection* connection)
 {
     Q_D(IrcLagTimer);
-    if (d->session != session) {
-        if (d->session) {
-            d->session->removeMessageFilter(d);
-            disconnect(d->session, SIGNAL(connected()), this, SLOT(_irc_connected()));
-            disconnect(d->session, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
+    if (d->connection != connection) {
+        if (d->connection) {
+            d->connection->removeMessageFilter(d);
+            disconnect(d->connection, SIGNAL(connected()), this, SLOT(_irc_connected()));
+            disconnect(d->connection, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
         }
-        d->session = session;
-        if (session) {
-            session->installMessageFilter(d);
-            connect(session, SIGNAL(connected()), this, SLOT(_irc_connected()));
-            connect(session, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
+        d->connection = connection;
+        if (connection) {
+            connection->installMessageFilter(d);
+            connect(connection, SIGNAL(connected()), this, SLOT(_irc_connected()));
+            connect(connection, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
         }
         d->updateLag(-1);
         d->updateTimer();
@@ -201,7 +201,7 @@ void IrcLagTimer::setSession(IrcSession* session)
     This property holds the current lag in milliseconds.
 
     The value is \c -1 when
-    \li the session is not connected,
+    \li the connection is not connected,
     \li the lag has not yet been measured,
     \li the lag timer is disabled (interval <= 0s), or
     \li the Qt version is too old (4.7.0 or later is required).

@@ -53,7 +53,7 @@ public:
 
     IrcBufferModel* q_ptr;
     Irc::ItemDataRole role;
-    QPointer<IrcSession> session;
+    QPointer<IrcConnection> connection;
     QList<IrcBuffer*> bufferList;
     QMap<QString, IrcBuffer*> bufferMap;
     QStringList channels;

@@ -21,7 +21,7 @@
 #include <QtCore/qabstractitemmodel.h>
 
 class IrcBuffer;
-class IrcSession;
+class IrcConnection;
 class IrcMessage;
 class IrcBufferModelPrivate;
 
@@ -33,14 +33,14 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
     Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
     Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(QList<IrcBuffer*> buffers READ buffers NOTIFY buffersChanged)
-    Q_PROPERTY(IrcSession* session READ session WRITE setSession NOTIFY sessionChanged)
+    Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection NOTIFY connectionChanged)
 
 public:
     explicit IrcBufferModel(QObject* parent = 0);
     virtual ~IrcBufferModel();
 
-    IrcSession* session() const;
-    void setSession(IrcSession* session);
+    IrcConnection* connection() const;
+    void setConnection(IrcConnection* connection);
 
     int count() const;
     QStringList channels() const;
@@ -77,7 +77,7 @@ Q_SIGNALS:
     void aboutToBeRemoved(IrcBuffer* buffer);
     void buffersChanged(const QList<IrcBuffer*>& buffers);
     void channelsChanged(const QStringList& channels);
-    void sessionChanged(IrcSession* session);
+    void connectionChanged(IrcConnection* connection);
     void messageIgnored(IrcMessage* message);
 
 protected:

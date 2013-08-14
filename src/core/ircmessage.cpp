@@ -14,8 +14,8 @@
 
 #include "ircmessage.h"
 #include "ircmessage_p.h"
-#include "ircsession.h"
-#include "ircsession_p.h"
+#include "ircconnection.h"
+#include "ircconnection_p.h"
 #include "ircnetwork.h"
 #include "irccommand.h"
 #include "irc.h"
@@ -33,15 +33,15 @@
     \ingroup message
     \brief The base class of all messages.
 
-    IRC messages are received from an IRC server. IrcSession translates received
-    messages into IrcMessage instances and emits the IrcSession::messageReceived()
+    IRC messages are received from an IRC server. IrcConnection translates received
+    messages into IrcMessage instances and emits the IrcConnection::messageReceived()
     signal upon message received.
 
     Subclasses of IrcMessage contain specialized accessors for parameters that
     are specific to the particular type of message. See IrcMessage::Type for
     the list of supported message types.
 
-    \sa IrcSession::messageReceived(), IrcMessage::Type
+    \sa IrcConnection::messageReceived(), IrcMessage::Type
  */
 
 /*!
@@ -192,12 +192,12 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
 }
 
 /*!
-    Constructs a new IrcMessage with \a session.
+    Constructs a new IrcMessage with \a connection.
  */
-IrcMessage::IrcMessage(IrcSession* session) : QObject(session), d_ptr(new IrcMessagePrivate)
+IrcMessage::IrcMessage(IrcConnection* connection) : QObject(connection), d_ptr(new IrcMessagePrivate)
 {
     Q_D(IrcMessage);
-    d->session = session;
+    d->connection = connection;
 }
 
 /*!
@@ -208,15 +208,15 @@ IrcMessage::~IrcMessage()
 }
 
 /*!
-    This property holds the message session.
+    This property holds the message connection.
 
     \par Access functions:
-    \li IrcSession* <b>session</b>() const
+    \li IrcConnection* <b>connection</b>() const
  */
-IrcSession* IrcMessage::session() const
+IrcConnection* IrcMessage::connection() const
 {
     Q_D(const IrcMessage);
-    return d->session;
+    return d->connection;
 }
 
 /*!
@@ -243,11 +243,11 @@ IrcMessage::Flags IrcMessage::flags() const
     if (d->flags == -1) {
         d->flags = IrcMessage::None;
         IrcSender sender = d->sender();
-        if (sender.isValid() && sender.name() == d->session->nickName())
+        if (sender.isValid() && sender.name() == d->connection->nickName())
             d->flags |= IrcMessage::Own;
 
         if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
-                IrcNetwork(d->session).activeCapabilities().contains("identify-msg")) {
+                IrcNetwork(d->connection).activeCapabilities().contains("identify-msg")) {
             QString msg = property("message").toString();
             if (msg.startsWith("+"))
                 d->flags |= IrcMessage::Identified;
@@ -369,15 +369,15 @@ void IrcMessage::setEncoding(const QByteArray& encoding)
 }
 
 /*!
-    Creates a new message from \a data and \a session.
+    Creates a new message from \a data and \a connection.
  */
-IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcSession* session)
+IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connection)
 {
     IrcMessage* message = 0;
     IrcMessageData md = IrcMessageData::fromData(data);
     const QMetaObject* metaObject = irc_command_meta_object(md.command);
     if (metaObject) {
-        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcSession*, session)));
+        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcConnection*, connection)));
         Q_ASSERT(message);
         message->d_ptr->data = md;
     }
@@ -385,22 +385,22 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcSession* session)
 }
 
 /*!
-    Creates a new message from \a sender and \a command with \a session.
+    Creates a new message from \a sender and \a command with \a connection.
  */
-IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, IrcSession* session)
+IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, IrcConnection* connection)
 {
-    return fromData(":" + sender.toUtf8() + " " + command->toString().toUtf8(), session);
+    return fromData(":" + sender.toUtf8() + " " + command->toString().toUtf8(), connection);
 }
 
 /*!
-    Creates a new message from \a sender, \a command and \a parameters with \a session.
+    Creates a new message from \a sender, \a command and \a parameters with \a connection.
  */
-IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& command, const QStringList& parameters, IrcSession* session)
+IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& command, const QStringList& parameters, IrcConnection* connection)
 {
     IrcMessage* message = 0;
     const QMetaObject* metaObject = irc_command_meta_object(command);
     if (metaObject) {
-        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcSession*, session)));
+        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcConnection*, connection)));
         Q_ASSERT(message);
         message->setSender(sender);
         message->setCommand(command);
@@ -422,7 +422,7 @@ IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& com
 bool IrcMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->session && sender().isValid();
+    return d->connection && sender().isValid();
 }
 
 /*!
@@ -441,9 +441,9 @@ QByteArray IrcMessage::toData() const
  */
 
 /*!
-    Constructs a new IrcNickMessage with \a session.
+    Constructs a new IrcNickMessage with \a connection.
  */
-IrcNickMessage::IrcNickMessage(IrcSession* session) : IrcMessage(session)
+IrcNickMessage::IrcNickMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Nick;
@@ -473,9 +473,9 @@ bool IrcNickMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcQuitMessage with \a session.
+    Constructs a new IrcQuitMessage with \a connection.
  */
-IrcQuitMessage::IrcQuitMessage(IrcSession* session) : IrcMessage(session)
+IrcQuitMessage::IrcQuitMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Quit;
@@ -505,9 +505,9 @@ bool IrcQuitMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcJoinMessage with \a session.
+    Constructs a new IrcJoinMessage with \a connection.
  */
-IrcJoinMessage::IrcJoinMessage(IrcSession* session) : IrcMessage(session)
+IrcJoinMessage::IrcJoinMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Join;
@@ -537,9 +537,9 @@ bool IrcJoinMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcPartMessage with \a session.
+    Constructs a new IrcPartMessage with \a connection.
  */
-IrcPartMessage::IrcPartMessage(IrcSession* session) : IrcMessage(session)
+IrcPartMessage::IrcPartMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Part;
@@ -581,9 +581,9 @@ bool IrcPartMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcTopicMessage with \a session.
+    Constructs a new IrcTopicMessage with \a connection.
  */
-IrcTopicMessage::IrcTopicMessage(IrcSession* session) : IrcMessage(session)
+IrcTopicMessage::IrcTopicMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Topic;
@@ -645,9 +645,9 @@ bool IrcTopicMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcInviteMessage with \a session.
+    Constructs a new IrcInviteMessage with \a connection.
  */
-IrcInviteMessage::IrcInviteMessage(IrcSession* session) : IrcMessage(session)
+IrcInviteMessage::IrcInviteMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Invite;
@@ -689,9 +689,9 @@ bool IrcInviteMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcKickMessage with \a session.
+    Constructs a new IrcKickMessage with \a connection.
  */
-IrcKickMessage::IrcKickMessage(IrcSession* session) : IrcMessage(session)
+IrcKickMessage::IrcKickMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Kick;
@@ -760,9 +760,9 @@ bool IrcKickMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcModeMessage with \a session.
+    Constructs a new IrcModeMessage with \a connection.
  */
-IrcModeMessage::IrcModeMessage(IrcSession* session) : IrcMessage(session)
+IrcModeMessage::IrcModeMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Mode;
@@ -831,7 +831,7 @@ bool IrcModeMessage::isReply() const
 IrcModeMessage::Kind IrcModeMessage::kind() const
 {
     Q_D(const IrcMessage);
-    IrcNetwork info(d->session);
+    IrcNetwork info(d->connection);
     QStringList channelModes = info.channelModes(IrcNetwork::AllTypes);
     QString m = mode();
     if (m.startsWith(QLatin1Char('+')) || m.startsWith(QLatin1Char('-')))
@@ -856,9 +856,9 @@ bool IrcModeMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcPrivateMessage with \a session.
+    Constructs a new IrcPrivateMessage with \a connection.
  */
-IrcPrivateMessage::IrcPrivateMessage(IrcSession* session) : IrcMessage(session)
+IrcPrivateMessage::IrcPrivateMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Private;
@@ -940,9 +940,9 @@ bool IrcPrivateMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcNoticeMessage with \a session.
+    Constructs a new IrcNoticeMessage with \a connection.
  */
-IrcNoticeMessage::IrcNoticeMessage(IrcSession* session) : IrcMessage(session)
+IrcNoticeMessage::IrcNoticeMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Notice;
@@ -1005,9 +1005,9 @@ bool IrcNoticeMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcPingMessage with \a session.
+    Constructs a new IrcPingMessage with \a connection.
  */
-IrcPingMessage::IrcPingMessage(IrcSession* session) : IrcMessage(session)
+IrcPingMessage::IrcPingMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Ping;
@@ -1037,9 +1037,9 @@ bool IrcPingMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcPongMessage with \a session.
+    Constructs a new IrcPongMessage with \a connection.
  */
-IrcPongMessage::IrcPongMessage(IrcSession* session) : IrcMessage(session)
+IrcPongMessage::IrcPongMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Pong;
@@ -1069,9 +1069,9 @@ bool IrcPongMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcErrorMessage with \a session.
+    Constructs a new IrcErrorMessage with \a connection.
  */
-IrcErrorMessage::IrcErrorMessage(IrcSession* session) : IrcMessage(session)
+IrcErrorMessage::IrcErrorMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Error;
@@ -1101,9 +1101,9 @@ bool IrcErrorMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcNumericMessage with \a session.
+    Constructs a new IrcNumericMessage with \a connection.
  */
-IrcNumericMessage::IrcNumericMessage(IrcSession* session) : IrcMessage(session)
+IrcNumericMessage::IrcNumericMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Numeric;
@@ -1135,9 +1135,9 @@ bool IrcNumericMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcCapabilityMessage with \a session.
+    Constructs a new IrcCapabilityMessage with \a connection.
  */
-IrcCapabilityMessage::IrcCapabilityMessage(IrcSession* session) : IrcMessage(session)
+IrcCapabilityMessage::IrcCapabilityMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Capability;
@@ -1189,9 +1189,9 @@ bool IrcCapabilityMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcMotdMessage with \a session.
+    Constructs a new IrcMotdMessage with \a connection.
  */
-IrcMotdMessage::IrcMotdMessage(IrcSession* session) : IrcMessage(session)
+IrcMotdMessage::IrcMotdMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Motd;
@@ -1212,7 +1212,7 @@ QStringList IrcMotdMessage::lines() const
 bool IrcMotdMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->session && sender().isValid() && !d->params().isEmpty();
+    return d->connection && sender().isValid() && !d->params().isEmpty();
 }
 
 /*!
@@ -1222,9 +1222,9 @@ bool IrcMotdMessage::isValid() const
  */
 
 /*!
-    Constructs a new IrcNamesMessage with \a session.
+    Constructs a new IrcNamesMessage with \a connection.
  */
-IrcNamesMessage::IrcNamesMessage(IrcSession* session) : IrcMessage(session)
+IrcNamesMessage::IrcNamesMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
     d->type = Names;
@@ -1257,7 +1257,7 @@ QStringList IrcNamesMessage::names() const
 bool IrcNamesMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->session && sender().isValid() && !d->params().isEmpty();
+    return d->connection && sender().isValid() && !d->params().isEmpty();
 }
 
 #ifndef QT_NO_DEBUG_STREAM

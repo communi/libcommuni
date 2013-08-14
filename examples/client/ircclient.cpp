@@ -23,7 +23,7 @@
 #include <Irc>
 #include <IrcUser>
 #include <IrcBuffer>
-#include <IrcSession>
+#include <IrcConnection>
 #include <IrcCommand>
 #include <IrcMessage>
 #include <IrcUserModel>
@@ -35,19 +35,19 @@ static const char* SERVER = "irc.freenode.net";
 
 IrcClient::IrcClient(QWidget* parent) : QSplitter(parent)
 {
-    createSession();
+    createConnection();
     createParser();
     createUi();
 
-    session->open();
+    connection->open();
 }
 
 IrcClient::~IrcClient()
 {
-    if (session->isActive()) {
-        session->sendCommand(IrcCommand::createQuit(session->realName()));
+    if (connection->isActive()) {
+        connection->sendCommand(IrcCommand::createQuit(connection->realName()));
         // let the server process the quit message and close the connection
-        session->socket()->waitForDisconnected(1000);
+        connection->socket()->waitForDisconnected(1000);
     }
 }
 
@@ -55,7 +55,7 @@ void IrcClient::onConnected()
 {
     textEdit->append(IrcMessageFormatter::formatMessage("! Connected to %1.").arg(SERVER));
     textEdit->append(IrcMessageFormatter::formatMessage("! Joining %1...").arg(CHANNEL));
-    session->sendCommand(IrcCommand::createJoin(CHANNEL));
+    connection->sendCommand(IrcCommand::createJoin(CHANNEL));
 }
 
 void IrcClient::onConnecting()
@@ -79,11 +79,11 @@ void IrcClient::onTextEntered()
     QString input = lineEdit->text();
     IrcCommand* command = parser->parse(input);
     if (command) {
-        session->sendCommand(command);
+        connection->sendCommand(command);
 
         // echo own messages (servers do not send our own messages back)
         if (command->type() == IrcCommand::Message || command->type() == IrcCommand::CtcpAction) {
-            IrcMessage* msg = IrcMessage::fromCommand(session->nickName(), command, session);
+            IrcMessage* msg = IrcMessage::fromCommand(connection->nickName(), command, connection);
             receiveBufferMessage(msg);
             delete msg;
         }
@@ -202,7 +202,7 @@ void IrcClient::createUi()
     setWindowTitle(tr("Communi %1 example client").arg(IRC_VERSION_STR));
 
     // keep track of buffers
-    bufferModel = new IrcBufferModel(session);
+    bufferModel = new IrcBufferModel(connection);
     bufferList = new QListView(this);
     bufferList->setFocusPolicy(Qt::NoFocus);
     bufferList->setModel(bufferModel);
@@ -292,17 +292,17 @@ void IrcClient::createParser()
     parser->addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
 }
 
-void IrcClient::createSession()
+void IrcClient::createConnection()
 {
-    session = new IrcSession(this);
-    connect(session, SIGNAL(connected()), this, SLOT(onConnected()));
-    connect(session, SIGNAL(connecting()), this, SLOT(onConnecting()));
-    connect(session, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
+    connection = new IrcConnection(this);
+    connect(connection, SIGNAL(connected()), this, SLOT(onConnected()));
+    connect(connection, SIGNAL(connecting()), this, SLOT(onConnecting()));
+    connect(connection, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 
     qsrand(QTime::currentTime().msec());
 
-    session->setHost(SERVER);
-    session->setUserName("communi");
-    session->setNickName(tr("Communi%1").arg(qrand() % 99999));
-    session->setRealName(tr("Communi %1 example client").arg(IRC_VERSION_STR));
+    connection->setHost(SERVER);
+    connection->setUserName("communi");
+    connection->setNickName(tr("Communi%1").arg(qrand() % 99999));
+    connection->setRealName(tr("Communi %1 example client").arg(IRC_VERSION_STR));
 }

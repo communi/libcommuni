@@ -23,7 +23,7 @@
 #include "ircsender.h"
 #include "ircmessage.h"
 
-class IrcSession;
+class IrcConnection;
 
 template <class T>
 class IrcExplicitValue
@@ -76,7 +76,7 @@ public:
 
     static QString decode(const QByteArray& data, const QByteArray& encoding);
 
-    IrcSession* session;
+    IrcConnection* connection;
     IrcMessage::Type type;
     QDateTime timeStamp;
     QByteArray encoding;

@@ -13,7 +13,7 @@
 
 int main()
 {
-    IrcSession s;
+    IrcConnection s;
     IrcBuffer b;
     IrcPalette p;
 }

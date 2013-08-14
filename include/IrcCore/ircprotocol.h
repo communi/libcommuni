@@ -22,7 +22,7 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
 
-class IrcSession;
+class IrcConnection;
 class IrcMessage;
 class IrcProtocolPrivate;
 
@@ -31,10 +31,10 @@ class IRC_CORE_EXPORT IrcProtocol : public QObject
     Q_OBJECT
 
 public:
-    explicit IrcProtocol(IrcSession* session);
+    explicit IrcProtocol(IrcConnection* connection);
     virtual ~IrcProtocol();
 
-    IrcSession* session() const;
+    IrcConnection* connection() const;
     QAbstractSocket* socket() const;
 
     virtual void open();

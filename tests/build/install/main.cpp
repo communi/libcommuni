@@ -7,13 +7,13 @@
  * completely or partially.
  */
 
-#include <IrcCore/ircsession.h>
+#include <IrcCore/ircconnection.h>
 #include <IrcModel/ircbuffer.h>
 #include <IrcUtil/ircpalette.h>
 
 int main()
 {
-    IrcSession s;
+    IrcConnection s;
     IrcBuffer b;
     IrcPalette p;
 }

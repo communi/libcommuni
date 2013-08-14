@@ -10,7 +10,7 @@
 #include "ircmessageformatter.h"
 
 #include <IrcTextFormat>
-#include <IrcSession>
+#include <IrcConnection>
 #include <IrcSender>
 #include <QTime>
 #include <Irc>

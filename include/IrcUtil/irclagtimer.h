@@ -19,7 +19,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
-class IrcSession;
+class IrcConnection;
 class IrcLagTimerPrivate;
 
 class IRC_UTIL_EXPORT IrcLagTimer : public QObject
@@ -27,14 +27,14 @@ class IRC_UTIL_EXPORT IrcLagTimer : public QObject
     Q_OBJECT
     Q_PROPERTY(qint64 lag READ lag NOTIFY lagChanged)
     Q_PROPERTY(int interval READ interval WRITE setInterval)
-    Q_PROPERTY(IrcSession* session READ session WRITE setSession)
+    Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection)
 
 public:
     explicit IrcLagTimer(QObject* parent = 0);
     virtual ~IrcLagTimer();
 
-    IrcSession* session() const;
-    void setSession(IrcSession* session);
+    IrcConnection* connection() const;
+    void setConnection(IrcConnection* connection);
 
     qint64 lag() const;
 

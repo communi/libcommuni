@@ -14,9 +14,9 @@
 
 #include "ircnetwork.h"
 #include "ircnetwork_p.h"
-#include "ircsession_p.h"
+#include "ircconnection_p.h"
 #include "ircprotocol.h"
-#include "ircsession.h"
+#include "ircconnection.h"
 #include <QPointer>
 
 /*!
@@ -36,10 +36,10 @@
     available and active capabilities.
 
     \note A valid IrcNetwork can only be constructed at any time
-          after the IrcSession::sessionInfoReceived() signal has been
+          after the IrcConnection::connectionInfoReceived() signal has been
           emitted.
 
-    \sa isValid(), IrcSession::sessionInfoReceived()
+    \sa isValid(), IrcConnection::connectionInfoReceived()
  */
 
 /*!
@@ -215,16 +215,16 @@ void IrcNetworkPrivate::setChannelTypes(const QStringList& value)
 }
 
 /*!
-    Constructs a new network object for IRC \a session.
+    Constructs a new network object for IRC \a connection.
  */
-IrcNetwork::IrcNetwork(IrcSession* session) : QObject(session), d_ptr(new IrcNetworkPrivate(this))
+IrcNetwork::IrcNetwork(IrcConnection* connection) : QObject(connection), d_ptr(new IrcNetworkPrivate(this))
 {
     Q_D(IrcNetwork);
-    d->session = session;
+    d->connection = connection;
 }
 
 /*!
-    Destructs the IRC session info.
+    Destructs the IRC connection info.
  */
 IrcNetwork::~IrcNetwork()
 {
@@ -234,17 +234,17 @@ IrcNetwork::~IrcNetwork()
     Returns \c true if the info object is valid, \c false otherwise.
 
     \note A valid IrcNetwork can only be constructed at any time
-          after the IrcSession::sessionInfoReceived() signal has been
-          emitted. Constructing an IrcNetwork before the session
+          after the IrcConnection::connectionInfoReceived() signal has been
+          emitted. Constructing an IrcNetwork before the connection
           information has been received results to an invalid
           IrcNetwork.
 
-    \sa isValid(), IrcSession::sessionInfoReceived()
+    \sa isValid(), IrcConnection::connectionInfoReceived()
  */
 bool IrcNetwork::isValid() const
 {
     Q_D(const IrcNetwork);
-    return d->session && d->valid;
+    return d->connection && d->valid;
 }
 
 /*!
@@ -385,25 +385,25 @@ int IrcNetwork::targetLimit(const QString& command) const
 /*!
     Returns the available capabilities.
 
-    \sa IrcSession::capabilities(), IrcCapabilityMessage, IrcCommand::createCapability()
+    \sa IrcConnection::capabilities(), IrcCapabilityMessage, IrcCommand::createCapability()
  */
 QStringList IrcNetwork::availableCapabilities() const
 {
     Q_D(const IrcNetwork);
-    if (d->session)
-        return IrcSessionPrivate::get(d->session)->protocol->availableCapabilities();
+    if (d->connection)
+        return IrcConnectionPrivate::get(d->connection)->protocol->availableCapabilities();
     return QStringList();
 }
 
 /*!
     Returns the active capabilities.
 
-    \sa IrcSession::capabilities(), IrcCapabilityMessage, IrcCommand::createCapability()
+    \sa IrcConnection::capabilities(), IrcCapabilityMessage, IrcCommand::createCapability()
  */
 QStringList IrcNetwork::activeCapabilities() const
 {
     Q_D(const IrcNetwork);
-    if (d->session)
-        return IrcSessionPrivate::get(d->session)->protocol->activeCapabilities();
+    if (d->connection)
+        return IrcConnectionPrivate::get(d->connection)->protocol->activeCapabilities();
     return QStringList();
 }

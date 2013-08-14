@@ -8,7 +8,7 @@ SUBDIRS += irccommand
 SUBDIRS += irccommandparser
 SUBDIRS += ircmessage
 SUBDIRS += ircsender
-SUBDIRS += ircsession
+SUBDIRS += ircconnection
 
 private_tests {
     SUBDIRS += ircmessagedecoder

@@ -13,10 +13,10 @@
 */
 
 #include "ircprotocol.h"
-#include "ircsession_p.h"
+#include "ircconnection_p.h"
 #include "ircmessagebuilder_p.h"
 #include "ircnetwork_p.h"
-#include "ircsession.h"
+#include "ircconnection.h"
 #include "ircmessage.h"
 #include "irccommand.h"
 #include "irc.h"
@@ -37,7 +37,7 @@ public:
     void handleCapabilityMessage(IrcCapabilityMessage* msg);
 
     IrcProtocol* q_ptr;
-    IrcSession* session;
+    IrcConnection* connection;
     IrcMessageBuilder* builder;
     QByteArray buffer;
 
@@ -70,15 +70,15 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
     if (line.startsWith("AUTHENTICATE")) {
         const QList<QByteArray> args = line.split(' ');
         const bool auth = args.count() == 2 && args.at(1) == "+";
-        q->authenticate(auth && session->isSecure());
-        if (!session->isConnected())
-            session->sendData("CAP END");
+        q->authenticate(auth && connection->isSecure());
+        if (!connection->isConnected())
+            connection->sendData("CAP END");
         return;
     }
 
-    IrcMessage* msg = IrcMessage::fromData(line, session);
+    IrcMessage* msg = IrcMessage::fromData(line, connection);
     if (msg) {
-        msg->setEncoding(session->encoding());
+        msg->setEncoding(connection->encoding());
 
         switch (msg->type()) {
         case IrcMessage::Capability:
@@ -92,7 +92,7 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
             handleNumericMessage(static_cast<IrcNumericMessage*>(msg));
             break;
         case IrcMessage::Ping:
-            session->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
+            connection->sendRaw("PONG " + static_cast<IrcPingMessage*>(msg)->argument());
             break;
         case IrcMessage::Private:
             handlePrivateMessage(static_cast<IrcPrivateMessage*>(msg));
@@ -127,9 +127,9 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
     case Irc::ERR_NICKNAMEINUSE:
     case Irc::ERR_NICKCOLLISION: {
         QString alternate;
-        emit session->nickNameReserved(&alternate);
+        emit connection->nickNameReserved(&alternate);
         if (!alternate.isEmpty())
-            session->setNickName(alternate);
+            connection->setNickName(alternate);
         break;
     }
     default:
@@ -140,9 +140,9 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
 void IrcProtocolPrivate::handlePrivateMessage(IrcPrivateMessage* msg)
 {
     if (msg->isRequest()) {
-        IrcCommand* reply = session->createCtcpReply(msg);
+        IrcCommand* reply = connection->createCtcpReply(msg);
         if (reply)
-            session->sendCommand(reply);
+            connection->sendCommand(reply);
     }
 }
 
@@ -160,7 +160,7 @@ static void handleCapability(QSet<QString>* caps, const QString& cap)
 void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
 {
     Q_Q(IrcProtocol);
-    const bool connected = session->isConnected();
+    const bool connected = connection->isConnected();
     const QString subCommand = msg->subCommand();
     if (subCommand == "LS") {
         foreach (const QString& cap, msg->capabilities())
@@ -170,14 +170,14 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             const QStringList params = msg->parameters();
             if (params.value(params.count() - 1) != QLatin1String("*")) {
                 QStringList request;
-                emit session->capabilities(availableCaps.toList(), &request);
+                emit connection->capabilities(availableCaps.toList(), &request);
                 if (!request.isEmpty()) {
-                    session->sendCommand(IrcCommand::createCapability("REQ", request));
+                    connection->sendCommand(IrcCommand::createCapability("REQ", request));
                 } else {
                     // TODO: #14: SASL over non-SSL connection
-                    if (session->isSecure())
+                    if (connection->isSecure())
                         q->authenticate(false);
-                    session->sendData("CAP END");
+                    connection->sendData("CAP END");
                 }
             }
         }
@@ -187,24 +187,24 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             foreach (const QString& cap, msg->capabilities()) {
                 handleCapability(&activeCaps, cap);
                 if (cap == "sasl")
-                    auth = session->sendData("AUTHENTICATE PLAIN"); // TODO: methods
+                    auth = connection->sendData("AUTHENTICATE PLAIN"); // TODO: methods
             }
         }
 
         if (!connected && !auth) {
             // TODO: #14: SASL over non-SSL connection
-            if (session->isSecure())
+            if (connection->isSecure())
                 q->authenticate(false);
-            session->sendData("CAP END");
+            connection->sendData("CAP END");
         }
     }
 }
 
-IrcProtocol::IrcProtocol(IrcSession* session) : QObject(session), d_ptr(new IrcProtocolPrivate(this))
+IrcProtocol::IrcProtocol(IrcConnection* connection) : QObject(connection), d_ptr(new IrcProtocolPrivate(this))
 {
     Q_D(IrcProtocol);
-    d->session = session;
-    d->builder = new IrcMessageBuilder(session);
+    d->connection = connection;
+    d->builder = new IrcMessageBuilder(connection);
     connect(d->builder, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveMessage(IrcMessage*)));
 }
 
@@ -214,23 +214,23 @@ IrcProtocol::~IrcProtocol()
     delete d->builder;
 }
 
-IrcSession* IrcProtocol::session() const
+IrcConnection* IrcProtocol::connection() const
 {
     Q_D(const IrcProtocol);
-    return d->session;
+    return d->connection;
 }
 
 QAbstractSocket* IrcProtocol::socket() const
 {
     Q_D(const IrcProtocol);
-    return d->session->socket();
+    return d->connection->socket();
 }
 
 void IrcProtocol::open()
 {
     Q_D(IrcProtocol);
 
-    const bool secure = d->session->isSecure();
+    const bool secure = d->connection->isSecure();
     if (secure)
         QMetaObject::invokeMethod(socket(), "startClientEncryption");
 
@@ -240,27 +240,27 @@ void IrcProtocol::open()
     // Send CAP LS first; if the server understands it this will
     // temporarily pause the handshake until CAP END is sent, so we
     // know whether the server supports the CAP extension.
-    d->session->sendData("CAP LS");
+    d->connection->sendData("CAP LS");
 
-    if (!d->session->isSecure())
+    if (!d->connection->isSecure())
         authenticate(false);
 
-    d->session->sendCommand(IrcCommand::createNick(d->session->nickName()));
-    d->session->sendRaw(QString("USER %1 hostname servername :%2").arg(d->session->userName(), d->session->realName()));
+    d->connection->sendCommand(IrcCommand::createNick(d->connection->nickName()));
+    d->connection->sendRaw(QString("USER %1 hostname servername :%2").arg(d->connection->userName(), d->connection->realName()));
 }
 
 void IrcProtocol::authenticate(bool secure)
 {
     Q_D(IrcProtocol);
     QString passwd;
-    emit d->session->password(&passwd);
+    emit d->connection->password(&passwd);
     if (!passwd.isEmpty()) {
         if (secure) {
-            const QByteArray userName = d->session->userName().toUtf8();
+            const QByteArray userName = d->connection->userName().toUtf8();
             const QByteArray data = userName + '\0' + userName + '\0' + passwd.toUtf8();
-            d->session->sendData("AUTHENTICATE " + data.toBase64());
+            d->connection->sendData("AUTHENTICATE " + data.toBase64());
         } else {
-            d->session->sendRaw(QString("PASS %1").arg(passwd));
+            d->connection->sendRaw(QString("PASS %1").arg(passwd));
         }
     }
 }
@@ -295,34 +295,34 @@ QStringList IrcProtocol::activeCapabilities() const
 void IrcProtocol::setActive(bool active)
 {
     Q_D(IrcProtocol);
-    IrcSessionPrivate* priv = IrcSessionPrivate::get(d->session);
+    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->setActive(active);
 }
 
 void IrcProtocol::setConnected(bool connected)
 {
     Q_D(IrcProtocol);
-    IrcSessionPrivate* priv = IrcSessionPrivate::get(d->session);
+    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->setConnected(connected);
 }
 
 void IrcProtocol::setNick(const QString& nick)
 {
     Q_D(IrcProtocol);
-    IrcSessionPrivate* priv = IrcSessionPrivate::get(d->session);
+    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->setNick(nick);
 }
 
 void IrcProtocol::setInfo(const QHash<QString, QString>& info)
 {
     Q_D(IrcProtocol);
-    IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->session->network());
+    IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->connection->network());
     priv->setInfo(info);
 }
 
 void IrcProtocol::receiveMessage(IrcMessage* message)
 {
     Q_D(IrcProtocol);
-    IrcSessionPrivate* priv = IrcSessionPrivate::get(d->session);
+    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->receiveMessage(message);
 }

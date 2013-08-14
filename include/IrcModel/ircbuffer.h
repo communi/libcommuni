@@ -24,7 +24,7 @@
 class IrcChannel;
 class IrcCommand;
 class IrcMessage;
-class IrcSession;
+class IrcConnection;
 class IrcBufferModel;
 class IrcBufferPrivate;
 
@@ -34,7 +34,7 @@ class IRC_MODEL_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix NOTIFY prefixChanged)
-    Q_PROPERTY(IrcSession* session READ session CONSTANT)
+    Q_PROPERTY(IrcConnection* connection READ connection CONSTANT)
     Q_PROPERTY(IrcBufferModel* model READ model CONSTANT)
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
     Q_PROPERTY(bool channel READ isChannel CONSTANT)
@@ -50,7 +50,7 @@ public:
     bool isChannel() const;
     IrcChannel* toChannel();
 
-    IrcSession* session() const;
+    IrcConnection* connection() const;
     IrcBufferModel* model() const;
 
     virtual bool isActive() const;
