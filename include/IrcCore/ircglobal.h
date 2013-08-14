@@ -80,8 +80,4 @@
  */
 #define IRC_VERSION_STR "3.0.0"
 
-#ifndef QT_FORWARD_DECLARE_CLASS
-#   define QT_FORWARD_DECLARE_CLASS(name) class name;
-#endif // QT_FORWARD_DECLARE_CLASS
-
 #endif // IRCGLOBAL_H
