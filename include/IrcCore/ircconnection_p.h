@@ -56,6 +56,7 @@ public:
     QString userName;
     QString nickName;
     QString realName;
+    QString password;
     bool active;
     bool connected;
     QList<IrcMessageFilter*> filters;

@@ -252,15 +252,14 @@ void IrcProtocol::open()
 void IrcProtocol::authenticate(bool secure)
 {
     Q_D(IrcProtocol);
-    QString passwd;
-    emit d->connection->password(&passwd);
-    if (!passwd.isEmpty()) {
+    const QString password = d->connection->password();
+    if (!password.isEmpty()) {
         if (secure) {
             const QByteArray userName = d->connection->userName().toUtf8();
-            const QByteArray data = userName + '\0' + userName + '\0' + passwd.toUtf8();
+            const QByteArray data = userName + '\0' + userName + '\0' + password.toUtf8();
             d->connection->sendData("AUTHENTICATE " + data.toBase64());
         } else {
-            d->connection->sendRaw(QString("PASS %1").arg(passwd));
+            d->connection->sendRaw(QString("PASS %1").arg(password));
         }
     }
 }

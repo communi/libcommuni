@@ -238,13 +238,11 @@ void tst_IrcConnection::testConnection()
 
     IrcConnection connection;
     QSignalSpy connectingSpy(&connection, SIGNAL(connecting()));
-    QSignalSpy passwordSpy(&connection, SIGNAL(password(QString*)));
     QSignalSpy connectedSpy(&connection, SIGNAL(connected()));
     QSignalSpy disconnectedSpy(&connection, SIGNAL(disconnected()));
     QSignalSpy messageReceivedSpy(&connection, SIGNAL(messageReceived(IrcMessage*)));
 
     QVERIFY(connectingSpy.isValid());
-    QVERIFY(passwordSpy.isValid());
     QVERIFY(connectedSpy.isValid());
     QVERIFY(disconnectedSpy.isValid());
     QVERIFY(messageReceivedSpy.isValid());
@@ -262,7 +260,6 @@ void tst_IrcConnection::testConnection()
 
     QVERIFY(connection.socket()->waitForConnected());
     QCOMPARE(connectingSpy.count(), 1);
-    QCOMPARE(passwordSpy.count(), 1);
 
     QVERIFY(serverSocket->write(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n"));
     QVERIFY(serverSocket->waitForBytesWritten());

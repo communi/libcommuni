@@ -36,6 +36,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(QString userName READ userName WRITE setUserName NOTIFY userNameChanged)
     Q_PROPERTY(QString nickName READ nickName WRITE setNickName NOTIFY nickNameChanged)
     Q_PROPERTY(QString realName READ realName WRITE setRealName NOTIFY realNameChanged)
+    Q_PROPERTY(QString password READ password WRITE setPassword NOTIFY passwordChanged)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
@@ -61,6 +62,9 @@ public:
 
     QString realName() const;
     void setRealName(const QString& name);
+
+    QString password() const;
+    void setPassword(const QString& password);
 
     QByteArray encoding() const;
     void setEncoding(const QByteArray& encoding);
@@ -90,7 +94,6 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void connecting();
-    void password(QString* password);
     void nickNameReserved(QString* alternate);
     void capabilities(const QStringList& available, QStringList* request);
     void connected();
@@ -123,6 +126,7 @@ Q_SIGNALS:
     void userNameChanged(const QString& name);
     void nickNameChanged(const QString& name);
     void realNameChanged(const QString& name);
+    void passwordChanged(const QString& password);
 
     void activeChanged(bool active);
     void connectedChanged(bool connected);

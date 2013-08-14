@@ -91,14 +91,6 @@
  */
 
 /*!
-    \fn void IrcConnection::password(QString* password)
-
-    This signal is emitted when the connection \a password may be set.
-
-    \note IrcConnection does not store the password.
- */
-
-/*!
     \fn void IrcConnection::nickNameReserved(QString* alternate)
 
     This signal is emitted when the requested nick name is reserved
@@ -526,6 +518,33 @@ void IrcConnection::setRealName(const QString& name)
     if (d->realName != name) {
         d->realName = name;
         emit realNameChanged(name);
+    }
+}
+
+/*!
+    This property holds the password.
+
+    \par Access functions:
+    \li QString <b>password</b>() const
+    \li void <b>setPassword</b>(const QString& password)
+
+    \par Notifier signal:
+    \li void <b>passwordChanged</b>(const QString& password)
+ */
+QString IrcConnection::password() const
+{
+    Q_D(const IrcConnection);
+    return d->password;
+}
+
+void IrcConnection::setPassword(const QString& password)
+{
+    Q_D(IrcConnection);
+    if (isActive())
+        qWarning("IrcConnection::setPassword() has no effect until re-connect");
+    if (d->password != password) {
+        d->password = password;
+        emit passwordChanged(password);
     }
 }
 
