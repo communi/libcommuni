@@ -4,7 +4,8 @@ compiler:
   - clang
 script:
   - qmake -v
-  - ./configure -config private_tests
+  - sudo apt-get install libicu-dev
+  - ./configure -config private_tests -icu
   - make
   - make check
   - sudo make install
