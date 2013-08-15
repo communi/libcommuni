@@ -310,6 +310,22 @@ QStringList IrcNetwork::channelTypes() const
 }
 
 /*!
+    Returns \c true if the \a name is a channel.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    !name.isEmpty() && network->channelTypes().contains(name.at(0))
+    \endcode
+
+    \sa channelTypes()
+ */
+bool IrcNetwork::isChannel(const QString& name) const
+{
+    Q_D(const IrcNetwork);
+    return !name.isEmpty() && d->channelTypes.contains(name.at(0));
+}
+
+/*!
     Returns the supported channel modes for \a type.
  */
 QStringList IrcNetwork::channelModes(IrcNetwork::ModeTypes types) const

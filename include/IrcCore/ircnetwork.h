@@ -52,6 +52,8 @@ public:
 
     QStringList channelTypes() const;
 
+    Q_INVOKABLE bool isChannel(const QString& name) const;
+
     enum ModeType {
         TypeA    = 0x1,
         TypeB    = 0x2,

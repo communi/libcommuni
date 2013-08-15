@@ -532,13 +532,13 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
     of IrcBuffer. Reimplement this function in order to alter the
     default behavior, for example to provide a custom IrcBuffer or
     IrcChannel subclass.
+
+    \sa IrcNetwork::isChannel()
  */
 IrcBuffer* IrcBufferModel::create(const QString& title)
 {
     Q_D(IrcBufferModel);
-    const IrcNetwork* network = d->connection->network();
-    const QStringList chanTypes = network->channelTypes();
-    if (!title.isEmpty() && chanTypes.contains(title.at(0)))
+    if (d->connection->network()->isChannel(title))
         return new IrcChannel(this);
     return new IrcBuffer(this);
 }
