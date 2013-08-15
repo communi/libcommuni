@@ -34,6 +34,8 @@ class IRC_CORE_EXPORT IrcNetwork : public QObject
     Q_PROPERTY(QStringList channelTypes READ channelTypes NOTIFY channelTypesChanged)
     Q_PROPERTY(QStringList availableCapabilities READ availableCapabilities NOTIFY availableCapabilitiesChanged)
     Q_PROPERTY(QStringList activeCapabilities READ activeCapabilities NOTIFY activeCapabilitiesChanged)
+    Q_FLAGS(ModeType)
+    Q_ENUMS(Limit)
 
 public:
     virtual ~IrcNetwork();
@@ -71,11 +73,11 @@ public:
         ModeCount
     };
 
-    int numericLimit(Limit limit) const;
+    Q_INVOKABLE int numericLimit(Limit limit) const;
 
-    int modeLimit(const QString& mode = QString()) const;
-    int channelLimit(const QString& type = QString()) const;
-    int targetLimit(const QString& command = QString()) const;
+    Q_INVOKABLE int modeLimit(const QString& mode = QString()) const;
+    Q_INVOKABLE int channelLimit(const QString& type = QString()) const;
+    Q_INVOKABLE int targetLimit(const QString& command = QString()) const;
 
     QStringList availableCapabilities() const;
     QStringList activeCapabilities() const;
