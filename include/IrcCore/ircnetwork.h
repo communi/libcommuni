@@ -82,6 +82,9 @@ public:
     QStringList availableCapabilities() const;
     QStringList activeCapabilities() const;
 
+    Q_INVOKABLE bool hasCapability(const QString& capability) const;
+    Q_INVOKABLE bool isCapable(const QString& capability) const;
+
 Q_SIGNALS:
     void nameChanged(const QString& name);
     void modesChanged(const QStringList& modes);

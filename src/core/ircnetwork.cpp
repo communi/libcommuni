@@ -408,4 +408,35 @@ QStringList IrcNetwork::activeCapabilities() const
     return QStringList();
 }
 
+/*!
+    Returns \c true if the \a capability is \b available.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    network->availableCapabilities().contains(capability)
+    \endcode
+
+    \sa availableCapabilities()
+ */
+bool IrcNetwork::hasCapability(const QString& capability) const
+{
+    return availableCapabilities().contains(capability);
+}
+
+/*!
+    Returns \c true if the \a capability is \b active.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    network->activeCapabilities().contains(capability)
+    \endcode
+
+    \sa activeCapabilities()
+ */
+bool IrcNetwork::isCapable(const QString& capability) const
+{
+    return activeCapabilities().contains(capability);
+}
+
+
 IRC_END_NAMESPACE
