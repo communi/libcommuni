@@ -84,7 +84,6 @@ Q_SIGNALS:
 
 protected:
     virtual IrcBuffer* create(const QString& title);
-    virtual void destroy(IrcBuffer* buffer);
 
     virtual bool lessThan(IrcBuffer* one, IrcBuffer* another) const;
 

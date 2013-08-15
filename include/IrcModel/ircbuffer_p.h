@@ -65,6 +65,7 @@ public:
     IrcBufferModel* model;
     QString name;
     QString prefix;
+    bool persistent;
 };
 
 IRC_END_NAMESPACE

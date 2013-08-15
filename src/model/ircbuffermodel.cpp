@@ -193,12 +193,11 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
     return buffer;
 }
 
-void IrcBufferModelPrivate::removeBuffer(const QString& title)
+void IrcBufferModelPrivate::removeBuffer(const QString& title, bool force)
 {
-    Q_Q(IrcBufferModel);
     IrcBuffer* buffer = bufferMap.value(title.toLower());
-    if (buffer)
-        q->destroy(buffer);
+    if (buffer && (force || !buffer->isPersistent()))
+        delete buffer;
 }
 
 bool IrcBufferModelPrivate::renameBuffer(IrcBuffer* buffer, const QString& title)
@@ -401,7 +400,7 @@ IrcBuffer* IrcBufferModel::add(const QString& title)
 void IrcBufferModel::remove(const QString& title)
 {
     Q_D(IrcBufferModel);
-    d->removeBuffer(title);
+    d->removeBuffer(title, true);
 }
 
 /*!
@@ -542,22 +541,6 @@ IrcBuffer* IrcBufferModel::create(const QString& title)
     if (!title.isEmpty() && chanTypes.contains(title.at(0)))
         return new IrcChannel(this);
     return new IrcBuffer(this);
-}
-
-/*!
-    Destroys the buffer \a model.
-
-    IrcBufferModel will automatically call this method when the buffer
-    object is no longer needed ie. the user quit, a channel was left,
-    or the user was kicked from the channel.
-
-    The default implementation deletes the buffer object.
-    Reimplement this function in order to alter the default behavior,
-    for example to keep the buffer object alive.
- */
-void IrcBufferModel::destroy(IrcBuffer* buffer)
-{
-    delete buffer;
 }
 
 /*!

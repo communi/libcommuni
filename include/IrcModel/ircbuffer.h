@@ -40,6 +40,7 @@ class IRC_MODEL_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(IrcBufferModel* model READ model CONSTANT)
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
     Q_PROPERTY(bool channel READ isChannel CONSTANT)
+    Q_PROPERTY(bool persistent READ isPersistent WRITE setPersistent NOTIFY persistentChanged)
 
 public:
     explicit IrcBuffer(QObject* parent = 0);
@@ -57,6 +58,9 @@ public:
 
     virtual bool isActive() const;
 
+    bool isPersistent() const;
+    void setPersistent(bool persistent);
+
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
 
 public Q_SLOTS:
@@ -70,6 +74,7 @@ Q_SIGNALS:
     void messageReceived(IrcMessage* message);
     void destroyed(IrcBuffer* buffer);
     void activeChanged(bool active);
+    void persistentChanged(bool persistent);
 
 protected:
     IrcBuffer(IrcBufferPrivate& dd, QObject* parent);

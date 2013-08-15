@@ -59,7 +59,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 IrcBufferPrivate::IrcBufferPrivate()
-    : q_ptr(0), model(0)
+    : q_ptr(0), model(0), persistent(0)
 {
 }
 
@@ -354,6 +354,36 @@ bool IrcBuffer::isActive() const
     if (IrcConnection* s = connection())
         return s->isConnected();
     return false;
+}
+
+/*!
+    \property bool IrcBuffer::persistent
+    This property holds whether the buffer is persistent.
+
+    A persistent buffer does not get automatically removed
+    from its IrcBufferModel e.g. when leaving a channel.
+
+    \par Access function:
+    \li bool <b>isPersistent</b>() const
+    \li void <b>setPersistent</b>(bool persistent)
+
+    \par Notifier signal:
+    \li void <b>persistentChanged</b>(bool persistent)
+ */
+
+bool IrcBuffer::isPersistent() const
+{
+    Q_D(const IrcBuffer);
+    return d->persistent;
+}
+
+void IrcBuffer::setPersistent(bool persistent)
+{
+    Q_D(IrcBuffer);
+    if (d->persistent != persistent) {
+        d->persistent = persistent;
+        emit persistentChanged(persistent);
+    }
 }
 
 /*!

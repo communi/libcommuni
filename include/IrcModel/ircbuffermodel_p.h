@@ -32,7 +32,7 @@ public:
     bool messageFilter(IrcMessage* message);
 
     IrcBuffer* addBuffer(const QString& title);
-    void removeBuffer(const QString& title);
+    void removeBuffer(const QString& title, bool force = false);
     bool renameBuffer(IrcBuffer* buffer, const QString& title);
     bool processMessage(const QString& title, IrcMessage* message, bool create = false);
 
