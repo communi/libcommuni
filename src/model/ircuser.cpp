@@ -24,12 +24,12 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcUser ircuser.h <IrcUser>
-    \ingroup models
+    \ingroup model
     \brief Keeps track of user status on a channel.
 
     \note IrcUser does not work on its own. Use an instance managed by IrcUserModel.
 
-    \sa models
+    \sa model
 */
 
 void IrcUserPrivate::setName(const QString& n)

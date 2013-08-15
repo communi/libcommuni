@@ -31,12 +31,12 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcChannel ircchannel.h <IrcChannel>
-    \ingroup models
+    \ingroup model
     \brief Keeps track of channel status.
 
     \note IrcChannel does not work on its own. Use an instance managed by IrcBufferModel.
 
-    \sa models
+    \sa model
 */
 
 static QString getPrefix(const QString& name, const QStringList& prefixes)

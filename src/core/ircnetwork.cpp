@@ -28,7 +28,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcNetwork ircnetwork.h IrcNetwork
-    \ingroup utility
+    \ingroup core
     \brief Provides network information.
 
     IrcNetwork provides various IRC network information. This includes

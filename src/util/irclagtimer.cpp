@@ -31,7 +31,7 @@ static const int DEFAULT_INTERVAL = 60;
 
 /*!
     \class IrcLagTimer irclagtimer.h <IrcLagTimer>
-    \ingroup utility
+    \ingroup util
     \brief Provides a timer for measuring lag.
 
     \note IrcLagTimer relies on functionality introduced in Qt 4.7.0, and is

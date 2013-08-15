@@ -25,7 +25,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcMessageFilter ircmessagefilter.h.h <IrcMessageFilter>
-    \ingroup utility
+    \ingroup core
     \brief Provides an interface for filtering messages
 
     IrcMessageFilter may be used to intercept messages before

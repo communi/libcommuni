@@ -24,7 +24,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcCommandParser irccommandparser.h <IrcCommandParser>
-    \ingroup utility
+    \ingroup util
     \brief Parses commands from user input.
 
     \section syntax Syntax

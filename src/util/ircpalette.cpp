@@ -24,7 +24,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcPalette ircpalette.h <IrcPalette>
-    \ingroup utility
+    \ingroup util
     \brief Specifies a palette of colors.
 
     IrcPalette is used to specify the desired IRC color palette when

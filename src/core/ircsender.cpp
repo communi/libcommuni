@@ -23,7 +23,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcSender ircsender.h <IrcSender>
-    \ingroup utility
+    \ingroup core
     \brief A helper class for handling message sender prefixes.
 
     An IRC message sender prefix as specified in RFC 1459:

@@ -33,7 +33,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcTextFormat irctextformat.h <IrcTextFormat>
-    \ingroup utility
+    \ingroup util
     \brief Provides methods for text formatting.
 
     IrcTextFormat is used to convert IRC-style formatted messages to either

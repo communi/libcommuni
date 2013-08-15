@@ -49,16 +49,13 @@ IRC_BEGIN_NAMESPACE
     \li IrcMessage represents a message received from an IRC server via IrcConnection::messageReceived().
     \li IrcCommand represents a command sent to an IRC server via IrcConnection::sendCommand().
 
-    \defgroup core Core classes
-    \brief The core classes to get started with.
+    \defgroup core IrcCore
+    \brief The core classes.
 
-    \defgroup message Message classes
-    \brief Available IRC message classes.
-
-    \defgroup utility Utility classes
+    \defgroup util IrcUtil
     \brief Miscellaneous utility classes.
 
-    \defgroup models Model classes
+    \defgroup model IrcModel
     \brief Models to keep track of channels and users.
 
     \section chanmodel Channels and queries
@@ -101,7 +98,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class Irc irc.h <Irc>
-    \ingroup utility
+    \ingroup core
     \brief The Irc class contains miscellaneous identifiers used throughout the library.
  */
 

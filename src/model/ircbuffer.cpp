@@ -29,12 +29,12 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcBuffer ircbuffer.h <IrcBuffer>
-    \ingroup models
+    \ingroup model
     \brief Keeps track of buffer status.
 
     \note IrcBuffer does not work on its own. Use an instance managed by IrcBufferModel.
 
-    \sa models
+    \sa model
 */
 
 /*!

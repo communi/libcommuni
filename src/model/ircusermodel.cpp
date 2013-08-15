@@ -26,7 +26,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcUserModel ircusermodel.h <IrcUserModel>
-    \ingroup models
+    \ingroup model
     \brief Keeps track of channel users.
 
     In order to keep track of channel users, create an instance of IrcUserModel.
@@ -96,7 +96,7 @@ IRC_BEGIN_NAMESPACE
     };
     \endcode
 
-    \sa models
+    \sa model
 */
 
 /*!

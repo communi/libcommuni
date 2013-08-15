@@ -29,7 +29,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcBufferModel ircbuffermodel.h <IrcBufferModel>
-    \ingroup models
+    \ingroup model
     \brief Keeps track of buffers.
 
     IrcBufferModel automatically keeps track of channel and query buffers
