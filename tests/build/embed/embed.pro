@@ -6,6 +6,6 @@ TEMPLATE = app
 TARGET = embed
 QT += network
 
-include(../../../src/communi.pri)
+include(../../../src/src.pri)
 
 SOURCES += main.cpp

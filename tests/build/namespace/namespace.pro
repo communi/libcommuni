@@ -7,6 +7,6 @@ TARGET = embed
 QT += network
 
 DEFINES += IRC_NAMESPACE=Communi
-include(../../../src/communi.pri)
+include(../../../src/src.pri)
 
 SOURCES += main.cpp
