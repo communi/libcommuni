@@ -249,7 +249,7 @@ IrcMessage::Flags IrcMessage::flags() const
             d->flags |= IrcMessage::Own;
 
         if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
-                IrcNetwork(d->connection).activeCapabilities().contains("identify-msg")) {
+                d->connection->network()->activeCapabilities().contains("identify-msg")) {
             QString msg = property("message").toString();
             if (msg.startsWith("+"))
                 d->flags |= IrcMessage::Identified;
@@ -833,8 +833,8 @@ bool IrcModeMessage::isReply() const
 IrcModeMessage::Kind IrcModeMessage::kind() const
 {
     Q_D(const IrcMessage);
-    IrcNetwork info(d->connection);
-    QStringList channelModes = info.channelModes(IrcNetwork::AllTypes);
+    const IrcNetwork* network = d->connection->network();
+    QStringList channelModes = network->channelModes(IrcNetwork::AllTypes);
     QString m = mode();
     if (m.startsWith(QLatin1Char('+')) || m.startsWith(QLatin1Char('-')))
         m.remove(0, 1);

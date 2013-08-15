@@ -37,11 +37,9 @@ IRC_BEGIN_NAMESPACE
     such as the maximum nick, channel, topic and message lengths, and
     available and active capabilities.
 
-    \note A valid IrcNetwork can only be constructed at any time
-          after the IrcConnection::connectionInfoReceived() signal has been
-          emitted.
+    \note IrcNetwork can be accessed via IrcConnection::network().
 
-    \sa isValid(), IrcConnection::connectionInfoReceived()
+    \sa isValid(), IrcConnection::network()
  */
 
 /*!

@@ -36,7 +36,6 @@ class IRC_CORE_EXPORT IrcNetwork : public QObject
     Q_PROPERTY(QStringList activeCapabilities READ activeCapabilities NOTIFY activeCapabilitiesChanged)
 
 public:
-    explicit IrcNetwork(IrcConnection* connection);
     virtual ~IrcNetwork();
 
     bool isValid() const;
@@ -90,6 +89,9 @@ Q_SIGNALS:
     void activeCapabilitiesChanged(const QStringList& capabilities);
 
 private:
+    friend class IrcConnection;
+    explicit IrcNetwork(IrcConnection* connection);
+
     QScopedPointer<IrcNetworkPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcNetwork)
     Q_DISABLE_COPY(IrcNetwork)

@@ -537,8 +537,8 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
 IrcBuffer* IrcBufferModel::create(const QString& title)
 {
     Q_D(IrcBufferModel);
-    IrcNetwork info(d->connection);
-    const QStringList chanTypes = info.channelTypes();
+    const IrcNetwork* network = d->connection->network();
+    const QStringList chanTypes = network->channelTypes();
     if (!title.isEmpty() && chanTypes.contains(title.at(0)))
         return new IrcChannel(this);
     return new IrcBuffer(this);
@@ -572,7 +572,8 @@ void IrcBufferModel::destroy(IrcBuffer* buffer)
  */
 bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another) const
 {
-    const QStringList prefixes = IrcNetwork(one->connection()).channelTypes();
+    const IrcNetwork* network = one->connection()->network();
+    const QStringList prefixes = network->channelTypes();
 
     const QString p1 = one->prefix();
     const QString p2 = another->prefix();
