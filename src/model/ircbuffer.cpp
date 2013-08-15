@@ -59,7 +59,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 IrcBufferPrivate::IrcBufferPrivate()
-    : q_ptr(0), model(0), persistent(0)
+    : q_ptr(0), model(0), persistent(false)
 {
 }
 
@@ -362,6 +362,8 @@ bool IrcBuffer::isActive() const
 
     A persistent buffer does not get automatically removed
     from its IrcBufferModel e.g. when leaving a channel.
+
+    The default value is \c false.
 
     \par Access function:
     \li bool <b>isPersistent</b>() const
