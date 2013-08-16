@@ -407,6 +407,23 @@ bool IrcBuffer::sendCommand(IrcCommand* command)
     return false;
 }
 
+/*!
+    Emits messageReceived() with \a message.
+
+    IrcBufferModel handles only buffer specific messages and delivers them
+    to the appropriate IrcBuffer instances. When applications decide to handle
+    IrcBuffer::messageReceived(), IrcBufferModel::messageIgnored() makes it
+    easy to implement handling for the rest, non-buffer specific messages.
+    This method can be used to forward such ignored messages to the desired
+    buffers (for instance the one that is currently active in the GUI).
+
+    \sa IrcBuffer::messageReceived()
+ */
+void IrcBuffer::receiveMessage(IrcMessage* message)
+{
+    emit messageReceived(message);
+}
+
 IRC_END_NAMESPACE
 
 #include "moc_ircbuffer.cpp"
