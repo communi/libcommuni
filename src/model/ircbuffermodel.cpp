@@ -163,34 +163,43 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
 IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
 {
     Q_Q(IrcBufferModel);
-    const QString lower = title.toLower();
-    IrcBuffer* buffer = bufferMap.value(lower);
-    if (!buffer) {
-        buffer = q->create(title);
-        if (buffer) {
-            const bool isChannel = qobject_cast<IrcChannel*>(buffer);
-            IrcBufferPrivate::get(buffer)->init(title, q);
-            int idx = bufferList.count();
-            if (dynamicSort) {
-                QList<IrcBuffer*>::iterator it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, sortOrder == Qt::AscendingOrder ? bufferLessThan : bufferGreaterThan);
-                idx = it - bufferList.begin();
-            }
-            emit q->aboutToBeAdded(buffer);
-            q->beginInsertRows(QModelIndex(), idx, idx);
-            bufferList.insert(idx, buffer);
-            bufferMap.insert(lower, buffer);
-            if (isChannel)
-                channels += title;
-            q->connect(buffer, SIGNAL(destroyed(IrcBuffer*)), SLOT(_irc_bufferDestroyed(IrcBuffer*)));
-            q->endInsertRows();
-            emit q->added(buffer);
-            if (isChannel)
-                emit q->channelsChanged(channels);
-            emit q->buffersChanged(bufferList);
-            emit q->countChanged(bufferList.count());
-        }
-    }
+    IrcBuffer* buffer = bufferMap.value(title.toLower());
+    if (!buffer)
+        addBuffer(q->create(title));
     return buffer;
+}
+
+void IrcBufferModelPrivate::addBuffer(IrcBuffer* buffer)
+{
+    Q_Q(IrcBufferModel);
+    if (buffer && !bufferList.contains(buffer)) {
+        const QString title = buffer->title();
+        const QString lower = title.toLower();
+        if (bufferMap.contains(lower)) {
+            qWarning() << "IrcBufferModel: ignored duplicate buffer" << title;
+            return;
+        }
+        const bool isChannel = qobject_cast<IrcChannel*>(buffer);
+        IrcBufferPrivate::get(buffer)->init(title, q);
+        int idx = bufferList.count();
+        if (dynamicSort) {
+            QList<IrcBuffer*>::iterator it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, sortOrder == Qt::AscendingOrder ? bufferLessThan : bufferGreaterThan);
+            idx = it - bufferList.begin();
+        }
+        emit q->aboutToBeAdded(buffer);
+        q->beginInsertRows(QModelIndex(), idx, idx);
+        bufferList.insert(idx, buffer);
+        bufferMap.insert(lower, buffer);
+        if (isChannel)
+            channels += title;
+        q->connect(buffer, SIGNAL(destroyed(IrcBuffer*)), SLOT(_irc_bufferDestroyed(IrcBuffer*)));
+        q->endInsertRows();
+        emit q->added(buffer);
+        if (isChannel)
+            emit q->channelsChanged(channels);
+        emit q->buffersChanged(bufferList);
+        emit q->countChanged(bufferList.count());
+    }
 }
 
 void IrcBufferModelPrivate::removeBuffer(const QString& title, bool force)
@@ -389,6 +398,18 @@ IrcBuffer* IrcBufferModel::add(const QString& title)
 {
     Q_D(IrcBufferModel);
     return d->addBuffer(title);
+}
+
+/*!
+    Adds the \a buffer to the model.
+
+    \note IrcBufferModel automatically keeps track of the buffers.
+    Normally you do not need to manually alter the list of buffers.
+ */
+void IrcBufferModel::add(IrcBuffer* buffer)
+{
+    Q_D(IrcBufferModel);
+    d->addBuffer(buffer);
 }
 
 /*!
