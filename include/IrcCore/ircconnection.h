@@ -44,7 +44,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
     Q_PROPERTY(bool secure READ isSecure WRITE setSecure NOTIFY secureChanged)
-    Q_PROPERTY(const IrcNetwork* network READ network CONSTANT)
+    Q_PROPERTY(IrcNetwork* network READ network CONSTANT)
 
 public:
     explicit IrcConnection(QObject* parent = 0);
@@ -80,7 +80,7 @@ public:
     bool isSecure() const;
     void setSecure(bool secure);
 
-    const IrcNetwork* network() const;
+    IrcNetwork* network() const;
 
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
     Q_INVOKABLE bool sendData(const QByteArray& data);

@@ -335,6 +335,7 @@ IrcConnection::IrcConnection(QObject* parent) : QObject(parent), d_ptr(new IrcCo
     setSocket(new QTcpSocket(this));
     setProtocol(new IrcProtocol(this));
     qRegisterMetaType<IrcSender>("IrcSender");
+    qRegisterMetaType<IrcNetwork*>();
 }
 
 /*!
@@ -687,7 +688,7 @@ void IrcConnection::setSecure(bool secure)
 #endif // QT_NO_OPENSSL
 }
 
-const IrcNetwork* IrcConnection::network() const
+IrcNetwork* IrcConnection::network() const
 {
     Q_D(const IrcConnection);
     return d->network;
