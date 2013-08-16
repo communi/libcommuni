@@ -179,7 +179,7 @@ void IrcBufferModelPrivate::addBuffer(IrcBuffer* buffer)
             qWarning() << "IrcBufferModel: ignored duplicate buffer" << title;
             return;
         }
-        const bool isChannel = qobject_cast<IrcChannel*>(buffer);
+        const bool isChannel = buffer->isChannel();
         IrcBufferPrivate::get(buffer)->init(title, q);
         int idx = bufferList.count();
         if (dynamicSort) {
@@ -244,7 +244,7 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
     Q_Q(IrcBufferModel);
     int idx = bufferList.indexOf(buffer);
     if (idx != -1) {
-        const bool isChannel = qobject_cast<IrcChannel*>(buffer);
+        const bool isChannel = buffer->isChannel();
         emit q->aboutToBeRemoved(buffer);
         q->beginRemoveRows(QModelIndex(), idx, idx);
         bufferList.removeAt(idx);
@@ -652,7 +652,7 @@ QVariant IrcBufferModel::data(const QModelIndex& index, int role) const
     case Irc::BufferRole:
         return QVariant::fromValue(buffer);
     case Irc::ChannelRole:
-        return QVariant::fromValue(qobject_cast<IrcChannel*>(buffer));
+        return QVariant::fromValue(buffer->toChannel());
     case Irc::NameRole:
         if (buffer)
             return buffer->name();
