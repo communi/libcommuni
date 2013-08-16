@@ -328,4 +328,6 @@ void IrcProtocol::receiveMessage(IrcMessage* message)
     priv->receiveMessage(message);
 }
 
+#include "moc_ircprotocol.cpp"
+
 IRC_END_NAMESPACE

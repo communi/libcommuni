@@ -397,4 +397,6 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
     return 0;
 }
 
+#include "moc_irccommandparser.cpp"
+
 IRC_END_NAMESPACE

@@ -424,6 +424,6 @@ void IrcBuffer::receiveMessage(IrcMessage* message)
     emit messageReceived(message);
 }
 
-IRC_END_NAMESPACE
-
 #include "moc_ircbuffer.cpp"
+
+IRC_END_NAMESPACE

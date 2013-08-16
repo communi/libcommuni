@@ -434,4 +434,6 @@ void IrcChannel::part(const QString& reason)
     sendCommand(IrcCommand::createPart(title(), reason));
 }
 
+#include "moc_ircchannel.cpp"
+
 IRC_END_NAMESPACE

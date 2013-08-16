@@ -1289,4 +1289,6 @@ QDebug operator<<(QDebug debug, const IrcMessage* message)
 }
 #endif // QT_NO_DEBUG_STREAM
 
+#include "moc_ircmessage.cpp"
+
 IRC_END_NAMESPACE

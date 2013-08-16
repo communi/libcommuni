@@ -83,4 +83,6 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
     }
 }
 
+#include "moc_ircmessagebuilder_p.cpp"
+
 IRC_END_NAMESPACE

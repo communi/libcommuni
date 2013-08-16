@@ -1938,4 +1938,6 @@ const char* Irc::toString(int code)
     \brief Channel/user prefix and name (QString)
  */
 
+#include "moc_irc.cpp"
+
 IRC_END_NAMESPACE

@@ -245,6 +245,6 @@ void IrcLagTimer::setInterval(int seconds)
     }
 }
 
-IRC_END_NAMESPACE
-
 #include "moc_irclagtimer.cpp"
+
+IRC_END_NAMESPACE

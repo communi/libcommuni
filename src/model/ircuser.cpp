@@ -146,4 +146,6 @@ IrcChannel* IrcUser::channel() const
     return d->channel;
 }
 
+#include "moc_ircuser.cpp"
+
 IRC_END_NAMESPACE

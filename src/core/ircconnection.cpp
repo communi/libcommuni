@@ -908,6 +908,6 @@ QDebug operator<<(QDebug debug, const IrcConnection* connection)
 }
 #endif // QT_NO_DEBUG_STREAM
 
-IRC_END_NAMESPACE
-
 #include "moc_ircconnection.cpp"
+
+IRC_END_NAMESPACE

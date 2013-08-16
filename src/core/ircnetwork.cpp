@@ -454,5 +454,6 @@ bool IrcNetwork::isCapable(const QString& capability) const
     return activeCapabilities().contains(capability);
 }
 
+#include "moc_ircnetwork.cpp"
 
 IRC_END_NAMESPACE
