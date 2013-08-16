@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="main.qml">qml/main.qml</file>
+    <file alias="ChatPage.qml">qml/ChatPage.qml</file>
+    <file alias="BufferView.qml">qml/BufferView.qml</file>
+    <file alias="ConnectPage.qml">qml/ConnectPage.qml</file>
+    <file alias="MessageFormatter.qml">qml/MessageFormatter.qml</file>
+  </qresource>
+</RCC>

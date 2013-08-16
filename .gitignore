@@ -36,6 +36,7 @@ communi-config.prf
 *.Debug
 *.Release
 moc_*.cpp
+qrc_*.cpp
 /examples/bot/bot
 /examples/client/client
 /tests/auto/irccommand/tst_irccommand
