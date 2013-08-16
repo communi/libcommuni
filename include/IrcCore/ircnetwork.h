@@ -17,6 +17,7 @@
 
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qscopedpointer.h>
 
