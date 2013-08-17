@@ -15,6 +15,7 @@
 #ifndef IRCMESSAGE_H
 #define IRCMESSAGE_H
 
+#include <Irc>
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
 #include <QtCore/qdatetime.h>
@@ -83,6 +84,8 @@ public:
 
     QString prefix() const;
     void setPrefix(const QString& prefix);
+
+    Q_INVOKABLE QString sender(Irc::SenderSection section) const;
 
     QStringList parameters() const;
     void setParameters(const QStringList& parameters);

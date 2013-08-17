@@ -14,6 +14,7 @@
 
 #include "ircmessage_p.h"
 #include "ircmessagedecoder_p.h"
+#include "ircsender.h"
 
 IRC_BEGIN_NAMESPACE
 
@@ -32,6 +33,30 @@ QString IrcMessagePrivate::prefix() const
 void IrcMessagePrivate::setPrefix(const QString& prefix)
 {
     m_prefix.setValue(prefix);
+    m_name.clear();
+    m_user.clear();
+    m_host.clear();
+}
+
+QString IrcMessagePrivate::name() const
+{
+    if (m_name.isNull())
+        m_name = IrcSender(prefix()).name(); // TODO
+    return m_name;
+}
+
+QString IrcMessagePrivate::user() const
+{
+    if (m_user.isNull())
+        m_user = IrcSender(prefix()).user(); // TODO
+    return m_user;
+}
+
+QString IrcMessagePrivate::host() const
+{
+    if (m_host.isNull())
+        m_host = IrcSender(prefix()).host(); // TODO
+    return m_host;
 }
 
 QString IrcMessagePrivate::command() const
@@ -69,8 +94,12 @@ void IrcMessagePrivate::setParams(const QStringList& params)
 
 void IrcMessagePrivate::invalidate()
 {
-    m_command.clear();
+    m_name.clear();
+    m_user.clear();
+    m_host.clear();
+
     m_prefix.clear();
+    m_command.clear();
     m_params.clear();
 }
 

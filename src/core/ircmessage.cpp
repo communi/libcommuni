@@ -18,7 +18,6 @@
 #include "ircconnection_p.h"
 #include "ircnetwork.h"
 #include "irccommand.h"
-#include "ircsender.h"
 #include "irc.h"
 #include <QVariant>
 #include <QDebug>
@@ -246,7 +245,7 @@ IrcMessage::Flags IrcMessage::flags() const
     if (d->flags == -1) {
         d->flags = IrcMessage::None;
         const QString prefix = d->prefix();
-        if (!prefix.isEmpty() && IrcSender(prefix).name() == d->connection->nickName())
+        if (!prefix.isEmpty() && d->name() == d->connection->nickName())
             d->flags |= IrcMessage::Own;
 
         if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
@@ -286,6 +285,8 @@ void IrcMessage::setCommand(const QString& command)
     \par Access functions:
     \li QString <b>prefix</b>() const
     \li void <b>setPrefix</b>(const QString& prefix)
+
+    \sa sender()
  */
 QString IrcMessage::prefix() const
 {
@@ -297,6 +298,26 @@ void IrcMessage::setPrefix(const QString& prefix)
 {
     Q_D(IrcMessage);
     d->setPrefix(prefix);
+}
+
+/*!
+    Returns the specified \a section of the message sender prefix.
+
+    \sa prefix
+ */
+QString IrcMessage::sender(Irc::SenderSection section) const
+{
+    Q_D(const IrcMessage);
+    switch (section) {
+    case Irc::SenderName:
+        return d->name();
+    case Irc::SenderUser:
+        return d->user();
+    case Irc::SenderHost:
+        return d->host();
+    default:
+        return QString();
+    }
 }
 
 /*!
