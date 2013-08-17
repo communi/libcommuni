@@ -17,6 +17,7 @@
 
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
+#include <QtCore/qstring.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -26,8 +27,8 @@ class IRC_CORE_EXPORT Irc : public QObject
     Q_ENUMS(Code ItemDataRole)
 
 public:
-    Q_INVOKABLE static const char* version();
-    Q_INVOKABLE static const char* toString(int code);
+    Q_INVOKABLE static QString version();
+    Q_INVOKABLE static QString toString(int code);
 
     enum Code {
         RPL_WELCOME = 1,

@@ -108,9 +108,9 @@ IRC_BEGIN_NAMESPACE
 
     \sa IRC_VERSION and IRC_VERSION_STR
  */
-const char* Irc::version()
+QString Irc::version()
 {
-    return IRC_VERSION_STR;
+    return QLatin1String(IRC_VERSION_STR);
 }
 
 /*!
@@ -118,12 +118,12 @@ const char* Irc::version()
 
     \sa Irc::Code and IrcNumericMessage::code()
  */
-const char* Irc::toString(int code)
+QString Irc::toString(int code)
 {
     int index = staticMetaObject.indexOfEnumerator("Code");
     Q_ASSERT(index != -1);
     QMetaEnum enumerator = staticMetaObject.enumerator(index);
-    return enumerator.valueToKey(code);
+    return QLatin1String(enumerator.valueToKey(code));
 }
 
 /*!
