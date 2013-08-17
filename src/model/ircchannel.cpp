@@ -283,7 +283,7 @@ bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
         ++joined;
         _irc_emitActiveChanged();
     } else {
-        addUsers(QStringList() << message->sender().name());
+        addUsers(QStringList() << IrcSender(message->prefix()).name());
     }
     return true;
 }
@@ -321,7 +321,7 @@ bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
 
 bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
 {
-    return renameUser(message->sender().name(), message->nick());
+    return renameUser(IrcSender(message->prefix()).name(), message->nick());
 }
 
 bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
@@ -332,7 +332,7 @@ bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
         _irc_emitActiveChanged();
         return true;
     }
-    return removeUser(message->sender().name());
+    return removeUser(IrcSender(message->prefix()).name());
 }
 
 bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
@@ -343,7 +343,7 @@ bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
         _irc_emitActiveChanged();
         return true;
     }
-    return removeUser(message->sender().name()) || IrcBufferPrivate::processQuitMessage(message);
+    return removeUser(IrcSender(message->prefix()).name()) || IrcBufferPrivate::processQuitMessage(message);
 }
 
 bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)

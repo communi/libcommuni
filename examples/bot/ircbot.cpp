@@ -10,6 +10,7 @@
 #include "ircbot.h"
 #include <IrcCommand>
 #include <IrcMessage>
+#include <IrcSender>
 
 IrcBot::IrcBot(QObject* parent) : IrcConnection(parent)
 {
@@ -39,11 +40,11 @@ void IrcBot::onMessageReceived(IrcMessage* message)
 
         if (!msg->target().compare(nickName(), Qt::CaseInsensitive)) {
             // echo private message
-            sendCommand(IrcCommand::createMessage(msg->sender().name(), msg->message()));
+            sendCommand(IrcCommand::createMessage(IrcSender(msg->prefix()).name(), msg->message()));
         } else if (msg->message().startsWith(nickName(), Qt::CaseInsensitive)) {
             // echo prefixed channel message
             QString reply = msg->message().mid(msg->message().indexOf(" "));
-            sendCommand(IrcCommand::createMessage(m_channel, msg->sender().name() + ":" + reply));
+            sendCommand(IrcCommand::createMessage(m_channel, IrcSender(msg->prefix()).name() + ":" + reply));
         }
     }
 }

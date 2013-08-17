@@ -16,7 +16,6 @@
 #define IRCMESSAGE_H
 
 #include <IrcGlobal>
-#include <IrcSender>
 #include <QtCore/qobject.h>
 #include <QtCore/qdatetime.h>
 #include <QtCore/qstringlist.h>
@@ -35,7 +34,7 @@ class IRC_CORE_EXPORT IrcMessage : public QObject
     Q_PROPERTY(Flags flags READ flags)
     Q_PROPERTY(bool valid READ isValid)
     Q_PROPERTY(QString command READ command)
-    Q_PROPERTY(IrcSender sender READ sender WRITE setSender)
+    Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
     Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
     Q_PROPERTY(QDateTime timeStamp READ timeStamp WRITE setTimeStamp)
     Q_ENUMS(Type Flag)
@@ -82,8 +81,8 @@ public:
     QString command() const;
     void setCommand(const QString& command);
 
-    IrcSender sender() const;
-    void setSender(const IrcSender& sender);
+    QString prefix() const;
+    void setPrefix(const QString& prefix);
 
     QStringList parameters() const;
     void setParameters(const QStringList& parameters);

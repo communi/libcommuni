@@ -866,7 +866,7 @@ IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
     else if (type == "VERSION")
         reply = QString("VERSION Communi ") + Irc::version();
     if (!reply.isEmpty())
-        return IrcCommand::createCtcpReply(request->sender().name(), reply);
+        return IrcCommand::createCtcpReply(IrcSender(request->prefix()).name(), reply);
     return 0;
 }
 

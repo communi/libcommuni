@@ -18,6 +18,7 @@
 #include "ircconnection_p.h"
 #include "ircnetwork.h"
 #include "irccommand.h"
+#include "ircsender.h"
 #include "irc.h"
 #include <QVariant>
 #include <QDebug>
@@ -244,8 +245,8 @@ IrcMessage::Flags IrcMessage::flags() const
     Q_D(const IrcMessage);
     if (d->flags == -1) {
         d->flags = IrcMessage::None;
-        IrcSender sender = d->sender();
-        if (sender.isValid() && sender.name() == d->connection->nickName())
+        const QString prefix = d->prefix();
+        if (!prefix.isEmpty() && IrcSender(prefix).name() == d->connection->nickName())
             d->flags |= IrcMessage::Own;
 
         if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
@@ -280,22 +281,22 @@ void IrcMessage::setCommand(const QString& command)
 }
 
 /*!
-    This property holds the message sender.
+    This property holds the message prefix.
 
     \par Access functions:
-    \li IrcSender <b>sender</b>() const
-    \li void <b>setSender</b>(const IrcSender& sender)
+    \li QString <b>prefix</b>() const
+    \li void <b>setPrefix</b>(const QString& prefix)
  */
-IrcSender IrcMessage::sender() const
+QString IrcMessage::prefix() const
 {
     Q_D(const IrcMessage);
-    return d->sender();
+    return d->prefix();
 }
 
-void IrcMessage::setSender(const IrcSender& sender)
+void IrcMessage::setPrefix(const QString& prefix)
 {
     Q_D(IrcMessage);
-    d->setSender(sender);
+    d->setPrefix(prefix);
 }
 
 /*!
@@ -387,24 +388,24 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connecti
 }
 
 /*!
-    Creates a new message from \a sender and \a command with \a connection.
+    Creates a new message from \a prefix and \a command with \a connection.
  */
-IrcMessage* IrcMessage::fromCommand(const QString& sender, IrcCommand* command, IrcConnection* connection)
+IrcMessage* IrcMessage::fromCommand(const QString& prefix, IrcCommand* command, IrcConnection* connection)
 {
-    return fromData(":" + sender.toUtf8() + " " + command->toString().toUtf8(), connection);
+    return fromData(":" + prefix.toUtf8() + " " + command->toString().toUtf8(), connection);
 }
 
 /*!
-    Creates a new message from \a sender, \a command and \a parameters with \a connection.
+    Creates a new message from \a prefix, \a command and \a parameters with \a connection.
  */
-IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& command, const QStringList& parameters, IrcConnection* connection)
+IrcMessage* IrcMessage::fromParameters(const QString& prefix, const QString& command, const QStringList& parameters, IrcConnection* connection)
 {
     IrcMessage* message = 0;
     const QMetaObject* metaObject = irc_command_meta_object(command);
     if (metaObject) {
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcConnection*, connection)));
         Q_ASSERT(message);
-        message->setSender(sender);
+        message->setPrefix(prefix);
         message->setCommand(command);
         message->setParameters(parameters);
     }
@@ -415,7 +416,7 @@ IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& com
     \property bool IrcMessage::valid
     This property is \c true if the message is valid; otherwise \c false.
 
-    A message is considered valid if the sender is valid
+    A message is considered valid if the prefix is not empty
     and the parameters match the message.
 
     \par Access functions:
@@ -424,7 +425,7 @@ IrcMessage* IrcMessage::fromParameters(const QString& sender, const QString& com
 bool IrcMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->connection && sender().isValid();
+    return d->connection && !prefix().isEmpty();
 }
 
 /*!
@@ -1214,7 +1215,7 @@ QStringList IrcMotdMessage::lines() const
 bool IrcMotdMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->connection && sender().isValid() && !d->params().isEmpty();
+    return d->connection && !prefix().isEmpty() && !d->params().isEmpty();
 }
 
 /*!
@@ -1259,7 +1260,7 @@ QStringList IrcNamesMessage::names() const
 bool IrcNamesMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->connection && sender().isValid() && !d->params().isEmpty();
+    return d->connection && !prefix().isEmpty() && !d->params().isEmpty();
 }
 
 #ifndef QT_NO_DEBUG_STREAM
@@ -1278,8 +1279,8 @@ QDebug operator<<(QDebug debug, const IrcMessage* message)
     debug << ", flags = " << flags;
     if (!message->objectName().isEmpty())
         debug << ", name = " << message->objectName();
-    if (message->sender().isValid())
-        debug << ", sender = " << message->sender().name();
+    if (!message->prefix().isEmpty())
+        debug << ", prefix = " << message->prefix();
     if (!message->command().isEmpty())
         debug << ", command = " << message->command();
     if (!message->parameters().isEmpty())

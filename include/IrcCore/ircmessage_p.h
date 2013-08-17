@@ -20,7 +20,6 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qstringlist.h>
 
-#include "ircsender.h"
 #include "ircmessage.h"
 
 IRC_BEGIN_NAMESPACE
@@ -64,8 +63,8 @@ class IrcMessagePrivate
 public:
     IrcMessagePrivate();
 
-    IrcSender sender() const;
-    void setSender(const IrcSender& sender);
+    QString prefix() const;
+    void setPrefix(const QString& prefix);
 
     QString command() const;
     void setCommand(const QString& command);
@@ -86,7 +85,7 @@ public:
     IrcMessageData data;
 
 private:
-    mutable IrcExplicitValue<IrcSender> m_sender;
+    mutable IrcExplicitValue<QString> m_prefix;
     mutable IrcExplicitValue<QString> m_command;
     mutable IrcExplicitValue<QStringList> m_params;
 };

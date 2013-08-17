@@ -54,7 +54,7 @@ void tst_IrcMessage::testDefaults()
     QVERIFY(!msg.connection());
     QVERIFY(msg.type() == IrcMessage::Unknown);
     QVERIFY(msg.flags() == IrcMessage::None);
-    QVERIFY(msg.sender().prefix().isNull());
+    QVERIFY(msg.prefix().isNull());
     QVERIFY(msg.command().isNull());
     QVERIFY(msg.parameters().isEmpty());
 }
@@ -65,7 +65,7 @@ void tst_IrcMessage::testErrorMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("error");
 
-    QTest::newRow("no sender") << false << QByteArray("ERROR error1") << QString("error1");
+    QTest::newRow("no prefix") << false << QByteArray("ERROR error1") << QString("error1");
     QTest::newRow("no params") << false << QByteArray(":server ERROR") << QString();
     QTest::newRow("all ok") << true << QByteArray(":server ERROR error1") << QString("error1");
 }
@@ -95,7 +95,7 @@ void tst_IrcMessage::testInviteMessage_data()
     QTest::addColumn<QString>("user");
     QTest::addColumn<QString>("channel");
 
-    QTest::newRow("no sender") << false << QByteArray("INVITE Wiz #Dust") << QString("Wiz") << QString("#Dust");
+    QTest::newRow("no prefix") << false << QByteArray("INVITE Wiz #Dust") << QString("Wiz") << QString("#Dust");
     QTest::newRow("no params") << false << QByteArray(":Angel INVITE") << QString() << QString();
     QTest::newRow("no channel") << false << QByteArray(":Angel INVITE Wiz") << QString("Wiz") << QString();
     QTest::newRow("all ok") << true << QByteArray(":Angel INVITE Wiz #Dust") << QString("Wiz") << QString("#Dust");
@@ -128,7 +128,7 @@ void tst_IrcMessage::testJoinMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("channel");
 
-    QTest::newRow("no sender") << false << QByteArray("JOIN #Twilight_zone") << QString("#Twilight_zone");
+    QTest::newRow("no prefix") << false << QByteArray("JOIN #Twilight_zone") << QString("#Twilight_zone");
     QTest::newRow("no params") << false << QByteArray(":WiZ JOIN") << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ JOIN #Twilight_zone") << QString("#Twilight_zone");
 }
@@ -159,7 +159,7 @@ void tst_IrcMessage::testKickMessage_data()
     QTest::addColumn<QString>("user");
     QTest::addColumn<QString>("reason");
 
-    QTest::newRow("no sender") << false << QByteArray("KICK #Finnish John") << QString("#Finnish") << QString("John") << QString();
+    QTest::newRow("no prefix") << false << QByteArray("KICK #Finnish John") << QString("#Finnish") << QString("John") << QString();
     QTest::newRow("no params") << false << QByteArray(":WiZ KICK") << QString() << QString() << QString();
     QTest::newRow("no user") << false << QByteArray(":WiZ KICK #Finnish") << QString("#Finnish") << QString() << QString();
     QTest::newRow("no reason") << true << QByteArray(":WiZ KICK #Finnish John") << QString("#Finnish") << QString("John") << QString();
@@ -196,7 +196,7 @@ void tst_IrcMessage::testNickMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("nick");
 
-    QTest::newRow("no sender") << false << QByteArray("NICK Kilroy") << QString("Kilroy");
+    QTest::newRow("no prefix") << false << QByteArray("NICK Kilroy") << QString("Kilroy");
     QTest::newRow("no params") << false << QByteArray(":WiZ NICK") << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ NICK Kilroy") << QString("Kilroy");
 }
@@ -227,7 +227,7 @@ void tst_IrcMessage::testNoticeMessage_data()
     QTest::addColumn<QString>("msg");
     QTest::addColumn<bool>("reply");
 
-    QTest::newRow("no sender") << false << QByteArray("NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
+    QTest::newRow("no prefix") << false << QByteArray("NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
     QTest::newRow("no params") << false << QByteArray(":Angel NOTICE Wiz") << QString("Wiz") << QString() << false;
     QTest::newRow("all ok") << true << QByteArray(":Angel NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
     QTest::newRow("reply") << true << QByteArray(":Angel NOTICE Wiz :\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << true;
@@ -263,7 +263,7 @@ void tst_IrcMessage::testNumericMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<int>("code");
 
-    QTest::newRow("no sender") << false << QByteArray("123 Kilroy") << 123;
+    QTest::newRow("no prefix") << false << QByteArray("123 Kilroy") << 123;
     QTest::newRow("no params") << true << QByteArray(":WiZ 456") << 456;
     QTest::newRow("all ok") << true << QByteArray(":WiZ 789 Kilroy") << 789;
 }
@@ -294,7 +294,7 @@ void tst_IrcMessage::testModeMessage_data()
     QTest::addColumn<QString>("mode");
     QTest::addColumn<QString>("argument");
 
-    QTest::newRow("no sender") << false << QByteArray("MODE Kilroy -w") << QString("Kilroy") << QString("-w") << QString();
+    QTest::newRow("no prefix") << false << QByteArray("MODE Kilroy -w") << QString("Kilroy") << QString("-w") << QString();
     QTest::newRow("no params") << false << QByteArray(":WiZ MODE Kilroy") << QString("Kilroy") << QString() << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ MODE Kilroy -w") << QString("Kilroy") << QString("-w") << QString();
 
@@ -343,7 +343,7 @@ void tst_IrcMessage::testPartMessage_data()
     QTest::addColumn<QString>("channel");
     QTest::addColumn<QString>("reason");
 
-    QTest::newRow("no sender") << false << QByteArray("PART #Twilight_zone") << QString("#Twilight_zone") << QString();
+    QTest::newRow("no prefix") << false << QByteArray("PART #Twilight_zone") << QString("#Twilight_zone") << QString();
     QTest::newRow("no params") << false << QByteArray(":WiZ PART") << QString() << QString();
     QTest::newRow("no reason") << true << QByteArray(":WiZ PART #Twilight_zone") << QString("#Twilight_zone") << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ PART #Twilight_zone :Gone to have lunch") << QString("#Twilight_zone") << QString("Gone to have lunch");
@@ -389,7 +389,7 @@ void tst_IrcMessage::testPrivateMessage_data()
     QTest::addColumn<bool>("request");
     QTest::addColumn<uint>("flags");
 
-    QTest::newRow("no sender") << false << QString() << QByteArray("PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("no prefix") << false << QString() << QByteArray("PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
     QTest::newRow("no params") << false << QString() << QByteArray(":Angel PRIVMSG Wiz") << QString("Wiz") << QString() << false << false << static_cast<uint>(IrcMessage::None);
     QTest::newRow("all ok") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
     QTest::newRow("action") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << true << false << static_cast<uint>(IrcMessage::None);
@@ -465,7 +465,7 @@ void tst_IrcMessage::testQuitMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("reason");
 
-    QTest::newRow("no sender") << false << QByteArray("QUIT :Gone to have lunch") << QString("Gone to have lunch");
+    QTest::newRow("no prefix") << false << QByteArray("QUIT :Gone to have lunch") << QString("Gone to have lunch");
     QTest::newRow("no params") << true << QByteArray(":WiZ QUIT") << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ QUIT :Gone to have lunch") << QString("Gone to have lunch");
 }
@@ -495,7 +495,7 @@ void tst_IrcMessage::testTopicMessage_data()
     QTest::addColumn<QString>("channel");
     QTest::addColumn<QString>("topic");
 
-    QTest::newRow("no sender") << false << QByteArray("TOPIC #test") << QString("#test") << QString();
+    QTest::newRow("no prefix") << false << QByteArray("TOPIC #test") << QString("#test") << QString();
     QTest::newRow("no params") << false << QByteArray(":WiZ TOPIC") << QString() << QString();
     QTest::newRow("no topic") << true << QByteArray(":WiZ TOPIC #test") << QString("#test") << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ TOPIC #test :another topic") << QString("#test") << QString("another topic");

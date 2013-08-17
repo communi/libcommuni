@@ -22,16 +22,16 @@ IrcMessagePrivate::IrcMessagePrivate() :
 {
 }
 
-IrcSender IrcMessagePrivate::sender() const
+QString IrcMessagePrivate::prefix() const
 {
-    if (!m_sender.isExplicit() && m_sender.isNull() && !data.prefix.isNull())
-        m_sender = IrcSender(decode(data.prefix, encoding));
-    return m_sender.value();
+    if (!m_prefix.isExplicit() && m_prefix.isNull() && !data.prefix.isNull())
+        m_prefix = decode(data.prefix, encoding);
+    return m_prefix.value();
 }
 
-void IrcMessagePrivate::setSender(const IrcSender& sender)
+void IrcMessagePrivate::setPrefix(const QString& prefix)
 {
-    m_sender.setValue(sender);
+    m_prefix.setValue(prefix);
 }
 
 QString IrcMessagePrivate::command() const
@@ -70,7 +70,7 @@ void IrcMessagePrivate::setParams(const QStringList& params)
 void IrcMessagePrivate::invalidate()
 {
     m_command.clear();
-    m_sender.clear();
+    m_prefix.clear();
     m_params.clear();
 }
 
