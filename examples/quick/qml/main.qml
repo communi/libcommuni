@@ -9,6 +9,7 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.0
+import Communi 3.0
 
 ApplicationWindow {
     id: window
@@ -27,9 +28,20 @@ ApplicationWindow {
         id: palette
     }
 
+    Irc {
+        id: irc
+    }
+
     Component {
         id: chatPage
-        ChatPage { }
+        ChatPage {
+            Connections {
+                target: window
+                onClosing: {
+                    connection.quit(qsTr("Communi %1 QtQuick example").arg(irc.version()))
+                }
+            }
+        }
     }
 
     StackView {
@@ -50,5 +62,18 @@ ApplicationWindow {
                 stack.replace(page)
             }
         }
+    }
+
+    Timer {
+        id: quitTimer
+        interval: 1000
+        onTriggered: Qt.quit()
+    }
+
+    onClosing: {
+        // let connections close gracefully
+        close.accepted = false
+        window.visible = false
+        quitTimer.start()
     }
 }

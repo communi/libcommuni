@@ -32,8 +32,6 @@ Item {
     implicitWidth: grid.implicitWidth + row.implicitWidth
     implicitHeight: grid.implicitHeight + row.implicitHeight + 60
 
-    Irc { id: irc }
-
     GridLayout {
         id: grid
 
