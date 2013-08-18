@@ -52,7 +52,7 @@ IRC_BEGIN_NAMESPACE
     \sa IrcPalette
  */
 
-class IrcTextFormatPrivate : public QSharedData
+class IrcTextFormatPrivate
 {
 public:
     QString urlPattern;
@@ -60,28 +60,12 @@ public:
 };
 
 /*!
-    Constructs a new text format.
+    Constructs a new text format with \a parent.
  */
-IrcTextFormat::IrcTextFormat() : d(new IrcTextFormatPrivate)
+IrcTextFormat::IrcTextFormat(QObject* parent) : QObject(parent), d_ptr(new IrcTextFormatPrivate)
 {
+    Q_D(IrcTextFormat);
     d->urlPattern = QString("\\b((?:(?:([a-z][\\w\\.-]+:/{1,3})|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|\\}\\]|[^\\s`!()\\[\\]{};:'\".,<>?%1%2%3%4%5%6])|[a-z0-9.\\-+_]+@[a-z0-9.\\-]+[.][a-z]{1,5}[^\\s/`!()\\[\\]{};:'\".,<>?%1%2%3%4%5%6]))").arg(QChar(0x00AB)).arg(QChar(0x00BB)).arg(QChar(0x201C)).arg(QChar(0x201D)).arg(QChar(0x2018)).arg(QChar(0x2019));
-}
-
-/*!
-    Constructs a copy of \a other text format.
- */
-IrcTextFormat::IrcTextFormat(const IrcTextFormat& other) : d(other.d)
-{
-}
-
-/*!
-    Assigns an \a other text format to this.
- */
-IrcTextFormat& IrcTextFormat::operator=(const IrcTextFormat& other)
-{
-    if (this != &other)
-        d = other.d;
-    return *this;
 }
 
 /*!
@@ -92,56 +76,40 @@ IrcTextFormat::~IrcTextFormat()
 }
 
 /*!
-    Returns \c true if this text format is same than the \a other;
-    otherwise returns \c false.
+    This property holds the palette used for color formatting.
 
-    \sa operator!=()
- */
-bool IrcTextFormat::operator==(const IrcTextFormat& other) const
-{
-    return d == other.d || (d->urlPattern == other.d->urlPattern && d->palette == other.d->palette);
-}
-
-/*!
-    Returns \c true if this text format is different from the \a other;
-    otherwise returns \c false.
-
-    \sa operator==()
- */
-bool IrcTextFormat::operator!=(const IrcTextFormat& other) const
-{
-    return !(*this == other);
-}
-
-/*!
-    Returns the palette used for color formatting.
+    \par Access functions:
+    \li IrcPalette <b>palette</b>() const
+    \li void <b>setPalette</b>(const IrcPalette& palette)
  */
 IrcPalette IrcTextFormat::palette() const
 {
+    Q_D(const IrcTextFormat);
     return d->palette;
 }
 
-/*!
-    Sets the \a palette used for color formatting.
- */
 void IrcTextFormat::setPalette(const IrcPalette& palette)
 {
+    Q_D(IrcTextFormat);
     d->palette = palette;
 }
 
 /*!
-    Returns the regular expression pattern used for matching URLs.
+    This property holds the regular expression pattern used for matching URLs.
+
+    \par Access functions:
+    \li QString <b>urlPattern</b>() const
+    \li void <b>setUrlPattern</b>(const QString& pattern)
  */
 QString IrcTextFormat::urlPattern() const
 {
+    Q_D(const IrcTextFormat);
     return d->urlPattern;
 }
 
-/*!
-    Sets the regular expression pattern used for matching URLs.
- */
 void IrcTextFormat::setUrlPattern(const QString& pattern)
 {
+    Q_D(IrcTextFormat);
     d->urlPattern = pattern;
 }
 
@@ -182,6 +150,7 @@ static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, 
 */
 QString IrcTextFormat::toHtml(const QString& text) const
 {
+    Q_D(const IrcTextFormat);
     QString processed = text;
 
     // TODO:
@@ -383,26 +352,6 @@ QString IrcTextFormat::toPlainText(const QString& text) const
     return processed;
 }
 
-#ifndef QT_NO_DATASTREAM
-/*!
-    \relates IrcTextFormat
-    Writes a text \a format and returns a reference to the stream.
-*/
-QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format)
-{
-    ds << format.d->palette << format.d->urlPattern;
-    return ds;
-}
-
-/*!
-    \relates IrcTextFormat
-    Reads a text \a format and returns a reference to the stream.
-*/
-QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format)
-{
-    ds >> format.d->palette >> format.d->urlPattern;
-    return ds;
-}
-#endif // QT_NO_DATASTREAM
+#include "moc_irctextformat.cpp"
 
 IRC_END_NAMESPACE

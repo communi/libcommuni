@@ -17,23 +17,23 @@
 
 #include <IrcGlobal>
 #include <IrcPalette>
+#include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
-#include <QtCore/qshareddata.h>
+#include <QtCore/qscopedpointer.h>
 
 IRC_BEGIN_NAMESPACE
 
 class IrcTextFormatPrivate;
 
-class IRC_UTIL_EXPORT IrcTextFormat
+class IRC_UTIL_EXPORT IrcTextFormat : public QObject
 {
-public:
-    IrcTextFormat();
-    IrcTextFormat(const IrcTextFormat& other);
-    IrcTextFormat& operator=(const IrcTextFormat& other);
-    ~IrcTextFormat();
+    Q_OBJECT
+    Q_PROPERTY(IrcPalette palette READ palette WRITE setPalette)
+    Q_PROPERTY(QString urlPattern READ urlPattern WRITE setUrlPattern)
 
-    bool operator==(const IrcTextFormat& other) const;
-    bool operator!=(const IrcTextFormat& other) const;
+public:
+    explicit IrcTextFormat(QObject* parent = 0);
+    virtual ~IrcTextFormat();
 
     IrcPalette palette() const;
     void setPalette(const IrcPalette& palette);
@@ -41,22 +41,14 @@ public:
     QString urlPattern() const;
     void setUrlPattern(const QString& pattern);
 
-    QString toHtml(const QString& text) const;
-    QString toPlainText(const QString& text) const;
+    Q_INVOKABLE QString toHtml(const QString& text) const;
+    Q_INVOKABLE QString toPlainText(const QString& text) const;
 
 private:
-#ifndef QT_NO_DATASTREAM
-    friend IRC_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format);
-    friend IRC_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format);
-#endif // QT_NO_DATASTREAM
-
-    mutable QSharedDataPointer<IrcTextFormatPrivate> d;
+    QScopedPointer<IrcTextFormatPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcTextFormat)
+    Q_DISABLE_COPY(IrcTextFormat)
 };
-
-#ifndef QT_NO_DATASTREAM
-IRC_UTIL_EXPORT QDataStream& operator<<(QDataStream& ds, const IrcTextFormat& format);
-IRC_UTIL_EXPORT QDataStream& operator>>(QDataStream& ds, IrcTextFormat& format);
-#endif // QT_NO_DATASTREAM
 
 IRC_END_NAMESPACE
 
