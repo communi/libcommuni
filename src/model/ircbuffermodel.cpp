@@ -165,8 +165,11 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
 {
     Q_Q(IrcBufferModel);
     IrcBuffer* buffer = bufferMap.value(title.toLower());
-    if (!buffer)
-        addBuffer(q->create(title));
+    if (!buffer) {
+        buffer = q->create(title);
+        IrcBufferPrivate::get(buffer)->init(title, q);
+        addBuffer(buffer);
+    }
     return buffer;
 }
 
@@ -181,7 +184,6 @@ void IrcBufferModelPrivate::addBuffer(IrcBuffer* buffer)
             return;
         }
         const bool isChannel = buffer->isChannel();
-        IrcBufferPrivate::get(buffer)->init(title, q);
         int idx = bufferList.count();
         if (dynamicSort) {
             QList<IrcBuffer*>::iterator it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, sortOrder == Qt::AscendingOrder ? bufferLessThan : bufferGreaterThan);
