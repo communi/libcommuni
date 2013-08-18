@@ -51,7 +51,7 @@ public:
     QString prefix() const;
 
     bool isChannel() const;
-    IrcChannel* toChannel();
+    Q_INVOKABLE IrcChannel* toChannel();
 
     IrcConnection* connection() const;
     IrcBufferModel* model() const;
