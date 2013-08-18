@@ -50,6 +50,8 @@ public:
     Q_INVOKABLE IrcBuffer* get(int index) const;
     Q_INVOKABLE IrcBuffer* buffer(const QString& title) const;
     Q_INVOKABLE bool contains(const QString& title) const;
+    Q_INVOKABLE int indexOf(IrcBuffer* buffer) const;
+
     Q_INVOKABLE IrcBuffer* add(const QString& title);
     Q_INVOKABLE void add(IrcBuffer* buffer);
     Q_INVOKABLE void remove(const QString& title);

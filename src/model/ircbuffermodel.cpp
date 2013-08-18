@@ -392,6 +392,16 @@ bool IrcBufferModel::contains(const QString& title) const
 }
 
 /*!
+    Returns the index of the specified \a buffer,
+    or \c -1 if the model does not contain the \a buffer.
+ */
+int IrcBufferModel::indexOf(IrcBuffer* buffer) const
+{
+    Q_D(const IrcBufferModel);
+    return d->bufferList.indexOf(buffer);
+}
+
+/*!
     Adds a buffer with \a title to the model and returns it.
 
     \note IrcBufferModel automatically keeps track of the buffers.
