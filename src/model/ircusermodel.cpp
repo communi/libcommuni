@@ -263,6 +263,18 @@ bool IrcUserModel::contains(const QString& name) const
 }
 
 /*!
+    Returns the index of the specified \a user,
+    or \c -1 if the model does not contain the \a user.
+ */
+int IrcUserModel::indexOf(IrcUser* user) const
+{
+    Q_D(const IrcUserModel);
+    if (d->channel)
+        return IrcChannelPrivate::get(d->channel)->userList.indexOf(user);
+    return -1;
+}
+
+/*!
     This property holds the display role.
 
 
