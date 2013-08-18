@@ -47,7 +47,8 @@ int main(int argc, char* argv[])
     // IrcUtil
     qmlRegisterType<IrcCommandParser>("Communi", 3, 0, "IrcCommandParser");
     qmlRegisterType<IrcLagTimer>("Communi", 3, 0, "IrcLagTimer");
-    // TODO: IrcPalette, IrcTextFormat
+    qmlRegisterType<IrcTextFormat>("Communi", 3, 0, "IrcTextFormat");
+    // TODO: IrcPalette
 
     QQmlApplicationEngine engine(QUrl("qrc:/main.qml"));
     return app.exec();

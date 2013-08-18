@@ -13,6 +13,10 @@ import Communi 3.0
 QtObject {
     id: root
 
+    property IrcTextFormat textFormat: IrcTextFormat {
+        id: textFormat
+    }
+
     function formatMessage(message) {
         var formatted
         switch (message.type) {
@@ -33,8 +37,17 @@ QtObject {
     }
 
     function formatText(text, timeStamp) {
-        if (text)
-            return qsTr("[%1] %2").arg(Qt.formatTime(timeStamp, "hh:mm:ss")).arg(text)
+        if (text) {
+            switch (text[0]) {
+                case '!': text = qsTr("<font color='gray'>%1</font>").arg(text); break;
+                case '[': text = qsTr("<font color='brown'>%1</font>").arg(text); break;
+                case '*': text = qsTr("<font color='darkmagenta'>%1</font>").arg(text); break;
+                case '?': text = qsTr("<font color='brown'>%1</font>").arg(text); break;
+                default: break;
+            }
+
+            return qsTr("<font color='gray'>[%1]</font> %2").arg(Qt.formatTime(timeStamp, "hh:mm:ss")).arg(text)
+        }
     }
 
     function formatInviteMessage(message) {
@@ -116,7 +129,7 @@ QtObject {
     }
 
     function formatHtml(message) {
-        return message
+        return textFormat.toHtml(message)
     }
 
     function formatName(name) {
