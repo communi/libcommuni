@@ -21,6 +21,8 @@
 
 IRC_BEGIN_NAMESPACE
 
+class IrcMessage;
+class IrcConnection;
 class IrcCommandPrivate;
 
 class IRC_CORE_EXPORT IrcCommand : public QObject
@@ -81,6 +83,8 @@ public:
     void setEncoding(const QByteArray& encoding);
 
     virtual QString toString() const;
+
+    Q_INVOKABLE IrcMessage* toMessage(const QString& prefix, IrcConnection* connection) const;
 
     Q_INVOKABLE static IrcCommand* createAdmin(const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createAway(const QString& reason = QString());

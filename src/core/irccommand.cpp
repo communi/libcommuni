@@ -13,6 +13,7 @@
 */
 
 #include "irccommand.h"
+#include "ircmessage.h"
 #include <QTextCodec>
 #include <QDebug>
 
@@ -405,6 +406,21 @@ QString IrcCommand::toString() const
         case Custom:        qWarning("Reimplement IrcCommand::toString() for IrcCommand::Custom");
         default:            return QString();
     }
+}
+
+/*!
+    Returns the command as a message.
+
+    Reimplement for custom commands.
+    \sa IrcCommand::Custom
+ */
+
+/*!
+    Creates a new message from this command for \a prefix and \a connection.
+ */
+IrcMessage* IrcCommand::toMessage(const QString& prefix, IrcConnection* connection) const
+{
+    return IrcMessage::fromData(":" + prefix.toUtf8() + " " + toString().toUtf8(), connection);
 }
 
 /*!

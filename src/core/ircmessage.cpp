@@ -409,14 +409,6 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connecti
 }
 
 /*!
-    Creates a new message from \a prefix and \a command with \a connection.
- */
-IrcMessage* IrcMessage::fromCommand(const QString& prefix, IrcCommand* command, IrcConnection* connection)
-{
-    return fromData(":" + prefix.toUtf8() + " " + command->toString().toUtf8(), connection);
-}
-
-/*!
     Creates a new message from \a prefix, \a command and \a parameters with \a connection.
  */
 IrcMessage* IrcMessage::fromParameters(const QString& prefix, const QString& command, const QStringList& parameters, IrcConnection* connection)

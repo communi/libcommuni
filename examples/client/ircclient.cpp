@@ -83,7 +83,7 @@ void IrcClient::onTextEntered()
 
         // echo own messages (servers do not send our own messages back)
         if (command->type() == IrcCommand::Message || command->type() == IrcCommand::CtcpAction) {
-            IrcMessage* msg = IrcMessage::fromCommand(connection->nickName(), command, connection);
+            IrcMessage* msg = command->toMessage(connection->nickName(), connection);
             receiveBufferMessage(msg);
             delete msg;
         }
