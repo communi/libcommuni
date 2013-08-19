@@ -83,6 +83,7 @@ ColumnLayout {
 
             model: IrcUserModel {
                 id: userModel
+                dynamicSort: true
                 channel: buffer.toChannel()
             }
 
