@@ -14,6 +14,8 @@
 
 #include "ircusermodel.h"
 #include "ircusermodel_p.h"
+#include "ircbuffermodel.h"
+#include "ircconnection.h"
 #include "ircchannel_p.h"
 #include "ircuser.h"
 #include <qpointer.h>
@@ -112,15 +114,43 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when a \a user is removed from the list of users.
  */
 
-IrcUserModelPrivate::IrcUserModelPrivate(IrcUserModel* q) : q_ptr(q), role(Irc::TitleRole)
+class IrcUserLessThan
+{
+public:
+    IrcUserLessThan(IrcUserModel* model) : model(model) { }
+    bool operator()(const IrcUser* u1, const IrcUser* u2) const { return model->lessThan(u1, u2); }
+private:
+    IrcUserModel* model;
+};
+
+class IrcUserGreaterThan
+{
+public:
+    IrcUserGreaterThan(IrcUserModel* model) : model(model) { }
+    bool operator()(const IrcUser* u1, const IrcUser* u2) const { return model->lessThan(u2, u1); }
+private:
+    IrcUserModel* model;
+};
+
+IrcUserModelPrivate::IrcUserModelPrivate(IrcUserModel* q) :
+    q_ptr(q), role(Irc::TitleRole), sortOrder(Qt::AscendingOrder), dynamicSort(false)
 {
 }
 
 void IrcUserModelPrivate::addUser(IrcUser* user)
 {
     Q_Q(IrcUserModel);
-    q->beginInsertRows(QModelIndex(), userList.count(), userList.count());
-    userList.append(user);
+    int idx = userList.count();
+    if (dynamicSort) {
+        QList<IrcUser*>::iterator it;
+        if (sortOrder == Qt::AscendingOrder)
+            it = qUpperBound(userList.begin(), userList.end(), user, IrcUserLessThan(q));
+        else
+            it = qUpperBound(userList.begin(), userList.end(), user, IrcUserGreaterThan(q));
+        idx = it - userList.begin();
+    }
+    q->beginInsertRows(QModelIndex(), idx, idx);
+    userList.insert(idx, user);
     q->endInsertRows();
     emit q->added(user);
     emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
@@ -147,11 +177,15 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users)
 {
     Q_Q(IrcUserModel);
     q->beginResetModel();
-    userList.clear();
-    foreach (IrcUser* user, users) {
-        userList.append(user);
-        emit q->added(user);
+    userList = users;
+    if (dynamicSort) {
+        if (sortOrder == Qt::AscendingOrder)
+            qSort(userList.begin(), userList.end(), IrcUserLessThan(q));
+        else
+            qSort(userList.begin(), userList.end(), IrcUserGreaterThan(q));
     }
+    foreach (IrcUser* user, userList)
+        emit q->added(user);
     q->endResetModel();
     emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
     emit q->usersChanged(userList);
@@ -208,7 +242,7 @@ void IrcUserModel::setChannel(IrcChannel* channel)
 
         if (d->channel) {
             IrcChannelPrivate::get(d->channel)->userModels.append(this);
-            d->userList = IrcChannelPrivate::get(d->channel)->userList;
+            d->setUsers(IrcChannelPrivate::get(d->channel)->userList);
         }
         endResetModel();
 
@@ -303,6 +337,29 @@ int IrcUserModel::indexOf(IrcUser* user) const
 {
     Q_D(const IrcUserModel);
     return d->userList.indexOf(user);
+}
+
+/*!
+    This property holds whether the model is dynamically sorted.
+
+    The default value is \c false.
+
+    \par Access functions:
+    \li bool <b>dynamicSort</b>() const
+    \li void <b>setDynamicSort</b>(bool dynamic)
+
+    \sa sort(), lessThan()
+ */
+bool IrcUserModel::dynamicSort() const
+{
+    Q_D(const IrcUserModel);
+    return d->dynamicSort;
+}
+
+void IrcUserModel::setDynamicSort(bool dynamic)
+{
+    Q_D(IrcUserModel);
+    d->dynamicSort = dynamic;
 }
 
 /*!
@@ -436,6 +493,72 @@ QModelIndex IrcUserModel::index(int row, int column, const QModelIndex& parent) 
         return QModelIndex();
 
     return createIndex(row, column, d->userList.value(row));
+}
+
+/*!
+    \reimp
+    Sorts the model in the given \a order.
+
+    \sa lessThan(), dynamicSort
+ */
+void IrcUserModel::sort(int column, Qt::SortOrder order)
+{
+    Q_UNUSED(column);
+    Q_D(IrcUserModel);
+
+    emit layoutAboutToBeChanged();
+
+    QList<IrcUser*> persistentUsers;
+    QModelIndexList oldPersistentIndexes = persistentIndexList();
+    foreach (const QModelIndex& index, oldPersistentIndexes)
+        persistentUsers += static_cast<IrcUser*>(index.internalPointer());
+
+    d->sortOrder = order;
+    if (order == Qt::AscendingOrder)
+        qSort(d->userList.begin(), d->userList.end(), IrcUserLessThan(this));
+    else
+        qSort(d->userList.begin(), d->userList.end(), IrcUserGreaterThan(this));
+
+    QModelIndexList newPersistentIndexes;
+    foreach (IrcUser* user, persistentUsers)
+        newPersistentIndexes += index(d->userList.indexOf(user));
+    changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
+
+    emit layoutChanged();
+}
+
+/*!
+    Returns \c true if \a one buffer is "less than" \a another,
+    otherwise returns \c false.
+
+    The default implementation sorts users alphabetically and
+    special users (operators, voiced users) before normal users.
+    Reimplement this function in order to alter the sort order.
+
+    \sa sort(), dynamicSort
+ */
+bool IrcUserModel::lessThan(const IrcUser* one, const IrcUser* another) const
+{
+    // TODO: seriously? :D
+    const IrcNetwork* network = one->channel()->model()->connection()->network();
+    const QStringList prefixes = network->prefixes();
+
+    const QString p1 = one->prefix();
+    const QString p2 = another->prefix();
+
+    const int i1 = !p1.isEmpty() ? prefixes.indexOf(p1.at(0)) : -1;
+    const int i2 = !p2.isEmpty() ? prefixes.indexOf(p2.at(0)) : -1;
+
+    if (i1 >= 0 && i2 < 0)
+        return true;
+    if (i1 < 0 && i2 >= 0)
+        return false;
+    if (i1 >= 0 && i2 >= 0 && i1 != i2)
+        return i1 < i2;
+
+    const QString n1 = one->name();
+    const QString n2 = another->name();
+    return n1.compare(n2, Qt::CaseInsensitive) < 0;
 }
 
 #include "moc_ircusermodel.cpp"

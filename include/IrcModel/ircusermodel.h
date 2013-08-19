@@ -35,6 +35,7 @@ class IRC_MODEL_EXPORT IrcUserModel : public QAbstractListModel
     Q_PROPERTY(QList<IrcUser*> users READ users NOTIFY usersChanged)
     Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(IrcChannel* channel READ channel WRITE setChannel NOTIFY channelChanged)
+    Q_PROPERTY(bool dynamicSort READ dynamicSort WRITE setDynamicSort)
 
 public:
     explicit IrcUserModel(QObject* parent = 0);
@@ -51,6 +52,9 @@ public:
     Q_INVOKABLE bool contains(const QString& name) const;
     Q_INVOKABLE int indexOf(IrcUser* user) const;
 
+    bool dynamicSort() const;
+    void setDynamicSort(bool dynamic);
+
     Irc::ItemDataRole displayRole() const;
     void setDisplayRole(Irc::ItemDataRole role);
 
@@ -62,6 +66,9 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
     QModelIndex index(int row, int column = 0, const QModelIndex& parent = QModelIndex()) const;
 
+public Q_SLOTS:
+    void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
+
 Q_SIGNALS:
     void added(IrcUser* user);
     void removed(IrcUser* user);
@@ -71,8 +78,13 @@ Q_SIGNALS:
     void activitySortEnabledChanged(bool enabled);
     void channelChanged(IrcChannel* channel);
 
+protected:
+    virtual bool lessThan(const IrcUser* one, const IrcUser* another) const;
+
 private:
+    friend class IrcUserLessThan;
     friend class IrcChannelPrivate;
+    friend class IrcUserGreaterThan;
     QScopedPointer<IrcUserModelPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcUserModel)
     Q_DISABLE_COPY(IrcUserModel)

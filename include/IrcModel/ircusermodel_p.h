@@ -42,6 +42,8 @@ public:
     Irc::ItemDataRole role;
     QPointer<IrcChannel> channel;
     QList<IrcUser*> userList;
+    Qt::SortOrder sortOrder;
+    bool dynamicSort;
 };
 
 IRC_END_NAMESPACE
