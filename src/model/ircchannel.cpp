@@ -15,6 +15,7 @@
 #include "ircchannel.h"
 #include "ircchannel_p.h"
 #include "ircusermodel.h"
+#include "ircusermodel_p.h"
 #include "ircbuffermodel.h"
 #include "ircbuffermodel_p.h"
 #include "irccommand.h"
@@ -130,9 +131,6 @@ void IrcChannelPrivate::addUser(const QString& name)
     const IrcNetwork* network = model->connection()->network();
     const QStringList prefixes = network->prefixes();
 
-    foreach (IrcUserModel* model, userModels)
-        model->beginInsertRows(QModelIndex(), userList.count(), userList.count());
-
     IrcUser* user = new IrcUser(q);
     IrcUserPrivate* priv = IrcUserPrivate::get(user);
     priv->channel = q;
@@ -143,44 +141,18 @@ void IrcChannelPrivate::addUser(const QString& name)
     userMap.insert(user->name(), user);
 
     foreach (IrcUserModel* model, userModels)
-        emit model->added(user);
-
-    const int count = userList.count();
-    const QStringList names = userMap.keys();
-
-    foreach (IrcUserModel* model, userModels) {
-        model->endInsertRows();
-        emit model->namesChanged(names);
-        emit model->usersChanged(userList);
-        emit model->countChanged(count);
-    }
+        IrcUserModelPrivate::get(model)->addUser(user);
 }
 
 bool IrcChannelPrivate::removeUser(const QString& name)
 {
     if (IrcUser* user = userMap.value(name)) {
-        int idx = userList.indexOf(user);
-        if (idx != -1) {
-            foreach (IrcUserModel* model, userModels)
-                model->beginRemoveRows(QModelIndex(), idx, idx);
-
-            userList.removeAt(idx);
-            userMap.remove(name);
-
-            const int count = userList.count();
-            const QStringList names = userMap.keys();
-
-            foreach (IrcUserModel* model, userModels) {
-                model->endRemoveRows();
-                emit model->removed(user);
-                emit model->namesChanged(names);
-                emit model->usersChanged(userList);
-                emit model->countChanged(count);
-            }
-
-            user->deleteLater();
-            return true;
-        }
+        foreach (IrcUserModel* model, userModels)
+            IrcUserModelPrivate::get(model)->removeUser(user);
+        userList.removeOne(user);
+        userMap.remove(name);
+        user->deleteLater();
+        return true;
     }
     return false;
 }
@@ -191,12 +163,10 @@ void IrcChannelPrivate::setUsers(const QStringList& names)
     const IrcNetwork* network = model->connection()->network();
     const QStringList prefixes = network->prefixes();
 
-    foreach (IrcUserModel* model, userModels)
-        model->beginResetModel();
-
     userMap.clear();
     userList.clear();
 
+    QList<IrcUser*> users;
     foreach (const QString& name, names) {
         IrcUser* user = new IrcUser(q);
         IrcUserPrivate* priv = IrcUserPrivate::get(user);
@@ -206,20 +176,11 @@ void IrcChannelPrivate::setUsers(const QStringList& names)
         priv->setMode(network->prefixToMode(user->prefix()));
         userList.append(user);
         userMap.insert(user->name(), user);
-
-        foreach (IrcUserModel* model, userModels)
-            emit model->added(user);
+        users.append(user);
     }
 
-    const int count = userList.count();
-    const QStringList keys = userMap.keys();
-
-    foreach (IrcUserModel* model, userModels) {
-        model->endResetModel();
-        emit model->namesChanged(keys);
-        emit model->usersChanged(userList);
-        emit model->countChanged(count);
-    }
+    foreach (IrcUserModel* model, userModels)
+        IrcUserModelPrivate::get(model)->setUsers(users);
 }
 
 bool IrcChannelPrivate::renameUser(const QString& from, const QString& to)

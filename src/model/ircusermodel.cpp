@@ -13,6 +13,7 @@
 */
 
 #include "ircusermodel.h"
+#include "ircusermodel_p.h"
 #include "ircchannel_p.h"
 #include "ircuser.h"
 #include <qpointer.h>
@@ -111,17 +112,51 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when a \a user is removed from the list of users.
  */
 
-class IrcUserModelPrivate
+IrcUserModelPrivate::IrcUserModelPrivate(IrcUserModel* q) : q_ptr(q), role(Irc::TitleRole)
 {
-public:
-    inline IrcUser* userAt(int index) const
-    {
-        return channel ? IrcChannelPrivate::get(channel)->userList.value(index) : 0;
-    }
+}
 
-    Irc::ItemDataRole role;
-    QPointer<IrcChannel> channel;
-};
+void IrcUserModelPrivate::addUser(IrcUser* user)
+{
+    Q_Q(IrcUserModel);
+    q->beginInsertRows(QModelIndex(), userList.count(), userList.count());
+    userList.append(user);
+    q->endInsertRows();
+    emit q->added(user);
+    emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
+    emit q->usersChanged(userList);
+    emit q->countChanged(userList.count());
+}
+
+void IrcUserModelPrivate::removeUser(IrcUser* user)
+{
+    Q_Q(IrcUserModel);
+    int idx = userList.indexOf(user);
+    if (idx != -1) {
+        q->beginRemoveRows(QModelIndex(), idx, idx);
+        userList.removeAt(idx);
+        q->endRemoveRows();
+        emit q->removed(user);
+        emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
+        emit q->usersChanged(userList);
+        emit q->countChanged(userList.count());
+    }
+}
+
+void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users)
+{
+    Q_Q(IrcUserModel);
+    q->beginResetModel();
+    userList.clear();
+    foreach (IrcUser* user, users) {
+        userList.append(user);
+        emit q->added(user);
+    }
+    q->endResetModel();
+    emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
+    emit q->usersChanged(userList);
+    emit q->countChanged(userList.count());
+}
 
 /*!
     Constructs a new model with \a parent.
@@ -130,10 +165,8 @@ public:
     automatically assigned to \ref IrcUserModel::channel "channel".
  */
 IrcUserModel::IrcUserModel(QObject* parent)
-    : QAbstractListModel(parent), d_ptr(new IrcUserModelPrivate)
+    : QAbstractListModel(parent), d_ptr(new IrcUserModelPrivate(this))
 {
-    Q_D(IrcUserModel);
-    d->role = Irc::TitleRole;
     setChannel(qobject_cast<IrcChannel*>(parent));
 
     qRegisterMetaType<IrcUser*>();
@@ -173,8 +206,10 @@ void IrcUserModel::setChannel(IrcChannel* channel)
 
         d->channel = channel;
 
-        if (d->channel)
+        if (d->channel) {
             IrcChannelPrivate::get(d->channel)->userModels.append(this);
+            d->userList = IrcChannelPrivate::get(d->channel)->userList;
+        }
         endResetModel();
 
         emit channelChanged(channel);
@@ -226,9 +261,7 @@ QStringList IrcUserModel::names() const
 QList<IrcUser*> IrcUserModel::users() const
 {
     Q_D(const IrcUserModel);
-    if (d->channel)
-        return IrcChannelPrivate::get(d->channel)->userList;
-    return QList<IrcUser*>();
+    return d->userList;
 }
 
 /*!
@@ -237,7 +270,7 @@ QList<IrcUser*> IrcUserModel::users() const
 IrcUser* IrcUserModel::get(int index) const
 {
     Q_D(const IrcUserModel);
-    return d->userAt(index);
+    return d->userList.value(index);
 }
 
 /*!
@@ -269,9 +302,7 @@ bool IrcUserModel::contains(const QString& name) const
 int IrcUserModel::indexOf(IrcUser* user) const
 {
     Q_D(const IrcUserModel);
-    if (d->channel)
-        return IrcChannelPrivate::get(d->channel)->userList.indexOf(user);
-    return -1;
+    return d->userList.indexOf(user);
 }
 
 /*!
@@ -304,9 +335,7 @@ void IrcUserModel::setDisplayRole(Irc::ItemDataRole role)
 QModelIndex IrcUserModel::index(IrcUser* user) const
 {
     Q_D(const IrcUserModel);
-    if (d->channel)
-        return index(IrcChannelPrivate::get(d->channel)->userList.indexOf(user));
-    return QModelIndex();
+    return index(d->userList.indexOf(user));
 }
 
 /*!
@@ -355,7 +384,7 @@ int IrcUserModel::rowCount(const QModelIndex& parent) const
     if (parent.isValid() || !d->channel)
         return 0;
 
-    return IrcChannelPrivate::get(d->channel)->userList.count();
+    return d->userList.count();
 }
 
 /*!
@@ -406,7 +435,7 @@ QModelIndex IrcUserModel::index(int row, int column, const QModelIndex& parent) 
     if (!d->channel || !hasIndex(row, column, parent))
         return QModelIndex();
 
-    return createIndex(row, column, d->userAt(row));
+    return createIndex(row, column, d->userList.value(row));
 }
 
 #include "moc_ircusermodel.cpp"
