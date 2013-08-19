@@ -16,5 +16,9 @@ CONFIG(debug, debug|release) {
     UI_DIR = release
 }
 
-IRC_MODULES = IrcCore IrcModel IrcUtil
-include(../src/module_deps.pri)
+developer {
+    include(../src/src.pri)
+} else {
+    IRC_MODULES = IrcCore IrcModel IrcUtil
+    include(../src/module_deps.pri)
+}
