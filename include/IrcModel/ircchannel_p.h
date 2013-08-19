@@ -38,8 +38,9 @@ public:
     void setMode(const QString& value);
     void setTopic(const QString& value);
 
-    void addUsers(const QStringList& users);
+    void addUser(const QString& user);
     bool removeUser(const QString& user);
+    void setUsers(const QStringList& users);
     bool renameUser(const QString& from, const QString& to);
     void setUserMode(const QString& user, const QString& mode);
     void clearUsers();
