@@ -41,7 +41,7 @@ SplitView {
         id: parser
 
         channels: bufferModel.channels
-        currentTarget: currentBuffer.title
+        currentTarget: currentBuffer ? currentBuffer.title: ""
 
         Component.onCompleted: {
             parser.addCommand(IrcCommand.Join, "JOIN <#channel> (<key>)")
