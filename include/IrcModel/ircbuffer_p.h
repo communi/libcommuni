@@ -67,6 +67,7 @@ public:
     QString name;
     QString prefix;
     bool persistent;
+    bool sticky;
 };
 
 IRC_END_NAMESPACE

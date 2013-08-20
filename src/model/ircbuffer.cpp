@@ -59,7 +59,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 IrcBufferPrivate::IrcBufferPrivate()
-    : q_ptr(0), model(0), persistent(false)
+    : q_ptr(0), model(0), persistent(false), sticky(false)
 {
 }
 
@@ -361,6 +361,38 @@ bool IrcBuffer::isActive() const
     if (IrcConnection* s = connection())
         return s->isConnected();
     return false;
+}
+
+/*!
+    \property bool IrcBuffer::sticky
+    This property holds whether the buffer is sticky.
+
+    A sticky buffer stays in the beginning (Qt::AscendingOrder) or
+    end (Qt::DescendingOrder) of the list buffers in IrcBufferModel.
+
+    The default value is \c false.
+
+    \par Access function:
+    \li bool <b>isSticky</b>() const
+    \li void <b>setSticky</b>(bool sticky)
+
+    \par Notifier signal:
+    \li void <b>stickyChanged</b>(bool sticky)
+ */
+
+bool IrcBuffer::isSticky() const
+{
+    Q_D(const IrcBuffer);
+    return d->sticky;
+}
+
+void IrcBuffer::setSticky(bool sticky)
+{
+    Q_D(IrcBuffer);
+    if (d->sticky != sticky) {
+        d->sticky = sticky;
+        emit stickyChanged(sticky);
+    }
 }
 
 /*!

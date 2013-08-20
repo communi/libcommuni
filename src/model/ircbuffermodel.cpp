@@ -590,6 +590,9 @@ IrcBuffer* IrcBufferModel::create(const QString& title)
  */
 bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another) const
 {
+    if (one->isSticky() != another->isSticky())
+        return one->isSticky();
+
     const IrcNetwork* network = one->connection()->network();
     const QStringList prefixes = network->channelTypes();
 
