@@ -56,6 +56,7 @@ SplitView {
     Rectangle {
         id: frame
 
+        width: window.width / 6
         color: Qt.darker(palette.base, 1.06)
         implicitWidth: tableView.implicitWidth
         implicitHeight: tableView.implicitHeight
