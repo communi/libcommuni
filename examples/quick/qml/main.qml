@@ -15,6 +15,7 @@ ApplicationWindow {
     id: window
 
     visible: true
+    title: qsTr("Communi %1 QtQuick example").arg(irc.version())
 
     width: 800
     height: 480
@@ -37,9 +38,7 @@ ApplicationWindow {
         ChatPage {
             Connections {
                 target: window
-                onClosing: {
-                    connection.quit(qsTr("Communi %1 QtQuick example").arg(irc.version()))
-                }
+                onClosing: connection.quit(window.title)
             }
         }
     }
