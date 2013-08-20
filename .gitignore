@@ -39,6 +39,7 @@ moc_*.cpp
 qrc_*.cpp
 /examples/bot/bot
 /examples/client/client
+/examples/quick/quick
 /tests/auto/irccommand/tst_irccommand
 /tests/auto/irccommandparser/tst_irccommandparser
 /tests/auto/ircmessage/tst_ircmessage
