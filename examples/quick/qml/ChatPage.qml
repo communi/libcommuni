@@ -25,12 +25,14 @@ SplitView {
 
     IrcBufferModel {
         id: bufferModel
+        dynamicSort: true
         connection: connection
         onMessageIgnored: serverBuffer.receiveMessage(message)
     }
 
     IrcBuffer {
         id: serverBuffer
+        sticky: true
         name: connection.host
         Component.onCompleted: bufferModel.add(serverBuffer)
     }
