@@ -37,7 +37,7 @@ ColumnLayout {
     Rectangle {
         Layout.fillWidth: true
         visible: buffer.channel
-        color: palette.alternateBase
+        color: Qt.darker(palette.base, 1.06)
         implicitHeight: label.implicitHeight + 4
 
         Label {
@@ -86,9 +86,10 @@ ColumnLayout {
             }
         }
 
-        Item {
+        Rectangle {
             id: tableFrame
 
+            color: Qt.darker(palette.base, 1.06)
             implicitWidth: tableView.implicitWidth
             implicitHeight: tableView.implicitHeight
 

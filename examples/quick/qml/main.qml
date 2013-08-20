@@ -22,7 +22,7 @@ ApplicationWindow {
     minimumWidth: stack.initialItem.implicitWidth
     minimumHeight: stack.initialItem.implicitHeight
 
-    color: palette.alternateBase
+    color: Qt.darker(palette.base, 1.06)
 
     SystemPalette {
         id: palette

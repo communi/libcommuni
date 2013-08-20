@@ -53,9 +53,10 @@ SplitView {
 
     handleDelegate: Rectangle { width: 1; color: Qt.darker(palette.window, 1.5) }
 
-    Item {
+    Rectangle {
         id: frame
 
+        color: Qt.darker(palette.base, 1.06)
         implicitWidth: tableView.implicitWidth
         implicitHeight: tableView.implicitHeight
 
@@ -66,7 +67,8 @@ SplitView {
             anchors.rightMargin: -1
 
             headerVisible: false
-            alternatingRowColors: true
+            backgroundVisible: false
+            alternatingRowColors: false
 
             Connections {
                 target: bufferModel
