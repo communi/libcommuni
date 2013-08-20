@@ -85,6 +85,13 @@ Column {
 
                 readOnly: true
                 textFormat: Qt.RichText
+
+                onHeightChanged: alignToBottom()
+                onWidthChanged: alignToBottom()
+
+                function alignToBottom() {
+                    flickableItem.contentY = flickableItem.contentHeight - flickableItem.height
+                }
             }
         }
 
