@@ -38,6 +38,7 @@ public:
 
     void setName(const QString& name);
     void setPrefix(const QString& prefix);
+    void setModel(IrcBufferModel* model);
 
     bool processMessage(IrcMessage* message);
 

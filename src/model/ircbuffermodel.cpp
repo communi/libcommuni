@@ -191,6 +191,7 @@ void IrcBufferModelPrivate::addBuffer(IrcBuffer* buffer)
         }
         emit q->aboutToBeAdded(buffer);
         q->beginInsertRows(QModelIndex(), idx, idx);
+        IrcBufferPrivate::get(buffer)->setModel(q);
         bufferList.insert(idx, buffer);
         bufferMap.insert(lower, buffer);
         if (isChannel)

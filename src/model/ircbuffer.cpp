@@ -69,10 +69,8 @@ IrcBufferPrivate::~IrcBufferPrivate()
 
 void IrcBufferPrivate::init(const QString& title, IrcBufferModel* m)
 {
-    Q_Q(IrcBuffer);
-    model = m;
     name = title;
-    QObject::connect(m->connection(), SIGNAL(connectedChanged(bool)), q, SLOT(_irc_emitActiveChanged()));
+    setModel(m);
 }
 
 void IrcBufferPrivate::setName(const QString& value)
@@ -92,6 +90,15 @@ void IrcBufferPrivate::setPrefix(const QString& value)
         prefix = value;
         emit q->prefixChanged(prefix);
         emit q->titleChanged(q->title());
+    }
+}
+
+void IrcBufferPrivate::setModel(IrcBufferModel* value)
+{
+    Q_Q(IrcBuffer);
+    if (model != value) {
+        model = value;
+        QObject::connect(model->connection(), SIGNAL(connectedChanged(bool)), q, SLOT(_irc_emitActiveChanged()));
     }
 }
 
