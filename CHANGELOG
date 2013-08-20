@@ -1,3 +1,28 @@
+3.0.0
+-----
+- Modularized: IrcCore, IrcModel & IrcUtil
+  - CONFIG += communi; COMMUNI += core model util
+  - include(path/to/libcommuni/src/src.pri)
+- Added namespace support
+  - DEFINES += IRC_NAMESPACE=Communi
+- Renamed IrcSession to IrcConnection
+- Renamed IrcSessionInfo to IrcNetwork
+  - Accessible via IrcConnection::network()
+- Changed IrcConnection::password to a property
+- IrcUserModel: support sorting
+- Added IrcUserModel::indexOf(IrcUser*)
+- Added a Qt Quick Controls based example
+- Added IrcBufferModel::add(IrcBuffer*) overload
+- Added IrcBufferModel::indexOf(IrcBuffer*)
+- Added bool IrcBuffer::sticky [property]
+- Added IrcBuffer::receiveMessage() slot
+- Full QML compatibility
+  - Inherited IrcNetwork and IrcTextFormat from QObject and revised
+    the APIs to be property-based & offer invokables/slots
+  - IrcMessage::fromCommand() -> IrcCommand::toMessage()
+  - Made IrcBuffer::toChannel() invokable
+  - Replaced IrcSender with IrcMessage::sender(Name|User|Host)
+
 2.2.0
 -----
 - Implemented SASL support (http://freenode.net/sasl)
