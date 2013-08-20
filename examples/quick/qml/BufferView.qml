@@ -12,10 +12,11 @@ import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0
 import Communi 3.0
 
-ColumnLayout {
+Column {
     id: view
 
     property IrcBuffer buffer
+    property IrcChannel channel: buffer ? buffer.toChannel() : null
 
     signal queried(string name)
 
@@ -35,10 +36,12 @@ ColumnLayout {
     }
 
     Rectangle {
-        Layout.fillWidth: true
-        visible: buffer.channel
+        id: rect
+
+        visible: channel
+        width: parent.width
+        height: Math.max(20, label.implicitHeight + 4)
         color: Qt.darker(palette.base, 1.06)
-        implicitHeight: label.implicitHeight + 4
 
         Label {
             id: label
@@ -49,7 +52,7 @@ ColumnLayout {
             anchors.verticalCenter: parent.verticalCenter
 
             wrapMode: Text.Wrap
-            text: buffer && buffer.channel ? buffer.topic : ""
+            text: channel && channel.topic ? channel.topic : "-"
         }
 
         Rectangle {
@@ -62,10 +65,10 @@ ColumnLayout {
     }
 
     SplitView {
-        Layout.fillWidth: true
-        Layout.fillHeight: true
+        width: parent.width
+        height: view.height - (channel ? rect.height : 0)
 
-        handleDelegate: Rectangle { width: 1; color: Qt.darker(palette.window, 1.5) }
+        handleDelegate: Item { } // Rectangle { width: 1; color: Qt.darker(palette.window, 1.5) }
 
         Item {
             id: textFrame
@@ -79,7 +82,6 @@ ColumnLayout {
 
                 anchors.fill: parent
                 anchors.leftMargin: -1
-                anchors.rightMargin: -1
 
                 readOnly: true
                 textFormat: Qt.RichText
@@ -94,7 +96,7 @@ ColumnLayout {
             implicitWidth: tableView.implicitWidth
             implicitHeight: tableView.implicitHeight
 
-            visible: buffer.channel
+            visible: channel
 
             TableView {
                 id: tableView
@@ -103,12 +105,13 @@ ColumnLayout {
                 anchors.leftMargin: -1
 
                 headerVisible: false
-                alternatingRowColors: true
+                backgroundVisible: false
+                alternatingRowColors: false
 
                 model: IrcUserModel {
                     id: userModel
                     dynamicSort: true
-                    channel: buffer.toChannel()
+                    channel: view.channel
                 }
 
                 TableViewColumn {
