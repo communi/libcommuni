@@ -53,10 +53,11 @@ ColumnLayout {
         }
 
         Rectangle {
-            height: 1
-            width: parent.width
-            anchors.bottom: parent.bottom
-            color: Qt.darker(palette.window, 1.5)
+            color: "transparent"
+            anchors.fill: parent
+            anchors.leftMargin: -1
+            anchors.bottomMargin: -1
+            border.color: Qt.darker(palette.window, 1.5)
         }
     }
 
@@ -64,36 +65,58 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
 
-        TextArea {
-            id: textArea
+        handleDelegate: Rectangle { width: 1; color: Qt.darker(palette.window, 1.5) }
 
-            readOnly: true
-            frameVisible: false
+        Item {
+            id: textFrame
+
             Layout.fillWidth: true
-            textFormat: Qt.RichText
+            implicitWidth: textArea.implicitWidth
+            implicitHeight: textArea.implicitHeight
+
+            TextArea {
+                id: textArea
+
+                anchors.fill: parent
+                anchors.leftMargin: -1
+                anchors.rightMargin: -1
+
+                readOnly: true
+                textFormat: Qt.RichText
+            }
         }
 
-        TableView {
-            id: tableView
+        Item {
+            id: tableFrame
 
-            frameVisible: false
-            headerVisible: false
+            implicitWidth: tableView.implicitWidth
+            implicitHeight: tableView.implicitHeight
+
             visible: buffer.channel
-            alternatingRowColors: true
 
-            model: IrcUserModel {
-                id: userModel
-                dynamicSort: true
-                channel: buffer.toChannel()
-            }
+            TableView {
+                id: tableView
 
-            TableViewColumn {
-                role: "display"
-            }
+                anchors.fill: parent
+                anchors.leftMargin: -1
 
-            onDoubleClicked: {
-                var user = userModel.get(row)
-                view.queried(user.name)
+                headerVisible: false
+                alternatingRowColors: true
+
+                model: IrcUserModel {
+                    id: userModel
+                    dynamicSort: true
+                    channel: buffer.toChannel()
+                }
+
+                TableViewColumn {
+                    role: "display"
+                }
+
+                onDoubleClicked: {
+                    var user = userModel.get(row)
+                    view.queried(user.name)
+                }
             }
         }
     }

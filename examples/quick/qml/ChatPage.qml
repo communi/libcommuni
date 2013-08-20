@@ -49,24 +49,35 @@ SplitView {
         }
     }
 
-    TableView {
-        id: tableView
+    handleDelegate: Rectangle { width: 1; color: Qt.darker(palette.window, 1.5) }
 
-        frameVisible: false
-        headerVisible: false
-        alternatingRowColors: true
+    Item {
+        id: frame
 
-        Connections {
-            target: bufferModel
-            onAdded: {
-                tableView.currentRow = bufferModel.count - 1
+        implicitWidth: tableView.implicitWidth
+        implicitHeight: tableView.implicitHeight
+
+        TableView {
+            id: tableView
+
+            anchors.fill: parent
+            anchors.rightMargin: -1
+
+            headerVisible: false
+            alternatingRowColors: true
+
+            Connections {
+                target: bufferModel
+                onAdded: {
+                    tableView.currentRow = bufferModel.count - 1
+                }
             }
-        }
 
-        model: bufferModel
+            model: bufferModel
 
-        TableViewColumn {
-            role: "display"
+            TableViewColumn {
+                role: "display"
+            }
         }
     }
 
@@ -109,9 +120,11 @@ SplitView {
                 background: Rectangle {
                     color: palette.base
                     Rectangle {
-                        height: 1
-                        width: parent.width
-                        color: Qt.darker(palette.window, 1.5)
+                        color: "transparent"
+                        anchors.fill: parent
+                        anchors.topMargin: -1
+                        anchors.leftMargin: -1
+                        border.color: Qt.darker(palette.window, 1.5)
                     }
                 }
             }
