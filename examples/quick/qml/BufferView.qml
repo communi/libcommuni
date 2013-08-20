@@ -88,41 +88,14 @@ Column {
             }
         }
 
-        Rectangle {
-            id: tableFrame
-
-            width: window.width / 6
-            color: Qt.darker(palette.base, 1.06)
-            implicitWidth: tableView.implicitWidth
-            implicitHeight: tableView.implicitHeight
+        UserListView {
+            id: userListView
 
             visible: channel
+            width: window.width / 6
+            channel: view.channel
 
-            TableView {
-                id: tableView
-
-                anchors.fill: parent
-                anchors.leftMargin: -1
-
-                headerVisible: false
-                backgroundVisible: false
-                alternatingRowColors: false
-
-                model: IrcUserModel {
-                    id: userModel
-                    dynamicSort: true
-                    channel: view.channel
-                }
-
-                TableViewColumn {
-                    role: "display"
-                }
-
-                onDoubleClicked: {
-                    var user = userModel.get(row)
-                    view.queried(user.name)
-                }
-            }
+            onQueried: view.queried(user)
         }
     }
 }
