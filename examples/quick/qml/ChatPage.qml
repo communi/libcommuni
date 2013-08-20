@@ -27,7 +27,10 @@ SplitView {
         id: bufferModel
         dynamicSort: true
         connection: connection
-        onMessageIgnored: serverBuffer.receiveMessage(message)
+        onMessageIgnored: {
+            if (serverBuffer)
+                serverBuffer.receiveMessage(message)
+        }
     }
 
     IrcBuffer {
