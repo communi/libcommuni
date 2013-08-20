@@ -163,6 +163,7 @@ void IrcChannelPrivate::setUsers(const QStringList& names)
     const IrcNetwork* network = model->connection()->network();
     const QStringList prefixes = network->prefixes();
 
+    qDeleteAll(userList);
     userMap.clear();
     userList.clear();
 
@@ -245,22 +246,8 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
 
 void IrcChannelPrivate::clearUsers()
 {
-    if (!userList.isEmpty()) {
-        foreach (IrcUserModel* model, userModels)
-            model->beginResetModel();
-
-        qDeleteAll(userList);
-        userList.clear();
-        userMap.clear();
-
-        foreach (IrcUserModel* model, userModels) {
-            model->endResetModel();
-
-            emit model->namesChanged(QStringList());
-            emit model->usersChanged(QList<IrcUser*>());
-            emit model->countChanged(0);
-        }
-    }
+    if (!userList.isEmpty())
+        setUsers(QStringList());
 }
 
 bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
