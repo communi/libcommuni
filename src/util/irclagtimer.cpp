@@ -49,7 +49,7 @@ class IrcLagTimerPrivate : public IrcMessageFilter
     Q_DECLARE_PUBLIC(IrcLagTimer)
 
 public:
-    IrcLagTimerPrivate(IrcLagTimer* q);
+    IrcLagTimerPrivate();
 
     bool messageFilter(IrcMessage* msg);
     bool processPongReply(IrcPongMessage* msg);
@@ -68,10 +68,8 @@ public:
     qint64 lag;
 };
 
-IrcLagTimerPrivate::IrcLagTimerPrivate(IrcLagTimer* q)
-    : q_ptr(q), connection(0), interval(DEFAULT_INTERVAL), lag(-1)
+IrcLagTimerPrivate::IrcLagTimerPrivate() : q_ptr(0), connection(0), interval(DEFAULT_INTERVAL), lag(-1)
 {
-    QObject::connect(&timer, SIGNAL(timeout()), q, SLOT(_irc_pingServer()));
 }
 
 bool IrcLagTimerPrivate::messageFilter(IrcMessage* msg)
@@ -154,8 +152,11 @@ void IrcLagTimerPrivate::updateLag(qint64 value)
     \note If \a parent is an instance of IrcConnection, it will be
     automatically assigned to \ref IrcLagTimer::connection "connection".
  */
-IrcLagTimer::IrcLagTimer(QObject* parent) : QObject(parent), d_ptr(new IrcLagTimerPrivate(this))
+IrcLagTimer::IrcLagTimer(QObject* parent) : QObject(parent), d_ptr(new IrcLagTimerPrivate)
 {
+    Q_D(IrcLagTimer);
+    d->q_ptr = this;
+    connect(&d->timer, SIGNAL(timeout()), this, SLOT(_irc_pingServer()));
     setConnection(qobject_cast<IrcConnection*>(parent));
 }
 

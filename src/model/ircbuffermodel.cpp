@@ -87,8 +87,8 @@ IRC_BEGIN_NAMESPACE
     \sa IrcConnection::messageReceived(), IrcBuffer::messageReceived()
  */
 
-IrcBufferModelPrivate::IrcBufferModelPrivate(IrcBufferModel* q) :
-    q_ptr(q), role(Irc::TitleRole), sortOrder(Qt::AscendingOrder), dynamicSort(false)
+IrcBufferModelPrivate::IrcBufferModelPrivate() :
+    q_ptr(0), role(Irc::TitleRole), sortOrder(Qt::AscendingOrder), dynamicSort(false)
 {
 }
 
@@ -271,8 +271,10 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
     automatically assigned to \ref IrcBufferModel::connection "connection".
  */
 IrcBufferModel::IrcBufferModel(QObject* parent)
-    : QAbstractListModel(parent), d_ptr(new IrcBufferModelPrivate(this))
+    : QAbstractListModel(parent), d_ptr(new IrcBufferModelPrivate)
 {
+    Q_D(IrcBufferModel);
+    d->q_ptr = this;
     setConnection(qobject_cast<IrcConnection*>(parent));
 
     qRegisterMetaType<IrcBuffer*>();

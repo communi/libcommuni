@@ -128,7 +128,7 @@ IRC_BEGIN_NAMESPACE
     \brief The maximum number of channel modes allowed per mode command
  */
 
-IrcNetworkPrivate::IrcNetworkPrivate(IrcNetwork* network) : q_ptr(network), valid(false)
+IrcNetworkPrivate::IrcNetworkPrivate() : q_ptr(0), valid(false)
 {
 }
 
@@ -217,9 +217,10 @@ void IrcNetworkPrivate::setChannelTypes(const QStringList& value)
 /*!
     Constructs a new network object for IRC \a connection.
  */
-IrcNetwork::IrcNetwork(IrcConnection* connection) : QObject(connection), d_ptr(new IrcNetworkPrivate(this))
+IrcNetwork::IrcNetwork(IrcConnection* connection) : QObject(connection), d_ptr(new IrcNetworkPrivate)
 {
     Q_D(IrcNetwork);
+    d->q_ptr = this;
     d->connection = connection;
 }
 

@@ -27,7 +27,7 @@ class IrcUserModelPrivate
     Q_DECLARE_PUBLIC(IrcUserModel)
 
 public:
-    IrcUserModelPrivate(IrcUserModel* q);
+    IrcUserModelPrivate();
 
     void addUser(IrcUser* user);
     void removeUser(IrcUser* user);

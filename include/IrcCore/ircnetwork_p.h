@@ -28,7 +28,7 @@ class IrcNetworkPrivate
     Q_DECLARE_PUBLIC(IrcNetwork)
 
 public:
-    IrcNetworkPrivate(IrcNetwork* network);
+    IrcNetworkPrivate();
 
     void setInfo(const QHash<QString, QString>& info);
 

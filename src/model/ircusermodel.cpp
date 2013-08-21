@@ -132,8 +132,8 @@ private:
     IrcUserModel* model;
 };
 
-IrcUserModelPrivate::IrcUserModelPrivate(IrcUserModel* q) :
-    q_ptr(q), role(Irc::TitleRole), sortOrder(Qt::AscendingOrder), dynamicSort(false)
+IrcUserModelPrivate::IrcUserModelPrivate() :
+    q_ptr(0), role(Irc::TitleRole), sortOrder(Qt::AscendingOrder), dynamicSort(false)
 {
 }
 
@@ -198,9 +198,10 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users)
     \note If \a parent is an instance of IrcChannel, it will be
     automatically assigned to \ref IrcUserModel::channel "channel".
  */
-IrcUserModel::IrcUserModel(QObject* parent)
-    : QAbstractListModel(parent), d_ptr(new IrcUserModelPrivate(this))
+IrcUserModel::IrcUserModel(QObject* parent) : QAbstractListModel(parent), d_ptr(new IrcUserModelPrivate)
 {
+    Q_D(IrcUserModel);
+    d->q_ptr = this;
     setChannel(qobject_cast<IrcChannel*>(parent));
 
     qRegisterMetaType<IrcUser*>();

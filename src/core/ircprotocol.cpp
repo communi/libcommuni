@@ -29,7 +29,7 @@ class IrcProtocolPrivate
     Q_DECLARE_PUBLIC(IrcProtocol)
 
 public:
-    IrcProtocolPrivate(IrcProtocol* protocol);
+    IrcProtocolPrivate();
 
     void readLines(const QByteArray& delimiter);
     void processLine(const QByteArray& line);
@@ -47,8 +47,7 @@ public:
     QSet<QString> availableCaps;
 };
 
-IrcProtocolPrivate::IrcProtocolPrivate(IrcProtocol* protocol) :
-    q_ptr(protocol)
+IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0)
 {
 }
 
@@ -202,9 +201,10 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
     }
 }
 
-IrcProtocol::IrcProtocol(IrcConnection* connection) : QObject(connection), d_ptr(new IrcProtocolPrivate(this))
+IrcProtocol::IrcProtocol(IrcConnection* connection) : QObject(connection), d_ptr(new IrcProtocolPrivate)
 {
     Q_D(IrcProtocol);
+    d->q_ptr = this;
     d->connection = connection;
     d->builder = new IrcMessageBuilder(connection);
     connect(d->builder, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveMessage(IrcMessage*)));

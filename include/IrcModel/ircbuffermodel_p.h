@@ -27,7 +27,7 @@ class IrcBufferModelPrivate : public IrcMessageFilter
     Q_DECLARE_PUBLIC(IrcBufferModel)
 
 public:
-    IrcBufferModelPrivate(IrcBufferModel* q);
+    IrcBufferModelPrivate();
 
     bool messageFilter(IrcMessage* message);
 

@@ -170,8 +170,8 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when the connection \a info has been received.
  */
 
-IrcConnectionPrivate::IrcConnectionPrivate(IrcConnection* connection) :
-    q_ptr(connection),
+IrcConnectionPrivate::IrcConnectionPrivate() :
+    q_ptr(0),
     encoding("ISO-8859-15"),
     network(0),
     protocol(0),
@@ -328,9 +328,10 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
 /*!
     Constructs a new IRC connection with \a parent.
  */
-IrcConnection::IrcConnection(QObject* parent) : QObject(parent), d_ptr(new IrcConnectionPrivate(this))
+IrcConnection::IrcConnection(QObject* parent) : QObject(parent), d_ptr(new IrcConnectionPrivate)
 {
     Q_D(IrcConnection);
+    d->q_ptr = this;
     d->network = new IrcNetwork(this);
     setSocket(new QTcpSocket(this));
     setProtocol(new IrcProtocol(this));

@@ -30,7 +30,7 @@ class IrcConnectionPrivate
     Q_DECLARE_PUBLIC(IrcConnection)
 
 public:
-    IrcConnectionPrivate(IrcConnection* connection);
+    IrcConnectionPrivate();
 
     void _irc_connected();
     void _irc_disconnected();
