@@ -36,6 +36,9 @@ class IRC_CORE_EXPORT IrcMessage : public QObject
     Q_PROPERTY(bool valid READ isValid)
     Q_PROPERTY(QString command READ command)
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
+    Q_PROPERTY(QString nick READ nick)
+    Q_PROPERTY(QString ident READ ident)
+    Q_PROPERTY(QString host READ host)
     Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
     Q_PROPERTY(QDateTime timeStamp READ timeStamp WRITE setTimeStamp)
     Q_ENUMS(Type Flag)
@@ -85,7 +88,9 @@ public:
     QString prefix() const;
     void setPrefix(const QString& prefix);
 
-    Q_INVOKABLE QString sender(Irc::SenderSection section) const;
+    QString nick() const;
+    QString ident() const;
+    QString host() const;
 
     QStringList parameters() const;
     void setParameters(const QStringList& parameters);

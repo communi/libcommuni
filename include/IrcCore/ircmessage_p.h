@@ -66,8 +66,8 @@ public:
     QString prefix() const;
     void setPrefix(const QString& prefix);
 
-    QString name() const;
-    QString user() const;
+    QString nick() const;
+    QString ident() const;
     QString host() const;
 
     QString command() const;
@@ -89,7 +89,7 @@ public:
     IrcMessageData data;
 
 private:
-    mutable QString m_name, m_user, m_host;
+    mutable QString m_nick, m_ident, m_host;
     mutable IrcExplicitValue<QString> m_prefix;
     mutable IrcExplicitValue<QString> m_command;
     mutable IrcExplicitValue<QStringList> m_params;

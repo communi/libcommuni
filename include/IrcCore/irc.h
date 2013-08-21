@@ -482,12 +482,6 @@ public:
         ModeRole,
         TitleRole
     };
-
-    enum SenderSection {
-        SenderName = 0x1,
-        SenderUser = 0x2,
-        SenderHost = 0x4
-    };
 };
 
 IRC_END_NAMESPACE

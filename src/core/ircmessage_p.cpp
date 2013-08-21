@@ -33,23 +33,23 @@ QString IrcMessagePrivate::prefix() const
 void IrcMessagePrivate::setPrefix(const QString& prefix)
 {
     m_prefix.setValue(prefix);
-    m_name.clear();
-    m_user.clear();
+    m_nick.clear();
+    m_ident.clear();
     m_host.clear();
 }
 
-QString IrcMessagePrivate::name() const
+QString IrcMessagePrivate::nick() const
 {
-    if (m_name.isNull())
-        m_name = IrcSender(prefix()).name(); // TODO
-    return m_name;
+    if (m_nick.isNull())
+        m_nick = IrcSender(prefix()).name(); // TODO
+    return m_nick;
 }
 
-QString IrcMessagePrivate::user() const
+QString IrcMessagePrivate::ident() const
 {
-    if (m_user.isNull())
-        m_user = IrcSender(prefix()).user(); // TODO
-    return m_user;
+    if (m_ident.isNull())
+        m_ident = IrcSender(prefix()).user(); // TODO
+    return m_ident;
 }
 
 QString IrcMessagePrivate::host() const
@@ -94,8 +94,8 @@ void IrcMessagePrivate::setParams(const QStringList& params)
 
 void IrcMessagePrivate::invalidate()
 {
-    m_name.clear();
-    m_user.clear();
+    m_nick.clear();
+    m_ident.clear();
     m_host.clear();
 
     m_prefix.clear();

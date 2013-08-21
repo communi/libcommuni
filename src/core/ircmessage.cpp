@@ -245,7 +245,7 @@ IrcMessage::Flags IrcMessage::flags() const
     if (d->flags == -1) {
         d->flags = IrcMessage::None;
         const QString prefix = d->prefix();
-        if (!prefix.isEmpty() && d->name() == d->connection->nickName())
+        if (!prefix.isEmpty() && d->nick() == d->connection->nickName())
             d->flags |= IrcMessage::Own;
 
         if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
@@ -280,13 +280,56 @@ void IrcMessage::setCommand(const QString& command)
 }
 
 /*!
-    This property holds the message prefix.
+    \enum Irc::SenderSection
+    This enum describes IRC message sender prefix sections.
+
+    The sections specified in RFC 1459:
+    <pre>
+    &lt;name&gt; [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
+    </pre>
+ */
+
+/*!
+    \var Irc::SenderName
+    \brief The name section.
+
+    <pre>
+    <b>&lt;name&gt;</b> [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
+    </pre>
+ */
+
+/*!
+    \var Irc::SenderUser
+    \brief The user section.
+
+    <pre>
+    &lt;name&gt; [ '!' <b>&lt;user&gt;</b> ] [ '@' &lt;host&gt; ]
+    </pre>
+ */
+
+/*!
+    \var Irc::SenderHost
+    \brief The host section.
+
+    <pre>
+    &lt;name&gt; [ '!' &lt;user&gt; ] [ '@' <b>&lt;host&gt;</b> ]
+    </pre>
+ */
+
+
+/*!
+    This property holds the message sender prefix.
+
+    The prefix consists of \ref nick, \ref user and \ref host as specified in RFC 1459:
+    <pre>
+    &lt;prefix&gt; ::= &lt;nick&gt; [ '!' &lt;ident&gt; ] [ '@' &lt;host&gt; ]
+    </pre>
 
     \par Access functions:
     \li QString <b>prefix</b>() const
     \li void <b>setPrefix</b>(const QString& prefix)
 
-    \sa sender()
+    \sa nick(), ident(), host()
  */
 QString IrcMessage::prefix() const
 {
@@ -301,23 +344,60 @@ void IrcMessage::setPrefix(const QString& prefix)
 }
 
 /*!
-    Returns the specified \a section of the message sender prefix.
+    This property holds the message sender nick.
 
-    \sa prefix
+    Nick is part of the sender \ref prefix as specified in RFC 1459:
+    <pre>
+    <b>&lt;nick&gt;</b> [ '!' &lt;ident&gt; ] [ '@' &lt;host&gt; ]
+    </pre>
+
+    \par Access functions:
+    \li QString <b>prefix</b>() const
+
+    \sa prefix()
  */
-QString IrcMessage::sender(Irc::SenderSection section) const
+QString IrcMessage::nick() const
 {
     Q_D(const IrcMessage);
-    switch (section) {
-    case Irc::SenderName:
-        return d->name();
-    case Irc::SenderUser:
-        return d->user();
-    case Irc::SenderHost:
-        return d->host();
-    default:
-        return QString();
-    }
+    return d->nick();
+}
+
+/*!
+    This property holds the message sender ident.
+
+    Ident is part of the sender \ref prefix as specified in RFC 1459:
+    <pre>
+    &lt;nick&gt; [ '!' <b>&lt;ident&gt;</b> ] [ '@' &lt;host&gt; ]
+    </pre>
+
+    \par Access functions:
+    \li QString <b>ident</b>() const
+
+    \sa prefix()
+ */
+QString IrcMessage::ident() const
+{
+    Q_D(const IrcMessage);
+    return d->ident();
+}
+
+/*!
+    This property holds the message sender host.
+
+    Host is part of the sender \ref prefix as specified in RFC 1459:
+    <pre>
+    &lt;nick&gt; [ '!' &lt;ident&gt; ] [ '@' <b>&lt;host&gt;</b> ]
+    </pre>
+
+    \par Access functions:
+    \li QString <b>host</b>() const
+
+    \sa prefix()
+ */
+QString IrcMessage::host() const
+{
+    Q_D(const IrcMessage);
+    return d->host();
 }
 
 /*!
@@ -468,13 +548,16 @@ IrcNickMessage::IrcNickMessage(IrcConnection* connection) : IrcMessage(connectio
 /*!
     This property holds the old nick.
 
+    This property is provided for symmetry with \ref newNick
+    and is equal to \ref nick.
+
     \par Access functions:
     \li QString <b>oldNick</b>() const
  */
 QString IrcNickMessage::oldNick() const
 {
     Q_D(const IrcMessage);
-    return d->name();
+    return d->nick();
 }
 
 /*!
