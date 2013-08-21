@@ -94,6 +94,21 @@ Item {
         }
     }
 
+    Keys.onReturnPressed: {
+        if (okButton.enabled)
+            page.accepted()
+    }
+
+    Keys.onEnterPressed: {
+        if (okButton.enabled)
+            page.accepted()
+    }
+
+    Keys.onEscapePressed: {
+        if (cancelButton.enabled)
+            page.rejected()
+    }
+
     RowLayout {
         id: row
 
