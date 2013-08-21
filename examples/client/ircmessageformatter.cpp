@@ -11,7 +11,6 @@
 
 #include <IrcTextFormat>
 #include <IrcConnection>
-#include <IrcSender>
 #include <QTime>
 #include <Irc>
 
@@ -60,11 +59,10 @@ QString IrcMessageFormatter::formatMessage(const QString& message)
 
 QString IrcMessageFormatter::formatJoinMessage(IrcJoinMessage* message)
 {
-    const QString sender = IrcSender(message->prefix()).name();
     if (message->flags() & IrcMessage::Own)
-        return QObject::tr("! You have joined %1 as %2").arg(message->channel(), sender);
+        return QObject::tr("! You have joined %1 as %2").arg(message->channel(), message->nick());
     else
-        return QObject::tr("! %1 has joined %2").arg(sender, message->channel());
+        return QObject::tr("! %1 has joined %2").arg(message->nick(), message->channel());
 }
 
 QString IrcMessageFormatter::formatNamesMessage(IrcNamesMessage* message)
@@ -74,34 +72,30 @@ QString IrcMessageFormatter::formatNamesMessage(IrcNamesMessage* message)
 
 QString IrcMessageFormatter::formatNickMessage(IrcNickMessage* message)
 {
-    const QString sender = IrcSender(message->prefix()).name();
-    return QObject::tr("! %1 has changed nick to %2").arg(sender, message->newNick());
+    return QObject::tr("! %1 has changed nick to %2").arg(message->oldNick(), message->newNick());
 }
 
 QString IrcMessageFormatter::formatPartMessage(IrcPartMessage* message)
 {
-    const QString sender = IrcSender(message->prefix()).name();
     if (message->reason().isEmpty())
-        return QObject::tr("! %1 has left %2").arg(sender, message->channel());
+        return QObject::tr("! %1 has left %2").arg(message->nick(), message->channel());
     else
-        return QObject::tr("! %1 has left %2 (%3)").arg(sender, message->channel(), message->reason());
+        return QObject::tr("! %1 has left %2 (%3)").arg(message->nick(), message->channel(), message->reason());
 }
 
 QString IrcMessageFormatter::formatPrivateMessage(IrcPrivateMessage* message)
 {
-    const QString sender = IrcSender(message->prefix()).name();
     const QString content = IrcTextFormat().toHtml(message->message());
     if (message->isAction())
-        return QObject::tr("* %1 %2").arg(sender, content);
+        return QObject::tr("* %1 %2").arg(message->nick(), content);
     else
-        return QObject::tr("&lt;%1&gt; %2").arg(sender,content);
+        return QObject::tr("&lt;%1&gt; %2").arg(message->nick(),content);
 }
 
 QString IrcMessageFormatter::formatQuitMessage(IrcQuitMessage* message)
 {
-    const QString sender = IrcSender(message->prefix()).name();
     if (message->reason().isEmpty())
-        return QObject::tr("! %1 has quit").arg(sender);
+        return QObject::tr("! %1 has quit").arg(message->nick());
     else
-        return QObject::tr("! %1 has quit (%2)").arg(sender, message->reason());
+        return QObject::tr("! %1 has quit (%2)").arg(message->nick(), message->reason());
 }
