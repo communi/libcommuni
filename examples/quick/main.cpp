@@ -15,7 +15,6 @@
 #include <IrcUtil>
 
 Q_DECLARE_METATYPE(Irc::Code)
-Q_DECLARE_METATYPE(Irc::SenderSection)
 Q_DECLARE_METATYPE(IrcMessage::Type)
 Q_DECLARE_METATYPE(IrcCommand::Type)
 
@@ -25,7 +24,6 @@ int main(int argc, char* argv[])
 
     // Enums
     qRegisterMetaType<Irc::Code>();
-    qRegisterMetaType<Irc::SenderSection>();
     qRegisterMetaType<IrcMessage::Type>();
     qRegisterMetaType<IrcCommand::Type>();
 

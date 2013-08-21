@@ -51,17 +51,17 @@ QtObject {
     }
 
     function formatInviteMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         return qsTr("! %1 invited to %3").arg(sender).arg(message.channel)
     }
 
     function formatJoinMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         return qsTr("! %1 joined %2").arg(sender).arg(message.channel)
     }
 
     function formatKickMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         var user = formatName(message.user)
         if (message.reason.length)
             return qsTr("! %1 kicked %2 (%3)").arg(sender).arg(user).arg(message.reason)
@@ -69,7 +69,7 @@ QtObject {
     }
 
     function formatModeMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         if (message.reply)
             return qsTr("! %1 mode is %2 %3").arg(message.target).arg(message.mode).arg(message.argument)
         return qsTr("! %1 sets mode %2 %3").arg(sender).arg(message.mode).arg(message.argument)
@@ -80,13 +80,13 @@ QtObject {
     }
 
     function formatNickMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         var nick = formatName(message.newNick)
         return qsTr("! %1 changed nick to %2").arg(sender).arg(nick)
     }
 
     function formatNoticeMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         var msg = formatHtml(message.message)
         return qsTr("[%1] %2").arg(sender).arg(msg)
     }
@@ -96,14 +96,14 @@ QtObject {
     }
 
     function formatPartMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         if (message.reason.length)
             return qsTr("! %1 parted %2 (%3)").arg(sender).arg(message.channel).arg(formatHtml(message.reason))
         return qsTr("! %1 parted %2").arg(sender).arg(message.channel)
     }
 
     function formatPrivateMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         var msg = formatHtml(message.message)
         if (message.action)
             return qsTr("* %1 %2").arg(sender).arg(msg)
@@ -113,14 +113,14 @@ QtObject {
     }
 
     function formatQuitMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         if (message.reason.length)
             return qsTr("! %1 has quit (%2)").arg(sender).arg(formatHtml(message.reason))
         return qsTr("! %1 has quit").arg(sender)
     }
 
     function formatTopicMessage(message) {
-        var sender = formatName(message.sender(Irc.SenderName))
+        var sender = formatName(message.nick)
         var topic = formatHtml(message.topic)
         var channel = message.channel
         if (message.reply)
