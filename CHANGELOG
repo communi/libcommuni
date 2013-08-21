@@ -21,7 +21,7 @@
     the APIs to be property-based & offer invokables/slots
   - IrcMessage::fromCommand() -> IrcCommand::toMessage()
   - Made IrcBuffer::toChannel() invokable
-  - Replaced IrcSender with IrcMessage::sender(Name|User|Host)
+  - Replaced IrcSender with IrcMessage::(prefix|nick|ident|host) properties
 
 2.2.0
 -----
