@@ -25,7 +25,7 @@ QtObject {
             case IrcMessage.Kick:    formatted = formatKickMessage(message); break
             case IrcMessage.Mode:    formatted = formatModeMessage(message); break
             case IrcMessage.Names:   formatted = formatNamesMessage(message); break
-            case IrcMessage.Nick:    formatted = formatNameMessage(message); break
+            case IrcMessage.Nick:    formatted = formatNickMessage(message); break
             case IrcMessage.Notice:  formatted = formatNoticeMessage(message); break
             case IrcMessage.Numeric: formatted = formatNumericMessage(message); break
             case IrcMessage.Part:    formatted = formatPartMessage(message); break
@@ -79,9 +79,9 @@ QtObject {
         return qsTr("! %1 has %2 users").arg(message.channel).arg(message.names.length)
     }
 
-    function formatNameMessage(message) {
+    function formatNickMessage(message) {
         var sender = formatName(message.sender(Irc.SenderName))
-        var nick = formatName(message.nick)
+        var nick = formatName(message.newNick)
         return qsTr("! %1 changed nick to %2").arg(sender).arg(nick)
     }
 

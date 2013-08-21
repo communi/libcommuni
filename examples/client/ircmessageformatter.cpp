@@ -75,7 +75,7 @@ QString IrcMessageFormatter::formatNamesMessage(IrcNamesMessage* message)
 QString IrcMessageFormatter::formatNickMessage(IrcNickMessage* message)
 {
     const QString sender = IrcSender(message->prefix()).name();
-    return QObject::tr("! %1 has changed nick to %2").arg(sender, message->nick());
+    return QObject::tr("! %1 has changed nick to %2").arg(sender, message->newNick());
 }
 
 QString IrcMessageFormatter::formatPartMessage(IrcPartMessage* message)

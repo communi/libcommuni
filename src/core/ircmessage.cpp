@@ -466,12 +466,24 @@ IrcNickMessage::IrcNickMessage(IrcConnection* connection) : IrcMessage(connectio
 }
 
 /*!
+    This property holds the old nick.
+
+    \par Access functions:
+    \li QString <b>oldNick</b>() const
+ */
+QString IrcNickMessage::oldNick() const
+{
+    Q_D(const IrcMessage);
+    return d->name();
+}
+
+/*!
     This property holds the new nick.
 
     \par Access functions:
-    \li QString <b>nick</b>() const
+    \li QString <b>newNick</b>() const
  */
-QString IrcNickMessage::nick() const
+QString IrcNickMessage::newNick() const
 {
     Q_D(const IrcMessage);
     return d->param(0);
@@ -479,7 +491,7 @@ QString IrcNickMessage::nick() const
 
 bool IrcNickMessage::isValid() const
 {
-    return IrcMessage::isValid() && !nick().isEmpty();
+    return IrcMessage::isValid() && !newNick().isEmpty();
 }
 
 /*!

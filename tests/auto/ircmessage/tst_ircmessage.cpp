@@ -194,29 +194,33 @@ void tst_IrcMessage::testNickMessage_data()
 {
     QTest::addColumn<bool>("valid");
     QTest::addColumn<QByteArray>("data");
-    QTest::addColumn<QString>("nick");
+    QTest::addColumn<QString>("oldNick");
+    QTest::addColumn<QString>("newNick");
 
-    QTest::newRow("no prefix") << false << QByteArray("NICK Kilroy") << QString("Kilroy");
-    QTest::newRow("no params") << false << QByteArray(":WiZ NICK") << QString();
-    QTest::newRow("all ok") << true << QByteArray(":WiZ NICK Kilroy") << QString("Kilroy");
+    QTest::newRow("no prefix") << false << QByteArray("NICK Kilroy") << QString() << QString("Kilroy");
+    QTest::newRow("no params") << false << QByteArray(":WiZ NICK") << QString("WiZ") << QString();
+    QTest::newRow("all ok") << true << QByteArray(":WiZ NICK Kilroy") << QString("WiZ") << QString("Kilroy");
 }
 
 void tst_IrcMessage::testNickMessage()
 {
     QFETCH(bool, valid);
     QFETCH(QByteArray, data);
-    QFETCH(QString, nick);
+    QFETCH(QString, oldNick);
+    QFETCH(QString, newNick);
 
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Nick);
     QCOMPARE(message->property("valid").toBool(), valid);
-    QCOMPARE(message->property("nick").toString(), nick);
+    QCOMPARE(message->property("oldNick").toString(), oldNick);
+    QCOMPARE(message->property("newNick").toString(), newNick);
 
     IrcNickMessage* nickMessage = qobject_cast<IrcNickMessage*>(message);
     QVERIFY(nickMessage);
     QCOMPARE(nickMessage->isValid(), valid);
-    QCOMPARE(nickMessage->nick(), nick);
+    QCOMPARE(nickMessage->oldNick(), oldNick);
+    QCOMPARE(nickMessage->newNick(), newNick);
 }
 
 void tst_IrcMessage::testNoticeMessage_data()

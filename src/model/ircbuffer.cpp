@@ -172,11 +172,11 @@ bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
 {
     Q_Q(IrcBuffer);
     if (!IrcSender(message->prefix()).name().compare(name, Qt::CaseInsensitive)) {
-        if (IrcBufferModelPrivate::get(model)->renameBuffer(q, message->nick()))
-            setName(message->nick());
+        if (IrcBufferModelPrivate::get(model)->renameBuffer(q, message->newNick()))
+            setName(message->newNick());
         return true;
     }
-    return !message->nick().compare(name, Qt::CaseInsensitive);
+    return !message->newNick().compare(name, Qt::CaseInsensitive);
 }
 
 bool IrcBufferPrivate::processPartMessage(IrcPartMessage* message)

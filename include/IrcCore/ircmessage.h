@@ -113,12 +113,14 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(IrcMessage::Flags)
 class IRC_CORE_EXPORT IrcNickMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString nick READ nick)
+    Q_PROPERTY(QString oldNick READ oldNick)
+    Q_PROPERTY(QString newNick READ newNick)
 
 public:
     Q_INVOKABLE explicit IrcNickMessage(IrcConnection* connection);
 
-    QString nick() const;
+    QString oldNick() const;
+    QString newNick() const;
 
     bool isValid() const;
 

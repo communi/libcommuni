@@ -295,7 +295,7 @@ bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
 
 bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
 {
-    return renameUser(IrcSender(message->prefix()).name(), message->nick());
+    return renameUser(IrcSender(message->prefix()).name(), message->newNick());
 }
 
 bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
