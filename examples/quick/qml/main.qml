@@ -20,8 +20,8 @@ ApplicationWindow {
     width: 800
     height: 480
 
-    minimumWidth: stack.initialItem.implicitWidth
-    minimumHeight: stack.initialItem.implicitHeight
+    minimumWidth: connectPage.implicitWidth
+    minimumHeight: connectPage.implicitHeight + toolBar.height
 
     color: Qt.darker(palette.base, 1.06)
 
@@ -33,34 +33,40 @@ ApplicationWindow {
         id: irc
     }
 
-    Component {
-        id: chatPage
-        ChatPage {
-            Connections {
-                target: window
-                onClosing: connection.quit(window.title)
-            }
+    toolBar: ToolBar {
+        ToolButton {
+            text: "+"
+            enabled: !connectPage.visible
+            onClicked: connectPage.visible = true
         }
     }
 
-    StackView {
-        id: stack
-        anchors.fill: parent
+    Component {
+        id: connection
+        Connection { }
+    }
 
-        initialItem: ConnectPage {
-            cancelButton.enabled: false
-            onAccepted: {
-                var page = chatPage.createObject(window, {"connection.host": host,
-                                                          "connection.port": port,
-                                                          "connection.secure": secure,
-                                                          "connection.nickName": nickName,
-                                                          "connection.realName": realName,
-                                                          "connection.userName": userName,
-                                                          "connection.password": password})
-                page.connection.open()
-                stack.replace(page)
-            }
+    ConnectPage {
+        id: connectPage
+
+        anchors.fill: parent
+        cancelButton.enabled: chatPage.connections.count
+
+        onAccepted: {
+            var conn = connection.createObject(window, {"host": host, "port": port, "secure": secure,
+                                                        "nickName": nickName, "realName": realName,
+                                                        "userName": userName, "password": password})
+            conn.open()
+            chatPage.addConnection(conn)
+            connectPage.visible = false
         }
+        onRejected: connectPage.visible = false
+    }
+
+    ChatPage {
+        id: chatPage
+        anchors.fill: parent
+        visible: !connectPage.visible
     }
 
     Timer {
@@ -71,6 +77,7 @@ ApplicationWindow {
 
     onClosing: {
         // let connections close gracefully
+        // TODO: connection.quit(window.title)
         close.accepted = false
         window.visible = false
         quitTimer.start()

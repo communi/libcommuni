@@ -13,150 +13,85 @@ import QtQuick.Controls 1.0
 import QtQuick.Controls.Styles 1.0
 import Communi 3.0
 
-SplitView {
+Item {
     id: page
 
-    property alias connection: connection
-    property IrcBuffer currentBuffer: bufferModel.get(tableView.currentRow)
-
-    IrcConnection {
-        id: connection
-        saslMechanism: "plain"
+    property alias currentBuffer: bufferListView.currentBuffer
+    property ListModel connections: ListModel {
+        id: connectionModel
     }
 
-    IrcBufferModel {
-        id: bufferModel
-        dynamicSort: true
-        connection: connection
-        onMessageIgnored: {
-            if (serverBuffer)
-                serverBuffer.receiveMessage(message)
+    function addConnection(connection) {
+        connectionModel.append({connection: connection})
+        if (!currentBuffer)
+            currentBuffer = connection.serverBuffer
+    }
+
+    SplitView {
+        anchors.fill: parent
+
+        handleDelegate: Item { }
+
+        BufferListView {
+            id: bufferListView
+            width: window.width / 6
+            model: connectionModel
         }
-    }
 
-    IrcBuffer {
-        id: serverBuffer
-        sticky: true
-        name: connection.host
-        Component.onCompleted: bufferModel.add(serverBuffer)
-    }
-
-    IrcCommandParser {
-        id: parser
-
-        channels: bufferModel.channels
-        currentTarget: currentBuffer ? currentBuffer.title: ""
-
-        Component.onCompleted: {
-            parser.addCommand(IrcCommand.Join, "JOIN <#channel> (<key>)")
-            parser.addCommand(IrcCommand.CtcpAction, "ME [target] <message...>")
-            parser.addCommand(IrcCommand.Nick, "NICK <nick>")
-            parser.addCommand(IrcCommand.Part, "PART (<#channel>) (<message...>)")
-        }
-    }
-
-    handleDelegate: Rectangle { width: 1; color: Qt.darker(palette.window, 1.5) }
-
-    Rectangle {
-        id: frame
-
-        width: window.width / 6
-        color: Qt.darker(palette.base, 1.06)
-        implicitWidth: tableView.implicitWidth
-        implicitHeight: tableView.implicitHeight
-
-        TableView {
-            id: tableView
-
-            anchors.fill: parent
-            anchors.rightMargin: -1
-
-            headerVisible: false
-            backgroundVisible: false
-            alternatingRowColors: false
-
-            Connections {
-                target: bufferModel
-                onAdded: {
-                    tableView.currentRow = bufferModel.count - 1
-                }
-            }
-
-            model: bufferModel
-
-            TableViewColumn {
-                role: "display"
-            }
-        }
-    }
-
-    ColumnLayout {
-        spacing: 0
-
-        Item {
-            id: stack
-
-            width: 1
-            height: 1
+        Column {
             Layout.fillWidth: true
-            Layout.fillHeight: true
 
-            clip: true
-
-            Repeater {
-                model: bufferModel
-
-                delegate: BufferView {
-                    buffer: model.buffer
-                    anchors.fill: parent
-                    visible: index === tableView.currentRow
-
-                    onQueried: {
-                        var buffer = bufferModel.add(name)
-                        tableView.currentRow = bufferModel.indexOf(buffer)
-                    }
-                }
+            TopicLabel {
+                id: topicLabel
+                width: parent.width
+                visible: channel
+                channel: currentBuffer ? currentBuffer.toChannel() : null
             }
-        }
 
-        TextField {
-            id: textField
+            SplitView {
+                width: parent.width
+                height: parent.height - (topicLabel.visible ? topicLabel.height : 0) - textEntry.height
 
-            Layout.fillWidth: true
-            placeholderText: "..."
+                handleDelegate: Item { }
 
-            style: TextFieldStyle {
-                background: Rectangle {
-                    color: palette.base
-                    Rectangle {
-                        color: "transparent"
+                Item {
+                    id: stack
+
+                    width: 1; height: 1
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    Repeater {
                         anchors.fill: parent
-                        anchors.topMargin: -1
-                        anchors.leftMargin: -1
-                        border.color: Qt.darker(palette.window, 1.5)
+                        model: connectionModel
+
+                        delegate: Repeater {
+                            anchors.fill: parent
+                            model: connection.bufferModel
+
+                            delegate: TextBrowser {
+                                buffer: model.buffer
+                                anchors.fill: parent
+                                visible: buffer == currentBuffer
+                            }
+                        }
                     }
+                }
+
+                UserListView {
+                    width: window.width / 6
+                    visible: currentBuffer && currentBuffer.channel
+                    channel: currentBuffer ? currentBuffer.toChannel() : null
+                    onQueried: currentBuffer = currentBuffer.model.add(user)
                 }
             }
 
-            focus: true
-
-            Connections {
-                target: tableView
-                onCurrentRowChanged: textField.forceActiveFocus()
-            }
-
-            onAccepted: {
-                var cmd = parser.parse(text)
-                if (cmd) {
-                    connection.sendCommand(cmd)
-                    if (cmd.type === IrcCommand.Message
-                            || cmd.type === IrcCommand.CtcpAction
-                            || cmd.type === IrcCommand.Notice) {
-                        var msg = cmd.toMessage(connection.nickName, connection)
-                        currentBuffer.receiveMessage(msg)
-                    }
-                    textField.text = ""
-                }
+            TextEntry {
+                id: textEntry
+                width: parent.width
+                buffer: currentBuffer
+                enabled: currentBuffer
+                onMessageSent: currentBuffer.receiveMessage(message)
             }
         }
     }

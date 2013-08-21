@@ -8,44 +8,66 @@
  */
 
 import QtQuick 2.1
-import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0
 import Communi 3.0
 
 Rectangle {
-    id: frame
+    id: background
 
     property IrcChannel channel
 
     signal queried(string user)
 
-    color: Qt.darker(palette.base, 1.06)
-    implicitWidth: view.implicitWidth
-    implicitHeight: view.implicitHeight
+    color: "#edf3fe"
 
-    TableView {
-        id: view
+    Rectangle {
+        id: frame
+        anchors.fill: parent
+        color: "transparent"
+        border.color: "#bfbfbf"
+        anchors.topMargin: -1
+        anchors.leftMargin: -1
+        anchors.bottomMargin: -1
+    }
+
+    ScrollView {
+        id: scrollView
 
         anchors.fill: parent
-        anchors.leftMargin: -1
+        anchors.topMargin: -1
+        anchors.bottomMargin: -1
 
-        headerVisible: false
-        backgroundVisible: false
-        alternatingRowColors: false
+        ListView {
+            id: listView
 
-        model: IrcUserModel {
-            id: userModel
-            dynamicSort: true
-            channel: frame.channel
-        }
+            model: IrcUserModel {
+                id: userModel
+                dynamicSort: true
+                channel: background.channel
+                onChannelChanged: listView.currentIndex = -1
+            }
 
-        TableViewColumn {
-            role: "display"
-        }
-
-        onDoubleClicked: {
-            var user = userModel.get(row)
-            frame.queried(user.name)
+            delegate: Rectangle {
+                width: parent.width
+                height: Math.max(20, label.implicitHeight + 4)
+                color: ListView.isCurrentItem ? "#b5d5ff" : "transparent"
+                Label {
+                    id: label
+                    text: model.title
+                    anchors.margins: 2
+                    anchors.leftMargin: 6
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: {
+                        listView.currentIndex = index
+                    }
+                    onDoubleClicked: queried(model.user.name)
+                }
+            }
         }
     }
 }

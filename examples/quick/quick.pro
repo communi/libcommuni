@@ -16,9 +16,14 @@ lessThan(QT_MAJOR_VERSION, 5)|lessThan(QT_MINOR_VERSION, 1) {
 SOURCES += main.cpp
 RESOURCES += quick.qrc
 OTHER_FILES += qml/main.qml
+OTHER_FILES += qml/BufferListView.qml
 OTHER_FILES += qml/ChatPage.qml
-OTHER_FILES += qml/BufferView.qml
+OTHER_FILES += qml/Connection.qml
 OTHER_FILES += qml/ConnectPage.qml
 OTHER_FILES += qml/MessageFormatter.qml
+OTHER_FILES += qml/TextBrowser.qml
+OTHER_FILES += qml/TextEntry.qml
+OTHER_FILES += qml/TopicLabel.qml
+OTHER_FILES += qml/UserListView.qml
 
 include(../examples.pri)

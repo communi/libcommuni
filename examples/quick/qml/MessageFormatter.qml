@@ -133,7 +133,7 @@ QtObject {
     }
 
     function formatName(name) {
-        var color = hslToRgb((hashCode(name) % 359)/359, 0.4, 0.45)
+        var color = hslToRgb((hashCode(name) % 359)/359, 0.5, 0.25)
         var r = ("0" + Math.round(Math.abs(color[0])).toString(16)).substr(-2)
         var g = ("0" + Math.round(Math.abs(color[1])).toString(16)).substr(-2)
         var b = ("0" + Math.round(Math.abs(color[2])).toString(16)).substr(-2)
