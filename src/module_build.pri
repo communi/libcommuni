@@ -8,7 +8,9 @@ TEMPLATE = lib
 TARGET = $$qtLibraryTarget($$IRC_MODULE)
 QT = core network
 !verbose:CONFIG += silent
-win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
+contains(QT_CONFIG, debug_and_release) {
+    win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
+}
 
 include(../version.pri)
 !win32:VERSION = $$COMMUNI_VERSION
