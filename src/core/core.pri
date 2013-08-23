@@ -17,7 +17,6 @@ CONV_HEADERS += $$INCDIR/IrcGlobal
 CONV_HEADERS += $$INCDIR/IrcMessage
 CONV_HEADERS += $$INCDIR/IrcMessageFilter
 CONV_HEADERS += $$INCDIR/IrcNetwork
-CONV_HEADERS += $$INCDIR/IrcSender
 
 PUB_HEADERS  = $$INCDIR/irc.h
 PUB_HEADERS += $$INCDIR/irccommand.h
@@ -28,7 +27,6 @@ PUB_HEADERS += $$INCDIR/ircmessage.h
 PUB_HEADERS += $$INCDIR/ircmessagefilter.h
 PUB_HEADERS += $$INCDIR/ircnetwork.h
 PUB_HEADERS += $$INCDIR/ircprotocol.h
-PUB_HEADERS += $$INCDIR/ircsender.h
 
 PRIV_HEADERS += $$INCDIR/ircconnection_p.h
 PRIV_HEADERS  = $$INCDIR/ircmessage_p.h
@@ -50,7 +48,6 @@ SOURCES += $$PWD/ircmessagedecoder.cpp
 SOURCES += $$PWD/ircmessagefilter.cpp
 SOURCES += $$PWD/ircnetwork.cpp
 SOURCES += $$PWD/ircprotocol.cpp
-SOURCES += $$PWD/ircsender.cpp
 
 include(../3rdparty/mozilla/mozilla.pri)
 

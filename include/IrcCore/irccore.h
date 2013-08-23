@@ -5,4 +5,3 @@
 #include "ircmessage.h"
 #include "ircmessagefilter.h"
 #include "ircnetwork.h"
-#include "ircsender.h"
