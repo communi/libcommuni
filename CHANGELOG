@@ -22,6 +22,7 @@
   - IrcMessage::fromCommand() -> IrcCommand::toMessage()
   - Made IrcBuffer::toChannel() invokable
   - Replaced IrcSender with IrcMessage::(prefix|nick|ident|host) properties
+  - Merged IrcPalette to IrcTextFormat
 
 2.2.0
 -----

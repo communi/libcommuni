@@ -15,5 +15,5 @@ int main()
 {
     IrcConnection s;
     IrcBuffer b;
-    IrcPalette p;
+    IrcTextFormat f;
 }

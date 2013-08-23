@@ -24,7 +24,7 @@ IRC_BEGIN_NAMESPACE
 class IRC_CORE_EXPORT Irc : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Code DataRole)
+    Q_ENUMS(Code DataRole Color)
 
 public:
     Q_INVOKABLE static QString version();
@@ -485,6 +485,25 @@ public:
         PrefixRole,
         ModeRole,
         TitleRole
+    };
+
+    enum Color {
+        White = 0,
+        Black = 1,
+        Blue = 2,
+        Green = 3,
+        Red = 4,
+        Brown = 5,
+        Purple = 6,
+        Orange = 7,
+        Yellow = 8,
+        LightGreen = 9,
+        Cyan = 10,
+        LightCyan = 11,
+        LightBlue = 12,
+        Pink = 13,
+        Gray = 14,
+        LightGray = 15
     };
 };
 

@@ -9,11 +9,11 @@
 
 #include <IrcCore/ircconnection.h>
 #include <IrcModel/ircbuffer.h>
-#include <IrcUtil/ircpalette.h>
+#include <IrcUtil/irctextformat.h>
 
 int main()
 {
     IrcConnection s;
     IrcBuffer b;
-    IrcPalette p;
+    IrcTextFormat f;
 }

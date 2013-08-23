@@ -1990,6 +1990,95 @@ QString Irc::hostFromPrefix(const QString& prefix)
     \brief Channel/user prefix and name (QString)
  */
 
+/*!
+    \enum Irc::Color
+    This enum describes the (m)IRC colors.
+
+    The default values are
+    <a href="http://www.w3.org/TR/SVG/types.html#ColorKeywords">SVG color keyword names</a>
+    provided by the World Wide Web Consortium
+ */
+
+/*!
+    \var Irc::White
+    \brief The default value is "white"
+ */
+
+/*!
+    \var Irc::Black
+    \brief The default value is "black"
+ */
+
+/*!
+    \var Irc::Blue
+    \brief The default value is "navy"
+ */
+
+/*!
+    \var Irc::Green
+    \brief The default value is "green"
+ */
+
+/*!
+    \var Irc::Red
+    \brief The default value is "red"
+ */
+
+/*!
+    \var Irc::Brown
+    \brief The default value is "maroon"
+ */
+
+/*!
+    \var Irc::Purple
+    \brief The default value is "purple"
+ */
+
+/*!
+    \var Irc::Orange
+    \brief The default value is "olive"
+ */
+
+/*!
+    \var Irc::Yellow
+    \brief The default value is "yellow"
+ */
+
+/*!
+    \var Irc::LightGreen
+    \brief The default value is "lime"
+ */
+
+/*!
+    \var Irc::Cyan
+    \brief The default value is "teal"
+ */
+
+/*!
+    \var Irc::LightCyan
+    \brief The default value is "aqua"
+ */
+
+/*!
+    \var Irc::LightBlue
+    \brief The default value is "royalblue"
+ */
+
+/*!
+    \var Irc::Pink
+    \brief The default value is "fuchsia"
+ */
+
+/*!
+    \var Irc::Gray
+    \brief The default value is "gray"
+ */
+
+/*!
+    \var Irc::LightGray
+    \brief The default value is "lightgray"
+ */
+
 #include "moc_irc.cpp"
 
 IRC_END_NAMESPACE

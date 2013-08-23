@@ -23,6 +23,8 @@
 #include "irctextformat.h"
 #include <QStringList>
 #include <QRegExp>
+#include <QHash>
+#include "irc.h"
 
 IRC_BEGIN_NAMESPACE
 
@@ -44,20 +46,48 @@ IRC_BEGIN_NAMESPACE
 
     \code
     IrcTextFormat format;
-    // optionally adjust the palette and/or the URL regular expression pattern
-    QString html = format.toHtml(message);
     QString text = format.toPlainText(message);
+
+    format.setColorName(Irc::Red, "#ff3333");
+    format.setColorName(Irc::Green, "#33ff33");
+    format.setColorName(Irc::Blue, "#3333ff");
+    // ...
+    QString html = format.toHtml(message);
     \endcode
 
-    \sa IrcPalette
+    \sa <a href="http://www.mirc.com/colors.html">mIRC colors</a>, <a href="http://www.w3.org/TR/SVG/types.html#ColorKeywords">SVG color keyword names</a>
  */
 
 class IrcTextFormatPrivate
 {
 public:
     QString urlPattern;
-    IrcPalette palette;
+    QHash<int, QString> colors;
 };
+
+static QHash<int, QString>& irc_default_colors()
+{
+    static QHash<int, QString> x;
+    if (x.isEmpty()) {
+        x.insert(Irc::White, QLatin1String("white"));
+        x.insert(Irc::Black, QLatin1String("black"));
+        x.insert(Irc::Blue, QLatin1String("navy"));
+        x.insert(Irc::Green, QLatin1String("green"));
+        x.insert(Irc::Red, QLatin1String("red"));
+        x.insert(Irc::Brown, QLatin1String("maroon"));
+        x.insert(Irc::Purple, QLatin1String("purple"));
+        x.insert(Irc::Orange, QLatin1String("olive"));
+        x.insert(Irc::Yellow, QLatin1String("yellow"));
+        x.insert(Irc::LightGreen, QLatin1String("lime"));
+        x.insert(Irc::Cyan, QLatin1String("teal"));
+        x.insert(Irc::LightCyan, QLatin1String("aqua"));
+        x.insert(Irc::LightBlue, QLatin1String("royalblue"));
+        x.insert(Irc::Pink, QLatin1String("fuchsia"));
+        x.insert(Irc::Gray, QLatin1String("gray"));
+        x.insert(Irc::LightGray, QLatin1String("lightgray"));
+    }
+    return x;
+}
 
 /*!
     Constructs a new text format with \a parent.
@@ -66,6 +96,7 @@ IrcTextFormat::IrcTextFormat(QObject* parent) : QObject(parent), d_ptr(new IrcTe
 {
     Q_D(IrcTextFormat);
     d->urlPattern = QString("\\b((?:(?:([a-z][\\w\\.-]+:/{1,3})|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|\\}\\]|[^\\s`!()\\[\\]{};:'\".,<>?%1%2%3%4%5%6])|[a-z0-9.\\-+_]+@[a-z0-9.\\-]+[.][a-z]{1,5}[^\\s/`!()\\[\\]{};:'\".,<>?%1%2%3%4%5%6]))").arg(QChar(0x00AB)).arg(QChar(0x00BB)).arg(QChar(0x201C)).arg(QChar(0x201D)).arg(QChar(0x2018)).arg(QChar(0x2019));
+    d->colors = irc_default_colors();
 }
 
 /*!
@@ -73,25 +104,6 @@ IrcTextFormat::IrcTextFormat(QObject* parent) : QObject(parent), d_ptr(new IrcTe
  */
 IrcTextFormat::~IrcTextFormat()
 {
-}
-
-/*!
-    This property holds the palette used for color formatting.
-
-    \par Access functions:
-    \li IrcPalette <b>palette</b>() const
-    \li void <b>setPalette</b>(const IrcPalette& palette)
- */
-IrcPalette IrcTextFormat::palette() const
-{
-    Q_D(const IrcTextFormat);
-    return d->palette;
-}
-
-void IrcTextFormat::setPalette(const IrcPalette& palette)
-{
-    Q_D(IrcTextFormat);
-    d->palette = palette;
 }
 
 /*!
@@ -111,6 +123,40 @@ void IrcTextFormat::setUrlPattern(const QString& pattern)
 {
     Q_D(IrcTextFormat);
     d->urlPattern = pattern;
+}
+
+/*!
+    Converts a \a color code to a color name. If the \a color code
+    is unknown, the function returns the \a fallback color name.
+
+    \sa setColorName()
+*/
+QString IrcTextFormat::colorName(int color, const QString& fallback) const
+{
+    Q_D(const IrcTextFormat);
+    return d->colors.value(color, fallback);
+}
+
+/*!
+    Assigns a \a name for \a color code.
+
+    The color \a name may be in one of these formats:
+
+    \li #RGB (each of R, G, and B is a single hex digit)
+    \li #RRGGBB
+    \li #RRRGGGBBB
+    \li #RRRRGGGGBBBB
+    \li A name from the list of colors defined in the list of <a href="http://www.w3.org/TR/SVG/types.html#ColorKeywords">SVG color keyword names</a>
+        provided by the World Wide Web Consortium; for example, "steelblue" or "gainsboro". These color names work on all platforms. Note that these
+        color names are not the same as defined by the Qt::GlobalColor enums, e.g. "green" and Qt::green does not refer to the same color.
+    \li transparent - representing the absence of a color.
+
+    \sa colorName(), QColor::setNamedColor()
+*/
+void IrcTextFormat::setColorName(int color, const QString& name)
+{
+    Q_D(IrcTextFormat);
+    d->colors.insert(color, name);
 }
 
 static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, int* bg = 0)
@@ -195,9 +241,9 @@ QString IrcTextFormat::toHtml(const QString& text) const
                 if (parseColors(processed, pos + 1, &len, &fg, &bg)) {
                     depth++;
                     QStringList styles;
-                    styles += QString(QLatin1String("color:%1")).arg(d->palette.colorName(fg, QLatin1String("black")));
+                    styles += QString(QLatin1String("color:%1")).arg(colorName(fg, QLatin1String("black")));
                     if (bg != -1)
-                        styles += QString(QLatin1String("background-color:%1")).arg(d->palette.colorName(bg, QLatin1String("transparent")));
+                        styles += QString(QLatin1String("background-color:%1")).arg(colorName(bg, QLatin1String("transparent")));
                     replacement = QString(QLatin1String("<span style='%1'>")).arg(styles.join(QLatin1String(";")));
                     // \x03FF(,BB)
                     processed.replace(pos, len + 1, replacement);

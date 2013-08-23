@@ -16,7 +16,6 @@
 #define IRCTEXTFORMAT_H
 
 #include <IrcGlobal>
-#include <IrcPalette>
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qscopedpointer.h>
@@ -28,18 +27,17 @@ class IrcTextFormatPrivate;
 class IRC_UTIL_EXPORT IrcTextFormat : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(IrcPalette palette READ palette WRITE setPalette)
     Q_PROPERTY(QString urlPattern READ urlPattern WRITE setUrlPattern)
 
 public:
     explicit IrcTextFormat(QObject* parent = 0);
     virtual ~IrcTextFormat();
 
-    IrcPalette palette() const;
-    void setPalette(const IrcPalette& palette);
-
     QString urlPattern() const;
     void setUrlPattern(const QString& pattern);
+
+    Q_INVOKABLE QString colorName(int color, const QString& fallback = QLatin1String("black")) const;
+    Q_INVOKABLE void setColorName(int color, const QString& name);
 
     Q_INVOKABLE QString toHtml(const QString& text) const;
     Q_INVOKABLE QString toPlainText(const QString& text) const;

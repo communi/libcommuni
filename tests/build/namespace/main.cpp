@@ -15,5 +15,5 @@ int main()
 {
     Communi::IrcConnection s;
     Communi::IrcBuffer b;
-    Communi::IrcPalette p;
+    Communi::IrcTextFormat f;
 }
