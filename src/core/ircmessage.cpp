@@ -280,44 +280,6 @@ void IrcMessage::setCommand(const QString& command)
 }
 
 /*!
-    \enum Irc::SenderSection
-    This enum describes IRC message sender prefix sections.
-
-    The sections specified in RFC 1459:
-    <pre>
-    &lt;name&gt; [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
-    </pre>
- */
-
-/*!
-    \var Irc::SenderName
-    \brief The name section.
-
-    <pre>
-    <b>&lt;name&gt;</b> [ '!' &lt;user&gt; ] [ '@' &lt;host&gt; ]
-    </pre>
- */
-
-/*!
-    \var Irc::SenderUser
-    \brief The user section.
-
-    <pre>
-    &lt;name&gt; [ '!' <b>&lt;user&gt;</b> ] [ '@' &lt;host&gt; ]
-    </pre>
- */
-
-/*!
-    \var Irc::SenderHost
-    \brief The host section.
-
-    <pre>
-    &lt;name&gt; [ '!' &lt;user&gt; ] [ '@' <b>&lt;host&gt;</b> ]
-    </pre>
- */
-
-
-/*!
     This property holds the message sender prefix.
 
     The prefix consists of \ref nick, \ref user and \ref host as specified in RFC 1459:

@@ -24,7 +24,7 @@ IRC_BEGIN_NAMESPACE
 class IRC_CORE_EXPORT Irc : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Code ItemDataRole SenderSection)
+    Q_ENUMS(Code ItemDataRole)
 
 public:
     Q_INVOKABLE static QString version();
