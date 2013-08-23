@@ -19,7 +19,6 @@
 #include "ircnetwork.h"
 #include "irccommand.h"
 #include "ircmessage.h"
-#include "ircsender.h"
 #include "irc.h"
 #include <QLocale>
 #include <QDateTime>
@@ -335,7 +334,6 @@ IrcConnection::IrcConnection(QObject* parent) : QObject(parent), d_ptr(new IrcCo
     d->network = new IrcNetwork(this);
     setSocket(new QTcpSocket(this));
     setProtocol(new IrcProtocol(this));
-    qRegisterMetaType<IrcSender>("IrcSender");
     qRegisterMetaType<IrcNetwork*>();
 }
 
@@ -867,7 +865,7 @@ IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
     else if (type == "VERSION")
         reply = QString("VERSION Communi ") + Irc::version();
     if (!reply.isEmpty())
-        return IrcCommand::createCtcpReply(IrcSender(request->prefix()).name(), reply);
+        return IrcCommand::createCtcpReply(request->nick(), reply);
     return 0;
 }
 
