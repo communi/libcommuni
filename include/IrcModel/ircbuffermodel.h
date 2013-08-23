@@ -33,7 +33,7 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(bool dynamicSort READ dynamicSort WRITE setDynamicSort)
     Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
-    Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
+    Q_PROPERTY(Irc::DataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(QList<IrcBuffer*> buffers READ buffers NOTIFY buffersChanged)
     Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection NOTIFY connectionChanged)
 
@@ -59,8 +59,8 @@ public:
     bool dynamicSort() const;
     void setDynamicSort(bool dynamic);
 
-    Irc::ItemDataRole displayRole() const;
-    void setDisplayRole(Irc::ItemDataRole role);
+    Irc::DataRole displayRole() const;
+    void setDisplayRole(Irc::DataRole role);
 
     QModelIndex index(IrcBuffer* buffer) const;
     IrcBuffer* buffer(const QModelIndex& index) const;

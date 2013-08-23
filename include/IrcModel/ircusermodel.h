@@ -33,7 +33,7 @@ class IRC_MODEL_EXPORT IrcUserModel : public QAbstractListModel
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(QStringList names READ names NOTIFY namesChanged)
     Q_PROPERTY(QList<IrcUser*> users READ users NOTIFY usersChanged)
-    Q_PROPERTY(Irc::ItemDataRole displayRole READ displayRole WRITE setDisplayRole)
+    Q_PROPERTY(Irc::DataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(IrcChannel* channel READ channel WRITE setChannel NOTIFY channelChanged)
     Q_PROPERTY(bool dynamicSort READ dynamicSort WRITE setDynamicSort)
 
@@ -55,8 +55,8 @@ public:
     bool dynamicSort() const;
     void setDynamicSort(bool dynamic);
 
-    Irc::ItemDataRole displayRole() const;
-    void setDisplayRole(Irc::ItemDataRole role);
+    Irc::DataRole displayRole() const;
+    void setDisplayRole(Irc::DataRole role);
 
     QModelIndex index(IrcUser* user) const;
     IrcUser* user(const QModelIndex& index) const;

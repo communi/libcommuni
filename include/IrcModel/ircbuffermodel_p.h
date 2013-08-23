@@ -55,7 +55,7 @@ public:
     }
 
     IrcBufferModel* q_ptr;
-    Irc::ItemDataRole role;
+    Irc::DataRole role;
     QPointer<IrcConnection> connection;
     QList<IrcBuffer*> bufferList;
     QMap<QString, IrcBuffer*> bufferMap;

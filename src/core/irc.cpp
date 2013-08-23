@@ -1949,8 +1949,8 @@ QString Irc::hostFromPrefix(const QString& prefix)
  */
 
 /*!
-    \enum Irc::ItemDataRole
-    This enum describes the available item data roles.
+    \enum Irc::DataRole
+    This enum describes the available model data roles.
 
     \sa IrcBufferModel, IrcUserModel
  */

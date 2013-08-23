@@ -24,7 +24,7 @@ IRC_BEGIN_NAMESPACE
 class IRC_CORE_EXPORT Irc : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Code ItemDataRole)
+    Q_ENUMS(Code DataRole)
 
 public:
     Q_INVOKABLE static QString version();
@@ -477,7 +477,7 @@ public:
         ERR_NUMERIC_ERR = 999
     };
 
-    enum ItemDataRole {
+    enum DataRole {
         UserRole = Qt::UserRole,
         BufferRole,
         ChannelRole,

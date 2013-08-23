@@ -372,16 +372,16 @@ void IrcUserModel::setDynamicSort(bool dynamic)
     The default value is \ref Irc::TitleRole.
 
     \par Access functions:
-    \li \ref Irc::ItemDataRole <b>displayRole</b>() const
-    \li void <b>setDisplayRole</b>(\ref Irc::ItemDataRole role)
+    \li \ref Irc::DataRole <b>displayRole</b>() const
+    \li void <b>setDisplayRole</b>(\ref Irc::DataRole role)
  */
-Irc::ItemDataRole IrcUserModel::displayRole() const
+Irc::DataRole IrcUserModel::displayRole() const
 {
     Q_D(const IrcUserModel);
     return d->role;
 }
 
-void IrcUserModel::setDisplayRole(Irc::ItemDataRole role)
+void IrcUserModel::setDisplayRole(Irc::DataRole role)
 {
     Q_D(IrcUserModel);
     d->role = role;
@@ -448,7 +448,7 @@ int IrcUserModel::rowCount(const QModelIndex& parent) const
 /*!
     Returns the data for specified \a role referred to by the \a index.
 
-    \sa Irc::ItemDataRole, roleNames()
+    \sa Irc::DataRole, roleNames()
  */
 QVariant IrcUserModel::data(const QModelIndex& index, int role) const
 {

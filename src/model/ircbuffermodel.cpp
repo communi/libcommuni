@@ -448,16 +448,16 @@ void IrcBufferModel::remove(const QString& title)
     The default value is \ref Irc::TitleRole.
 
     \par Access functions:
-    \li \ref Irc::ItemDataRole <b>displayRole</b>() const
-    \li void <b>setDisplayRole</b>(\ref Irc::ItemDataRole role)
+    \li \ref Irc::DataRole <b>displayRole</b>() const
+    \li void <b>setDisplayRole</b>(\ref Irc::DataRole role)
  */
-Irc::ItemDataRole IrcBufferModel::displayRole() const
+Irc::DataRole IrcBufferModel::displayRole() const
 {
     Q_D(const IrcBufferModel);
     return d->role;
 }
 
-void IrcBufferModel::setDisplayRole(Irc::ItemDataRole role)
+void IrcBufferModel::setDisplayRole(Irc::DataRole role)
 {
     Q_D(IrcBufferModel);
     d->role = role;

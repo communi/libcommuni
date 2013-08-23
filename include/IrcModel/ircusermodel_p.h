@@ -39,7 +39,7 @@ public:
     }
 
     IrcUserModel* q_ptr;
-    Irc::ItemDataRole role;
+    Irc::DataRole role;
     QPointer<IrcChannel> channel;
     QList<IrcUser*> userList;
     Qt::SortOrder sortOrder;
