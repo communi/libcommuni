@@ -21,7 +21,7 @@
 #include "irccommand.h"
 #include "ircconnection.h"
 #include "ircuser_p.h"
-#include "ircsender.h"
+#include "irc.h"
 
 IRC_BEGIN_NAMESPACE
 
@@ -61,10 +61,7 @@ static QString userName(const QString& name, const QStringList& prefixes)
     QString copy = name;
     while (!copy.isEmpty() && prefixes.contains(copy.at(0)))
         copy.remove(0, 1);
-    IrcSender sender(copy);
-    if (sender.isValid())
-        copy = sender.name();
-    return copy;
+    return Irc::nickFromPrefix(copy);
 }
 
 IrcChannelPrivate::IrcChannelPrivate() : joined(0), left(0)
@@ -257,7 +254,7 @@ bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
         ++joined;
         _irc_emitActiveChanged();
     } else {
-        addUser(IrcSender(message->prefix()).name());
+        addUser(message->nick());
     }
     return true;
 }
@@ -295,7 +292,7 @@ bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
 
 bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
 {
-    return renameUser(IrcSender(message->prefix()).name(), message->newNick());
+    return renameUser(message->oldNick(), message->newNick());
 }
 
 bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
@@ -306,7 +303,7 @@ bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
         _irc_emitActiveChanged();
         return true;
     }
-    return removeUser(IrcSender(message->prefix()).name());
+    return removeUser(message->nick());
 }
 
 bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
@@ -317,7 +314,7 @@ bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
         _irc_emitActiveChanged();
         return true;
     }
-    return removeUser(IrcSender(message->prefix()).name()) || IrcBufferPrivate::processQuitMessage(message);
+    return removeUser(message->nick()) || IrcBufferPrivate::processQuitMessage(message);
 }
 
 bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)

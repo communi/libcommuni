@@ -19,7 +19,6 @@
 #include "ircchannel.h"
 #include "ircmessage.h"
 #include "ircconnection.h"
-#include "ircsender.h"
 
 IRC_BEGIN_NAMESPACE
 
@@ -117,12 +116,12 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
 
         case IrcMessage::Private:
             if (IrcPrivateMessage* pm = static_cast<IrcPrivateMessage*>(msg))
-                processed = !pm->isRequest() && (processMessage(pm->target(), pm) || processMessage(IrcSender(pm->prefix()).name(), pm, true));
+                processed = !pm->isRequest() && (processMessage(pm->target(), pm) || processMessage(pm->nick(), pm, true));
             break;
 
         case IrcMessage::Notice:
             if (IrcNoticeMessage* no = static_cast<IrcNoticeMessage*>(msg))
-                processed = !no->isReply() && (processMessage(no->target(), no) || processMessage(IrcSender(no->prefix()).name(), no));
+                processed = !no->isReply() && (processMessage(no->target(), no) || processMessage(no->nick(), no));
             break;
 
         case IrcMessage::Mode:

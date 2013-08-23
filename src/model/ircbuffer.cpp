@@ -18,7 +18,6 @@
 #include "ircbuffermodel_p.h"
 #include "ircconnection.h"
 #include "ircchannel.h"
-#include "ircsender.h"
 
 IRC_BEGIN_NAMESPACE
 
@@ -171,7 +170,7 @@ bool IrcBufferPrivate::processNamesMessage(IrcNamesMessage* message)
 bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
 {
     Q_Q(IrcBuffer);
-    if (!IrcSender(message->prefix()).name().compare(name, Qt::CaseInsensitive)) {
+    if (!message->nick().compare(name, Qt::CaseInsensitive)) {
         if (IrcBufferModelPrivate::get(model)->renameBuffer(q, message->newNick()))
             setName(message->newNick());
         return true;
@@ -187,7 +186,7 @@ bool IrcBufferPrivate::processPartMessage(IrcPartMessage* message)
 
 bool IrcBufferPrivate::processQuitMessage(IrcQuitMessage* message)
 {
-    return !IrcSender(message->prefix()).name().compare(name, Qt::CaseInsensitive);
+    return !message->nick().compare(name, Qt::CaseInsensitive);
 }
 
 bool IrcBufferPrivate::processTopicMessage(IrcTopicMessage* message)
