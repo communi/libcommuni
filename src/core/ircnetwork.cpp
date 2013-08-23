@@ -17,6 +17,7 @@
 #include "ircconnection_p.h"
 #include "ircprotocol.h"
 #include "ircconnection.h"
+#include "irccommand.h"
 #include <QPointer>
 
 IRC_BEGIN_NAMESPACE
@@ -453,6 +454,22 @@ bool IrcNetwork::hasCapability(const QString& capability) const
 bool IrcNetwork::isCapable(const QString& capability) const
 {
     return activeCapabilities().contains(capability);
+}
+
+/*!
+    Requests the specified \a capability.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    connection->sendCommand(IrcCommand::createCapability("REQ", capability))
+    \endcode
+ */
+bool IrcNetwork::requestCapability(const QString& capability)
+{
+    Q_D(IrcNetwork);
+    if (d->connection)
+        return d->connection->sendCommand(IrcCommand::createCapability(QLatin1String("REQ"), capability));
+    return false;
 }
 
 #include "moc_ircnetwork.cpp"
