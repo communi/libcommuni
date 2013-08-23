@@ -2,6 +2,6 @@
 # Communi
 ######################################################################
 
-SOURCES += tst_ircsender.cpp
+SOURCES += tst_irc.cpp
 
 include (../auto.pri)

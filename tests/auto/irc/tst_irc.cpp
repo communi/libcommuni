@@ -7,37 +7,25 @@
  * completely or partially.
  */
 
-#include "ircsender.h"
+#include "irc.h"
 #include <QtTest/QtTest>
 
-class tst_IrcSender : public QObject
+class tst_Irc : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void testDefaults();
-
-    void testSender_data();
-    void testSender();
+    void testPrefix_data();
+    void testPrefix();
 };
 
-void tst_IrcSender::testDefaults()
-{
-    IrcSender sender;
-    QVERIFY(!sender.isValid());
-    QVERIFY(sender.prefix().isNull());
-    QVERIFY(sender.name().isNull());
-    QVERIFY(sender.user().isNull());
-    QVERIFY(sender.host().isNull());
-}
-
-void tst_IrcSender::testSender_data()
+void tst_Irc::testPrefix_data()
 {
     QTest::addColumn<bool>("valid");
     QTest::addColumn<QString>("prefix");
-    QTest::addColumn<QString>("name");
-    QTest::addColumn<QString>("user");
-    QTest::addColumn<QString>("host");
+    QTest::addColumn<QString>("expectedNick");
+    QTest::addColumn<QString>("expectedIdent");
+    QTest::addColumn<QString>("expectedHost");
 
     QTest::newRow("null") << false << QString() << QString() << QString() << QString();
     QTest::newRow("empty") << false << QString("") << QString("") << QString("") << QString("");
@@ -57,21 +45,24 @@ void tst_IrcSender::testSender_data()
     QTest::newRow("n ! u @ h") << false << QString("n ! u @ h") << QString() << QString() << QString();
 }
 
-void tst_IrcSender::testSender()
+void tst_Irc::testPrefix()
 {
     QFETCH(bool, valid);
     QFETCH(QString, prefix);
-    QFETCH(QString, name);
-    QFETCH(QString, user);
-    QFETCH(QString, host);
+    QFETCH(QString, expectedNick);
+    QFETCH(QString, expectedIdent);
+    QFETCH(QString, expectedHost);
 
-    IrcSender sender(prefix);
-    QCOMPARE(sender.isValid(), valid);
-    QCOMPARE(sender.name(), name);
-    QCOMPARE(sender.user(), user);
-    QCOMPARE(sender.host(), host);
+    QString actualNick = Irc::nickFromPrefix(prefix);
+    QString actualIdent = Irc::identFromPrefix(prefix);
+    QString actualHost = Irc::hostFromPrefix(prefix);
+
+    Q_UNUSED(valid);
+    QCOMPARE(expectedNick, actualNick);
+    QCOMPARE(expectedIdent, actualIdent);
+    QCOMPARE(expectedHost, actualHost);
 }
 
-QTEST_MAIN(tst_IrcSender)
+QTEST_MAIN(tst_Irc)
 
-#include "tst_ircsender.moc"
+#include "tst_irc.moc"

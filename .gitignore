@@ -40,12 +40,12 @@ qrc_*.cpp
 /examples/bot/bot
 /examples/client/client
 /examples/quick/quick
+/tests/auto/irc/tst_irc
 /tests/auto/irccommand/tst_irccommand
 /tests/auto/irccommandparser/tst_irccommandparser
 /tests/auto/ircmessage/tst_ircmessage
 /tests/auto/ircmessagedata/tst_ircmessagedata
 /tests/auto/ircmessagedecoder/tst_ircmessagedecoder
-/tests/auto/ircsender/tst_ircsender
 /tests/auto/ircconnection/tst_ircconnection
 /tests/benchmarks/ircmessage/tst_ircmessage
 /tests/benchmarks/ircmessagedecoder/tst_ircmessagedecoder

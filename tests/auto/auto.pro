@@ -4,10 +4,10 @@
 
 TEMPLATE = subdirs
 
+SUBDIRS += irc
 SUBDIRS += irccommand
 SUBDIRS += irccommandparser
 SUBDIRS += ircmessage
-SUBDIRS += ircsender
 SUBDIRS += ircconnection
 
 private_tests {
