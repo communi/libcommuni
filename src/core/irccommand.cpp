@@ -446,6 +446,16 @@ IrcCommand* IrcCommand::createAway(const QString& reason)
 }
 
 /*!
+    Creates a new capability command with type IrcCommand::Capability and parameters \a subCommand and a \a capability.
+
+    Available subcommands are: LS, LIST, REQ, ACK, NAK, CLEAR and END.
+ */
+IrcCommand* IrcCommand::createCapability(const QString& subCommand, const QString& capability)
+{
+    return createCapability(subCommand, QStringList() << capability);
+}
+
+/*!
     Creates a new capability command with type IrcCommand::Capability and parameters \a subCommand and optional \a capabilities.
 
     Available subcommands are: LS, LIST, REQ, ACK, NAK, CLEAR and END.

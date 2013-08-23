@@ -88,6 +88,7 @@ public:
 
     Q_INVOKABLE static IrcCommand* createAdmin(const QString& server = QString());
     Q_INVOKABLE static IrcCommand* createAway(const QString& reason = QString());
+    Q_INVOKABLE static IrcCommand* createCapability(const QString& subCommand, const QString& capability);
     Q_INVOKABLE static IrcCommand* createCapability(const QString& subCommand, const QStringList& capabilities = QStringList());
     Q_INVOKABLE static IrcCommand* createCtcpAction(const QString& target, const QString& action);
     Q_INVOKABLE static IrcCommand* createCtcpReply(const QString& target, const QString& reply);
