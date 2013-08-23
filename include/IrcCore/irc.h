@@ -28,7 +28,7 @@ class IRC_CORE_EXPORT Irc : public QObject
 
 public:
     Q_INVOKABLE static QString version();
-    Q_INVOKABLE static QString toString(int code);
+    Q_INVOKABLE static QString codeToString(int code);
 
     Q_INVOKABLE static QString nickFromPrefix(const QString& prefix);
     Q_INVOKABLE static QString identFromPrefix(const QString& prefix);

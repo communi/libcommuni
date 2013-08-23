@@ -119,7 +119,7 @@ QString Irc::version()
 
     \sa Irc::Code and IrcNumericMessage::code()
  */
-QString Irc::toString(int code)
+QString Irc::codeToString(int code)
 {
     int index = staticMetaObject.indexOfEnumerator("Code");
     Q_ASSERT(index != -1);
