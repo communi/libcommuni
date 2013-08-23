@@ -80,6 +80,7 @@ public:
     void invalidate();
 
     static QString decode(const QByteArray& data, const QByteArray& encoding);
+    static bool parsePrefix(const QString& prefix, QString* nick, QString* ident, QString* host);
 
     IrcConnection* connection;
     IrcMessage::Type type;

@@ -30,6 +30,10 @@ public:
     Q_INVOKABLE static QString version();
     Q_INVOKABLE static QString toString(int code);
 
+    Q_INVOKABLE static QString nickFromPrefix(const QString& prefix);
+    Q_INVOKABLE static QString identFromPrefix(const QString& prefix);
+    Q_INVOKABLE static QString hostFromPrefix(const QString& prefix);
+
     enum Code {
         RPL_WELCOME = 1,
         RPL_YOURHOST = 2,

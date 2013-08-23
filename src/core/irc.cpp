@@ -13,6 +13,7 @@
 */
 
 #include "irc.h"
+#include "ircmessage_p.h"
 #include <QMetaEnum>
 
 IRC_BEGIN_NAMESPACE
@@ -124,6 +125,57 @@ QString Irc::toString(int code)
     Q_ASSERT(index != -1);
     QMetaEnum enumerator = staticMetaObject.enumerator(index);
     return QLatin1String(enumerator.valueToKey(code));
+}
+
+/*!
+    Returns the nick part of the specified \a prefix.
+
+    Nick part of a prefix as specified in RFC 1459:
+    <pre>
+    <b>&lt;nick&gt;</b> [ '!' &lt;ident&gt; ] [ '@' &lt;host&gt; ]
+    </pre>
+
+    \sa IrcMessage::prefix, IrcMessage::nick
+ */
+QString Irc::nickFromPrefix(const QString& prefix)
+{
+    QString nick;
+    IrcMessagePrivate::parsePrefix(prefix, &nick, 0, 0);
+    return nick;
+}
+
+/*!
+    Returns the ident part of the specified \a prefix.
+
+    Ident part of a prefix as specified in RFC 1459:
+    <pre>
+    &lt;nick&gt; [ '!' <b>&lt;ident&gt;</b> ] [ '@' &lt;host&gt; ]
+    </pre>
+
+    \sa IrcMessage::prefix, IrcMessage::ident
+ */
+QString Irc::identFromPrefix(const QString& prefix)
+{
+    QString ident;
+    IrcMessagePrivate::parsePrefix(prefix, 0, &ident, 0);
+    return ident;
+}
+
+/*!
+    Returns the host part of the specified \a prefix.
+
+    Host part of a prefix as specified in RFC 1459:
+    <pre>
+    &lt;nick&gt; [ '!' &lt;ident&gt; ] [ '@' <b>&lt;host&gt;</b> ]
+    </pre>
+
+    \sa IrcMessage::prefix, IrcMessage::host
+ */
+QString Irc::hostFromPrefix(const QString& prefix)
+{
+    QString host;
+    IrcMessagePrivate::parsePrefix(prefix, 0, 0, &host);
+    return host;
 }
 
 /*!

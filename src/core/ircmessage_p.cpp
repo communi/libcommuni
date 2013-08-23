@@ -14,7 +14,6 @@
 
 #include "ircmessage_p.h"
 #include "ircmessagedecoder_p.h"
-#include "ircsender.h"
 
 IRC_BEGIN_NAMESPACE
 
@@ -41,21 +40,21 @@ void IrcMessagePrivate::setPrefix(const QString& prefix)
 QString IrcMessagePrivate::nick() const
 {
     if (m_nick.isNull())
-        m_nick = IrcSender(prefix()).name(); // TODO
+        parsePrefix(prefix(), &m_nick, &m_ident, &m_host);
     return m_nick;
 }
 
 QString IrcMessagePrivate::ident() const
 {
     if (m_ident.isNull())
-        m_ident = IrcSender(prefix()).user(); // TODO
+        parsePrefix(prefix(), &m_nick, &m_ident, &m_host);
     return m_ident;
 }
 
 QString IrcMessagePrivate::host() const
 {
     if (m_host.isNull())
-        m_host = IrcSender(prefix()).host(); // TODO
+        parsePrefix(prefix(), &m_nick, &m_ident, &m_host);
     return m_host;
 }
 
@@ -152,6 +151,34 @@ QString IrcMessagePrivate::decode(const QByteArray& data, const QByteArray& enco
     static IrcMessageDecoder decoder;
     decoder.setEncoding(encoding);
     return decoder.decode(data);
+}
+
+bool IrcMessagePrivate::parsePrefix(const QString& prefix, QString* nick, QString* ident, QString* host)
+{
+    const QString trimmed = prefix.trimmed();
+    if (trimmed.contains(QLatin1Char(' ')))
+        return false;
+
+    const int len = trimmed.length();
+    const int ex = trimmed.indexOf(QLatin1Char('!'));
+    const int at = trimmed.indexOf(QLatin1Char('@'));
+
+    if (ex == -1 && at == -1) {
+        if (nick) *nick = trimmed;
+    } else if (ex > 0 && at > 0 && ex + 1 < at && at < len - 1) {
+        if (nick) *nick = trimmed.mid(0, ex);
+        if (ident) *ident = trimmed.mid(ex + 1, at - ex - 1);
+        if (host) *host = trimmed.mid(at + 1);
+    } else if (ex > 0 && ex < len - 1 && at == -1) {
+        if (nick) *nick = trimmed.mid(0, ex);
+        if (ident) *ident = trimmed.mid(ex + 1);
+    } else if (at > 0 && at < len - 1 && ex == -1) {
+        if (nick) *nick = trimmed.mid(0, at);
+        if (host) *host = trimmed.mid(at + 1);
+    } else {
+        return false;
+    }
+    return true;
 }
 
 IRC_END_NAMESPACE
