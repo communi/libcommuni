@@ -201,7 +201,7 @@ void IrcConnectionPrivate::_irc_disconnected()
 void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcConnection);
-    static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
+    static bool dbg = qgetenv("IRC_DEBUG").toInt();
     if (dbg) qWarning() << "IrcConnection: socket error:" << error;
     setConnected(false);
     setActive(false);
@@ -215,7 +215,7 @@ void IrcConnectionPrivate::_irc_state(QAbstractSocket::SocketState state)
     if (state != QAbstractSocket::ConnectedState)
         setConnected(false);
 
-    static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
+    static bool dbg = qgetenv("IRC_DEBUG").toInt();
     if (dbg) qDebug() << "IrcConnection: socket state:" << state << host;
     emit q->socketStateChanged(state);
 }
@@ -793,7 +793,7 @@ bool IrcConnection::sendData(const QByteArray& data)
 {
     Q_D(IrcConnection);
     if (d->socket) {
-        static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
+        static bool dbg = qgetenv("IRC_DEBUG").toInt();
         if (dbg) qDebug() << "->" << data;
         return d->protocol->write(data);
     }

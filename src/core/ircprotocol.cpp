@@ -65,7 +65,7 @@ void IrcProtocolPrivate::readLines(const QByteArray& delimiter)
 void IrcProtocolPrivate::processLine(const QByteArray& line)
 {
     Q_Q(IrcProtocol);
-    static bool dbg = qgetenv("COMMUNI_DEBUG").toInt();
+    static bool dbg = qgetenv("IRC_DEBUG").toInt();
     if (dbg) qDebug() << line;
 
     if (line.startsWith("AUTHENTICATE")) {

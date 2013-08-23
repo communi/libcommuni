@@ -13,12 +13,12 @@ contains(QT_CONFIG, debug_and_release) {
 }
 
 include(../version.pri)
-!win32:VERSION = $$COMMUNI_VERSION
+!win32:VERSION = $$IRC_VERSION
 
-isEmpty(COMMUNI_BUILDDIR):COMMUNI_BUILDDIR = $$OUT_PWD/../..
+isEmpty(IRC_BUILDDIR):IRC_BUILDDIR = $$OUT_PWD/../..
 
-DESTDIR = $$COMMUNI_BUILDDIR/lib
-DLLDESTDIR = $$COMMUNI_BUILDDIR/bin
+DESTDIR = $$IRC_BUILDDIR/lib
+DLLDESTDIR = $$IRC_BUILDDIR/bin
 
 CONFIG(debug, debug|release) {
     OBJECTS_DIR = debug

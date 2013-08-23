@@ -26,35 +26,35 @@ lessThan(QT_MAJOR_VERSION, 5) {
 
 CONFIG_VARS = $${OUT_PWD}$${QMAKE_DIR_SEP}.config.vars
 QMAKE_CACHE = $${OUT_PWD}$${QMAKE_DIR_SEP}.qmake.cache
-COMMUNI_CONFIG = $${OUT_PWD}$${QMAKE_DIR_SEP}communi-config.prf
+IRC_CONFIG = $${OUT_PWD}$${QMAKE_DIR_SEP}communi-config.prf
 
 static {
-    system(echo DEFINES+=COMMUNI_STATIC > $$QMAKE_CACHE)
-    system(echo DEFINES+=COMMUNI_STATIC > $$COMMUNI_CONFIG)
+    system(echo DEFINES+=IRC_STATIC > $$QMAKE_CACHE)
+    system(echo DEFINES+=IRC_STATIC > $$IRC_CONFIG)
 } else {
-    system(echo DEFINES+=COMMUNI_SHARED > $$QMAKE_CACHE)
-    system(echo DEFINES+=COMMUNI_SHARED > $$COMMUNI_CONFIG)
+    system(echo DEFINES+=IRC_SHARED > $$QMAKE_CACHE)
+    system(echo DEFINES+=IRC_SHARED > $$IRC_CONFIG)
 }
 
 exists($$CONFIG_VARS) {
     system(echo include\\\($$CONFIG_VARS\\\) >> $$QMAKE_CACHE)
 }
 
-isEmpty(COMMUNI_INSTALL_LIBS):COMMUNI_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
-isEmpty(COMMUNI_INSTALL_BINS):COMMUNI_INSTALL_BINS = $$[QT_INSTALL_BINS]
-isEmpty(COMMUNI_INSTALL_HEADERS):COMMUNI_INSTALL_HEADERS = $$[QT_INSTALL_HEADERS]/Communi
-isEmpty(COMMUNI_INSTALL_FEATURES):COMMUNI_INSTALL_FEATURES = $$[QT_INSTALL_DATA]/mkspecs/features
+isEmpty(IRC_INSTALL_LIBS):IRC_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
+isEmpty(IRC_INSTALL_BINS):IRC_INSTALL_BINS = $$[QT_INSTALL_BINS]
+isEmpty(IRC_INSTALL_HEADERS):IRC_INSTALL_HEADERS = $$[QT_INSTALL_HEADERS]/Communi
+isEmpty(IRC_INSTALL_FEATURES):IRC_INSTALL_FEATURES = $$[QT_INSTALL_DATA]/mkspecs/features
 
 # qt4/win: WARNING: Unescaped backslashes are deprecated
 !win32|greaterThan(QT_MAJOR_VERSION, 4) {
-    system(echo COMMUNI_INSTALL_LIBS=$$COMMUNI_INSTALL_LIBS >> $$QMAKE_CACHE)
-    system(echo COMMUNI_INSTALL_LIBS=$$COMMUNI_INSTALL_LIBS >> $$COMMUNI_CONFIG)
-    system(echo COMMUNI_INSTALL_BINS=$$COMMUNI_INSTALL_BINS >> $$QMAKE_CACHE)
-    system(echo COMMUNI_INSTALL_BINS=$$COMMUNI_INSTALL_BINS >> $$COMMUNI_CONFIG)
-    system(echo COMMUNI_INSTALL_HEADERS=$$COMMUNI_INSTALL_HEADERS >> $$QMAKE_CACHE)
-    system(echo COMMUNI_INSTALL_HEADERS=$$COMMUNI_INSTALL_HEADERS >> $$COMMUNI_CONFIG)
-    system(echo COMMUNI_INSTALL_FEATURES=$$COMMUNI_INSTALL_FEATURES >> $$QMAKE_CACHE)
-    system(echo COMMUNI_INSTALL_FEATURES=$$COMMUNI_INSTALL_FEATURES >> $$COMMUNI_CONFIG)
+    system(echo IRC_INSTALL_LIBS=$$IRC_INSTALL_LIBS >> $$QMAKE_CACHE)
+    system(echo IRC_INSTALL_LIBS=$$IRC_INSTALL_LIBS >> $$IRC_CONFIG)
+    system(echo IRC_INSTALL_BINS=$$IRC_INSTALL_BINS >> $$QMAKE_CACHE)
+    system(echo IRC_INSTALL_BINS=$$IRC_INSTALL_BINS >> $$IRC_CONFIG)
+    system(echo IRC_INSTALL_HEADERS=$$IRC_INSTALL_HEADERS >> $$QMAKE_CACHE)
+    system(echo IRC_INSTALL_HEADERS=$$IRC_INSTALL_HEADERS >> $$IRC_CONFIG)
+    system(echo IRC_INSTALL_FEATURES=$$IRC_INSTALL_FEATURES >> $$QMAKE_CACHE)
+    system(echo IRC_INSTALL_FEATURES=$$IRC_INSTALL_FEATURES >> $$IRC_CONFIG)
 }
 
 OTHER_FILES += astylerc
@@ -69,18 +69,18 @@ OTHER_FILES += features/communi.prf
 
 features.files += features/communi.prf
 features.files += $$OUT_PWD/communi-config.prf
-features.path = $$COMMUNI_INSTALL_FEATURES
+features.path = $$IRC_INSTALL_FEATURES
 INSTALLS += features
 
 include(version.pri)
 !build_pass {
     macx {
         !qt_no_framework {
-            message(Building Communi $$COMMUNI_VERSION (framework))
+            message(Building Communi $$IRC_VERSION (framework))
         } else {
-            message(Building Communi $$COMMUNI_VERSION (dylib))
+            message(Building Communi $$IRC_VERSION (dylib))
         }
     } else {
-        message(Building Communi $$COMMUNI_VERSION)
+        message(Building Communi $$IRC_VERSION)
     }
 }
