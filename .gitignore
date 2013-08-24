@@ -4,8 +4,9 @@ Makefile_*.mk
 debug
 release
 doc/html
-lib
-bin
+/lib
+/bin
+/imports
 *~
 *.o
 *.moc
@@ -26,6 +27,7 @@ bin
 *.filters
 /ipch
 Thumbs.db
+*.dylib
 *.xcodeproj
 *.plist
 .DS_Store
