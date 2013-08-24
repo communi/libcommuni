@@ -10,6 +10,8 @@ INSTALL_LIBS=
 INSTALL_BINS=
 INSTALL_HEADERS=
 INSTALL_FEATURES=
+INSTALL_IMPORTS=
+INSTALL_QML=
 
 BUILD_EXAMPLES=yes
 BUILD_TESTS=yes
@@ -51,7 +53,7 @@ while [ "$#" -gt 0 ]; do
         VAR=`echo $1 | sed "s,^--\(.*\)=.*,\1,"`
         VAL=`echo $1 | sed "s,^--.*=\(.*\),\1,"`
         ;;
-    --nomake|--make|--prefix|--libdir|--bindir|--headerdir|--featuredir|--qmake|--spec|--config|--var)
+    --nomake|--make|--prefix|--libdir|--bindir|--headerdir|--featuredir|--importdir|--qmldir|--qmake|--spec|--config|--var)
         VAR=`echo $1 | sed "s,^--\(.*\),\1,"`
         shift
         VAL="$1"
@@ -65,7 +67,7 @@ while [ "$#" -gt 0 ]; do
         VAL=yes
         ;;
     #Qt style options that pass an argument
-    -nomake|-make|-prefix|-libdir|-bindir|-headerdir|-featuredir|-qmake|-spec|-config|-var)
+    -nomake|-make|-prefix|-libdir|-bindir|-headerdir|-featuredir|-importdir|-qmldir|-qmake|-spec|-config|-var)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -113,6 +115,12 @@ while [ "$#" -gt 0 ]; do
         ;;
     featuredir)
         INSTALL_FEATURES="$VAL"
+        ;;
+    importdir)
+        INSTALL_IMPORTS="$VAL"
+        ;;
+    qmldir)
+        INSTALL_QML="$VAL"
         ;;
     nomake)
         case "$VAL" in
@@ -206,6 +214,10 @@ Installation options:
                                (default QT_INSTALL_HEADERS/Communi)
     -featuredir <dir> ........ Features will be installed to <dir>
                                (default QT_INSTALL_DATA/mkspecs/features)
+    -importdir <dir> ......... Imports for QML1 will be installed to <dir>/Communi
+                               (default QT_INSTALL_IMPORTS/Communi)
+    -qmldir <dir> ............ Imports for QML2 will be installed to <dir>/Communi
+                               (default QT_INSTALL_QML/Communi)
 
 Configure options:
 
@@ -243,16 +255,22 @@ if [ "$INSTALL_PREFIX" != "" ]; then
     [ "$INSTALL_BINS" = "" ] && INSTALL_BINS="$INSTALL_PREFIX/bin"
     [ "$INSTALL_HEADERS" = "" ] && INSTALL_HEADERS="$INSTALL_PREFIX/include"
     [ "$INSTALL_FEATURES" = "" ] && INSTALL_FEATURES="$INSTALL_PREFIX/features"
+    [ "$INSTALL_IMPORTS" = "" ] && INSTALL_FEATURES="$INSTALL_PREFIX/imports"
+    [ "$INSTALL_QML" = "" ] && INSTALL_FEATURES="$INSTALL_PREFIX/qml"
 fi
 [ "$INSTALL_LIBS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS IRC_INSTALL_LIBS=$INSTALL_LIBS"
 [ "$INSTALL_BINS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS IRC_INSTALL_BINS=$INSTALL_BINS"
 [ "$INSTALL_HEADERS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS IRC_INSTALL_HEADERS=$INSTALL_HEADERS"
 [ "$INSTALL_FEATURES" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS IRC_INSTALL_FEATURES=$INSTALL_FEATURES"
+[ "$INSTALL_IMPORTS" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS IRC_INSTALL_IMPORTS=$INSTALL_IMPORTS"
+[ "$INSTALL_QML" != "" ] && QMAKE_PARAMS="$QMAKE_PARAMS IRC_INSTALL_QML=$INSTALL_QML"
 
 [ "$INSTALL_LIBS" = "" ] && INSTALL_LIBS=`$QMAKE -query QT_INSTALL_LIBS`
 [ "$INSTALL_BINS" = "" ] && INSTALL_BINS=`$QMAKE -query QT_INSTALL_BINS`
 [ "$INSTALL_HEADERS" = "" ] && INSTALL_HEADERS=`$QMAKE -query QT_INSTALL_HEADERS`/Communi
 [ "$INSTALL_FEATURES" = "" ] && INSTALL_FEATURES=`$QMAKE -query QT_INSTALL_DATA`/mkspecs/features
+[ "$INSTALL_IMPORTS" = "" ] && INSTALL_IMPORTS=`$QMAKE -query QT_INSTALL_IMPORTS`
+[ "$INSTALL_QML" = "" ] && INSTALL_QML=`$QMAKE -query QT_INSTALL_QML`
 
 [ "$BUILD_EXAMPLES" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_examples"
 [ "$BUILD_TESTS" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_tests"
@@ -285,6 +303,8 @@ echo "Install libs .................... $INSTALL_LIBS"
 #echo "Install binaries ................ $INSTALL_BINS"
 echo "Install headers ................. $INSTALL_HEADERS"
 echo "Install features ................ $INSTALL_FEATURES"
+echo "Install QML1 imports ............ $INSTALL_IMPORTS"
+echo "Install QML2 imports ............ $INSTALL_QML"
 echo
 echo Communi is now configured for building. Just run \'make\'.
 echo
