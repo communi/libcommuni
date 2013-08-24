@@ -5,7 +5,7 @@
 TARGET = communiplugin
 QT = core network qml
 TARGETPATH = Communi
-DESTDIR = ../../../imports/$$TARGETPATH
+DESTDIR = ../../../qml/$$TARGETPATH
 
 SOURCES += plugin.cpp
 OTHER_FILES += qmldir

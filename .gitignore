@@ -6,6 +6,7 @@ release
 doc/html
 /lib
 /bin
+/qml
 /imports
 *~
 *.o
