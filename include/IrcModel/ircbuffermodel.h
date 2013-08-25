@@ -85,9 +85,10 @@ Q_SIGNALS:
     void connectionChanged(IrcConnection* connection);
     void messageIgnored(IrcMessage* message);
 
-protected:
+protected Q_SLOTS:
     virtual IrcBuffer* create(const QString& title);
 
+protected:
     virtual bool lessThan(IrcBuffer* one, IrcBuffer* another) const;
 
 private:

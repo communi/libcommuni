@@ -19,6 +19,7 @@
 #include "ircchannel.h"
 #include "ircmessage.h"
 #include "ircconnection.h"
+#include <qmetaobject.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -165,9 +166,24 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
     Q_Q(IrcBufferModel);
     IrcBuffer* buffer = bufferMap.value(title.toLower());
     if (!buffer) {
-        buffer = q->create(title);
-        IrcBufferPrivate::get(buffer)->init(title, q);
-        addBuffer(buffer);
+        const QMetaObject* metaObject = q->metaObject();
+        int idx = metaObject->indexOfMethod("create(QVariant)");
+        if (idx != -1) {
+            // QML: QVariant create(QVariant)
+            QVariant ret;
+            QMetaMethod method = metaObject->method(idx);
+            method.invoke(q, Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, title));
+            buffer = ret.value<IrcBuffer*>();
+        } else {
+            // C++: IrcBuffer* create(QString)
+            idx = metaObject->indexOfMethod("create(QString)");
+            QMetaMethod method = metaObject->method(idx);
+            method.invoke(q, Q_RETURN_ARG(IrcBuffer*, buffer), Q_ARG(QString, title));
+        }
+        if (buffer) {
+            IrcBufferPrivate::get(buffer)->init(title, q);
+            addBuffer(buffer);
+        }
     }
     return buffer;
 }
