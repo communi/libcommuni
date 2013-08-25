@@ -43,7 +43,7 @@ public:
     int interval() const;
     void setInterval(int seconds);
 
-signals:
+Q_SIGNALS:
     void lagChanged(int lag);
 
 private:
