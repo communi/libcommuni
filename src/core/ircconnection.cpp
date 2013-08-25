@@ -326,6 +326,8 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
     msg->deleteLater();
 }
 
+Q_DECLARE_METATYPE(IrcCommand*)
+Q_DECLARE_METATYPE(IrcPrivateMessage*)
 IrcCommand* IrcConnectionPrivate::createCtcpReply(IrcPrivateMessage* request)
 {
     Q_Q(IrcConnection);
