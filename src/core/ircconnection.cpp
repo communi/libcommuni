@@ -861,9 +861,13 @@ IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
     if (type == "PING")
         reply = request->message();
     else if (type == "TIME")
-        reply = "TIME " + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat);
+        reply = QLatin1String("TIME ") + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat);
     else if (type == "VERSION")
-        reply = QString("VERSION Communi ") + Irc::version();
+        reply = QLatin1String("VERSION Using libcommuni ") + Irc::version() + QLatin1String(" - http://communi.github.com");
+    else if (type == "SOURCE")
+        reply = QLatin1String("SOURCE http://communi.github.com");
+    else if (type == "CLIENTINFO")
+        reply = QLatin1String("CLIENTINFO PING SOURCE TIME USERINFO VERSION");
     if (!reply.isEmpty())
         return IrcCommand::createCtcpReply(request->nick(), reply);
     return 0;
