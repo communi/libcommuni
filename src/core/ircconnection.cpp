@@ -756,6 +756,18 @@ void IrcConnection::open()
     gracefully, send a QUIT command and let the server handle
     closing the connection.
 
+    C++ example:
+    \code
+    connection->quit(reason);
+    QTimer::singleShot(timeout, connection, SLOT(deleteLater()));
+    \endcode
+
+    QML example:
+    \code
+    connection.quit(reason);
+    connection.destroy(timeout);
+    \endcode
+
     \sa quit()
  */
 void IrcConnection::close()
