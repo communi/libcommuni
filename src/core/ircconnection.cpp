@@ -31,6 +31,9 @@
 #include <QSslSocket>
 #endif // QT_NO_OPENSSL
 
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCommand*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcPrivateMessage*))
+
 IRC_BEGIN_NAMESPACE
 
 /*!
@@ -326,8 +329,6 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
     msg->deleteLater();
 }
 
-Q_DECLARE_METATYPE(IrcCommand*)
-Q_DECLARE_METATYPE(IrcPrivateMessage*)
 IrcCommand* IrcConnectionPrivate::createCtcpReply(IrcPrivateMessage* request)
 {
     Q_Q(IrcConnection);
