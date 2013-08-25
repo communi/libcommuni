@@ -23,8 +23,9 @@
 IRC_BEGIN_NAMESPACE
 
 class IrcBuffer;
-class IrcConnection;
+class IrcChannel;
 class IrcMessage;
+class IrcConnection;
 class IrcBufferModelPrivate;
 
 class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
@@ -86,7 +87,8 @@ Q_SIGNALS:
     void messageIgnored(IrcMessage* message);
 
 protected Q_SLOTS:
-    virtual IrcBuffer* create(const QString& title);
+    virtual IrcBuffer* createBuffer(const QString& title);
+    virtual IrcChannel* createChannel(const QString& title);
 
 protected:
     virtual bool lessThan(IrcBuffer* one, IrcBuffer* another) const;

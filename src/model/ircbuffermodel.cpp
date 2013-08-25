@@ -161,25 +161,36 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
     return false;
 }
 
+IrcBuffer* IrcBufferModelPrivate::createXxx(const QByteArray& method, const QString& title)
+{
+    Q_Q(IrcBufferModel);
+    IrcBuffer* buffer = 0;
+    const QMetaObject* metaObject = q->metaObject();
+    int idx = metaObject->indexOfMethod(method + "(QVariant)");
+    if (idx != -1) {
+        // QML: QVariant createXxx(QVariant)
+        QVariant ret;
+        QMetaMethod method = metaObject->method(idx);
+        method.invoke(q, Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, title));
+        buffer = ret.value<IrcBuffer*>();
+    } else {
+        // C++: IrcBuffer* createXxx(QString)
+        idx = metaObject->indexOfMethod(method + "(QString)");
+        QMetaMethod method = metaObject->method(idx);
+        method.invoke(q, Q_RETURN_ARG(IrcBuffer*, buffer), Q_ARG(QString, title));
+    }
+    return buffer;
+}
+
 IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
 {
     Q_Q(IrcBufferModel);
     IrcBuffer* buffer = bufferMap.value(title.toLower());
     if (!buffer) {
-        const QMetaObject* metaObject = q->metaObject();
-        int idx = metaObject->indexOfMethod("create(QVariant)");
-        if (idx != -1) {
-            // QML: QVariant create(QVariant)
-            QVariant ret;
-            QMetaMethod method = metaObject->method(idx);
-            method.invoke(q, Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, title));
-            buffer = ret.value<IrcBuffer*>();
-        } else {
-            // C++: IrcBuffer* create(QString)
-            idx = metaObject->indexOfMethod("create(QString)");
-            QMetaMethod method = metaObject->method(idx);
-            method.invoke(q, Q_RETURN_ARG(IrcBuffer*, buffer), Q_ARG(QString, title));
-        }
+        if (connection->network()->isChannel(title))
+            buffer = createXxx("createChannel", title);
+        else
+            buffer = createXxx("createBuffer", title);
         if (buffer) {
             IrcBufferPrivate::get(buffer)->init(title, q);
             addBuffer(buffer);
@@ -576,23 +587,36 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
     Creates a buffer object with \a title.
 
     IrcBufferModel will automatically call this factory method when a
-    need for the buffer object occurs ie. a channel is being joined
-    or a private message is received.
+    need for the buffer object occurs ie. a private message is received.
 
-    The default implementation creates an instance of IrcChannel if
-    \a title is detected to be a channel, and otherwise an instance
-    of IrcBuffer. Reimplement this function in order to alter the
-    default behavior, for example to provide a custom IrcBuffer or
-    IrcChannel subclass.
+    The default implementation creates an instance of IrcBuffer.
+    Reimplement this function in order to alter the default behavior,
+    for example to provide a custom IrcBuffer subclass.
 
-    \sa IrcNetwork::isChannel()
+    \sa createChannel()
  */
-IrcBuffer* IrcBufferModel::create(const QString& title)
+IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
 {
-    Q_D(IrcBufferModel);
-    if (d->connection->network()->isChannel(title))
-        return new IrcChannel(this);
+    Q_UNUSED(title);
     return new IrcBuffer(this);
+}
+
+/*!
+    Creates a channel object with \a title.
+
+    IrcBufferModel will automatically call this factory method when a
+    need for the channel object occurs ie. a channel is being joined.
+
+    The default implementation creates an instance of IrcChannel.
+    Reimplement this function in order to alter the default behavior,
+    for example to provide a custom IrcChannel subclass.
+
+    \sa createBuffer()
+ */
+IrcChannel* IrcBufferModel::createChannel(const QString& title)
+{
+    Q_UNUSED(title);
+    return new IrcChannel(this);
 }
 
 /*!
