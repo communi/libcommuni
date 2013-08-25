@@ -42,6 +42,7 @@ public:
     void setActive(bool active);
     void setConnected(bool connected);
     void receiveMessage(IrcMessage* msg);
+    IrcCommand* createCtcpReply(IrcPrivateMessage* request);
 
     static IrcConnectionPrivate* get(const IrcConnection* connection)
     {

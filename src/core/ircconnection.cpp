@@ -25,6 +25,8 @@
 #include <QTcpSocket>
 #include <QTextCodec>
 #include <QStringList>
+#include <QMetaObject>
+#include <QMetaMethod>
 #ifndef QT_NO_OPENSSL
 #include <QSslSocket>
 #endif // QT_NO_OPENSSL
@@ -322,6 +324,27 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
         }
     }
     msg->deleteLater();
+}
+
+IrcCommand* IrcConnectionPrivate::createCtcpReply(IrcPrivateMessage* request)
+{
+    Q_Q(IrcConnection);
+    IrcCommand* reply = 0;
+    const QMetaObject* metaObject = q->metaObject();
+    int idx = metaObject->indexOfMethod("createCtcpReply(QVariant)");
+    if (idx != -1) {
+        // QML: QVariant createCtcpReply(QVariant)
+        QVariant ret;
+        QMetaMethod method = metaObject->method(idx);
+        method.invoke(q, Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, QVariant::fromValue(request)));
+        reply = ret.value<IrcCommand*>();
+    } else {
+        // C++: IrcCommand* createCtcpReply(IrcPrivateMessage*)
+        idx = metaObject->indexOfMethod("createCtcpReply(IrcPrivateMessage*)");
+        QMetaMethod method = metaObject->method(idx);
+        method.invoke(q, Q_RETURN_ARG(IrcCommand*, reply), Q_ARG(IrcPrivateMessage*, request));
+    }
+    return reply;
 }
 
 /*!

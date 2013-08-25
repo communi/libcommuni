@@ -135,9 +135,10 @@ Q_SIGNALS:
 
     void secureChanged(bool secure);
 
-protected:
+protected Q_SLOTS:
     virtual IrcCommand* createCtcpReply(IrcPrivateMessage* request) const;
 
+protected:
     IrcProtocol* protocol() const;
     void setProtocol(IrcProtocol* protocol);
 

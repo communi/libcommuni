@@ -141,7 +141,7 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
 void IrcProtocolPrivate::handlePrivateMessage(IrcPrivateMessage* msg)
 {
     if (msg->isRequest()) {
-        IrcCommand* reply = connection->createCtcpReply(msg);
+        IrcCommand* reply = IrcConnectionPrivate::get(connection)->createCtcpReply(msg);
         if (reply)
             connection->sendCommand(reply);
     }
