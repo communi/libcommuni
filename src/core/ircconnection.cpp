@@ -850,7 +850,7 @@ void IrcConnection::removeMessageFilter(IrcMessageFilter* filter)
 /*!
     Creates a reply command for the CTCP \a request.
 
-    The default implementation handles the following CTCP requests: PING, TIME and VERSION.
+    The default implementation handles the following CTCP requests: CLIENTINFO, PING, SOURCE, TIME and VERSION.
 
     Reimplement this function in order to alter or omit the default replies.
  */
@@ -867,7 +867,7 @@ IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
     else if (type == "SOURCE")
         reply = QLatin1String("SOURCE http://communi.github.com");
     else if (type == "CLIENTINFO")
-        reply = QLatin1String("CLIENTINFO PING SOURCE TIME USERINFO VERSION");
+        reply = QLatin1String("CLIENTINFO PING SOURCE TIME VERSION");
     if (!reply.isEmpty())
         return IrcCommand::createCtcpReply(request->nick(), reply);
     return 0;
