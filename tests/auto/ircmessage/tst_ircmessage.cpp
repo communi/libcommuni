@@ -414,12 +414,13 @@ void tst_IrcMessage::testPrivateMessage_data()
 class TestProtocol : public IrcProtocol
 {
 public:
-    TestProtocol(IrcConnection* connection) : IrcProtocol(connection) { }
-    QStringList availableCapabilities() const { return caps; }
-    QStringList activeCapabilities() const { return caps; }
-
-    QStringList caps;
-    friend class tst_IrcMessage;
+    TestProtocol(const QString& cap, IrcConnection* connection) : IrcProtocol(connection)
+    {
+        QSet<QString> caps;
+        caps.insert(cap);
+        setAvailableCapabilities(caps);
+        setActiveCapabilities(caps);
+    }
 };
 
 class FriendConnection : public IrcConnection
@@ -439,10 +440,8 @@ void tst_IrcMessage::testPrivateMessage()
     QFETCH(uint, flags);
 
     IrcConnection connection;
-    TestProtocol protocol(&connection);
+    TestProtocol protocol(cap, &connection);
     static_cast<FriendConnection*>(&connection)->setProtocol(&protocol);
-    // fake caps...
-    protocol.caps += cap;
 
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Private);

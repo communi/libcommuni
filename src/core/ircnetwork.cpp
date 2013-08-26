@@ -179,6 +179,24 @@ void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& info)
         targetLimits = numericValues(info.value("TARGMAX"));
 }
 
+void IrcNetworkPrivate::setAvailableCapabilities(const QSet<QString>& capabilities)
+{
+    Q_Q(IrcNetwork);
+    if (availableCaps != capabilities) {
+        availableCaps = capabilities;
+        emit q->availableCapabilitiesChanged(availableCaps.toList());
+    }
+}
+
+void IrcNetworkPrivate::setActiveCapabilities(const QSet<QString>& capabilities)
+{
+    Q_Q(IrcNetwork);
+    if (activeCaps != capabilities) {
+        activeCaps = capabilities;
+        emit q->activeCapabilitiesChanged(activeCaps.toList());
+    }
+}
+
 void IrcNetworkPrivate::setName(const QString& value)
 {
     Q_Q(IrcNetwork);
@@ -408,9 +426,7 @@ int IrcNetwork::targetLimit(const QString& command) const
 QStringList IrcNetwork::availableCapabilities() const
 {
     Q_D(const IrcNetwork);
-    if (d->connection)
-        return IrcConnectionPrivate::get(d->connection)->protocol->availableCapabilities();
-    return QStringList();
+    return d->availableCaps.toList();
 }
 
 /*!
@@ -421,9 +437,7 @@ QStringList IrcNetwork::availableCapabilities() const
 QStringList IrcNetwork::activeCapabilities() const
 {
     Q_D(const IrcNetwork);
-    if (d->connection)
-        return IrcConnectionPrivate::get(d->connection)->protocol->activeCapabilities();
-    return QStringList();
+    return d->activeCaps.toList();
 }
 
 /*!
@@ -438,7 +452,8 @@ QStringList IrcNetwork::activeCapabilities() const
  */
 bool IrcNetwork::hasCapability(const QString& capability) const
 {
-    return availableCapabilities().contains(capability);
+    Q_D(const IrcNetwork);
+    return d->availableCaps.contains(capability);
 }
 
 /*!
@@ -453,7 +468,8 @@ bool IrcNetwork::hasCapability(const QString& capability) const
  */
 bool IrcNetwork::isCapable(const QString& capability) const
 {
-    return activeCapabilities().contains(capability);
+    Q_D(const IrcNetwork);
+    return d->activeCaps.contains(capability);
 }
 
 /*!

@@ -17,6 +17,7 @@
 
 #include "ircnetwork.h"
 
+#include <QSet>
 #include <QHash>
 #include <QString>
 #include <QPointer>
@@ -31,6 +32,8 @@ public:
     IrcNetworkPrivate();
 
     void setInfo(const QHash<QString, QString>& info);
+    void setAvailableCapabilities(const QSet<QString>& capabilities);
+    void setActiveCapabilities(const QSet<QString>& capabilities);
 
     void setName(const QString& name);
     void setModes(const QStringList& modes);
@@ -48,6 +51,8 @@ public:
     QString name;
     QStringList modes, prefixes, channelTypes, channelModes;
     QHash<QString, int> numericLimits, modeLimits, channelLimits, targetLimits;
+    QSet<QString> activeCaps;
+    QSet<QString> availableCaps;
 };
 
 IRC_END_NAMESPACE

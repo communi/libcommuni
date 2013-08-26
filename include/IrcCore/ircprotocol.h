@@ -16,16 +16,16 @@
 #define IRCPROTOCOL_H
 
 #include <IrcGlobal>
+#include <QtCore/qset.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qobject.h>
-#include <QtCore/qstringlist.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
 
 IRC_BEGIN_NAMESPACE
 
-class IrcConnection;
 class IrcMessage;
+class IrcConnection;
 class IrcProtocolPrivate;
 
 class IRC_CORE_EXPORT IrcProtocol : public QObject
@@ -45,14 +45,13 @@ public:
     virtual void read();
     virtual bool write(const QByteArray& data);
 
-    virtual QStringList availableCapabilities() const;
-    virtual QStringList activeCapabilities() const;
-
 protected Q_SLOTS:
     void setActive(bool active);
     void setConnected(bool connected);
     void setNick(const QString& nick);
     void setInfo(const QHash<QString, QString>& info);
+    void setAvailableCapabilities(const QSet<QString>& capabilities);
+    void setActiveCapabilities(const QSet<QString>& capabilities);
 
     void receiveMessage(IrcMessage* message);
 

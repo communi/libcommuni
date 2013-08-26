@@ -42,9 +42,6 @@ public:
     IrcConnection* connection;
     IrcMessageBuilder* builder;
     QByteArray buffer;
-
-    QSet<QString> activeCaps;
-    QSet<QString> availableCaps;
 };
 
 IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0)
@@ -164,8 +161,10 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
     const bool connected = connection->isConnected();
     const QString subCommand = msg->subCommand();
     if (subCommand == "LS") {
+        QSet<QString> availableCaps = connection->network()->availableCapabilities().toSet();
         foreach (const QString& cap, msg->capabilities())
             handleCapability(&availableCaps, cap);
+        q->setAvailableCapabilities(availableCaps);
 
         if (!connected) {
             const QStringList params = msg->parameters();
@@ -185,11 +184,13 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
     } else if (subCommand == "ACK" || subCommand == "NAK") {
         bool auth = false;
         if (subCommand == "ACK") {
+            QSet<QString> activeCaps = connection->network()->activeCapabilities().toSet();
             foreach (const QString& cap, msg->capabilities()) {
                 handleCapability(&activeCaps, cap);
                 if (cap == "sasl")
                     auth = connection->sendData("AUTHENTICATE PLAIN"); // TODO: methods
             }
+            q->setActiveCapabilities(activeCaps);
         }
 
         if (!connected && !auth) {
@@ -236,9 +237,6 @@ void IrcProtocol::open()
     if (secure)
         QMetaObject::invokeMethod(socket(), "startClientEncryption");
 
-    d->activeCaps.clear();
-    d->availableCaps.clear();
-
     // Send CAP LS first; if the server understands it this will
     // temporarily pause the handshake until CAP END is sent, so we
     // know whether the server supports the CAP extension.
@@ -281,18 +279,6 @@ bool IrcProtocol::write(const QByteArray& data)
     return socket()->write(data + QByteArray("\r\n")) != -1;
 }
 
-QStringList IrcProtocol::availableCapabilities() const
-{
-    Q_D(const IrcProtocol);
-    return d->availableCaps.toList();
-}
-
-QStringList IrcProtocol::activeCapabilities() const
-{
-    Q_D(const IrcProtocol);
-    return d->activeCaps.toList();
-}
-
 void IrcProtocol::setActive(bool active)
 {
     Q_D(IrcProtocol);
@@ -319,6 +305,20 @@ void IrcProtocol::setInfo(const QHash<QString, QString>& info)
     Q_D(IrcProtocol);
     IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->connection->network());
     priv->setInfo(info);
+}
+
+void IrcProtocol::setAvailableCapabilities(const QSet<QString>& capabilities)
+{
+    Q_D(IrcProtocol);
+    IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->connection->network());
+    priv->setAvailableCapabilities(capabilities);
+}
+
+void IrcProtocol::setActiveCapabilities(const QSet<QString>& capabilities)
+{
+    Q_D(IrcProtocol);
+    IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->connection->network());
+    priv->setActiveCapabilities(capabilities);
 }
 
 void IrcProtocol::receiveMessage(IrcMessage* message)
