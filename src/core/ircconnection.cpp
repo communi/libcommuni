@@ -757,6 +757,12 @@ QStringList IrcConnection::supportedSaslMechanisms()
     return QStringList() << QLatin1String("PLAIN");
 }
 
+/*!
+    This property holds the network information.
+
+    \par Access functions:
+    \li IrcNetwork* <b>network</b>() const
+ */
 IrcNetwork* IrcConnection::network() const
 {
     Q_D(const IrcConnection);
