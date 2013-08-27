@@ -713,6 +713,50 @@ void IrcConnection::setSecure(bool secure)
 #endif // QT_NO_OPENSSL
 }
 
+/*!
+    This property holds the used SASL mechanism.
+
+    \par Access functions:
+    \li QString <b>saslMechanism</b>() const
+    \li void <b>setSaslMechanism</b>(const QString& mechanism)
+
+    \par Notifier signal:
+    \li void <b>saslMechanismChanged</b>(const QString& mechanism)
+
+    \sa supportedSaslMechanisms()
+ */
+QString IrcConnection::saslMechanism() const
+{
+    Q_D(const IrcConnection);
+    return d->saslMechanism;
+}
+
+void IrcConnection::setSaslMechanism(const QString& mechanism)
+{
+    Q_D(IrcConnection);
+    if (!mechanism.isEmpty() && !supportedSaslMechanisms().contains(mechanism.toUpper())) {
+        qWarning("IrcConnection::setSaslMechanism(): unsupported mechanism: '%s'", qPrintable(mechanism));
+        return;
+    }
+    if (d->saslMechanism != mechanism) {
+        d->saslMechanism = mechanism.toUpper();
+        emit saslMechanismChanged(mechanism);
+    }
+}
+
+/*!
+    This property holds the list of supported SASL mechanism.
+
+    \par Access functions:
+    \li static QStringList <b>supportedSaslMechanisms</b>()
+
+    \sa saslMechanism
+ */
+QStringList IrcConnection::supportedSaslMechanisms()
+{
+    return QStringList() << QLatin1String("PLAIN");
+}
+
 IrcNetwork* IrcConnection::network() const
 {
     Q_D(const IrcConnection);

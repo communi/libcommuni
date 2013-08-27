@@ -62,6 +62,7 @@ public:
     QString password;
     bool active;
     bool connected;
+    QString saslMechanism;
     QList<IrcMessageFilter*> filters;
 };
 

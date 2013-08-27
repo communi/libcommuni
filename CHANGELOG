@@ -9,6 +9,7 @@
 - Renamed IrcSessionInfo to IrcNetwork
   - Accessible via IrcConnection::network()
 - Changed IrcConnection::password to a property
+- Added IrcConnection::saslMechanism & supportedSaslMechanisms
 - IrcUserModel: support sorting
 - Added IrcUserModel::indexOf(IrcUser*)
 - Added a Qt Quick Controls based example

@@ -65,10 +65,10 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
     static bool dbg = qgetenv("IRC_DEBUG").toInt();
     if (dbg) qDebug() << line;
 
-    if (line.startsWith("AUTHENTICATE")) {
+    if (line.startsWith("AUTHENTICATE") && !connection->saslMechanism().isEmpty()) {
         const QList<QByteArray> args = line.split(' ');
-        const bool auth = args.count() == 2 && args.at(1) == "+";
-        q->authenticate(auth && connection->isSecure());
+        if (args.count() == 2 && args.at(1) == "+")
+            q->authenticate(true);
         if (!connection->isConnected())
             connection->sendData("CAP END");
         return;
@@ -171,12 +171,11 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             if (params.value(params.count() - 1) != QLatin1String("*")) {
                 QStringList request;
                 emit connection->capabilities(availableCaps.toList(), &request);
-                if (!request.isEmpty()) {
+                if (!request.isEmpty() || !connection->saslMechanism().isEmpty()) {
+                    if (availableCaps.contains("sasl") && !request.contains("sasl"))
+                        request += QLatin1String("sasl");
                     connection->sendCommand(IrcCommand::createCapability("REQ", request));
                 } else {
-                    // TODO: #14: SASL over non-SSL connection
-                    if (connection->isSecure())
-                        q->authenticate(false);
                     connection->sendData("CAP END");
                 }
             }
@@ -187,18 +186,14 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             QSet<QString> activeCaps = connection->network()->activeCapabilities().toSet();
             foreach (const QString& cap, msg->capabilities()) {
                 handleCapability(&activeCaps, cap);
-                if (cap == "sasl")
-                    auth = connection->sendData("AUTHENTICATE PLAIN"); // TODO: methods
+                if (cap == "sasl" && !connection->saslMechanism().isEmpty() && !connection->password().isEmpty())
+                    auth = connection->sendRaw("AUTHENTICATE " + connection->saslMechanism());
             }
             q->setActiveCapabilities(activeCaps);
         }
 
-        if (!connected && !auth) {
-            // TODO: #14: SASL over non-SSL connection
-            if (connection->isSecure())
-                q->authenticate(false);
+        if (!connected && !auth)
             connection->sendData("CAP END");
-        }
     }
 }
 
@@ -242,7 +237,7 @@ void IrcProtocol::open()
     // know whether the server supports the CAP extension.
     d->connection->sendData("CAP LS");
 
-    if (!d->connection->isSecure())
+    if (d->connection->saslMechanism().isEmpty() && !d->connection->password().isEmpty())
         authenticate(false);
 
     d->connection->sendCommand(IrcCommand::createNick(d->connection->nickName()));

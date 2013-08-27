@@ -44,6 +44,8 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
     Q_PROPERTY(bool secure READ isSecure WRITE setSecure NOTIFY secureChanged)
+    Q_PROPERTY(QString saslMechanism READ saslMechanism WRITE setSaslMechanism NOTIFY saslMechanismChanged)
+    Q_PROPERTY(QStringList supportedSaslMechanisms READ supportedSaslMechanisms CONSTANT)
     Q_PROPERTY(IrcNetwork* network READ network CONSTANT)
 
 public:
@@ -79,6 +81,11 @@ public:
 
     bool isSecure() const;
     void setSecure(bool secure);
+
+    QString saslMechanism() const;
+    void setSaslMechanism(const QString& mechanism);
+
+    static QStringList supportedSaslMechanisms();
 
     IrcNetwork* network() const;
 
@@ -134,6 +141,7 @@ Q_SIGNALS:
     void connectedChanged(bool connected);
 
     void secureChanged(bool secure);
+    void saslMechanismChanged(const QString& mechanism);
 
 protected Q_SLOTS:
     virtual IrcCommand* createCtcpReply(IrcPrivateMessage* request) const;
