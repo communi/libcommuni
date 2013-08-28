@@ -161,25 +161,46 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
     return false;
 }
 
-IrcBuffer* IrcBufferModelPrivate::createXxx(const QByteArray& method, const QString& title)
+IrcBuffer* IrcBufferModelPrivate::createBuffer(const QString& title)
 {
     Q_Q(IrcBufferModel);
     IrcBuffer* buffer = 0;
     const QMetaObject* metaObject = q->metaObject();
-    int idx = metaObject->indexOfMethod(method + "(QVariant)");
+    int idx = metaObject->indexOfMethod("createBuffer(QVariant)");
     if (idx != -1) {
-        // QML: QVariant createXxx(QVariant)
+        // QML: QVariant createBuffer(QVariant)
         QVariant ret;
         QMetaMethod method = metaObject->method(idx);
         method.invoke(q, Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, title));
         buffer = ret.value<IrcBuffer*>();
     } else {
-        // C++: IrcBuffer* createXxx(QString)
-        idx = metaObject->indexOfMethod(method + "(QString)");
+        // C++: IrcBuffer* createBuffer(QString)
+        idx = metaObject->indexOfMethod("createBuffer(QString)");
         QMetaMethod method = metaObject->method(idx);
         method.invoke(q, Q_RETURN_ARG(IrcBuffer*, buffer), Q_ARG(QString, title));
     }
     return buffer;
+}
+
+IrcChannel* IrcBufferModelPrivate::createChannel(const QString& title)
+{
+    Q_Q(IrcBufferModel);
+    IrcChannel* channel = 0;
+    const QMetaObject* metaObject = q->metaObject();
+    int idx = metaObject->indexOfMethod("createChannel(QVariant)");
+    if (idx != -1) {
+        // QML: QVariant createChannel(QVariant)
+        QVariant ret;
+        QMetaMethod method = metaObject->method(idx);
+        method.invoke(q, Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, title));
+        channel = ret.value<IrcChannel*>();
+    } else {
+        // C++: IrcChannel* createChannel(QString)
+        idx = metaObject->indexOfMethod("createChannel(QString)");
+        QMetaMethod method = metaObject->method(idx);
+        method.invoke(q, Q_RETURN_ARG(IrcChannel*, channel), Q_ARG(QString, title));
+    }
+    return channel;
 }
 
 IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
@@ -188,9 +209,9 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
     IrcBuffer* buffer = bufferMap.value(title.toLower());
     if (!buffer) {
         if (connection->network()->isChannel(title))
-            buffer = createXxx("createChannel", title);
+            buffer = createChannel(title);
         else
-            buffer = createXxx("createBuffer", title);
+            buffer = createBuffer(title);
         if (buffer) {
             IrcBufferPrivate::get(buffer)->init(title, q);
             addBuffer(buffer);

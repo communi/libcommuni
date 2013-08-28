@@ -31,7 +31,9 @@ public:
 
     bool messageFilter(IrcMessage* message);
 
-    IrcBuffer* createXxx(const QByteArray& method, const QString& title);
+    IrcBuffer* createBuffer(const QString& title);
+    IrcChannel* createChannel(const QString& title);
+
     IrcBuffer* addBuffer(const QString& title);
     void addBuffer(IrcBuffer* buffer);
     void removeBuffer(const QString& title, bool force = false);
