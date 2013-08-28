@@ -488,6 +488,22 @@ bool IrcNetwork::requestCapability(const QString& capability)
     return false;
 }
 
+/*!
+    Requests the specified \a capabilities.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    connection->sendCommand(IrcCommand::createCapability("REQ", capabilities))
+    \endcode
+ */
+bool IrcNetwork::requestCapabilities(const QStringList& capabilities)
+{
+    Q_D(IrcNetwork);
+    if (d->connection)
+        return d->connection->sendCommand(IrcCommand::createCapability(QLatin1String("REQ"), capabilities));
+    return false;
+}
+
 #include "moc_ircnetwork.cpp"
 
 IRC_END_NAMESPACE

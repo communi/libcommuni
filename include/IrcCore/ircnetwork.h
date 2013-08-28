@@ -87,7 +87,9 @@ public:
 
     Q_INVOKABLE bool hasCapability(const QString& capability) const;
     Q_INVOKABLE bool isCapable(const QString& capability) const;
+
     Q_INVOKABLE bool requestCapability(const QString& capability);
+    Q_INVOKABLE bool requestCapabilities(const QStringList& capabilities);
 
 Q_SIGNALS:
     void nameChanged(const QString& name);
