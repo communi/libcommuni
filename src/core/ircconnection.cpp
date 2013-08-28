@@ -831,7 +831,7 @@ void IrcConnection::close()
 }
 
 /*!
-    Quits with \a reason.
+    Sends a quit command with an optionally specified \a reason.
 
     This method is provided for convenience. It is equal to:
     \code

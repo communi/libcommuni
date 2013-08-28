@@ -99,7 +99,7 @@ public:
 public Q_SLOTS:
     void open();
     void close();
-    void quit(const QString& reason);
+    void quit(const QString& reason = QString());
 
 Q_SIGNALS:
     void connecting();
