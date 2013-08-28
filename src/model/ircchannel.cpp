@@ -76,8 +76,7 @@ void IrcChannelPrivate::init(const QString& title, IrcBufferModel* m)
 {
     IrcBufferPrivate::init(title, m);
 
-    const IrcNetwork* network = model->connection()->network();
-    const QStringList chanTypes = network->channelTypes();
+    const QStringList chanTypes = m->network()->channelTypes();
     prefix = getPrefix(title, chanTypes);
     name = channelName(title, chanTypes);
 }
@@ -125,15 +124,14 @@ void IrcChannelPrivate::setTopic(const QString& value)
 void IrcChannelPrivate::addUser(const QString& name)
 {
     Q_Q(IrcChannel);
-    const IrcNetwork* network = model->connection()->network();
-    const QStringList prefixes = network->prefixes();
+    const QStringList prefixes = q->network()->prefixes();
 
     IrcUser* user = new IrcUser(q);
     IrcUserPrivate* priv = IrcUserPrivate::get(user);
     priv->channel = q;
     priv->setName(userName(name, prefixes));
     priv->setPrefix(getPrefix(name, prefixes));
-    priv->setMode(network->prefixToMode(user->prefix()));
+    priv->setMode(q->network()->prefixToMode(user->prefix()));
     userList.append(user);
     userMap.insert(user->name(), user);
 
@@ -157,8 +155,7 @@ bool IrcChannelPrivate::removeUser(const QString& name)
 void IrcChannelPrivate::setUsers(const QStringList& names)
 {
     Q_Q(IrcChannel);
-    const IrcNetwork* network = model->connection()->network();
-    const QStringList prefixes = network->prefixes();
+    const QStringList prefixes = q->network()->prefixes();
 
     qDeleteAll(userList);
     userMap.clear();
@@ -171,7 +168,7 @@ void IrcChannelPrivate::setUsers(const QStringList& names)
         priv->channel = q;
         priv->setName(userName(name, prefixes));
         priv->setPrefix(getPrefix(name, prefixes));
-        priv->setMode(network->prefixToMode(user->prefix()));
+        priv->setMode(q->network()->prefixToMode(user->prefix()));
         userList.append(user);
         userMap.insert(user->name(), user);
         users.append(user);
@@ -210,7 +207,7 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
             bool add = true;
             QString mode = user->mode();
             QString prefix = user->prefix();
-            const IrcNetwork* network = model->connection()->network();
+            const IrcNetwork* network = model->network();
             for (int i = 0; i < command.size(); ++i) {
                 QChar c = command.at(i);
                 if (c == QLatin1Char('+')) {

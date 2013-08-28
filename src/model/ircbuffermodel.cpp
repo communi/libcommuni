@@ -647,8 +647,7 @@ bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another) const
     if (one->isSticky() != another->isSticky())
         return one->isSticky();
 
-    const IrcNetwork* network = one->connection()->network();
-    const QStringList prefixes = network->channelTypes();
+    const QStringList prefixes = one->network()->channelTypes();
 
     const QString p1 = one->prefix();
     const QString p2 = another->prefix();

@@ -540,8 +540,7 @@ void IrcUserModel::sort(int column, Qt::SortOrder order)
  */
 bool IrcUserModel::lessThan(const IrcUser* one, const IrcUser* another) const
 {
-    // TODO: seriously? :D
-    const IrcNetwork* network = one->channel()->model()->connection()->network();
+    const IrcNetwork* network = one->channel()->network();
     const QStringList prefixes = network->prefixes();
 
     const QString p1 = one->prefix();
