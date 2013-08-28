@@ -64,6 +64,7 @@ public:
     bool connected;
     QString saslMechanism;
     QList<IrcMessageFilter*> filters;
+    QList<IrcCommand*> pendingCommands;
 };
 
 IRC_END_NAMESPACE

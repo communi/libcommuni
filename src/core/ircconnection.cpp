@@ -78,12 +78,12 @@ IRC_BEGIN_NAMESPACE
 
     \code
     IrcConnection* connection = new IrcConnection(this);
-    connect(connection, SIGNAL(connected()), this, SLOT(onConnected())); // ready to send commands
     connect(connection, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(onMessageReceived(IrcMessage*)));
     connection->setHost("irc.server.com");
     connection->setUserName("me");
     connection->setNickName("myself");
     connection->setRealName("And I");
+    connection->sendCommand(IrcCommand::createJoin("#mine"));
     connection->open();
     \endcode
 
@@ -247,8 +247,12 @@ void IrcConnectionPrivate::setConnected(bool value)
     if (connected != value) {
         connected = value;
         emit q->connectedChanged(connected);
-        if (connected)
+        if (connected) {
             emit q->connected();
+            foreach (IrcCommand* cmd, pendingCommands)
+                q->sendCommand(cmd);
+            pendingCommands.clear();
+        }
     }
 }
 
@@ -842,6 +846,9 @@ void IrcConnection::quit(const QString& reason)
 /*!
     Sends a \a command to the server.
 
+    If the connection is not active, the \a command is queued and sent
+    later when the connection has been established.
+
     \note If the command has a valid parent, it is an indication that
     the caller of this method is be responsible for freeing the command.
     If the command does not have a valid parent (like the commands
@@ -856,11 +863,16 @@ bool IrcConnection::sendCommand(IrcCommand* command)
 {
     bool res = false;
     if (command) {
-        QTextCodec* codec = QTextCodec::codecForName(command->encoding());
-        Q_ASSERT(codec);
-        res = sendData(codec->fromUnicode(command->toString()));
-        if (!command->parent())
-            command->deleteLater();
+        if (isActive()) {
+            QTextCodec* codec = QTextCodec::codecForName(command->encoding());
+            Q_ASSERT(codec);
+            res = sendData(codec->fromUnicode(command->toString()));
+            if (!command->parent())
+                command->deleteLater();
+        } else {
+            Q_D(IrcConnection);
+            d->pendingCommands += command;
+        }
     }
     return res;
 }
