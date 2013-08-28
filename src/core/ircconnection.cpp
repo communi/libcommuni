@@ -106,13 +106,6 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \fn void IrcConnection::capabilities(const QStringList& available, QStringList* request)
-
-    This signal is emitted when the connection capabilities may be requested.
-    Fill the \a request with capabilities from the \a available capabilities.
- */
-
-/*!
     \fn void IrcConnection::connected()
 
     This signal is emitted when the connection has been established ie.

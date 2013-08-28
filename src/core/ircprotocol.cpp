@@ -169,15 +169,10 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
         if (!connected) {
             const QStringList params = msg->parameters();
             if (params.value(params.count() - 1) != QLatin1String("*")) {
-                QStringList request;
-                emit connection->capabilities(availableCaps.toList(), &request);
-                if (!request.isEmpty() || !connection->saslMechanism().isEmpty()) {
-                    if (availableCaps.contains("sasl") && !request.contains("sasl"))
-                        request += QLatin1String("sasl");
-                    connection->sendCommand(IrcCommand::createCapability("REQ", request));
-                } else {
+                if (!connection->saslMechanism().isEmpty() && availableCaps.contains(QLatin1String("sasl")))
+                    connection->sendCommand(IrcCommand::createCapability("REQ", QLatin1String("sasl")));
+                else
                     connection->sendData("CAP END");
-                }
             }
         }
     } else if (subCommand == "ACK" || subCommand == "NAK") {

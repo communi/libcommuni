@@ -104,7 +104,6 @@ public Q_SLOTS:
 Q_SIGNALS:
     void connecting();
     void nickNameReserved(QString* alternate);
-    void capabilities(const QStringList& available, QStringList* request);
     void connected();
     void disconnected();
     void socketError(QAbstractSocket::SocketError error);
