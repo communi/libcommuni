@@ -328,6 +328,18 @@ IrcConnection* IrcBuffer::connection() const
 }
 
 /*!
+    This property holds the network of the buffer.
+
+    \par Access function:
+    \li \ref IrcNetwork* <b>network</b>() const
+ */
+IrcNetwork* IrcBuffer::network() const
+{
+    Q_D(const IrcBuffer);
+    return d->model->network();
+}
+
+/*!
     This property holds the model of the buffer.
 
     \par Access function:

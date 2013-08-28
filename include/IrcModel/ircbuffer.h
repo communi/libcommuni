@@ -26,6 +26,7 @@ IRC_BEGIN_NAMESPACE
 class IrcChannel;
 class IrcCommand;
 class IrcMessage;
+class IrcNetwork;
 class IrcConnection;
 class IrcBufferModel;
 class IrcBufferPrivate;
@@ -37,6 +38,7 @@ class IRC_MODEL_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix NOTIFY prefixChanged)
     Q_PROPERTY(IrcConnection* connection READ connection CONSTANT)
+    Q_PROPERTY(IrcNetwork* network READ network CONSTANT)
     Q_PROPERTY(IrcBufferModel* model READ model CONSTANT)
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
     Q_PROPERTY(bool channel READ isChannel CONSTANT)
@@ -55,6 +57,7 @@ public:
     Q_INVOKABLE IrcChannel* toChannel();
 
     IrcConnection* connection() const;
+    IrcNetwork* network() const;
     IrcBufferModel* model() const;
 
     virtual bool isActive() const;

@@ -25,6 +25,7 @@ IRC_BEGIN_NAMESPACE
 class IrcBuffer;
 class IrcChannel;
 class IrcMessage;
+class IrcNetwork;
 class IrcConnection;
 class IrcBufferModelPrivate;
 
@@ -37,6 +38,7 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
     Q_PROPERTY(Irc::DataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(QList<IrcBuffer*> buffers READ buffers NOTIFY buffersChanged)
     Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection NOTIFY connectionChanged)
+    Q_PROPERTY(IrcNetwork* network READ network NOTIFY networkChanged)
 
 public:
     explicit IrcBufferModel(QObject* parent = 0);
@@ -44,6 +46,8 @@ public:
 
     IrcConnection* connection() const;
     void setConnection(IrcConnection* connection);
+
+    IrcNetwork* network() const;
 
     int count() const;
     QStringList channels() const;
@@ -84,6 +88,7 @@ Q_SIGNALS:
     void buffersChanged(const QList<IrcBuffer*>& buffers);
     void channelsChanged(const QStringList& channels);
     void connectionChanged(IrcConnection* connection);
+    void networkChanged(IrcNetwork* network);
     void messageIgnored(IrcMessage* message);
 
 protected Q_SLOTS:

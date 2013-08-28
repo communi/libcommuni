@@ -346,7 +346,20 @@ void IrcBufferModel::setConnection(IrcConnection* connection)
         d->connection = connection;
         d->connection->installMessageFilter(d);
         emit connectionChanged(connection);
+        emit networkChanged(network());
     }
+}
+
+/*!
+    This property holds the network.
+
+    \par Access functions:
+    \li \ref IrcNetwork* <b>network</b>() const
+ */
+IrcNetwork* IrcBufferModel::network() const
+{
+    Q_D(const IrcBufferModel);
+    return d->connection ? d->connection->network() : 0;
 }
 
 /*!
