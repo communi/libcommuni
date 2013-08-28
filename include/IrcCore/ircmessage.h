@@ -23,14 +23,16 @@
 
 IRC_BEGIN_NAMESPACE
 
-class IrcConnection;
 class IrcCommand;
+class IrcNetwork;
+class IrcConnection;
 class IrcMessagePrivate;
 
 class IRC_CORE_EXPORT IrcMessage : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(IrcConnection* connection READ connection)
+    Q_PROPERTY(IrcNetwork* network READ network)
     Q_PROPERTY(Type type READ type)
     Q_PROPERTY(Flags flags READ flags)
     Q_PROPERTY(bool valid READ isValid)
@@ -78,6 +80,7 @@ public:
     virtual ~IrcMessage();
 
     IrcConnection* connection() const;
+    IrcNetwork* network() const;
 
     Type type() const;
     Flags flags() const;

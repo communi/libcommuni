@@ -222,6 +222,18 @@ IrcConnection* IrcMessage::connection() const
 }
 
 /*!
+    This property holds the message network.
+
+    \par Access functions:
+    \li IrcNetwork* <b>network</b>() const
+ */
+IrcNetwork* IrcMessage::network() const
+{
+    Q_D(const IrcMessage);
+    return d->connection ? d->connection->network() : 0;
+}
+
+/*!
     This property holds the message type.
 
     \par Access functions:
