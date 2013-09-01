@@ -30,7 +30,7 @@ class IRC_MODEL_EXPORT IrcChannel : public IrcBuffer
     Q_PROPERTY(QString topic READ topic NOTIFY topicChanged)
 
 public:
-    explicit IrcChannel(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcChannel(QObject* parent = 0);
     virtual ~IrcChannel();
 
     QString mode() const;

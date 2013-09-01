@@ -65,6 +65,8 @@ public:
     QStringList channels;
     Qt::SortOrder sortOrder;
     bool dynamicSort;
+    IrcBuffer* bufferProto;
+    IrcChannel* channelProto;
 };
 
 IRC_END_NAMESPACE

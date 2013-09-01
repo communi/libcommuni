@@ -39,6 +39,8 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
     Q_PROPERTY(QList<IrcBuffer*> buffers READ buffers NOTIFY buffersChanged)
     Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection NOTIFY connectionChanged)
     Q_PROPERTY(IrcNetwork* network READ network NOTIFY networkChanged)
+    Q_PROPERTY(IrcBuffer* bufferPrototype READ bufferPrototype WRITE setBufferPrototype NOTIFY bufferPrototypeChanged)
+    Q_PROPERTY(IrcChannel* channelPrototype READ channelPrototype WRITE setChannelPrototype NOTIFY channelPrototypeChanged)
 
 public:
     explicit IrcBufferModel(QObject* parent = 0);
@@ -75,6 +77,12 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
     QModelIndex index(int row, int column = 0, const QModelIndex& parent = QModelIndex()) const;
 
+    IrcBuffer* bufferPrototype() const;
+    void setBufferPrototype(IrcBuffer* prototype);
+
+    IrcChannel* channelPrototype() const;
+    void setChannelPrototype(IrcChannel* prototype);
+
 public Q_SLOTS:
     void clear();
     void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
@@ -90,6 +98,8 @@ Q_SIGNALS:
     void connectionChanged(IrcConnection* connection);
     void networkChanged(IrcNetwork* network);
     void messageIgnored(IrcMessage* message);
+    void bufferPrototypeChanged(IrcBuffer* prototype);
+    void channelPrototypeChanged(IrcChannel* prototype);
 
 protected Q_SLOTS:
     virtual IrcBuffer* createBuffer(const QString& title);

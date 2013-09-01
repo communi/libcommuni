@@ -46,7 +46,7 @@ class IRC_MODEL_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(bool persistent READ isPersistent WRITE setPersistent NOTIFY persistentChanged)
 
 public:
-    explicit IrcBuffer(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcBuffer(QObject* parent = 0);
     virtual ~IrcBuffer();
 
     QString title() const;

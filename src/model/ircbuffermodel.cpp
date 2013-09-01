@@ -87,8 +87,8 @@ IRC_BEGIN_NAMESPACE
     \sa IrcConnection::messageReceived(), IrcBuffer::messageReceived()
  */
 
-IrcBufferModelPrivate::IrcBufferModelPrivate() :
-    q_ptr(0), role(Irc::TitleRole), sortOrder(Qt::AscendingOrder), dynamicSort(false)
+IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(0), role(Irc::TitleRole),
+    sortOrder(Qt::AscendingOrder), dynamicSort(false), bufferProto(0), channelProto(0)
 {
 }
 
@@ -322,6 +322,8 @@ IrcBufferModel::IrcBufferModel(QObject* parent)
 {
     Q_D(IrcBufferModel);
     d->q_ptr = this;
+    setBufferPrototype(new IrcBuffer(this));
+    setChannelPrototype(new IrcChannel(this));
     setConnection(qobject_cast<IrcConnection*>(parent));
 
     qRegisterMetaType<IrcBuffer*>();
@@ -623,16 +625,17 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
     IrcBufferModel will automatically call this factory method when a
     need for the buffer object occurs ie. a private message is received.
 
-    The default implementation creates an instance of IrcBuffer.
-    Reimplement this function in order to alter the default behavior,
-    for example to provide a custom IrcBuffer subclass.
+    The default implementation creates an instance of \ref bufferPrototype.
+    Reimplement this function in order to alter the default behavior.
 
-    \sa createChannel()
+    \sa bufferPrototype, createChannel()
  */
 IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
 {
+    Q_D(IrcBufferModel);
     Q_UNUSED(title);
-    return new IrcBuffer(this);
+    QObject* instance = d->bufferProto->metaObject()->newInstance(Q_ARG(QObject*, this));
+    return qobject_cast<IrcBuffer*>(instance);
 }
 
 /*!
@@ -641,16 +644,17 @@ IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
     IrcBufferModel will automatically call this factory method when a
     need for the channel object occurs ie. a channel is being joined.
 
-    The default implementation creates an instance of IrcChannel.
-    Reimplement this function in order to alter the default behavior,
-    for example to provide a custom IrcChannel subclass.
+    The default implementation creates an instance of \ref channelPrototype.
+    Reimplement this function in order to alter the default behavior.
 
-    \sa createBuffer()
+    \sa channelPrototype, createBuffer()
  */
 IrcChannel* IrcBufferModel::createChannel(const QString& title)
 {
+    Q_D(IrcBufferModel);
     Q_UNUSED(title);
-    return new IrcChannel(this);
+    QObject* instance = d->channelProto->metaObject()->newInstance(Q_ARG(QObject*, this));
+    return qobject_cast<IrcChannel*>(instance);
 }
 
 /*!
@@ -771,6 +775,62 @@ QModelIndex IrcBufferModel::index(int row, int column, const QModelIndex& parent
         return QModelIndex();
 
     return createIndex(row, column, d->bufferList.at(row));
+}
+
+/*!
+    This property holds the buffer prototype.
+
+    The prototype is used by the default implementation of createBuffer().
+
+    \note The prototype must have an invokable constructor.
+
+    \par Access functions:
+    \li IrcBuffer* <b>bufferPrototype</b>() const
+    \li void <b>setBufferPrototype</b>(IrcBuffer* prototype)
+ */
+IrcBuffer* IrcBufferModel::bufferPrototype() const
+{
+    Q_D(const IrcBufferModel);
+    return d->bufferProto;
+}
+
+void IrcBufferModel::setBufferPrototype(IrcBuffer* prototype)
+{
+    Q_D(IrcBufferModel);
+    if (d->bufferProto != prototype) {
+        if (d->bufferProto && d->bufferProto->parent() == this)
+            delete d->bufferProto;
+        d->bufferProto = prototype ? prototype : new IrcBuffer(this);
+        emit bufferPrototypeChanged(d->bufferProto);
+    }
+}
+
+/*!
+    This property holds the channel prototype.
+
+    The prototype is used by the default implementation of createChannel().
+
+    \note The prototype must have an invokable constructor.
+
+    \par Access functions:
+    \li IrcChannel* <b>channelPrototype</b>() const
+    \li void <b>setChannelPrototype</b>(IrcChannel* prototype)
+ */
+IrcChannel* IrcBufferModel::channelPrototype() const
+{
+    Q_D(const IrcBufferModel);
+    return d->channelProto;
+}
+
+void IrcBufferModel::setChannelPrototype(IrcChannel* prototype)
+{
+    Q_D(IrcBufferModel);
+    if (d->channelProto != prototype) {
+        if (d->channelProto && d->channelProto->parent() == this)
+            delete d->channelProto;
+        d->channelProto = prototype ? prototype : new IrcChannel(this);
+        emit channelPrototypeChanged(d->channelProto);
+    }
 }
 
 #include "moc_ircbuffermodel.cpp"
