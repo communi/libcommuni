@@ -695,8 +695,16 @@ bool IrcConnection::isSecure() const
 void IrcConnection::setSecure(bool secure)
 {
 #ifdef QT_NO_OPENSSL
-    Q_UNUSED(secure)
+    if (secure) {
+        qWarning("IrcConnection::setSecure(): the Qt build does not support SSL");
+        return;
+    }
 #else
+    if (secure && !QSslSocket::supportsSsl()) {
+        qWarning("IrcConnection::setSecure(): the platform does not support SSL - try installing OpenSSL");
+        return;
+    }
+
     QSslSocket* sslSocket = qobject_cast<QSslSocket*>(socket());
     if (secure && !sslSocket) {
         sslSocket = new QSslSocket(this);
@@ -707,7 +715,7 @@ void IrcConnection::setSecure(bool secure)
         setSocket(new QTcpSocket(this));
         emit secureChanged(false);
     }
-#endif // QT_NO_OPENSSL
+#endif // !QT_NO_OPENSSL
 }
 
 /*!
