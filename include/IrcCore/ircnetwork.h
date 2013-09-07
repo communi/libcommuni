@@ -106,6 +106,7 @@ Q_SIGNALS:
     void requestingCapabilities();
 
 private:
+    friend class IrcProtocol;
     friend class IrcConnection;
     explicit IrcNetwork(IrcConnection* connection);
 
