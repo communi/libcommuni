@@ -51,8 +51,7 @@ public:
     QString name;
     QStringList modes, prefixes, channelTypes, channelModes;
     QHash<QString, int> numericLimits, modeLimits, channelLimits, targetLimits;
-    QSet<QString> activeCaps;
-    QSet<QString> availableCaps;
+    QSet<QString> availableCaps, requestedCaps, activeCaps;
 };
 
 IRC_END_NAMESPACE

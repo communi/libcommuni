@@ -44,6 +44,20 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \fn void IrcNetwork::requestingCapabilities()
+
+    This signal is emitted when capabilities are being requested.
+
+    Normally it is enough to add the desired capabilities to the
+    list of \ref requestedCapabilities "requested capabilities".
+    Connect to this signal in order to implement more advanced
+    capability handling eg. based on which capabilities are \ref
+    availableCapabilities "available".
+
+    \sa requestedCapabilities, availableCapabilities
+ */
+
+/*!
     \enum IrcNetwork::ModeType
     This enum describes the channel mode types.
  */
@@ -483,6 +497,7 @@ bool IrcNetwork::isCapable(const QString& capability) const
 bool IrcNetwork::requestCapability(const QString& capability)
 {
     Q_D(IrcNetwork);
+    setRequestedCapabilities(d->requestedCaps.toList() << capability);
     if (d->connection)
         return d->connection->sendCommand(IrcCommand::createCapability(QLatin1String("REQ"), capability));
     return false;
@@ -499,9 +514,31 @@ bool IrcNetwork::requestCapability(const QString& capability)
 bool IrcNetwork::requestCapabilities(const QStringList& capabilities)
 {
     Q_D(IrcNetwork);
-    if (d->connection)
+    setRequestedCapabilities(d->requestedCaps.toList() << capabilities);
+    if (d->connection && d->connection->isActive())
         return d->connection->sendCommand(IrcCommand::createCapability(QLatin1String("REQ"), capabilities));
     return false;
+}
+
+/*!
+    Returns the requested capabilities.
+
+    \sa availableCapabilities, activeCapabilities
+ */
+QStringList IrcNetwork::requestedCapabilities() const
+{
+    Q_D(const IrcNetwork);
+    return d->requestedCaps.toList();
+}
+
+void IrcNetwork::setRequestedCapabilities(const QStringList& capabilities)
+{
+    Q_D(IrcNetwork);
+    const QSet<QString> caps = capabilities.toSet();
+    if (d->requestedCaps != caps) {
+        d->requestedCaps = caps;
+        emit requestedCapabilitiesChanged(caps.toList());
+    }
 }
 
 #include "moc_ircnetwork.cpp"

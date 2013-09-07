@@ -38,13 +38,17 @@ public:
     void handlePrivateMessage(IrcPrivateMessage* msg);
     void handleCapabilityMessage(IrcCapabilityMessage* msg);
 
+    void _irc_pauseHandshake();
+    void _irc_resumeHandshake();
+
     IrcProtocol* q_ptr;
     IrcConnection* connection;
     IrcMessageBuilder* builder;
     QByteArray buffer;
+    bool resumed;
 };
 
-IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0)
+IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), builder(0), resumed(false)
 {
 }
 
@@ -70,7 +74,7 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
         if (args.count() == 2 && args.at(1) == "+")
             q->authenticate(true);
         if (!connection->isConnected())
-            connection->sendData("CAP END");
+            QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
         return;
     }
 
@@ -167,13 +171,17 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
         q->setAvailableCapabilities(availableCaps);
 
         if (!connected) {
+            emit connection->network()->requestingCapabilities();
+
+            QStringList requestedCaps = connection->network()->requestedCapabilities();
             const QStringList params = msg->parameters();
             if (params.value(params.count() - 1) != QLatin1String("*")) {
                 if (!connection->saslMechanism().isEmpty() && availableCaps.contains(QLatin1String("sasl")))
-                    connection->sendCommand(IrcCommand::createCapability("REQ", QLatin1String("sasl")));
-                else
-                    connection->sendData("CAP END");
+                    requestedCaps += QLatin1String("sasl");
             }
+            connection->sendCommand(IrcCommand::createCapability("REQ", requestedCaps));
+
+            QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
         }
     } else if (subCommand == "ACK" || subCommand == "NAK") {
         bool auth = false;
@@ -188,8 +196,24 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
         }
 
         if (!connected && !auth)
-            connection->sendData("CAP END");
+            QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
     }
+}
+
+void IrcProtocolPrivate::_irc_pauseHandshake()
+{
+    // Send CAP LS first; if the server understands it this will
+    // temporarily pause the handshake until CAP END is sent, so we
+    // know whether the server supports the CAP extension.
+    connection->sendData("CAP LS");
+    resumed = false;
+}
+
+void IrcProtocolPrivate::_irc_resumeHandshake()
+{
+    if (!resumed && !connection->isConnected())
+        connection->sendData("CAP END");
+    resumed = true;
 }
 
 IrcProtocol::IrcProtocol(IrcConnection* connection) : QObject(connection), d_ptr(new IrcProtocolPrivate)
@@ -227,10 +251,7 @@ void IrcProtocol::open()
     if (secure)
         QMetaObject::invokeMethod(socket(), "startClientEncryption");
 
-    // Send CAP LS first; if the server understands it this will
-    // temporarily pause the handshake until CAP END is sent, so we
-    // know whether the server supports the CAP extension.
-    d->connection->sendData("CAP LS");
+    d->_irc_pauseHandshake();
 
     if (d->connection->saslMechanism().isEmpty() && !d->connection->password().isEmpty())
         authenticate(false);

@@ -59,6 +59,9 @@ private:
     QScopedPointer<IrcProtocolPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcProtocol)
     Q_DISABLE_COPY(IrcProtocol)
+
+    Q_PRIVATE_SLOT(d_func(), void _irc_pauseHandshake())
+    Q_PRIVATE_SLOT(d_func(), void _irc_resumeHandshake())
 };
 
 IRC_END_NAMESPACE

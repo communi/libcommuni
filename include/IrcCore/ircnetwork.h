@@ -34,6 +34,7 @@ class IRC_CORE_EXPORT IrcNetwork : public QObject
     Q_PROPERTY(QStringList prefixes READ prefixes NOTIFY prefixesChanged)
     Q_PROPERTY(QStringList channelTypes READ channelTypes NOTIFY channelTypesChanged)
     Q_PROPERTY(QStringList availableCapabilities READ availableCapabilities NOTIFY availableCapabilitiesChanged)
+    Q_PROPERTY(QStringList requestedCapabilities READ requestedCapabilities WRITE setRequestedCapabilities NOTIFY requestedCapabilitiesChanged)
     Q_PROPERTY(QStringList activeCapabilities READ activeCapabilities NOTIFY activeCapabilitiesChanged)
     Q_FLAGS(ModeType)
     Q_ENUMS(Limit)
@@ -83,13 +84,16 @@ public:
     Q_INVOKABLE int targetLimit(const QString& command = QString()) const;
 
     QStringList availableCapabilities() const;
+    QStringList requestedCapabilities() const;
     QStringList activeCapabilities() const;
 
     Q_INVOKABLE bool hasCapability(const QString& capability) const;
     Q_INVOKABLE bool isCapable(const QString& capability) const;
 
-    Q_INVOKABLE bool requestCapability(const QString& capability);
-    Q_INVOKABLE bool requestCapabilities(const QStringList& capabilities);
+public Q_SLOTS:
+    bool requestCapability(const QString& capability);
+    bool requestCapabilities(const QStringList& capabilities);
+    void setRequestedCapabilities(const QStringList& capabilities);
 
 Q_SIGNALS:
     void nameChanged(const QString& name);
@@ -97,7 +101,9 @@ Q_SIGNALS:
     void prefixesChanged(const QStringList& prefixes);
     void channelTypesChanged(const QStringList& types);
     void availableCapabilitiesChanged(const QStringList& capabilities);
+    void requestedCapabilitiesChanged(const QStringList& capabilities);
     void activeCapabilitiesChanged(const QStringList& capabilities);
+    void requestingCapabilities();
 
 private:
     friend class IrcConnection;
