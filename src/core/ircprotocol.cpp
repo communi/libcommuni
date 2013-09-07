@@ -171,8 +171,6 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
         q->setAvailableCapabilities(availableCaps);
 
         if (!connected) {
-            emit connection->network()->requestingCapabilities();
-
             QStringList requestedCaps = connection->network()->requestedCapabilities();
             const QStringList params = msg->parameters();
             if (params.value(params.count() - 1) != QLatin1String("*")) {
@@ -323,6 +321,8 @@ void IrcProtocol::setAvailableCapabilities(const QSet<QString>& capabilities)
     Q_D(IrcProtocol);
     IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->connection->network());
     priv->setAvailableCapabilities(capabilities);
+    if (!d->connection->isConnected())
+        emit d->connection->network()->requestingCapabilities();
 }
 
 void IrcProtocol::setActiveCapabilities(const QSet<QString>& capabilities)
