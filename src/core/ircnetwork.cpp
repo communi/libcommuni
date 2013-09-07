@@ -497,7 +497,6 @@ bool IrcNetwork::isCapable(const QString& capability) const
 bool IrcNetwork::requestCapability(const QString& capability)
 {
     Q_D(IrcNetwork);
-    setRequestedCapabilities(d->requestedCaps.toList() << capability);
     if (d->connection)
         return d->connection->sendCommand(IrcCommand::createCapability(QLatin1String("REQ"), capability));
     return false;
@@ -514,7 +513,6 @@ bool IrcNetwork::requestCapability(const QString& capability)
 bool IrcNetwork::requestCapabilities(const QStringList& capabilities)
 {
     Q_D(IrcNetwork);
-    setRequestedCapabilities(d->requestedCaps.toList() << capabilities);
     if (d->connection && d->connection->isActive())
         return d->connection->sendCommand(IrcCommand::createCapability(QLatin1String("REQ"), capabilities));
     return false;
