@@ -179,6 +179,7 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
     nickName(),
     realName(),
     active(false),
+    closed(false),
     connected(false)
 {
 }
@@ -194,6 +195,8 @@ void IrcConnectionPrivate::_irc_disconnected()
 {
     Q_Q(IrcConnection);
     emit q->disconnected();
+    if (!closed && !protocol->hasQuit() && !reconnecter.isActive() && reconnecter.interval() > 0)
+        reconnecter.start();
 }
 
 void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
@@ -216,6 +219,15 @@ void IrcConnectionPrivate::_irc_state(QAbstractSocket::SocketState state)
     static bool dbg = qgetenv("IRC_DEBUG").toInt();
     if (dbg) qDebug() << "IrcConnection: socket state:" << state << host;
     emit q->socketStateChanged(state);
+}
+
+void IrcConnectionPrivate::_irc_reconnect()
+{
+    Q_Q(IrcConnection);
+    if (!active) {
+        reconnecter.stop();
+        q->open();
+    }
 }
 
 void IrcConnectionPrivate::_irc_readData()
@@ -358,6 +370,7 @@ IrcConnection::IrcConnection(QObject* parent) : QObject(parent), d_ptr(new IrcCo
     setSocket(new QTcpSocket(this));
     setProtocol(new IrcProtocol(this));
     qRegisterMetaType<IrcNetwork*>();
+    connect(&d->reconnecter, SIGNAL(timeout()), this, SLOT(_irc_reconnect()));
 }
 
 /*!
@@ -614,6 +627,39 @@ bool IrcConnection::isConnected() const
 }
 
 /*!
+    \property int IrcConnection::reconnectDelay
+    This property holds the reconnect delay in seconds.
+
+    A positive (greater than zero) value enables automatic reconnect.
+    When the connection is lost due to a socket error, IrcConnection
+    will automatically attempt to reconnect after the specified delay.
+
+    The default value is \c 0 (automatic reconnect disabled).
+
+    \par Access functions:
+    \li int <b>reconnectDelay</b>() const
+    \li void <b>setReconnectDelay</b>(int seconds)
+
+    \par Notifier signal:
+    \li void <b>reconnectDelayChanged</b>(int seconds)
+ */
+int IrcConnection::reconnectDelay() const
+{
+    Q_D(const IrcConnection);
+    return d->reconnecter.interval() / 1000;
+}
+
+void IrcConnection::setReconnectDelay(int seconds)
+{
+    Q_D(IrcConnection);
+    const int interval = qMax(0, seconds) * 1000;
+    if (d->reconnecter.interval() != interval) {
+        d->reconnecter.setInterval(interval);
+        emit reconnectDelayChanged(interval);
+    }
+}
+
+/*!
     This property holds the socket. IrcConnection creates an instance of QTcpSocket by default.
 
     The previously set socket is deleted if its parent is \c this.
@@ -799,6 +845,7 @@ void IrcConnection::open()
         qCritical("IrcConnection::open(): realName is empty!");
         return;
     }
+    d->closed = false;
     if (d->socket)
         d->socket->connectToHost(d->host, d->port);
 }
@@ -829,6 +876,7 @@ void IrcConnection::open()
 void IrcConnection::close()
 {
     Q_D(IrcConnection);
+    d->closed = true;
     if (d->socket) {
         d->socket->abort();
         d->socket->disconnectFromHost();

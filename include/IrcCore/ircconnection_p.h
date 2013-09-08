@@ -19,6 +19,7 @@
 
 #include <QList>
 #include <QHash>
+#include <QTimer>
 #include <QString>
 #include <QByteArray>
 #include <QAbstractSocket>
@@ -36,6 +37,7 @@ public:
     void _irc_disconnected();
     void _irc_error(QAbstractSocket::SocketError error);
     void _irc_state(QAbstractSocket::SocketState state);
+    void _irc_reconnect();
     void _irc_readData();
 
     void setNick(const QString& nick);
@@ -61,7 +63,9 @@ public:
     QString realName;
     QString password;
     bool active;
+    bool closed;
     bool connected;
+    QTimer reconnecter;
     QString saslMechanism;
     QList<IrcMessageFilter*> filters;
     QList<IrcCommand*> pendingCommands;

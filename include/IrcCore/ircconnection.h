@@ -42,6 +42,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
     Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
+    Q_PROPERTY(int reconnectDelay READ reconnectDelay WRITE setReconnectDelay NOTIFY reconnectDelayChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
     Q_PROPERTY(bool secure READ isSecure WRITE setSecure NOTIFY secureChanged)
     Q_PROPERTY(QString saslMechanism READ saslMechanism WRITE setSaslMechanism NOTIFY saslMechanismChanged)
@@ -75,6 +76,9 @@ public:
 
     bool isActive() const;
     bool isConnected() const;
+
+    int reconnectDelay() const;
+    void setReconnectDelay(int seconds);
 
     QAbstractSocket* socket() const;
     void setSocket(QAbstractSocket* socket);
@@ -138,6 +142,7 @@ Q_SIGNALS:
 
     void activeChanged(bool active);
     void connectedChanged(bool connected);
+    void reconnectDelayChanged(int seconds);
 
     void secureChanged(bool secure);
     void saslMechanismChanged(const QString& mechanism);
@@ -160,6 +165,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
     Q_PRIVATE_SLOT(d_func(), void _irc_error(QAbstractSocket::SocketError))
     Q_PRIVATE_SLOT(d_func(), void _irc_state(QAbstractSocket::SocketState))
+    Q_PRIVATE_SLOT(d_func(), void _irc_reconnect())
     Q_PRIVATE_SLOT(d_func(), void _irc_readData())
 };
 

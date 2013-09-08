@@ -45,6 +45,8 @@ public:
     virtual void read();
     virtual bool write(const QByteArray& data);
 
+    virtual bool hasQuit() const;
+
 protected Q_SLOTS:
     void setActive(bool active);
     void setConnected(bool connected);
