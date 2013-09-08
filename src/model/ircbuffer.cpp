@@ -97,7 +97,7 @@ void IrcBufferPrivate::setModel(IrcBufferModel* value)
     Q_Q(IrcBuffer);
     if (model != value) {
         model = value;
-        QObject::connect(model->connection(), SIGNAL(connectedChanged(bool)), q, SLOT(_irc_emitActiveChanged()));
+        QObject::connect(model->connection(), SIGNAL(statusChanged(IrcConnection::Status)), q, SLOT(_irc_emitActiveChanged()));
     }
 }
 
