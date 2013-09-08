@@ -14,6 +14,7 @@
 
 #include "ircuser.h"
 #include "ircuser_p.h"
+#include <qdebug.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -145,6 +146,21 @@ IrcChannel* IrcUser::channel() const
     Q_D(const IrcUser);
     return d->channel;
 }
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const IrcUser* user)
+{
+    if (!user)
+        return debug << "IrcUser(0x0) ";
+    debug.nospace() << user->metaObject()->className() << '(' << (void*) user;
+    if (!user->objectName().isEmpty())
+        debug.nospace() << ", name=" << user->objectName();
+    if (!user->name().isEmpty())
+        debug.nospace() << ", user=" << user->name();
+    debug.nospace() << ')';
+    return debug.space();
+}
+#endif // QT_NO_DEBUG_STREAM
 
 #include "moc_ircuser.cpp"
 

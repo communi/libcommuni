@@ -50,6 +50,10 @@ private:
     Q_DISABLE_COPY(IrcChannel)
 };
 
+#ifndef QT_NO_DEBUG_STREAM
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcChannel* channel);
+#endif // QT_NO_DEBUG_STREAM
+
 IRC_END_NAMESPACE
 
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcChannel*))

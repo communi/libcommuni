@@ -113,6 +113,10 @@ private:
     Q_DISABLE_COPY(IrcNetwork)
 };
 
+#ifndef QT_NO_DEBUG_STREAM
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcNetwork* network);
+#endif // QT_NO_DEBUG_STREAM
+
 Q_DECLARE_OPERATORS_FOR_FLAGS(IrcNetwork::ModeTypes)
 
 IRC_END_NAMESPACE

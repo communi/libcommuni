@@ -1354,19 +1354,21 @@ QDebug operator<<(QDebug debug, const IrcMessage* message)
     QStringList flags;
     if (message->flags() == IrcMessage::None)
         flags << "None";
-    else if (message->flags() & IrcMessage::Identified)
+    if (message->flags() & IrcMessage::Own)
+        flags << "Own";
+    if (message->flags() & IrcMessage::Identified)
         flags << "Identified";
-    else if (message->flags() & IrcMessage::Unidentified)
+    if (message->flags() & IrcMessage::Unidentified)
         flags << "Unidentified";
-    debug << ", flags = " << flags;
+    debug.nospace() << ", flags=(" << qPrintable(flags.join(", ")) << ")";
     if (!message->objectName().isEmpty())
-        debug << ", name = " << message->objectName();
+        debug.nospace() << ", name=" << message->objectName();
     if (!message->prefix().isEmpty())
-        debug << ", prefix = " << message->prefix();
+        debug.nospace() << ", prefix=" << message->prefix();
     if (!message->command().isEmpty())
-        debug << ", command = " << message->command();
+        debug.nospace() << ", command=" << message->command();
     if (!message->parameters().isEmpty())
-        debug << ", params = " << message->parameters();
+        debug.nospace() << ", params=(" << qPrintable(message->parameters().join(", ").left(20)) << ")";
     debug.nospace() << ')';
     return debug.space();
 }

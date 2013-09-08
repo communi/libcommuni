@@ -591,6 +591,21 @@ void IrcNetwork::setRequestedCapabilities(const QStringList& capabilities)
     }
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const IrcNetwork* network)
+{
+    if (!network)
+        return debug << "IrcNetwork(0x0) ";
+    debug.nospace() << network->metaObject()->className() << '(' << (void*) network;
+    if (!network->objectName().isEmpty())
+        debug.nospace() << ", name=" << network->objectName();
+    if (!network->name().isEmpty())
+        debug.nospace() << ", network=" << network->name();
+    debug.nospace() << ')';
+    return debug.space();
+}
+#endif // QT_NO_DEBUG_STREAM
+
 #include "moc_ircnetwork.cpp"
 
 IRC_END_NAMESPACE

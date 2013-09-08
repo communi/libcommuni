@@ -807,10 +807,10 @@ QDebug operator<<(QDebug debug, const IrcCommand* command)
         return debug << "IrcCommand(0x0) ";
     debug.nospace() << command->metaObject()->className() << '(' << (void*) command;
     if (!command->objectName().isEmpty())
-        debug << ", name = " << command->objectName();
+        debug.nospace() << ", name=" << command->objectName();
     QString str = command->toString();
     if (!str.isEmpty())
-        debug << "'" << str.left(20) << "'";
+        debug.nospace() << ", " << str.left(20);
     debug.nospace() << ')';
     return debug.space();
 }

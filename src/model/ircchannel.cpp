@@ -402,6 +402,21 @@ void IrcChannel::part(const QString& reason)
     sendCommand(IrcCommand::createPart(title(), reason));
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const IrcChannel* channel)
+{
+    if (!channel)
+        return debug << "IrcChannel(0x0) ";
+    debug.nospace() << channel->metaObject()->className() << '(' << (void*) channel;
+    if (!channel->objectName().isEmpty())
+        debug.nospace() << ", name=" << channel->objectName();
+    if (!channel->title().isEmpty())
+        debug.nospace() << ", title=" << channel->title();
+    debug.nospace() << ')';
+    return debug.space();
+}
+#endif // QT_NO_DEBUG_STREAM
+
 #include "moc_ircchannel.cpp"
 
 IRC_END_NAMESPACE

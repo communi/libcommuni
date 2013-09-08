@@ -1159,11 +1159,11 @@ QDebug operator<<(QDebug debug, const IrcConnection* connection)
         return debug << "IrcConnection(0x0) ";
     debug.nospace() << connection->metaObject()->className() << '(' << (void*) connection;
     if (!connection->objectName().isEmpty())
-        debug << ", name = " << connection->objectName();
+        debug.nospace() << ", name=" << connection->objectName();
     if (!connection->host().isEmpty())
-        debug << ", host = " << connection->host()
-              << ", port = " << connection->port();
-    debug << ')';
+        debug.nospace() << ", host=" << connection->host()
+                        << ", port=" << connection->port();
+    debug.nospace() << ')';
     return debug.space();
 }
 #endif // QT_NO_DEBUG_STREAM

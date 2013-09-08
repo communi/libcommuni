@@ -54,6 +54,10 @@ private:
     Q_DISABLE_COPY(IrcUser)
 };
 
+#ifndef QT_NO_DEBUG_STREAM
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcUser* user);
+#endif // QT_NO_DEBUG_STREAM
+
 IRC_END_NAMESPACE
 
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcUser*))

@@ -94,6 +94,10 @@ protected:
     Q_PRIVATE_SLOT(d_func(), void _irc_emitActiveChanged())
 };
 
+#ifndef QT_NO_DEBUG_STREAM
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcBuffer* buffer);
+#endif // QT_NO_DEBUG_STREAM
+
 IRC_END_NAMESPACE
 
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcBuffer*))

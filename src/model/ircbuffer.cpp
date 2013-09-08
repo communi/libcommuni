@@ -474,6 +474,21 @@ void IrcBuffer::receiveMessage(IrcMessage* message)
     emit messageReceived(message);
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const IrcBuffer* buffer)
+{
+    if (!buffer)
+        return debug << "IrcBuffer(0x0) ";
+    debug.nospace() << buffer->metaObject()->className() << '(' << (void*) buffer;
+    if (!buffer->objectName().isEmpty())
+        debug.nospace() << ", name=" << buffer->objectName();
+    if (!buffer->title().isEmpty())
+        debug.nospace() << ", title=" << buffer->title();
+    debug.nospace() << ')';
+    return debug.space();
+}
+#endif // QT_NO_DEBUG_STREAM
+
 #include "moc_ircbuffer.cpp"
 
 IRC_END_NAMESPACE
