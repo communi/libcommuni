@@ -326,7 +326,7 @@ void IrcProtocol::setNick(const QString& nick)
 void IrcProtocol::setInfo(const QHash<QString, QString>& info)
 {
     Q_D(IrcProtocol);
-    IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->connection->network());
+    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->setInfo(info);
 }
 

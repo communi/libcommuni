@@ -15,6 +15,7 @@
 #include "ircconnection.h"
 #include "ircconnection_p.h"
 #include "ircmessagefilter_p.h"
+#include "ircnetwork_p.h"
 #include "ircprotocol.h"
 #include "ircnetwork.h"
 #include "irccommand.h"
@@ -268,6 +269,17 @@ void IrcConnectionPrivate::setConnected(bool value)
     }
 }
 
+void IrcConnectionPrivate::setInfo(const QHash<QString, QString>& info)
+{
+    Q_Q(IrcConnection);
+    const QString oldName = q->displayName();
+    IrcNetworkPrivate* priv = IrcNetworkPrivate::get(network);
+    priv->setInfo(info);
+    const QString newName = q->displayName();
+    if (oldName != newName)
+        emit q->displayNameChanged(newName);
+}
+
 void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
 {
     Q_Q(IrcConnection);
@@ -438,8 +450,12 @@ void IrcConnection::setHost(const QString& host)
     if (isActive())
         qWarning("IrcConnection::setHost() has no effect until re-connect");
     if (d->host != host) {
+        const QString oldName = displayName();
         d->host = host;
         emit hostChanged(host);
+        const QString newName = displayName();
+        if (oldName != newName)
+            emit displayNameChanged(newName);
     }
 }
 
@@ -583,6 +599,39 @@ void IrcConnection::setPassword(const QString& password)
     if (d->password != password) {
         d->password = password;
         emit passwordChanged(password);
+    }
+}
+
+/*!
+    This property holds the display name.
+
+    Unless explicitly set, display name resolves to IrcNetwork::name
+    or IrcConnection::host while the former is not known.
+
+    \par Access functions:
+    \li QString <b>displayName</b>() const
+    \li void <b>setDisplayName</b>(const QString& name)
+
+    \par Notifier signal:
+    \li void <b>displayNameChanged</b>(const QString& name)
+ */
+QString IrcConnection::displayName() const
+{
+    Q_D(const IrcConnection);
+    QString name = d->displayName;
+    if (name.isEmpty())
+        name = d->network->name();
+    if (name.isEmpty())
+        name = d->host;
+    return name;
+}
+
+void IrcConnection::setDisplayName(const QString& name)
+{
+    Q_D(IrcConnection);
+    if (d->displayName != name) {
+        d->displayName = name;
+        emit displayNameChanged(name);
     }
 }
 

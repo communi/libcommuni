@@ -43,6 +43,8 @@ public:
     void setNick(const QString& nick);
     void setActive(bool active);
     void setConnected(bool connected);
+    void setInfo(const QHash<QString, QString>& info);
+
     void receiveMessage(IrcMessage* msg);
     IrcCommand* createCtcpReply(IrcPrivateMessage* request);
 
@@ -62,6 +64,7 @@ public:
     QString nickName;
     QString realName;
     QString password;
+    QString displayName;
     bool active;
     bool closed;
     bool connected;
