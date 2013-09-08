@@ -36,13 +36,11 @@ class IRC_CORE_EXPORT IrcNetwork : public QObject
     Q_PROPERTY(QStringList availableCapabilities READ availableCapabilities NOTIFY availableCapabilitiesChanged)
     Q_PROPERTY(QStringList requestedCapabilities READ requestedCapabilities WRITE setRequestedCapabilities NOTIFY requestedCapabilitiesChanged)
     Q_PROPERTY(QStringList activeCapabilities READ activeCapabilities NOTIFY activeCapabilitiesChanged)
-    Q_FLAGS(ModeType)
+    Q_FLAGS(ModeType ModeTypes)
     Q_ENUMS(Limit)
 
 public:
     virtual ~IrcNetwork();
-
-    bool isValid() const;
 
     QString name() const;
 
@@ -65,7 +63,7 @@ public:
     };
     Q_DECLARE_FLAGS(ModeTypes, ModeType)
 
-    QStringList channelModes(ModeTypes types) const;
+    Q_INVOKABLE QStringList channelModes(IrcNetwork::ModeTypes types) const;
 
     enum Limit {
         NickLength,
@@ -77,7 +75,7 @@ public:
         ModeCount
     };
 
-    Q_INVOKABLE int numericLimit(Limit limit) const;
+    Q_INVOKABLE int numericLimit(IrcNetwork::Limit limit) const;
 
     Q_INVOKABLE int modeLimit(const QString& mode = QString()) const;
     Q_INVOKABLE int channelLimit(const QString& type = QString()) const;

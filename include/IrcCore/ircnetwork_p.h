@@ -47,7 +47,6 @@ public:
 
     IrcNetwork* q_ptr;
     QPointer<IrcConnection> connection;
-    bool valid;
     QString name;
     QStringList modes, prefixes, channelTypes, channelModes;
     QHash<QString, int> numericLimits, modeLimits, channelLimits, targetLimits;
