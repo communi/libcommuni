@@ -178,7 +178,8 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
                 if (!connection->saslMechanism().isEmpty() && availableCaps.contains(QLatin1String("sasl")))
                     requestedCaps += QLatin1String("sasl");
             }
-            connection->sendCommand(IrcCommand::createCapability("REQ", requestedCaps));
+            if (!requestedCaps.isEmpty())
+                connection->sendCommand(IrcCommand::createCapability("REQ", requestedCaps));
 
             QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
         }
