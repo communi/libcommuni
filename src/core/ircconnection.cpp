@@ -92,6 +92,41 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \enum IrcConnection::Status
+    This enum describes the connection status.
+ */
+
+/*!
+    \var IrcConnection::Inactive
+    \brief The connection is inactive.
+ */
+
+/*!
+    \var IrcConnection::Waiting
+    \brief The connection is waiting for reconnect.
+ */
+
+/*!
+    \var IrcConnection::Connecting
+    \brief The connection is being established.
+ */
+
+/*!
+    \var IrcConnection::Connected
+    \brief The connection is established.
+ */
+
+/*!
+    \var IrcConnection::Closed
+    \brief The connection has been closed.
+ */
+
+/*!
+    \var IrcConnection::Error
+    \brief The connection has encountered an error.
+ */
+
+/*!
     \fn void IrcConnection::connecting()
 
     This signal is emitted when the connection is being established.
@@ -196,8 +231,10 @@ void IrcConnectionPrivate::_irc_disconnected()
 {
     Q_Q(IrcConnection);
     emit q->disconnected();
-    if (!closed && !protocol->hasQuit() && !reconnecter.isActive() && reconnecter.interval() > 0)
+    if (!closed && !protocol->hasQuit() && !reconnecter.isActive() && reconnecter.interval() > 0) {
         reconnecter.start();
+        emit q->statusChanged(q->status());
+    }
 }
 
 void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
@@ -208,6 +245,7 @@ void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
     setConnected(false);
     setActive(false);
     emit q->socketError(error);
+    emit q->statusChanged(q->status());
 }
 
 void IrcConnectionPrivate::_irc_state(QAbstractSocket::SocketState state)
@@ -250,7 +288,7 @@ void IrcConnectionPrivate::setActive(bool value)
     Q_Q(IrcConnection);
     if (active != value) {
         active = value;
-        emit q->activeChanged(active);
+        emit q->statusChanged(q->status());
     }
 }
 
@@ -259,7 +297,7 @@ void IrcConnectionPrivate::setConnected(bool value)
     Q_Q(IrcConnection);
     if (connected != value) {
         connected = value;
-        emit q->connectedChanged(connected);
+        emit q->statusChanged(q->status());
         if (connected) {
             emit q->connected();
             foreach (IrcCommand* cmd, pendingCommands)
@@ -636,6 +674,32 @@ void IrcConnection::setDisplayName(const QString& name)
 }
 
 /*!
+    \property Status IrcConnection::status
+    This property holds the connection status.
+
+    \par Access functions:
+    \li Status <b>status</b>() const
+
+    \par Notifier signal:
+    \li void <b>statusChanged</b>(Status status)
+ */
+IrcConnection::Status IrcConnection::status() const
+{
+    Q_D(const IrcConnection);
+    if (d->connected)
+        return Connected;
+    if (d->active)
+        return Connecting;
+    if (d->reconnecter.isActive())
+        return Waiting;
+    if (d->closed)
+        return Closed;
+    if (d->socket && d->socket->error() != QAbstractSocket::UnknownSocketError)
+        return Error;
+    return Inactive;
+}
+
+/*!
     \property bool IrcConnection::active
     This property holds whether the connection is active.
 
@@ -644,9 +708,6 @@ void IrcConnection::setDisplayName(const QString& name)
 
     \par Access functions:
     \li bool <b>isActive</b>() const
-
-    \par Notifier signal:
-    \li void <b>activeChanged</b>(bool active)
  */
 bool IrcConnection::isActive() const
 {
@@ -665,9 +726,6 @@ bool IrcConnection::isActive() const
 
     \par Access functions:
     \li bool <b>isConnected</b>() const
-
-    \par Notifier signals:
-    \li void <b>connectedChanged</b>(bool connected)
  */
 bool IrcConnection::isConnected() const
 {
@@ -930,6 +988,7 @@ void IrcConnection::close()
         d->socket->abort();
         d->socket->disconnectFromHost();
     }
+    emit statusChanged(status());
 }
 
 /*!

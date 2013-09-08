@@ -41,14 +41,16 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(QString password READ password WRITE setPassword NOTIFY passwordChanged)
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
-    Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
-    Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
+    Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+    Q_PROPERTY(bool active READ isActive NOTIFY statusChanged)
+    Q_PROPERTY(bool connected READ isConnected NOTIFY statusChanged)
     Q_PROPERTY(int reconnectDelay READ reconnectDelay WRITE setReconnectDelay NOTIFY reconnectDelayChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
     Q_PROPERTY(bool secure READ isSecure WRITE setSecure NOTIFY secureChanged)
     Q_PROPERTY(QString saslMechanism READ saslMechanism WRITE setSaslMechanism NOTIFY saslMechanismChanged)
     Q_PROPERTY(QStringList supportedSaslMechanisms READ supportedSaslMechanisms CONSTANT)
     Q_PROPERTY(IrcNetwork* network READ network CONSTANT)
+    Q_ENUMS(Status)
 
 public:
     explicit IrcConnection(QObject* parent = 0);
@@ -78,6 +80,15 @@ public:
     QByteArray encoding() const;
     void setEncoding(const QByteArray& encoding);
 
+    enum Status {
+        Inactive,
+        Waiting,
+        Connecting,
+        Connected,
+        Closed,
+        Error
+    };
+    Status status() const;
     bool isActive() const;
     bool isConnected() const;
 
@@ -114,6 +125,7 @@ Q_SIGNALS:
     void nickNameReserved(QString* alternate);
     void connected();
     void disconnected();
+    void statusChanged(IrcConnection::Status status);
     void socketError(QAbstractSocket::SocketError error);
     void socketStateChanged(QAbstractSocket::SocketState state);
 
@@ -145,8 +157,6 @@ Q_SIGNALS:
     void passwordChanged(const QString& password);
     void displayNameChanged(const QString& name);
 
-    void activeChanged(bool active);
-    void connectedChanged(bool connected);
     void reconnectDelayChanged(int seconds);
 
     void secureChanged(bool secure);
