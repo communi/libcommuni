@@ -44,12 +44,19 @@ private slots:
     void testRealName_data();
     void testRealName();
 
+    void testPassword_data();
+    void testPassword();
+
+    void testDisplayName_data();
+    void testDisplayName();
+
     void testEncoding_data();
     void testEncoding();
 
     void testSocket_data();
     void testSocket();
 
+    void testSecure();
     void testConnection();
     void testSendCommand();
     void testSendData();
@@ -76,9 +83,18 @@ void tst_IrcConnection::testDefaults()
     QVERIFY(connection.userName().isNull());
     QVERIFY(connection.nickName().isNull());
     QVERIFY(connection.realName().isNull());
+    QVERIFY(connection.password().isNull());
+    QVERIFY(connection.displayName().isNull());
     QCOMPARE(connection.encoding(), QByteArray("ISO-8859-15"));
+    QCOMPARE(connection.status(), IrcConnection::Inactive);
+    QVERIFY(!connection.isActive());
+    QVERIFY(!connection.isConnected());
+    QCOMPARE(connection.reconnectDelay(), 0);
     QVERIFY(connection.socket());
-    QVERIFY(connection.socket()->inherits("QAbstractSocket"));
+    QVERIFY(!connection.isSecure());
+    QVERIFY(connection.saslMechanism().isNull());
+    QVERIFY(!IrcConnection::supportedSaslMechanisms().isEmpty());
+    QVERIFY(connection.network());
 }
 
 void tst_IrcConnection::testHost_data()
@@ -97,8 +113,13 @@ void tst_IrcConnection::testHost()
     QFETCH(QString, host);
 
     IrcConnection connection;
+    QSignalSpy spy(&connection, SIGNAL(hostChanged(QString)));
+    QVERIFY(spy.isValid());
     connection.setHost(host);
     QCOMPARE(connection.host(), host);
+    QCOMPARE(spy.count(), !host.isEmpty() ? 1 : 0);
+    if (!spy.isEmpty())
+        QCOMPARE(spy.first().first().toString(), host);
 }
 
 void tst_IrcConnection::testPort_data()
@@ -118,8 +139,13 @@ void tst_IrcConnection::testPort()
     QFETCH(int, port);
 
     IrcConnection connection;
+    QSignalSpy spy(&connection, SIGNAL(portChanged(int)));
+    QVERIFY(spy.isValid());
     connection.setPort(port);
     QCOMPARE(connection.port(), port);
+    QCOMPARE(spy.count(), port != 6667 ? 1 : 0);
+    if (!spy.isEmpty())
+        QCOMPARE(spy.first().first().toInt(), port);
 }
 
 void tst_IrcConnection::testUserName_data()
@@ -139,8 +165,13 @@ void tst_IrcConnection::testUserName()
     QFETCH(QString, result);
 
     IrcConnection connection;
+    QSignalSpy spy(&connection, SIGNAL(userNameChanged(QString)));
+    QVERIFY(spy.isValid());
     connection.setUserName(name);
     QCOMPARE(connection.userName(), result);
+    QCOMPARE(spy.count(), !result.isEmpty() ? 1 : 0);
+    if (!spy.isEmpty())
+        QCOMPARE(spy.first().first().toString(), result);
 }
 
 void tst_IrcConnection::testNickName_data()
@@ -160,8 +191,13 @@ void tst_IrcConnection::testNickName()
     QFETCH(QString, result);
 
     IrcConnection connection;
+    QSignalSpy spy(&connection, SIGNAL(nickNameChanged(QString)));
+    QVERIFY(spy.isValid());
     connection.setNickName(name);
     QCOMPARE(connection.nickName(), result);
+    QCOMPARE(spy.count(), !result.isEmpty() ? 1 : 0);
+    if (!spy.isEmpty())
+        QCOMPARE(spy.first().first().toString(), result);
 }
 
 void tst_IrcConnection::testRealName_data()
@@ -181,8 +217,66 @@ void tst_IrcConnection::testRealName()
     QFETCH(QString, result);
 
     IrcConnection connection;
+    QSignalSpy spy(&connection, SIGNAL(realNameChanged(QString)));
+    QVERIFY(spy.isValid());
     connection.setRealName(name);
     QCOMPARE(connection.realName(), result);
+    QCOMPARE(spy.count(), !result.isEmpty() ? 1 : 0);
+    if (!spy.isEmpty())
+        QCOMPARE(spy.first().first().toString(), result);
+}
+
+void tst_IrcConnection::testPassword_data()
+{
+    QTest::addColumn<QString>("passwd");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("null") << QString() << QString();
+    QTest::newRow("empty") << QString("") << QString("");
+    QTest::newRow("space") << QString(" ") << QString(" ");
+    QTest::newRow("spaces") << QString(" foo bar ") << QString(" foo bar ");
+}
+
+void tst_IrcConnection::testPassword()
+{
+    QFETCH(QString, passwd);
+    QFETCH(QString, result);
+
+    IrcConnection connection;
+    QSignalSpy spy(&connection, SIGNAL(passwordChanged(QString)));
+    QVERIFY(spy.isValid());
+    connection.setPassword(passwd);
+    QCOMPARE(connection.password(), result);
+    QCOMPARE(spy.count(), !result.isEmpty() ? 1 : 0);
+    if (!spy.isEmpty())
+        QCOMPARE(spy.first().first().toString(), result);
+}
+
+void tst_IrcConnection::testDisplayName_data()
+{
+    QTest::addColumn<QString>("host");
+    QTest::addColumn<QString>("name");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("null") << QString() << QString() << QString();
+    QTest::newRow("empty") << QString() << QString("") << QString("");
+    QTest::newRow("space") << QString() << QString(" ") << QString(" ");
+
+    QTest::newRow("host") << QString("host") << QString() << QString("host");
+    QTest::newRow("name") << QString() << QString("name") << QString("name");
+    QTest::newRow("explicit") << QString("host") << QString("name") << QString("name");
+}
+
+void tst_IrcConnection::testDisplayName()
+{
+    QFETCH(QString, host);
+    QFETCH(QString, name);
+    QFETCH(QString, result);
+
+    IrcConnection connection;
+    connection.setHost(host);
+    connection.setDisplayName(name);
+    QCOMPARE(connection.displayName(), result);
 }
 
 void tst_IrcConnection::testEncoding_data()
@@ -227,6 +321,27 @@ void tst_IrcConnection::testSocket()
     IrcConnection connection;
     connection.setSocket(socket);
     QCOMPARE(connection.socket(), socket);
+    QCOMPARE(connection.isSecure(), socket && socket->inherits("QSslSocket"));
+}
+
+void tst_IrcConnection::testSecure()
+{
+    IrcConnection connection;
+    QSignalSpy spy(&connection, SIGNAL(secureChanged(bool)));
+    QVERIFY(spy.isValid());
+    QVERIFY(!connection.isSecure());
+
+    connection.setSecure(true);
+    QVERIFY(connection.isSecure());
+    QVERIFY(connection.socket()->inherits("QSslSocket"));
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.first().first().toBool());
+
+    connection.setSecure(false);
+    QVERIFY(!connection.isSecure());
+    QVERIFY(!connection.socket()->inherits("QSslSocket"));
+    QCOMPARE(spy.count(), 2);
+    QVERIFY(!spy.last().last().toBool());
 }
 
 Q_DECLARE_METATYPE(QString*)
