@@ -5,10 +5,11 @@
 TEMPLATE = subdirs
 
 SUBDIRS += irc
+SUBDIRS += ircconnection
 SUBDIRS += irccommand
 SUBDIRS += irccommandparser
 SUBDIRS += ircmessage
-SUBDIRS += ircconnection
+SUBDIRS += ircnetwork
 
 private_tests {
     SUBDIRS += ircmessagedecoder
