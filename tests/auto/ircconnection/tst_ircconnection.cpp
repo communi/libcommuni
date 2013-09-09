@@ -283,19 +283,24 @@ void tst_IrcConnection::testEncoding_data()
 {
     QTest::addColumn<QByteArray>("encoding");
     QTest::addColumn<QByteArray>("actual");
+    QTest::addColumn<bool>("supported");
 
-    QTest::newRow("null") << QByteArray() << QByteArray("ISO-8859-15");
-    QTest::newRow("empty") << QByteArray("") << QByteArray("ISO-8859-15");
-    QTest::newRow("space") << QByteArray(" ") << QByteArray("ISO-8859-15");
-    QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("ISO-8859-15");
+    QTest::newRow("null") << QByteArray() << QByteArray("ISO-8859-15") << false;
+    QTest::newRow("empty") << QByteArray("") << QByteArray("ISO-8859-15") << false;
+    QTest::newRow("space") << QByteArray(" ") << QByteArray("ISO-8859-15") << false;
+    QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("ISO-8859-15") << false;
     foreach (const QByteArray& codec, QTextCodec::availableCodecs())
-        QTest::newRow(codec) << codec << codec;
+        QTest::newRow(codec) << codec << codec << true;
 }
 
 void tst_IrcConnection::testEncoding()
 {
     QFETCH(QByteArray, encoding);
     QFETCH(QByteArray, actual);
+    QFETCH(bool, supported);
+
+    if (!supported)
+        QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setEncoding(): unsupported encoding \"" + encoding + "\" ");
 
     IrcConnection connection;
     connection.setEncoding(encoding);
@@ -382,7 +387,6 @@ void tst_IrcConnection::testConnection()
     QCOMPARE(connectedSpy.count(), 1);
 
     connection.close();
-    connection.socket()->waitForDisconnected();
     QCOMPARE(disconnectedSpy.count(), 1);
 }
 
