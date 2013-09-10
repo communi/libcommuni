@@ -4,12 +4,18 @@
 
 TEMPLATE = subdirs
 
+# IrcCore
 SUBDIRS += irc
 SUBDIRS += ircconnection
 SUBDIRS += irccommand
-SUBDIRS += irccommandparser
 SUBDIRS += ircmessage
 SUBDIRS += ircnetwork
+
+# IrcModel
+SUBDIRS += ircbuffer
+
+# IrcUtil
+SUBDIRS += irccommandparser
 
 private_tests {
     SUBDIRS += ircmessagedecoder
