@@ -36,6 +36,8 @@ private slots:
     void testNick();
     void testNotice();
     void testPart();
+    void testPing();
+    void testPong();
     void testQuit();
     void testQuote();
     void testStats();
@@ -205,6 +207,22 @@ void tst_IrcCommand::testPart()
     IrcCommand* cmd = IrcCommand::createPart("chan");
     QVERIFY(cmd->type() == IrcCommand::Part);
     QVERIFY(cmd->toString().contains(QRegExp("\\bPART\\b")));
+    delete cmd;
+}
+
+void tst_IrcCommand::testPing()
+{
+    IrcCommand* cmd = IrcCommand::createPing("arg");
+    QVERIFY(cmd->type() == IrcCommand::Ping);
+    QVERIFY(cmd->toString().contains(QRegExp("\\bPING\\b")));
+    delete cmd;
+}
+
+void tst_IrcCommand::testPong()
+{
+    IrcCommand* cmd = IrcCommand::createPong("arg");
+    QVERIFY(cmd->type() == IrcCommand::Pong);
+    QVERIFY(cmd->toString().contains(QRegExp("\\bPONG\\b")));
     delete cmd;
 }
 
