@@ -503,6 +503,17 @@ void IrcBufferModel::remove(const QString& title)
 }
 
 /*!
+    Removes a \a buffer from the model.
+
+    \note IrcBufferModel automatically keeps track of the buffers.
+    Normally you do not need to manually alter the list of buffers.
+ */
+void IrcBufferModel::remove(IrcBuffer* buffer)
+{
+    delete buffer;
+}
+
+/*!
     This property holds the display role.
 
     The specified data role is returned for Qt::DisplayRole.

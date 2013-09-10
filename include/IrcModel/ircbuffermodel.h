@@ -62,6 +62,7 @@ public:
     Q_INVOKABLE IrcBuffer* add(const QString& title);
     Q_INVOKABLE void add(IrcBuffer* buffer);
     Q_INVOKABLE void remove(const QString& title);
+    Q_INVOKABLE void remove(IrcBuffer* buffer);
 
     bool dynamicSort() const;
     void setDynamicSort(bool dynamic);
