@@ -15,6 +15,7 @@ SUBDIRS += ircnetwork
 SUBDIRS += ircbuffer
 SUBDIRS += ircbuffermodel
 SUBDIRS += ircchannel
+SUBDIRS += ircuser
 SUBDIRS += ircusermodel
 
 # IrcUtil

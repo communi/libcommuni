@@ -53,6 +53,7 @@ qrc_*.cpp
 /tests/auto/ircmessage/tst_ircmessage
 /tests/auto/ircmessagedecoder/tst_ircmessagedecoder
 /tests/auto/ircnetwork/tst_ircnetwork
+/tests/auto/ircuser/tst_ircuser
 /tests/auto/ircusermodel/tst_ircusermodel
 /tests/benchmarks/ircmessage/tst_ircmessage
 /tests/benchmarks/ircmessagedecoder/tst_ircmessagedecoder
