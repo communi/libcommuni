@@ -45,6 +45,7 @@ qrc_*.cpp
 /examples/quick/quick
 /tests/auto/irc/tst_irc
 /tests/auto/ircbuffer/tst_ircbuffer
+/tests/auto/ircchannel/tst_ircchannel
 /tests/auto/irccommand/tst_irccommand
 /tests/auto/irccommandparser/tst_irccommandparser
 /tests/auto/ircconnection/tst_ircconnection

@@ -13,6 +13,7 @@ SUBDIRS += ircnetwork
 
 # IrcModel
 SUBDIRS += ircbuffer
+SUBDIRS += ircchannel
 
 # IrcUtil
 SUBDIRS += irccommandparser
