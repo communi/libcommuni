@@ -72,6 +72,7 @@ IrcUser::IrcUser(QObject* parent)
 {
     Q_D(IrcUser);
     d->q_ptr = this;
+    d->channel = 0;
 }
 
 /*!
