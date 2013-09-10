@@ -208,7 +208,7 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
     Q_Q(IrcBufferModel);
     IrcBuffer* buffer = bufferMap.value(title.toLower());
     if (!buffer) {
-        if (connection->network()->isChannel(title))
+        if (connection && connection->network()->isChannel(title))
             buffer = createChannel(title);
         else
             buffer = createBuffer(title);
