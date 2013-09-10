@@ -324,7 +324,7 @@ IrcChannel* IrcBuffer::toChannel()
 IrcConnection* IrcBuffer::connection() const
 {
     Q_D(const IrcBuffer);
-    return d->model->connection();
+    return d->model ? d->model->connection() : 0;
 }
 
 /*!
@@ -336,7 +336,7 @@ IrcConnection* IrcBuffer::connection() const
 IrcNetwork* IrcBuffer::network() const
 {
     Q_D(const IrcBuffer);
-    return d->model->network();
+    return d->model ? d->model->network() : 0;
 }
 
 /*!
@@ -369,8 +369,8 @@ IrcBufferModel* IrcBuffer::model() const
  */
 bool IrcBuffer::isActive() const
 {
-    if (IrcConnection* s = connection())
-        return s->isConnected();
+    if (IrcConnection* c = connection())
+        return c->isConnected();
     return false;
 }
 
@@ -451,9 +451,8 @@ void IrcBuffer::setPersistent(bool persistent)
  */
 bool IrcBuffer::sendCommand(IrcCommand* command)
 {
-    Q_D(IrcBuffer);
-    if (d->model && d->model->connection())
-        return d->model->connection()->sendCommand(command);
+    if (IrcConnection* c = connection())
+        return c->sendCommand(command);
     return false;
 }
 
