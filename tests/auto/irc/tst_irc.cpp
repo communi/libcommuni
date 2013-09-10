@@ -15,9 +15,63 @@ class tst_Irc : public QObject
     Q_OBJECT
 
 private slots:
+    void testVersion();
+
+    void testCodeToString_data();
+    void testCodeToString();
+
+    void testMetaObject();
+
     void testPrefix_data();
     void testPrefix();
 };
+
+void tst_Irc::testVersion()
+{
+    QVERIFY(!Irc::version().isEmpty());
+}
+
+void tst_Irc::testCodeToString_data()
+{
+    QTest::addColumn<int>("code");
+    QTest::addColumn<QString>("str");
+
+    QTest::newRow("RPL_WELCOME") << 1 << QString("RPL_WELCOME");
+    QTest::newRow("RPL_ISUPPORT") << 5 << QString("RPL_ISUPPORT");
+    QTest::newRow("RPL_TOPIC") << 332 << QString("RPL_TOPIC");
+    QTest::newRow("RPL_NAMREPLY") << 353 << QString("RPL_NAMREPLY");
+    QTest::newRow("RPL_ENDOFNAMES") << 366 << QString("RPL_ENDOFNAMES");
+
+    QTest::newRow("ERR_NOSUCHNICK") << 401 << QString("ERR_NOSUCHNICK");
+    QTest::newRow("ERR_NOSUCHCHANNEL") << 403 << QString("ERR_NOSUCHCHANNEL");
+    QTest::newRow("ERR_NICKNAMEINUSE") << 433 << QString("ERR_NICKNAMEINUSE");
+    QTest::newRow("ERR_OPERONLY") << 520 << QString("ERR_OPERONLY");
+}
+
+void tst_Irc::testCodeToString()
+{
+    QFETCH(int, code);
+    QFETCH(QString, str);
+
+    QCOMPARE(Irc::codeToString(code), str);
+}
+
+void tst_Irc::testMetaObject()
+{
+    Irc irc;
+
+    QVERIFY(irc.staticMetaObject.indexOfEnumerator("Code") != -1);
+    QVERIFY(irc.staticMetaObject.indexOfEnumerator("Color") != -1);
+    QVERIFY(irc.staticMetaObject.indexOfEnumerator("DataRole") != -1);
+
+    QString ver;
+    QVERIFY(QMetaObject::invokeMethod(&irc, "version", Q_RETURN_ARG(QString, ver)));
+    QCOMPARE(ver, Irc::version());
+
+    QString str;
+    QVERIFY(QMetaObject::invokeMethod(&irc, "codeToString", Q_RETURN_ARG(QString, str), Q_ARG(int, Irc::RPL_ISUPPORT)));
+    QCOMPARE(str, Irc::codeToString(Irc::RPL_ISUPPORT));
+}
 
 void tst_Irc::testPrefix_data()
 {
