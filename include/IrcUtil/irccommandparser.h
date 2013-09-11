@@ -31,6 +31,7 @@ class IRC_UTIL_EXPORT IrcCommandParser : public QObject
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix NOTIFY prefixChanged)
     Q_PROPERTY(QStringList channels READ channels WRITE setChannels NOTIFY channelsChanged)
     Q_PROPERTY(QString currentTarget READ currentTarget WRITE setCurrentTarget NOTIFY currentTargetChanged)
+    Q_PROPERTY(bool tolerant READ isTolerant WRITE setTolerant NOTIFY tolerancyChanged)
 
 public:
     explicit IrcCommandParser(QObject* parent = 0);
@@ -45,6 +46,9 @@ public:
     QString prefix() const;
     QStringList channels() const;
     QString currentTarget() const;
+
+    bool isTolerant() const;
+    void setTolerant(bool tolerant);
 
     Q_INVOKABLE IrcCommand* parse(const QString& input) const;
 
@@ -61,6 +65,7 @@ Q_SIGNALS:
     void channelsChanged(const QStringList& channels);
     void currentTargetChanged(const QString& target);
     void prefixChanged(const QString& prefix);
+    void tolerancyChanged(bool tolerant);
 
 private:
     QScopedPointer<IrcCommandParserPrivate> d_ptr;

@@ -100,11 +100,12 @@ struct IrcCommandInfo
 class IrcCommandParserPrivate
 {
 public:
-    IrcCommandParserPrivate() : prefix(QLatin1Char('/')) { }
+    IrcCommandParserPrivate() : tolerant(false), prefix(QLatin1Char('/')) { }
 
     QList<IrcCommandInfo> find(const QString& command) const;
     IrcCommand* parse(const IrcCommandInfo& command, QStringList params) const;
 
+    bool tolerant;
     QString prefix;
     QString current;
     QStringList channels;
@@ -364,6 +365,39 @@ void IrcCommandParser::setPrefix(const QString& prefix)
     }
 }
 
+/*!
+    This property holds whether the parser is tolerant.
+
+    A tolerant parser creates raw server command out of
+    unknown commands. Known commands with invalid arguments
+    are still considered invalid.
+
+    The default value is \c false.
+
+    \par Access function:
+    \li bool <b>isTolerant</b>() const
+    \li void <b>setTolerant</b>(bool tolerant)
+
+    \par Notifier signal:
+    \li void <b>tolerancyChanged</b>(bool tolerant)
+
+    \sa IrcCommand::Quote
+ */
+bool IrcCommandParser::isTolerant() const
+{
+    Q_D(const IrcCommandParser);
+    return d->tolerant;
+}
+
+void IrcCommandParser::setTolerant(bool tolerant)
+{
+    Q_D(IrcCommandParser);
+    if (d->tolerant != tolerant) {
+        d->tolerant = tolerant;
+        emit tolerancyChanged(tolerant);
+    }
+}
+
 static bool isMessage(const QString& input, const QString& prefix)
 {
     if (prefix.isEmpty() || input.isEmpty())
@@ -386,11 +420,20 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
     } else {
         QStringList params = input.mid(d->prefix.length()).split(QLatin1Char(' '), QString::SkipEmptyParts);
         if (!params.isEmpty()) {
-            const QString& command = params.takeFirst().toUpper();
-            foreach (const IrcCommandInfo& c, d->find(command)) {
-                IrcCommand* cmd = d->parse(c, params);
-                if (cmd)
-                    return cmd;
+            const QString command = params.takeFirst().toUpper();
+            const QList<IrcCommandInfo> commands = d->find(command);
+            if (!commands.isEmpty()) {
+                foreach (const IrcCommandInfo& c, commands) {
+                    IrcCommand* cmd = d->parse(c, params);
+                    if (cmd)
+                        return cmd;
+                }
+            } else if (d->tolerant) {
+                IrcCommandInfo info;
+                info.type = IrcCommand::Quote;
+                info.syntax = QLatin1String("(<parameters...>)");
+                params.prepend(command);
+                return d->parse(info, params);
             }
         }
     }
