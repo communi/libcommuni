@@ -20,6 +20,7 @@ SUBDIRS += ircusermodel
 
 # IrcUtil
 SUBDIRS += irccommandparser
+SUBDIRS += irctextformat
 
 private_tests {
     SUBDIRS += ircmessagedecoder
