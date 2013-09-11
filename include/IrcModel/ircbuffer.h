@@ -95,7 +95,7 @@ protected:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcBuffer* buffer);
+IRC_MODEL_EXPORT QDebug operator<<(QDebug debug, const IrcBuffer* buffer);
 #endif // QT_NO_DEBUG_STREAM
 
 IRC_END_NAMESPACE

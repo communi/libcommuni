@@ -55,7 +55,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcUser* user);
+IRC_MODEL_EXPORT QDebug operator<<(QDebug debug, const IrcUser* user);
 #endif // QT_NO_DEBUG_STREAM
 
 IRC_END_NAMESPACE
