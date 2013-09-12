@@ -20,6 +20,7 @@ SUBDIRS += ircusermodel
 
 # IrcUtil
 SUBDIRS += irccommandparser
+SUBDIRS += irclagtimer
 SUBDIRS += irctextformat
 
 private_tests {
