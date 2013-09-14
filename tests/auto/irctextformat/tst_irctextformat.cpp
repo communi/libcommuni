@@ -20,6 +20,10 @@ private slots:
     void testColorName();
     void testPlainText_data();
     void testPlainText();
+    void testHtml_data();
+    void testHtml();
+    void testUrls_data();
+    void testUrls();
 };
 
 void tst_IrcTextFormat::testDefaults()
@@ -67,6 +71,55 @@ void tst_IrcTextFormat::testPlainText()
     IrcTextFormat format;
     QCOMPARE(format.toPlainText(input), output);
 }
+
+void tst_IrcTextFormat::testHtml_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("output");
+
+    QTest::newRow("bold") << "\02bold\x0f" << "<span style='font-weight: bold'>bold</span>";
+    QTest::newRow("strike-through") << "\x13strike-through\x0f" << "<span style='text-decoration: line-through'>strike-through</span>";
+    QTest::newRow("underline") << "\x15underline\x0f" << "<span style='text-decoration: underline'>underline</span>";
+    //TODO: QTest::newRow("inverse") << "\x16inverse\x0f" << "inverse";
+    QTest::newRow("italic") << "\x1ditalic\x0f" << "<span style='font-style: italic'>italic</span>";
+    QTest::newRow("underline") << "\x1funderline\x0f" << "<span style='text-decoration: underline'>underline</span>";
+
+    IrcTextFormat format;
+    for (int i = Irc::White; i <= Irc::LightGray; ++i) {
+        QString color = format.colorName(i);
+        QTest::newRow(color.toUtf8()) << QString("\x03%1%2\x0f").arg(i).arg(color) << QString("<span style='color:%1'>%1</span>").arg(color);
+    }
+}
+
+void tst_IrcTextFormat::testHtml()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, output);
+
+    IrcTextFormat format;
+    QCOMPARE(format.toHtml(input), output);
+}
+
+void tst_IrcTextFormat::testUrls_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("output");
+
+    QTest::newRow("www.fi") << "www.fi" << "<a href='http://www.fi'>www.fi</a>";
+    QTest::newRow("ftp.funet.fi") << "ftp.funet.fi" << "<a href='ftp://ftp.funet.fi'>ftp.funet.fi</a>";
+    QTest::newRow("jpnurmi@gmail.com") << "jpnurmi@gmail.com" << "<a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>";
+    QTest::newRow("github commits") << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>";
+}
+
+void tst_IrcTextFormat::testUrls()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, output);
+
+    IrcTextFormat format;
+    QCOMPARE(format.toHtml(input), output);
+}
+
 
 QTEST_MAIN(tst_IrcTextFormat)
 
