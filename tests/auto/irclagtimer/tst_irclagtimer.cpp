@@ -24,7 +24,7 @@ private slots:
 void tst_IrcLagTimer::testDefaults()
 {
     IrcLagTimer timer;
-    QCOMPARE(timer.lag(), -1);
+    QCOMPARE(timer.lag(), qint64(-1));
     QVERIFY(!timer.connection());
     QCOMPARE(timer.interval(), 60);
 }
