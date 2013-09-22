@@ -16,6 +16,7 @@
 #define IRCPROTOCOL_H
 
 #include <IrcGlobal>
+#include <IrcConnection>
 #include <QtCore/qset.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qobject.h>
@@ -48,9 +49,8 @@ public:
     virtual bool hasQuit() const;
 
 protected Q_SLOTS:
-    void setActive(bool active);
-    void setConnected(bool connected);
     void setNick(const QString& nick);
+    void setStatus(IrcConnection::Status status);
     void setInfo(const QHash<QString, QString>& info);
     void setAvailableCapabilities(const QSet<QString>& capabilities);
     void setActiveCapabilities(const QSet<QString>& capabilities);

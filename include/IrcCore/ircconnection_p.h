@@ -41,8 +41,7 @@ public:
     void _irc_readData();
 
     void setNick(const QString& nick);
-    void setActive(bool active);
-    void setConnected(bool connected);
+    void setStatus(IrcConnection::Status status);
     void setInfo(const QHash<QString, QString>& info);
 
     void receiveMessage(IrcMessage* msg);
@@ -65,11 +64,9 @@ public:
     QString realName;
     QString password;
     QString displayName;
-    bool active;
-    bool closed;
-    bool connected;
     QTimer reconnecter;
     QString saslMechanism;
+    IrcConnection::Status status;
     QList<IrcMessageFilter*> filters;
     QList<IrcCommand*> pendingCommands;
 };

@@ -85,6 +85,7 @@ public:
         Waiting,
         Connecting,
         Connected,
+        Closing,
         Closed,
         Error
     };
@@ -119,6 +120,9 @@ public Q_SLOTS:
     void open();
     void close();
     void quit(const QString& reason = QString());
+
+    void reset();
+    void resume();
 
 Q_SIGNALS:
     void connecting();
@@ -186,6 +190,7 @@ private:
 
 #ifndef QT_NO_DEBUG_STREAM
 IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcConnection* connection);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcConnection::Status status);
 #endif // QT_NO_DEBUG_STREAM
 
 IRC_END_NAMESPACE

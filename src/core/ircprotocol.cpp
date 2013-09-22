@@ -116,7 +116,7 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
     switch (msg->code()) {
     case Irc::RPL_WELCOME:
         q->setNick(msg->parameters().value(0));
-        q->setConnected(true);
+        q->setStatus(IrcConnection::Connected);
         break;
     case Irc::RPL_ISUPPORT: {
         QHash<QString, QString> info;
@@ -289,9 +289,9 @@ void IrcProtocol::read()
 bool IrcProtocol::write(const QByteArray& data)
 {
     Q_D(IrcProtocol);
-    if (!d->quit) {
+    if (!d->quit && data.length() >= 4) {
         const QByteArray cmd = data.left(5).toUpper();
-        if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(5)).isSpace()))
+        if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
             d->quit = true;
     }
     return socket()->write(data + QByteArray("\r\n")) != -1;
@@ -303,25 +303,18 @@ bool IrcProtocol::hasQuit() const
     return d->quit;
 }
 
-void IrcProtocol::setActive(bool active)
-{
-    Q_D(IrcProtocol);
-    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
-    priv->setActive(active);
-}
-
-void IrcProtocol::setConnected(bool connected)
-{
-    Q_D(IrcProtocol);
-    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
-    priv->setConnected(connected);
-}
-
 void IrcProtocol::setNick(const QString& nick)
 {
     Q_D(IrcProtocol);
     IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->setNick(nick);
+}
+
+void IrcProtocol::setStatus(IrcConnection::Status status)
+{
+    Q_D(IrcProtocol);
+    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
+    priv->setStatus(status);
 }
 
 void IrcProtocol::setInfo(const QHash<QString, QString>& info)

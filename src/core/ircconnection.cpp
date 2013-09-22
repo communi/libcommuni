@@ -52,9 +52,11 @@ IRC_BEGIN_NAMESPACE
     Before \ref open() "opening" a connection, it must be first initialized
     with \ref host, \ref userName, \ref nickName and \ref realName.
 
-    The connection status may be queried at any time via \ref active
-    "isActive()" and \ref connected "isConnected()". Changes in the
-    connection status are informed via the following signals:
+    The connection status may be queried at any time via status(). Also
+    \ref active "isActive()" and \ref connected "isConnected()" are provided
+    for convenience. In addition to the \ref status "statusChanged()" signal,
+    the most important statuses are informed via the following convenience
+    signals:
     \li connecting()   - The underlying socket has been connected, but
                          the IRC connection is not yet fully established.
     \li connected()    - The IRC connection has been established,
@@ -88,6 +90,25 @@ IRC_BEGIN_NAMESPACE
     connection->open();
     \endcode
 
+    \section closing Closing a connection
+
+    Calling close() or reset() when connected makes the connection close
+    immediately and thus leads to "remote host closed the connection". In
+    order to quit gracefully, send a QUIT command and let the server handle
+    closing the connection.
+
+    C++ example:
+    \code
+    connection->quit(reason);
+    QTimer::singleShot(timeout, connection, SLOT(deleteLater()));
+    \endcode
+
+    QML example:
+    \code
+    connection.quit(reason);
+    connection.destroy(timeout);
+    \endcode
+
     \sa IrcMessage and IrcCommand
  */
 
@@ -114,6 +135,11 @@ IRC_BEGIN_NAMESPACE
 /*!
     \var IrcConnection::Connected
     \brief The connection is established.
+ */
+
+/*!
+    \var IrcConnection::Closing
+    \brief The connection is being closed.
  */
 
 /*!
@@ -203,6 +229,16 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when the connection \a info has been received.
  */
 
+template<typename T>
+static void irc_debug(IrcConnection* connection, const char* msg, const T& arg)
+{
+    static bool dbg = qgetenv("IRC_DEBUG").toInt();
+    if (dbg) {
+        const QString desc = QString::fromLatin1("IrcConnection(%1)").arg(connection->displayName());
+        qDebug() << qPrintable(desc) << msg << arg;
+    }
+}
+
 IrcConnectionPrivate::IrcConnectionPrivate() :
     q_ptr(0),
     encoding("ISO-8859-15"),
@@ -214,9 +250,7 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
     userName(),
     nickName(),
     realName(),
-    active(false),
-    closed(false),
-    connected(false)
+    status(IrcConnection::Inactive)
 {
 }
 
@@ -231,39 +265,47 @@ void IrcConnectionPrivate::_irc_disconnected()
 {
     Q_Q(IrcConnection);
     emit q->disconnected();
-    if (!closed && !protocol->hasQuit() && !reconnecter.isActive() && reconnecter.interval() > 0) {
+    if ((status != IrcConnection::Closed || !protocol->hasQuit()) && !reconnecter.isActive() && reconnecter.interval() > 0) {
         reconnecter.start();
-        emit q->statusChanged(q->status());
+        setStatus(IrcConnection::Waiting);
     }
 }
 
 void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcConnection);
-    static bool dbg = qgetenv("IRC_DEBUG").toInt();
-    if (dbg) qWarning() << "IrcConnection: socket error:" << error;
-    setConnected(false);
-    setActive(false);
-    emit q->socketError(error);
-    emit q->statusChanged(q->status());
+    if (!protocol->hasQuit() || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
+        irc_debug(q, "socket error:", error);
+        emit q->socketError(error);
+        setStatus(IrcConnection::Error);
+    }
 }
 
 void IrcConnectionPrivate::_irc_state(QAbstractSocket::SocketState state)
 {
     Q_Q(IrcConnection);
-    setActive(state != QAbstractSocket::UnconnectedState);
-    if (state != QAbstractSocket::ConnectedState)
-        setConnected(false);
-
-    static bool dbg = qgetenv("IRC_DEBUG").toInt();
-    if (dbg) qDebug() << "IrcConnection: socket state:" << state << host;
+    switch (state) {
+    case QAbstractSocket::UnconnectedState:
+        if (protocol->hasQuit())
+            setStatus(IrcConnection::Closed);
+        break;
+    case QAbstractSocket::ClosingState:
+        setStatus(IrcConnection::Closing);
+        break;
+    case QAbstractSocket::HostLookupState:
+    case QAbstractSocket::ConnectingState:
+    case QAbstractSocket::ConnectedState:
+    default:
+        setStatus(IrcConnection::Connecting);
+        break;
+    }
     emit q->socketStateChanged(state);
 }
 
 void IrcConnectionPrivate::_irc_reconnect()
 {
     Q_Q(IrcConnection);
-    if (!active) {
+    if (!q->isActive()) {
         reconnecter.stop();
         q->open();
     }
@@ -283,27 +325,21 @@ void IrcConnectionPrivate::setNick(const QString& nick)
     }
 }
 
-void IrcConnectionPrivate::setActive(bool value)
+void IrcConnectionPrivate::setStatus(IrcConnection::Status value)
 {
     Q_Q(IrcConnection);
-    if (active != value) {
-        active = value;
-        emit q->statusChanged(q->status());
-    }
-}
+    if (status != value) {
+        const bool wasConnected = q->isConnected();
+        status = value;
+        emit q->statusChanged(value);
 
-void IrcConnectionPrivate::setConnected(bool value)
-{
-    Q_Q(IrcConnection);
-    if (connected != value) {
-        connected = value;
-        emit q->statusChanged(q->status());
-        if (connected) {
+        if (!wasConnected && q->isConnected()) {
             emit q->connected();
             foreach (IrcCommand* cmd, pendingCommands)
                 q->sendCommand(cmd);
             pendingCommands.clear();
         }
+        irc_debug(q, "status:", status);
     }
 }
 
@@ -428,9 +464,7 @@ IrcConnection::IrcConnection(QObject* parent) : QObject(parent), d_ptr(new IrcCo
  */
 IrcConnection::~IrcConnection()
 {
-    Q_D(IrcConnection);
-    if (d->socket)
-        d->socket->close();
+    close();
 }
 
 /*!
@@ -686,25 +720,14 @@ void IrcConnection::setDisplayName(const QString& name)
 IrcConnection::Status IrcConnection::status() const
 {
     Q_D(const IrcConnection);
-    if (d->connected)
-        return Connected;
-    if (d->active)
-        return Connecting;
-    if (d->reconnecter.isActive())
-        return Waiting;
-    if (d->closed)
-        return Closed;
-    if (d->socket && d->socket->error() != QAbstractSocket::UnknownSocketError)
-        return Error;
-    return Inactive;
+    return d->status;
 }
 
 /*!
     \property bool IrcConnection::active
     This property holds whether the connection is active.
 
-    The connection is considered active when the socket
-    state is not QAbstractSocket::UnconnectedState.
+    The connection is considered active when its either connecting, connected or closing.
 
     \par Access functions:
     \li bool <b>isActive</b>() const
@@ -712,7 +735,7 @@ IrcConnection::Status IrcConnection::status() const
 bool IrcConnection::isActive() const
 {
     Q_D(const IrcConnection);
-    return d->active;
+    return d->status == Connecting || d->status == Connected || d->status == Closing;
 }
 
 /*!
@@ -730,7 +753,7 @@ bool IrcConnection::isActive() const
 bool IrcConnection::isConnected() const
 {
     Q_D(const IrcConnection);
-    return d->connected;
+    return d->status == Connected;
 }
 
 /*!
@@ -952,7 +975,6 @@ void IrcConnection::open()
         qCritical("IrcConnection::open(): realName is empty!");
         return;
     }
-    d->closed = false;
     if (d->socket)
         d->socket->connectToHost(d->host, d->port);
 }
@@ -960,35 +982,18 @@ void IrcConnection::open()
 /*!
     Immediately closes the connection to the server.
 
-    \note Calling close() when the connection is connected makes
-    the connection close immediately and thus leads to
-    "remote host closed the connection". In order to quit
-    gracefully, send a QUIT command and let the server handle
-    closing the connection.
-
-    C++ example:
-    \code
-    connection->quit(reason);
-    QTimer::singleShot(timeout, connection, SLOT(deleteLater()));
-    \endcode
-
-    QML example:
-    \code
-    connection.quit(reason);
-    connection.destroy(timeout);
-    \endcode
-
-    \sa quit()
+    \sa quit(), reset()
  */
 void IrcConnection::close()
 {
     Q_D(IrcConnection);
-    d->closed = true;
     if (d->socket) {
+        d->socket->flush();
         d->socket->abort();
         d->socket->disconnectFromHost();
+        if (d->socket->state() == QAbstractSocket::UnconnectedState)
+            d->setStatus(Closed);
     }
-    emit statusChanged(status());
 }
 
 /*!
@@ -1005,6 +1010,38 @@ void IrcConnection::close()
 void IrcConnection::quit(const QString& reason)
 {
     sendCommand(IrcCommand::createQuit(reason));
+}
+
+/*!
+    Resets a non-closed connection to the server.
+
+    The connection is immediately closed and becomes inactive.
+
+    \note This method has no effect if the connection has been explicitly closed.
+
+    \sa resume()
+ */
+void IrcConnection::reset()
+{
+    Q_D(IrcConnection);
+    if (d->status != Closed) {
+        close();
+        d->setStatus(IrcConnection::Inactive);
+    }
+}
+
+/*!
+    Resumes a non-closed connection to the server.
+
+    \note This method has no effect if the connection has been explicitly closed.
+
+    \sa reset()
+ */
+void IrcConnection::resume()
+{
+    Q_D(IrcConnection);
+    if (d->status != Closed)
+        open();
 }
 
 /*!
@@ -1165,6 +1202,37 @@ QDebug operator<<(QDebug debug, const IrcConnection* connection)
                         << ", port=" << connection->port();
     debug.nospace() << ')';
     return debug.space();
+}
+
+QDebug operator<<(QDebug debug, IrcConnection::Status status)
+{
+    switch (status) {
+    case IrcConnection::Inactive:
+        debug << "IrcConnection::Inactive";
+        break;
+    case IrcConnection::Waiting:
+        debug << "IrcConnection::Waiting";
+        break;
+    case IrcConnection::Connecting:
+        debug << "IrcConnection::Connecting";
+        break;
+    case IrcConnection::Connected:
+        debug << "IrcConnection::Connected";
+        break;
+    case IrcConnection::Closing:
+        debug << "IrcConnection::Closing";
+        break;
+    case IrcConnection::Closed:
+        debug << "IrcConnection::Closed";
+        break;
+    case IrcConnection::Error:
+        debug << "IrcConnection::Error";
+        break;
+    default:
+        debug << "IrcConnection::Status(" << static_cast<int>(status) << ')';
+        break;
+    }
+    return debug;
 }
 #endif // QT_NO_DEBUG_STREAM
 
