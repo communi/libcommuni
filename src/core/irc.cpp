@@ -2079,6 +2079,23 @@ QString Irc::hostFromPrefix(const QString& prefix)
     \brief The default value is "lightgray"
  */
 
+/*!
+    \enum Irc::SortMethod
+    This enum describes the available model sort methods.
+
+    \sa IrcBufferModel, IrcUserModel
+ */
+
+/*!
+    \var Irc::SortByName
+    \brief Sort by name (Irc::NameRole)
+ */
+
+/*!
+    \var Irc::SortByTitle
+    \brief Sort by title (Irc::TitleRole)
+ */
+
 #include "moc_irc.cpp"
 
 IRC_END_NAMESPACE

@@ -88,7 +88,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(0), role(Irc::TitleRole),
-    sortOrder(Qt::AscendingOrder), dynamicSort(false), bufferProto(0), channelProto(0)
+    sortMethod(Irc::SortByTitle), sortOrder(Qt::AscendingOrder), dynamicSort(false), bufferProto(0), channelProto(0)
 {
 }
 
@@ -565,7 +565,7 @@ IrcBuffer* IrcBufferModel::buffer(const QModelIndex& index) const
     \li bool <b>dynamicSort</b>() const
     \li void <b>setDynamicSort</b>(bool dynamic)
 
-    \sa sort(), lessThan()
+    \sa sort(), lessThan(), sortMethod
  */
 bool IrcBufferModel::dynamicSort() const
 {
@@ -577,6 +577,34 @@ void IrcBufferModel::setDynamicSort(bool dynamic)
 {
     Q_D(IrcBufferModel);
     d->dynamicSort = dynamic;
+}
+
+/*!
+    This property holds the model sort method.
+
+    The default value is \c Irc::SortByTitle.
+
+    Method           | Description                                                     | Example
+    -----------------|-----------------------------------------------------------------|-------------------------------------------------
+    Irc::SortByName  | Buffers are sorted alphabetically, ignoring any channel prefix. | "bot", "#communi", "#freenode", "jpnurmi", "#qt"
+    Irc::SortByTitle | Buffers are sorted alphabetically, and channels before queries. | "#communi", "#freenode", "#qt", "bot", "jpnurmi"
+
+    \par Access functions:
+    \li Irc::SortMethod <b>sortMethod</b>() const
+    \li void <b>setSortMethod</b>(Irc::SortMethod method)
+
+    \sa sort(), lessThan(), dynamicSort
+ */
+Irc::SortMethod IrcBufferModel::sortMethod() const
+{
+    Q_D(const IrcBufferModel);
+    return d->sortMethod;
+}
+
+void IrcBufferModel::setSortMethod(Irc::SortMethod method)
+{
+    Q_D(IrcBufferModel);
+    d->sortMethod = method;
 }
 
 /*!
@@ -672,32 +700,35 @@ IrcChannel* IrcBufferModel::createChannel(const QString& title)
     Returns \c true if \a one buffer is "less than" \a another,
     otherwise returns \c false.
 
-    The default implementation sorts buffers alphabetically
-    and channels before queries. Reimplement this function
-    in order to alter the sort order.
+    The default implementation sorts according to the specified sort method.
+    Reimplement this function in order to customize the sort order.
 
-    \sa sort(), dynamicSort
+    \sa sort(), dynamicSort, sortMethod
  */
 bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another) const
 {
+    Q_D(const IrcBufferModel);
     if (one->isSticky() != another->isSticky())
         return one->isSticky();
 
-    const QStringList prefixes = one->network()->channelTypes();
+    if (d->sortMethod == Irc::SortByTitle) {
+        const QStringList prefixes = one->network()->channelTypes();
 
-    const QString p1 = one->prefix();
-    const QString p2 = another->prefix();
+        const QString p1 = one->prefix();
+        const QString p2 = another->prefix();
 
-    const int i1 = !p1.isEmpty() ? prefixes.indexOf(p1.at(0)) : -1;
-    const int i2 = !p2.isEmpty() ? prefixes.indexOf(p2.at(0)) : -1;
+        const int i1 = !p1.isEmpty() ? prefixes.indexOf(p1.at(0)) : -1;
+        const int i2 = !p2.isEmpty() ? prefixes.indexOf(p2.at(0)) : -1;
 
-    if (i1 >= 0 && i2 < 0)
-        return true;
-    if (i1 < 0 && i2 >= 0)
-        return false;
-    if (i1 >= 0 && i2 >= 0 && i1 != i2)
-        return i1 < i2;
+        if (i1 >= 0 && i2 < 0)
+            return true;
+        if (i1 < 0 && i2 >= 0)
+            return false;
+        if (i1 >= 0 && i2 >= 0 && i1 != i2)
+            return i1 < i2;
+    }
 
+    // Irc::SortByName
     const QString n1 = one->name();
     const QString n2 = another->name();
     return n1.compare(n2, Qt::CaseInsensitive) < 0;

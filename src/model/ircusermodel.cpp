@@ -49,55 +49,7 @@ IRC_BEGIN_NAMESPACE
 
     \section sorting Sorting
 
-    The order of \ref users is kept as sent from the server. Furthermore,
-    an alphabetical list of \ref names is provided for convenience.
-
-    Whilst these available options cater basic use cases, for more fine-
-    grained sorting it is recommended to implement a proxy model. The
-    following example illustrates how to sort users by prefix and name.
-
-    \code
-    class IrcUserProxyModel : public QSortFilterProxyModel
-    {
-    public:
-        IrcUserProxyModel(IrcUserModel* userModel) : QSortFilterProxyModel(userModel)
-        {
-            setSourceModel(userModel);
-        }
-
-        // IrcNetwork::prefixes()
-        void sortByPrefixes(const QStringList& prefixes)
-        {
-            m_prefixes = prefixes;
-            sort(0, Qt::AscendingOrder);
-            setDynamicSortFilter(true);
-        }
-
-    protected:
-        bool lessThan(const QModelIndex& left, const QModelIndex& right) const
-        {
-            const QString p1 = left.data(Irc::PrefixRole).toString();
-            const QString p2 = right.data(Irc::PrefixRole).toString();
-
-            const int i1 = !p1.isEmpty() ? m_prefixes.indexOf(p1.at(0)) : -1;
-            const int i2 = !p2.isEmpty() ? m_prefixes.indexOf(p2.at(0)) : -1;
-
-            if (i1 >= 0 && i2 < 0)
-                return true;
-            if (i1 < 0 && i2 >= 0)
-                return false;
-            if (i1 >= 0 && i2 >= 0 && i1 != i2)
-                return i1 < i2;
-
-            const QString n1 = left.data(Irc::NameRole).toString();
-            const QString n2 = right.data(Irc::NameRole).toString();
-            return n1.compare(n2, Qt::CaseInsensitive) < 0;
-        }
-
-    private:
-        QStringList m_prefixes;
-    };
-    \endcode
+    TODO
 
     \sa model
 */
@@ -132,8 +84,8 @@ private:
     IrcUserModel* model;
 };
 
-IrcUserModelPrivate::IrcUserModelPrivate() :
-    q_ptr(0), role(Irc::TitleRole), sortOrder(Qt::AscendingOrder), dynamicSort(false)
+IrcUserModelPrivate::IrcUserModelPrivate() : q_ptr(0), role(Irc::TitleRole),
+    sortMethod(Irc::SortByTitle), sortOrder(Qt::AscendingOrder), dynamicSort(false)
 {
 }
 
@@ -341,6 +293,34 @@ int IrcUserModel::indexOf(IrcUser* user) const
 }
 
 /*!
+    This property holds the model sort method.
+
+    The default value is \c Irc::SortByTitle.
+
+    Method           | Description                                                                                       | Example
+    -----------------|---------------------------------------------------------------------------------------------------|----------------------------------------------
+    Irc::SortByName  | Users are sorted alphabetically, ignoring any mode prefix.                                        | "bot", "@ChanServ", "jpnurmi", "+qtassistant"
+    Irc::SortByTitle | Users are sorted alphabetically, and special users (operators, voiced users) before normal users. | "@ChanServ", "+qtassistant", "bot", "jpnurmi"
+
+    \par Access functions:
+    \li Irc::SortMethod <b>sortMethod</b>() const
+    \li void <b>setSortMethod</b>(Irc::SortMethod method)
+
+    \sa sort(), lessThan(), dynamicSort
+ */
+Irc::SortMethod IrcUserModel::sortMethod() const
+{
+    Q_D(const IrcUserModel);
+    return d->sortMethod;
+}
+
+void IrcUserModel::setSortMethod(Irc::SortMethod method)
+{
+    Q_D(IrcUserModel);
+    d->sortMethod = method;
+}
+
+/*!
     This property holds whether the model is dynamically sorted.
 
     The default value is \c false.
@@ -349,7 +329,7 @@ int IrcUserModel::indexOf(IrcUser* user) const
     \li bool <b>dynamicSort</b>() const
     \li void <b>setDynamicSort</b>(bool dynamic)
 
-    \sa sort(), lessThan()
+    \sa sort(), lessThan(), sortMethod
  */
 bool IrcUserModel::dynamicSort() const
 {
@@ -365,7 +345,6 @@ void IrcUserModel::setDynamicSort(bool dynamic)
 
 /*!
     This property holds the display role.
-
 
     The specified data role is returned for Qt::DisplayRole.
 
@@ -532,30 +511,33 @@ void IrcUserModel::sort(int column, Qt::SortOrder order)
     Returns \c true if \a one buffer is "less than" \a another,
     otherwise returns \c false.
 
-    The default implementation sorts users alphabetically and
-    special users (operators, voiced users) before normal users.
-    Reimplement this function in order to alter the sort order.
+    The default implementation sorts according to the specified sort method.
+    Reimplement this function in order to customize the sort order.
 
-    \sa sort(), dynamicSort
+    \sa sort(), dynamicSort, sortMethod
  */
 bool IrcUserModel::lessThan(const IrcUser* one, const IrcUser* another) const
 {
-    const IrcNetwork* network = one->channel()->network();
-    const QStringList prefixes = network->prefixes();
+    Q_D(const IrcUserModel);
+    if (d->sortMethod == Irc::SortByTitle) {
+        const IrcNetwork* network = one->channel()->network();
+        const QStringList prefixes = network->prefixes();
 
-    const QString p1 = one->prefix();
-    const QString p2 = another->prefix();
+        const QString p1 = one->prefix();
+        const QString p2 = another->prefix();
 
-    const int i1 = !p1.isEmpty() ? prefixes.indexOf(p1.at(0)) : -1;
-    const int i2 = !p2.isEmpty() ? prefixes.indexOf(p2.at(0)) : -1;
+        const int i1 = !p1.isEmpty() ? prefixes.indexOf(p1.at(0)) : -1;
+        const int i2 = !p2.isEmpty() ? prefixes.indexOf(p2.at(0)) : -1;
 
-    if (i1 >= 0 && i2 < 0)
-        return true;
-    if (i1 < 0 && i2 >= 0)
-        return false;
-    if (i1 >= 0 && i2 >= 0 && i1 != i2)
-        return i1 < i2;
+        if (i1 >= 0 && i2 < 0)
+            return true;
+        if (i1 < 0 && i2 >= 0)
+            return false;
+        if (i1 >= 0 && i2 >= 0 && i1 != i2)
+            return i1 < i2;
+    }
 
+    // Irc::SortByName
     const QString n1 = one->name();
     const QString n2 = another->name();
     return n1.compare(n2, Qt::CaseInsensitive) < 0;

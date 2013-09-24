@@ -24,7 +24,7 @@ IRC_BEGIN_NAMESPACE
 class IRC_CORE_EXPORT Irc : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Code DataRole Color)
+    Q_ENUMS(Code DataRole Color SortMethod)
 
 public:
     Q_INVOKABLE static QString version();
@@ -504,6 +504,11 @@ public:
         Pink = 13,
         Gray = 14,
         LightGray = 15
+    };
+
+    enum SortMethod {
+        SortByName = 1,
+        SortByTitle
     };
 };
 

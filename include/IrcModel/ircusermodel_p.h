@@ -40,8 +40,9 @@ public:
 
     IrcUserModel* q_ptr;
     Irc::DataRole role;
-    QPointer<IrcChannel> channel;
     QList<IrcUser*> userList;
+    QPointer<IrcChannel> channel;
+    Irc::SortMethod sortMethod;
     Qt::SortOrder sortOrder;
     bool dynamicSort;
 };

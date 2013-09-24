@@ -63,6 +63,7 @@ public:
     QList<IrcBuffer*> bufferList;
     QMap<QString, IrcBuffer*> bufferMap;
     QStringList channels;
+    Irc::SortMethod sortMethod;
     Qt::SortOrder sortOrder;
     bool dynamicSort;
     IrcBuffer* bufferProto;
