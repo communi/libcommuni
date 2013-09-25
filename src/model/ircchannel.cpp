@@ -426,7 +426,7 @@ bool IrcChannel::isActive() const
 }
 
 /*!
-    Parts the channel with \a reason.
+    Parts the channel with an optional \a reason.
 
     This method is provided for convenience. It is equal to:
     \code

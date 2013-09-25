@@ -39,7 +39,7 @@ public:
     virtual bool isActive() const;
 
 public Q_SLOTS:
-    void part(const QString& reason);
+    void part(const QString& reason = QString());
 
 Q_SIGNALS:
     void modeChanged(const QString& mode);
