@@ -79,6 +79,8 @@ void IrcBufferPrivate::setName(const QString& value)
         name = value;
         emit q->nameChanged(name);
         emit q->titleChanged(q->title());
+        if (model)
+            IrcBufferModelPrivate::get(model)->renameBuffer(q, q->title());
     }
 }
 
@@ -89,6 +91,8 @@ void IrcBufferPrivate::setPrefix(const QString& value)
         prefix = value;
         emit q->prefixChanged(prefix);
         emit q->titleChanged(q->title());
+        if (model)
+            IrcBufferModelPrivate::get(model)->renameBuffer(q, q->title());
     }
 }
 
@@ -173,10 +177,8 @@ bool IrcBufferPrivate::processNamesMessage(IrcNamesMessage* message)
 
 bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
 {
-    Q_Q(IrcBuffer);
     if (!message->nick().compare(name, Qt::CaseInsensitive)) {
-        if (IrcBufferModelPrivate::get(model)->renameBuffer(q, message->newNick()))
-            setName(message->newNick());
+        setName(message->newNick());
         return true;
     }
     return !message->newNick().compare(name, Qt::CaseInsensitive);
