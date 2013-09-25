@@ -72,7 +72,7 @@ Rectangle {
                         Label {
                             id: label
                             text: model.title
-                            font.bold: current
+                            font.bold: first
                             anchors.margins: 2
                             anchors.leftMargin: 6
                             anchors.left: parent.left
