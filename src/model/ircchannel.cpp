@@ -307,7 +307,10 @@ bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
 
 bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
 {
-    return renameUser(message->oldNick(), message->newNick());
+    const bool renamed = renameUser(message->oldNick(), message->newNick());
+    if (renamed)
+        promoteUser(message->newNick());
+    return renamed;
 }
 
 bool IrcChannelPrivate::processNoticeMessage(IrcNoticeMessage* message)
