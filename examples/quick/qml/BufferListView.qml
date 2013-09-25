@@ -38,13 +38,23 @@ Rectangle {
             delegate: Column {
                 width: parent.width
                 property Connection connection: modelData
+                Connections {
+                    target: connection.bufferModel
+                    onAboutToBeRemoved: {
+                        if (buffer === currentBuffer) {
+                            var model = connection.bufferModel
+                            var idx = model.indexOf(buffer)
+                            currentBuffer = model.get(Math.max(0, idx - 1))
+                        }
+                    }
+                }
                 Repeater {
                     model: connection.bufferModel
                     delegate: Rectangle {
                         property bool first: index === 0
                         property bool current: model.buffer === currentBuffer
-                        anchors.left: parent.left
-                        anchors.right: parent.right
+                        anchors.left: parent ? parent.left : undefined
+                        anchors.right: parent ? parent.right : undefined
                         anchors.margins: 1
                         height: Math.max(21, label.implicitHeight + 5)
                         color: first ? "#ddd" : current ? "#b5d5ff" : "transparent"
@@ -71,8 +81,25 @@ Rectangle {
                         }
                         MouseArea {
                             anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
                             onPressed: {
                                 currentBuffer = model.buffer
+                                if (mouse.button === Qt.RightButton)
+                                    menu.popup()
+                            }
+                        }
+                        Menu {
+                            id: menu
+                            MenuItem {
+                                text: "Close"
+                                shortcut: "Ctrl+W"
+                                enabled: !!currentBuffer
+                                onTriggered: {
+                                    var channel = currentBuffer.toChannel()
+                                    if (channel)
+                                        channel.part(qsTr("Communi %1 QtQuick example").arg(irc.version()))
+                                    currentBuffer.destroy()
+                                }
                             }
                         }
                     }
