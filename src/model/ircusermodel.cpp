@@ -157,7 +157,7 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users)
 void IrcUserModelPrivate::promoteUser(IrcUser* user)
 {
     Q_Q(IrcUserModel);
-    if (sortMethod == Irc::SortByActivity) {
+    if (dynamicSort && sortMethod == Irc::SortByActivity) {
         const bool notify = false;
         removeUser(user, notify);
         insertUser(0, user, notify);
