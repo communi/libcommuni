@@ -26,7 +26,7 @@ IrcConnection {
     property IrcBuffer serverBuffer: IrcBuffer {
         id: serverBuffer
         sticky: true
-        name: root.host
+        name: root.displayName
         Component.onCompleted: bufferModel.add(serverBuffer)
     }
 }
