@@ -508,7 +508,8 @@ public:
 
     enum SortMethod {
         SortByName = 1,
-        SortByTitle
+        SortByTitle,
+        SortByActivity
     };
 };
 

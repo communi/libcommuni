@@ -132,6 +132,7 @@ void IrcChannelPrivate::addUser(const QString& name)
     priv->setName(userName(name, prefixes));
     priv->setPrefix(getPrefix(name, prefixes));
     priv->setMode(q->network()->prefixToMode(user->prefix()));
+    activeUsers.prepend(user);
     userList.append(user);
     userMap.insert(user->name(), user);
 
@@ -144,6 +145,7 @@ bool IrcChannelPrivate::removeUser(const QString& name)
     if (IrcUser* user = userMap.value(name)) {
         foreach (IrcUserModel* model, userModels)
             IrcUserModelPrivate::get(model)->removeUser(user);
+        activeUsers.removeOne(user);
         userList.removeOne(user);
         userMap.remove(name);
         user->deleteLater();
@@ -160,6 +162,7 @@ void IrcChannelPrivate::setUsers(const QStringList& names)
     qDeleteAll(userList);
     userMap.clear();
     userList.clear();
+    activeUsers.clear();
 
     QList<IrcUser*> users;
     foreach (const QString& name, names) {
@@ -169,6 +172,7 @@ void IrcChannelPrivate::setUsers(const QStringList& names)
         priv->setName(userName(name, prefixes));
         priv->setPrefix(getPrefix(name, prefixes));
         priv->setMode(q->network()->prefixToMode(user->prefix()));
+        activeUsers.prepend(user);
         userList.append(user);
         userMap.insert(user->name(), user);
         users.append(user);
@@ -191,7 +195,10 @@ bool IrcChannelPrivate::renameUser(const QString& from, const QString& to)
                 QModelIndex index = model->index(idx, 0);
                 emit model->dataChanged(index, index);
                 emit model->namesChanged(names);
-                emit model->usersChanged(userList);
+                if (model->sortMethod() == Irc::SortByActivity)
+                    emit model->usersChanged(activeUsers);
+                else
+                    emit model->usersChanged(userList);
             }
             return true;
         }
@@ -202,39 +209,50 @@ bool IrcChannelPrivate::renameUser(const QString& from, const QString& to)
 void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
 {
     if (IrcUser* user = userMap.value(name)) {
-        int idx = userList.indexOf(user);
-        if (idx != -1) {
-            bool add = true;
-            QString mode = user->mode();
-            QString prefix = user->prefix();
-            const IrcNetwork* network = model->network();
-            for (int i = 0; i < command.size(); ++i) {
-                QChar c = command.at(i);
-                if (c == QLatin1Char('+')) {
-                    add = true;
-                } else if (c == QLatin1Char('-')) {
-                    add = false;
+        bool add = true;
+        QString mode = user->mode();
+        QString prefix = user->prefix();
+        const IrcNetwork* network = model->network();
+        for (int i = 0; i < command.size(); ++i) {
+            QChar c = command.at(i);
+            if (c == QLatin1Char('+')) {
+                add = true;
+            } else if (c == QLatin1Char('-')) {
+                add = false;
+            } else {
+                QString p = network->modeToPrefix(c);
+                if (add) {
+                    if (!mode.contains(c))
+                        mode += c;
+                    if (!prefix.contains(p))
+                        prefix += p;
                 } else {
-                    QString p = network->modeToPrefix(c);
-                    if (add) {
-                        if (!mode.contains(c))
-                            mode += c;
-                        if (!prefix.contains(p))
-                            prefix += p;
-                    } else {
-                        mode.remove(c);
-                        prefix.remove(p);
-                    }
+                    mode.remove(c);
+                    prefix.remove(p);
                 }
             }
-            IrcUserPrivate* priv = IrcUserPrivate::get(user);
-            priv->setPrefix(prefix);
-            priv->setMode(mode);
+        }
+
+        IrcUserPrivate* priv = IrcUserPrivate::get(user);
+        priv->setPrefix(prefix);
+        priv->setMode(mode);
+
+        if (!userModels.isEmpty()) {
+            const int userIdx = userList.indexOf(user);
+            const int activeIdx = activeUsers.indexOf(user);
             foreach (IrcUserModel* model, userModels) {
-                QModelIndex index = model->index(idx, 0);
+                QModelIndex index = model->index(model->sortMethod() == Irc::SortByActivity ? activeIdx : userIdx, 0);
                 emit model->dataChanged(index, index);
             }
         }
+    }
+}
+
+void IrcChannelPrivate::promoteUser(const QString& name)
+{
+    if (IrcUser* user = userMap.value(name)) {
+        foreach (IrcUserModel* model, userModels)
+            IrcUserModelPrivate::get(model)->promoteUser(user);
     }
 }
 
@@ -292,6 +310,18 @@ bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
     return renameUser(message->oldNick(), message->newNick());
 }
 
+bool IrcChannelPrivate::processNoticeMessage(IrcNoticeMessage* message)
+{
+    promoteUser(message->nick());
+    return true;
+}
+
+bool IrcChannelPrivate::processNumericMessage(IrcNumericMessage* message)
+{
+    promoteUser(message->nick());
+    return true;
+}
+
 bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
@@ -301,6 +331,12 @@ bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
         return true;
     }
     return removeUser(message->nick());
+}
+
+bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
+{
+    promoteUser(message->nick());
+    return true;
 }
 
 bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)

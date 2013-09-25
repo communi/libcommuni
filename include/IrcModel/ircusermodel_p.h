@@ -29,9 +29,11 @@ class IrcUserModelPrivate
 public:
     IrcUserModelPrivate();
 
-    void addUser(IrcUser* user);
-    void removeUser(IrcUser* user);
+    void addUser(IrcUser* user, bool notify = true);
+    void insertUser(int index, IrcUser* user, bool notify = true);
+    void removeUser(IrcUser* user, bool notify = true);
     void setUsers(const QList<IrcUser*>& users);
+    void promoteUser(IrcUser* user);
 
     static IrcUserModelPrivate* get(IrcUserModel* model)
     {

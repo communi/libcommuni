@@ -2096,6 +2096,11 @@ QString Irc::hostFromPrefix(const QString& prefix)
     \brief Sort by title (Irc::TitleRole)
  */
 
+/*!
+    \var Irc::SortByActivity
+    \brief Sort by activity
+ */
+
 #include "moc_irc.cpp"
 
 IRC_END_NAMESPACE

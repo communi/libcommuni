@@ -43,6 +43,7 @@ public:
     void setUsers(const QStringList& users);
     bool renameUser(const QString& from, const QString& to);
     void setUserMode(const QString& user, const QString& mode);
+    void promoteUser(const QString& user);
     void clearUsers();
 
     virtual bool processJoinMessage(IrcJoinMessage* message);
@@ -50,7 +51,10 @@ public:
     virtual bool processModeMessage(IrcModeMessage* message);
     virtual bool processNamesMessage(IrcNamesMessage* message);
     virtual bool processNickMessage(IrcNickMessage* message);
+    virtual bool processNoticeMessage(IrcNoticeMessage* message);
+    virtual bool processNumericMessage(IrcNumericMessage* message);
     virtual bool processPartMessage(IrcPartMessage* message);
+    virtual bool processPrivateMessage(IrcPrivateMessage* message);
     virtual bool processQuitMessage(IrcQuitMessage* message);
     virtual bool processTopicMessage(IrcTopicMessage* message);
 
@@ -63,6 +67,7 @@ public:
     QString topic;
     int joined, left;
     QList<IrcUser*> userList;
+    QList<IrcUser*> activeUsers;
     QMap<QString, IrcUser*> userMap;
     QList<IrcUserModel*> userModels;
 };

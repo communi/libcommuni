@@ -47,7 +47,10 @@ public:
     virtual bool processModeMessage(IrcModeMessage* message);
     virtual bool processNamesMessage(IrcNamesMessage* message);
     virtual bool processNickMessage(IrcNickMessage* message);
+    virtual bool processNoticeMessage(IrcNoticeMessage* message);
+    virtual bool processNumericMessage(IrcNumericMessage* message);
     virtual bool processPartMessage(IrcPartMessage* message);
+    virtual bool processPrivateMessage(IrcPrivateMessage* message);
     virtual bool processQuitMessage(IrcQuitMessage* message);
     virtual bool processTopicMessage(IrcTopicMessage* message);
 

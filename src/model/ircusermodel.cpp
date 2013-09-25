@@ -89,28 +89,36 @@ IrcUserModelPrivate::IrcUserModelPrivate() : q_ptr(0), role(Irc::TitleRole),
 {
 }
 
-void IrcUserModelPrivate::addUser(IrcUser* user)
+void IrcUserModelPrivate::addUser(IrcUser* user, bool notify)
+{
+    insertUser(-1, user, notify);
+}
+
+void IrcUserModelPrivate::insertUser(int index, IrcUser* user, bool notify)
 {
     Q_Q(IrcUserModel);
-    int idx = userList.count();
+    if (index == -1)
+        index = userList.count();
     if (dynamicSort) {
         QList<IrcUser*>::iterator it;
         if (sortOrder == Qt::AscendingOrder)
             it = qUpperBound(userList.begin(), userList.end(), user, IrcUserLessThan(q));
         else
             it = qUpperBound(userList.begin(), userList.end(), user, IrcUserGreaterThan(q));
-        idx = it - userList.begin();
+        index = it - userList.begin();
     }
-    q->beginInsertRows(QModelIndex(), idx, idx);
-    userList.insert(idx, user);
+    q->beginInsertRows(QModelIndex(), index, index);
+    userList.insert(index, user);
     q->endInsertRows();
-    emit q->added(user);
-    emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
-    emit q->usersChanged(userList);
-    emit q->countChanged(userList.count());
+    if (notify) {
+        emit q->added(user);
+        emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
+        emit q->usersChanged(userList);
+        emit q->countChanged(userList.count());
+    }
 }
 
-void IrcUserModelPrivate::removeUser(IrcUser* user)
+void IrcUserModelPrivate::removeUser(IrcUser* user, bool notify)
 {
     Q_Q(IrcUserModel);
     int idx = userList.indexOf(user);
@@ -118,10 +126,12 @@ void IrcUserModelPrivate::removeUser(IrcUser* user)
         q->beginRemoveRows(QModelIndex(), idx, idx);
         userList.removeAt(idx);
         q->endRemoveRows();
-        emit q->removed(user);
-        emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
-        emit q->usersChanged(userList);
-        emit q->countChanged(userList.count());
+        if (notify) {
+            emit q->removed(user);
+            emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
+            emit q->usersChanged(userList);
+            emit q->countChanged(userList.count());
+        }
     }
 }
 
@@ -142,6 +152,17 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users)
     emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
     emit q->usersChanged(userList);
     emit q->countChanged(userList.count());
+}
+
+void IrcUserModelPrivate::promoteUser(IrcUser* user)
+{
+    Q_Q(IrcUserModel);
+    if (sortMethod == Irc::SortByActivity) {
+        const bool notify = false;
+        removeUser(user, notify);
+        insertUser(0, user, notify);
+        emit q->usersChanged(userList);
+    }
 }
 
 /*!
@@ -297,10 +318,11 @@ int IrcUserModel::indexOf(IrcUser* user) const
 
     The default value is \c Irc::SortByTitle.
 
-    Method           | Description                                                                                       | Example
-    -----------------|---------------------------------------------------------------------------------------------------|----------------------------------------------
-    Irc::SortByName  | Users are sorted alphabetically, ignoring any mode prefix.                                        | "bot", "@ChanServ", "jpnurmi", "+qtassistant"
-    Irc::SortByTitle | Users are sorted alphabetically, and special users (operators, voiced users) before normal users. | "@ChanServ", "+qtassistant", "bot", "jpnurmi"
+    Method              | Description                                                                                       | Example
+    --------------------|---------------------------------------------------------------------------------------------------|----------------------------------------------
+    Irc::SortByName     | Users are sorted alphabetically, ignoring any mode prefix.                                        | "bot", "@ChanServ", "jpnurmi", "+qtassistant"
+    Irc::SortByTitle    | Users are sorted alphabetically, and special users (operators, voiced users) before normal users. | "@ChanServ", "+qtassistant", "bot", "jpnurmi"
+    Irc::SortByActivity | Users are sorted based on their activity, last active users first.                                | -
 
     \par Access functions:
     \li Irc::SortMethod <b>sortMethod</b>() const
@@ -519,7 +541,11 @@ void IrcUserModel::sort(int column, Qt::SortOrder order)
 bool IrcUserModel::lessThan(const IrcUser* one, const IrcUser* another) const
 {
     Q_D(const IrcUserModel);
-    if (d->sortMethod == Irc::SortByTitle) {
+    if (d->sortMethod == Irc::SortByActivity) {
+        const int i1 = d->userList.indexOf(const_cast<IrcUser*>(one));
+        const int i2 = d->userList.indexOf(const_cast<IrcUser*>(another));
+        return i1 < i2;
+    } else if (d->sortMethod == Irc::SortByTitle) {
         const IrcNetwork* network = one->channel()->network();
         const QStringList prefixes = network->prefixes();
 
