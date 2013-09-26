@@ -76,11 +76,12 @@ void IrcBufferPrivate::setName(const QString& value)
 {
     Q_Q(IrcBuffer);
     if (name != value) {
+        const QString oldTitle = q->title();
         name = value;
         emit q->nameChanged(name);
         emit q->titleChanged(q->title());
         if (model)
-            IrcBufferModelPrivate::get(model)->renameBuffer(q, q->title());
+            IrcBufferModelPrivate::get(model)->renameBuffer(oldTitle, q->title());
     }
 }
 
@@ -88,11 +89,12 @@ void IrcBufferPrivate::setPrefix(const QString& value)
 {
     Q_Q(IrcBuffer);
     if (prefix != value) {
+        const QString oldTitle = q->title();
         prefix = value;
         emit q->prefixChanged(prefix);
         emit q->titleChanged(q->title());
         if (model)
-            IrcBufferModelPrivate::get(model)->renameBuffer(q, q->title());
+            IrcBufferModelPrivate::get(model)->renameBuffer(oldTitle, q->title());
     }
 }
 

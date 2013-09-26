@@ -260,22 +260,20 @@ void IrcBufferModelPrivate::removeBuffer(const QString& title, bool force)
         delete buffer;
 }
 
-bool IrcBufferModelPrivate::renameBuffer(IrcBuffer* buffer, const QString& title)
+bool IrcBufferModelPrivate::renameBuffer(const QString& from, const QString& to)
 {
     Q_Q(IrcBufferModel);
-    int idx = bufferList.indexOf(buffer);
-    if (idx != -1) {
-        const QString lower = title.toLower();
+    const QString fromLower = from.toLower();
+    const QString toLower = to.toLower();
+    if (bufferMap.contains(fromLower) && !bufferMap.contains(toLower)) {
+        IrcBuffer* buffer = bufferMap.take(fromLower);
+        bufferMap.insert(toLower, buffer);
 
-        if (!bufferMap.contains(lower)) {
-            bufferMap.remove(buffer->title().toLower());
-            bufferMap.insert(lower, buffer);
+        const int idx = bufferList.indexOf(buffer);
+        QModelIndex index = q->index(idx);
+        emit q->dataChanged(index, index);
 
-            QModelIndex index = q->index(idx);
-            emit q->dataChanged(index, index);
-
-            return true;
-        }
+        return true;
     }
     return false;
 }

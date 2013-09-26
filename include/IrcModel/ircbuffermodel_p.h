@@ -37,7 +37,7 @@ public:
     IrcBuffer* addBuffer(const QString& title);
     void addBuffer(IrcBuffer* buffer);
     void removeBuffer(const QString& title, bool force = false);
-    bool renameBuffer(IrcBuffer* buffer, const QString& title);
+    bool renameBuffer(const QString& from, const QString& to);
     bool processMessage(const QString& title, IrcMessage* message, bool create = false);
 
     void _irc_bufferDestroyed(IrcBuffer* buffer);
