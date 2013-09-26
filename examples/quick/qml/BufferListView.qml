@@ -22,8 +22,9 @@ Rectangle {
     Rectangle {
         id: frame
         anchors.fill: parent
+        anchors.topMargin: -1
         color: "transparent"
-        border.color: "#bfbfbf"
+        border.color: "#aaa"
     }
 
     ScrollView {
@@ -40,6 +41,7 @@ Rectangle {
                 property Connection connection: modelData
                 Connections {
                     target: connection ? connection.bufferModel : null
+                    onAdded: currentBuffer = buffer
                     onAboutToBeRemoved: {
                         if (buffer === currentBuffer) {
                             var model = connection.bufferModel
@@ -67,7 +69,7 @@ Rectangle {
                             anchors.leftMargin: -1
                             anchors.rightMargin: -1
                             color: "transparent"
-                            border.color: "#bfbfbf"
+                            border.color: "#aaa"
                         }
                         Label {
                             id: label

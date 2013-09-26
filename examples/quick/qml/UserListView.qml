@@ -24,7 +24,7 @@ Rectangle {
         id: frame
         anchors.fill: parent
         color: "transparent"
-        border.color: "#bfbfbf"
+        border.color: "#aaa"
         anchors.topMargin: -1
         anchors.leftMargin: -1
         anchors.bottomMargin: -1

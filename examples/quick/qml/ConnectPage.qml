@@ -22,6 +22,7 @@ Item {
     property string realName: realNameField.text || realNameField.placeholderText
     property string userName: userNameField.text || userNameField.placeholderText
     property string password: passwordField.text
+    property string channel: channelField.text || channelField.placeholderText
 
     signal accepted()
     signal rejected()
@@ -91,6 +92,13 @@ Item {
             id: passwordField
             echoMode: TextInput.Password
             Layout.fillWidth: true
+        }
+
+        Label { text: "Channel:" }
+        TextField {
+            id: channelField
+            Layout.fillWidth: true
+            placeholderText: "#communi"
         }
     }
 

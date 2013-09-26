@@ -92,7 +92,16 @@ QtObject {
     }
 
     function formatNumericMessage(message) {
-        return qsTr("[%1] %2").arg(message.code).arg(message.parameters.slice(1).join(" "))
+        switch (message.code) {
+        case Irc.RPL_TOPIC:
+        case Irc.RPL_TOPICWHOTIME:
+        case Irc.RPL_CHANNEL_URL:
+        case Irc.RPL_NAMREPLY:
+        case Irc.RPL_ENDOFNAMES:
+            return // ignore
+        default:
+            return qsTr("[%1] %2").arg(message.code).arg(message.parameters.slice(1).join(" "))
+        }
     }
 
     function formatPartMessage(message) {

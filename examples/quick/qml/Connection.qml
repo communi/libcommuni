@@ -13,6 +13,8 @@ import Communi 3.0
 IrcConnection {
     id: root
 
+    property string channel
+
     property IrcBufferModel bufferModel: IrcBufferModel {
         id: bufferModel
         dynamicSort: true
@@ -35,5 +37,11 @@ IrcConnection {
         sticky: true
         name: root.displayName
         Component.onCompleted: bufferModel.add(serverBuffer)
+    }
+
+    property IrcCommand cmd: IrcCommand { }
+    onConnected: {
+        if (channel)
+            sendCommand(cmd.createJoin(channel))
     }
 }

@@ -55,7 +55,8 @@ ApplicationWindow {
         onAccepted: {
             var conn = connection.createObject(window, {"host": host, "port": port, "secure": secure,
                                                         "nickName": nickName, "realName": realName,
-                                                        "userName": userName, "password": password})
+                                                        "userName": userName, "password": password,
+                                                        "channel": channel})
             conn.open()
             chatPage.addConnection(conn)
             connectPage.visible = false
@@ -71,7 +72,6 @@ ApplicationWindow {
         Connections {
             target: chatPage.connections
             onCountChanged: {
-                console.log(chatPage.connections.count)
                 if (chatPage.connections.count === 0)
                     connectPage.visible = true
             }

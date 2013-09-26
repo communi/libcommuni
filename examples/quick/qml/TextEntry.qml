@@ -42,7 +42,7 @@ TextField {
                 color: "transparent"
                 anchors.fill: parent
                 anchors.leftMargin: -1
-                border.color: Qt.darker(palette.window, 1.5)
+                border.color: "#aaa"
             }
         }
     }

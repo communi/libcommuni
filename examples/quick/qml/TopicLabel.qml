@@ -43,6 +43,6 @@ Rectangle {
         anchors.fill: parent
         anchors.topMargin: -1
         anchors.leftMargin: -1
-        border.color: "#bfbfbf"
+        border.color: "#aaa"
     }
 }
