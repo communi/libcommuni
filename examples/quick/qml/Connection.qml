@@ -21,6 +21,13 @@ IrcConnection {
             if (serverBuffer)
                 serverBuffer.receiveMessage(message)
         }
+        onAboutToBeRemoved: {
+            if (buffer === serverBuffer) {
+                root.quit(qsTr("Communi %1 QtQuick example").arg(irc.version()))
+                chatPage.removeConnection(root)
+                root.destroy(1000)
+            }
+        }
     }
 
     property IrcBuffer serverBuffer: IrcBuffer {

@@ -39,7 +39,7 @@ Rectangle {
                 width: parent.width
                 property Connection connection: modelData
                 Connections {
-                    target: connection.bufferModel
+                    target: connection ? connection.bufferModel : null
                     onAboutToBeRemoved: {
                         if (buffer === currentBuffer) {
                             var model = connection.bufferModel
@@ -49,7 +49,7 @@ Rectangle {
                     }
                 }
                 Repeater {
-                    model: connection.bufferModel
+                    model: connection ? connection.bufferModel : 0
                     delegate: Rectangle {
                         property bool first: index === 0
                         property bool current: model.buffer === currentBuffer

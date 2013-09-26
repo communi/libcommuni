@@ -27,6 +27,15 @@ Item {
             currentBuffer = connection.serverBuffer
     }
 
+    function removeConnection(connection) {
+        for (var i = 0; i < connectionModel.count; ++i) {
+            if (connectionModel.get(i).connection === connection) {
+                connectionModel.remove(i)
+                break
+            }
+        }
+    }
+
     SplitView {
         anchors.fill: parent
 

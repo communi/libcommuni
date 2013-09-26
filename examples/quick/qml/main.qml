@@ -67,6 +67,15 @@ ApplicationWindow {
         id: chatPage
         anchors.fill: parent
         visible: !connectPage.visible
+
+        Connections {
+            target: chatPage.connections
+            onCountChanged: {
+                console.log(chatPage.connections.count)
+                if (chatPage.connections.count === 0)
+                    connectPage.visible = true
+            }
+        }
     }
 
     Timer {
