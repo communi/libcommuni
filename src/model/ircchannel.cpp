@@ -172,7 +172,7 @@ void IrcChannelPrivate::setUsers(const QStringList& names)
         priv->setName(userName(name, prefixes));
         priv->setPrefix(getPrefix(name, prefixes));
         priv->setMode(q->network()->prefixToMode(user->prefix()));
-        activeUsers.prepend(user);
+        activeUsers.append(user);
         userList.append(user);
         userMap.insert(user->name(), user);
         users.append(user);
@@ -251,6 +251,9 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
 void IrcChannelPrivate::promoteUser(const QString& name)
 {
     if (IrcUser* user = userMap.value(name)) {
+        const int idx = activeUsers.indexOf(user);
+        Q_ASSERT(idx != -1);
+        activeUsers.move(idx, 0);
         foreach (IrcUserModel* model, userModels)
             IrcUserModelPrivate::get(model)->promoteUser(user);
     }

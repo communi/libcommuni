@@ -339,7 +339,13 @@ Irc::SortMethod IrcUserModel::sortMethod() const
 void IrcUserModel::setSortMethod(Irc::SortMethod method)
 {
     Q_D(IrcUserModel);
-    d->sortMethod = method;
+    if (d->sortMethod != method) {
+        d->sortMethod = method;
+        if (method == Irc::SortByActivity && d->channel)
+            d->userList = IrcChannelPrivate::get(d->channel)->activeUsers;
+        if (d->dynamicSort && !d->userList.isEmpty())
+            sort(0, d->sortOrder);
+    }
 }
 
 /*!
@@ -362,7 +368,11 @@ bool IrcUserModel::dynamicSort() const
 void IrcUserModel::setDynamicSort(bool dynamic)
 {
     Q_D(IrcUserModel);
-    d->dynamicSort = dynamic;
+    if (d->dynamicSort != dynamic) {
+        d->dynamicSort = dynamic;
+        if (d->dynamicSort && !d->userList.isEmpty())
+            sort(0, d->sortOrder);
+    }
 }
 
 /*!
@@ -542,8 +552,9 @@ bool IrcUserModel::lessThan(const IrcUser* one, const IrcUser* another) const
 {
     Q_D(const IrcUserModel);
     if (d->sortMethod == Irc::SortByActivity) {
-        const int i1 = d->userList.indexOf(const_cast<IrcUser*>(one));
-        const int i2 = d->userList.indexOf(const_cast<IrcUser*>(another));
+        QList<IrcUser*> activeUsers = IrcChannelPrivate::get(one->channel())->activeUsers;
+        const int i1 = activeUsers.indexOf(const_cast<IrcUser*>(one));
+        const int i2 = activeUsers.indexOf(const_cast<IrcUser*>(another));
         return i1 < i2;
     } else if (d->sortMethod == Irc::SortByTitle) {
         const IrcNetwork* network = one->channel()->network();
