@@ -35,7 +35,7 @@ private:
 
 void tst_IrcNetwork::initTestCase()
 {
-    server.listen();
+    QVERIFY(server.listen());
 }
 
 void tst_IrcNetwork::cleanupTestCase()
@@ -113,7 +113,8 @@ void tst_IrcNetwork::testInfo()
     QVERIFY(channelTypesSpy.isValid());
 
     connection.open();
-    QVERIFY(server.waitForNewConnection(2000));
+    if (!server.waitForNewConnection(200))
+        QSKIP("The address is not available");
     QTcpSocket* serverSocket = server.nextPendingConnection();
     QVERIFY(serverSocket);
 
@@ -175,7 +176,8 @@ void tst_IrcNetwork::testCapabilities()
     network->setRequestedCapabilities(requestedCaps);
 
     connection.open();
-    QVERIFY(server.waitForNewConnection(2000));
+    if (!server.waitForNewConnection(200))
+        QSKIP("The address is not available");
     QTcpSocket* serverSocket = server.nextPendingConnection();
     QVERIFY(serverSocket);
     QAbstractSocket* clientSocket = connection.socket();
