@@ -4,6 +4,9 @@
 
 TARGET = tst_$$basename(_PRO_FILE_PWD_)
 
+DEPENDPATH += $$_PRO_FILE_PWD_
+INCLUDEPATH += $$_PRO_FILE_PWD_
+
 CONFIG += install_name no_testcase_installs
 
 !verbose:CONFIG += silent
