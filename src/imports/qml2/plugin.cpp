@@ -22,6 +22,69 @@ Q_DECLARE_METATYPE(Irc::Code)
 Q_DECLARE_METATYPE(IrcMessage::Type)
 Q_DECLARE_METATYPE(IrcCommand::Type)
 
+class IrcQmlFilter : public QObject,
+                     public IrcCommandFilter,
+                     public IrcMessageFilter
+{
+    Q_OBJECT
+    Q_INTERFACES(IrcCommandFilter IrcMessageFilter)
+    Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection NOTIFY connectionChanged)
+
+public:
+    IrcQmlFilter(QObject* parent = 0) : QObject(parent), conn(0) { }
+
+    IrcConnection* connection() const { return conn; }
+    void setConnection(IrcConnection* connection)
+    {
+        if (conn != connection) {
+            if (conn) {
+                conn->removeCommandFilter(this);
+                conn->removeMessageFilter(this);
+            }
+            conn = connection;
+            if (conn) {
+                conn->installCommandFilter(this);
+                conn->installMessageFilter(this);
+            }
+            emit connectionChanged();
+        }
+    }
+
+    bool commandFilter(IrcCommand* cmd)
+    {
+        // QML: QVariant commandFilter(QVariant)
+        const QMetaObject* mo = metaObject();
+        int idx = mo->indexOfMethod("commandFilter(QVariant)");
+        if (idx != -1) {
+            QVariant ret;
+            QMetaMethod method = mo->method(idx);
+            method.invoke(this, Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, QVariant::fromValue(cmd)));
+            return ret.toBool();
+        }
+        return false;
+    }
+
+    bool messageFilter(IrcMessage* msg)
+    {
+        // QML: QVariant messageFilter(QVariant)
+        const QMetaObject* mo = metaObject();
+        int idx = mo->indexOfMethod("messageFilter(QVariant)");
+        if (idx != -1) {
+            QVariant ret;
+            QMetaMethod method = mo->method(idx);
+            method.invoke(this, Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, QVariant::fromValue(msg)));
+            return ret.toBool();
+        }
+        return false;
+    }
+
+signals:
+    void connectionChanged();
+
+private:
+    QPointer<IrcConnection> conn;
+};
+
 class CommuniPlugin : public QQmlExtensionPlugin
 {
     Q_OBJECT
@@ -40,7 +103,9 @@ public:
         qmlRegisterType<IrcConnection>(uri, 3, 0, "IrcConnection");
         qmlRegisterUncreatableType<IrcMessage>(uri, 3, 0, "IrcMessage", "Cannot create an instance of IrcMessage. Use IrcConnection::messageReceived() signal instead.");
         qmlRegisterUncreatableType<IrcNetwork>(uri, 3, 0, "IrcNetwork", "Cannot create an instance of IrcNetwork. Use IrcConnection::network property instead.");
-        // TODO: IrcMessageFilter
+        qmlRegisterType<IrcQmlFilter>(uri, 3, 0, "IrcMessageFilter");
+        qmlRegisterType<IrcQmlFilter>(uri, 3, 0, "IrcCommandFilter");
+        qmlRegisterType<IrcQmlFilter>(uri, 3, 0, "IrcFilter");
 
         // IrcModel
         qmlRegisterType<IrcBuffer>(uri, 3, 0, "IrcBuffer");
