@@ -22,6 +22,7 @@ private slots:
 void tst_IrcUser::testDefaults()
 {
     IrcUser user;
+    QVERIFY(user.title().isEmpty());
     QVERIFY(user.name().isEmpty());
     QVERIFY(user.prefix().isEmpty());
     QVERIFY(user.mode().isEmpty());
@@ -31,9 +32,11 @@ void tst_IrcUser::testDefaults()
 void tst_IrcUser::testSignals()
 {
     IrcUser user;
+    QSignalSpy titleSpy(&user, SIGNAL(titleChanged(QString)));
     QSignalSpy nameSpy(&user, SIGNAL(nameChanged(QString)));
     QSignalSpy prefixSpy(&user, SIGNAL(prefixChanged(QString)));
     QSignalSpy modeSpy(&user, SIGNAL(modeChanged(QString)));
+    QVERIFY(titleSpy.isValid());
     QVERIFY(nameSpy.isValid());
     QVERIFY(prefixSpy.isValid());
     QVERIFY(modeSpy.isValid());

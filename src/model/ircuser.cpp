@@ -39,6 +39,7 @@ void IrcUserPrivate::setName(const QString& n)
     if (name != n) {
         name = n;
         emit q->nameChanged(name);
+        emit q->titleChanged(q->title());
     }
 }
 
@@ -48,6 +49,7 @@ void IrcUserPrivate::setPrefix(const QString& p)
     if (prefix != p) {
         prefix = p;
         emit q->prefixChanged(prefix);
+        emit q->titleChanged(q->title());
     }
 }
 
@@ -84,6 +86,23 @@ IrcUser::IrcUser(QObject* parent)
  */
 IrcUser::~IrcUser()
 {
+}
+
+/*!
+    This property holds the title.
+
+    The title consists of \ref prefix and \ref name.
+
+    \par Access function:
+    \li QString <b>title</b>() const
+
+    \par Notifier signal:
+    \li void <b>titleChanged</b>(const QString& title)
+ */
+QString IrcUser::title() const
+{
+    Q_D(const IrcUser);
+    return d->prefix + d->name;
 }
 
 /*!

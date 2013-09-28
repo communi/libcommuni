@@ -28,6 +28,7 @@ class IrcUserPrivate;
 class IRC_MODEL_EXPORT IrcUser : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString prefix READ prefix NOTIFY prefixChanged)
     Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
@@ -37,6 +38,7 @@ public:
     explicit IrcUser(QObject* parent = 0);
     virtual ~IrcUser();
 
+    QString title() const;
     QString name() const;
     QString prefix() const;
     QString mode() const;
@@ -44,6 +46,7 @@ public:
     IrcChannel* channel() const;
 
 Q_SIGNALS:
+    void titleChanged(const QString& title);
     void nameChanged(const QString& name);
     void prefixChanged(const QString& prefix);
     void modeChanged(const QString& mode);
