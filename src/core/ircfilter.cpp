@@ -18,7 +18,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircfilter.h
-    \brief \#include &lt;%IrcMessageFilter&gt; / &lt;%IrcCommandFilter&gt;
+    \brief \#include &lt;%IrcFilter&gt;
  */
 
 /*!
