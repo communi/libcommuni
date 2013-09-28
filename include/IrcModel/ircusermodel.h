@@ -79,7 +79,6 @@ Q_SIGNALS:
     void countChanged(int count);
     void namesChanged(const QStringList& names);
     void usersChanged(const QList<IrcUser*>& users);
-    void activitySortEnabledChanged(bool enabled);
     void channelChanged(IrcChannel* channel);
 
 protected:
