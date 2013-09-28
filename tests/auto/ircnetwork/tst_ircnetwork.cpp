@@ -13,6 +13,12 @@
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
 
+#if QT_VERSION >= 0x050000
+#define Q4SKIP(description) QSKIP(description)
+#else
+#define Q4SKIP(description) QSKIP(description, SkipAll)
+#endif
+
 class tst_IrcNetwork : public QObject
 {
     Q_OBJECT
@@ -114,7 +120,7 @@ void tst_IrcNetwork::testInfo()
 
     connection.open();
     if (!server.waitForNewConnection(200))
-        QSKIP("The address is not available");
+        Q4SKIP("The address is not available");
     QTcpSocket* serverSocket = server.nextPendingConnection();
     QVERIFY(serverSocket);
 
@@ -177,7 +183,7 @@ void tst_IrcNetwork::testCapabilities()
 
     connection.open();
     if (!server.waitForNewConnection(200))
-        QSKIP("The address is not available");
+        Q4SKIP("The address is not available");
     QTcpSocket* serverSocket = server.nextPendingConnection();
     QVERIFY(serverSocket);
     QAbstractSocket* clientSocket = connection.socket();

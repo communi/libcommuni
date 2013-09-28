@@ -23,6 +23,12 @@
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
 
+#if QT_VERSION >= 0x050000
+#define Q4SKIP(description) QSKIP(description)
+#else
+#define Q4SKIP(description) QSKIP(description, SkipAll)
+#endif
+
 static bool caseInsensitiveLessThan(const QString& s1, const QString& s2)
 {
     return s1.compare(s2, Qt::CaseInsensitive) < 0;
@@ -147,7 +153,7 @@ void tst_IrcUserModel::testSorting_data()
 void tst_IrcUserModel::testSorting()
 {
     if (!serverSocket)
-        QSKIP("The address is not available");
+        Q4SKIP("The address is not available");
 
     QFETCH(QString, welcomeData);
     QFETCH(QString, joinData);
@@ -309,7 +315,7 @@ void tst_IrcUserModel::testSorting()
 void tst_IrcUserModel::testActivity_freenode()
 {
     if (!serverSocket)
-        QSKIP("The address is not available");
+        Q4SKIP("The address is not available");
 
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
@@ -363,7 +369,7 @@ void tst_IrcUserModel::testActivity_freenode()
 void tst_IrcUserModel::testActivity_ircnet()
 {
     if (!serverSocket)
-        QSKIP("The address is not available");
+        Q4SKIP("The address is not available");
 
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
@@ -444,7 +450,7 @@ void tst_IrcUserModel::testActivity_ircnet()
 void tst_IrcUserModel::testActivity_euirc()
 {
     if (!serverSocket)
-        QSKIP("The address is not available");
+        Q4SKIP("The address is not available");
 
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
@@ -539,11 +545,13 @@ void tst_IrcUserModel::testActivity_euirc()
     QCOMPARE(activityModel.indexOf(activityModel.user("icefly")), 0);
 }
 
+Q_DECLARE_METATYPE(QModelIndex)
 void tst_IrcUserModel::testChanges()
 {
     if (!serverSocket)
-        QSKIP("The address is not available");
+        Q4SKIP("The address is not available");
 
+    qRegisterMetaType<QModelIndex>();
     qRegisterMetaType<IrcUser*>("IrcUser*");
     qRegisterMetaType<IrcChannel*>("IrcChannel*");
     qRegisterMetaType<QList<IrcUser*> >("QList<IrcUser*>");
