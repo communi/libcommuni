@@ -93,8 +93,23 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \file irccore.h
+    \brief \#include &lt;%IrcCore&gt;
+ */
+
+/*!
+    \file ircmodel.h
+    \brief \#include &lt;%IrcModel&gt;
+ */
+
+/*!
+    \file ircutil.h
+    \brief \#include &lt;%IrcUtil&gt;
+ */
+
+/*!
     \file irc.h
-    \brief #include &lt;Irc&gt;
+    \brief \#include &lt;%Irc&gt;
  */
 
 /*!

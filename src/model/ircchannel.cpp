@@ -27,7 +27,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircchannel.h
-    \brief #include &lt;IrcChannel&gt;
+    \brief \#include &lt;%IrcChannel&gt;
  */
 
 /*!
@@ -402,9 +402,6 @@ QString IrcChannel::topic() const
     return d->topic;
 }
 
-/*!
-    \reimp
- */
 bool IrcChannel::isActive() const
 {
     Q_D(const IrcChannel);

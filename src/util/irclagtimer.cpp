@@ -25,7 +25,7 @@ static const int DEFAULT_INTERVAL = 60;
 
 /*!
     \file irclagtimer.h
-    \brief #include &lt;IrcLagTimer&gt;
+    \brief \#include &lt;%IrcLagTimer&gt;
  */
 
 /*!
@@ -199,7 +199,7 @@ qint64 IrcLagTimer::lag() const
 /*!
     This property holds the lag measurement interval in seconds.
 
-    The default value is \c60 seconds. A value equal to or
+    The default value is \c 60 seconds. A value equal to or
     less than \c 0 seconds disables the lag measurement.
 
     \par Access functions:

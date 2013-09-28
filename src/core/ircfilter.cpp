@@ -18,12 +18,11 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircfilter.h
-    \brief #include &lt;IrcMessageFilter&gt;
-    \brief #include &lt;IrcCommandFilter&gt;
+    \brief \#include &lt;%IrcMessageFilter&gt; / &lt;%IrcCommandFilter&gt;
  */
 
 /*!
-    \class IrcMessageFilter ircfilter.h.h <IrcMessageFilter>
+    \class IrcMessageFilter ircfilter.h <IrcMessageFilter>
     \ingroup core
     \brief Provides an interface for filtering messages
 
@@ -123,7 +122,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \class IrcCommandFilter ircfilter.h.h <IrcCommandFilter>
+    \class IrcCommandFilter ircfilter.h <IrcCommandFilter>
     \ingroup core
     \brief Provides an interface for filtering commands
 

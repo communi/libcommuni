@@ -26,7 +26,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircmessage.h
-    \brief #include &lt;IrcMessage&gt;
+    \brief \#include &lt;%IrcMessage&gt;
  */
 
 /*!
@@ -137,7 +137,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \enum IrcMessage::Flags
+    \enum IrcMessage::Flag
     This enum describes the supported message flags.
  */
 
@@ -294,7 +294,7 @@ void IrcMessage::setCommand(const QString& command)
 /*!
     This property holds the message sender prefix.
 
-    The prefix consists of \ref nick, \ref user and \ref host as specified in RFC 1459:
+    The prefix consists of \ref nick, \ref ident and \ref host as specified in RFC 1459:
     <pre>
     &lt;prefix&gt; ::= &lt;nick&gt; [ '!' &lt;ident&gt; ] [ '@' &lt;host&gt; ]
     </pre>

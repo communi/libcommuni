@@ -39,7 +39,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircconnection.h
-    \brief #include &lt;IrcConnection&gt;
+    \brief \#include &lt;%IrcConnection&gt;
  */
 
 /*!
@@ -221,12 +221,6 @@ IRC_BEGIN_NAMESPACE
     \li void <b>privateMessageReceived</b>(\ref IrcPrivateMessage* message)
     \li void <b>quitMessageReceived</b>(\ref IrcQuitMessage* message)
     \li void <b>topicMessageReceived</b>(\ref IrcTopicMessage* message)
- */
-
-/*!
-    \fn void IrcConnection::connectionInfoReceived(const IrcNetwork& info)
-
-    This signal is emitted when the connection \a info has been received.
  */
 
 template<typename T>

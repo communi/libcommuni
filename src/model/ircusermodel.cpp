@@ -24,7 +24,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircusermodel.h
-    \brief #include &lt;IrcUserModel&gt;
+    \brief \#include &lt;%IrcUserModel&gt;
  */
 
 /*!
@@ -560,7 +560,6 @@ QModelIndex IrcUserModel::index(int row, int column, const QModelIndex& parent) 
 }
 
 /*!
-    \reimp
     Sorts the model in the given \a order.
 
     \sa lessThan(), dynamicSort

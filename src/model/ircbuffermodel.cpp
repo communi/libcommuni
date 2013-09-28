@@ -25,7 +25,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircbuffermodel.h
-    \brief #include &lt;IrcBufferModel&gt;
+    \brief \#include &lt;%IrcBufferModel&gt;
  */
 
 /*!
@@ -625,7 +625,6 @@ void IrcBufferModel::clear()
 }
 
 /*!
-    \reimp
     Sorts the model in the given \a order.
 
     \sa lessThan(), dynamicSort

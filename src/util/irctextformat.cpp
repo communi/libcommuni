@@ -30,7 +30,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file irctextformat.h
-    \brief #include &lt;IrcTextFormat&gt;
+    \brief \#include &lt;%IrcTextFormat&gt;
  */
 
 /*!
@@ -142,10 +142,10 @@ QString IrcTextFormat::colorName(int color, const QString& fallback) const
 
     The color \a name may be in one of these formats:
 
-    \li #RGB (each of R, G, and B is a single hex digit)
-    \li #RRGGBB
-    \li #RRRGGGBBB
-    \li #RRRRGGGGBBBB
+    \li \#RGB (each of R, G, and B is a single hex digit)
+    \li \#RRGGBB
+    \li \#RRRGGGBBB
+    \li \#RRRRGGGGBBBB
     \li A name from the list of colors defined in the list of <a href="http://www.w3.org/TR/SVG/types.html#ColorKeywords">SVG color keyword names</a>
         provided by the World Wide Web Consortium; for example, "steelblue" or "gainsboro". These color names work on all platforms. Note that these
         color names are not the same as defined by the Qt::GlobalColor enums, e.g. "green" and Qt::green does not refer to the same color.

@@ -19,7 +19,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file irccommandparser.h
-    \brief #include &lt;IrcCommandParser&gt;
+    \brief \#include &lt;%IrcCommandParser&gt;
  */
 
 /*!
@@ -41,7 +41,7 @@ IRC_BEGIN_NAMESPACE
     (&lt;param&gt;)    | (&lt;key&gt;)        | An optional parameter.
     &lt;param...&gt;   | &lt;message...&gt;   | A required parameter, multiple words accepted. (1)
     (&lt;param...&gt;) | (&lt;message...&gt;) | An optional parameter, multiple words accepted. (1)
-    (&lt;#param&gt;)   | (&lt;#channel&gt;)   | An optional channel parameter. (2)
+    (&lt;\#param&gt;)  | (&lt;\#channel&gt;)  | An optional channel parameter. (2)
     [param]            | [target]             | Inject the current target.
 
     -# Multi-word parameters are only supported in the last parameter position.

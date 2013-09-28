@@ -24,7 +24,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircnetwork.h
-    \brief #include &lt;IrcNetwork&gt;
+    \brief \#include &lt;%IrcNetwork&gt;
  */
 
 /*!
@@ -356,7 +356,7 @@ QString IrcNetwork::prefixToMode(const QString& prefix) const
     Examples of typical channel types:
     Description      | Type | Example
     -----------------|------|---------
-    Normal channel   | #    | #communi
+    Normal channel   | \#   | \#communi
     Local channel    | &    | &foo
 
     \par Access functions:

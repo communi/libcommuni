@@ -19,7 +19,7 @@
 
 /*!
     \file ircglobal.h
-    \brief #include &lt;IrcGlobal&gt;
+    \brief \#include &lt;IrcGlobal&gt;
  */
 
 #if defined(IRC_SHARED)
