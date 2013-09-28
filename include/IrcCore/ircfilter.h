@@ -39,6 +39,12 @@ public:
 
 IRC_END_NAMESPACE
 
+// TODO: fixme
+#ifdef IRC_NAMESPACE
+using IRC_NAMESPACE::IrcMessageFilter;
+using IRC_NAMESPACE::IrcCommandFilter;
+#endif
+
 Q_DECLARE_INTERFACE(IrcMessageFilter, "Communi.IrcMessageFilter")
 Q_DECLARE_INTERFACE(IrcCommandFilter, "Communi.IrcCommandFilter")
 
