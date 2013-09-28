@@ -12,31 +12,34 @@
 * License for more details.
 */
 
-#ifndef IRCMESSAGEFILTER_H
-#define IRCMESSAGEFILTER_H
+#ifndef IRCFILTER_H
+#define IRCFILTER_H
 
 #include <IrcGlobal>
-#include <QtCore/qscopedpointer.h>
+#include <QtCore/qobject.h>
 
 IRC_BEGIN_NAMESPACE
 
 class IrcMessage;
-class IrcMessageFilterPrivate;
+class IrcCommand;
 
 class IRC_CORE_EXPORT IrcMessageFilter
 {
 public:
-    IrcMessageFilter();
-    virtual ~IrcMessageFilter();
-
+    virtual ~IrcMessageFilter() { }
     virtual bool messageFilter(IrcMessage* message) = 0;
+};
 
-protected:
-    QScopedPointer<IrcMessageFilterPrivate> d_ptr;
-    Q_DECLARE_PRIVATE(IrcMessageFilter)
-    Q_DISABLE_COPY(IrcMessageFilter)
+class IRC_CORE_EXPORT IrcCommandFilter
+{
+public:
+    virtual ~IrcCommandFilter() { }
+    virtual bool commandFilter(IrcCommand* command) = 0;
 };
 
 IRC_END_NAMESPACE
 
-#endif // IRCMESSAGEFILTER_H
+Q_DECLARE_INTERFACE(IrcMessageFilter, "Communi.IrcMessageFilter")
+Q_DECLARE_INTERFACE(IrcCommandFilter, "Communi.IrcCommandFilter")
+
+#endif // IRCFILTER_H

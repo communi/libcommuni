@@ -19,7 +19,7 @@ PUB_HEADERS += $$INCDIR/irclagtimer.h
 PUB_HEADERS += $$INCDIR/irctextformat.h
 PUB_HEADERS += $$INCDIR/ircutil.h
 
-PRIV_HEADERS  =
+PRIV_HEADERS = $$INCDIR/irclagtimer_p.h
 
 HEADERS += $$PUB_HEADERS
 HEADERS += $$PRIV_HEADERS

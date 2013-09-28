@@ -19,12 +19,16 @@
 
 #include <QList>
 #include <QHash>
+#include <QStack>
 #include <QTimer>
 #include <QString>
 #include <QByteArray>
 #include <QAbstractSocket>
 
 IRC_BEGIN_NAMESPACE
+
+class IrcMessageFilter;
+class IrcCommandFilter;
 
 class IrcConnectionPrivate
 {
@@ -39,6 +43,8 @@ public:
     void _irc_state(QAbstractSocket::SocketState state);
     void _irc_reconnect();
     void _irc_readData();
+
+    void _irc_filterDestroyed(QObject* filter);
 
     void setNick(const QString& nick);
     void setStatus(IrcConnection::Status status);
@@ -67,8 +73,10 @@ public:
     QTimer reconnecter;
     QString saslMechanism;
     IrcConnection::Status status;
-    QList<IrcMessageFilter*> filters;
     QList<IrcCommand*> pendingCommands;
+    QList<IrcCommandFilter*> commandFilters;
+    QList<IrcMessageFilter*> messageFilters;
+    QStack<IrcCommandFilter*> activeCommandFilters;
 };
 
 IRC_END_NAMESPACE

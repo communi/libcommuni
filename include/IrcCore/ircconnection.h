@@ -26,7 +26,6 @@ IRC_BEGIN_NAMESPACE
 
 class IrcCommand;
 class IrcProtocol;
-class IrcMessageFilter;
 class IrcConnectionPrivate;
 
 class IRC_CORE_EXPORT IrcConnection : public QObject
@@ -113,8 +112,11 @@ public:
     Q_INVOKABLE bool sendData(const QByteArray& data);
     Q_INVOKABLE bool sendRaw(const QString& message);
 
-    void installMessageFilter(IrcMessageFilter* filter);
-    void removeMessageFilter(IrcMessageFilter* filter);
+    void installMessageFilter(QObject* filter);
+    void removeMessageFilter(QObject* filter);
+
+    void installCommandFilter(QObject* filter);
+    void removeCommandFilter(QObject* filter);
 
 public Q_SLOTS:
     void open();
@@ -186,6 +188,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _irc_state(QAbstractSocket::SocketState))
     Q_PRIVATE_SLOT(d_func(), void _irc_reconnect())
     Q_PRIVATE_SLOT(d_func(), void _irc_readData())
+    Q_PRIVATE_SLOT(d_func(), void _irc_filterDestroyed(QObject*))
 };
 
 #ifndef QT_NO_DEBUG_STREAM

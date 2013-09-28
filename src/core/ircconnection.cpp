@@ -14,12 +14,12 @@
 
 #include "ircconnection.h"
 #include "ircconnection_p.h"
-#include "ircmessagefilter_p.h"
 #include "ircnetwork_p.h"
 #include "ircprotocol.h"
 #include "ircnetwork.h"
 #include "irccommand.h"
 #include "ircmessage.h"
+#include "ircfilter.h"
 #include "irc.h"
 #include <QLocale>
 #include <QDateTime>
@@ -316,6 +316,17 @@ void IrcConnectionPrivate::_irc_readData()
     protocol->read();
 }
 
+void IrcConnectionPrivate::_irc_filterDestroyed(QObject* filter)
+{
+    messageFilters.removeAll(reinterpret_cast<IrcMessageFilter*>(filter));
+    commandFilters.removeAll(reinterpret_cast<IrcCommandFilter*>(filter));
+    int idx = activeCommandFilters.indexOf(reinterpret_cast<IrcCommandFilter*>(filter));
+    while (idx != -1) {
+        activeCommandFilters.remove(idx);
+        idx = activeCommandFilters.indexOf(reinterpret_cast<IrcCommandFilter*>(filter));
+    }
+}
+
 void IrcConnectionPrivate::setNick(const QString& nick)
 {
     Q_Q(IrcConnection);
@@ -358,8 +369,8 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
 {
     Q_Q(IrcConnection);
     bool filtered = false;
-    for (int i = filters.count() - 1; !filtered && i >= 0; --i)
-        filtered |= filters.at(i)->messageFilter(msg);
+    for (int i = messageFilters.count() - 1; !filtered && i >= 0; --i)
+        filtered |= messageFilters.at(i)->messageFilter(msg);
 
     if (!filtered) {
         emit q->messageReceived(msg);
@@ -1062,8 +1073,21 @@ void IrcConnection::resume()
  */
 bool IrcConnection::sendCommand(IrcCommand* command)
 {
+    Q_D(IrcConnection);
     bool res = false;
     if (command) {
+        bool filtered = false;
+        for (int i = d->commandFilters.count() - 1; !filtered && i >= 0; --i) {
+            IrcCommandFilter* filter = d->commandFilters.at(i);
+            if (!d->activeCommandFilters.contains(filter)) {
+                d->activeCommandFilters.push(filter);
+                filtered |= filter->commandFilter(command);
+                d->activeCommandFilters.pop();
+            }
+        }
+        if (filtered)
+            return false;
+
         if (isActive()) {
             QTextCodec* codec = QTextCodec::codecForName(command->encoding());
             Q_ASSERT(codec);
@@ -1110,35 +1134,84 @@ bool IrcConnection::sendRaw(const QString& message)
     Installs a message \a filter on this connection.
 
     A message filter receives all messages that are sent to this connection.
-    The message filter receives events via its messageFilter() function.
+    The message filter receives messages via its messageFilter() function.
     The messageFilter() function must return \c true if the message should
     be filtered, (i.e. stopped); otherwise it must return \c false.
 
     If multiple message filters are installed on the same connection, the filter
     that was installed last is activated first.
 
-    \sa removeMessageFilter()
+    \sa IrcMessageFilter, removeMessageFilter()
  */
-void IrcConnection::installMessageFilter(IrcMessageFilter* filter)
+void IrcConnection::installMessageFilter(QObject* filter)
 {
     Q_D(IrcConnection);
-    d->filters += filter;
-    IrcMessageFilterPrivate::get(filter)->connections.append(this);
+    IrcMessageFilter* msgFilter = qobject_cast<IrcMessageFilter*>(filter);
+    if (msgFilter) {
+        d->messageFilters += msgFilter;
+        connect(filter, SIGNAL(destroyed(QObject*)), this, SLOT(_irc_filterDestroyed(QObject*)), Qt::UniqueConnection);
+    }
 }
 
 /*!
     Removes a message \a filter from this connection.
 
-    The request is ignored if such an event filter has not been installed.
-    All message filters for this connection are automatically removed when this connection is destroyed.
+    The request is ignored if such message filter has not been installed.
+    All message filters for this connection are automatically removed
+    when this connection is destroyed.
 
     \sa installMessageFilter()
  */
-void IrcConnection::removeMessageFilter(IrcMessageFilter* filter)
+void IrcConnection::removeMessageFilter(QObject* filter)
 {
     Q_D(IrcConnection);
-    d->filters.removeAll(filter);
-    IrcMessageFilterPrivate::get(filter)->connections.removeAll(this);
+    IrcMessageFilter* msgFilter = qobject_cast<IrcMessageFilter*>(filter);
+    if (msgFilter) {
+        d->messageFilters.removeAll(msgFilter);
+        disconnect(filter, SIGNAL(destroyed(QObject*)), this, SLOT(_irc_filterDestroyed(QObject*)));
+    }
+}
+
+/*!
+    Installs a command \a filter on this connection.
+
+    A command filter receives all commands that are sent from this connection.
+    The command filter receives commands via its commandFilter() function.
+    The commandFilter() function must return \c true if the command should
+    be filtered, (i.e. stopped); otherwise it must return \c false.
+
+    If multiple command filters are installed on the same connection, the filter
+    that was installed last is activated first.
+
+    \sa IrcCommandFilter, removeMessageFilter()
+ */
+void IrcConnection::installCommandFilter(QObject* filter)
+{
+    Q_D(IrcConnection);
+    IrcCommandFilter* cmdFilter = qobject_cast<IrcCommandFilter*>(filter);
+    if (cmdFilter) {
+        d->commandFilters += cmdFilter;
+        connect(filter, SIGNAL(destroyed(QObject*)), this, SLOT(_irc_filterDestroyed(QObject*)), Qt::UniqueConnection);
+    }
+}
+
+/*!
+    Removes a command \a filter from this connection.
+
+    The request is ignored if such command filter has not been installed.
+    All command filters for this connection are automatically removed when
+    this connection is destroyed.
+
+    \sa installMessageFilter()
+ */
+void IrcConnection::removeCommandFilter(QObject* filter)
+{
+    Q_D(IrcConnection);
+    IrcCommandFilter* cmdFilter = qobject_cast<IrcCommandFilter*>(filter);
+    if (cmdFilter) {
+        d->commandFilters.removeAll(cmdFilter);
+        disconnect(filter, SIGNAL(destroyed(QObject*)), this, SLOT(_irc_filterDestroyed(QObject*)));
+    }
 }
 
 /*!

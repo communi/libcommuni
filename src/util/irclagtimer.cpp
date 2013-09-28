@@ -13,12 +13,11 @@
 */
 
 #include "irclagtimer.h"
+#include "irclagtimer_p.h"
 #include "ircconnection.h"
 #include "ircmessage.h"
 #include "irccommand.h"
-#include "ircmessagefilter.h"
 #include <QDateTime>
-#include <QTimer>
 
 IRC_BEGIN_NAMESPACE
 
@@ -43,30 +42,6 @@ static const int DEFAULT_INTERVAL = 60;
 
     This signal is emitted when the \a lag has changed.
  */
-
-class IrcLagTimerPrivate : public IrcMessageFilter
-{
-    Q_DECLARE_PUBLIC(IrcLagTimer)
-
-public:
-    IrcLagTimerPrivate();
-
-    bool messageFilter(IrcMessage* msg);
-    bool processPongReply(IrcPongMessage* msg);
-
-    void _irc_connected();
-    void _irc_pingServer();
-    void _irc_disconnected();
-
-    void updateTimer();
-    void updateLag(qint64 value);
-
-    IrcLagTimer* q_ptr;
-    IrcConnection* connection;
-    QTimer timer;
-    int interval;
-    qint64 lag;
-};
 
 IrcLagTimerPrivate::IrcLagTimerPrivate() : q_ptr(0), connection(0), interval(DEFAULT_INTERVAL), lag(-1)
 {

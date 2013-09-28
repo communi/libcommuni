@@ -16,14 +16,16 @@
 #define IRCBUFFERMODEL_P_H
 
 #include "ircbuffer.h"
+#include "ircfilter.h"
 #include "ircbuffermodel.h"
-#include "ircmessagefilter.h"
 #include <qpointer.h>
 
 IRC_BEGIN_NAMESPACE
 
-class IrcBufferModelPrivate : public IrcMessageFilter
+class IrcBufferModelPrivate : public QObject, public IrcMessageFilter
 {
+    Q_OBJECT
+    Q_INTERFACES(IrcMessageFilter)
     Q_DECLARE_PUBLIC(IrcBufferModel)
 
 public:
