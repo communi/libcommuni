@@ -186,22 +186,11 @@ bool IrcChannelPrivate::renameUser(const QString& from, const QString& to)
 {
     if (IrcUser* user = userMap.take(from)) {
         IrcUserPrivate::get(user)->setName(to);
-        int idx = userList.indexOf(user);
-        if (idx != -1) {
-            userMap.insert(to, user);
+        userMap.insert(to, user);
 
-            const QStringList names = userMap.keys();
-            foreach (IrcUserModel* model, userModels) {
-                QModelIndex index = model->index(idx, 0);
-                emit model->dataChanged(index, index);
-                emit model->namesChanged(names);
-                if (model->sortMethod() == Irc::SortByActivity)
-                    emit model->usersChanged(activeUsers);
-                else
-                    emit model->usersChanged(userList);
-            }
-            return true;
-        }
+        foreach (IrcUserModel* model, userModels)
+            IrcUserModelPrivate::get(model)->renameUser(user);
+        return true;
     }
     return false;
 }
@@ -237,14 +226,8 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
         priv->setPrefix(prefix);
         priv->setMode(mode);
 
-        if (!userModels.isEmpty()) {
-            const int userIdx = userList.indexOf(user);
-            const int activeIdx = activeUsers.indexOf(user);
-            foreach (IrcUserModel* model, userModels) {
-                QModelIndex index = model->index(model->sortMethod() == Irc::SortByActivity ? activeIdx : userIdx, 0);
-                emit model->dataChanged(index, index);
-            }
-        }
+        foreach (IrcUserModel* model, userModels)
+            IrcUserModelPrivate::get(model)->setUserMode(user);
     }
 }
 

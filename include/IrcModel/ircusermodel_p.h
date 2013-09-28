@@ -32,7 +32,9 @@ public:
     void addUser(IrcUser* user, bool notify = true);
     void insertUser(int index, IrcUser* user, bool notify = true);
     void removeUser(IrcUser* user, bool notify = true);
-    void setUsers(const QList<IrcUser*>& users);
+    void setUsers(const QList<IrcUser*>& users, bool reset = true);
+    void renameUser(IrcUser* user);
+    void setUserMode(IrcUser* user);
     void promoteUser(IrcUser* user);
 
     static IrcUserModelPrivate* get(IrcUserModel* model)

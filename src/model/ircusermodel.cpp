@@ -135,10 +135,17 @@ void IrcUserModelPrivate::removeUser(IrcUser* user, bool notify)
     }
 }
 
-void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users)
+void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users, bool reset)
 {
     Q_Q(IrcUserModel);
-    q->beginResetModel();
+    if (reset)
+        q->beginResetModel();
+    // TODO: considering huge channels, is this really a good idea??
+    QList<IrcUser*> oldUsers = userList;
+    foreach (IrcUser* user, oldUsers) {
+        if (!users.contains(user))
+            emit q->removed(user);
+    }
     userList = users;
     if (dynamicSort) {
         if (sortOrder == Qt::AscendingOrder)
@@ -146,12 +153,51 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users)
         else
             qSort(userList.begin(), userList.end(), IrcUserGreaterThan(q));
     }
-    foreach (IrcUser* user, userList)
-        emit q->added(user);
-    q->endResetModel();
-    emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
+    // TODO: considering huge channels, is this really a good idea??
+    foreach (IrcUser* user, userList) {
+        if (!oldUsers.contains(user))
+            emit q->added(user);
+    }
+    if (reset)
+        q->endResetModel();
+    QStringList names;
+    if (channel)
+        names = IrcChannelPrivate::get(channel)->userMap.keys();
+    emit q->namesChanged(names);
     emit q->usersChanged(userList);
     emit q->countChanged(userList.count());
+}
+
+void IrcUserModelPrivate::renameUser(IrcUser* user)
+{
+    Q_Q(IrcUserModel);
+    const int idx = userList.indexOf(user);
+    if (idx != -1) {
+        QModelIndex index = q->index(idx, 0);
+        emit q->dataChanged(index, index);
+
+        QStringList names;
+        if (channel)
+            names = IrcChannelPrivate::get(channel)->userMap.keys();
+        emit q->namesChanged(names);
+    }
+}
+
+void IrcUserModelPrivate::setUserMode(IrcUser* user)
+{
+    Q_Q(IrcUserModel);
+    const int idx = userList.indexOf(user);
+    if (idx != -1) {
+        QModelIndex index = q->index(idx, 0);
+        emit q->dataChanged(index, index);
+
+        if (dynamicSort && sortMethod == Irc::SortByTitle) {
+            const bool notify = false;
+            removeUser(user, notify);
+            insertUser(0, user, notify);
+            emit q->usersChanged(userList);
+        }
+    }
 }
 
 void IrcUserModelPrivate::promoteUser(IrcUser* user)
@@ -214,10 +260,16 @@ void IrcUserModel::setChannel(IrcChannel* channel)
 
         d->channel = channel;
 
+        QList<IrcUser*> users;
         if (d->channel) {
             IrcChannelPrivate::get(d->channel)->userModels.append(this);
-            d->setUsers(IrcChannelPrivate::get(d->channel)->userList);
+            if (d->sortMethod == Irc::SortByActivity)
+                users = IrcChannelPrivate::get(d->channel)->activeUsers;
+            else
+                users = IrcChannelPrivate::get(d->channel)->userList;
         }
+        const bool reset = false;
+        d->setUsers(users, reset);
         endResetModel();
 
         emit channelChanged(channel);
