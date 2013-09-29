@@ -71,7 +71,7 @@ class IrcUserLessThan
 {
 public:
     IrcUserLessThan(IrcUserModel* model) : model(model) { }
-    bool operator()(const IrcUser* u1, const IrcUser* u2) const { return model->lessThan(u1, u2); }
+    bool operator()(IrcUser* u1, IrcUser* u2) const { return model->lessThan(u1, u2); }
 private:
     IrcUserModel* model;
 };
@@ -80,7 +80,7 @@ class IrcUserGreaterThan
 {
 public:
     IrcUserGreaterThan(IrcUserModel* model) : model(model) { }
-    bool operator()(const IrcUser* u1, const IrcUser* u2) const { return model->lessThan(u2, u1); }
+    bool operator()(IrcUser* u1, IrcUser* u2) const { return model->lessThan(u2, u1); }
 private:
     IrcUserModel* model;
 };
@@ -605,13 +605,13 @@ void IrcUserModel::sort(int column, Qt::SortOrder order)
 
     \sa sort(), dynamicSort, sortMethod
  */
-bool IrcUserModel::lessThan(const IrcUser* one, const IrcUser* another) const
+bool IrcUserModel::lessThan(IrcUser* one, IrcUser* another) const
 {
     Q_D(const IrcUserModel);
     if (d->sortMethod == Irc::SortByActivity) {
         QList<IrcUser*> activeUsers = IrcChannelPrivate::get(one->channel())->activeUsers;
-        const int i1 = activeUsers.indexOf(const_cast<IrcUser*>(one));
-        const int i2 = activeUsers.indexOf(const_cast<IrcUser*>(another));
+        const int i1 = activeUsers.indexOf(one);
+        const int i2 = activeUsers.indexOf(another);
         return i1 < i2;
     } else if (d->sortMethod == Irc::SortByTitle) {
         const IrcNetwork* network = one->channel()->network();

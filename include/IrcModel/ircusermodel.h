@@ -82,7 +82,7 @@ Q_SIGNALS:
     void channelChanged(IrcChannel* channel);
 
 protected:
-    virtual bool lessThan(const IrcUser* one, const IrcUser* another) const;
+    virtual bool lessThan(IrcUser* one, IrcUser* another) const;
 
 private:
     friend class IrcUserLessThan;
