@@ -91,7 +91,6 @@ protected:
     QScopedPointer<IrcBufferPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcBuffer)
     Q_DISABLE_COPY(IrcBuffer)
-    Q_PRIVATE_SLOT(d_func(), void _irc_emitActiveChanged())
 };
 
 #ifndef QT_NO_DEBUG_STREAM

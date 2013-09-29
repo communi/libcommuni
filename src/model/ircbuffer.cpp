@@ -101,11 +101,7 @@ void IrcBufferPrivate::setPrefix(const QString& value)
 
 void IrcBufferPrivate::setModel(IrcBufferModel* value)
 {
-    Q_Q(IrcBuffer);
-    if (model != value) {
-        model = value;
-        QObject::connect(model->connection(), SIGNAL(statusChanged(IrcConnection::Status)), q, SLOT(_irc_emitActiveChanged()));
-    }
+    model = value;
 }
 
 bool IrcBufferPrivate::processMessage(IrcMessage* message)

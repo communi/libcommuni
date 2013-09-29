@@ -42,6 +42,7 @@ public:
     bool renameBuffer(const QString& from, const QString& to);
     bool processMessage(const QString& title, IrcMessage* message, bool create = false);
 
+    void _irc_connectionStatusChanged();
     void _irc_bufferDestroyed(IrcBuffer* buffer);
 
     static IrcBufferModelPrivate* get(IrcBufferModel* model)

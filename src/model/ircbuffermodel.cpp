@@ -289,6 +289,12 @@ bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* mes
     return false;
 }
 
+void IrcBufferModelPrivate::_irc_connectionStatusChanged()
+{
+    foreach (IrcBuffer* buffer, bufferList)
+        IrcBufferPrivate::get(buffer)->emitActiveChanged();
+}
+
 void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
 {
     Q_Q(IrcBufferModel);
@@ -368,6 +374,7 @@ void IrcBufferModel::setConnection(IrcConnection* connection)
             qFatal("IrcBufferModel::setConnection(): changing the connection on the fly is not supported.");
         d->connection = connection;
         d->connection->installMessageFilter(d);
+        connect(d->connection, SIGNAL(statusChanged(IrcConnection::Status)), this, SLOT(_irc_connectionStatusChanged()));
         emit connectionChanged(connection);
         emit networkChanged(network());
     }

@@ -54,7 +54,7 @@ public:
     virtual bool processQuitMessage(IrcQuitMessage* message);
     virtual bool processTopicMessage(IrcTopicMessage* message);
 
-    void _irc_emitActiveChanged()
+    void emitActiveChanged()
     {
         Q_Q(IrcBuffer);
         emit q->activeChanged(q->isActive());
