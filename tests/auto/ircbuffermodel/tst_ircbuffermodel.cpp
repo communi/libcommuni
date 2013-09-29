@@ -395,14 +395,93 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(layoutAboutToBeChangedSpy.count(), 2);
     QCOMPARE(layoutChangedSpy.count(), 2);
 
-    // Irc::SortByName
-    buffers = QList<IrcBuffer*>() << ChanServ << communi << freenode;
+    bufferModel.sort(0, Qt::DescendingOrder);
+    QCOMPARE(layoutAboutToBeChangedSpy.count(), 3);
+    QCOMPARE(layoutChangedSpy.count(), 3);
+
+    // Irc::SortByName, Qt::DescendingOrder
+    buffers = QList<IrcBuffer*>() << freenode << communi << ChanServ;
     channels = QStringList() << "#communi" << "#freenode";
 
     QCOMPARE(bufferModel.count(), buffers.count());
     for (int i = 0; i < bufferModel.count(); ++i)
         QCOMPARE(bufferModel.get(i), buffers.at(i));
     QCOMPARE(bufferModel.channels(), channels);
+
+    waitForWritten(ss, cs, ":qtassistant!qtassistant@hidd.en PRIVMSG communi :hola\r\n");
+    QCOMPARE(messageIgnoredSpy.count(), ignored);
+
+    QCOMPARE(bufferModel.count(), 4);
+
+    QPointer<IrcBuffer> qtassistant = bufferModel.get(0);
+    QVERIFY(qtassistant);
+    QCOMPARE(qtassistant->title(), QString("qtassistant"));
+    QCOMPARE(qtassistant->name(), QString("qtassistant"));
+    QCOMPARE(qtassistant->prefix(), QString());
+
+    // Irc::SortByName, Qt::DescendingOrder
+    buffers = QList<IrcBuffer*>() << qtassistant << freenode << communi << ChanServ;
+    channels = QStringList() << "#communi" << "#freenode";
+
+    QCOMPARE(bufferModel.count(), buffers.count());
+    for (int i = 0; i < bufferModel.count(); ++i)
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
+    QCOMPARE(bufferModel.channels(), channels);
+
+    QCOMPARE(countChangedSpy.count(), 4);
+    QCOMPARE(countChangedSpy.last().at(0).toInt(), 4);
+
+    QCOMPARE(aboutToBeAddedSpy.count(), 4);
+    QCOMPARE(aboutToBeAddedSpy.last().at(0).value<IrcBuffer*>(), qtassistant.data());
+
+    QCOMPARE(addedSpy.count(), 4);
+    QCOMPARE(addedSpy.last().at(0).value<IrcBuffer*>(), qtassistant.data());
+
+    QCOMPARE(buffersChangedSpy.count(), 4);
+    QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
+
+    QCOMPARE(channelsChangedSpy.count(), 2);
+
+    QSignalSpy titleChangedSpy(qtassistant, SIGNAL(titleChanged(QString)));
+    QSignalSpy nameChangedSpy(qtassistant, SIGNAL(nameChanged(QString)));
+    QSignalSpy prefixChangedSpy(qtassistant, SIGNAL(prefixChanged(QString)));
+
+    QVERIFY(titleChangedSpy.isValid());
+    QVERIFY(nameChangedSpy.isValid());
+    QVERIFY(prefixChangedSpy.isValid());
+
+    waitForWritten(ss, cs, ":qtassistant!qtassistant@hidd.en NICK assistant :hola\r\n");
+    QCOMPARE(messageIgnoredSpy.count(), ignored);
+
+    QCOMPARE(qtassistant->title(), QString("assistant"));
+    QCOMPARE(qtassistant->name(), QString("assistant"));
+    QCOMPARE(qtassistant->prefix(), QString());
+
+    QCOMPARE(titleChangedSpy.count(), 1);
+    QCOMPARE(nameChangedSpy.count(), 1);
+    QCOMPARE(prefixChangedSpy.count(), 0);
+
+    QCOMPARE(bufferModel.count(), 4);
+
+    // TODO: Irc::SortByName, Qt::DescendingOrder
+//    buffers = QList<IrcBuffer*>() << freenode << communi << ChanServ << qtassistant;
+//    channels = QStringList() << "#communi" << "#freenode";
+
+//    QCOMPARE(bufferModel.count(), buffers.count());
+//    for (int i = 0; i < bufferModel.count(); ++i)
+//        QCOMPARE(bufferModel.get(i), buffers.at(i));
+//    QCOMPARE(bufferModel.channels(), channels);
+
+//    QCOMPARE(countChangedSpy.count(), 4);
+
+//    QCOMPARE(aboutToBeAddedSpy.count(), 4);
+
+//    QCOMPARE(addedSpy.count(), 4);
+
+//    QCOMPARE(buffersChangedSpy.count(), 5);
+//    QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
+
+//    QCOMPARE(channelsChangedSpy.count(), 2);
 }
 
 QTEST_MAIN(tst_IrcBufferModel)
