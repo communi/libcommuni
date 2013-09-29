@@ -993,7 +993,8 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(removedSpy.last().count(), 1);
     QCOMPARE(removedSpy.last().at(0).value<IrcUser*>(), Guest1234.data());
 
-    QTRY_VERIFY(!Guest1234);
+    QCoreApplication::sendPostedEvents(Guest1234, QEvent::DeferredDelete);
+    QVERIFY(!Guest1234);
 
     // Irc::SortByTitle
     users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi;
