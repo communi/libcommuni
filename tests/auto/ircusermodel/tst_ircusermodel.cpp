@@ -569,6 +569,8 @@ void tst_IrcUserModel::testChanges()
     // IrcUserModel signals
     QSignalSpy addedSpy(&userModel, SIGNAL(added(IrcUser*)));
     QSignalSpy removedSpy(&userModel, SIGNAL(removed(IrcUser*)));
+    QSignalSpy aboutToBeAddedSpy(&userModel, SIGNAL(aboutToBeAdded(IrcUser*)));
+    QSignalSpy aboutToBeRemovedSpy(&userModel, SIGNAL(aboutToBeRemoved(IrcUser*)));
     QSignalSpy countChangedSpy(&userModel, SIGNAL(countChanged(int)));
     QSignalSpy namesChangedSpy(&userModel, SIGNAL(namesChanged(QStringList)));
     QSignalSpy usersChangedSpy(&userModel, SIGNAL(usersChanged(QList<IrcUser*>)));
@@ -576,6 +578,8 @@ void tst_IrcUserModel::testChanges()
 
     QVERIFY(addedSpy.isValid());
     QVERIFY(removedSpy.isValid());
+    QVERIFY(aboutToBeAddedSpy.isValid());
+    QVERIFY(aboutToBeRemovedSpy.isValid());
     QVERIFY(countChangedSpy.isValid());
     QVERIFY(namesChangedSpy.isValid());
     QVERIFY(usersChangedSpy.isValid());
@@ -630,31 +634,31 @@ void tst_IrcUserModel::testChanges()
         QCOMPARE(userModel.get(i)->title(), titles.at(i));
     }
 
-    IrcUser* communi = userModel.get(0);
+    QPointer<IrcUser> communi = userModel.get(0);
     QVERIFY(communi);
     QCOMPARE(communi->name(), QString("communi"));
     QCOMPARE(communi->mode(), QString());
     QCOMPARE(communi->prefix(), QString());
 
-    IrcUser* ChanServ = userModel.get(1);
+    QPointer<IrcUser> ChanServ = userModel.get(1);
     QVERIFY(ChanServ);
     QCOMPARE(ChanServ->name(), QString("ChanServ"));
     QCOMPARE(ChanServ->mode(), QString("o"));
     QCOMPARE(ChanServ->prefix(), QString("@"));
 
-    IrcUser* qtassistant = userModel.get(2);
+    QPointer<IrcUser> qtassistant = userModel.get(2);
     QVERIFY(qtassistant);
     QCOMPARE(qtassistant->name(), QString("qtassistant"));
     QCOMPARE(qtassistant->mode(), QString("v"));
     QCOMPARE(qtassistant->prefix(), QString("+"));
 
-    IrcUser* Guest1234 = userModel.get(3);
+    QPointer<IrcUser> Guest1234 = userModel.get(3);
     QVERIFY(Guest1234);
     QCOMPARE(Guest1234->name(), QString("Guest1234"));
     QCOMPARE(Guest1234->mode(), QString());
     QCOMPARE(Guest1234->prefix(), QString());
 
-    IrcUser* qout = userModel.get(4);
+    QPointer<IrcUser> qout = userModel.get(4);
     QVERIFY(qout);
     QCOMPARE(qout->name(), QString("qout"));
     QCOMPARE(qout->mode(), QString("v"));
@@ -672,12 +676,6 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(usersChangedSpy.count(), 1);
     QCOMPARE(usersChangedSpy.last().count(), 1);
     QCOMPARE(usersChangedSpy.last().at(0).value<QList<IrcUser*> >(), users);
-
-    QCOMPARE(addedSpy.count(), users.count());
-    for (int i = 0; i < users.count(); ++i) {
-        QCOMPARE(addedSpy.at(i).count(), 1);
-        QCOMPARE(addedSpy.at(i).at(0).value<IrcUser*>(), users.at(i));
-    }
 
     userModel.setDynamicSort(true);
     QCOMPARE(layoutAboutToBeChangedSpy.count(), 1);
@@ -730,12 +728,6 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(usersChangedSpy.last().count(), 1);
     QCOMPARE(usersChangedSpy.last().at(0).value<QList<IrcUser*> >(), QList<IrcUser*>());
 
-    QCOMPARE(removedSpy.count(), users.count());
-    for (int i = 0; i < users.count(); ++i) {
-        QCOMPARE(removedSpy.at(i).count(), 1);
-        QCOMPARE(removedSpy.at(i).at(0).value<IrcUser*>(), users.at(i));
-    }
-
     userModel.setSortMethod(Irc::SortByActivity);
     QCOMPARE(layoutAboutToBeChangedSpy.count(), 2);
     QCOMPARE(layoutChangedSpy.count(), 2);
@@ -767,12 +759,6 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(usersChangedSpy.count(), 3);
     QCOMPARE(usersChangedSpy.last().count(), 1);
     QCOMPARE(usersChangedSpy.last().at(0).value<QList<IrcUser*> >(), users);
-
-    QCOMPARE(addedSpy.count(), users.count() * 2);
-    for (int i = 0; i < users.count(); ++i) {
-        QCOMPARE(addedSpy.at(i).count(), 1);
-        QCOMPARE(addedSpy.at(i).at(0).value<IrcUser*>(), users.at(i));
-    }
 
     QSignalSpy guestTitleChangedSpy(Guest1234, SIGNAL(titleChanged(QString)));
     QSignalSpy guestNameChangedSpy(Guest1234, SIGNAL(nameChanged(QString)));
@@ -992,6 +978,115 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(0).value<QModelIndex>(), topLeft.parent());
     QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), 1);
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), 1);
+
+    previousIndex = users.indexOf(Guest1234);
+
+    waitForWritten(":Guest1234!~Guest1234@hidd.en PART #communi\r\n");
+
+    QVERIFY(Guest1234); // deleteLater()'d
+
+    QCOMPARE(aboutToBeRemovedSpy.count(), 1);
+    QCOMPARE(aboutToBeRemovedSpy.last().count(), 1);
+    QCOMPARE(aboutToBeRemovedSpy.last().at(0).value<IrcUser*>(), Guest1234.data());
+
+    QCOMPARE(removedSpy.count(), 1);
+    QCOMPARE(removedSpy.last().count(), 1);
+    QCOMPARE(removedSpy.last().at(0).value<IrcUser*>(), Guest1234.data());
+
+    QTRY_VERIFY(!Guest1234);
+
+    // Irc::SortByTitle
+    users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi;
+    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "communi";
+    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "communi";
+
+    QCOMPARE(userModel.count(), names.count());
+    for (int i = 0; i < userModel.count(); ++i) {
+        QCOMPARE(userModel.get(i)->name(), names.at(i));
+        QCOMPARE(userModel.get(i)->title(), titles.at(i));
+        QCOMPARE(userModel.get(i), users.at(i));
+    }
+
+    QCOMPARE(countChangedSpy.count(), 4);
+    QCOMPARE(countChangedSpy.last().count(), 1);
+    QCOMPARE(countChangedSpy.last().at(0).toInt(), 4);
+
+    QCOMPARE(namesChangedSpy.count(), 6);
+    QCOMPARE(namesChangedSpy.last().count(), 1);
+    QCOMPARE(namesChangedSpy.last().at(0).toStringList(), QStringList() << "ChanServ" << "communi" << "qout" << "qtassistant");
+
+    QCOMPARE(usersChangedSpy.count(), 6);
+    QCOMPARE(usersChangedSpy.last().count(), 1);
+    QCOMPARE(usersChangedSpy.last().at(0).value<QList<IrcUser*> >(), users);
+
+    QCOMPARE(dataChangedSpy.count(), 3);
+
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), 3);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(0).value<QModelIndex>(), topLeft.parent());
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsRemovedSpy.count(), 3);
+    QCOMPARE(rowsRemovedSpy.last().at(0).value<QModelIndex>(), topLeft.parent());
+    QCOMPARE(rowsRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), 2);
+
+    QCOMPARE(rowsInsertedSpy.count(), 2);
+
+    waitForWritten(":Guest1234!~Guest1234@hidd.en JOIN #communi\r\n");
+
+    Guest1234 = userModel.user("Guest1234");
+    QVERIFY(Guest1234);
+
+    QCOMPARE(aboutToBeAddedSpy.count(), 1);
+    QCOMPARE(aboutToBeAddedSpy.last().count(), 1);
+    QCOMPARE(aboutToBeAddedSpy.last().at(0).value<IrcUser*>(), Guest1234.data());
+
+    QCOMPARE(addedSpy.count(), 1);
+    QCOMPARE(addedSpy.last().count(), 1);
+    QCOMPARE(addedSpy.last().at(0).value<IrcUser*>(), Guest1234.data());
+
+    // Irc::SortByTitle
+    users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi << Guest1234;
+    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "communi" << "Guest1234";
+    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "communi" << "Guest1234";
+
+    QCOMPARE(userModel.count(), names.count());
+    for (int i = 0; i < userModel.count(); ++i) {
+        QCOMPARE(userModel.get(i)->name(), names.at(i));
+        QCOMPARE(userModel.get(i)->title(), titles.at(i));
+        QCOMPARE(userModel.get(i), users.at(i));
+    }
+
+    QCOMPARE(countChangedSpy.count(), 5);
+    QCOMPARE(countChangedSpy.last().count(), 1);
+    QCOMPARE(countChangedSpy.last().at(0).toInt(), 5);
+
+    QCOMPARE(namesChangedSpy.count(), 7);
+    QCOMPARE(namesChangedSpy.last().count(), 1);
+    QCOMPARE(namesChangedSpy.last().at(0).toStringList(), QStringList() << "ChanServ" << "Guest1234" << "communi" << "qout" << "qtassistant");
+
+    QCOMPARE(usersChangedSpy.count(), 7);
+    QCOMPARE(usersChangedSpy.last().count(), 1);
+    QCOMPARE(usersChangedSpy.last().at(0).value<QList<IrcUser*> >(), users);
+
+    QCOMPARE(dataChangedSpy.count(), 3);
+
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), 3);
+
+    QCOMPARE(rowsRemovedSpy.count(), 3);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), 3);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(0).value<QModelIndex>(), topLeft.parent());
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(1).toInt(), 4);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(2).toInt(), 4);
+
+    QCOMPARE(rowsInsertedSpy.count(), 3);
+    QCOMPARE(rowsInsertedSpy.last().at(0).value<QModelIndex>(), topLeft.parent());
+    QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), 4);
+    QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), 4);
 }
 
 QTEST_MAIN(tst_IrcUserModel)
