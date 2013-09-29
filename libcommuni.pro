@@ -72,6 +72,11 @@ features.files += $$OUT_PWD/communi-config.prf
 features.path = $$IRC_INSTALL_FEATURES
 INSTALLS += features
 
+isEqual(PWD, $$OUT_PWD) {
+    docs.commands += QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS] doxygen
+    QMAKE_EXTRA_TARGETS += docs
+}
+
 include(version.pri)
 !build_pass {
     macx {
