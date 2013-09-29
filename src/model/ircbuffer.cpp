@@ -508,9 +508,9 @@ QDebug operator<<(QDebug debug, const IrcBuffer* buffer)
         return debug << "IrcBuffer(0x0) ";
     debug.nospace() << buffer->metaObject()->className() << '(' << (void*) buffer;
     if (!buffer->objectName().isEmpty())
-        debug.nospace() << ", name=" << buffer->objectName();
+        debug.nospace() << ", name=" << qPrintable(buffer->objectName());
     if (!buffer->title().isEmpty())
-        debug.nospace() << ", title=" << buffer->title();
+        debug.nospace() << ", title=" << qPrintable(buffer->title());
     debug.nospace() << ')';
     return debug.space();
 }

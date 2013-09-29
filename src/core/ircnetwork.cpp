@@ -18,6 +18,7 @@
 #include "ircprotocol.h"
 #include "ircconnection.h"
 #include "irccommand.h"
+#include <QMetaEnum>
 #include <QPointer>
 
 IRC_BEGIN_NAMESPACE
@@ -594,15 +595,52 @@ void IrcNetwork::setRequestedCapabilities(const QStringList& capabilities)
 }
 
 #ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, IrcNetwork::Limit limit)
+{
+    const int index = IrcNetwork::staticMetaObject.indexOfEnumerator("Limit");
+    QMetaEnum enumerator = IrcNetwork::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(limit);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, IrcNetwork::ModeType type)
+{
+    const int index = IrcNetwork::staticMetaObject.indexOfEnumerator("ModeType");
+    QMetaEnum enumerator = IrcNetwork::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(type);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, IrcNetwork::ModeTypes types)
+{
+    QStringList lst;
+    if (types == IrcNetwork::AllTypes) {
+        lst << "AllTypes";
+    } else {
+        if (types & IrcNetwork::TypeA)
+            lst << "TypeA";
+        if (types & IrcNetwork::TypeB)
+            lst << "TypeB";
+        if (types & IrcNetwork::TypeC)
+            lst << "TypeC";
+        if (types & IrcNetwork::TypeD)
+            lst << "TypeD";
+    }
+    debug.nospace() << '(' << qPrintable(lst.join("|")) << ')';
+    return debug;
+}
+
 QDebug operator<<(QDebug debug, const IrcNetwork* network)
 {
     if (!network)
         return debug << "IrcNetwork(0x0) ";
     debug.nospace() << network->metaObject()->className() << '(' << (void*) network;
     if (!network->objectName().isEmpty())
-        debug.nospace() << ", name=" << network->objectName();
+        debug.nospace() << ", name=" << qPrintable(network->objectName());
     if (!network->name().isEmpty())
-        debug.nospace() << ", network=" << network->name();
+        debug.nospace() << ", network=" << qPrintable(network->name());
     debug.nospace() << ')';
     return debug.space();
 }

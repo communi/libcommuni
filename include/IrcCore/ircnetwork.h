@@ -36,8 +36,8 @@ class IRC_CORE_EXPORT IrcNetwork : public QObject
     Q_PROPERTY(QStringList availableCapabilities READ availableCapabilities NOTIFY availableCapabilitiesChanged)
     Q_PROPERTY(QStringList requestedCapabilities READ requestedCapabilities WRITE setRequestedCapabilities NOTIFY requestedCapabilitiesChanged)
     Q_PROPERTY(QStringList activeCapabilities READ activeCapabilities NOTIFY activeCapabilitiesChanged)
-    Q_FLAGS(ModeType ModeTypes)
-    Q_ENUMS(Limit)
+    Q_ENUMS(Limit ModeType)
+    Q_FLAGS(ModeTypes)
 
 public:
     virtual ~IrcNetwork();
@@ -114,6 +114,9 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcNetwork::Limit limit);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcNetwork::ModeType type);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcNetwork::ModeTypes types);
 IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcNetwork* network);
 #endif // QT_NO_DEBUG_STREAM
 

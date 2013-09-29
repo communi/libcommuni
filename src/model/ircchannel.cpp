@@ -442,9 +442,9 @@ QDebug operator<<(QDebug debug, const IrcChannel* channel)
         return debug << "IrcChannel(0x0) ";
     debug.nospace() << channel->metaObject()->className() << '(' << (void*) channel;
     if (!channel->objectName().isEmpty())
-        debug.nospace() << ", name=" << channel->objectName();
+        debug.nospace() << ", name=" << qPrintable(channel->objectName());
     if (!channel->title().isEmpty())
-        debug.nospace() << ", title=" << channel->title();
+        debug.nospace() << ", title=" << qPrintable(channel->title());
     debug.nospace() << ')';
     return debug.space();
 }

@@ -15,6 +15,7 @@
 #include "irccommand.h"
 #include "ircmessage.h"
 #include <QTextCodec>
+#include <QMetaEnum>
 #include <QDebug>
 
 IRC_BEGIN_NAMESPACE
@@ -803,13 +804,23 @@ IrcCommand* IrcCommand::createWhowas(const QString& user, int count)
 }
 
 #ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, IrcCommand::Type type)
+{
+    const int index = IrcCommand::staticMetaObject.indexOfEnumerator("Type");
+    QMetaEnum enumerator = IrcCommand::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(type);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+
 QDebug operator<<(QDebug debug, const IrcCommand* command)
 {
     if (!command)
         return debug << "IrcCommand(0x0) ";
     debug.nospace() << command->metaObject()->className() << '(' << (void*) command;
+    debug.nospace() << ", type=" << command->type();
     if (!command->objectName().isEmpty())
-        debug.nospace() << ", name=" << command->objectName();
+        debug.nospace() << ", name=" << qPrintable(command->objectName());
     QString str = command->toString();
     if (!str.isEmpty())
         debug.nospace() << ", " << str.left(20);

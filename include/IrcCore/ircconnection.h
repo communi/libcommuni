@@ -192,8 +192,8 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcConnection* connection);
 IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcConnection::Status status);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcConnection* connection);
 #endif // QT_NO_DEBUG_STREAM
 
 IRC_END_NAMESPACE

@@ -43,6 +43,7 @@ qrc_*.cpp
 /examples/bot/bot
 /examples/client/client
 /examples/quick/quick
+/tests/auto/dbgout/tst_dbgout
 /tests/auto/irc/tst_irc
 /tests/auto/ircbuffer/tst_ircbuffer
 /tests/auto/ircbuffermodel/tst_ircbuffermodel

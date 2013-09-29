@@ -176,9 +176,9 @@ QDebug operator<<(QDebug debug, const IrcUser* user)
         return debug << "IrcUser(0x0) ";
     debug.nospace() << user->metaObject()->className() << '(' << (void*) user;
     if (!user->objectName().isEmpty())
-        debug.nospace() << ", name=" << user->objectName();
+        debug.nospace() << ", name=" << qPrintable(user->objectName());
     if (!user->name().isEmpty())
-        debug.nospace() << ", user=" << user->name();
+        debug.nospace() << ", user=" << qPrintable(user->name());
     debug.nospace() << ')';
     return debug.space();
 }

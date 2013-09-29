@@ -15,6 +15,7 @@
 #include "irc.h"
 #include "ircmessage_p.h"
 #include <QMetaEnum>
+#include <QDebug>
 
 IRC_BEGIN_NAMESPACE
 
@@ -136,9 +137,8 @@ QString Irc::version()
  */
 QString Irc::codeToString(int code)
 {
-    int index = staticMetaObject.indexOfEnumerator("Code");
-    Q_ASSERT(index != -1);
-    QMetaEnum enumerator = staticMetaObject.enumerator(index);
+    const int index = Irc::staticMetaObject.indexOfEnumerator("Code");
+    QMetaEnum enumerator = Irc::staticMetaObject.enumerator(index);
     return QLatin1String(enumerator.valueToKey(code));
 }
 
@@ -2115,6 +2115,44 @@ QString Irc::hostFromPrefix(const QString& prefix)
     \var Irc::SortByActivity
     \brief Sort by activity
  */
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, Irc::Code code)
+{
+    const int index = Irc::staticMetaObject.indexOfEnumerator("Code");
+    QMetaEnum enumerator = Irc::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(code);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, Irc::DataRole role)
+{
+    const int index = Irc::staticMetaObject.indexOfEnumerator("DataRole");
+    QMetaEnum enumerator = Irc::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(role);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, Irc::Color color)
+{
+    const int index = Irc::staticMetaObject.indexOfEnumerator("Color");
+    QMetaEnum enumerator = Irc::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(color);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, Irc::SortMethod method)
+{
+    const int index = Irc::staticMetaObject.indexOfEnumerator("SortMethod");
+    QMetaEnum enumerator = Irc::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(method);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+#endif // QT_NO_DEBUG_STREAM
 
 #include "moc_irc.cpp"
 

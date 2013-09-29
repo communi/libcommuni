@@ -513,6 +513,13 @@ public:
     };
 };
 
+#ifndef QT_NO_DEBUG_STREAM
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, Irc::Code code);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, Irc::DataRole role);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, Irc::Color color);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, Irc::SortMethod method);
+#endif // QT_NO_DEBUG_STREAM
+
 IRC_END_NAMESPACE
 
 #endif // IRC_H

@@ -19,6 +19,7 @@
 #include "ircnetwork.h"
 #include "irccommand.h"
 #include "irc.h"
+#include <QMetaEnum>
 #include <QVariant>
 #include <QDebug>
 
@@ -1346,27 +1347,60 @@ bool IrcNamesMessage::isValid() const
 }
 
 #ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, IrcMessage::Type type)
+{
+    const int index = IrcMessage::staticMetaObject.indexOfEnumerator("Type");
+    QMetaEnum enumerator = IrcMessage::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(type);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, IrcMessage::Flag flag)
+{
+    const int index = IrcMessage::staticMetaObject.indexOfEnumerator("Flag");
+    QMetaEnum enumerator = IrcMessage::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(flag);
+    debug << (key ? key : "None");
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, IrcMessage::Flags flags)
+{
+    QStringList lst;
+    if (flags == IrcMessage::None)
+        lst << "None";
+    if (flags & IrcMessage::Own)
+        lst << "Own";
+    if (flags & IrcMessage::Identified)
+        lst << "Identified";
+    if (flags & IrcMessage::Unidentified)
+        lst << "Unidentified";
+    debug.nospace() << '(' << qPrintable(lst.join("|")) << ')';
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, IrcModeMessage::Kind kind)
+{
+    const int index = IrcModeMessage::staticMetaObject.indexOfEnumerator("Kind");
+    QMetaEnum enumerator = IrcModeMessage::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(kind);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+
 QDebug operator<<(QDebug debug, const IrcMessage* message)
 {
     if (!message)
         return debug << "IrcMessage(0x0) ";
     debug.nospace() << message->metaObject()->className() << '(' << (void*) message;
-    QStringList flags;
-    if (message->flags() == IrcMessage::None)
-        flags << "None";
-    if (message->flags() & IrcMessage::Own)
-        flags << "Own";
-    if (message->flags() & IrcMessage::Identified)
-        flags << "Identified";
-    if (message->flags() & IrcMessage::Unidentified)
-        flags << "Unidentified";
-    debug.nospace() << ", flags=(" << qPrintable(flags.join(", ")) << ")";
+    debug.nospace() << ", flags=" << message->flags();
     if (!message->objectName().isEmpty())
-        debug.nospace() << ", name=" << message->objectName();
+        debug.nospace() << ", name=" << qPrintable(message->objectName());
     if (!message->prefix().isEmpty())
-        debug.nospace() << ", prefix=" << message->prefix();
+        debug.nospace() << ", prefix=" << qPrintable(message->prefix());
     if (!message->command().isEmpty())
-        debug.nospace() << ", command=" << message->command();
+        debug.nospace() << ", command=" << qPrintable(message->command());
     if (!message->parameters().isEmpty())
         debug.nospace() << ", params=(" << qPrintable(message->parameters().join(", ").left(20)) << ")";
     debug.nospace() << ')';

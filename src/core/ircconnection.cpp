@@ -28,6 +28,7 @@
 #include <QStringList>
 #include <QMetaObject>
 #include <QMetaMethod>
+#include <QMetaEnum>
 #ifndef QT_NO_OPENSSL
 #include <QSslSocket>
 #endif // QT_NO_OPENSSL
@@ -1259,49 +1260,24 @@ void IrcConnection::setProtocol(IrcProtocol* proto)
 }
 
 #ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, IrcConnection::Status status)
+{
+    const int index = IrcConnection::staticMetaObject.indexOfEnumerator("Status");
+    QMetaEnum enumerator = IrcConnection::staticMetaObject.enumerator(index);
+    const char* key = enumerator.valueToKey(status);
+    debug << (key ? key : "Unknown");
+    return debug;
+}
+
 QDebug operator<<(QDebug debug, const IrcConnection* connection)
 {
     if (!connection)
         return debug << "IrcConnection(0x0) ";
     debug.nospace() << connection->metaObject()->className() << '(' << (void*) connection;
-    if (!connection->objectName().isEmpty())
-        debug.nospace() << ", name=" << connection->objectName();
-    if (!connection->host().isEmpty())
-        debug.nospace() << ", host=" << connection->host()
-                        << ", port=" << connection->port();
+    if (!connection->displayName().isEmpty())
+        debug.nospace() << ", " << qPrintable(connection->displayName());
     debug.nospace() << ')';
     return debug.space();
-}
-
-QDebug operator<<(QDebug debug, IrcConnection::Status status)
-{
-    switch (status) {
-    case IrcConnection::Inactive:
-        debug << "IrcConnection::Inactive";
-        break;
-    case IrcConnection::Waiting:
-        debug << "IrcConnection::Waiting";
-        break;
-    case IrcConnection::Connecting:
-        debug << "IrcConnection::Connecting";
-        break;
-    case IrcConnection::Connected:
-        debug << "IrcConnection::Connected";
-        break;
-    case IrcConnection::Closing:
-        debug << "IrcConnection::Closing";
-        break;
-    case IrcConnection::Closed:
-        debug << "IrcConnection::Closed";
-        break;
-    case IrcConnection::Error:
-        debug << "IrcConnection::Error";
-        break;
-    default:
-        debug << "IrcConnection::Status(" << static_cast<int>(status) << ')';
-        break;
-    }
-    return debug;
 }
 #endif // QT_NO_DEBUG_STREAM
 

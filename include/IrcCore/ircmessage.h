@@ -430,6 +430,10 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcMessage::Type type);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcMessage::Flag flag);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcMessage::Flags flags);
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcModeMessage::Kind kind);
 IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcMessage* message);
 #endif // QT_NO_DEBUG_STREAM
 

@@ -131,6 +131,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
+IRC_CORE_EXPORT QDebug operator<<(QDebug debug, IrcCommand::Type type);
 IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcCommand* command);
 #endif // QT_NO_DEBUG_STREAM
 

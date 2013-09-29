@@ -23,6 +23,9 @@ SUBDIRS += irccommandparser
 SUBDIRS += irclagtimer
 SUBDIRS += irctextformat
 
+# Other
+SUBDIRS += dbgout
+
 private_tests {
     SUBDIRS += ircmessagedecoder
 }
