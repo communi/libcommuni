@@ -65,7 +65,7 @@
 #define UTF8_6Bytes(c) ( k6BytesLeadByte == ((c) & kLeft7BitsMask))
 #define UTF8_ValidTrialByte(c) ( kTrialByte == ((c) & kLeft2BitsMask))
 
-int IsUTF8Text(const char* utf8, int len)
+int IsUTF8Text(const unsigned char* utf8, int len)
 {
    int i;
    int j;
