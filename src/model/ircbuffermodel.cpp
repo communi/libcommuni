@@ -576,7 +576,11 @@ bool IrcBufferModel::dynamicSort() const
 void IrcBufferModel::setDynamicSort(bool dynamic)
 {
     Q_D(IrcBufferModel);
-    d->dynamicSort = dynamic;
+    if (d->dynamicSort != dynamic) {
+        d->dynamicSort = dynamic;
+        if (d->dynamicSort && !d->bufferList.isEmpty())
+            sort(0, d->sortOrder);
+    }
 }
 
 /*!
@@ -604,7 +608,11 @@ Irc::SortMethod IrcBufferModel::sortMethod() const
 void IrcBufferModel::setSortMethod(Irc::SortMethod method)
 {
     Q_D(IrcBufferModel);
-    d->sortMethod = method;
+    if (d->sortMethod != method) {
+        d->sortMethod = method;
+        if (d->dynamicSort && !d->bufferList.isEmpty())
+            sort(0, d->sortOrder);
+    }
 }
 
 /*!
