@@ -56,7 +56,7 @@ public:
     QStringList channels() const;
     QList<IrcBuffer*> buffers() const;
     Q_INVOKABLE IrcBuffer* get(int index) const;
-    Q_INVOKABLE IrcBuffer* buffer(const QString& title) const;
+    Q_INVOKABLE IrcBuffer* find(const QString& title) const;
     Q_INVOKABLE bool contains(const QString& title) const;
     Q_INVOKABLE int indexOf(IrcBuffer* buffer) const;
 

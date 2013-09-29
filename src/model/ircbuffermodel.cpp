@@ -439,9 +439,9 @@ IrcBuffer* IrcBufferModel::get(int index) const
 }
 
 /*!
-    Returns the buffer object for \a title.
+    Returns the buffer object for \a title or \c 0 if not found.
  */
-IrcBuffer* IrcBufferModel::buffer(const QString& title) const
+IrcBuffer* IrcBufferModel::find(const QString& title) const
 {
     Q_D(const IrcBufferModel);
     return d->bufferMap.value(title.toLower());
