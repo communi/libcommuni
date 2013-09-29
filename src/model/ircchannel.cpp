@@ -324,6 +324,15 @@ bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
 
 bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
 {
+    const QString msg = message->message();
+    const bool prefixed = !msg.isEmpty() && message->network()->prefixes().contains(msg.at(0));
+    foreach (IrcUser* user, activeUsers) {
+        const QString str = prefixed ? user->title() : user->name();
+        if (msg.startsWith(str)) {
+            promoteUser(user->name());
+            break;
+        }
+    }
     promoteUser(message->nick());
     return true;
 }

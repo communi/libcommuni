@@ -374,7 +374,11 @@ int IrcUserModel::indexOf(IrcUser* user) const
     --------------------|---------------------------------------------------------------------------------------------------|----------------------------------------------
     Irc::SortByName     | Users are sorted alphabetically, ignoring any mode prefix.                                        | "bot", "@ChanServ", "jpnurmi", "+qtassistant"
     Irc::SortByTitle    | Users are sorted alphabetically, and special users (operators, voiced users) before normal users. | "@ChanServ", "+qtassistant", "bot", "jpnurmi"
-    Irc::SortByActivity | Users are sorted based on their activity, last active users first.                                | -
+    Irc::SortByActivity | Users are sorted based on their activity, last active and mentioned (1) users first.              | -
+
+    1) For performance reasons, IrcUserModel does \b not scan the whole channel
+       messages to find out if a channel user was mentioned. IrcUserModel merely
+       checks if channel messages \b begin with the name of a user in the model.
 
     \par Access functions:
     \li Irc::SortMethod <b>sortMethod</b>() const

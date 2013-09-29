@@ -352,6 +352,7 @@ void tst_IrcUserModel::testActivity_freenode()
     waitForWritten(":Hello71!~Hello71@hidd.en PRIVMSG #freenode :straterra: there are many users on it\r\n");
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.user("Hello71")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.user("straterra")), 1);
 
     waitForWritten(":straterra!straterra@hidd.en PRIVMSG #freenode :what?\r\n");
     QCOMPARE(activityModel.count(), count);
@@ -364,6 +365,11 @@ void tst_IrcUserModel::testActivity_freenode()
     QCOMPARE(activityModel.indexOf(activityModel.user("JuxTApose_afk")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.user("straterra")), 1);
     QCOMPARE(activityModel.indexOf(activityModel.user("Hello71")), 2);
+
+    waitForWritten(":communi!communi@hidd.en PRIVMSG #freenode :+tomaw: ping\r\n");
+    QCOMPARE(activityModel.count(), count);
+    QCOMPARE(activityModel.indexOf(activityModel.user("communi")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.user("tomaw")), 1);
 }
 
 void tst_IrcUserModel::testActivity_ircnet()
@@ -519,6 +525,7 @@ void tst_IrcUserModel::testActivity_euirc()
     waitForWritten(":aleksandr!~aleksandr@hidd.en PRIVMSG #euirc :absk007, last warning. fix your client/script\n");
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.user("aleksandr")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.user("absk007")), 1);
 
     waitForWritten(":charly6!~Miranda@hidd.en JOIN :#euirc\n");
     QCOMPARE(activityModel.count(), ++count);
@@ -527,6 +534,7 @@ void tst_IrcUserModel::testActivity_euirc()
     waitForWritten(":absk007!absk007@hidd.en PRIVMSG #euirc :aleksandr, what did i do this time?\n");
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.user("absk007")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.user("aleksandr")), 1);
 
     waitForWritten(":aleksandr!~aleksandr@hidd.en PRIVMSG #euirc :if you need help, join #opers\n");
     QCOMPARE(activityModel.count(), count);
