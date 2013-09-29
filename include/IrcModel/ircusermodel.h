@@ -76,6 +76,8 @@ public Q_SLOTS:
 Q_SIGNALS:
     void added(IrcUser* user);
     void removed(IrcUser* user);
+    void aboutToBeAdded(IrcUser* user);
+    void aboutToBeRemoved(IrcUser* user);
     void countChanged(int count);
     void namesChanged(const QStringList& names);
     void usersChanged(const QList<IrcUser*>& users);

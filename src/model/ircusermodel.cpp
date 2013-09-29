@@ -66,6 +66,18 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when a \a user is removed from the list of users.
  */
 
+/*!
+    \fn void IrcUserModel::aboutToBeAdded(IrcUser* user)
+
+    This signal is emitted just before a \a user is added to the list of users.
+ */
+
+/*!
+    \fn void IrcUserModel::aboutToBeRemoved(IrcUser* user)
+
+    This signal is emitted just before a \a user is removed from the list of users.
+ */
+
 #ifndef IRC_DOXYGEN
 class IrcUserLessThan
 {
@@ -108,6 +120,8 @@ void IrcUserModelPrivate::insertUser(int index, IrcUser* user, bool notify)
             it = qUpperBound(userList.begin(), userList.end(), user, IrcUserGreaterThan(q));
         index = it - userList.begin();
     }
+    if (notify)
+        emit q->aboutToBeAdded(user);
     q->beginInsertRows(QModelIndex(), index, index);
     userList.insert(index, user);
     q->endInsertRows();
@@ -124,6 +138,8 @@ void IrcUserModelPrivate::removeUser(IrcUser* user, bool notify)
     Q_Q(IrcUserModel);
     int idx = userList.indexOf(user);
     if (idx != -1) {
+        if (notify)
+            emit q->aboutToBeRemoved(user);
         q->beginRemoveRows(QModelIndex(), idx, idx);
         userList.removeAt(idx);
         q->endRemoveRows();
@@ -141,23 +157,12 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users, bool reset)
     Q_Q(IrcUserModel);
     if (reset)
         q->beginResetModel();
-    // TODO: considering huge channels, is this really a good idea??
-    QList<IrcUser*> oldUsers = userList;
-    foreach (IrcUser* user, oldUsers) {
-        if (!users.contains(user))
-            emit q->removed(user);
-    }
     userList = users;
     if (dynamicSort) {
         if (sortOrder == Qt::AscendingOrder)
             qSort(userList.begin(), userList.end(), IrcUserLessThan(q));
         else
             qSort(userList.begin(), userList.end(), IrcUserGreaterThan(q));
-    }
-    // TODO: considering huge channels, is this really a good idea??
-    foreach (IrcUser* user, userList) {
-        if (!oldUsers.contains(user))
-            emit q->added(user);
     }
     if (reset)
         q->endResetModel();
