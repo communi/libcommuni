@@ -347,29 +347,29 @@ void tst_IrcUserModel::testActivity_freenode()
 
     waitForWritten(":agsrv!~guest@hidd.en JOIN #freenode\r\n");
     QCOMPARE(activityModel.count(), ++count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("agsrv")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("agsrv")), 0);
 
     waitForWritten(":Hello71!~Hello71@hidd.en PRIVMSG #freenode :straterra: there are many users on it\r\n");
     QCOMPARE(activityModel.count(), count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("Hello71")), 0);
-    QCOMPARE(activityModel.indexOf(activityModel.user("straterra")), 1);
+    QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("straterra")), 1);
 
     waitForWritten(":straterra!straterra@hidd.en PRIVMSG #freenode :what?\r\n");
     QCOMPARE(activityModel.count(), count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("straterra")), 0);
-    QCOMPARE(activityModel.indexOf(activityModel.user("Hello71")), 1);
+    QCOMPARE(activityModel.indexOf(activityModel.find("straterra")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 1);
 
     waitForWritten(":JuxTApose!~indigital@hidd.en NICK :JuxTApose_afk\r\n");
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("JuxTApose"));
-    QCOMPARE(activityModel.indexOf(activityModel.user("JuxTApose_afk")), 0);
-    QCOMPARE(activityModel.indexOf(activityModel.user("straterra")), 1);
-    QCOMPARE(activityModel.indexOf(activityModel.user("Hello71")), 2);
+    QCOMPARE(activityModel.indexOf(activityModel.find("JuxTApose_afk")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("straterra")), 1);
+    QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 2);
 
     waitForWritten(":communi!communi@hidd.en PRIVMSG #freenode :+tomaw: ping\r\n");
     QCOMPARE(activityModel.count(), count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("communi")), 0);
-    QCOMPARE(activityModel.indexOf(activityModel.user("tomaw")), 1);
+    QCOMPARE(activityModel.indexOf(activityModel.find("communi")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("tomaw")), 1);
 }
 
 void tst_IrcUserModel::testActivity_ircnet()
@@ -414,18 +414,18 @@ void tst_IrcUserModel::testActivity_ircnet()
 
     waitForWritten(":_box!~box@hidd.en JOIN :#uptimed\r\n");
     QCOMPARE(activityModel.count(), ++count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("_box")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("_box")), 0);
 
     waitForWritten(":Voicer!mrozu@hidd.en MODE #uptimed +v _box\r\n");
     QCOMPARE(activityModel.count(), count);
 
     waitForWritten(":t0r-!t0r@hidd.en PRIVMSG #uptimed :there is no sense for _box and ip to join the contest\r\n");
     QCOMPARE(activityModel.count(), count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("t0r-")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("t0r-")), 0);
 
     waitForWritten(":ip!~v6@hidd.en JOIN :#uptimed\r\n");
     QCOMPARE(activityModel.count(), ++count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("ip")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("ip")), 0);
 
     waitForWritten(":Voicer!mrozu@hidd.en MODE #uptimed +v ip\r\n");
     QCOMPARE(activityModel.count(), count);
@@ -439,11 +439,11 @@ void tst_IrcUserModel::testActivity_ircnet()
 
     waitForWritten(":t0r-!t0r@hidd.en PRIVMSG #uptimed :they are going down every second\r\n");
     QCOMPARE(activityModel.count(), count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("t0r-")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("t0r-")), 0);
 
     waitForWritten(":t0r-!t0r@hidd.en PRIVMSG #uptimed :yeah\r\n");
     QCOMPARE(activityModel.count(), count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("t0r-")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("t0r-")), 0);
 
     waitForWritten(":[m]!m@hidd.en MODE #uptimed +b *!*box@*.does.not.matter\r\n");
     QCOMPARE(activityModel.count(), count);
@@ -480,12 +480,12 @@ void tst_IrcUserModel::testActivity_euirc()
 
     waitForWritten(":Marko10_000!~marko@hidd.en JOIN :#euirc\n");
     QCOMPARE(activityModel.count(), ++count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("Marko10_000")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("Marko10_000")), 0);
 
     waitForWritten(":Marko10_000!~marko@hidd.en NICK :Guest775\n");
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("Marko10_000"));
-    QCOMPARE(activityModel.indexOf(activityModel.user("Guest775")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("Guest775")), 0);
 
     waitForWritten(":Guest775!~marko@hidd.en QUIT :Quit: Verlassend\n");
     QCOMPARE(activityModel.count(), --count);
@@ -493,7 +493,7 @@ void tst_IrcUserModel::testActivity_euirc()
 
     waitForWritten(":Marko10_000!~marko@hidd.en JOIN :#euirc\n");
     QCOMPARE(activityModel.count(), ++count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("Marko10_000")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("Marko10_000")), 0);
 
     waitForWritten(":Guest774!absk007@hidd.en QUIT :Quit: Good Bye. I Quit...\n");
     QCOMPARE(activityModel.count(), --count);
@@ -501,7 +501,7 @@ void tst_IrcUserModel::testActivity_euirc()
 
     waitForWritten(":absk007!absk007@hidd.en JOIN :#euirc\n");
     QCOMPARE(activityModel.count(), ++count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("absk007")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("absk007")), 0);
 
     waitForWritten(":charly6!~Miranda@hidd.en QUIT :Client exited\n");
     QCOMPARE(activityModel.count(), --count);
@@ -510,35 +510,35 @@ void tst_IrcUserModel::testActivity_euirc()
     waitForWritten(":absk007!absk007@hidd.en NICK :Guest776\n");
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("absk007"));
-    QCOMPARE(activityModel.indexOf(activityModel.user("Guest776")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("Guest776")), 0);
 
     waitForWritten(":Tina-chan_onAir!~kvirc@hidd.en NICK :Tina-chan\n");
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("Tina-chan_onAir"));
-    QCOMPARE(activityModel.indexOf(activityModel.user("Tina-chan")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("Tina-chan")), 0);
 
     waitForWritten(":Guest776!absk007@hidd.en NICK :absk007\n");
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("Guest776"));
-    QCOMPARE(activityModel.indexOf(activityModel.user("absk007")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("absk007")), 0);
 
     waitForWritten(":aleksandr!~aleksandr@hidd.en PRIVMSG #euirc :absk007, last warning. fix your client/script\n");
     QCOMPARE(activityModel.count(), count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("aleksandr")), 0);
-    QCOMPARE(activityModel.indexOf(activityModel.user("absk007")), 1);
+    QCOMPARE(activityModel.indexOf(activityModel.find("aleksandr")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("absk007")), 1);
 
     waitForWritten(":charly6!~Miranda@hidd.en JOIN :#euirc\n");
     QCOMPARE(activityModel.count(), ++count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("charly6")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("charly6")), 0);
 
     waitForWritten(":absk007!absk007@hidd.en PRIVMSG #euirc :aleksandr, what did i do this time?\n");
     QCOMPARE(activityModel.count(), count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("absk007")), 0);
-    QCOMPARE(activityModel.indexOf(activityModel.user("aleksandr")), 1);
+    QCOMPARE(activityModel.indexOf(activityModel.find("absk007")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("aleksandr")), 1);
 
     waitForWritten(":aleksandr!~aleksandr@hidd.en PRIVMSG #euirc :if you need help, join #opers\n");
     QCOMPARE(activityModel.count(), count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("aleksandr")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("aleksandr")), 0);
 
     waitForWritten(":charly6!~Miranda@hidd.en QUIT :Client exited\n");
     QCOMPARE(activityModel.count(), --count);
@@ -550,7 +550,7 @@ void tst_IrcUserModel::testActivity_euirc()
 
     waitForWritten(":icefly!~icefly@hidd.en JOIN :#euirc\n");
     QCOMPARE(activityModel.count(), ++count);
-    QCOMPARE(activityModel.indexOf(activityModel.user("icefly")), 0);
+    QCOMPARE(activityModel.indexOf(activityModel.find("icefly")), 0);
 }
 
 Q_DECLARE_METATYPE(QModelIndex)
@@ -1038,7 +1038,7 @@ void tst_IrcUserModel::testChanges()
 
     waitForWritten(":Guest1234!~Guest1234@hidd.en JOIN #communi\r\n");
 
-    Guest1234 = userModel.user("Guest1234");
+    Guest1234 = userModel.find("Guest1234");
     QVERIFY(Guest1234);
 
     QCOMPARE(aboutToBeAddedSpy.count(), 1);

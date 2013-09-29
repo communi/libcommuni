@@ -341,9 +341,9 @@ IrcUser* IrcUserModel::get(int index) const
 }
 
 /*!
-    Returns the user object for \a name.
+    Returns the user object for \a name or \c 0 if not found.
  */
-IrcUser* IrcUserModel::user(const QString& name) const
+IrcUser* IrcUserModel::find(const QString& name) const
 {
     Q_D(const IrcUserModel);
     if (d->channel)

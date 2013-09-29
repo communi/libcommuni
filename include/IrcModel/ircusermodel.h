@@ -49,7 +49,7 @@ public:
     QStringList names() const;
     QList<IrcUser*> users() const;
     Q_INVOKABLE IrcUser* get(int index) const;
-    Q_INVOKABLE IrcUser* user(const QString& name) const;
+    Q_INVOKABLE IrcUser* find(const QString& name) const;
     Q_INVOKABLE bool contains(const QString& name) const;
     Q_INVOKABLE int indexOf(IrcUser* user) const;
 
