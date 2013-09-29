@@ -144,11 +144,11 @@ void IrcChannelPrivate::addUser(const QString& name)
 bool IrcChannelPrivate::removeUser(const QString& name)
 {
     if (IrcUser* user = userMap.value(name)) {
+        userMap.remove(name);
+        userList.removeOne(user);
+        activeUsers.removeOne(user);
         foreach (IrcUserModel* model, userModels)
             IrcUserModelPrivate::get(model)->removeUser(user);
-        activeUsers.removeOne(user);
-        userList.removeOne(user);
-        userMap.remove(name);
         user->deleteLater();
         return true;
     }
