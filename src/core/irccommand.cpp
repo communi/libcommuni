@@ -245,6 +245,7 @@ IRC_BEGIN_NAMESPACE
     \brief A whowas command (WHOWAS) is used to query information about a user that no longer exists.
  */
 
+#ifndef IRC_DOXYGEN
 class IrcCommandPrivate
 {
 public:
@@ -271,6 +272,7 @@ IrcCommand* IrcCommandPrivate::createCommand(IrcCommand::Type type, const QStrin
     command->setParameters(parameters);
     return command;
 }
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a new IrcCommand with \a parent.

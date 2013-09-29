@@ -24,6 +24,7 @@
 
 IRC_BEGIN_NAMESPACE
 
+#ifndef IRC_DOXYGEN
 class IrcProtocolPrivate
 {
     Q_DECLARE_PUBLIC(IrcProtocol)
@@ -346,6 +347,7 @@ void IrcProtocol::receiveMessage(IrcMessage* message)
     IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->receiveMessage(message);
 }
+#endif // IRC_DOXYGEN
 
 #include "moc_ircprotocol.cpp"
 

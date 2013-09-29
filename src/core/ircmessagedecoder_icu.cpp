@@ -17,6 +17,7 @@
 
 IRC_BEGIN_NAMESPACE
 
+#ifndef IRC_DOXYGEN
 #define UCSD(x) reinterpret_cast<UCharsetDetector*>(x)
 
 void IrcMessageDecoder::initialize()
@@ -48,5 +49,6 @@ QByteArray IrcMessageDecoder::codecForData(const QByteArray &data) const
         qWarning("IrcMessageDecoder::codecForData() failed: %s", u_errorName(status));
     return encoding;
 }
+#endif // IRC_DOXYGEN
 
 IRC_END_NAMESPACE

@@ -148,6 +148,7 @@ IRC_BEGIN_NAMESPACE
     \brief The maximum number of channel modes allowed per mode command
  */
 
+#ifndef IRC_DOXYGEN
 IrcNetworkPrivate::IrcNetworkPrivate() : q_ptr(0)
 {
 }
@@ -249,6 +250,7 @@ void IrcNetworkPrivate::setChannelTypes(const QStringList& value)
         emit q->channelTypesChanged(value);
     }
 }
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a new network object for IRC \a connection.

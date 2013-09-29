@@ -33,6 +33,7 @@ IRC_BEGIN_NAMESPACE
     \sa model
 */
 
+#ifndef IRC_DOXYGEN
 void IrcUserPrivate::setName(const QString& n)
 {
     Q_Q(IrcUser);
@@ -61,6 +62,7 @@ void IrcUserPrivate::setMode(const QString& m)
         emit q->modeChanged(mode);
     }
 }
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a new user with \a parent.

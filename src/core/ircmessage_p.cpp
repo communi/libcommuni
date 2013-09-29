@@ -17,6 +17,7 @@
 
 IRC_BEGIN_NAMESPACE
 
+#ifndef IRC_DOXYGEN
 IrcMessagePrivate::IrcMessagePrivate() :
     connection(0), type(IrcMessage::Unknown), timeStamp(QDateTime::currentDateTime()), encoding("ISO-8859-15"), flags(-1)
 {
@@ -180,5 +181,6 @@ bool IrcMessagePrivate::parsePrefix(const QString& prefix, QString* nick, QStrin
     }
     return true;
 }
+#endif // IRC_DOXYGEN
 
 IRC_END_NAMESPACE

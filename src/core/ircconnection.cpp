@@ -223,6 +223,7 @@ IRC_BEGIN_NAMESPACE
     \li void <b>topicMessageReceived</b>(\ref IrcTopicMessage* message)
  */
 
+#ifndef IRC_DOXYGEN
 template<typename T>
 static void irc_debug(IrcConnection* connection, const char* msg, const T& arg)
 {
@@ -449,6 +450,7 @@ IrcCommand* IrcConnectionPrivate::createCtcpReply(IrcPrivateMessage* request)
     }
     return reply;
 }
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a new IRC connection with \a parent.

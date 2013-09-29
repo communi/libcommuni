@@ -66,6 +66,7 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when a \a user is removed from the list of users.
  */
 
+#ifndef IRC_DOXYGEN
 class IrcUserLessThan
 {
 public:
@@ -210,6 +211,7 @@ void IrcUserModelPrivate::promoteUser(IrcUser* user)
         emit q->usersChanged(userList);
     }
 }
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a new model with \a parent.

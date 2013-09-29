@@ -18,6 +18,7 @@
 
 IRC_BEGIN_NAMESPACE
 
+#ifndef IRC_DOXYGEN
 IrcMessageBuilder::IrcMessageBuilder(IrcConnection* connection)
 {
     d.connection = connection;
@@ -82,6 +83,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         break;
     }
 }
+#endif // IRC_DOXYGEN
 
 #include "moc_ircmessagebuilder_p.cpp"
 

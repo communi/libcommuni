@@ -57,6 +57,7 @@ IRC_BEGIN_NAMESPACE
     \sa IrcConnection::messageReceived(), IrcBufferModel::messageIgnored()
  */
 
+#ifndef IRC_DOXYGEN
 IrcBufferPrivate::IrcBufferPrivate()
     : q_ptr(0), model(0), persistent(false), sticky(false)
 {
@@ -220,6 +221,7 @@ bool IrcBufferPrivate::processTopicMessage(IrcTopicMessage* message)
     Q_UNUSED(message);
     return false;
 }
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a new buffer object with \a parent.

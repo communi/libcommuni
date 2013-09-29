@@ -43,6 +43,7 @@ static const int DEFAULT_INTERVAL = 60;
     This signal is emitted when the \a lag has changed.
  */
 
+#ifndef IRC_DOXYGEN
 IrcLagTimerPrivate::IrcLagTimerPrivate() : q_ptr(0), connection(0), interval(DEFAULT_INTERVAL), lag(-1)
 {
 }
@@ -120,6 +121,7 @@ void IrcLagTimerPrivate::updateLag(qint64 value)
         emit q->lagChanged(lag);
     }
 }
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a new lag timer with \a parent.

@@ -87,6 +87,7 @@ IRC_BEGIN_NAMESPACE
     \sa IrcConnection::messageReceived(), IrcBuffer::messageReceived()
  */
 
+#ifndef IRC_DOXYGEN
 IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(0), role(Irc::TitleRole),
     sortMethod(Irc::SortByTitle), sortOrder(Qt::AscendingOrder), dynamicSort(false), bufferProto(0), channelProto(0)
 {
@@ -308,6 +309,7 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
         emit q->countChanged(bufferList.count());
     }
 }
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a new model with \a parent.

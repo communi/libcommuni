@@ -16,6 +16,7 @@
 #include <IrcGlobal>
 #include <QSet>
 
+#ifndef IRC_DOXYGEN
 extern "C" {
     int IsUTF8Text(const char* utf8, int len);
 }
@@ -64,5 +65,6 @@ QString IrcMessageDecoder::decode(const QByteArray& data) const
     Q_ASSERT(codec);
     return codec->toUnicode(data);
 }
+#endif // IRC_DOXYGEN
 
 IRC_END_NAMESPACE

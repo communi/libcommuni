@@ -40,6 +40,7 @@ IRC_BEGIN_NAMESPACE
     \sa model
 */
 
+#ifndef IRC_DOXYGEN
 static QString getPrefix(const QString& name, const QStringList& prefixes)
 {
     int i = 0;
@@ -353,6 +354,7 @@ bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
     setTopic(message->topic());
     return true;
 }
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a new channel object with \a parent.
