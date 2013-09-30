@@ -14,10 +14,8 @@
 #include "ircuser.h"
 #include "irc.h"
 
+#include "tst_data.h"
 #include "tst_clientserver.h"
-#include "tst_freenode.h"
-#include "tst_ircnet.h"
-#include "tst_euirc.h"
 
 #include <QtTest/QtTest>
 
@@ -58,40 +56,24 @@ void tst_IrcUserModel::testDefaults()
 
 void tst_IrcUserModel::testSorting_data()
 {
-    QTest::addColumn<QString>("welcomeData");
-    QTest::addColumn<QString>("joinData");
+    QTest::addColumn<QByteArray>("welcomeData");
+    QTest::addColumn<QByteArray>("joinData");
     QTest::addColumn<QStringList>("names");
     QTest::addColumn<QStringList>("admins");
     QTest::addColumn<QStringList>("ops");
     QTest::addColumn<QStringList>("halfops");
     QTest::addColumn<QStringList>("voices");
 
-    QTest::newRow("freenode")
-        << QString::fromUtf8(freenode_welcome)
-        << QString::fromUtf8(freenode_join)
-        << QString::fromUtf8(freenode_names).split(" ")
-        << QString::fromUtf8(freenode_admins).split(" ")
-        << QString::fromUtf8(freenode_ops).split(" ")
-        << QString::fromUtf8(freenode_halfops).split(" ")
-        << QString::fromUtf8(freenode_voices).split(" ");
-
-    QTest::newRow("ircnet")
-        << QString::fromUtf8(ircnet_welcome)
-        << QString::fromUtf8(ircnet_join)
-        << QString::fromUtf8(ircnet_names).split(" ")
-        << QString::fromUtf8(ircnet_admins).split(" ")
-        << QString::fromUtf8(ircnet_ops).split(" ")
-        << QString::fromUtf8(ircnet_halfops).split(" ")
-        << QString::fromUtf8(ircnet_voices).split(" ");
-
-    QTest::newRow("euirc")
-        << QString::fromUtf8(euirc_welcome)
-        << QString::fromUtf8(euirc_join)
-        << QString::fromUtf8(euirc_names).split(" ")
-        << QString::fromUtf8(euirc_admins).split(" ")
-        << QString::fromUtf8(euirc_ops).split(" ")
-        << QString::fromUtf8(euirc_halfops).split(" ")
-        << QString::fromUtf8(euirc_voices).split(" ");
+    foreach (const QByteArray& key, tst_Data::keys()) {
+        QTest::newRow(key)
+            << tst_Data::welcome(key)
+            << tst_Data::join(key)
+            << tst_Data::names(key)
+            << tst_Data::admins(key)
+            << tst_Data::ops(key)
+            << tst_Data::halfops(key)
+            << tst_Data::voices(key);
+    }
 }
 
 void tst_IrcUserModel::testSorting()
@@ -99,8 +81,8 @@ void tst_IrcUserModel::testSorting()
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    QFETCH(QString, welcomeData);
-    QFETCH(QString, joinData);
+    QFETCH(QByteArray, welcomeData);
+    QFETCH(QByteArray, joinData);
     QFETCH(QStringList, names);
     QFETCH(QStringList, admins);
     QFETCH(QStringList, ops);
@@ -110,10 +92,10 @@ void tst_IrcUserModel::testSorting()
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
 
-    waitForWritten(welcomeData.toUtf8());
+    waitForWritten(welcomeData);
     QCOMPARE(bufferModel.count(), 0);
 
-    waitForWritten(joinData.toUtf8());
+    waitForWritten(joinData);
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
@@ -264,16 +246,16 @@ void tst_IrcUserModel::testActivity_freenode()
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
 
-    waitForWritten(freenode_welcome);
+    waitForWritten(tst_Data::welcome("freenode"));
     QCOMPARE(bufferModel.count(), 0);
 
-    waitForWritten(freenode_join);
+    waitForWritten(tst_Data::join("freenode"));
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
     QVERIFY(channel);
 
-    QStringList names = QString::fromUtf8(freenode_names).split(" ");
+    QStringList names = tst_Data::names("freenode");
 
     IrcUserModel activityModel(channel);
     activityModel.setDynamicSort(true);
@@ -324,16 +306,16 @@ void tst_IrcUserModel::testActivity_ircnet()
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
 
-    waitForWritten(ircnet_welcome);
+    waitForWritten(tst_Data::welcome("ircnet"));
     QCOMPARE(bufferModel.count(), 0);
 
-    waitForWritten(ircnet_join);
+    waitForWritten(tst_Data::join("ircnet"));
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
     QVERIFY(channel);
 
-    QStringList names = QString::fromUtf8(ircnet_names).split(" ");
+    QStringList names = tst_Data::names("ircnet");
 
     IrcUserModel activityModel(channel);
     activityModel.setDynamicSort(true);
@@ -405,16 +387,16 @@ void tst_IrcUserModel::testActivity_euirc()
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
 
-    waitForWritten(euirc_welcome);
+    waitForWritten(tst_Data::welcome("euirc"));
     QCOMPARE(bufferModel.count(), 0);
 
-    waitForWritten(euirc_join);
+    waitForWritten(tst_Data::join("euirc"));
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
     QVERIFY(channel);
 
-    QStringList names = QString::fromUtf8(euirc_names).split(" ");
+    QStringList names = tst_Data::names("euirc");
 
     IrcUserModel activityModel(channel);
     activityModel.setDynamicSort(true);
@@ -566,7 +548,7 @@ void tst_IrcUserModel::testChanges()
     // ### setup #communi (5): communi @ChanServ +qtassistant Guest1234 +qout
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
-    waitForWritten(freenode_welcome);
+    waitForWritten(tst_Data::welcome());
     waitForWritten(":communi!~communi@hidd.en JOIN :#communi\r\n");
     waitForWritten(":irc.ifi.uio.no 353 communi = #communi :communi @ChanServ +qtassistant Guest1234 +qout\r\n");
     waitForWritten(":irc.ifi.uio.no 366 communi #communi :End of NAMES list.\r\n");
