@@ -182,10 +182,14 @@ void IrcUserModelPrivate::renameUser(IrcUser* user)
         QModelIndex index = q->index(idx, 0);
         emit q->dataChanged(index, index);
 
-        QStringList names;
-        if (channel)
-            names = IrcChannelPrivate::get(channel)->userMap.keys();
-        emit q->namesChanged(names);
+        if (dynamicSort) {
+            QList<IrcUser*> users = userList;
+            const bool notify = false;
+            removeUser(user, notify);
+            insertUser(-1, user, notify);
+            if (users != userList)
+                emit q->usersChanged(userList);
+        }
     }
 }
 

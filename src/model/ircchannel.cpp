@@ -189,8 +189,11 @@ bool IrcChannelPrivate::renameUser(const QString& from, const QString& to)
         IrcUserPrivate::get(user)->setName(to);
         userMap.insert(to, user);
 
-        foreach (IrcUserModel* model, userModels)
+        QStringList names = userMap.keys();
+        foreach (IrcUserModel* model, userModels) {
             IrcUserModelPrivate::get(model)->renameUser(user);
+            emit model->namesChanged(names);
+        }
         return true;
     }
     return false;
