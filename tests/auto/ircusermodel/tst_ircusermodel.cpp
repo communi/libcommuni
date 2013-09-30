@@ -14,20 +14,12 @@
 #include "ircuser.h"
 #include "irc.h"
 
+#include "tst_clientserver.h"
 #include "tst_freenode.h"
 #include "tst_ircnet.h"
 #include "tst_euirc.h"
 
 #include <QtTest/QtTest>
-#include <QtCore/QPointer>
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
-
-#if QT_VERSION >= 0x050000
-#define Q4SKIP(description) QSKIP(description)
-#else
-#define Q4SKIP(description) QSKIP(description, SkipAll)
-#endif
 
 static bool caseInsensitiveLessThan(const QString& s1, const QString& s2)
 {
@@ -39,14 +31,11 @@ static bool caseInsensitiveGreaterThan(const QString& s1, const QString& s2)
     return s1.compare(s2, Qt::CaseInsensitive) > 0;
 }
 
-class tst_IrcUserModel : public QObject
+class tst_IrcUserModel : public tst_ClientServer
 {
     Q_OBJECT
 
 private slots:
-    void init();
-    void cleanup();
-
     void testDefaults();
     void testSorting_data();
     void testSorting();
@@ -54,52 +43,7 @@ private slots:
     void testActivity_ircnet();
     void testActivity_euirc();
     void testChanges();
-
-private:
-    void waitForWritten(const QByteArray& data = QByteArray());
-
-    QPointer<QTcpServer> server;
-    QPointer<QTcpSocket> serverSocket;
-    QPointer<IrcConnection> connection;
-    QPointer<QAbstractSocket> clientSocket;
 };
-
-void tst_IrcUserModel::init()
-{
-    server = new QTcpServer(this);
-    QVERIFY(server->listen());
-
-    connection = new IrcConnection(this);
-    connection->setUserName("user");
-    connection->setNickName("nick");
-    connection->setRealName("real");
-    connection->setHost(server->serverAddress().toString());
-    connection->setPort(server->serverPort());
-
-    connection->open();
-    if (!server->waitForNewConnection(200))
-        QEXPECT_FAIL("", "The address is not available", Abort);
-    serverSocket = server->nextPendingConnection();
-    QVERIFY(serverSocket);
-
-    clientSocket = connection->socket();
-    QVERIFY(clientSocket);
-    QVERIFY(clientSocket->waitForConnected());
-}
-
-void tst_IrcUserModel::cleanup()
-{
-    delete server;
-    delete connection;
-}
-
-void tst_IrcUserModel::waitForWritten(const QByteArray& data)
-{
-    if (!data.isNull())
-        serverSocket->write(data);
-    QVERIFY(serverSocket->waitForBytesWritten());
-    QVERIFY(clientSocket->waitForReadyRead());
-}
 
 void tst_IrcUserModel::testDefaults()
 {
