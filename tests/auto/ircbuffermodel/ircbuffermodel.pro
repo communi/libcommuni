@@ -4,4 +4,5 @@
 
 SOURCES += tst_ircbuffermodel.cpp
 
-include (../auto.pri)
+include(../shared/shared.pri)
+include(../auto.pri)
