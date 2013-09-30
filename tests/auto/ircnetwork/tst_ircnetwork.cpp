@@ -10,23 +10,13 @@
 #include "ircnetwork.h"
 #include "ircconnection.h"
 #include <QtTest/QtTest>
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
+#include "tst_clientserver.h"
 
-#if QT_VERSION >= 0x050000
-#define Q4SKIP(description) QSKIP(description)
-#else
-#define Q4SKIP(description) QSKIP(description, SkipAll)
-#endif
-
-class tst_IrcNetwork : public QObject
+class tst_IrcNetwork : public tst_ClientServer
 {
     Q_OBJECT
 
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
-
     void testDefaults();
 
     void testInfo_data();
@@ -34,20 +24,7 @@ private slots:
 
     void testCapabilities_data();
     void testCapabilities();
-
-private:
-    QTcpServer server;
 };
-
-void tst_IrcNetwork::initTestCase()
-{
-    QVERIFY(server.listen());
-}
-
-void tst_IrcNetwork::cleanupTestCase()
-{
-    server.close();
-}
 
 void tst_IrcNetwork::testDefaults()
 {
@@ -99,14 +76,10 @@ void tst_IrcNetwork::testInfo()
     QFETCH(QString, prefixes);
     QFETCH(QString, channelTypes);
 
-    IrcConnection connection;
-    connection.setUserName("user");
-    connection.setNickName("nick");
-    connection.setRealName("real");
-    connection.setHost(server.serverAddress().toString());
-    connection.setPort(server.serverPort());
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
 
-    IrcNetwork* network = connection.network();
+    IrcNetwork* network = connection->network();
 
     QSignalSpy nameSpy(network, SIGNAL(nameChanged(QString)));
     QSignalSpy modesSpy(network, SIGNAL(modesChanged(QStringList)));
@@ -118,18 +91,8 @@ void tst_IrcNetwork::testInfo()
     QVERIFY(prefixesSpy.isValid());
     QVERIFY(channelTypesSpy.isValid());
 
-    connection.open();
-    if (!server.waitForNewConnection(200))
-        Q4SKIP("The address is not available");
-    QTcpSocket* serverSocket = server.nextPendingConnection();
-    QVERIFY(serverSocket);
-
-    QVERIFY(connection.socket()->waitForConnected());
-
     foreach (const QString& line, lines)
-        QVERIFY(serverSocket->write(line.toUtf8() + "\r\n"));
-    QVERIFY(serverSocket->waitForBytesWritten());
-    QVERIFY(connection.socket()->waitForReadyRead());
+        waitForWritten(line.toUtf8() + "\r\n");
 
     QCOMPARE(network->name(), name);
     QCOMPARE(network->modes(), modes.split("", QString::SkipEmptyParts));
@@ -171,47 +134,14 @@ void tst_IrcNetwork::testCapabilities()
     QFETCH(QStringList, requestedCaps);
     QFETCH(QStringList, activeCaps);
 
-    IrcConnection connection;
-    connection.setUserName("user");
-    connection.setNickName("nick");
-    connection.setRealName("real");
-    connection.setHost(server.serverAddress().toString());
-    connection.setPort(server.serverPort());
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
 
-    IrcNetwork* network = connection.network();
+    IrcNetwork* network = connection->network();
     network->setRequestedCapabilities(requestedCaps);
 
-    connection.open();
-    if (!server.waitForNewConnection(200))
-        Q4SKIP("The address is not available");
-    QTcpSocket* serverSocket = server.nextPendingConnection();
-    QVERIFY(serverSocket);
-    QAbstractSocket* clientSocket = connection.socket();
-    QVERIFY(clientSocket);
-
-    QVERIFY(clientSocket->waitForConnected());
-    QVERIFY(clientSocket->waitForBytesWritten());
-    QVERIFY(serverSocket->waitForReadyRead());
-
-    // "CAP LS\r\n”
-    // "NICK nick\r\n"
-    // "USER user hostname servername :real\r\n"
-    QVERIFY(!serverSocket->readAll().isEmpty());
-
-    QVERIFY(serverSocket->write(":irc.ser.ver CAP * LS :" + availableCaps.join(" ").toUtf8() + "\r\n"));
-    QVERIFY(serverSocket->waitForBytesWritten());
-    QVERIFY(clientSocket->waitForReadyRead());
-
-    if (!requestedCaps.isEmpty()) {
-        // -> "CAP REQ :<requestedCaps>\r\n"
-        // -> "CAP END\r\n"
-        QVERIFY(clientSocket->waitForBytesWritten());
-        QVERIFY(serverSocket->waitForReadyRead());
-    }
-
-    QVERIFY(serverSocket->write(":irc.ser.ver CAP jpnurmi ACK :" + activeCaps.join(" ").toUtf8() + "\r\n"));
-    QVERIFY(serverSocket->waitForBytesWritten());
-    QVERIFY(clientSocket->waitForReadyRead());
+    waitForWritten(":irc.ser.ver CAP * LS :" + availableCaps.join(" ").toUtf8() + "\r\n");
+    waitForWritten(":irc.ser.ver CAP jpnurmi ACK :" + activeCaps.join(" ").toUtf8() + "\r\n");
 
     QCOMPARE(network->availableCapabilities().toSet(), availableCaps.toSet());
     QCOMPARE(network->activeCapabilities().toSet(), activeCaps.toSet());
