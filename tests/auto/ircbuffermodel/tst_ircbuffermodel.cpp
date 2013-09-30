@@ -221,6 +221,12 @@ void tst_IrcBufferModel::testChanges()
     QVERIFY(buffersChangedSpy.isValid());
     QVERIFY(channelsChangedSpy.isValid());
 
+    int countChangedCount = 0;
+    int aboutToBeAddedCount = 0, addedCount = 0;
+    int aboutToBeRemovedCount = 0, removedCount = 0;
+    int buffersChangedCount = 0;
+    int channelsChangedCount = 0;
+
     QSignalSpy connectionChangedSpy(&bufferModel, SIGNAL(connectionChanged(IrcConnection*)));
     QSignalSpy networkChangedSpy(&bufferModel, SIGNAL(networkChanged(IrcNetwork*)));
     QSignalSpy messageIgnoredSpy(&bufferModel, SIGNAL(messageIgnored(IrcMessage*)));
@@ -229,10 +235,12 @@ void tst_IrcBufferModel::testChanges()
     QVERIFY(networkChangedSpy.isValid());
     QVERIFY(messageIgnoredSpy.isValid());
 
+    int connectionChangedCount = 0;
+    int networkChangedCount = 0;
+    int messageIgnoredCount = 0;
+
     // relevant QAbstractItemModel signals
     QSignalSpy dataChangedSpy(&bufferModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
-    QSignalSpy modelAboutToBeResetSpy(&bufferModel, SIGNAL(modelAboutToBeReset()));
-    QSignalSpy modelResetSpy(&bufferModel, SIGNAL(modelReset()));
     QSignalSpy layoutAboutToBeChangedSpy(&bufferModel, SIGNAL(layoutAboutToBeChanged()));
     QSignalSpy layoutChangedSpy(&bufferModel, SIGNAL(layoutChanged()));
     QSignalSpy rowsAboutToBeInsertedSpy(&bufferModel, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)));
@@ -241,8 +249,6 @@ void tst_IrcBufferModel::testChanges()
     QSignalSpy rowsRemovedSpy(&bufferModel, SIGNAL(rowsRemoved(QModelIndex,int,int)));
 
     QVERIFY(dataChangedSpy.isValid());
-    QVERIFY(modelAboutToBeResetSpy.isValid());
-    QVERIFY(modelResetSpy.isValid());
     QVERIFY(layoutAboutToBeChangedSpy.isValid());
     QVERIFY(layoutChangedSpy.isValid());
     QVERIFY(rowsAboutToBeInsertedSpy.isValid());
@@ -250,9 +256,14 @@ void tst_IrcBufferModel::testChanges()
     QVERIFY(rowsAboutToBeRemovedSpy.isValid());
     QVERIFY(rowsRemovedSpy.isValid());
 
+    int dataChangedCount = 0;
+    int layoutAboutToBeChangedCount = 0, layoutChangedCount = 0;
+    int rowsAboutToBeInsertedCount = 0, rowsInsertedCount = 0;
+    int rowsAboutToBeRemovedCount = 0, rowsRemovedCount = 0;
+
     bufferModel.setConnection(&connection);
-    QCOMPARE(connectionChangedSpy.count(), 1);
-    QCOMPARE(networkChangedSpy.count(), 1);
+    QCOMPARE(connectionChangedSpy.count(), ++connectionChangedCount);
+    QCOMPARE(networkChangedSpy.count(), ++networkChangedCount);
 
     connection.open();
     if (!server.waitForNewConnection(200))
@@ -272,13 +283,13 @@ void tst_IrcBufferModel::testChanges()
     waitForWritten(ss, cs, ":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ...\r\n");
     waitForWritten(ss, cs, ":moorcock.freenode.net 376 communi :End of /MOTD command.\r\n");
 
-    int ignored = 7 + 1; // 7 lines + a combined motd msg
+    messageIgnoredCount = 7 + 1; // 7 lines + a combined motd msg
 
     QCOMPARE(bufferModel.count(), 0);
-    QCOMPARE(messageIgnoredSpy.count(), ignored);
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     waitForWritten(ss, cs, ":communi!communi@hidd.en JOIN :#communi\r\n");
-    QCOMPARE(messageIgnoredSpy.count(), ignored);
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QCOMPARE(bufferModel.count(), 1);
 
@@ -288,33 +299,49 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(communi->name(), QString("communi"));
     QCOMPARE(communi->prefix(), QString("#"));
 
+    int previousIndex = -1;
+
     QList<IrcBuffer*> buffers = QList<IrcBuffer*>() << communi;
     QStringList channels = QStringList() << "#communi";
+
+    int nextIndex = buffers.indexOf(communi);
 
     QCOMPARE(bufferModel.count(), buffers.count());
     for (int i = 0; i < bufferModel.count(); ++i)
         QCOMPARE(bufferModel.get(i), buffers.at(i));
     QCOMPARE(bufferModel.channels(), channels);
 
-    QCOMPARE(countChangedSpy.count(), 1);
-    QCOMPARE(countChangedSpy.last().at(0).toInt(), 1);
+    QCOMPARE(countChangedSpy.count(), ++countChangedCount);
+    QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
 
-    QCOMPARE(aboutToBeAddedSpy.count(), 1);
+    QCOMPARE(aboutToBeAddedSpy.count(), ++aboutToBeAddedCount);
     QCOMPARE(aboutToBeAddedSpy.last().at(0).value<IrcBuffer*>(), communi.data());
 
-    QCOMPARE(addedSpy.count(), 1);
+    QCOMPARE(addedSpy.count(), ++addedCount);
     QCOMPARE(addedSpy.last().at(0).value<IrcBuffer*>(), communi.data());
 
-    QCOMPARE(buffersChangedSpy.count(), 1);
+    QCOMPARE(buffersChangedSpy.count(), ++buffersChangedCount);
     QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
 
-    QCOMPARE(channelsChangedSpy.count(), 1);
+    QCOMPARE(channelsChangedSpy.count(), ++channelsChangedCount);
     QCOMPARE(channelsChangedSpy.last().at(0).toStringList(), channels);
 
-    waitForWritten(ss, cs, ":ChanServ!ChanServ@services. PRIVMSG communi :fake...\r\n");
-    QCOMPARE(messageIgnoredSpy.count(), ignored);
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), rowsAboutToBeRemovedCount);
 
-    QCOMPARE(bufferModel.count(), 2);
+    QCOMPARE(rowsRemovedSpy.count(), rowsRemovedCount);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), ++rowsAboutToBeInsertedCount);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(2).toInt(), nextIndex);
+
+    QCOMPARE(rowsInsertedSpy.count(), ++rowsInsertedCount);
+    QCOMPARE(rowsInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
+
+    waitForWritten(ss, cs, ":ChanServ!ChanServ@services. PRIVMSG communi :fake...\r\n");
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QPointer<IrcBuffer> ChanServ = bufferModel.get(1);
     QVERIFY(ChanServ);
@@ -322,32 +349,51 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(ChanServ->name(), QString("ChanServ"));
     QCOMPARE(ChanServ->prefix(), QString());
 
+    previousIndex = -1;
+
     buffers = QList<IrcBuffer*>() << communi << ChanServ;
     channels = QStringList() << "#communi";
+
+    nextIndex = buffers.indexOf(ChanServ);
+
+    QCOMPARE(bufferModel.count(), buffers.count());
+    QCOMPARE(bufferModel.buffers(), buffers);
+    QCOMPARE(bufferModel.channels(), channels);
 
     QCOMPARE(bufferModel.count(), buffers.count());
     for (int i = 0; i < bufferModel.count(); ++i)
         QCOMPARE(bufferModel.get(i), buffers.at(i));
-    QCOMPARE(bufferModel.channels(), channels);
 
-    QCOMPARE(countChangedSpy.count(), 2);
-    QCOMPARE(countChangedSpy.last().at(0).toInt(), 2);
+    QCOMPARE(countChangedSpy.count(), ++countChangedCount);
+    QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
 
-    QCOMPARE(aboutToBeAddedSpy.count(), 2);
+    QCOMPARE(aboutToBeAddedSpy.count(), ++aboutToBeAddedCount);
     QCOMPARE(aboutToBeAddedSpy.last().at(0).value<IrcBuffer*>(), ChanServ.data());
 
-    QCOMPARE(addedSpy.count(), 2);
+    QCOMPARE(addedSpy.count(), ++addedCount);
     QCOMPARE(addedSpy.last().at(0).value<IrcBuffer*>(), ChanServ.data());
 
-    QCOMPARE(buffersChangedSpy.count(), 2);
+    QCOMPARE(buffersChangedSpy.count(), ++buffersChangedCount);
     QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
 
-    QCOMPARE(channelsChangedSpy.count(), 1);
+    QCOMPARE(channelsChangedSpy.count(), channelsChangedCount);
+
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), rowsAboutToBeRemovedCount);
+
+    QCOMPARE(rowsRemovedSpy.count(), rowsRemovedCount);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), ++rowsAboutToBeInsertedCount);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(2).toInt(), nextIndex);
+
+    QCOMPARE(rowsInsertedSpy.count(), ++rowsInsertedCount);
+    QCOMPARE(rowsInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
     waitForWritten(ss, cs, ":communi!communi@hidd.en JOIN :#freenode\r\n");
-    QCOMPARE(messageIgnoredSpy.count(), ignored);
-
-    QCOMPARE(bufferModel.count(), 3);
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QPointer<IrcChannel> freenode = bufferModel.get(2)->toChannel();
     QVERIFY(freenode);
@@ -355,63 +401,93 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(freenode->name(), QString("freenode"));
     QCOMPARE(freenode->prefix(), QString("#"));
 
+    previousIndex = -1;
+
     buffers = QList<IrcBuffer*>() << communi << ChanServ << freenode;
     channels = QStringList() << "#communi" << "#freenode";
 
+    nextIndex = buffers.indexOf(freenode);
+
     QCOMPARE(bufferModel.count(), buffers.count());
-    for (int i = 0; i < bufferModel.count(); ++i)
-        QCOMPARE(bufferModel.get(i), buffers.at(i));
+    QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
-    QCOMPARE(countChangedSpy.count(), 3);
-    QCOMPARE(countChangedSpy.last().at(0).toInt(), 3);
+    for (int i = 0; i < bufferModel.count(); ++i)
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
 
-    QCOMPARE(aboutToBeAddedSpy.count(), 3);
+    QCOMPARE(countChangedSpy.count(), ++countChangedCount);
+    QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
+
+    QCOMPARE(aboutToBeAddedSpy.count(), ++aboutToBeAddedCount);
     QCOMPARE(aboutToBeAddedSpy.last().at(0).value<IrcBuffer*>(), freenode.data());
 
-    QCOMPARE(addedSpy.count(), 3);
+    QCOMPARE(addedSpy.count(), ++addedCount);
     QCOMPARE(addedSpy.last().at(0).value<IrcBuffer*>(), freenode.data());
 
-    QCOMPARE(buffersChangedSpy.count(), 3);
+    QCOMPARE(buffersChangedSpy.count(), ++buffersChangedCount);
     QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
 
-    QCOMPARE(channelsChangedSpy.count(), 2);
+    QCOMPARE(channelsChangedSpy.count(), ++channelsChangedCount);
     QCOMPARE(channelsChangedSpy.last().at(0).toStringList(), channels);
 
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), rowsAboutToBeRemovedCount);
+
+    QCOMPARE(rowsRemovedSpy.count(), rowsRemovedCount);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), ++rowsAboutToBeInsertedCount);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(2).toInt(), nextIndex);
+
+    QCOMPARE(rowsInsertedSpy.count(), ++rowsInsertedCount);
+    QCOMPARE(rowsInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
+
     bufferModel.setDynamicSort(true);
-    QCOMPARE(layoutAboutToBeChangedSpy.count(), 1);
-    QCOMPARE(layoutChangedSpy.count(), 1);
+    QCOMPARE(layoutAboutToBeChangedSpy.count(), ++layoutAboutToBeChangedCount);
+    QCOMPARE(layoutChangedSpy.count(), ++layoutChangedCount);
+
+    previousIndex = -1;
 
     // Irc::SortByTitle
     buffers = QList<IrcBuffer*>() << communi << freenode << ChanServ;
     channels = QStringList() << "#communi" << "#freenode";
 
+    nextIndex = -1;
+
     QCOMPARE(bufferModel.count(), buffers.count());
-    for (int i = 0; i < bufferModel.count(); ++i)
-        QCOMPARE(bufferModel.get(i), buffers.at(i));
+    QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
+    for (int i = 0; i < bufferModel.count(); ++i)
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
+
     bufferModel.setSortMethod(Irc::SortByName);
-    QCOMPARE(layoutAboutToBeChangedSpy.count(), 2);
-    QCOMPARE(layoutChangedSpy.count(), 2);
+    QCOMPARE(layoutAboutToBeChangedSpy.count(), ++layoutAboutToBeChangedCount);
+    QCOMPARE(layoutChangedSpy.count(), ++layoutChangedCount);
 
     bufferModel.sort(0, Qt::DescendingOrder);
-    QCOMPARE(layoutAboutToBeChangedSpy.count(), 3);
-    QCOMPARE(layoutChangedSpy.count(), 3);
+    QCOMPARE(layoutAboutToBeChangedSpy.count(), ++layoutAboutToBeChangedCount);
+    QCOMPARE(layoutChangedSpy.count(), ++layoutChangedCount);
+
+    previousIndex = -1;
 
     // Irc::SortByName, Qt::DescendingOrder
     buffers = QList<IrcBuffer*>() << freenode << communi << ChanServ;
     channels = QStringList() << "#communi" << "#freenode";
 
+    nextIndex = -1;
+
     QCOMPARE(bufferModel.count(), buffers.count());
-    for (int i = 0; i < bufferModel.count(); ++i)
-        QCOMPARE(bufferModel.get(i), buffers.at(i));
+    QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
-    waitForWritten(ss, cs, ":qtassistant!qtassistant@hidd.en PRIVMSG communi :hola\r\n");
-    QCOMPARE(messageIgnoredSpy.count(), ignored);
+    for (int i = 0; i < bufferModel.count(); ++i)
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
 
-    QCOMPARE(bufferModel.count(), 4);
+    waitForWritten(ss, cs, ":qtassistant!qtassistant@hidd.en PRIVMSG communi :hola\r\n");
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QPointer<IrcBuffer> qtassistant = bufferModel.get(0);
     QVERIFY(qtassistant);
@@ -419,28 +495,48 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(qtassistant->name(), QString("qtassistant"));
     QCOMPARE(qtassistant->prefix(), QString());
 
+    previousIndex = -1;
+
     // Irc::SortByName, Qt::DescendingOrder
     buffers = QList<IrcBuffer*>() << qtassistant << freenode << communi << ChanServ;
     channels = QStringList() << "#communi" << "#freenode";
 
+    nextIndex = buffers.indexOf(qtassistant);
+
     QCOMPARE(bufferModel.count(), buffers.count());
-    for (int i = 0; i < bufferModel.count(); ++i)
-        QCOMPARE(bufferModel.get(i), buffers.at(i));
+    QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
-    QCOMPARE(countChangedSpy.count(), 4);
-    QCOMPARE(countChangedSpy.last().at(0).toInt(), 4);
+    for (int i = 0; i < bufferModel.count(); ++i)
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
 
-    QCOMPARE(aboutToBeAddedSpy.count(), 4);
+    QCOMPARE(countChangedSpy.count(), ++countChangedCount);
+    QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
+
+    QCOMPARE(aboutToBeAddedSpy.count(), ++aboutToBeAddedCount);
     QCOMPARE(aboutToBeAddedSpy.last().at(0).value<IrcBuffer*>(), qtassistant.data());
 
-    QCOMPARE(addedSpy.count(), 4);
+    QCOMPARE(addedSpy.count(), ++addedCount);
     QCOMPARE(addedSpy.last().at(0).value<IrcBuffer*>(), qtassistant.data());
 
-    QCOMPARE(buffersChangedSpy.count(), 4);
+    QCOMPARE(buffersChangedSpy.count(), ++buffersChangedCount);
     QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
 
-    QCOMPARE(channelsChangedSpy.count(), 2);
+    QCOMPARE(channelsChangedSpy.count(), channelsChangedCount);
+
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), rowsAboutToBeRemovedCount);
+
+    QCOMPARE(rowsRemovedSpy.count(), rowsRemovedCount);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), ++rowsAboutToBeInsertedCount);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(2).toInt(), nextIndex);
+
+    QCOMPARE(rowsInsertedSpy.count(), ++rowsInsertedCount);
+    QCOMPARE(rowsInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
     QSignalSpy titleChangedSpy(qtassistant, SIGNAL(titleChanged(QString)));
     QSignalSpy nameChangedSpy(qtassistant, SIGNAL(nameChanged(QString)));
@@ -450,38 +546,134 @@ void tst_IrcBufferModel::testChanges()
     QVERIFY(nameChangedSpy.isValid());
     QVERIFY(prefixChangedSpy.isValid());
 
+    int titleChangedCount = 0;
+    int nameChangedCount = 0;
+    int prefixChangedCount = 0;
+
     waitForWritten(ss, cs, ":qtassistant!qtassistant@hidd.en NICK assistant :hola\r\n");
-    QCOMPARE(messageIgnoredSpy.count(), ignored);
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QCOMPARE(qtassistant->title(), QString("assistant"));
     QCOMPARE(qtassistant->name(), QString("assistant"));
     QCOMPARE(qtassistant->prefix(), QString());
 
-    QCOMPARE(titleChangedSpy.count(), 1);
-    QCOMPARE(nameChangedSpy.count(), 1);
-    QCOMPARE(prefixChangedSpy.count(), 0);
+    QCOMPARE(titleChangedSpy.count(), ++titleChangedCount);
+    QCOMPARE(nameChangedSpy.count(), ++nameChangedCount);
+    QCOMPARE(prefixChangedSpy.count(), prefixChangedCount);
 
-    QCOMPARE(bufferModel.count(), 4);
+    previousIndex = buffers.indexOf(qtassistant);
 
-    // TODO: Irc::SortByName, Qt::DescendingOrder
-//    buffers = QList<IrcBuffer*>() << freenode << communi << ChanServ << qtassistant;
-//    channels = QStringList() << "#communi" << "#freenode";
+    // Irc::SortByName, Qt::DescendingOrder
+    buffers = QList<IrcBuffer*>() << freenode << communi << ChanServ << qtassistant;
+    channels = QStringList() << "#communi" << "#freenode";
 
-//    QCOMPARE(bufferModel.count(), buffers.count());
-//    for (int i = 0; i < bufferModel.count(); ++i)
-//        QCOMPARE(bufferModel.get(i), buffers.at(i));
-//    QCOMPARE(bufferModel.channels(), channels);
+    nextIndex = buffers.indexOf(qtassistant);
 
-//    QCOMPARE(countChangedSpy.count(), 4);
+    QCOMPARE(bufferModel.count(), buffers.count());
+    QCOMPARE(bufferModel.buffers(), buffers);
+    QCOMPARE(bufferModel.channels(), channels);
 
-//    QCOMPARE(aboutToBeAddedSpy.count(), 4);
+    for (int i = 0; i < bufferModel.count(); ++i)
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
 
-//    QCOMPARE(addedSpy.count(), 4);
+    QCOMPARE(countChangedSpy.count(), countChangedCount);
 
-//    QCOMPARE(buffersChangedSpy.count(), 5);
-//    QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
+    QCOMPARE(aboutToBeAddedSpy.count(), aboutToBeAddedCount);
 
-//    QCOMPARE(channelsChangedSpy.count(), 2);
+    QCOMPARE(addedSpy.count(), addedCount);
+
+    QCOMPARE(buffersChangedSpy.count(), ++buffersChangedCount);
+    QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
+
+    QCOMPARE(channelsChangedSpy.count(), channelsChangedCount);
+
+    QCOMPARE(dataChangedSpy.count(), ++dataChangedCount);
+    QModelIndex topLeft = dataChangedSpy.last().at(0).value<QModelIndex>();
+    QModelIndex bottomRight = dataChangedSpy.last().at(0).value<QModelIndex>();
+    QVERIFY(!topLeft.parent().isValid());
+    QVERIFY(topLeft.isValid());
+    QVERIFY(bottomRight.isValid());
+    QVERIFY(topLeft == bottomRight);
+    QCOMPARE(topLeft.row(), previousIndex);
+    QCOMPARE(topLeft.column(), 0);
+
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), ++rowsAboutToBeRemovedCount);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsRemovedSpy.count(), ++rowsRemovedCount);
+    QCOMPARE(rowsRemovedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), ++rowsAboutToBeInsertedCount);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(2).toInt(), nextIndex);
+
+    QCOMPARE(rowsInsertedSpy.count(), ++rowsInsertedCount);
+    QCOMPARE(rowsInsertedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
+
+    waitForWritten(ss, cs, ":communi!communi@hidd.en PART #communi\r\n");
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
+
+    QVERIFY(communi); // deleteLater()'d
+
+    QCOMPARE(aboutToBeRemovedSpy.count(), ++aboutToBeRemovedCount);
+    QCOMPARE(aboutToBeRemovedSpy.last().at(0).value<IrcBuffer*>(), communi.data());
+
+    QCOMPARE(removedSpy.count(), ++removedCount);
+    QCOMPARE(removedSpy.last().at(0).value<IrcBuffer*>(), communi.data());
+
+    previousIndex = buffers.indexOf(communi);
+
+    QCoreApplication::sendPostedEvents(communi, QEvent::DeferredDelete);
+    QVERIFY(!communi);
+
+    // Irc::SortByName, Qt::DescendingOrder
+    buffers = QList<IrcBuffer*>() << freenode << ChanServ << qtassistant;
+    channels = QStringList() << "#freenode";
+
+    nextIndex = buffers.indexOf(communi);
+
+    QCOMPARE(bufferModel.count(), buffers.count());
+    QCOMPARE(bufferModel.buffers(), buffers);
+    QCOMPARE(bufferModel.channels(), channels);
+
+    for (int i = 0; i < bufferModel.count(); ++i)
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
+
+    QCOMPARE(countChangedSpy.count(), ++countChangedCount);
+    QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
+
+    QCOMPARE(aboutToBeAddedSpy.count(), aboutToBeAddedCount);
+
+    QCOMPARE(addedSpy.count(), addedCount);
+
+    QCOMPARE(buffersChangedSpy.count(), ++buffersChangedCount);
+    QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
+
+    QCOMPARE(channelsChangedSpy.count(), ++channelsChangedCount);
+    QCOMPARE(channelsChangedSpy.last().at(0).toStringList(), channels);
+
+    QCOMPARE(dataChangedSpy.count(), dataChangedCount);
+
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), ++rowsAboutToBeRemovedCount);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsRemovedSpy.count(), ++rowsRemovedCount);
+    QCOMPARE(rowsRemovedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
+
+    QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
 }
 
 QTEST_MAIN(tst_IrcBufferModel)

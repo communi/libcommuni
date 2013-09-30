@@ -33,13 +33,17 @@ public:
 
     bool messageFilter(IrcMessage* message);
 
-    IrcBuffer* createBuffer(const QString& title);
-    IrcChannel* createChannel(const QString& title);
+    IrcBuffer* createBufferHelper(const QString& title);
+    IrcChannel* createChannelHelper(const QString& title);
 
-    IrcBuffer* addBuffer(const QString& title);
-    void addBuffer(IrcBuffer* buffer);
-    void removeBuffer(const QString& title, bool force = false);
+    IrcBuffer* createBuffer(const QString& title);
+    void destroyBuffer(const QString& title, bool force = false);
+
+    void addBuffer(IrcBuffer* buffer, bool notify = true);
+    void insertBuffer(int index, IrcBuffer* buffer, bool notify = true);
+    void removeBuffer(IrcBuffer* buffer, bool notify = true);
     bool renameBuffer(const QString& from, const QString& to);
+
     bool processMessage(const QString& title, IrcMessage* message, bool create = false);
 
     void _irc_connectionStatusChanged();

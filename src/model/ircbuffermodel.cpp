@@ -97,7 +97,7 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
 {
     Q_Q(IrcBufferModel);
     if (msg->type() == IrcMessage::Join && msg->flags() & IrcMessage::Own)
-        addBuffer(static_cast<IrcJoinMessage*>(msg)->channel());
+        createBuffer(static_cast<IrcJoinMessage*>(msg)->channel());
 
     bool processed = false;
     switch (msg->type()) {
@@ -149,20 +149,20 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
         emit q->messageIgnored(msg);
 
     if (msg->type() == IrcMessage::Part && msg->flags() & IrcMessage::Own) {
-        removeBuffer(static_cast<IrcPartMessage*>(msg)->channel());
+        destroyBuffer(static_cast<IrcPartMessage*>(msg)->channel());
     } else if (msg->type() == IrcMessage::Quit && msg->flags() & IrcMessage::Own) {
         foreach (const QString& buffer, bufferMap.keys())
-            removeBuffer(buffer);
+            destroyBuffer(buffer);
     } else if (msg->type() == IrcMessage::Kick) {
         const IrcKickMessage* kickMsg = static_cast<IrcKickMessage*>(msg);
         if (!kickMsg->user().compare(msg->connection()->nickName(), Qt::CaseInsensitive))
-            removeBuffer(kickMsg->channel());
+            destroyBuffer(kickMsg->channel());
     }
 
     return false;
 }
 
-IrcBuffer* IrcBufferModelPrivate::createBuffer(const QString& title)
+IrcBuffer* IrcBufferModelPrivate::createBufferHelper(const QString& title)
 {
     Q_Q(IrcBufferModel);
     IrcBuffer* buffer = 0;
@@ -183,7 +183,7 @@ IrcBuffer* IrcBufferModelPrivate::createBuffer(const QString& title)
     return buffer;
 }
 
-IrcChannel* IrcBufferModelPrivate::createChannel(const QString& title)
+IrcChannel* IrcBufferModelPrivate::createChannelHelper(const QString& title)
 {
     Q_Q(IrcBufferModel);
     IrcChannel* channel = 0;
@@ -204,15 +204,15 @@ IrcChannel* IrcBufferModelPrivate::createChannel(const QString& title)
     return channel;
 }
 
-IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
+IrcBuffer* IrcBufferModelPrivate::createBuffer(const QString& title)
 {
     Q_Q(IrcBufferModel);
     IrcBuffer* buffer = bufferMap.value(title.toLower());
     if (!buffer) {
         if (connection && connection->network()->isChannel(title))
-            buffer = createChannel(title);
+            buffer = createChannelHelper(title);
         else
-            buffer = createBuffer(title);
+            buffer = createBufferHelper(title);
         if (buffer) {
             IrcBufferPrivate::get(buffer)->init(title, q);
             addBuffer(buffer);
@@ -221,7 +221,21 @@ IrcBuffer* IrcBufferModelPrivate::addBuffer(const QString& title)
     return buffer;
 }
 
-void IrcBufferModelPrivate::addBuffer(IrcBuffer* buffer)
+void IrcBufferModelPrivate::destroyBuffer(const QString& title, bool force)
+{
+    IrcBuffer* buffer = bufferMap.value(title.toLower());
+    if (buffer && (force || !buffer->isPersistent())) {
+        removeBuffer(buffer);
+        buffer->deleteLater();
+    }
+}
+
+void IrcBufferModelPrivate::addBuffer(IrcBuffer* buffer, bool notify)
+{
+    insertBuffer(-1, buffer, notify);
+}
+
+void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool notify)
 {
     Q_Q(IrcBufferModel);
     if (buffer && !bufferList.contains(buffer)) {
@@ -232,33 +246,54 @@ void IrcBufferModelPrivate::addBuffer(IrcBuffer* buffer)
             return;
         }
         const bool isChannel = buffer->isChannel();
-        int idx = bufferList.count();
         if (dynamicSort) {
             QList<IrcBuffer*>::iterator it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, sortOrder == Qt::AscendingOrder ? bufferLessThan : bufferGreaterThan);
-            idx = it - bufferList.begin();
+            index = it - bufferList.begin();
+        } else if (index == -1) {
+            index = bufferList.count();
         }
-        emit q->aboutToBeAdded(buffer);
-        q->beginInsertRows(QModelIndex(), idx, idx);
+        if (notify)
+            emit q->aboutToBeAdded(buffer);
+        q->beginInsertRows(QModelIndex(), index, index);
         IrcBufferPrivate::get(buffer)->setModel(q);
-        bufferList.insert(idx, buffer);
+        bufferList.insert(index, buffer);
         bufferMap.insert(lower, buffer);
         if (isChannel)
             channels += title;
         q->connect(buffer, SIGNAL(destroyed(IrcBuffer*)), SLOT(_irc_bufferDestroyed(IrcBuffer*)));
         q->endInsertRows();
-        emit q->added(buffer);
-        if (isChannel)
-            emit q->channelsChanged(channels);
-        emit q->buffersChanged(bufferList);
-        emit q->countChanged(bufferList.count());
+        if (notify) {
+            emit q->added(buffer);
+            if (isChannel)
+                emit q->channelsChanged(channels);
+            emit q->buffersChanged(bufferList);
+            emit q->countChanged(bufferList.count());
+        }
     }
 }
 
-void IrcBufferModelPrivate::removeBuffer(const QString& title, bool force)
+void IrcBufferModelPrivate::removeBuffer(IrcBuffer* buffer, bool notify)
 {
-    IrcBuffer* buffer = bufferMap.value(title.toLower());
-    if (buffer && (force || !buffer->isPersistent()))
-        delete buffer;
+    Q_Q(IrcBufferModel);
+    int idx = bufferList.indexOf(buffer);
+    if (idx != -1) {
+        const bool isChannel = buffer->isChannel();
+        if (notify)
+            emit q->aboutToBeRemoved(buffer);
+        q->beginRemoveRows(QModelIndex(), idx, idx);
+        bufferList.removeAt(idx);
+        bufferMap.remove(buffer->title().toLower());
+        if (isChannel)
+            channels.removeOne(buffer->title());
+        q->endRemoveRows();
+        if (notify) {
+            emit q->removed(buffer);
+            if (isChannel)
+                emit q->channelsChanged(channels);
+            emit q->buffersChanged(bufferList);
+            emit q->countChanged(bufferList.count());
+        }
+    }
 }
 
 bool IrcBufferModelPrivate::renameBuffer(const QString& from, const QString& to)
@@ -274,6 +309,14 @@ bool IrcBufferModelPrivate::renameBuffer(const QString& from, const QString& to)
         QModelIndex index = q->index(idx);
         emit q->dataChanged(index, index);
 
+        if (dynamicSort) {
+            QList<IrcBuffer*> buffers = bufferList;
+            const bool notify = false;
+            removeBuffer(buffer, notify);
+            insertBuffer(-1, buffer, notify);
+            if (buffers != bufferList)
+                emit q->buffersChanged(bufferList);
+        }
         return true;
     }
     return false;
@@ -283,7 +326,7 @@ bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* mes
 {
     IrcBuffer* buffer = bufferMap.value(title.toLower());
     if (!buffer && create)
-        buffer = addBuffer(title);
+        buffer = createBuffer(title);
     if (buffer)
         return IrcBufferPrivate::get(buffer)->processMessage(message);
     return false;
@@ -297,23 +340,7 @@ void IrcBufferModelPrivate::_irc_connectionStatusChanged()
 
 void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
 {
-    Q_Q(IrcBufferModel);
-    int idx = bufferList.indexOf(buffer);
-    if (idx != -1) {
-        const bool isChannel = buffer->isChannel();
-        emit q->aboutToBeRemoved(buffer);
-        q->beginRemoveRows(QModelIndex(), idx, idx);
-        bufferList.removeAt(idx);
-        bufferMap.remove(buffer->title().toLower());
-        if (isChannel)
-            channels.removeOne(buffer->title());
-        q->endRemoveRows();
-        emit q->removed(buffer);
-        if (isChannel)
-            emit q->channelsChanged(channels);
-        emit q->buffersChanged(bufferList);
-        emit q->countChanged(bufferList.count());
-    }
+    removeBuffer(buffer);
 }
 #endif // IRC_DOXYGEN
 
@@ -482,7 +509,7 @@ int IrcBufferModel::indexOf(IrcBuffer* buffer) const
 IrcBuffer* IrcBufferModel::add(const QString& title)
 {
     Q_D(IrcBufferModel);
-    return d->addBuffer(title);
+    return d->createBuffer(title);
 }
 
 /*!
@@ -506,7 +533,7 @@ void IrcBufferModel::add(IrcBuffer* buffer)
 void IrcBufferModel::remove(const QString& title)
 {
     Q_D(IrcBufferModel);
-    d->removeBuffer(title, true);
+    d->destroyBuffer(title, true);
 }
 
 /*!
