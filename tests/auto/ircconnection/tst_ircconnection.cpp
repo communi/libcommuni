@@ -13,26 +13,18 @@
 #include "ircmessage.h"
 #include <QtTest/QtTest>
 #include <QtCore/QTextCodec>
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
 #ifndef QT_NO_OPENSSL
 #include <QtNetwork/QSslSocket>
 #endif
 
-#if QT_VERSION >= 0x050000
-#define Q4SKIP(description) QSKIP(description)
-#else
-#define Q4SKIP(description) QSKIP(description, SkipAll)
-#endif
+#include "tst_data.h"
+#include "tst_clientserver.h"
 
-class tst_IrcConnection : public QObject
+class tst_IrcConnection : public tst_ClientServer
 {
     Q_OBJECT
 
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
-
     void testDefaults();
 
     void testHost_data();
@@ -70,16 +62,6 @@ private slots:
 private:
     QTcpServer server;
 };
-
-void tst_IrcConnection::initTestCase()
-{
-    QVERIFY(server.listen());
-}
-
-void tst_IrcConnection::cleanupTestCase()
-{
-    server.close();
-}
 
 void tst_IrcConnection::testDefaults()
 {
@@ -359,80 +341,51 @@ Q_DECLARE_METATYPE(QString*)
 Q_DECLARE_METATYPE(IrcMessage*)
 void tst_IrcConnection::testConnection()
 {
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
     qRegisterMetaType<QString*>();
     qRegisterMetaType<IrcMessage*>();
 
-    IrcConnection connection;
-    QSignalSpy connectingSpy(&connection, SIGNAL(connecting()));
-    QSignalSpy connectedSpy(&connection, SIGNAL(connected()));
-    QSignalSpy disconnectedSpy(&connection, SIGNAL(disconnected()));
-    QSignalSpy messageReceivedSpy(&connection, SIGNAL(messageReceived(IrcMessage*)));
+    QSignalSpy connectingSpy(connection, SIGNAL(connecting()));
+    QSignalSpy connectedSpy(connection, SIGNAL(connected()));
+    QSignalSpy disconnectedSpy(connection, SIGNAL(disconnected()));
+    QSignalSpy messageReceivedSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
 
     QVERIFY(connectingSpy.isValid());
     QVERIFY(connectedSpy.isValid());
     QVERIFY(disconnectedSpy.isValid());
     QVERIFY(messageReceivedSpy.isValid());
 
-    connection.setUserName("user");
-    connection.setNickName("nick");
-    connection.setRealName("real");
-    connection.setHost(server.serverAddress().toString());
-    connection.setPort(server.serverPort());
-
-    connection.open();
-    if (!server.waitForNewConnection(200))
-        Q4SKIP("The address is not available");
-    QTcpSocket* serverSocket = server.nextPendingConnection();
-    QVERIFY(serverSocket);
-
-    QVERIFY(connection.socket()->waitForConnected());
-    QCOMPARE(connectingSpy.count(), 1);
-
-    QVERIFY(serverSocket->write(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n"));
-    QVERIFY(serverSocket->waitForBytesWritten());
-    QVERIFY(connection.socket()->waitForReadyRead());
+    waitForWritten(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n");
     QCOMPARE(connectedSpy.count(), 1);
 
-    connection.close();
+    connection->close();
     QCOMPARE(disconnectedSpy.count(), 1);
 }
 
 void tst_IrcConnection::testSendCommand()
 {
-    IrcConnection connection;
-    QVERIFY(!connection.sendCommand(0));
-    QVERIFY(!connection.sendCommand(IrcCommand::createQuit()));
+    IrcConnection conn;
+    QVERIFY(!conn.sendCommand(0));
+    QVERIFY(!conn.sendCommand(IrcCommand::createQuit()));
 
-    connection.setUserName("user");
-    connection.setNickName("nick");
-    connection.setRealName("real");
-    connection.setHost(server.serverAddress().toString());
-    connection.setPort(server.serverPort());
-    connection.open();
-    if (!connection.socket()->waitForConnected())
+    if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    QVERIFY(connection.sendCommand(IrcCommand::createQuit()));
-    QVERIFY(!connection.sendCommand(0));
-    connection.close();
+    QVERIFY(connection->sendCommand(IrcCommand::createQuit()));
+    QVERIFY(!connection->sendCommand(0));
 }
 
 void tst_IrcConnection::testSendData()
 {
-    IrcConnection connection;
-    QVERIFY(!connection.sendData("QUIT"));
+    IrcConnection conn;
+    QVERIFY(!conn.sendData("QUIT"));
 
-    connection.setUserName("user");
-    connection.setNickName("nick");
-    connection.setRealName("real");
-    connection.setHost(server.serverAddress().toString());
-    connection.setPort(server.serverPort());
-    connection.open();
-    if (!connection.socket()->waitForConnected())
+    if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    QVERIFY(connection.sendData("QUIT"));
-    connection.close();
+    QVERIFY(connection->sendData("QUIT"));
 }
 
 QTEST_MAIN(tst_IrcConnection)
