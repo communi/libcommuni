@@ -315,12 +315,12 @@ void IrcConnectionPrivate::_irc_readData()
 
 void IrcConnectionPrivate::_irc_filterDestroyed(QObject* filter)
 {
-    messageFilters.removeAll(reinterpret_cast<IrcMessageFilter*>(filter));
-    commandFilters.removeAll(reinterpret_cast<IrcCommandFilter*>(filter));
-    int idx = activeCommandFilters.indexOf(reinterpret_cast<IrcCommandFilter*>(filter));
+    messageFilters.removeAll(filter);
+    commandFilters.removeAll(filter);
+    int idx = activeCommandFilters.indexOf(filter);
     while (idx != -1) {
         activeCommandFilters.remove(idx);
-        idx = activeCommandFilters.indexOf(reinterpret_cast<IrcCommandFilter*>(filter));
+        idx = activeCommandFilters.indexOf(filter);
     }
 }
 
@@ -366,8 +366,11 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
 {
     Q_Q(IrcConnection);
     bool filtered = false;
-    for (int i = messageFilters.count() - 1; !filtered && i >= 0; --i)
-        filtered |= messageFilters.at(i)->messageFilter(msg);
+    for (int i = messageFilters.count() - 1; !filtered && i >= 0; --i) {
+        IrcMessageFilter* filter = qobject_cast<IrcMessageFilter*>(messageFilters.at(i));
+        if (filter)
+            filtered |= filter->messageFilter(msg);
+    }
 
     if (!filtered) {
         emit q->messageReceived(msg);
@@ -1076,10 +1079,11 @@ bool IrcConnection::sendCommand(IrcCommand* command)
     if (command) {
         bool filtered = false;
         for (int i = d->commandFilters.count() - 1; !filtered && i >= 0; --i) {
-            IrcCommandFilter* filter = d->commandFilters.at(i);
-            if (!d->activeCommandFilters.contains(filter)) {
+            QObject* filter = d->commandFilters.at(i);
+            IrcCommandFilter* commandFilter = qobject_cast<IrcCommandFilter*>(filter);
+            if (commandFilter && !d->activeCommandFilters.contains(filter)) {
                 d->activeCommandFilters.push(filter);
-                filtered |= filter->commandFilter(command);
+                filtered |= commandFilter->commandFilter(command);
                 d->activeCommandFilters.pop();
             }
         }
@@ -1146,7 +1150,7 @@ void IrcConnection::installMessageFilter(QObject* filter)
     Q_D(IrcConnection);
     IrcMessageFilter* msgFilter = qobject_cast<IrcMessageFilter*>(filter);
     if (msgFilter) {
-        d->messageFilters += msgFilter;
+        d->messageFilters += filter;
         connect(filter, SIGNAL(destroyed(QObject*)), this, SLOT(_irc_filterDestroyed(QObject*)), Qt::UniqueConnection);
     }
 }
@@ -1165,7 +1169,7 @@ void IrcConnection::removeMessageFilter(QObject* filter)
     Q_D(IrcConnection);
     IrcMessageFilter* msgFilter = qobject_cast<IrcMessageFilter*>(filter);
     if (msgFilter) {
-        d->messageFilters.removeAll(msgFilter);
+        d->messageFilters.removeAll(filter);
         disconnect(filter, SIGNAL(destroyed(QObject*)), this, SLOT(_irc_filterDestroyed(QObject*)));
     }
 }
@@ -1188,7 +1192,7 @@ void IrcConnection::installCommandFilter(QObject* filter)
     Q_D(IrcConnection);
     IrcCommandFilter* cmdFilter = qobject_cast<IrcCommandFilter*>(filter);
     if (cmdFilter) {
-        d->commandFilters += cmdFilter;
+        d->commandFilters += filter;
         connect(filter, SIGNAL(destroyed(QObject*)), this, SLOT(_irc_filterDestroyed(QObject*)), Qt::UniqueConnection);
     }
 }
@@ -1207,7 +1211,7 @@ void IrcConnection::removeCommandFilter(QObject* filter)
     Q_D(IrcConnection);
     IrcCommandFilter* cmdFilter = qobject_cast<IrcCommandFilter*>(filter);
     if (cmdFilter) {
-        d->commandFilters.removeAll(cmdFilter);
+        d->commandFilters.removeAll(filter);
         disconnect(filter, SIGNAL(destroyed(QObject*)), this, SLOT(_irc_filterDestroyed(QObject*)));
     }
 }

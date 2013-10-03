@@ -9,10 +9,13 @@
 
 #include "irc.h"
 #include "irccommand.h"
+#include "ircprotocol.h"
 #include "ircconnection.h"
 #include "ircmessage.h"
+#include "ircfilter.h"
 #include <QtTest/QtTest>
 #include <QtCore/QTextCodec>
+#include <QtCore/QScopedPointer>
 #ifndef QT_NO_OPENSSL
 #include <QtNetwork/QSslSocket>
 #endif
@@ -62,6 +65,9 @@ private slots:
 
     void testSendCommand();
     void testSendData();
+
+    void testMessageFilter();
+    void testCommandFilter();
 };
 
 void tst_IrcConnection::testDefaults()
@@ -725,6 +731,269 @@ void tst_IrcConnection::testSendData()
         Q4SKIP("The address is not available");
 
     QVERIFY(connection->sendData("QUIT"));
+}
+
+class TestFilter : public QObject, public IrcMessageFilter, public IrcCommandFilter
+{
+    Q_OBJECT
+    Q_INTERFACES(IrcMessageFilter IrcCommandFilter)
+
+public:
+    void clear()
+    {
+        messageFiltered = 0;
+        commandFiltered = 0;
+        messageFilterEnabled = false;
+        commandFilterEnabled = false;
+    }
+
+    bool messageFilter(IrcMessage*)
+    {
+        ++messageFiltered;
+        return messageFilterEnabled;
+    }
+
+    bool commandFilter(IrcCommand*)
+    {
+        ++commandFiltered;
+        return commandFilterEnabled;
+    }
+
+    int messageFiltered;
+    int commandFiltered;
+    bool messageFilterEnabled;
+    bool commandFilterEnabled;
+};
+
+void tst_IrcConnection::testMessageFilter()
+{
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    qRegisterMetaType<IrcMessage*>();
+    QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
+    QVERIFY(messageSpy.isValid());
+    int messageCount = 0;
+
+    QScopedPointer<TestFilter> filter1(new TestFilter);
+    QScopedPointer<TestFilter> filter2(new TestFilter);
+    QScopedPointer<TestFilter> filter3(new TestFilter);
+
+    filter1->clear(); filter2->clear(); filter3->clear();
+
+    connection->installMessageFilter(filter1.data());
+    connection->installMessageFilter(filter2.data());
+    connection->installMessageFilter(filter3.data());
+
+    waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi\r\n");
+    QCOMPARE(filter1->messageFiltered, 1);
+    QCOMPARE(filter2->messageFiltered, 1);
+    QCOMPARE(filter3->messageFiltered, 1);
+    QCOMPARE(messageSpy.count(), ++messageCount);
+
+    filter1->clear(); filter2->clear(); filter3->clear();
+    filter3->messageFilterEnabled = true;
+
+    waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server\r\n");
+    QCOMPARE(filter1->messageFiltered, 0);
+    QCOMPARE(filter2->messageFiltered, 0);
+    QCOMPARE(filter3->messageFiltered, 1);
+    QCOMPARE(messageSpy.count(), messageCount);
+
+    filter1->clear(); filter2->clear(); filter3->clear();
+    filter2->messageFilterEnabled = true;
+
+    waitForWritten(":moorcock.freenode.net 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server\r\n");
+    QCOMPARE(filter1->messageFiltered, 0);
+    QCOMPARE(filter2->messageFiltered, 1);
+    QCOMPARE(filter3->messageFiltered, 1);
+    QCOMPARE(messageSpy.count(), messageCount);
+
+    filter1->clear(); filter2->clear(); filter3->clear();
+    filter1->messageFilterEnabled = true;
+
+    waitForWritten(":moorcock.freenode.net 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server\r\n");
+    QCOMPARE(filter1->messageFiltered, 1);
+    QCOMPARE(filter2->messageFiltered, 1);
+    QCOMPARE(filter3->messageFiltered, 1);
+    QCOMPARE(messageSpy.count(), messageCount);
+
+    filter1->clear(); filter2->clear(); filter3->clear();
+
+    waitForWritten(":moorcock.freenode.net 375 communi :- moorcock.freenode.net Message of the Day -\r\n");
+    QCOMPARE(filter1->messageFiltered, 1);
+    QCOMPARE(filter2->messageFiltered, 1);
+    QCOMPARE(filter3->messageFiltered, 1);
+    QCOMPARE(messageSpy.count(), ++messageCount);
+
+    // a deleted filter gets removed
+    filter2.reset();
+    filter1->clear(); filter3->clear();
+
+    waitForWritten(":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ...\r\n");
+    QCOMPARE(filter1->messageFiltered, 1);
+    QCOMPARE(filter3->messageFiltered, 1);
+    QCOMPARE(messageSpy.count(), ++messageCount);
+
+    waitForWritten(":moorcock.freenode.net 376 communi :End of /MOTD command.\r\n");
+    messageCount += 2; // RPL_ENDOFMOTD + IrcMotdMessage
+    QCOMPARE(messageSpy.count(), messageCount);
+
+    // double filters
+    connection->installMessageFilter(filter1.data());
+    connection->installMessageFilter(filter3.data());
+    filter1->clear(); filter3->clear();
+
+    waitForWritten(":communi!~communi@hidd.en JOIN #freenode\r\n");
+    QCOMPARE(filter1->messageFiltered, 2);
+    QCOMPARE(filter3->messageFiltered, 2);
+    QCOMPARE(messageSpy.count(), ++messageCount);
+
+    // remove & enable double filter
+    filter1->clear(); filter3->clear();
+    filter1->messageFilterEnabled = true;
+    connection->removeMessageFilter(filter3.data());
+
+    waitForWritten(":communi!~communi@hidd.en JOIN #communi\r\n");
+    QCOMPARE(filter1->messageFiltered, 1);
+    QCOMPARE(filter3->messageFiltered, 0);
+    QCOMPARE(messageSpy.count(), messageCount);
+
+    // remove & delete
+    filter3.reset();
+    filter1->clear();
+    connection->removeMessageFilter(filter1.data());
+
+    waitForWritten(":communi!~communi@hidd.en PART #communi\r\n");
+    QCOMPARE(filter1->messageFiltered, 0);
+    QCOMPARE(messageSpy.count(), ++messageCount);
+}
+
+class TestProtocol : public IrcProtocol
+{
+public:
+    TestProtocol(IrcConnection* connection) : IrcProtocol(connection), written(false)
+    {
+    }
+
+    virtual bool write(const QByteArray& data)
+    {
+        written = true;
+        return IrcProtocol::write(data);
+    }
+
+    bool written;
+};
+
+class FriendlyConnection : public IrcConnection
+{
+    friend class tst_IrcConnection;
+};
+
+void tst_IrcConnection::testCommandFilter()
+{
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    TestProtocol* protocol = new TestProtocol(connection);
+    static_cast<FriendlyConnection*>(connection.data())->setProtocol(protocol);
+
+    QScopedPointer<TestFilter> filter1(new TestFilter);
+    QScopedPointer<TestFilter> filter2(new TestFilter);
+    QScopedPointer<TestFilter> filter3(new TestFilter);
+
+    filter1->clear(); filter2->clear(); filter3->clear();
+
+    connection->installCommandFilter(filter1.data());
+    connection->installCommandFilter(filter2.data());
+    connection->installCommandFilter(filter3.data());
+
+    connection->sendCommand(IrcCommand::createJoin("#freenode"));
+    QCOMPARE(filter1->commandFiltered, 1);
+    QCOMPARE(filter2->commandFiltered, 1);
+    QCOMPARE(filter3->commandFiltered, 1);
+    QVERIFY(protocol->written);
+
+    protocol->written = false;
+    filter1->clear(); filter2->clear(); filter3->clear();
+    filter3->commandFilterEnabled = true;
+
+    connection->sendCommand(IrcCommand::createJoin("#communi"));
+    QCOMPARE(filter1->commandFiltered, 0);
+    QCOMPARE(filter2->commandFiltered, 0);
+    QCOMPARE(filter3->commandFiltered, 1);
+    QVERIFY(!protocol->written);
+
+    protocol->written = false;
+    filter1->clear(); filter2->clear(); filter3->clear();
+    filter2->commandFilterEnabled = true;
+
+    connection->sendCommand(IrcCommand::createJoin("#qt"));
+    QCOMPARE(filter1->commandFiltered, 0);
+    QCOMPARE(filter2->commandFiltered, 1);
+    QCOMPARE(filter3->commandFiltered, 1);
+    QVERIFY(!protocol->written);
+
+    protocol->written = false;
+    filter1->clear(); filter2->clear(); filter3->clear();
+    filter1->commandFilterEnabled = true;
+
+    connection->sendCommand(IrcCommand::createPart("#freenode"));
+    QCOMPARE(filter1->commandFiltered, 1);
+    QCOMPARE(filter2->commandFiltered, 1);
+    QCOMPARE(filter3->commandFiltered, 1);
+    QVERIFY(!protocol->written);
+
+    protocol->written = false;
+    filter1->clear(); filter2->clear(); filter3->clear();
+
+    connection->sendCommand(IrcCommand::createPart("#communi"));
+    QCOMPARE(filter1->commandFiltered, 1);
+    QCOMPARE(filter2->commandFiltered, 1);
+    QCOMPARE(filter3->commandFiltered, 1);
+    QVERIFY(protocol->written);
+
+    // a deleted filter gets removed
+    filter2.reset();
+    filter1->clear(); filter3->clear();
+    protocol->written = false;
+
+    connection->sendCommand(IrcCommand::createPart("#qt"));
+    QCOMPARE(filter1->commandFiltered, 1);
+    QCOMPARE(filter3->commandFiltered, 1);
+    QVERIFY(protocol->written);
+
+    // double filters
+    connection->installCommandFilter(filter1.data());
+    connection->installCommandFilter(filter3.data());
+    filter1->clear(); filter3->clear();
+    protocol->written = false;
+
+    connection->sendCommand(IrcCommand::createJoin("#freenode"));
+    QCOMPARE(filter1->commandFiltered, 2);
+    QCOMPARE(filter3->commandFiltered, 2);
+    QVERIFY(protocol->written);
+
+    // remove & enable double filter
+    filter1->clear(); filter3->clear();
+    filter1->commandFilterEnabled = true;
+    connection->removeCommandFilter(filter3.data());
+    protocol->written = false;
+
+    connection->sendCommand(IrcCommand::createJoin("#communi"));
+    QCOMPARE(filter1->commandFiltered, 1);
+    QCOMPARE(filter3->commandFiltered, 0);
+    QVERIFY(!protocol->written);
+
+    // remove & delete
+    filter3.reset();
+    filter1->clear();
+    connection->removeCommandFilter(filter1.data());
+    protocol->written = false;
+
+    connection->sendCommand(IrcCommand::createJoin("#qt"));
+    QCOMPARE(filter1->commandFiltered, 0);
+    QVERIFY(protocol->written);
 }
 
 QTEST_MAIN(tst_IrcConnection)

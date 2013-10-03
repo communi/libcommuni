@@ -74,9 +74,9 @@ public:
     QString saslMechanism;
     IrcConnection::Status status;
     QList<IrcCommand*> pendingCommands;
-    QList<IrcCommandFilter*> commandFilters;
-    QList<IrcMessageFilter*> messageFilters;
-    QStack<IrcCommandFilter*> activeCommandFilters;
+    QList<QObject*> commandFilters;
+    QList<QObject*> messageFilters;
+    QStack<QObject*> activeCommandFilters;
 };
 
 IRC_END_NAMESPACE
