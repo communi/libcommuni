@@ -27,3 +27,24 @@ CONFIG(debug, debug|release) {
     OBJECTS_DIR = release
     MOC_DIR = release
 }
+
+coverage {
+    LIBS += -lgcov
+    QMAKE_CXXFLAGS += -g -Wall -fprofile-arcs -ftest-coverage -O0
+    QMAKE_LDFLAGS += -g -Wall -fprofile-arcs -ftest-coverage  -O0
+
+    zerocounters.commands = @lcov --directory \$(OBJECTS_DIR) --zerocounters
+    QMAKE_EXTRA_TARGETS += zerocounters
+
+    capture.file = ../../coverage/$${IRC_MODULE}.cov
+    capture.commands = @mkdir -p ../../coverage
+    capture.commands += && lcov --base-directory $$_PRO_FILE_PWD_ --directory \$(OBJECTS_DIR) --capture --output-file $$capture.file
+    capture.filters = \"/usr/*\" \"moc_*.cpp\"
+    capture.commands += && lcov --remove $$capture.file $$capture.filters --output-file $$capture.file
+    QMAKE_EXTRA_TARGETS += capture
+
+    genhtml.dir = ../../coverage/$${IRC_MODULE}
+    genhtml.commands = @genhtml --output-directory $$genhtml.dir $$capture.file
+    genhtml.commands += && xdg-open $$genhtml.dir/index.html
+    QMAKE_EXTRA_TARGETS += genhtml
+}

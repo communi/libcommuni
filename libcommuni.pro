@@ -90,3 +90,21 @@ include(version.pri)
         message(Building Communi $$IRC_VERSION)
     }
 }
+
+coverage {
+    cov_zerocounters.CONFIG += recursive
+    cov_zerocounters.recurse = src
+    QMAKE_EXTRA_TARGETS += cov_zerocounters
+
+    cov_capture.CONFIG += recursive
+    cov_capture.recurse = src
+    QMAKE_EXTRA_TARGETS += cov_capture
+
+    cov_genhtml.CONFIG += recursive
+    cov_genhtml.recurse = src
+    QMAKE_EXTRA_TARGETS += cov_genhtml
+
+    coverage.depends += first cov_zerocounters check cov_capture cov_genhtml
+    QMAKE_EXTRA_TARGETS += coverage
+    !build_pass:message(Code coverage collection enabled)
+}
