@@ -466,22 +466,49 @@ void tst_IrcConnection::testConnection()
 
     qRegisterMetaType<QString*>();
     qRegisterMetaType<IrcMessage*>();
+    qRegisterMetaType<IrcConnection::Status>();
 
-    QSignalSpy connectingSpy(connection, SIGNAL(connecting()));
-    QSignalSpy connectedSpy(connection, SIGNAL(connected()));
-    QSignalSpy disconnectedSpy(connection, SIGNAL(disconnected()));
-    QSignalSpy messageReceivedSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
-
-    QVERIFY(connectingSpy.isValid());
-    QVERIFY(connectedSpy.isValid());
-    QVERIFY(disconnectedSpy.isValid());
-    QVERIFY(messageReceivedSpy.isValid());
+    // tst_ClientServer::init() opens the connection
+    QVERIFY(connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connecting);
 
     waitForWritten(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n");
-    QCOMPARE(connectedSpy.count(), 1);
+    QVERIFY(connection->isActive());
+    QVERIFY(connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connected);
 
     connection->close();
-    QCOMPARE(disconnectedSpy.count(), 1);
+    QVERIFY(!connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Closed);
+
+    // does nothing when explicitly closed
+    connection->resume();
+    QVERIFY(!connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Closed);
+
+    connection->open();
+    waitForOpened();
+    QVERIFY(connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connecting);
+
+    connection->reset();
+    QVERIFY(!connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Inactive);
+
+    connection->resume();
+    QVERIFY(connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connecting);
+
+    connection->close();
+    QVERIFY(!connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Closed);
 }
 
 void tst_IrcConnection::testSendCommand()
