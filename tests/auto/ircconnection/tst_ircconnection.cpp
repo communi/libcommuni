@@ -55,12 +55,12 @@ private slots:
     void testSocket();
 
     void testSecure();
+
+    void testStatus();
+
     void testConnection();
     void testSendCommand();
     void testSendData();
-
-private:
-    QTcpServer server;
 };
 
 void tst_IrcConnection::testDefaults()
@@ -93,7 +93,7 @@ void tst_IrcConnection::testHost_data()
     QTest::newRow("empty") << QString("");
     QTest::newRow("space") << QString(" ");
     QTest::newRow("invalid") << QString("invalid");
-    QTest::newRow(qPrintable(server.serverAddress().toString())) << server.serverAddress().toString();
+    QTest::newRow("local") << QString("127.0.0.1");
 }
 
 void tst_IrcConnection::testHost()
@@ -119,7 +119,6 @@ void tst_IrcConnection::testPort_data()
     QTest::newRow("6666") << 6666;
     QTest::newRow("6667") << 6667;
     QTest::newRow("6668") << 6668;
-    QTest::newRow(qPrintable(QString::number(server.serverPort()))) << static_cast<int>(server.serverPort());
 }
 
 void tst_IrcConnection::testPort()
@@ -335,6 +334,127 @@ void tst_IrcConnection::testSecure()
     QVERIFY(!connection.socket()->inherits("QSslSocket"));
     QCOMPARE(spy.count(), 2);
     QVERIFY(!spy.last().last().toBool());
+}
+
+Q_DECLARE_METATYPE(IrcConnection::Status)
+void tst_IrcConnection::testStatus()
+{
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    qRegisterMetaType<IrcConnection::Status>();
+
+    // tst_ClientServer::init() opens the connection
+    QCOMPARE(connection->status(), IrcConnection::Connecting);
+    QVERIFY(!connection->isConnected());
+    QVERIFY(connection->isActive());
+
+    QSignalSpy statusSpy(connection, SIGNAL(statusChanged(IrcConnection::Status)));
+    QSignalSpy connectingSpy(connection, SIGNAL(connecting()));
+    QSignalSpy connectedSpy(connection, SIGNAL(connected()));
+    QSignalSpy disconnectedSpy(connection, SIGNAL(disconnected()));
+
+    QVERIFY(statusSpy.isValid());
+    QVERIFY(connectingSpy.isValid());
+    QVERIFY(connectedSpy.isValid());
+    QVERIFY(disconnectedSpy.isValid());
+
+    int statusCount = 0;
+    int connectingCount = 0;
+    int connectedCount = 0;
+    int disconnectedCount = 0;
+
+    waitForWritten(tst_Data::welcome());
+    QVERIFY(connection->isActive());
+    QVERIFY(connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connected);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connected);
+    QCOMPARE(connectedSpy.count(), ++connectedCount);
+
+    clientSocket->close();
+    QVERIFY(connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Closing);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Closing);
+
+    connection->close();
+    QVERIFY(!connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Closed);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Closed);
+    QCOMPARE(disconnectedSpy.count(), ++disconnectedCount);
+
+    connection->open();
+    waitForOpened();
+    QVERIFY(connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connecting);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connecting);
+    QCOMPARE(connectingSpy.count(), ++connectingCount);
+
+    waitForWritten(tst_Data::welcome());
+    QVERIFY(connection->isActive());
+    QVERIFY(connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connected);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connected);
+    QCOMPARE(connectedSpy.count(), ++connectedCount);
+
+    // trigger an error
+    serverSocket->close();
+    clientSocket->waitForDisconnected();
+    QVERIFY(!connection->isConnected());
+    QVERIFY(!connection->isActive());
+
+    QCOMPARE(statusSpy.at(statusCount++).at(0).value<IrcConnection::Status>(), IrcConnection::Error);
+    QCOMPARE(statusSpy.count(), statusCount);
+
+    connection->close();
+    QVERIFY(!connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Closed);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Closed);
+    QCOMPARE(disconnectedSpy.count(), ++disconnectedCount);
+
+    connection->open();
+    waitForOpened();
+    QVERIFY(connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connecting);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connecting);
+    QCOMPARE(connectingSpy.count(), ++connectingCount);
+
+    waitForWritten(tst_Data::welcome());
+    QVERIFY(connection->isActive());
+    QVERIFY(connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connected);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connected);
+    QCOMPARE(connectedSpy.count(), ++connectedCount);
+
+    // trigger an error - automatic reconnect
+    connection->setReconnectDelay(1);
+    serverSocket->close();
+    clientSocket->waitForDisconnected();
+    QVERIFY(!connection->isConnected());
+    QVERIFY(!connection->isActive());
+
+    QCOMPARE(statusSpy.at(statusCount++).at(0).value<IrcConnection::Status>(), IrcConnection::Error);
+    QCOMPARE(statusSpy.at(statusCount++).at(0).value<IrcConnection::Status>(), IrcConnection::Waiting);
+    QCOMPARE(statusSpy.count(), statusCount);
+
+    connection->close();
+    QVERIFY(!connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Closed);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Closed);
 }
 
 Q_DECLARE_METATYPE(QString*)

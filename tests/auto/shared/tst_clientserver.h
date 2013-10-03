@@ -32,6 +32,7 @@ private slots:
     void cleanup();
 
 protected:
+    void waitForOpened();
     void waitForWritten(const QByteArray& data = QByteArray());
 
     QPointer<QTcpServer> server;

@@ -22,6 +22,17 @@ void tst_ClientServer::init()
     connection->setPort(server->serverPort());
 
     connection->open();
+    waitForOpened();
+}
+
+void tst_ClientServer::cleanup()
+{
+    delete server;
+    delete connection;
+}
+
+void tst_ClientServer::waitForOpened()
+{
     if (!server->waitForNewConnection(200))
         QEXPECT_FAIL("", "The address is not available", Abort);
     serverSocket = server->nextPendingConnection();
@@ -30,12 +41,6 @@ void tst_ClientServer::init()
     clientSocket = connection->socket();
     QVERIFY(clientSocket);
     QVERIFY(clientSocket->waitForConnected());
-}
-
-void tst_ClientServer::cleanup()
-{
-    delete server;
-    delete connection;
 }
 
 void tst_ClientServer::waitForWritten(const QByteArray& data)

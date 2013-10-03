@@ -286,7 +286,8 @@ void IrcConnectionPrivate::_irc_state(QAbstractSocket::SocketState state)
             setStatus(IrcConnection::Closed);
         break;
     case QAbstractSocket::ClosingState:
-        setStatus(IrcConnection::Closing);
+        if (status != IrcConnection::Error)
+            setStatus(IrcConnection::Closing);
         break;
     case QAbstractSocket::HostLookupState:
     case QAbstractSocket::ConnectingState:
