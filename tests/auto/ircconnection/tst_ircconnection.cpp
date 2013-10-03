@@ -57,8 +57,9 @@ private slots:
     void testSecure();
 
     void testStatus();
-
     void testConnection();
+    void testMessages();
+
     void testSendCommand();
     void testSendData();
 };
@@ -457,15 +458,11 @@ void tst_IrcConnection::testStatus()
     QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Closed);
 }
 
-Q_DECLARE_METATYPE(QString*)
-Q_DECLARE_METATYPE(IrcMessage*)
 void tst_IrcConnection::testConnection()
 {
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    qRegisterMetaType<QString*>();
-    qRegisterMetaType<IrcMessage*>();
     qRegisterMetaType<IrcConnection::Status>();
 
     // tst_ClientServer::init() opens the connection
@@ -509,6 +506,201 @@ void tst_IrcConnection::testConnection()
     QVERIFY(!connection->isActive());
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Closed);
+}
+
+Q_DECLARE_METATYPE(IrcMessage*)
+Q_DECLARE_METATYPE(IrcCapabilityMessage*)
+Q_DECLARE_METATYPE(IrcErrorMessage*)
+Q_DECLARE_METATYPE(IrcInviteMessage*)
+Q_DECLARE_METATYPE(IrcJoinMessage*)
+Q_DECLARE_METATYPE(IrcKickMessage*)
+Q_DECLARE_METATYPE(IrcModeMessage*)
+Q_DECLARE_METATYPE(IrcNamesMessage*)
+Q_DECLARE_METATYPE(IrcNickMessage*)
+Q_DECLARE_METATYPE(IrcNoticeMessage*)
+Q_DECLARE_METATYPE(IrcNumericMessage*)
+Q_DECLARE_METATYPE(IrcMotdMessage*)
+Q_DECLARE_METATYPE(IrcPartMessage*)
+Q_DECLARE_METATYPE(IrcPingMessage*)
+Q_DECLARE_METATYPE(IrcPongMessage*)
+Q_DECLARE_METATYPE(IrcPrivateMessage*)
+Q_DECLARE_METATYPE(IrcQuitMessage*)
+Q_DECLARE_METATYPE(IrcTopicMessage*)
+
+void tst_IrcConnection::testMessages()
+{
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    qRegisterMetaType<IrcMessage*>();
+    qRegisterMetaType<IrcCapabilityMessage*>();
+    qRegisterMetaType<IrcErrorMessage*>();
+    qRegisterMetaType<IrcInviteMessage*>();
+    qRegisterMetaType<IrcJoinMessage*>();
+    qRegisterMetaType<IrcKickMessage*>();
+    qRegisterMetaType<IrcModeMessage*>();
+    qRegisterMetaType<IrcNamesMessage*>();
+    qRegisterMetaType<IrcNickMessage*>();
+    qRegisterMetaType<IrcNoticeMessage*>();
+    qRegisterMetaType<IrcNumericMessage*>();
+    qRegisterMetaType<IrcMotdMessage*>();
+    qRegisterMetaType<IrcPartMessage*>();
+    qRegisterMetaType<IrcPingMessage*>();
+    qRegisterMetaType<IrcPongMessage*>();
+    qRegisterMetaType<IrcPrivateMessage*>();
+    qRegisterMetaType<IrcQuitMessage*>();
+    qRegisterMetaType<IrcTopicMessage*>();
+
+    QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
+    QSignalSpy capabilityMessageSpy(connection, SIGNAL(capabilityMessageReceived(IrcCapabilityMessage*)));
+    QSignalSpy errorMessageSpy(connection, SIGNAL(errorMessageReceived(IrcErrorMessage*)));
+    QSignalSpy inviteMessageSpy(connection, SIGNAL(inviteMessageReceived(IrcInviteMessage*)));
+    QSignalSpy joinMessageSpy(connection, SIGNAL(joinMessageReceived(IrcJoinMessage*)));
+    QSignalSpy kickMessageSpy(connection, SIGNAL(kickMessageReceived(IrcKickMessage*)));
+    QSignalSpy modeMessageSpy(connection, SIGNAL(modeMessageReceived(IrcModeMessage*)));
+    QSignalSpy namesMessageSpy(connection, SIGNAL(namesMessageReceived(IrcNamesMessage*)));
+    QSignalSpy nickMessageSpy(connection, SIGNAL(nickMessageReceived(IrcNickMessage*)));
+    QSignalSpy noticeMessageSpy(connection, SIGNAL(noticeMessageReceived(IrcNoticeMessage*)));
+    QSignalSpy numericMessageSpy(connection, SIGNAL(numericMessageReceived(IrcNumericMessage*)));
+    QSignalSpy motdMessageSpy(connection, SIGNAL(motdMessageReceived(IrcMotdMessage*)));
+    QSignalSpy partMessageSpy(connection, SIGNAL(partMessageReceived(IrcPartMessage*)));
+    QSignalSpy pingMessageSpy(connection, SIGNAL(pingMessageReceived(IrcPingMessage*)));
+    QSignalSpy pongMessageSpy(connection, SIGNAL(pongMessageReceived(IrcPongMessage*)));
+    QSignalSpy privateMessageSpy(connection, SIGNAL(privateMessageReceived(IrcPrivateMessage*)));
+    QSignalSpy quitMessageSpy(connection, SIGNAL(quitMessageReceived(IrcQuitMessage*)));
+    QSignalSpy topicMessageSpy(connection, SIGNAL(topicMessageReceived(IrcTopicMessage*)));
+
+    QVERIFY(messageSpy.isValid());
+    QVERIFY(capabilityMessageSpy.isValid());
+    QVERIFY(errorMessageSpy.isValid());
+    QVERIFY(inviteMessageSpy.isValid());
+    QVERIFY(joinMessageSpy.isValid());
+    QVERIFY(kickMessageSpy.isValid());
+    QVERIFY(modeMessageSpy.isValid());
+    QVERIFY(namesMessageSpy.isValid());
+    QVERIFY(nickMessageSpy.isValid());
+    QVERIFY(noticeMessageSpy.isValid());
+    QVERIFY(numericMessageSpy.isValid());
+    QVERIFY(motdMessageSpy.isValid());
+    QVERIFY(partMessageSpy.isValid());
+    QVERIFY(pingMessageSpy.isValid());
+    QVERIFY(pongMessageSpy.isValid());
+    QVERIFY(privateMessageSpy.isValid());
+    QVERIFY(quitMessageSpy.isValid());
+    QVERIFY(topicMessageSpy.isValid());
+
+    int messageCount = 0;
+    int numericMessageCount = 0;
+
+    waitForWritten(":moorcock.freenode.net CAP * LS :account-notify extended-join identify-msg multi-prefix sasl\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(capabilityMessageSpy.count(), 1);
+
+    waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten(":moorcock.freenode.net 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten(":moorcock.freenode.net 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten(":moorcock.freenode.net 375 communi :- moorcock.freenode.net Message of the Day -\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten(":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ...\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten(":moorcock.freenode.net 376 communi :End of /MOTD command.\r\n");
+    messageCount += 2; // RPL_ENDOFMOTD + IrcMotdMessage
+    QCOMPARE(messageSpy.count(), messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+    QCOMPARE(motdMessageSpy.count(), 1);
+
+    waitForWritten(":communi!~communi@hidd.en JOIN #freenode\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(joinMessageSpy.count(), 1);
+
+    waitForWritten(":moorcock.freenode.net 332 communi #freenode :Welcome to #freenode | Staff are voiced; some may also be on /stats p -- feel free to /msg us at any time | FAQ: http://freenode.net/faq.shtml | Unwelcome queries? Use /mode your_nick +R to block them. | Channel guidelines: http://freenode.net/poundfreenode.shtml | Blog: http://blog.freenode.net | Please don't comment on spam/trolls.\r\n");
+    messageCount += 2; // RPL_TOPIC & IrcTopicMessage
+    QCOMPARE(messageSpy.count(), messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+    QCOMPARE(topicMessageSpy.count(), 1);
+
+    waitForWritten(":moorcock.freenode.net 333 communi #freenode erry 1379357591\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten(":moorcock.freenode.net 353 communi = #freenode :communi straterra absk007 pefn xlys Gromit TooCool Sambler gat0rs KarneAsada danis_963 Kiryx chrismeller deefloo black_male sxlnxdx bjork Kinny phobos_anomaly T13|sleeps JuxTApose Kolega2357 rorx techhelper1 hermatize Azimi iqualfragile fwilson skasturi mwallacesd mayday Guest76549 mcjohansen MangaKaDenza ARISTIDES ketas `- claptor ylluminate Cooky Brand3n cheater_1 Kirito digitaloktay Will| Iarfen abrotman smurfy Inaunt +mist Karol RougeR_\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten(":moorcock.freenode.net 353 communi = #freenode :publickeating An_Ony_Moose michagogo Guest915` davidfg4 Ragnor s1lent_1 keee GingerGeek[Away] hibari derp S_T_A_N anonymuse asantoni road|runner LLckfan neoian2 aviancarrier nipples danieldaniel Pyrus Bry8Star shadowm_desktop furtardo rdymac TTSDA seaworthy Chiyo yscc Zombiebaron redpill f4cl3y Boohbah applebloom zorael kameloso^ Zetetic XAMPP wheels_up Cuppy-Cake mindlessjohnny Kymru mquin_ Rodja babilen kirin` David Affix jshyeung_ DarkAceZ karakedi\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten(":moorcock.freenode.net 366 communi #freenode :End of /NAMES list.\r\n");
+    messageCount += 2; // RPL_ENDOFNAMES & IrcNamesMessage
+    QCOMPARE(messageSpy.count(), messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+    QCOMPARE(namesMessageSpy.count(), 1);
+
+    waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :[#freenode] Welcome to #freenode. All network staff are voiced in here, but may not always be around - type /stats p to get a list of on call staff. Others may be hiding so do feel free to ping and /msg us at will! Also please read the channel guidelines at http://freenode.net/poundfreenode.shtml - thanks.\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(noticeMessageSpy.count(), 1);
+
+    waitForWritten(":services. 328 communi #freenode :http://freenode.net/\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+
+    waitForWritten("PING :moorcock.freenode.net\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(pingMessageSpy.count(), 1);
+
+    waitForWritten("PONG :moorcock.freenode.net\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(pongMessageSpy.count(), 1);
+
+    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi INVITE Communi84194 :#communi\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(inviteMessageSpy.count(), 1);
+
+    waitForWritten(":Communi84194!ident@host NICK :communi\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(nickMessageSpy.count(), 1);
+
+    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi MODE #communi +v communi\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(modeMessageSpy.count(), 1);
+
+    waitForWritten(":qtassistant!jpnurmi@qt/jpnurmi/bot/qtassistant PART #communi\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(partMessageSpy.count(), 1);
+
+    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi PRIVMSG #communi :hello\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(privateMessageSpy.count(), 1);
+
+    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi QUIT :Client Quit\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(quitMessageSpy.count(), 1);
+
+    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi KICK #communi communi\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(kickMessageSpy.count(), 1);
+
+    waitForWritten("ERROR :just testing...\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(errorMessageSpy.count(), 1);
 }
 
 void tst_IrcConnection::testSendCommand()
