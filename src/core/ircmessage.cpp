@@ -1281,6 +1281,7 @@ IrcMotdMessage::IrcMotdMessage(IrcConnection* connection) : IrcMessage(connectio
 {
     Q_D(IrcMessage);
     d->type = Motd;
+    setCommand(QLatin1String("MOTD"));
 }
 
 /*!
@@ -1314,6 +1315,7 @@ IrcNamesMessage::IrcNamesMessage(IrcConnection* connection) : IrcMessage(connect
 {
     Q_D(IrcMessage);
     d->type = Names;
+    setCommand(QLatin1String("NAMES"));
 }
 
 /*!

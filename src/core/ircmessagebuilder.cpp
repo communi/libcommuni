@@ -31,7 +31,6 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
     case Irc::RPL_MOTDSTART:
         d.message = new IrcMotdMessage(d.connection);
         d.message->setPrefix(message->prefix());
-        d.message->setCommand(QLatin1String("MOTD"));
         d.message->setParameters(QStringList(message->parameters().value(0)));
         break;
     case Irc::RPL_MOTD:
@@ -47,7 +46,6 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         if (!d.message)
             d.message = new IrcNamesMessage(d.connection);
         d.message->setPrefix(message->prefix());
-        d.message->setCommand(QLatin1String("NAMES"));
         int count = message->parameters().count();
         QString channel = message->parameters().value(count - 2);
         QStringList names = d.message->parameters().mid(1);
