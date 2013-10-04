@@ -8,7 +8,11 @@
  */
 
 #include "irccommand.h"
+#include "ircmessage.h"
+#include "ircconnection.h"
 #include <QtTest/QtTest>
+#include <QtCore/QTextCodec>
+#include <QtCore/QScopedPointer>
 
 class tst_IrcCommand : public QObject
 {
@@ -16,6 +20,11 @@ class tst_IrcCommand : public QObject
 
 private slots:
     void testDefaults();
+
+    void testEncoding_data();
+    void testEncoding();
+
+    void testConversion();
 
     void testAdmin();
     void testAway();
@@ -54,264 +63,432 @@ private slots:
 void tst_IrcCommand::testDefaults()
 {
     IrcCommand cmd;
-    QVERIFY(cmd.type() == IrcCommand::Custom);
     QVERIFY(cmd.parameters().isEmpty());
+    QCOMPARE(cmd.type(), IrcCommand::Custom);
+    QCOMPARE(cmd.encoding(), QByteArray("UTF-8"));
+
+    QTest::ignoreMessage(QtWarningMsg, "Reimplement IrcCommand::toString() for IrcCommand::Custom");
+    QVERIFY(cmd.toString().isEmpty());
+}
+
+void tst_IrcCommand::testEncoding_data()
+{
+    QTest::addColumn<QByteArray>("encoding");
+    QTest::addColumn<QByteArray>("actual");
+    QTest::addColumn<bool>("supported");
+
+    QTest::newRow("null") << QByteArray() << QByteArray("UTF-8") << false;
+    QTest::newRow("empty") << QByteArray("") << QByteArray("UTF-8") << false;
+    QTest::newRow("space") << QByteArray(" ") << QByteArray("UTF-8") << false;
+    QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("UTF-8") << false;
+    foreach (const QByteArray& codec, QTextCodec::availableCodecs())
+        QTest::newRow(codec) << codec << codec << true;
+}
+
+void tst_IrcCommand::testEncoding()
+{
+    QFETCH(QByteArray, encoding);
+    QFETCH(QByteArray, actual);
+    QFETCH(bool, supported);
+
+    if (!supported)
+        QTest::ignoreMessage(QtWarningMsg, "IrcCommand::setEncoding(): unsupported encoding \"" + encoding + "\" ");
+
+    IrcCommand cmd;
+    cmd.setEncoding(encoding);
+    QCOMPARE(cmd.encoding(), actual);
+}
+
+void tst_IrcCommand::testConversion()
+{
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createMessage("target", "foo bar"));
+    QVERIFY(cmd.data());
+    QCOMPARE(cmd->type(), IrcCommand::Message);
+
+    IrcConnection conn;
+    QScopedPointer<IrcMessage> msg(cmd->toMessage("prefix", &conn));
+    QVERIFY(msg.data());
+
+    QCOMPARE(msg->type(), IrcMessage::Private);
+    QCOMPARE(msg->connection(), &conn);
+    QCOMPARE(msg->prefix(), QString("prefix"));
+    QCOMPARE(msg->property("target").toString(), QString("target"));
+    QCOMPARE(msg->property("message").toString(), QString("foo bar"));
 }
 
 void tst_IrcCommand::testAdmin()
 {
-    IrcCommand* cmd = IrcCommand::createAdmin();
-    QVERIFY(cmd->type() == IrcCommand::Admin);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createAdmin("server"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Admin);
     QVERIFY(cmd->toString().contains(QRegExp("\\bADMIN\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testAway()
 {
-    IrcCommand* cmd = IrcCommand::createAway();
-    QVERIFY(cmd->type() == IrcCommand::Away);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createAway("reason"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Away);
     QVERIFY(cmd->toString().contains(QRegExp("\\bAWAY\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\breason\\b")));
 }
 
 void tst_IrcCommand::testCapability()
 {
-    IrcCommand* cmd = IrcCommand::createCapability("sub");
-    QVERIFY(cmd->type() == IrcCommand::Capability);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bCAP\\b")));
-    delete cmd;
+    QScopedPointer<IrcCommand> cmd1(IrcCommand::createCapability("sub", QString("cap")));
+    QVERIFY(cmd1.data());
+
+    QCOMPARE(cmd1->type(), IrcCommand::Capability);
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bCAP\\b")));
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bsub\\b")));
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bcap\\b")));
+
+    QScopedPointer<IrcCommand> cmd2(IrcCommand::createCapability("sub", QStringList() << "cap1" << "cap2"));
+    QVERIFY(cmd2.data());
+
+    QCOMPARE(cmd2->type(), IrcCommand::Capability);
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bCAP\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bsub\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bcap1\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bcap2\\b")));
 }
 
 void tst_IrcCommand::testCtcpAction()
 {
-    IrcCommand* cmd = IrcCommand::createCtcpAction("tgt", "act");
-    QVERIFY(cmd->type() == IrcCommand::CtcpAction);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createCtcpAction("tgt", "act"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::CtcpAction);
     QVERIFY(cmd->toString().contains(QRegExp("\\bPRIVMSG\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\bact\\b")));
+    QCOMPARE(cmd->toString().count("\01"), 2);
 }
 
 void tst_IrcCommand::testCtcpReply()
 {
-    IrcCommand* cmd = IrcCommand::createCtcpReply("tgt", "rpl");
-    QVERIFY(cmd->type() == IrcCommand::CtcpReply);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createCtcpReply("tgt", "rpl"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::CtcpReply);
     QVERIFY(cmd->toString().contains(QRegExp("\\bNOTICE\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\brpl\\b")));
+    QCOMPARE(cmd->toString().count("\01"), 2);
 }
 
 void tst_IrcCommand::testCtcpRequest()
 {
-    IrcCommand* cmd = IrcCommand::createCtcpRequest("tgt", "req");
-    QVERIFY(cmd->type() == IrcCommand::CtcpRequest);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createCtcpRequest("tgt", "req"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::CtcpRequest);
     QVERIFY(cmd->toString().contains(QRegExp("\\bPRIVMSG\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\breq\\b")));
+    QCOMPARE(cmd->toString().count("\01"), 2);
 }
 
 void tst_IrcCommand::testInfo()
 {
-    IrcCommand* cmd = IrcCommand::createInfo();
-    QVERIFY(cmd->type() == IrcCommand::Info);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createInfo("server"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Info);
     QVERIFY(cmd->toString().contains(QRegExp("\\bINFO\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testInvite()
 {
-    IrcCommand* cmd = IrcCommand::createInvite("usr", "chan");
-    QVERIFY(cmd->type() == IrcCommand::Invite);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createInvite("usr", "chan"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Invite);
     QVERIFY(cmd->toString().contains(QRegExp("\\bINVITE\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\busr\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\bchan\\b")));
 }
 
 void tst_IrcCommand::testJoin()
 {
-    IrcCommand* cmd = IrcCommand::createJoin("chan");
-    QVERIFY(cmd->type() == IrcCommand::Join);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bJOIN\\b")));
-    delete cmd;
+    QScopedPointer<IrcCommand> cmd1(IrcCommand::createJoin("chan"));
+    QVERIFY(cmd1.data());
+
+    QCOMPARE(cmd1->type(), IrcCommand::Join);
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bJOIN\\b")));
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bchan\\b")));
+
+    QScopedPointer<IrcCommand> cmd2(IrcCommand::createJoin(QStringList() << "chan1" << "chan2"));
+    QVERIFY(cmd2.data());
+
+    QCOMPARE(cmd2->type(), IrcCommand::Join);
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bJOIN\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan1\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan2\\b")));
 }
 
 void tst_IrcCommand::testKick()
 {
-    IrcCommand* cmd = IrcCommand::createKick("chan", "usr");
-    QVERIFY(cmd->type() == IrcCommand::Kick);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createKick("chan", "usr"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Kick);
     QVERIFY(cmd->toString().contains(QRegExp("\\bKICK\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bchan\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\busr\\b")));
 }
 
 void tst_IrcCommand::testKnock()
 {
-    IrcCommand* cmd = IrcCommand::createKnock("chan");
-    QVERIFY(cmd->type() == IrcCommand::Knock);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createKnock("chan"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Knock);
     QVERIFY(cmd->toString().contains(QRegExp("\\bKNOCK\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bchan\\b")));
 }
 
 void tst_IrcCommand::testList()
 {
-    IrcCommand* cmd = IrcCommand::createList();
-    QVERIFY(cmd->type() == IrcCommand::List);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createList(QStringList() << "chan1" << "chan2", "server"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::List);
     QVERIFY(cmd->toString().contains(QRegExp("\\bLIST\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bchan1\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\bchan2\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testMessage()
 {
-    IrcCommand* cmd = IrcCommand::createMessage("tgt", "msg");
-    QVERIFY(cmd->type() == IrcCommand::Message);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createMessage("tgt", "msg"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Message);
     QVERIFY(cmd->toString().contains(QRegExp("\\bPRIVMSG\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\bmsg\\b")));
 }
 
 void tst_IrcCommand::testMode()
 {
-    IrcCommand* cmd = IrcCommand::createMode("tgt", "mode");
-    QVERIFY(cmd->type() == IrcCommand::Mode);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createMode("tgt", "mode"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Mode);
     QVERIFY(cmd->toString().contains(QRegExp("\\bMODE\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\bmode\\b")));
 }
 
 void tst_IrcCommand::testMotd()
 {
-    IrcCommand* cmd = IrcCommand::createMotd();
-    QVERIFY(cmd->type() == IrcCommand::Motd);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createMotd("server"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Motd);
     QVERIFY(cmd->toString().contains(QRegExp("\\bMOTD\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testNames()
 {
-    IrcCommand* cmd = IrcCommand::createNames();
-    QVERIFY(cmd->type() == IrcCommand::Names);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bNAMES\\b")));
-    delete cmd;
+    QScopedPointer<IrcCommand> cmd1(IrcCommand::createNames("chan"));
+    QVERIFY(cmd1.data());
+
+    QCOMPARE(cmd1->type(), IrcCommand::Names);
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bNAMES\\b")));
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bchan\\b")));
+
+    QScopedPointer<IrcCommand> cmd2(IrcCommand::createNames(QStringList() << "chan1" << "chan2"));
+    QVERIFY(cmd2.data());
+
+    QCOMPARE(cmd2->type(), IrcCommand::Names);
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bNAMES\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan1\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan2\\b")));
 }
 
 void tst_IrcCommand::testNick()
 {
-    IrcCommand* cmd = IrcCommand::createNick("nick");
-    QVERIFY(cmd->type() == IrcCommand::Nick);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createNick("nick"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Nick);
     QVERIFY(cmd->toString().contains(QRegExp("\\bNICK\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bnick\\b")));
 }
 
 void tst_IrcCommand::testNotice()
 {
-    IrcCommand* cmd = IrcCommand::createNotice("tgt", "msg");
-    QVERIFY(cmd->type() == IrcCommand::Notice);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createNotice("tgt", "msg"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Notice);
     QVERIFY(cmd->toString().contains(QRegExp("\\bNOTICE\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\bmsg\\b")));
 }
 
 void tst_IrcCommand::testPart()
 {
-    IrcCommand* cmd = IrcCommand::createPart("chan");
-    QVERIFY(cmd->type() == IrcCommand::Part);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bPART\\b")));
-    delete cmd;
+    QScopedPointer<IrcCommand> cmd1(IrcCommand::createPart("chan"));
+    QVERIFY(cmd1.data());
+
+    QCOMPARE(cmd1->type(), IrcCommand::Part);
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bPART\\b")));
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bchan\\b")));
+
+    QScopedPointer<IrcCommand> cmd2(IrcCommand::createPart(QStringList() << "chan1" << "chan2"));
+    QVERIFY(cmd2.data());
+
+    QCOMPARE(cmd2->type(), IrcCommand::Part);
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bPART\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan1\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan2\\b")));
 }
 
 void tst_IrcCommand::testPing()
 {
-    IrcCommand* cmd = IrcCommand::createPing("arg");
-    QVERIFY(cmd->type() == IrcCommand::Ping);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createPing("arg"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Ping);
     QVERIFY(cmd->toString().contains(QRegExp("\\bPING\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\barg\\b")));
 }
 
 void tst_IrcCommand::testPong()
 {
-    IrcCommand* cmd = IrcCommand::createPong("arg");
-    QVERIFY(cmd->type() == IrcCommand::Pong);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createPong("arg"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Pong);
     QVERIFY(cmd->toString().contains(QRegExp("\\bPONG\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\barg\\b")));
 }
 
 void tst_IrcCommand::testQuit()
 {
-    IrcCommand* cmd = IrcCommand::createQuit();
-    QVERIFY(cmd->type() == IrcCommand::Quit);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createQuit("reason"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Quit);
     QVERIFY(cmd->toString().contains(QRegExp("\\bQUIT\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\breason\\b")));
 }
 
 void tst_IrcCommand::testQuote()
 {
-    IrcCommand* cmd = IrcCommand::createQuote("CUSTOM");
-    QVERIFY(cmd->type() == IrcCommand::Quote);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bCUSTOM\\b")));
-    delete cmd;
+    QScopedPointer<IrcCommand> cmd1(IrcCommand::createQuote("CUSTOM"));
+    QVERIFY(cmd1.data());
+
+    QCOMPARE(cmd1->type(), IrcCommand::Quote);
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bCUSTOM\\b")));
+
+    QScopedPointer<IrcCommand> cmd2(IrcCommand::createQuote(QStringList() << "FOO" << "BAR"));
+    QVERIFY(cmd2.data());
+
+    QCOMPARE(cmd2->type(), IrcCommand::Quote);
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bFOO\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bBAR\\b")));
 }
 
 void tst_IrcCommand::testStats()
 {
-    IrcCommand* cmd = IrcCommand::createStats("qry");
-    QVERIFY(cmd->type() == IrcCommand::Stats);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createStats("query", "server"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Stats);
     QVERIFY(cmd->toString().contains(QRegExp("\\bSTATS\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bquery\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testTime()
 {
-    IrcCommand* cmd = IrcCommand::createTime();
-    QVERIFY(cmd->type() == IrcCommand::Time);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createTime("server"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Time);
     QVERIFY(cmd->toString().contains(QRegExp("\\bTIME\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testTopic()
 {
-    IrcCommand* cmd = IrcCommand::createTopic("chan");
-    QVERIFY(cmd->type() == IrcCommand::Topic);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createTopic("chan", "topic"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Topic);
     QVERIFY(cmd->toString().contains(QRegExp("\\bTOPIC\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bchan\\b")));
+    QVERIFY(cmd->toString().contains(QRegExp("\\btopic\\b")));
 }
 
 void tst_IrcCommand::testTrace()
 {
-    IrcCommand* cmd = IrcCommand::createTrace();
-    QVERIFY(cmd->type() == IrcCommand::Trace);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createTrace("target"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Trace);
     QVERIFY(cmd->toString().contains(QRegExp("\\bTRACE\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\btarget\\b")));
 }
 
 void tst_IrcCommand::testUsers()
 {
-    IrcCommand* cmd = IrcCommand::createUsers();
-    QVERIFY(cmd->type() == IrcCommand::Users);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createUsers("server"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Users);
     QVERIFY(cmd->toString().contains(QRegExp("\\bUSERS\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testVersion()
 {
-    IrcCommand* cmd = IrcCommand::createVersion();
-    QVERIFY(cmd->type() == IrcCommand::Version);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createVersion("user"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Version);
     QVERIFY(cmd->toString().contains(QRegExp("\\bVERSION\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\buser\\b")));
 }
 
 void tst_IrcCommand::testWho()
 {
-    IrcCommand* cmd = IrcCommand::createWho("msk");
-    QVERIFY(cmd->type() == IrcCommand::Who);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createWho("mask"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Who);
     QVERIFY(cmd->toString().contains(QRegExp("\\bWHO\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bmask\\b")));
 }
 
 void tst_IrcCommand::testWhois()
 {
-    IrcCommand* cmd = IrcCommand::createWhois("usr");
-    QVERIFY(cmd->type() == IrcCommand::Whois);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createWhois("mask"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Whois);
     QVERIFY(cmd->toString().contains(QRegExp("\\bWHOIS\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bmask\\b")));
 }
 
 void tst_IrcCommand::testWhowas()
 {
-    IrcCommand* cmd = IrcCommand::createWhowas("usr");
-    QVERIFY(cmd->type() == IrcCommand::Whowas);
+    QScopedPointer<IrcCommand> cmd(IrcCommand::createWhowas("mask"));
+    QVERIFY(cmd.data());
+
+    QCOMPARE(cmd->type(), IrcCommand::Whowas);
     QVERIFY(cmd->toString().contains(QRegExp("\\bWHOWAS\\b")));
-    delete cmd;
+    QVERIFY(cmd->toString().contains(QRegExp("\\bmask\\b")));
 }
 
 QTEST_MAIN(tst_IrcCommand)
