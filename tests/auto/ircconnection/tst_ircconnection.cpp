@@ -802,6 +802,12 @@ void tst_IrcConnection::testMessages()
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(modeMessageSpy.count(), 1);
 
+    waitForWritten(":moorcock.freenode.net 324 communi #communi +ms\r\n");
+    messageCount += 2; // RPL_CHANNELMODEIS + IrcModeMessage
+    QCOMPARE(messageSpy.count(), messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+    QCOMPARE(modeMessageSpy.count(), 2);
+
     waitForWritten(":qtassistant!jpnurmi@qt/jpnurmi/bot/qtassistant PART #communi\r\n");
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(partMessageSpy.count(), 1);
