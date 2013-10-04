@@ -77,6 +77,8 @@ private slots:
 
     void testMessageFilter();
     void testCommandFilter();
+
+    void testWarnings();
 };
 
 void tst_IrcConnection::testDefaults()
@@ -1158,6 +1160,29 @@ void tst_IrcConnection::testCommandFilter()
     connection->sendCommand(IrcCommand::createJoin("#qt"));
     QCOMPARE(filter1->commandFiltered, 0);
     QVERIFY(protocol->written);
+}
+
+void tst_IrcConnection::testWarnings()
+{
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    QVERIFY(connection->isActive());
+
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setHost() has no effect until re-connect");
+    connection->setHost("foo");
+
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setPort() has no effect until re-connect");
+    connection->setPort(1234);
+
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setUserName() has no effect until re-connect");
+    connection->setUserName("foo");
+
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setRealName() has no effect until re-connect");
+    connection->setRealName("foo");
+
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setPassword() has no effect until re-connect");
+    connection->setPassword("foo");
 }
 
 QTEST_MAIN(tst_IrcConnection)
