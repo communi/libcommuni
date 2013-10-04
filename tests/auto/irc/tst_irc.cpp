@@ -15,6 +15,7 @@ class tst_Irc : public QObject
     Q_OBJECT
 
 private slots:
+    void testCreation();
     void testVersion();
 
     void testCodeToString_data();
@@ -25,6 +26,15 @@ private slots:
     void testPrefix_data();
     void testPrefix();
 };
+
+void tst_Irc::testCreation()
+{
+    Irc ircStatic;
+    Q_UNUSED(ircStatic);
+
+    QScopedPointer<Irc> ircDynamic(new Irc);
+    Q_UNUSED(ircDynamic);
+}
 
 void tst_Irc::testVersion()
 {
@@ -60,9 +70,9 @@ void tst_Irc::testMetaObject()
 {
     Irc irc;
 
-    QVERIFY(irc.staticMetaObject.indexOfEnumerator("Code") != -1);
-    QVERIFY(irc.staticMetaObject.indexOfEnumerator("Color") != -1);
-    QVERIFY(irc.staticMetaObject.indexOfEnumerator("DataRole") != -1);
+    QVERIFY(Irc::staticMetaObject.indexOfEnumerator("Code") != -1);
+    QVERIFY(Irc::staticMetaObject.indexOfEnumerator("Color") != -1);
+    QVERIFY(Irc::staticMetaObject.indexOfEnumerator("DataRole") != -1);
 
     QString ver;
     QVERIFY(QMetaObject::invokeMethod(&irc, "version", Q_RETURN_ARG(QString, ver)));
