@@ -13,6 +13,8 @@
 */
 
 #include "irc.h"
+#include "irccommand.h"
+#include "ircconnection.h"
 #include "ircmessage_p.h"
 #include <QMetaEnum>
 #include <QDebug>
@@ -191,6 +193,44 @@ QString Irc::hostFromPrefix(const QString& prefix)
     QString host;
     IrcMessagePrivate::parsePrefix(prefix, 0, 0, &host);
     return host;
+}
+
+/*!
+    Registers IrcCore types to the Qt meta-system.
+
+    \sa qRegisterMetaType()
+ */
+void Irc::registerMetaTypes()
+{
+    qRegisterMetaType<IrcConnection*>("IrcConnection*");
+    qRegisterMetaType<IrcConnection::Status>("IrcConnection::Status");
+
+    qRegisterMetaType<IrcCommand*>("IrcNetwork*");
+
+    qRegisterMetaType<IrcCommand*>("IrcCommand*");
+    qRegisterMetaType<IrcCommand::Type>("IrcCommand::Type");
+
+    qRegisterMetaType<IrcMessage*>("IrcMessage*");
+    qRegisterMetaType<IrcMessage::Type>("IrcMessage::Type");
+
+    qRegisterMetaType<IrcCapabilityMessage*>("IrcCapabilityMessage*");
+    qRegisterMetaType<IrcErrorMessage*>("IrcErrorMessage*");
+    qRegisterMetaType<IrcInviteMessage*>("IrcInviteMessage*");
+    qRegisterMetaType<IrcJoinMessage*>("IrcJoinMessage*");
+    qRegisterMetaType<IrcKickMessage*>("IrcKickMessage*");
+    qRegisterMetaType<IrcModeMessage*>("IrcModeMessage*");
+    qRegisterMetaType<IrcNamesMessage*>("IrcNamesMessage*");
+    qRegisterMetaType<IrcNickMessage*>("IrcNickMessage*");
+    qRegisterMetaType<IrcNoticeMessage*>("IrcNoticeMessage*");
+    qRegisterMetaType<IrcNumericMessage*>("IrcNumericMessage*");
+    qRegisterMetaType<IrcMotdMessage*>("IrcMotdMessage*");
+    qRegisterMetaType<IrcPartMessage*>("IrcPartMessage*");
+    qRegisterMetaType<IrcPingMessage*>("IrcPingMessage*");
+    qRegisterMetaType<IrcPongMessage*>("IrcPongMessage*");
+    qRegisterMetaType<IrcPrivateMessage*>("IrcPrivateMessage*");
+    qRegisterMetaType<IrcQuitMessage*>("IrcQuitMessage*");
+    qRegisterMetaType<IrcTopicMessage*>("IrcTopicMessage*");
+
 }
 
 /*!

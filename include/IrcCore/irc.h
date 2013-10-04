@@ -35,6 +35,8 @@ public:
     Q_INVOKABLE static QString identFromPrefix(const QString& prefix);
     Q_INVOKABLE static QString hostFromPrefix(const QString& prefix);
 
+    Q_INVOKABLE static void registerMetaTypes();
+
     enum Code {
         RPL_WELCOME = 1,
         RPL_YOURHOST = 2,

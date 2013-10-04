@@ -111,7 +111,7 @@ void tst_IrcMessage::testPrefix()
 
 void tst_IrcMessage::testParameters_data()
 {
-    qRegisterMetaType<IrcMessage::Type>();
+    Irc::registerMetaTypes();
 
     QTest::addColumn<QString>("prefix");
     QTest::addColumn<QString>("command");

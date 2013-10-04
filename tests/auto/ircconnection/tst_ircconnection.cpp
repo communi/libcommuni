@@ -349,7 +349,7 @@ void tst_IrcConnection::testStatus()
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    qRegisterMetaType<IrcConnection::Status>("IrcConnection::Status");
+    Irc::registerMetaTypes();
 
     // tst_ClientServer::init() opens the connection
     QCOMPARE(connection->status(), IrcConnection::Connecting);
@@ -469,7 +469,7 @@ void tst_IrcConnection::testConnection()
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    qRegisterMetaType<IrcConnection::Status>();
+    Irc::registerMetaTypes();
 
     // tst_ClientServer::init() opens the connection
     QVERIFY(connection->isActive());
@@ -519,24 +519,7 @@ void tst_IrcConnection::testMessages()
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    qRegisterMetaType<IrcMessage*>("IrcMessage*");
-    qRegisterMetaType<IrcCapabilityMessage*>("IrcCapabilityMessage*");
-    qRegisterMetaType<IrcErrorMessage*>("IrcErrorMessage*");
-    qRegisterMetaType<IrcInviteMessage*>("IrcInviteMessage*");
-    qRegisterMetaType<IrcJoinMessage*>("IrcJoinMessage*");
-    qRegisterMetaType<IrcKickMessage*>("IrcKickMessage*");
-    qRegisterMetaType<IrcModeMessage*>("IrcModeMessage*");
-    qRegisterMetaType<IrcNamesMessage*>("IrcNamesMessage*");
-    qRegisterMetaType<IrcNickMessage*>("IrcNickMessage*");
-    qRegisterMetaType<IrcNoticeMessage*>("IrcNoticeMessage*");
-    qRegisterMetaType<IrcNumericMessage*>("IrcNumericMessage*");
-    qRegisterMetaType<IrcMotdMessage*>("IrcMotdMessage*");
-    qRegisterMetaType<IrcPartMessage*>("IrcPartMessage*");
-    qRegisterMetaType<IrcPingMessage*>("IrcPingMessage*");
-    qRegisterMetaType<IrcPongMessage*>("IrcPongMessage*");
-    qRegisterMetaType<IrcPrivateMessage*>("IrcPrivateMessage*");
-    qRegisterMetaType<IrcQuitMessage*>("IrcQuitMessage*");
-    qRegisterMetaType<IrcTopicMessage*>("IrcTopicMessage*");
+    Irc::registerMetaTypes();
 
     QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
     QSignalSpy capabilityMessageSpy(connection, SIGNAL(capabilityMessageReceived(IrcCapabilityMessage*)));
@@ -860,7 +843,8 @@ void tst_IrcConnection::testMessageFilter()
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    qRegisterMetaType<IrcMessage*>();
+    Irc::registerMetaTypes();
+
     QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
     QVERIFY(messageSpy.isValid());
     int messageCount = 0;
