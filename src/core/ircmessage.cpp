@@ -1299,7 +1299,7 @@ QStringList IrcMotdMessage::lines() const
 bool IrcMotdMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->connection && !prefix().isEmpty() && !d->params().isEmpty();
+    return IrcMessage::isValid() && !d->params().isEmpty();
 }
 
 /*!
@@ -1345,7 +1345,7 @@ QStringList IrcNamesMessage::names() const
 bool IrcNamesMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->connection && !prefix().isEmpty() && !d->params().isEmpty();
+    return IrcMessage::isValid() && !d->params().isEmpty();
 }
 
 #ifndef QT_NO_DEBUG_STREAM
