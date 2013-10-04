@@ -818,9 +818,9 @@ QDebug operator<<(QDebug debug, const IrcCommand* command)
     if (!command)
         return debug << "IrcCommand(0x0) ";
     debug.nospace() << command->metaObject()->className() << '(' << (void*) command;
-    debug.nospace() << ", type=" << command->type();
     if (!command->objectName().isEmpty())
         debug.nospace() << ", name=" << qPrintable(command->objectName());
+    debug.nospace() << ", type=" << command->type();
     QString str = command->toString();
     if (!str.isEmpty())
         debug.nospace() << ", " << str.left(20);

@@ -73,6 +73,11 @@ void tst_DebugOutput::testIrcCommand()
     QVERIFY(QRegExp("IrcCommand\\(0x[0-9A-Fa-f]+, type=Quit, \"QUIT :\"\\) ").exactMatch(str));
     str.clear();
 
+    command.setObjectName("foo");
+    dbg << &command;
+    QVERIFY(QRegExp("IrcCommand\\(0x[0-9A-Fa-f]+, name=foo, type=Quit, \"QUIT :\"\\) ").exactMatch(str));
+    str.clear();
+
     dbg << IrcCommand::Join;
     QCOMPARE(str.trimmed(), QString::fromLatin1("Join"));
     str.clear();
