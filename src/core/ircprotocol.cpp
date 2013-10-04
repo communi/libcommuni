@@ -181,8 +181,8 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             }
             if (!requestedCaps.isEmpty())
                 connection->sendCommand(IrcCommand::createCapability("REQ", requestedCaps));
-
-            QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
+            else
+                QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
         }
     } else if (subCommand == "ACK" || subCommand == "NAK") {
         bool auth = false;

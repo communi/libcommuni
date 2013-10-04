@@ -23,6 +23,11 @@
 #include "tst_data.h"
 #include "tst_clientserver.h"
 
+class FriendlyConnection : public IrcConnection
+{
+    friend class tst_IrcConnection;
+};
+
 class tst_IrcConnection : public tst_ClientServer
 {
     Q_OBJECT
@@ -58,6 +63,9 @@ private slots:
     void testSocket();
 
     void testSecure();
+    void testSasl();
+
+    void testOpen();
 
     void testStatus();
     void testConnection();
@@ -342,6 +350,93 @@ void tst_IrcConnection::testSecure()
     QVERIFY(!connection.socket()->inherits("QSslSocket"));
     QCOMPARE(spy.count(), 2);
     QVERIFY(!spy.last().last().toBool());
+}
+
+void tst_IrcConnection::testSasl()
+{
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    IrcProtocol* protocol = static_cast<FriendlyConnection*>(connection.data())->protocol();
+    QVERIFY(protocol);
+
+    QVERIFY(!IrcConnection::supportedSaslMechanisms().contains("UNKNOWN"));
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSaslMechanism(): unsupported mechanism: 'UNKNOWN'");
+    connection->setSaslMechanism("UNKNOWN");
+    QVERIFY(connection->saslMechanism().isEmpty());
+
+    QVERIFY(IrcConnection::supportedSaslMechanisms().contains("PLAIN"));
+    connection->setSaslMechanism("PLAIN");
+    QCOMPARE(connection->saslMechanism(), QString("PLAIN"));
+
+    waitForWritten(":irc.freenode.net CAP * LS :sasl\r\n");
+    QVERIFY(clientSocket->waitForBytesWritten());
+    serverSocket->waitForReadyRead();
+    QVERIFY(serverSocket->readAll().contains("CAP REQ :sasl"));
+
+    // do not resume handshake too early
+    QCoreApplication::sendPostedEvents(protocol, QEvent::MetaCall);
+    QVERIFY(!clientSocket->waitForBytesWritten());
+
+    waitForWritten(":irc.freenode.net CAP user ACK :sasl\r\n");
+    QVERIFY(clientSocket->waitForBytesWritten());
+    serverSocket->waitForReadyRead();
+    QVERIFY(serverSocket->readAll().contains("AUTHENTICATE PLAIN"));
+
+    waitForWritten("AUTHENTICATE +\r\n");
+    QVERIFY(clientSocket->waitForBytesWritten());
+    serverSocket->waitForReadyRead();
+
+    QByteArray response = serverSocket->readAll();
+    int index = response.indexOf("AUTHENTICATE");
+    QVERIFY(index != -1);
+    QByteArray secret = response.mid(index + 13);
+    index = secret.indexOf("\r\n");
+    QVERIFY(index != -1);
+    secret.truncate(index + 1);
+    secret = QByteArray::fromBase64(secret);
+    QByteArray expected = connection->userName().toUtf8() + '\0' +
+                          connection->userName().toUtf8() + '\0' +
+                          connection->password().toUtf8();
+    QCOMPARE(secret, expected);
+
+    // resume handshake
+    QCoreApplication::sendPostedEvents(protocol, QEvent::MetaCall);
+
+    QVERIFY(clientSocket->waitForBytesWritten());
+    serverSocket->waitForReadyRead();
+    QVERIFY(serverSocket->readAll().contains("CAP END"));
+
+    waitForWritten(":irc.freenode.net 900 user nick!user@host nick :You are now logged in as user.\r\n");
+    waitForWritten(":irc.freenode.net 903 user :SASL authentication successful\r\n");
+    waitForWritten(":irc.freenode.net 001 user :Welcome to the freenode Internet Relay Chat Network user\r\n");
+}
+
+void tst_IrcConnection::testOpen()
+{
+    IrcConnection connection;
+    QTest::ignoreMessage(QtCriticalMsg, "IrcConnection::open(): host is empty!");
+    connection.open();
+    QCOMPARE(connection.status(), IrcConnection::Inactive);
+
+    connection.setHost("irc.ser.ver");
+    QTest::ignoreMessage(QtCriticalMsg, "IrcConnection::open(): userName is empty!");
+    connection.open();
+    QCOMPARE(connection.status(), IrcConnection::Inactive);
+
+    connection.setUserName("user");
+    QTest::ignoreMessage(QtCriticalMsg, "IrcConnection::open(): nickName is empty!");
+    connection.open();
+    QCOMPARE(connection.status(), IrcConnection::Inactive);
+
+    connection.setNickName("nick");
+    QTest::ignoreMessage(QtCriticalMsg, "IrcConnection::open(): realName is empty!");
+    connection.open();
+    QCOMPARE(connection.status(), IrcConnection::Inactive);
+
+    connection.setRealName("real");
+    connection.open();
+    QVERIFY(connection.status() != IrcConnection::Inactive);
 }
 
 void tst_IrcConnection::testStatus()
@@ -957,11 +1052,6 @@ public:
     }
 
     bool written;
-};
-
-class FriendlyConnection : public IrcConnection
-{
-    friend class tst_IrcConnection;
 };
 
 void tst_IrcConnection::testCommandFilter()

@@ -18,6 +18,7 @@ void tst_ClientServer::init()
     connection->setUserName("user");
     connection->setNickName("nick");
     connection->setRealName("real");
+    connection->setPassword("secret");
     connection->setHost(server->serverAddress().toString());
     connection->setPort(server->serverPort());
 
