@@ -28,6 +28,22 @@ class FriendlyConnection : public IrcConnection
     friend class tst_IrcConnection;
 };
 
+class TestProtocol : public IrcProtocol
+{
+public:
+    TestProtocol(IrcConnection* connection) : IrcProtocol(connection)
+    {
+    }
+
+    virtual bool write(const QByteArray& data)
+    {
+        written = data;
+        return IrcProtocol::write(data);
+    }
+
+    QByteArray written;
+};
+
 class tst_IrcConnection : public tst_ClientServer
 {
     Q_OBJECT
@@ -79,6 +95,8 @@ private slots:
     void testCommandFilter();
 
     void testWarnings();
+
+    void testCtcp();
 };
 
 void tst_IrcConnection::testDefaults()
@@ -510,7 +528,7 @@ void tst_IrcConnection::testStatus()
 
     // trigger an error
     serverSocket->close();
-    clientSocket->waitForDisconnected();
+    QVERIFY(clientSocket->waitForDisconnected(100));
     QVERIFY(!connection->isConnected());
     QVERIFY(!connection->isActive());
 
@@ -545,7 +563,7 @@ void tst_IrcConnection::testStatus()
     // trigger an error - automatic reconnect
     connection->setReconnectDelay(1);
     serverSocket->close();
-    clientSocket->waitForDisconnected();
+    QVERIFY(clientSocket->waitForDisconnected(100));
     QVERIFY(!connection->isConnected());
     QVERIFY(!connection->isActive());
 
@@ -553,12 +571,29 @@ void tst_IrcConnection::testStatus()
     QCOMPARE(statusSpy.at(statusCount++).at(0).value<IrcConnection::Status>(), IrcConnection::Waiting);
     QCOMPARE(statusSpy.count(), statusCount);
 
-    connection->close();
-    QVERIFY(!connection->isActive());
+    QEventLoop reconnectLoop;
+    QTimer::singleShot(2000, &reconnectLoop, SLOT(quit()));
+    connect(connection, SIGNAL(statusChanged(IrcConnection::Status)), &reconnectLoop, SLOT(quit()));
+    reconnectLoop.exec();
+
+    QVERIFY(connection->isActive());
     QVERIFY(!connection->isConnected());
-    QCOMPARE(connection->status(), IrcConnection::Closed);
+    QCOMPARE(connection->status(), IrcConnection::Connecting);
     QCOMPARE(statusSpy.count(), ++statusCount);
-    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Closed);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connecting);
+
+    waitForOpened();
+    QCOMPARE(connectingSpy.count(), ++connectingCount);
+
+    // trigger an error _after_ quit -> no automatic reconnect
+    connection->quit();
+    serverSocket->close();
+    QVERIFY(clientSocket->waitForDisconnected(100));
+    QVERIFY(!connection->isConnected());
+    QVERIFY(!connection->isActive());
+    QCOMPARE(statusSpy.at(statusCount++).at(0).value<IrcConnection::Status>(), IrcConnection::Closing);
+    QCOMPARE(statusSpy.at(statusCount++).at(0).value<IrcConnection::Status>(), IrcConnection::Closed);
+    QCOMPARE(statusSpy.count(), statusCount);
 }
 
 void tst_IrcConnection::testConnection()
@@ -567,6 +602,9 @@ void tst_IrcConnection::testConnection()
         Q4SKIP("The address is not available");
 
     Irc::registerMetaTypes();
+
+    TestProtocol* protocol = new TestProtocol(connection);
+    static_cast<FriendlyConnection*>(connection.data())->setProtocol(protocol);
 
     // tst_ClientServer::init() opens the connection
     QVERIFY(connection->isActive());
@@ -604,6 +642,21 @@ void tst_IrcConnection::testConnection()
     QVERIFY(connection->isActive());
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connecting);
+
+    waitForOpened();
+    waitForWritten(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n");
+    QVERIFY(connection->isActive());
+    QVERIFY(connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connected);
+
+    protocol->written.clear();
+    connection->setNickName("communi");
+    QVERIFY(protocol->written.contains("NICK"));
+    QVERIFY(protocol->written.contains("communi"));
+
+    protocol->written.clear();
+    connection->quit();
+    QVERIFY(protocol->written.contains("QUIT"));
 
     connection->close();
     QVERIFY(!connection->isActive());
@@ -911,6 +964,7 @@ class TestFilter : public QObject, public IrcMessageFilter, public IrcCommandFil
 public:
     void clear()
     {
+        commitSuicide = false;
         messageFiltered = 0;
         commandFiltered = 0;
         messageFilterEnabled = false;
@@ -920,15 +974,20 @@ public:
     bool messageFilter(IrcMessage*)
     {
         ++messageFiltered;
+        if (commitSuicide)
+            delete this;
         return messageFilterEnabled;
     }
 
     bool commandFilter(IrcCommand*)
     {
         ++commandFiltered;
+        if (commitSuicide)
+            delete this;
         return commandFilterEnabled;
     }
 
+    bool commitSuicide;
     int messageFiltered;
     int commandFiltered;
     bool messageFilterEnabled;
@@ -1040,22 +1099,6 @@ void tst_IrcConnection::testMessageFilter()
     QCOMPARE(messageSpy.count(), ++messageCount);
 }
 
-class TestProtocol : public IrcProtocol
-{
-public:
-    TestProtocol(IrcConnection* connection) : IrcProtocol(connection), written(false)
-    {
-    }
-
-    virtual bool write(const QByteArray& data)
-    {
-        written = true;
-        return IrcProtocol::write(data);
-    }
-
-    bool written;
-};
-
 void tst_IrcConnection::testCommandFilter()
 {
     if (!serverSocket)
@@ -1064,13 +1107,13 @@ void tst_IrcConnection::testCommandFilter()
     TestProtocol* protocol = new TestProtocol(connection);
     static_cast<FriendlyConnection*>(connection.data())->setProtocol(protocol);
 
-    QScopedPointer<TestFilter> filter1(new TestFilter);
+    TestFilter* filter1 = new TestFilter; // suicidal
     QScopedPointer<TestFilter> filter2(new TestFilter);
     QScopedPointer<TestFilter> filter3(new TestFilter);
 
     filter1->clear(); filter2->clear(); filter3->clear();
 
-    connection->installCommandFilter(filter1.data());
+    connection->installCommandFilter(filter1);
     connection->installCommandFilter(filter2.data());
     connection->installCommandFilter(filter3.data());
 
@@ -1078,9 +1121,9 @@ void tst_IrcConnection::testCommandFilter()
     QCOMPARE(filter1->commandFiltered, 1);
     QCOMPARE(filter2->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
-    QVERIFY(protocol->written);
+    QVERIFY(!protocol->written.isEmpty());
 
-    protocol->written = false;
+    protocol->written.clear();
     filter1->clear(); filter2->clear(); filter3->clear();
     filter3->commandFilterEnabled = true;
 
@@ -1088,9 +1131,9 @@ void tst_IrcConnection::testCommandFilter()
     QCOMPARE(filter1->commandFiltered, 0);
     QCOMPARE(filter2->commandFiltered, 0);
     QCOMPARE(filter3->commandFiltered, 1);
-    QVERIFY(!protocol->written);
+    QVERIFY(protocol->written.isEmpty());
 
-    protocol->written = false;
+    protocol->written.clear();
     filter1->clear(); filter2->clear(); filter3->clear();
     filter2->commandFilterEnabled = true;
 
@@ -1098,9 +1141,9 @@ void tst_IrcConnection::testCommandFilter()
     QCOMPARE(filter1->commandFiltered, 0);
     QCOMPARE(filter2->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
-    QVERIFY(!protocol->written);
+    QVERIFY(protocol->written.isEmpty());
 
-    protocol->written = false;
+    protocol->written.clear();
     filter1->clear(); filter2->clear(); filter3->clear();
     filter1->commandFilterEnabled = true;
 
@@ -1108,58 +1151,66 @@ void tst_IrcConnection::testCommandFilter()
     QCOMPARE(filter1->commandFiltered, 1);
     QCOMPARE(filter2->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
-    QVERIFY(!protocol->written);
+    QVERIFY(protocol->written.isEmpty());
 
-    protocol->written = false;
+    protocol->written.clear();
     filter1->clear(); filter2->clear(); filter3->clear();
 
     connection->sendCommand(IrcCommand::createPart("#communi"));
     QCOMPARE(filter1->commandFiltered, 1);
     QCOMPARE(filter2->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
-    QVERIFY(protocol->written);
+    QVERIFY(!protocol->written.isEmpty());
 
     // a deleted filter gets removed
     filter2.reset();
     filter1->clear(); filter3->clear();
-    protocol->written = false;
+    protocol->written.clear();
 
     connection->sendCommand(IrcCommand::createPart("#qt"));
     QCOMPARE(filter1->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
-    QVERIFY(protocol->written);
+    QVERIFY(!protocol->written.isEmpty());
 
     // double filters
-    connection->installCommandFilter(filter1.data());
+    connection->installCommandFilter(filter1);
     connection->installCommandFilter(filter3.data());
     filter1->clear(); filter3->clear();
-    protocol->written = false;
+    protocol->written.clear();
 
     connection->sendCommand(IrcCommand::createJoin("#freenode"));
     QCOMPARE(filter1->commandFiltered, 2);
     QCOMPARE(filter3->commandFiltered, 2);
-    QVERIFY(protocol->written);
+    QVERIFY(!protocol->written.isEmpty());
 
     // remove & enable double filter
     filter1->clear(); filter3->clear();
     filter1->commandFilterEnabled = true;
     connection->removeCommandFilter(filter3.data());
-    protocol->written = false;
+    protocol->written.clear();
 
     connection->sendCommand(IrcCommand::createJoin("#communi"));
     QCOMPARE(filter1->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 0);
-    QVERIFY(!protocol->written);
+    QVERIFY(protocol->written.isEmpty());
 
     // remove & delete
     filter3.reset();
     filter1->clear();
-    connection->removeCommandFilter(filter1.data());
-    protocol->written = false;
+    connection->removeCommandFilter(filter1);
+    protocol->written.clear();
 
     connection->sendCommand(IrcCommand::createJoin("#qt"));
     QCOMPARE(filter1->commandFiltered, 0);
-    QVERIFY(protocol->written);
+    QVERIFY(!protocol->written.isEmpty());
+
+    // commit a suicide
+    filter1->commitSuicide = true;
+    connection->installCommandFilter(filter1);
+    protocol->written.clear();
+
+    connection->sendCommand(IrcCommand::createPart("#qt"));
+    QVERIFY(!protocol->written.isEmpty());
 }
 
 void tst_IrcConnection::testWarnings()
@@ -1183,6 +1234,150 @@ void tst_IrcConnection::testWarnings()
 
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setPassword() has no effect until re-connect");
     connection->setPassword("foo");
+}
+
+class FakeQmlConnection : public IrcConnection
+{
+    Q_OBJECT
+    friend class tst_IrcConnection;
+
+public slots:
+    QVariant createCtcpReply(const QVariant& request)
+    {
+        return QVariant::fromValue(IrcConnection::createCtcpReply(request.value<IrcPrivateMessage*>()));
+    }
+};
+
+void tst_IrcConnection::testCtcp()
+{
+    FriendlyConnection* friendly = static_cast<FriendlyConnection*>(connection.data());
+
+    // PING
+    IrcMessage* msg = IrcMessage::fromData(":nick!user@host PRIVMSG communi :\1PING timestamp\1", connection);
+    QScopedPointer<IrcPrivateMessage> pingRequest(qobject_cast<IrcPrivateMessage*>(msg));
+    QVERIFY(pingRequest.data());
+
+    QScopedPointer<IrcCommand> pingReply(friendly->createCtcpReply(pingRequest.data()));
+    QVERIFY(pingReply.data());
+    QCOMPARE(pingReply->type(), IrcCommand::CtcpReply);
+    QCOMPARE(pingReply->toString(), QString("NOTICE nick :\1PING timestamp\1"));
+
+    // TIME
+    msg = IrcMessage::fromData(":nick!user@host PRIVMSG communi :\1TIME\1", connection);
+    QScopedPointer<IrcPrivateMessage> timeRequest(qobject_cast<IrcPrivateMessage*>(msg));
+    QVERIFY(timeRequest);
+
+    QScopedPointer<IrcCommand> timeReply(friendly->createCtcpReply(timeRequest.data()));
+    QVERIFY(timeReply.data());
+    QCOMPARE(timeReply->type(), IrcCommand::CtcpReply);
+    QCOMPARE(timeReply->toString(), QString("NOTICE nick :\1TIME %1\1").arg(QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat)));
+
+    // VERSION
+    msg = IrcMessage::fromData(":nick!user@host PRIVMSG communi :\1VERSION\1", connection);
+    QScopedPointer<IrcPrivateMessage> versionRequest(qobject_cast<IrcPrivateMessage*>(msg));
+    QVERIFY(versionRequest.data());
+
+    QScopedPointer<IrcCommand> versionReply(friendly->createCtcpReply(versionRequest.data()));
+    QVERIFY(versionReply.data());
+    QCOMPARE(versionReply->type(), IrcCommand::CtcpReply);
+    QVERIFY(versionReply->toString().startsWith("NOTICE nick :\1VERSION "));
+    QVERIFY(versionReply->toString().contains(Irc::version()));
+    QVERIFY(versionReply->toString().endsWith("\1"));
+
+    // SOURCE
+    msg = IrcMessage::fromData(":nick!user@host PRIVMSG communi :\1SOURCE\1", connection);
+    QScopedPointer<IrcPrivateMessage> sourceRequest(qobject_cast<IrcPrivateMessage*>(msg));
+    QVERIFY(sourceRequest.data());
+
+    QScopedPointer<IrcCommand> sourceReply(friendly->createCtcpReply(sourceRequest.data()));
+    QVERIFY(sourceReply.data());
+    QCOMPARE(sourceReply->type(), IrcCommand::CtcpReply);
+    QVERIFY(sourceReply->toString().startsWith("NOTICE nick :\1SOURCE "));
+    QVERIFY(sourceReply->toString().contains("http://"));
+    QVERIFY(sourceReply->toString().endsWith("\1"));
+
+    // CLIENTINFO
+    msg = IrcMessage::fromData(":nick!user@host PRIVMSG communi :\1CLIENTINFO\1", connection);
+    QScopedPointer<IrcPrivateMessage> infoRequest(qobject_cast<IrcPrivateMessage*>(msg));
+    QVERIFY(infoRequest.data());
+
+    QScopedPointer<IrcCommand> infoReply(friendly->createCtcpReply(infoRequest.data()));
+    QVERIFY(infoReply.data());
+    QCOMPARE(infoReply->type(), IrcCommand::CtcpReply);
+    QVERIFY(infoReply->toString().startsWith("NOTICE nick :\1CLIENTINFO "));
+    QVERIFY(infoReply->toString().contains("PING"));
+    QVERIFY(infoReply->toString().contains("TIME"));
+    QVERIFY(infoReply->toString().contains("VERSION"));
+    QVERIFY(infoReply->toString().contains("SOURCE"));
+    QVERIFY(infoReply->toString().endsWith("\1"));
+
+    // QML compatibility
+    FakeQmlConnection qmlConnection;
+    qmlConnection.setUserName("user");
+    qmlConnection.setNickName("nick");
+    qmlConnection.setRealName("real");
+    qmlConnection.setPassword("secret");
+    qmlConnection.setHost(server->serverAddress().toString());
+    qmlConnection.setPort(server->serverPort());
+
+    TestProtocol* qmlProtocol = new TestProtocol(&qmlConnection);
+    qmlConnection.setProtocol(qmlProtocol);
+    qmlConnection.open();
+
+    if (!server->waitForNewConnection(200))
+        QEXPECT_FAIL("", "The address is not available", Abort);
+    QAbstractSocket* qmlServerSocket = server->nextPendingConnection();
+    QVERIFY(qmlServerSocket);
+    QAbstractSocket* qmlClientSocket = qmlConnection.socket();
+    QVERIFY(qmlClientSocket);
+    QVERIFY(qmlClientSocket->waitForConnected());
+
+    qmlProtocol->written.clear();
+    qmlServerSocket->write(":nick!user@host PRIVMSG communi :\1PING qml\1\r\n");
+    QVERIFY(qmlServerSocket->waitForBytesWritten());
+    QVERIFY(qmlClientSocket->waitForReadyRead());
+    QCOMPARE(qmlProtocol->written, QByteArray("NOTICE nick :\1PING qml\1"));
+
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    TestProtocol* protocol = new TestProtocol(friendly);
+    friendly->setProtocol(protocol);
+
+    // PING
+    protocol->written.clear();
+    waitForWritten(":nick!user@host PRIVMSG communi :\1PING timestamp\1\r\n");
+    QCOMPARE(protocol->written, QByteArray("NOTICE nick :\1PING timestamp\1"));
+
+    // TIME
+    protocol->written.clear();
+    waitForWritten(":nick!user@host PRIVMSG communi :\1TIME\1\r\n");
+    QVERIFY(protocol->written.startsWith("NOTICE nick :\1TIME "));
+    QVERIFY(protocol->written.endsWith("\1"));
+
+    // VERSION
+    protocol->written.clear();
+    waitForWritten(":nick!user@host PRIVMSG communi :\1VERSION\1\r\n");
+    QVERIFY(protocol->written.startsWith("NOTICE nick :\1VERSION "));
+    QVERIFY(protocol->written.contains(Irc::version().toUtf8()));
+    QVERIFY(protocol->written.endsWith("\1"));
+
+    // SOURCE
+    protocol->written.clear();
+    waitForWritten(":nick!user@host PRIVMSG communi :\1SOURCE\1\r\n");
+    QVERIFY(protocol->written.startsWith("NOTICE nick :\1SOURCE "));
+    QVERIFY(protocol->written.contains("http://"));
+    QVERIFY(protocol->written.endsWith("\1"));
+
+    // CLIENTINFO
+    protocol->written.clear();
+    waitForWritten(":nick!user@host PRIVMSG communi :\1CLIENTINFO\1\r\n");
+    QVERIFY(protocol->written.startsWith("NOTICE nick :\1CLIENTINFO "));
+    QVERIFY(protocol->written.contains("PING"));
+    QVERIFY(protocol->written.contains("TIME"));
+    QVERIFY(protocol->written.contains("VERSION"));
+    QVERIFY(protocol->written.contains("SOURCE"));
+    QVERIFY(protocol->written.endsWith("\1"));
 }
 
 QTEST_MAIN(tst_IrcConnection)
