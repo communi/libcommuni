@@ -27,10 +27,7 @@ public:
     IrcMessageDecoder();
     ~IrcMessageDecoder();
 
-    QByteArray encoding() const;
-    void setEncoding(const QByteArray& encoding);
-
-    QString decode(const QByteArray& data) const;
+    QString decode(const QByteArray& data, const QByteArray& encoding) const;
 
 private:
     void initialize();
@@ -39,7 +36,6 @@ private:
 
     struct Data {
         void* detector;
-        QTextCodec* fallback;
     } d;
 };
 

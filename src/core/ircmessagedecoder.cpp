@@ -32,7 +32,6 @@ IRC_CORE_EXPORT bool irc_is_supported_encoding(const QByteArray& encoding)
 IrcMessageDecoder::IrcMessageDecoder()
 {
     initialize();
-    d.fallback = QTextCodec::codecForName("ISO-8859-15");
 }
 
 IrcMessageDecoder::~IrcMessageDecoder()
@@ -40,17 +39,7 @@ IrcMessageDecoder::~IrcMessageDecoder()
     uninitialize();
 }
 
-QByteArray IrcMessageDecoder::encoding() const
-{
-    return d.fallback->name();
-}
-
-void IrcMessageDecoder::setEncoding(const QByteArray& encoding)
-{
-    d.fallback = QTextCodec::codecForName(encoding);
-}
-
-QString IrcMessageDecoder::decode(const QByteArray& data) const
+QString IrcMessageDecoder::decode(const QByteArray& data, const QByteArray& encoding) const
 {
     QTextCodec* codec = 0;
     if (IsUTF8Text(data, data.length())) {
@@ -61,7 +50,7 @@ QString IrcMessageDecoder::decode(const QByteArray& data) const
     }
 
     if (!codec)
-        codec = d.fallback;
+        codec = QTextCodec::codecForName(encoding);
     Q_ASSERT(codec);
     return codec->toUnicode(data);
 }

@@ -160,8 +160,7 @@ QString IrcMessagePrivate::decode(const QByteArray& data, const QByteArray& enco
 {
     // TODO: not thread safe
     static IrcMessageDecoder decoder;
-    decoder.setEncoding(encoding);
-    return decoder.decode(data);
+    return decoder.decode(data, encoding);
 }
 
 bool IrcMessagePrivate::parsePrefix(const QString& prefix, QString* nick, QString* ident, QString* host)
