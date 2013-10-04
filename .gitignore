@@ -8,6 +8,7 @@ doc/html
 /bin
 /qml
 /imports
+/coverage
 *~
 *.o
 *.moc
