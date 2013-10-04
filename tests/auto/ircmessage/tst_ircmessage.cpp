@@ -11,6 +11,8 @@
 #include "ircconnection.h"
 #include "ircprotocol.h"
 #include <QtTest/QtTest>
+#include <QtCore/QTextCodec>
+#include <QtCore/QScopedPointer>
 
 class tst_IrcMessage : public QObject
 {
@@ -19,6 +21,17 @@ class tst_IrcMessage : public QObject
 private slots:
     void testDefaults();
 
+    void testPrefix_data();
+    void testPrefix();
+
+    void testParameters_data();
+    void testParameters();
+
+    void testEncoding_data();
+    void testEncoding();
+
+    void testCapabilityMessage_data();
+    void testCapabilityMessage();
     void testErrorMessage_data();
     void testErrorMessage();
     void testInviteMessage_data();
@@ -27,6 +40,7 @@ private slots:
     void testJoinMessage();
     void testKickMessage_data();
     void testKickMessage();
+    void testNamesMessage();
     void testNickMessage_data();
     void testNickMessage();
     void testNoticeMessage_data();
@@ -35,10 +49,11 @@ private slots:
     void testNumericMessage();
     void testModeMessage_data();
     void testModeMessage();
+    void testMotdMessage();
     void testPartMessage_data();
     void testPartMessage();
-    void testPingMessage(); // <--
-    void testPongMessage(); // <--
+    void testPingMessage();
+    void testPongMessage();
     void testPrivateMessage_data();
     void testPrivateMessage();
     void testQuitMessage_data();
@@ -52,11 +67,142 @@ void tst_IrcMessage::testDefaults()
     IrcMessage msg(0);
     QVERIFY(!msg.isValid());
     QVERIFY(!msg.connection());
-    QVERIFY(msg.type() == IrcMessage::Unknown);
-    QVERIFY(msg.flags() == IrcMessage::None);
+    QCOMPARE(msg.type(), IrcMessage::Unknown);
+    QCOMPARE(msg.flags(), IrcMessage::None);
+    QCOMPARE(msg.encoding(), QByteArray("ISO-8859-15"));
     QVERIFY(msg.prefix().isNull());
+    QVERIFY(msg.nick().isNull());
+    QVERIFY(msg.ident().isNull());
+    QVERIFY(msg.host().isNull());
     QVERIFY(msg.command().isNull());
     QVERIFY(msg.parameters().isEmpty());
+    QVERIFY(msg.toData().isEmpty());
+}
+
+void tst_IrcMessage::testPrefix_data()
+{
+    QTest::addColumn<QString>("prefix");
+    QTest::addColumn<QString>("expected");
+    QTest::addColumn<QString>("nick");
+    QTest::addColumn<QString>("ident");
+    QTest::addColumn<QString>("host");
+
+    QTest::newRow("null") << QString() << QString() << QString() << QString() << QString();
+    QTest::newRow("empty") << QString("") << QString("") << QString() << QString() << QString();
+    QTest::newRow("space") << QString(" ") << QString(" ") << QString() << QString() << QString();
+    QTest::newRow("nick!ident@host") << QString("nick!ident@host") << QString("nick!ident@host") << QString("nick") << QString("ident") << QString("host");
+}
+
+void tst_IrcMessage::testPrefix()
+{
+    QFETCH(QString, prefix);
+    QFETCH(QString, expected);
+    QFETCH(QString, nick);
+    QFETCH(QString, ident);
+    QFETCH(QString, host);
+
+    IrcMessage msg(0);
+    msg.setPrefix(prefix);
+    QCOMPARE(msg.prefix(), expected);
+    QCOMPARE(msg.nick(), nick);
+    QCOMPARE(msg.ident(), ident);
+    QCOMPARE(msg.host(), host);
+}
+
+Q_DECLARE_METATYPE(IrcMessage::Type)
+void tst_IrcMessage::testParameters_data()
+{
+    qRegisterMetaType<IrcMessage::Type>();
+
+    QTest::addColumn<QString>("prefix");
+    QTest::addColumn<QString>("command");
+    QTest::addColumn<QStringList>("params");
+    QTest::addColumn<IrcMessage::Type>("type");
+
+    QTest::newRow("null") << QString() << QString() << QStringList() << IrcMessage::Unknown;
+    QTest::newRow("message") << QString("nick!ident@host") << QString("PRIVMSG") << QStringList("p") << IrcMessage::Private;
+    QTest::newRow("notice") << QString("nick!ident@host") << QString("NOTICE") << QStringList("p") << IrcMessage::Notice;
+}
+
+void tst_IrcMessage::testParameters()
+{
+    QFETCH(QString, prefix);
+    QFETCH(QString, command);
+    QFETCH(QStringList, params);
+    QFETCH(IrcMessage::Type, type);
+
+    IrcConnection connection;
+    QScopedPointer<IrcMessage> message(IrcMessage::fromParameters(prefix, command, params, &connection));
+    QCOMPARE(message->type(), type);
+    QCOMPARE(message->prefix(), prefix);
+    QCOMPARE(message->command(), command);
+    QCOMPARE(message->parameters(), params);
+}
+
+void tst_IrcMessage::testEncoding_data()
+{
+    QTest::addColumn<QByteArray>("encoding");
+    QTest::addColumn<QByteArray>("actual");
+    QTest::addColumn<bool>("supported");
+
+    QTest::newRow("null") << QByteArray() << QByteArray("ISO-8859-15") << false;
+    QTest::newRow("empty") << QByteArray("") << QByteArray("ISO-8859-15") << false;
+    QTest::newRow("space") << QByteArray(" ") << QByteArray("ISO-8859-15") << false;
+    QTest::newRow("invalid") << QByteArray("invalid") << QByteArray("ISO-8859-15") << false;
+    foreach (const QByteArray& codec, QTextCodec::availableCodecs())
+        QTest::newRow(codec) << codec << codec << true;
+}
+
+void tst_IrcMessage::testEncoding()
+{
+    QFETCH(QByteArray, encoding);
+    QFETCH(QByteArray, actual);
+    QFETCH(bool, supported);
+
+    if (!supported)
+        QTest::ignoreMessage(QtWarningMsg, "IrcMessage::setEncoding(): unsupported encoding \"" + encoding + "\" ");
+
+    IrcMessage msg(0);
+    msg.setEncoding(encoding);
+    QCOMPARE(msg.encoding(), actual);
+}
+
+void tst_IrcMessage::testCapabilityMessage_data()
+{
+    QTest::addColumn<bool>("valid");
+    QTest::addColumn<QByteArray>("data");
+    QTest::addColumn<QString>("subCommand");
+    QTest::addColumn<QStringList>("capabilities");
+
+    QTest::newRow("no prefix") << true << QByteArray("CAP") << QString() << QStringList();
+    QTest::newRow("empty prefix") << false << QByteArray(": CAP") << QString() << QStringList();
+    QTest::newRow("no params") << true << QByteArray(":server CAP") << QString() << QStringList();
+
+    QTest::newRow("ls") << true << QByteArray(":server CAP * LS :identify-msg sasl") << QString("LS") << (QStringList() << "identify-msg" << "sasl");
+    QTest::newRow("ack") << true << QByteArray(":server CAP communi ACK :identify-msg") << QString("ACK") << (QStringList() << "identify-msg");
+    QTest::newRow("nak") << true << QByteArray(":server CAP communi NAK :sasl") << QString("NAK") << (QStringList() << "sasl");
+}
+
+void tst_IrcMessage::testCapabilityMessage()
+{
+    QFETCH(bool, valid);
+    QFETCH(QByteArray, data);
+    QFETCH(QString, subCommand);
+    QFETCH(QStringList, capabilities);
+
+    IrcConnection connection;
+    IrcMessage* message = IrcMessage::fromData(data, &connection);
+    QCOMPARE(message->type(), IrcMessage::Capability);
+    QCOMPARE(message->command(), QString("CAP"));
+    QCOMPARE(message->property("valid").toBool(), valid);
+    QCOMPARE(message->property("subCommand").toString(), subCommand);
+    QCOMPARE(message->property("capabilities").toStringList(), capabilities);
+
+    IrcCapabilityMessage* capabilityMessage = qobject_cast<IrcCapabilityMessage*>(message);
+    QVERIFY(capabilityMessage);
+    QCOMPARE(capabilityMessage->isValid(), valid);
+    QCOMPARE(capabilityMessage->subCommand(), subCommand);
+    QCOMPARE(capabilityMessage->capabilities(), capabilities);
 }
 
 void tst_IrcMessage::testErrorMessage_data()
@@ -65,7 +211,8 @@ void tst_IrcMessage::testErrorMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("error");
 
-    QTest::newRow("no prefix") << false << QByteArray("ERROR error1") << QString("error1");
+    QTest::newRow("no prefix") << true << QByteArray("ERROR error1") << QString("error1");
+    QTest::newRow("empty prefix") << false << QByteArray(": ERROR error1") << QString("error1");
     QTest::newRow("no params") << false << QByteArray(":server ERROR") << QString();
     QTest::newRow("all ok") << true << QByteArray(":server ERROR error1") << QString("error1");
 }
@@ -79,6 +226,7 @@ void tst_IrcMessage::testErrorMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Error);
+    QCOMPARE(message->command(), QString("ERROR"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("error").toString(), error);
 
@@ -95,7 +243,8 @@ void tst_IrcMessage::testInviteMessage_data()
     QTest::addColumn<QString>("user");
     QTest::addColumn<QString>("channel");
 
-    QTest::newRow("no prefix") << false << QByteArray("INVITE Wiz #Dust") << QString("Wiz") << QString("#Dust");
+    QTest::newRow("no prefix") << true << QByteArray("INVITE Wiz #Dust") << QString("Wiz") << QString("#Dust");
+    QTest::newRow("empty prefix") << false << QByteArray(": INVITE Wiz #Dust") << QString("Wiz") << QString("#Dust");
     QTest::newRow("no params") << false << QByteArray(":Angel INVITE") << QString() << QString();
     QTest::newRow("no channel") << false << QByteArray(":Angel INVITE Wiz") << QString("Wiz") << QString();
     QTest::newRow("all ok") << true << QByteArray(":Angel INVITE Wiz #Dust") << QString("Wiz") << QString("#Dust");
@@ -111,6 +260,7 @@ void tst_IrcMessage::testInviteMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Invite);
+    QCOMPARE(message->command(), QString("INVITE"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
     QCOMPARE(message->property("user").toString(), user);
@@ -128,7 +278,8 @@ void tst_IrcMessage::testJoinMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("channel");
 
-    QTest::newRow("no prefix") << false << QByteArray("JOIN #Twilight_zone") << QString("#Twilight_zone");
+    QTest::newRow("no prefix") << true << QByteArray("JOIN #Twilight_zone") << QString("#Twilight_zone");
+    QTest::newRow("empty prefix") << false << QByteArray(": JOIN #Twilight_zone") << QString("#Twilight_zone");
     QTest::newRow("no params") << false << QByteArray(":WiZ JOIN") << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ JOIN #Twilight_zone") << QString("#Twilight_zone");
 }
@@ -142,6 +293,7 @@ void tst_IrcMessage::testJoinMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Join);
+    QCOMPARE(message->command(), QString("JOIN"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
 
@@ -159,7 +311,8 @@ void tst_IrcMessage::testKickMessage_data()
     QTest::addColumn<QString>("user");
     QTest::addColumn<QString>("reason");
 
-    QTest::newRow("no prefix") << false << QByteArray("KICK #Finnish John") << QString("#Finnish") << QString("John") << QString();
+    QTest::newRow("no prefix") << true << QByteArray("KICK #Finnish John") << QString("#Finnish") << QString("John") << QString();
+    QTest::newRow("empty prefix") << false << QByteArray(": KICK #Finnish John") << QString("#Finnish") << QString("John") << QString();
     QTest::newRow("no params") << false << QByteArray(":WiZ KICK") << QString() << QString() << QString();
     QTest::newRow("no user") << false << QByteArray(":WiZ KICK #Finnish") << QString("#Finnish") << QString() << QString();
     QTest::newRow("no reason") << true << QByteArray(":WiZ KICK #Finnish John") << QString("#Finnish") << QString("John") << QString();
@@ -177,6 +330,7 @@ void tst_IrcMessage::testKickMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Kick);
+    QCOMPARE(message->command(), QString("KICK"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
     QCOMPARE(message->property("user").toString(), user);
@@ -190,6 +344,19 @@ void tst_IrcMessage::testKickMessage()
     QCOMPARE(kickMessage->reason(), reason);
 }
 
+void tst_IrcMessage::testNamesMessage()
+{
+    IrcConnection connection;
+    IrcNamesMessage message(&connection);
+    message.setPrefix("nick!ident@host");
+    message.setParameters(QStringList() << "chan" << "usr1" << "usr2" << "usr3");
+    QVERIFY(message.isValid());
+    QCOMPARE(message.type(), IrcMessage::Names);
+    QCOMPARE(message.command(), QString("NAMES"));
+    QCOMPARE(message.channel(), QString("chan"));
+    QCOMPARE(message.names(), QStringList() << "usr1" << "usr2" << "usr3");
+}
+
 void tst_IrcMessage::testNickMessage_data()
 {
     QTest::addColumn<bool>("valid");
@@ -197,7 +364,8 @@ void tst_IrcMessage::testNickMessage_data()
     QTest::addColumn<QString>("oldNick");
     QTest::addColumn<QString>("newNick");
 
-    QTest::newRow("no prefix") << false << QByteArray("NICK Kilroy") << QString() << QString("Kilroy");
+    QTest::newRow("no prefix") << true << QByteArray("NICK Kilroy") << QString() << QString("Kilroy");
+    QTest::newRow("empty prefix") << false << QByteArray(": NICK Kilroy") << QString() << QString("Kilroy");
     QTest::newRow("no params") << false << QByteArray(":WiZ NICK") << QString("WiZ") << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ NICK Kilroy") << QString("WiZ") << QString("Kilroy");
 }
@@ -212,6 +380,7 @@ void tst_IrcMessage::testNickMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Nick);
+    QCOMPARE(message->command(), QString("NICK"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("oldNick").toString(), oldNick);
     QCOMPARE(message->property("newNick").toString(), newNick);
@@ -231,7 +400,8 @@ void tst_IrcMessage::testNoticeMessage_data()
     QTest::addColumn<QString>("msg");
     QTest::addColumn<bool>("reply");
 
-    QTest::newRow("no prefix") << false << QByteArray("NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
+    QTest::newRow("no prefix") << true << QByteArray("NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
+    QTest::newRow("empty prefix") << false << QByteArray(": NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
     QTest::newRow("no params") << false << QByteArray(":Angel NOTICE Wiz") << QString("Wiz") << QString() << false;
     QTest::newRow("all ok") << true << QByteArray(":Angel NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
     QTest::newRow("reply") << true << QByteArray(":Angel NOTICE Wiz :\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << true;
@@ -248,6 +418,7 @@ void tst_IrcMessage::testNoticeMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Notice);
+    QCOMPARE(message->command(), QString("NOTICE"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
     QCOMPARE(message->property("message").toString(), msg);
@@ -267,7 +438,8 @@ void tst_IrcMessage::testNumericMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<int>("code");
 
-    QTest::newRow("no prefix") << false << QByteArray("123 Kilroy") << 123;
+    QTest::newRow("no prefix") << true << QByteArray("123 Kilroy") << 123;
+    QTest::newRow("empty prefix") << false << QByteArray(": 123 Kilroy") << 123;
     QTest::newRow("no params") << true << QByteArray(":WiZ 456") << 456;
     QTest::newRow("all ok") << true << QByteArray(":WiZ 789 Kilroy") << 789;
 }
@@ -281,6 +453,7 @@ void tst_IrcMessage::testNumericMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Numeric);
+    QVERIFY(message->command().toInt() > 0);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("code").toInt(), code);
 
@@ -298,20 +471,24 @@ void tst_IrcMessage::testModeMessage_data()
     QTest::addColumn<QString>("mode");
     QTest::addColumn<QString>("argument");
 
-    QTest::newRow("no prefix") << false << QByteArray("MODE Kilroy -w") << QString("Kilroy") << QString("-w") << QString();
+    QTest::newRow("no prefix") << true << QByteArray("MODE Kilroy -w") << QString("Kilroy") << QString("-w") << QString();
+    QTest::newRow("empty prefix") << false << QByteArray(": MODE Kilroy -w") << QString("Kilroy") << QString("-w") << QString();
     QTest::newRow("no params") << false << QByteArray(":WiZ MODE Kilroy") << QString("Kilroy") << QString() << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ MODE Kilroy -w") << QString("Kilroy") << QString("-w") << QString();
 
     QTest::newRow("1") << true << QByteArray(":WiZ MODE #Finnish +im") << QString("#Finnish") << QString("+im") << QString();
     QTest::newRow("2") << true << QByteArray(":Angel MODE #Finnish +o Kilroy") << QString("#Finnish") << QString("+o") << QString("Kilroy");
     QTest::newRow("3") << true << QByteArray(":Kilroy MODE #Finnish +v Wiz") << QString("#Finnish") << QString("+v") << QString("Wiz");
-    QTest::newRow("4") << false << QByteArray("MODE #Fins -s") << QString("#Fins") << QString("-s") << QString();
+    QTest::newRow("4a") << true << QByteArray("MODE #Fins -s") << QString("#Fins") << QString("-s") << QString();
+    QTest::newRow("4b") << false << QByteArray(": MODE #Fins -s") << QString("#Fins") << QString("-s") << QString();
     QTest::newRow("5") << true << QByteArray(":WiZ MODE #42 +k oulu") << QString("#42") << QString("+k") << QString("oulu");
-    QTest::newRow("6") << false << QByteArray("MODE #eu-opers +l 10") << QString("#eu-opers") << QString("+l") << QString("10");
+    QTest::newRow("6a") << true << QByteArray("MODE #eu-opers +l 10") << QString("#eu-opers") << QString("+l") << QString("10");
+    QTest::newRow("6b") << false << QByteArray(": MODE #eu-opers +l 10") << QString("#eu-opers") << QString("+l") << QString("10");
     QTest::newRow("7") << true << QByteArray(":nobody MODE &oulu +b") << QString("&oulu") << QString("+b") << QString();
     QTest::newRow("8") << true << QByteArray(":someone MODE &oulu +b *!*@*") << QString("&oulu") << QString("+b") << QString("*!*@*");
     QTest::newRow("9") << true << QByteArray(":anyone MODE &oulu +b *!*@*.edu") << QString("&oulu") << QString("+b") << QString("*!*@*.edu");
-    QTest::newRow("10") << false << QByteArray("MODE WiZ -w") << QString("WiZ") << QString("-w") << QString();
+    QTest::newRow("10a") << true << QByteArray("MODE WiZ -w") << QString("WiZ") << QString("-w") << QString();
+    QTest::newRow("10b") << false << QByteArray(": MODE WiZ -w") << QString("WiZ") << QString("-w") << QString();
     QTest::newRow("11") << true << QByteArray(":Angel MODE Angel +i") << QString("Angel") << QString("+i") << QString();
     QTest::newRow("12") << true << QByteArray(":WiZ MODE WiZ -o") << QString("WiZ") << QString("-o") << QString();
 }
@@ -327,6 +504,7 @@ void tst_IrcMessage::testModeMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Mode);
+    QCOMPARE(message->command(), QString("MODE"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
     QCOMPARE(message->property("mode").toString(), mode);
@@ -340,6 +518,23 @@ void tst_IrcMessage::testModeMessage()
     QCOMPARE(modeMessage->argument(), argument);
 }
 
+void tst_IrcMessage::testMotdMessage()
+{
+    IrcConnection connection;
+    IrcMotdMessage message(&connection);
+    message.setPrefix("nick!ident@host");
+    QStringList params;
+    params += "user";
+    params += ":server 375 user :- server Message of the Day";
+    params += ":server 372 user :- Welcome...";
+    params += ":server 376 user :End of /MOTD command";
+    message.setParameters(params);
+    QVERIFY(message.isValid());
+    QCOMPARE(message.type(), IrcMessage::Motd);
+    QCOMPARE(message.command(), QString("MOTD"));
+    QCOMPARE(message.lines(), QStringList(params.mid(1)));
+}
+
 void tst_IrcMessage::testPartMessage_data()
 {
     QTest::addColumn<bool>("valid");
@@ -347,7 +542,8 @@ void tst_IrcMessage::testPartMessage_data()
     QTest::addColumn<QString>("channel");
     QTest::addColumn<QString>("reason");
 
-    QTest::newRow("no prefix") << false << QByteArray("PART #Twilight_zone") << QString("#Twilight_zone") << QString();
+    QTest::newRow("no prefix") << true << QByteArray("PART #Twilight_zone") << QString("#Twilight_zone") << QString();
+    QTest::newRow("empty prefix") << false << QByteArray(": PART #Twilight_zone") << QString("#Twilight_zone") << QString();
     QTest::newRow("no params") << false << QByteArray(":WiZ PART") << QString() << QString();
     QTest::newRow("no reason") << true << QByteArray(":WiZ PART #Twilight_zone") << QString("#Twilight_zone") << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ PART #Twilight_zone :Gone to have lunch") << QString("#Twilight_zone") << QString("Gone to have lunch");
@@ -363,6 +559,7 @@ void tst_IrcMessage::testPartMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Part);
+    QCOMPARE(message->command(), QString("PART"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
     QCOMPARE(message->property("reason").toString(), reason);
@@ -376,10 +573,34 @@ void tst_IrcMessage::testPartMessage()
 
 void tst_IrcMessage::testPingMessage()
 {
+    IrcConnection connection;
+    IrcMessage* message = IrcMessage::fromData("PING :arg", &connection);
+    QCOMPARE(message->type(), IrcMessage::Ping);
+    QCOMPARE(message->command(), QString("PING"));
+    QCOMPARE(message->property("command").toString(), QString("PING"));
+    QVERIFY(message->property("valid").toBool());
+    QCOMPARE(message->property("argument").toString(), QString("arg"));
+
+    IrcPingMessage* pingMessage = qobject_cast<IrcPingMessage*>(message);
+    QVERIFY(pingMessage);
+    QVERIFY(pingMessage->isValid());
+    QCOMPARE(pingMessage->argument(), QString("arg"));
 }
 
 void tst_IrcMessage::testPongMessage()
 {
+    IrcConnection connection;
+    IrcMessage* message = IrcMessage::fromData("PONG tgt :arg", &connection);
+    QCOMPARE(message->type(), IrcMessage::Pong);
+    QCOMPARE(message->command(), QString("PONG"));
+    QCOMPARE(message->property("command").toString(), QString("PONG"));
+    QVERIFY(message->property("valid").toBool());
+    QCOMPARE(message->property("argument").toString(), QString("arg"));
+
+    IrcPongMessage* pongMessage = qobject_cast<IrcPongMessage*>(message);
+    QVERIFY(pongMessage);
+    QVERIFY(pongMessage->isValid());
+    QCOMPARE(pongMessage->argument(), QString("arg"));
 }
 
 void tst_IrcMessage::testPrivateMessage_data()
@@ -393,7 +614,8 @@ void tst_IrcMessage::testPrivateMessage_data()
     QTest::addColumn<bool>("request");
     QTest::addColumn<uint>("flags");
 
-    QTest::newRow("no prefix") << false << QString() << QByteArray("PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("no prefix") << true << QString() << QByteArray("PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("empty prefix") << false << QString() << QByteArray(": PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
     QTest::newRow("no params") << false << QString() << QByteArray(":Angel PRIVMSG Wiz") << QString("Wiz") << QString() << false << false << static_cast<uint>(IrcMessage::None);
     QTest::newRow("all ok") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
     QTest::newRow("action") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << true << false << static_cast<uint>(IrcMessage::None);
@@ -445,6 +667,7 @@ void tst_IrcMessage::testPrivateMessage()
 
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Private);
+    QCOMPARE(message->command(), QString("PRIVMSG"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
     QCOMPARE(message->property("message").toString(), msg);
@@ -468,7 +691,8 @@ void tst_IrcMessage::testQuitMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("reason");
 
-    QTest::newRow("no prefix") << false << QByteArray("QUIT :Gone to have lunch") << QString("Gone to have lunch");
+    QTest::newRow("no prefix") << true << QByteArray("QUIT :Gone to have lunch") << QString("Gone to have lunch");
+    QTest::newRow("empty prefix") << false << QByteArray(": QUIT :Gone to have lunch") << QString("Gone to have lunch");
     QTest::newRow("no params") << true << QByteArray(":WiZ QUIT") << QString();
     QTest::newRow("all ok") << true << QByteArray(":WiZ QUIT :Gone to have lunch") << QString("Gone to have lunch");
 }
@@ -482,6 +706,7 @@ void tst_IrcMessage::testQuitMessage()
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Quit);
+    QCOMPARE(message->command(), QString("QUIT"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("reason").toString(), reason);
 
@@ -497,11 +722,14 @@ void tst_IrcMessage::testTopicMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("channel");
     QTest::addColumn<QString>("topic");
+    QTest::addColumn<bool>("reply");
 
-    QTest::newRow("no prefix") << false << QByteArray("TOPIC #test") << QString("#test") << QString();
-    QTest::newRow("no params") << false << QByteArray(":WiZ TOPIC") << QString() << QString();
-    QTest::newRow("no topic") << true << QByteArray(":WiZ TOPIC #test") << QString("#test") << QString();
-    QTest::newRow("all ok") << true << QByteArray(":WiZ TOPIC #test :another topic") << QString("#test") << QString("another topic");
+    QTest::newRow("no prefix") << true << QByteArray("TOPIC #test") << QString("#test") << QString() << false;
+    QTest::newRow("empty prefix") << false << QByteArray(": TOPIC #test") << QString("#test") << QString() << false;
+    QTest::newRow("no params") << false << QByteArray(":WiZ TOPIC") << QString() << QString() << false;
+    QTest::newRow("no topic") << true << QByteArray(":WiZ TOPIC #test") << QString("#test") << QString() << false;
+    QTest::newRow("all ok") << true << QByteArray(":WiZ TOPIC #test :another topic") << QString("#test") << QString("another topic") << false;
+    // TODO: QTest::newRow("numeric") << true << QByteArray(":server 332 user #test :foo bar") << QString("#test") << QString("foo bar") << true;
 }
 
 void tst_IrcMessage::testTopicMessage()
@@ -510,19 +738,23 @@ void tst_IrcMessage::testTopicMessage()
     QFETCH(QByteArray, data);
     QFETCH(QString, channel);
     QFETCH(QString, topic);
+    QFETCH(bool, reply);
 
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Topic);
+    QCOMPARE(message->command(), QString("TOPIC"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
     QCOMPARE(message->property("topic").toString(), topic);
+    QCOMPARE(message->property("reply").toBool(), reply);
 
     IrcTopicMessage* topicMessage = qobject_cast<IrcTopicMessage*>(message);
     QVERIFY(topicMessage);
     QCOMPARE(topicMessage->isValid(), valid);
     QCOMPARE(topicMessage->channel(), channel);
     QCOMPARE(topicMessage->topic(), topic);
+    QCOMPARE(topicMessage->isReply(), reply);
 }
 
 QTEST_MAIN(tst_IrcMessage)
