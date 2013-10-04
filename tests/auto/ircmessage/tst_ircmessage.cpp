@@ -109,7 +109,6 @@ void tst_IrcMessage::testPrefix()
     QCOMPARE(msg.host(), host);
 }
 
-Q_DECLARE_METATYPE(IrcMessage::Type)
 void tst_IrcMessage::testParameters_data()
 {
     qRegisterMetaType<IrcMessage::Type>();

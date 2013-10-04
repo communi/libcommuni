@@ -18,10 +18,6 @@
 #include <IrcModel>
 #include <IrcUtil>
 
-Q_DECLARE_METATYPE(Irc::Code)
-Q_DECLARE_METATYPE(IrcMessage::Type)
-Q_DECLARE_METATYPE(IrcCommand::Type)
-
 class IrcQmlFilter : public QObject,
                      public IrcCommandFilter,
                      public IrcMessageFilter

@@ -18,6 +18,7 @@
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qmetatype.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -521,5 +522,10 @@ IRC_CORE_EXPORT QDebug operator<<(QDebug debug, Irc::SortMethod method);
 #endif // QT_NO_DEBUG_STREAM
 
 IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(Irc::Code))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(Irc::DataRole))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(Irc::Color))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(Irc::SortMethod))
 
 #endif // IRC_H

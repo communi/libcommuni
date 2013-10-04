@@ -19,6 +19,7 @@
 #include <IrcMessage>
 #include <IrcNetwork>
 #include <QtCore/qobject.h>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
 
@@ -197,5 +198,8 @@ IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcConnection* connection)
 #endif // QT_NO_DEBUG_STREAM
 
 IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcConnection*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcConnection::Status))
 
 #endif // IRCCONNECTION_H

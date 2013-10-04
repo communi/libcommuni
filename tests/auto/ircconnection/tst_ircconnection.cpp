@@ -344,13 +344,12 @@ void tst_IrcConnection::testSecure()
     QVERIFY(!spy.last().last().toBool());
 }
 
-Q_DECLARE_METATYPE(IrcConnection::Status)
 void tst_IrcConnection::testStatus()
 {
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    qRegisterMetaType<IrcConnection::Status>();
+    qRegisterMetaType<IrcConnection::Status>("IrcConnection::Status");
 
     // tst_ClientServer::init() opens the connection
     QCOMPARE(connection->status(), IrcConnection::Connecting);
@@ -515,48 +514,29 @@ void tst_IrcConnection::testConnection()
     QCOMPARE(connection->status(), IrcConnection::Closed);
 }
 
-Q_DECLARE_METATYPE(IrcMessage*)
-Q_DECLARE_METATYPE(IrcCapabilityMessage*)
-Q_DECLARE_METATYPE(IrcErrorMessage*)
-Q_DECLARE_METATYPE(IrcInviteMessage*)
-Q_DECLARE_METATYPE(IrcJoinMessage*)
-Q_DECLARE_METATYPE(IrcKickMessage*)
-Q_DECLARE_METATYPE(IrcModeMessage*)
-Q_DECLARE_METATYPE(IrcNamesMessage*)
-Q_DECLARE_METATYPE(IrcNickMessage*)
-Q_DECLARE_METATYPE(IrcNoticeMessage*)
-Q_DECLARE_METATYPE(IrcNumericMessage*)
-Q_DECLARE_METATYPE(IrcMotdMessage*)
-Q_DECLARE_METATYPE(IrcPartMessage*)
-Q_DECLARE_METATYPE(IrcPingMessage*)
-Q_DECLARE_METATYPE(IrcPongMessage*)
-Q_DECLARE_METATYPE(IrcPrivateMessage*)
-Q_DECLARE_METATYPE(IrcQuitMessage*)
-Q_DECLARE_METATYPE(IrcTopicMessage*)
-
 void tst_IrcConnection::testMessages()
 {
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    qRegisterMetaType<IrcMessage*>();
-    qRegisterMetaType<IrcCapabilityMessage*>();
-    qRegisterMetaType<IrcErrorMessage*>();
-    qRegisterMetaType<IrcInviteMessage*>();
-    qRegisterMetaType<IrcJoinMessage*>();
-    qRegisterMetaType<IrcKickMessage*>();
-    qRegisterMetaType<IrcModeMessage*>();
-    qRegisterMetaType<IrcNamesMessage*>();
-    qRegisterMetaType<IrcNickMessage*>();
-    qRegisterMetaType<IrcNoticeMessage*>();
-    qRegisterMetaType<IrcNumericMessage*>();
-    qRegisterMetaType<IrcMotdMessage*>();
-    qRegisterMetaType<IrcPartMessage*>();
-    qRegisterMetaType<IrcPingMessage*>();
-    qRegisterMetaType<IrcPongMessage*>();
-    qRegisterMetaType<IrcPrivateMessage*>();
-    qRegisterMetaType<IrcQuitMessage*>();
-    qRegisterMetaType<IrcTopicMessage*>();
+    qRegisterMetaType<IrcMessage*>("IrcMessage*");
+    qRegisterMetaType<IrcCapabilityMessage*>("IrcCapabilityMessage*");
+    qRegisterMetaType<IrcErrorMessage*>("IrcErrorMessage*");
+    qRegisterMetaType<IrcInviteMessage*>("IrcInviteMessage*");
+    qRegisterMetaType<IrcJoinMessage*>("IrcJoinMessage*");
+    qRegisterMetaType<IrcKickMessage*>("IrcKickMessage*");
+    qRegisterMetaType<IrcModeMessage*>("IrcModeMessage*");
+    qRegisterMetaType<IrcNamesMessage*>("IrcNamesMessage*");
+    qRegisterMetaType<IrcNickMessage*>("IrcNickMessage*");
+    qRegisterMetaType<IrcNoticeMessage*>("IrcNoticeMessage*");
+    qRegisterMetaType<IrcNumericMessage*>("IrcNumericMessage*");
+    qRegisterMetaType<IrcMotdMessage*>("IrcMotdMessage*");
+    qRegisterMetaType<IrcPartMessage*>("IrcPartMessage*");
+    qRegisterMetaType<IrcPingMessage*>("IrcPingMessage*");
+    qRegisterMetaType<IrcPongMessage*>("IrcPongMessage*");
+    qRegisterMetaType<IrcPrivateMessage*>("IrcPrivateMessage*");
+    qRegisterMetaType<IrcQuitMessage*>("IrcQuitMessage*");
+    qRegisterMetaType<IrcTopicMessage*>("IrcTopicMessage*");
 
     QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
     QSignalSpy capabilityMessageSpy(connection, SIGNAL(capabilityMessageReceived(IrcCapabilityMessage*)));

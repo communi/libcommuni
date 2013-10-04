@@ -17,6 +17,7 @@
 
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qstringlist.h>
 
 IRC_BEGIN_NAMESPACE
@@ -136,5 +137,8 @@ IRC_CORE_EXPORT QDebug operator<<(QDebug debug, const IrcCommand* command);
 #endif // QT_NO_DEBUG_STREAM
 
 IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCommand*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCommand::Type))
 
 #endif // IRCCOMMAND_H
