@@ -1396,15 +1396,13 @@ QDebug operator<<(QDebug debug, const IrcMessage* message)
     if (!message)
         return debug << "IrcMessage(0x0) ";
     debug.nospace() << message->metaObject()->className() << '(' << (void*) message;
-    debug.nospace() << ", flags=" << message->flags();
     if (!message->objectName().isEmpty())
         debug.nospace() << ", name=" << qPrintable(message->objectName());
+    debug.nospace() << ", flags=" << message->flags();
     if (!message->prefix().isEmpty())
         debug.nospace() << ", prefix=" << qPrintable(message->prefix());
     if (!message->command().isEmpty())
         debug.nospace() << ", command=" << qPrintable(message->command());
-    if (!message->parameters().isEmpty())
-        debug.nospace() << ", params=(" << qPrintable(message->parameters().join(", ").left(20)) << ")";
     debug.nospace() << ')';
     return debug.space();
 }

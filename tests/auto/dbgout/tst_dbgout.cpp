@@ -126,6 +126,21 @@ void tst_DebugOutput::testIrcMessage()
     QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, flags=\\(None\\)\\) ").exactMatch(str));
     str.clear();
 
+    message.setObjectName("foo");
+    dbg << &message;
+    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\)\\) ").exactMatch(str));
+    str.clear();
+
+    message.setPrefix("nick!ident@host");
+    dbg << &message;
+    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\), prefix=nick!ident@host\\) ").exactMatch(str));
+    str.clear();
+
+    message.setCommand("COMMAND");
+    dbg << &message;
+    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\), prefix=nick!ident@host, command=COMMAND\\) ").exactMatch(str));
+    str.clear();
+
     dbg << IrcMessage::Join;
     QCOMPARE(str.trimmed(), QString::fromLatin1("Join"));
     str.clear();
@@ -134,8 +149,8 @@ void tst_DebugOutput::testIrcMessage()
     QCOMPARE(str.trimmed(), QString::fromLatin1("Unidentified"));
     str.clear();
 
-    dbg << (IrcMessage::Own | IrcMessage::Identified);
-    QCOMPARE(str.trimmed(), QString::fromLatin1("(Own|Identified)"));
+    dbg << (IrcMessage::Own | IrcMessage::Identified | IrcMessage::Unidentified);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("(Own|Identified|Unidentified)"));
     str.clear();
 
     dbg << IrcModeMessage::Channel;
