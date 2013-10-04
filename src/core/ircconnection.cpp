@@ -314,11 +314,6 @@ void IrcConnectionPrivate::_irc_filterDestroyed(QObject* filter)
 {
     messageFilters.removeAll(filter);
     commandFilters.removeAll(filter);
-    int idx = activeCommandFilters.indexOf(filter);
-    while (idx != -1) {
-        activeCommandFilters.remove(idx);
-        idx = activeCommandFilters.indexOf(filter);
-    }
 }
 
 void IrcConnectionPrivate::setNick(const QString& nick)
