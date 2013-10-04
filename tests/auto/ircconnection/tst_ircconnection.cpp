@@ -62,6 +62,7 @@ private slots:
     void testStatus();
     void testConnection();
     void testMessages();
+    void testMessageFlags();
 
     void testSendCommand();
     void testSendData();
@@ -707,6 +708,115 @@ void tst_IrcConnection::testMessages()
     waitForWritten("ERROR :just testing...\r\n");
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(errorMessageSpy.count(), 1);
+}
+
+class MsgFilter : public QObject, public IrcMessageFilter
+{
+    Q_OBJECT
+    Q_INTERFACES(IrcMessageFilter)
+
+public:
+    MsgFilter() : count(0), type(IrcMessage::Unknown), flags(IrcMessage::None)
+    {
+    }
+
+    bool messageFilter(IrcMessage* message)
+    {
+        ++count;
+        type = message->type();
+        flags = message->flags();
+        value = message->property(property);
+        return false;
+    }
+
+public:
+    int count;
+    QVariant value;
+    QByteArray property;
+    IrcMessage::Type type;
+    IrcMessage::Flags flags;
+};
+
+void tst_IrcConnection::testMessageFlags()
+{
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    int count = 0;
+    MsgFilter filter;
+    connection->installMessageFilter(&filter);
+
+    waitForWritten(":server CAP * LS :identify-msg\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Capability);
+    QCOMPARE(filter.flags, IrcMessage::None);
+
+    waitForWritten(":server CAP communi ACK :identify-msg\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Capability);
+    QCOMPARE(filter.flags, IrcMessage::None);
+
+    waitForWritten(":server 001 communi :Welcome...\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Numeric);
+    QCOMPARE(filter.flags, IrcMessage::None);
+
+    waitForWritten(":server 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=fake KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Numeric);
+    QCOMPARE(filter.flags, IrcMessage::None);
+
+    waitForWritten(":server 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Numeric);
+    QCOMPARE(filter.flags, IrcMessage::None);
+
+    waitForWritten(":server 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Numeric);
+    QCOMPARE(filter.flags, IrcMessage::None);
+
+    filter.property = "message";
+    waitForWritten(":communi!ident@host PRIVMSG #communi :hi all\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Private);
+    QCOMPARE(filter.flags, IrcMessage::Own);
+    QCOMPARE(filter.value.toString(), QString("hi all"));
+
+    filter.property = "message";
+    waitForWritten(":jpnurmi!ident@host PRIVMSG #communi :+hello there, communi\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Private);
+    QCOMPARE(filter.flags, IrcMessage::Identified);
+    QCOMPARE(filter.value.toString(), QString("hello there, communi"));
+
+    filter.property = "message";
+    waitForWritten(":Guest1234!ident@host PRIVMSG #communi :-hi communi\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Private);
+    QCOMPARE(filter.flags, IrcMessage::Unidentified);
+    QCOMPARE(filter.value.toString(), QString("hi communi"));
+
+    filter.property = "message";
+    waitForWritten(":communi!ident@host NOTICE #communi :hi all\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Notice);
+    QCOMPARE(filter.flags, IrcMessage::Own);
+    QCOMPARE(filter.value.toString(), QString("hi all"));
+
+    filter.property = "message";
+    waitForWritten(":jpnurmi!ident@host NOTICE #communi :+hello there, communi\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Notice);
+    QCOMPARE(filter.flags, IrcMessage::Identified);
+    QCOMPARE(filter.value.toString(), QString("hello there, communi"));
+
+    filter.property = "message";
+    waitForWritten(":Guest1234!ident@host NOTICE #communi :-hi communi\r\n");
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Notice);
+    QCOMPARE(filter.flags, IrcMessage::Unidentified);
+    QCOMPARE(filter.value.toString(), QString("hi communi"));
 }
 
 void tst_IrcConnection::testSendCommand()
