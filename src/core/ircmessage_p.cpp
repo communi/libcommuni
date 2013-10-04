@@ -25,8 +25,15 @@ IrcMessagePrivate::IrcMessagePrivate() :
 
 QString IrcMessagePrivate::prefix() const
 {
-    if (!m_prefix.isExplicit() && m_prefix.isNull() && !data.prefix.isNull())
-        m_prefix = decode(data.prefix, encoding);
+    if (!m_prefix.isExplicit() && m_prefix.isNull() && !data.prefix.isNull()) {
+        if (data.prefix.startsWith(':')) {
+            if (data.prefix.length() > 1)
+                m_prefix = decode(data.prefix.mid(1), encoding);
+        } else {
+            // empty (not null)
+            m_prefix = QString("");
+        }
+    }
     return m_prefix.value();
 }
 
@@ -122,8 +129,11 @@ IrcMessageData IrcMessageData::fromData(const QByteArray& data)
 
     // parse <prefix>
     if (process.startsWith(':')) {
-        message.prefix = process.mid(1, process.indexOf(' ') - 1);
-        process.remove(0, message.prefix.length() + 2);
+        message.prefix = process.left(process.indexOf(' '));
+        process.remove(0, message.prefix.length() + 1);
+    } else {
+        // empty (not null)
+        message.prefix = QByteArray("");
     }
 
     // parse <command>

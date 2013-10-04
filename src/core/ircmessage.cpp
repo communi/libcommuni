@@ -493,7 +493,7 @@ IrcMessage* IrcMessage::fromParameters(const QString& prefix, const QString& com
 bool IrcMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return d->connection && !prefix().isEmpty();
+    return d->connection && !prefix().isNull();
 }
 
 /*!
