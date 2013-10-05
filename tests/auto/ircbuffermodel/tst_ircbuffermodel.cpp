@@ -30,13 +30,13 @@ private slots:
 Q_DECLARE_METATYPE(QModelIndex)
 void tst_IrcBufferModel::initTestCase()
 {
+    Irc::registerMetaTypes();
     qRegisterMetaType<QModelIndex>();
     qRegisterMetaType<IrcBuffer*>("IrcBuffer*");
     qRegisterMetaType<IrcChannel*>("IrcChannel*");
-    qRegisterMetaType<IrcMessage*>("IrcMessage*");
-    qRegisterMetaType<IrcNetwork*>("IrcNetwork*");
     qRegisterMetaType<IrcConnection*>("IrcConnection*");
     qRegisterMetaType<QList<IrcBuffer*> >("QList<IrcBuffer*>");
+    qRegisterMetaType<QList<IrcChannel*> >("QList<IrcChannel*>");
 }
 
 void tst_IrcBufferModel::testDefaults()
@@ -92,6 +92,14 @@ void tst_IrcBufferModel::testAddRemove()
     QCOMPARE(buffersSpy.last().last().value<QList<IrcBuffer*> >(), QList<IrcBuffer*>() << first);
     QCOMPARE(channelsSpy.count(), 0);
 
+    QModelIndex firstIdx = model.index(first);
+    QVERIFY(firstIdx.isValid());
+    QCOMPARE(firstIdx.data(Irc::NameRole).toString(), QString("first"));
+    QCOMPARE(firstIdx.data(Irc::TitleRole).toString(), QString("first"));
+    QCOMPARE(firstIdx.data(Irc::PrefixRole).toString(), QString());
+    QCOMPARE(firstIdx.data(Irc::BufferRole).value<IrcBuffer*>(), first);
+    QVERIFY(!firstIdx.data(Irc::ChannelRole).value<IrcChannel*>());
+
     // void IrcBufferModel::add(IrcBuffer* buffer)
     IrcBuffer* second = new IrcBuffer(&model);
     second->setName("second");
@@ -113,6 +121,14 @@ void tst_IrcBufferModel::testAddRemove()
     QCOMPARE(buffersSpy.count(), 2);
     QCOMPARE(buffersSpy.last().last().value<QList<IrcBuffer*> >(), QList<IrcBuffer*>() << first << second);
     QCOMPARE(channelsSpy.count(), 0);
+
+    QModelIndex secondIdx = model.index(second);
+    QVERIFY(secondIdx.isValid());
+    QCOMPARE(secondIdx.data(Irc::NameRole).toString(), QString("second"));
+    QCOMPARE(secondIdx.data(Irc::TitleRole).toString(), QString("second"));
+    QCOMPARE(secondIdx.data(Irc::PrefixRole).toString(), QString());
+    QCOMPARE(secondIdx.data(Irc::BufferRole).value<IrcBuffer*>(), second);
+    QVERIFY(!secondIdx.data(Irc::ChannelRole).value<IrcChannel*>());
 
     // void IrcBufferModel::remove(IrcBuffer* buffer)
     model.remove(second);
@@ -275,8 +291,11 @@ void tst_IrcBufferModel::testChanges()
     int nextIndex = buffers.indexOf(communi);
 
     QCOMPARE(bufferModel.count(), buffers.count());
-    for (int i = 0; i < bufferModel.count(); ++i)
+    for (int i = 0; i < bufferModel.count(); ++i) {
         QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
     QCOMPARE(bufferModel.channels(), channels);
 
     QCOMPARE(countChangedSpy.count(), ++countChangedCount);
@@ -308,6 +327,23 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
+    waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :fake...\r\n");
+    QCOMPARE(messageIgnoredSpy.count(), ++messageIgnoredCount);
+
+    QCOMPARE(bufferModel.count(), buffers.count());
+    QCOMPARE(bufferModel.buffers(), buffers);
+    QCOMPARE(bufferModel.channels(), channels);
+
+    QCOMPARE(countChangedSpy.count(), countChangedCount);
+    QCOMPARE(aboutToBeAddedSpy.count(), aboutToBeAddedCount);
+    QCOMPARE(addedSpy.count(), addedCount);
+    QCOMPARE(buffersChangedSpy.count(), buffersChangedCount);
+    QCOMPARE(channelsChangedSpy.count(), channelsChangedCount);
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), rowsAboutToBeRemovedCount);
+    QCOMPARE(rowsRemovedSpy.count(), rowsRemovedCount);
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
+    QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
+
     waitForWritten(":ChanServ!ChanServ@services. PRIVMSG communi :fake...\r\n");
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
@@ -329,8 +365,11 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(bufferModel.channels(), channels);
 
     QCOMPARE(bufferModel.count(), buffers.count());
-    for (int i = 0; i < bufferModel.count(); ++i)
+    for (int i = 0; i < bufferModel.count(); ++i) {
         QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
 
     QCOMPARE(countChangedSpy.count(), ++countChangedCount);
     QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
@@ -360,6 +399,30 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
+    waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :fake...\r\n");
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
+
+    QCOMPARE(bufferModel.count(), buffers.count());
+    QCOMPARE(bufferModel.buffers(), buffers);
+    QCOMPARE(bufferModel.channels(), channels);
+
+    QCOMPARE(bufferModel.count(), buffers.count());
+    for (int i = 0; i < bufferModel.count(); ++i) {
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
+
+    QCOMPARE(countChangedSpy.count(), countChangedCount);
+    QCOMPARE(aboutToBeAddedSpy.count(), aboutToBeAddedCount);
+    QCOMPARE(addedSpy.count(), addedCount);
+    QCOMPARE(buffersChangedSpy.count(), buffersChangedCount);
+    QCOMPARE(channelsChangedSpy.count(), channelsChangedCount);
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), rowsAboutToBeRemovedCount);
+    QCOMPARE(rowsRemovedSpy.count(), rowsRemovedCount);
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
+    QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
+
     waitForWritten(":communi!communi@hidd.en JOIN :#freenode\r\n");
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
@@ -380,8 +443,11 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
-    for (int i = 0; i < bufferModel.count(); ++i)
+    for (int i = 0; i < bufferModel.count(); ++i) {
         QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
 
     QCOMPARE(countChangedSpy.count(), ++countChangedCount);
     QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
@@ -428,8 +494,11 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
-    for (int i = 0; i < bufferModel.count(); ++i)
+    for (int i = 0; i < bufferModel.count(); ++i) {
         QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
 
     bufferModel.setSortMethod(Irc::SortByName);
     QCOMPARE(layoutAboutToBeChangedSpy.count(), ++layoutAboutToBeChangedCount);
@@ -451,8 +520,11 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
-    for (int i = 0; i < bufferModel.count(); ++i)
+    for (int i = 0; i < bufferModel.count(); ++i) {
         QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
 
     waitForWritten(":qtassistant!qtassistant@hidd.en PRIVMSG communi :hola\r\n");
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
@@ -475,8 +547,11 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
-    for (int i = 0; i < bufferModel.count(); ++i)
+    for (int i = 0; i < bufferModel.count(); ++i) {
         QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
 
     QCOMPARE(countChangedSpy.count(), ++countChangedCount);
     QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
@@ -541,8 +616,11 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
-    for (int i = 0; i < bufferModel.count(); ++i)
+    for (int i = 0; i < bufferModel.count(); ++i) {
         QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
 
     QCOMPARE(countChangedSpy.count(), countChangedCount);
 
@@ -611,8 +689,11 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(bufferModel.buffers(), buffers);
     QCOMPARE(bufferModel.channels(), channels);
 
-    for (int i = 0; i < bufferModel.count(); ++i)
+    for (int i = 0; i < bufferModel.count(); ++i) {
         QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
 
     QCOMPARE(countChangedSpy.count(), ++countChangedCount);
     QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
