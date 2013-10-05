@@ -713,6 +713,28 @@ void tst_IrcConnection::testConnection()
     QCOMPARE(connection->status(), IrcConnection::Closed);
 }
 
+class NickChanger : public QObject
+{
+    Q_OBJECT
+
+public:
+    NickChanger(IrcConnection* connection) : QObject(connection)
+    {
+        connect(connection, SIGNAL(nickNameReserved(QString*)), SLOT(onNickNameReserved(QString*)));
+    }
+
+    QString setAlternate;
+    QString passedAlternate;
+
+public slots:
+    void onNickNameReserved(QString* alternate)
+    {
+        Q_ASSERT(alternate);
+        passedAlternate = *alternate;
+        *alternate = setAlternate;
+    }
+};
+
 Q_DECLARE_METATYPE(QString*)
 void tst_IrcConnection::testMessages()
 {
@@ -860,12 +882,16 @@ void tst_IrcConnection::testMessages()
     QCOMPARE(nickNameChangedSpy.last().at(0).toString(), QString("own"));
 
     // nick in use
+    QString prevNick = connection->nickName();
+    NickChanger changer(connection);
+    changer.setAlternate = "communi_";
     QSignalSpy nickNameReservedSpy(connection, SIGNAL(nickNameReserved(QString*)));
     QVERIFY(nickNameReservedSpy.isValid());
     waitForWritten(":moorcock.freenode.net 433 * communi :Nickname is already in use.\r\n");
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
     QCOMPARE(nickNameReservedSpy.count(), 1);
+    QCOMPARE(changer.passedAlternate, prevNick);
 
     waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi MODE #communi +v communi\r\n");
     QCOMPARE(messageSpy.count(), ++messageCount);
