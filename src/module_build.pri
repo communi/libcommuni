@@ -29,6 +29,8 @@ CONFIG(debug, debug|release) {
 }
 
 coverage {
+    QMAKE_CLEAN += $$OBJECTS_DIR/*.gcda $$OBJECTS_DIR/*.gcno
+
     LIBS += -lgcov
     QMAKE_CXXFLAGS += -g -Wall -fprofile-arcs -ftest-coverage -O0
     QMAKE_LDFLAGS += -g -Wall -fprofile-arcs -ftest-coverage  -O0
