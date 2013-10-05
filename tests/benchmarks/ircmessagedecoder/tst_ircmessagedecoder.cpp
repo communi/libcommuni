@@ -25,14 +25,11 @@ class tst_IrcMessageDecoder : public QObject
 private slots:
     void testDecode_data();
     void testDecode();
-
-    void testEncoding();
 };
 
 void tst_IrcMessageDecoder::testDecode_data()
 {
     QTest::addColumn<QByteArray>("data");
-    QTest::addColumn<QByteArray>("encoding");
 
     QTest::newRow("null") << QByteArray();
     QTest::newRow("empty") << QByteArray("");
@@ -56,17 +53,7 @@ void tst_IrcMessageDecoder::testDecode()
 
     IrcMessageDecoder decoder;
     QBENCHMARK {
-        decoder.decode(data);
-    }
-}
-
-void tst_IrcMessageDecoder::testEncoding()
-{
-    IrcMessageDecoder decoder;
-    foreach (const QByteArray& codec, QTextCodec::availableCodecs()) {
-        QBENCHMARK {
-            decoder.setEncoding(codec);
-        }
+        decoder.decode(data, "ISO-8859-15");
     }
 }
 

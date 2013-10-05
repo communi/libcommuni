@@ -4,7 +4,7 @@ compiler:
   - clang
 script:
   - qmake -v
-  - ./configure -verbose -config private_tests -var "QMAKE_CXX=${CXX}" -var "QMAKE_CC=${CC}"
+  - ./configure -verbose -var "QMAKE_CXX=${CXX}" -var "QMAKE_CC=${CC}"
   - make
   - make check
   - sudo make install
