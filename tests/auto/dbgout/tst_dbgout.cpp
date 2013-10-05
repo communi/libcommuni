@@ -11,6 +11,7 @@
 #include "irccommand.h"
 #include "ircmessage.h"
 #include "ircnetwork.h"
+#include "ircnetwork_p.h"
 #include "ircconnection.h"
 #include "ircchannel.h"
 #include "ircbuffer.h"
@@ -172,6 +173,16 @@ void tst_DebugOutput::testIrcNetwork()
     QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
     str.clear();
 
+    connection.network()->setObjectName("obj");
+    dbg << connection.network();
+    QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    str.clear();
+
+    IrcNetworkPrivate::get(connection.network())->name = "net";
+    dbg << connection.network();
+    QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj, network=net\\) ").exactMatch(str));
+    str.clear();
+
     dbg << IrcNetwork::MessageLength;
     QCOMPARE(str.trimmed(), QString::fromLatin1("MessageLength"));
     str.clear();
@@ -182,6 +193,14 @@ void tst_DebugOutput::testIrcNetwork()
 
     dbg << (IrcNetwork::TypeA | IrcNetwork::TypeD);
     QCOMPARE(str.trimmed(), QString::fromLatin1("(TypeA|TypeD)"));
+    str.clear();
+
+    dbg << (IrcNetwork::TypeB | IrcNetwork::TypeC);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("(TypeB|TypeC)"));
+    str.clear();
+
+    dbg << (IrcNetwork::TypeA | IrcNetwork::TypeB | IrcNetwork::TypeC | IrcNetwork::TypeD);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("(AllTypes)"));
     str.clear();
 }
 

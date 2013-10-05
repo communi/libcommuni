@@ -8,9 +8,11 @@
  */
 
 #include "ircnetwork.h"
+#include "irccommand.h"
 #include "ircconnection.h"
 #include <QtTest/QtTest>
 #include "tst_clientserver.h"
+#include "tst_data.h"
 
 class tst_IrcNetwork : public tst_ClientServer
 {
@@ -41,43 +43,27 @@ void tst_IrcNetwork::testDefaults()
 
 void tst_IrcNetwork::testInfo_data()
 {
-    QTest::addColumn<QStringList>("lines");
+    QTest::addColumn<QByteArray>("welcome");
     QTest::addColumn<QString>("name");
     QTest::addColumn<QString>("modes");
     QTest::addColumn<QString>("prefixes");
     QTest::addColumn<QString>("channelTypes");
 
-    QStringList freenode;
-    freenode += ":adams.freenode.net 001 jpnurmi :Welcome to the freenode Internet Relay Chat Network jpnurmi";
-    freenode += ":adams.freenode.net 005 jpnurmi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server";
-    freenode += ":adams.freenode.net 005 jpnurmi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server";
-    freenode += ":adams.freenode.net 005 jpnurmi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server";
-
-    QStringList ircnet;
-    ircnet += ":irc.cc.tut.fi 001 jpnurmi :Welcome to the Internet Relay Network jpnurmi!jpnurmi@xxx.xxx.fi";
-    ircnet += ":irc.cc.tut.fi 005 jpnurmi RFC2812 PREFIX=(ov)@+ CHANTYPES=#&!+ MODES=3 CHANLIMIT=#&!+:21 NICKLEN=15 TOPICLEN=255 KICKLEN=255 MAXLIST=beIR:64 CHANNELLEN=50 IDCHAN=!:5 CHANMODES=beIR,k,l,imnpstaqr :are supported by this server";
-    ircnet += ":irc.cc.tut.fi 005 jpnurmi PENALTY FNC EXCEPTS=e INVEX=I CASEMAPPING=ascii NETWORK=IRCnet :are supported by this server";
-
-    QStringList euirc;
-    euirc += ":irc.inn.at.euirc.net 001 jipsu :Welcome to the euIRCnet IRC Network jipsu!~communi@xxx.xxx.no";
-    euirc += ":irc.inn.at.euirc.net 005 jipsu NETWORK=euIRCnet WATCH=128 SAFELIST PREFIX=(qaohv)*!@%+ CHANMODES=bewI,k,flBL,cimnprstxACHKNOQRiTSVWXY CHANTYPES=#&+ KICKLEN=307 KNOCK MAP MAXLIST=bewI:100 MODES=6 NICKLEN=30 SILENCE=5 TOPICLEN=307 AWAYLEN=307 WALLCHOPS CHANNELLEN=32 MAXCHANNELS=30 MAXTARGETS=20 INVEX=I EXCEPT=e :are available on this server";
-    euirc += ":irc.inn.at.euirc.net 005 jipsu STARTTLS :are available on this server";
-
-    QTest::newRow("freenode") << freenode << "freenode" << "ov" << "@+" << "#";
-    QTest::newRow("ircnet") << ircnet << "IRCnet" << "ov" << "@+" << "#&!+";
-    QTest::newRow("euirc") << euirc << "euIRCnet" << "qaohv" << "*!@%+" << "#&+";
+    QTest::newRow("freenode") << tst_Data::welcome("freenode") << "freenode" << "ov" << "@+" << "#";
+    QTest::newRow("ircnet") << tst_Data::welcome("ircnet") << "IRCNet" << "ov" << "@+" << "#&!+";
+    QTest::newRow("euirc") << tst_Data::welcome("euirc") << "euIRCnet" << "qaohv" << "*!@%+" << "#&+";
 }
 
 void tst_IrcNetwork::testInfo()
 {
-    QFETCH(QStringList, lines);
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    QFETCH(QByteArray, welcome);
     QFETCH(QString, name);
     QFETCH(QString, modes);
     QFETCH(QString, prefixes);
     QFETCH(QString, channelTypes);
-
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
 
     IrcNetwork* network = connection->network();
 
@@ -91,13 +77,86 @@ void tst_IrcNetwork::testInfo()
     QVERIFY(prefixesSpy.isValid());
     QVERIFY(channelTypesSpy.isValid());
 
-    foreach (const QString& line, lines)
-        waitForWritten(line.toUtf8() + "\r\n");
+    waitForWritten(welcome);
 
     QCOMPARE(network->name(), name);
     QCOMPARE(network->modes(), modes.split("", QString::SkipEmptyParts));
     QCOMPARE(network->prefixes(), prefixes.split("", QString::SkipEmptyParts));
     QCOMPARE(network->channelTypes(), channelTypes.split("", QString::SkipEmptyParts));
+
+    QCOMPARE(network->prefixes().count(), network->modes().count());
+    for (int i = 0; i < network->prefixes().count(); ++i) {
+        QString prefix = network->prefixes().at(i);
+        QString mode = network->modes().at(i);
+        QCOMPARE(network->prefixToMode(prefix), mode);
+        QCOMPARE(network->modeToPrefix(mode), prefix);
+    }
+
+    QVERIFY(!network->channelTypes().isEmpty());
+    QVERIFY(!network->isChannel("foo"));
+    QVERIFY(network->isChannel(network->channelTypes().at(0) + "foo"));
+
+    QVERIFY(!network->channelModes(IrcNetwork::TypeA).isEmpty());
+    QVERIFY(!network->channelModes(IrcNetwork::TypeB).isEmpty());
+    QVERIFY(!network->channelModes(IrcNetwork::TypeC).isEmpty());
+    QVERIFY(!network->channelModes(IrcNetwork::TypeD).isEmpty());
+
+    if (welcome.contains("NICKLEN="))
+        QVERIFY(network->numericLimit(IrcNetwork::NickLength) != -1);
+    else
+        QCOMPARE(network->numericLimit(IrcNetwork::NickLength), -1);
+    if (welcome.contains("CHANNELLEN="))
+        QVERIFY(network->numericLimit(IrcNetwork::ChannelLength) != -1);
+    else
+        QCOMPARE(network->numericLimit(IrcNetwork::ChannelLength), -1);
+    if (welcome.contains("TOPICLEN="))
+        QVERIFY(network->numericLimit(IrcNetwork::TopicLength) != -1);
+    else
+        QCOMPARE(network->numericLimit(IrcNetwork::TopicLength), -1);
+    if (welcome.contains("KICKLEN="))
+        QVERIFY(network->numericLimit(IrcNetwork::KickReasonLength) != -1);
+    else
+        QCOMPARE(network->numericLimit(IrcNetwork::KickReasonLength), -1);
+    if (welcome.contains("AWAYLEN="))
+        QVERIFY(network->numericLimit(IrcNetwork::AwayReasonLength) != -1);
+    else
+        QCOMPARE(network->numericLimit(IrcNetwork::AwayReasonLength), -1);
+    if (welcome.contains("MODES="))
+        QVERIFY(network->numericLimit(IrcNetwork::ModeCount) != -1);
+    else
+        QCOMPARE(network->numericLimit(IrcNetwork::ModeCount), -1);
+
+    QCOMPARE(network->numericLimit(IrcNetwork::MessageLength), 512); // hard-coded :/
+
+    if (welcome.contains("MAXLIST=")) {
+        bool limited = false;
+        foreach (const QString& mode, network->modes())
+        if (network->modeLimit(mode) != -1)
+            limited = true;
+        QVERIFY(limited);
+    }
+
+    if (welcome.contains("CHANLIMIT=")) {
+        bool limited = false;
+        foreach (const QString& type, network->channelTypes())
+            if (network->channelLimit(type) != -1)
+                limited = true;
+        QVERIFY(limited);
+    }
+
+    if (welcome.contains("TARGMAX=")) {
+        bool limited = false;
+        IrcCommand command;
+        for (int i = IrcCommand::Admin; i <= IrcCommand::Whowas; ++i) {
+            if (i != IrcCommand::Custom) {
+                command.setType(static_cast<IrcCommand::Type>(i));
+                QString cmd = command.toString().split(" ", QString::SkipEmptyParts).value(0);
+                if (network->targetLimit(cmd) != -1)
+                    limited = true;
+            }
+        }
+        QVERIFY(limited);
+    }
 
     QCOMPARE(nameSpy.count(), 1);
     QCOMPARE(modesSpy.count(), 1);
@@ -112,40 +171,174 @@ void tst_IrcNetwork::testInfo()
 
 void tst_IrcNetwork::testCapabilities_data()
 {
-    QTest::addColumn<QStringList>("availableCaps");
-    QTest::addColumn<QStringList>("requestedCaps");
-    QTest::addColumn<QStringList>("activeCaps");
+    QTest::addColumn<QString>("initialCaps");
+    QTest::addColumn<QString>("requestedCaps");
+    QTest::addColumn<QString>("ackedCaps");
+    QTest::addColumn<QString>("nakedCaps");
+    QTest::addColumn<QString>("listedCaps");
+    QTest::addColumn<QString>("availableCaps");
+    QTest::addColumn<QString>("activeCaps");
 
-    QTest::newRow("empty") << QStringList() << QStringList() << QStringList();
-    QTest::newRow("none")  << QString("multi-prefix sasl identify-msg").split(" ", QString::SkipEmptyParts)
-                           << QString("sasl").split("", QString::SkipEmptyParts)
-                           << QStringList();
-    QTest::newRow("sasl")  << QString("multi-prefix sasl identify-msg").split(" ", QString::SkipEmptyParts)
-                           << QStringList("sasl")
-                           << QStringList("sasl");
-    QTest::newRow("unk")   << QString("multi-prefix sasl identify-msg").split(" ", QString::SkipEmptyParts)
-                           << QStringList("unk")
-                           << QStringList();
+    QTest::newRow("empty")     << QString()
+                               << QString()
+                               << QString()
+                               << QString()
+                               << QString()
+                               << QString()
+                               << QString();
+
+    QTest::newRow("sasl")      << QString("multi-prefix sasl identify-msg") // initial
+                               << QString("sasl") // requested
+                               << QString("sasl") // acked
+                               << QString() // naked
+                               << QString("sasl identify-msg multi-prefix") // listed
+                               << QString("sasl identify-msg multi-prefix") // available
+                               << QString("sasl"); // active
+
+    QTest::newRow("unk")       << QString("multi-prefix sasl identify-msg") // initial
+                               << QString("unk") // requested
+                               << QString() // acked
+                               << QString("nak") // naked
+                               << QString("multi-prefix sasl identify-msg") // listed
+                               << QString("multi-prefix sasl identify-msg") // available
+                               << QString(); // active
+
+    QTest::newRow("nak all")   << QString("multi-prefix sasl identify-msg") // initial
+                               << QString("sasl identify-msg multi-prefix") // requested
+                               << QString() // acked
+                               << QString("sasl identify-msg multi-prefix") // naked
+                               << QString("sasl identify-msg multi-prefix") // listed
+                               << QString("sasl identify-msg multi-prefix") // available
+                               << QString(); // active
+
+    QTest::newRow("sticky")    << QString("=sticky") // initial
+                               << QString("sticky") // requested
+                               << QString("=sticky") // acked
+                               << QString() // naked
+                               << QString() // listed
+                               << QString("sticky") // available
+                               << QString("sticky"); // active
+
+    QTest::newRow("ackmod")    << QString("~ackmod") // initial
+                               << QString("ackmod") // requested
+                               << QString("~ackmod") // acked
+                               << QString() // naked
+                               << QString() // listed
+                               << QString("ackmod") // available
+                               << QString("ackmod"); // active
+
+    QTest::newRow("acksticky") << QString("~=acksticky") // initial
+                               << QString("acksticky") // requested
+                               << QString("=~acksticky") // acked
+                               << QString() // naked
+                               << QString() // listed
+                               << QString("acksticky") // available
+                               << QString("acksticky"); // active
+}
+
+static bool equalCaps(const QString& left, const QString& right)
+{
+    return left.split(" ", QString::SkipEmptyParts).toSet() == right.split(" ", QString::SkipEmptyParts).toSet();
 }
 
 void tst_IrcNetwork::testCapabilities()
 {
-    QFETCH(QStringList, availableCaps);
-    QFETCH(QStringList, requestedCaps);
-    QFETCH(QStringList, activeCaps);
-
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
+    QFETCH(QString, initialCaps);
+    QFETCH(QString, requestedCaps);
+    QFETCH(QString, ackedCaps);
+    QFETCH(QString, nakedCaps);
+    QFETCH(QString, listedCaps);
+    QFETCH(QString, availableCaps);
+    QFETCH(QString, activeCaps);
+
     IrcNetwork* network = connection->network();
-    network->setRequestedCapabilities(requestedCaps);
 
-    waitForWritten(":irc.ser.ver CAP * LS :" + availableCaps.join(" ").toUtf8() + "\r\n");
-    waitForWritten(":irc.ser.ver CAP jpnurmi ACK :" + activeCaps.join(" ").toUtf8() + "\r\n");
+    QSignalSpy availableSpy(network, SIGNAL(availableCapabilitiesChanged(QStringList)));
+    QSignalSpy requestedSpy(network, SIGNAL(requestedCapabilitiesChanged(QStringList)));
+    QSignalSpy activeSpy(network, SIGNAL(activeCapabilitiesChanged(QStringList)));
+    QSignalSpy requestingSpy(network, SIGNAL(requestingCapabilities()));
 
-    QCOMPARE(network->availableCapabilities().toSet(), availableCaps.toSet());
-    QCOMPARE(network->activeCapabilities().toSet(), activeCaps.toSet());
-    QCOMPARE(network->requestedCapabilities().toSet(), requestedCaps.toSet());
+    QVERIFY(availableSpy.isValid());
+    QVERIFY(requestedSpy.isValid());
+    QVERIFY(activeSpy.isValid());
+    QVERIFY(requestingSpy.isValid());
+
+    int availableCount = 0;
+    int requestedCount = 0;
+    int activeCount = 0;
+    int requestingCount = 0;
+
+    if (!requestedCaps.isEmpty()) {
+        network->setRequestedCapabilities(requestedCaps.split(" ", QString::SkipEmptyParts));
+        ++requestedCount;
+    }
+    QCOMPARE(requestedSpy.count(), requestedCount);
+
+    foreach (const QString& cap, availableCaps.split(" ", QString::SkipEmptyParts))
+        QVERIFY(!network->hasCapability(cap));
+    foreach (const QString& cap, activeCaps.split(" ", QString::SkipEmptyParts))
+        QVERIFY(!network->isCapable(cap));
+
+    if (!initialCaps.isEmpty()) {
+        waitForWritten(":irc.ser.ver CAP * LS :" + initialCaps.toUtf8() + "\r\n");
+        ++availableCount;
+        ++requestingCount;
+    }
+    QCOMPARE(availableSpy.count(), availableCount);
+    QCOMPARE(requestingSpy.count(), requestingCount);
+
+    foreach (const QString& cap, availableCaps.split(" ", QString::SkipEmptyParts))
+        QVERIFY(network->hasCapability(cap));
+    foreach (const QString& cap, activeCaps.split(" ", QString::SkipEmptyParts))
+        QVERIFY(!network->isCapable(cap));
+
+    if (!ackedCaps.isEmpty()) {
+        waitForWritten(":irc.ser.ver CAP jpnurmi ACK :" + ackedCaps.toUtf8() + "\r\n");
+        ++activeCount;
+    }
+    QCOMPARE(activeSpy.count(), activeCount);
+
+    foreach (const QString& cap, availableCaps.split(" ", QString::SkipEmptyParts))
+        QVERIFY(network->hasCapability(cap));
+    foreach (const QString& cap, activeCaps.split(" ", QString::SkipEmptyParts))
+        QVERIFY(network->isCapable(cap));
+
+    if (!nakedCaps.isEmpty())
+        waitForWritten(":irc.ser.ver CAP jpnurmi NAK :" + nakedCaps.toUtf8() + "\r\n");
+
+    if (!listedCaps.isEmpty()) {
+        waitForWritten(":irc.ser.ver CAP jpnurmi LS :" + listedCaps.toUtf8() + "\r\n");
+        if (!equalCaps(listedCaps, initialCaps))
+            ++availableCount;
+    }
+    QCOMPARE(availableSpy.count(), availableCount);
+
+    QVERIFY(equalCaps(network->availableCapabilities().join(" "), availableCaps));
+    QVERIFY(equalCaps(network->activeCapabilities().join(" "), activeCaps));
+    QVERIFY(equalCaps(network->requestedCapabilities().join(" "), requestedCaps));
+
+    QCOMPARE(requestedSpy.count(), requestedCount);
+    QCOMPARE(requestingSpy.count(), requestingCount);
+    QCOMPARE(availableSpy.count(), availableCount);
+    QCOMPARE(activeSpy.count(), activeCount);
+
+    foreach (const QString& cap, availableCaps.split(" ", QString::SkipEmptyParts))
+        QVERIFY(network->hasCapability(cap));
+    foreach (const QString& cap, activeCaps.split(" ", QString::SkipEmptyParts))
+        QVERIFY(network->isCapable(cap));
+
+    // -> CLEAR
+    QString clearCaps;
+    foreach (const QString& cap, activeCaps.split(" ", QString::SkipEmptyParts))
+        clearCaps += QString("-") + cap;
+    waitForWritten(":irc.ser.ver CAP jpnurmi ACK :" + clearCaps.toUtf8() + "\r\n");
+
+    if (!activeCaps.isEmpty())
+        ++activeCount;
+    QCOMPARE(activeSpy.count(), activeCount);
 }
 
 QTEST_MAIN(tst_IrcNetwork)

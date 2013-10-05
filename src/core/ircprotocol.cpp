@@ -153,12 +153,21 @@ void IrcProtocolPrivate::handlePrivateMessage(IrcPrivateMessage* msg)
 static void handleCapability(QSet<QString>* caps, const QString& cap)
 {
     Q_ASSERT(caps);
-    if (cap.startsWith(QLatin1Char('-')) || cap.startsWith(QLatin1Char('=')))
-        caps->remove(cap.mid(1));
-    else if (cap.startsWith(QLatin1Char('~')))
-        caps->insert(cap.mid(1));
+    // sticky modifier (once the cap is enabled, it cannot be disabled)
+    QLatin1Char stickyMod('=');
+    // ack modifier (the cap must be acked by the client to fully enable/disable)
+    QLatin1Char ackMod('~');
+    // disable modifier (the cap should be disabled)
+    QLatin1Char disMod('-');
+
+    QString name = cap;
+    while (name.startsWith(stickyMod) || name.startsWith(ackMod))
+        name.remove(0, 1);
+
+    if (name.startsWith(disMod))
+        caps->remove(name.mid(1));
     else
-        caps->insert(cap);
+        caps->insert(name);
 }
 
 void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
@@ -172,7 +181,8 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             handleCapability(&availableCaps, cap);
         q->setAvailableCapabilities(availableCaps);
 
-        if (!connected) {
+        if (msg->parameters().value(0) == "*") {
+            QMetaObject::invokeMethod(connection->network(), "requestingCapabilities");
             QStringList requestedCaps = connection->network()->requestedCapabilities();
             const QStringList params = msg->parameters();
             if (params.value(params.count() - 1) != QLatin1String("*")) {
@@ -330,8 +340,6 @@ void IrcProtocol::setAvailableCapabilities(const QSet<QString>& capabilities)
     Q_D(IrcProtocol);
     IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->connection->network());
     priv->setAvailableCapabilities(capabilities);
-    if (!d->connection->isConnected())
-        emit d->connection->network()->requestingCapabilities();
 }
 
 void IrcProtocol::setActiveCapabilities(const QSet<QString>& capabilities)

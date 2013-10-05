@@ -77,9 +77,9 @@ public:
 
     Q_INVOKABLE int numericLimit(IrcNetwork::Limit limit) const;
 
-    Q_INVOKABLE int modeLimit(const QString& mode = QString()) const;
-    Q_INVOKABLE int channelLimit(const QString& type = QString()) const;
-    Q_INVOKABLE int targetLimit(const QString& command = QString()) const;
+    Q_INVOKABLE int modeLimit(const QString& mode) const;
+    Q_INVOKABLE int channelLimit(const QString& type) const;
+    Q_INVOKABLE int targetLimit(const QString& command) const;
 
     QStringList availableCapabilities() const;
     QStringList requestedCapabilities() const;

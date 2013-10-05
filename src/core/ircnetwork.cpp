@@ -427,7 +427,6 @@ int IrcNetwork::numericLimit(Limit limit) const
         case KickReasonLength:  key = QLatin1String("KICKLEN"); break;
         case AwayReasonLength:  key = QLatin1String("AWAYLEN"); break;
         case ModeCount:         key = QLatin1String("MODES"); break;
-        default:                break;
     }
     return d->numericLimits.value(key, -1);
 }
@@ -435,7 +434,7 @@ int IrcNetwork::numericLimit(Limit limit) const
 /*!
     Returns the limit of entries in the list per \a mode, or -1 if the limitation is not known.
 
-    \sa numericLimit(), channelLimit(), targetLimit()
+    \sa modes()
  */
 int IrcNetwork::modeLimit(const QString& mode) const
 {
@@ -446,7 +445,7 @@ int IrcNetwork::modeLimit(const QString& mode) const
 /*!
     Returns the limit for a \a type of channels, or -1 if the limitation is not known.
 
-    \sa numericLimit(), modeLimit(), targetLimit()
+    \sa channelTypes()
  */
 int IrcNetwork::channelLimit(const QString& type) const
 {
@@ -455,9 +454,7 @@ int IrcNetwork::channelLimit(const QString& type) const
 }
 
 /*!
-    Returns the target limit for a \a command, or -1 if the limitation is not known.
-
-    \sa numericLimit(), modeLimit(), channelLimit()
+    Returns the limit of targets for a \a command, or -1 if the limitation is not known.
  */
 int IrcNetwork::targetLimit(const QString& command) const
 {

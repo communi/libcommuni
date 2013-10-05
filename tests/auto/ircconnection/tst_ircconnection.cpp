@@ -604,7 +604,10 @@ void tst_IrcConnection::testConnection()
     Irc::registerMetaTypes();
 
     TestProtocol* protocol = new TestProtocol(connection);
-    static_cast<FriendlyConnection*>(connection.data())->setProtocol(protocol);
+    FriendlyConnection* friendly = static_cast<FriendlyConnection*>(connection.data());
+    friendly->setProtocol(protocol);
+    QCOMPARE(friendly->protocol(), protocol);
+    QCOMPARE(protocol->connection(), connection.data());
 
     // tst_ClientServer::init() opens the connection
     QVERIFY(connection->isActive());
@@ -644,6 +647,18 @@ void tst_IrcConnection::testConnection()
     QCOMPARE(connection->status(), IrcConnection::Connecting);
 
     waitForOpened();
+
+    protocol->written.clear();
+    connection->network()->requestCapability("identify-msg");
+    QVERIFY(protocol->written.contains("CAP REQ"));
+    QVERIFY(protocol->written.contains("identify-msg"));
+
+    protocol->written.clear();
+    connection->network()->requestCapabilities(QStringList() << "sasl" << "communi");
+    QVERIFY(protocol->written.contains("CAP REQ"));
+    QVERIFY(protocol->written.contains("sasl"));
+    QVERIFY(protocol->written.contains("communi"));
+
     waitForWritten(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n");
     QVERIFY(connection->isActive());
     QVERIFY(connection->isConnected());
@@ -664,12 +679,14 @@ void tst_IrcConnection::testConnection()
     QCOMPARE(connection->status(), IrcConnection::Closed);
 }
 
+Q_DECLARE_METATYPE(QString*)
 void tst_IrcConnection::testMessages()
 {
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
     Irc::registerMetaTypes();
+    qRegisterMetaType<QString*>();
 
     QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
     QSignalSpy capabilityMessageSpy(connection, SIGNAL(capabilityMessageReceived(IrcCapabilityMessage*)));
@@ -797,6 +814,24 @@ void tst_IrcConnection::testMessages()
     waitForWritten(":Communi84194!ident@host NICK :communi\r\n");
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(nickMessageSpy.count(), 1);
+
+    // own nick name changes
+    QSignalSpy nickNameChangedSpy(connection, SIGNAL(nickNameChanged(QString)));
+    QVERIFY(nickNameChangedSpy.isValid());
+    waitForWritten(":communi!user@host NICK :own\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(nickMessageSpy.count(), 2);
+    QCOMPARE(connection->nickName(), QString("own"));
+    QCOMPARE(nickNameChangedSpy.count(), 1);
+    QCOMPARE(nickNameChangedSpy.last().at(0).toString(), QString("own"));
+
+    // nick in use
+    QSignalSpy nickNameReservedSpy(connection, SIGNAL(nickNameReserved(QString*)));
+    QVERIFY(nickNameReservedSpy.isValid());
+    waitForWritten(":moorcock.freenode.net 433 * communi :Nickname is already in use.\r\n");
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+    QCOMPARE(nickNameReservedSpy.count(), 1);
 
     waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi MODE #communi +v communi\r\n");
     QCOMPARE(messageSpy.count(), ++messageCount);
@@ -1111,7 +1146,10 @@ void tst_IrcConnection::testCommandFilter()
         Q4SKIP("The address is not available");
 
     TestProtocol* protocol = new TestProtocol(connection);
-    static_cast<FriendlyConnection*>(connection.data())->setProtocol(protocol);
+    FriendlyConnection* friendly = static_cast<FriendlyConnection*>(connection.data());
+    friendly->setProtocol(protocol);
+    QCOMPARE(friendly->protocol(), protocol);
+    QCOMPARE(protocol->connection(), connection.data());
 
     TestFilter* filter1 = new TestFilter; // suicidal
     QScopedPointer<TestFilter> filter2(new TestFilter);
@@ -1349,6 +1387,8 @@ void tst_IrcConnection::testCtcp()
 
     TestProtocol* protocol = new TestProtocol(friendly);
     friendly->setProtocol(protocol);
+    QCOMPARE(friendly->protocol(), protocol);
+    QCOMPARE(protocol->connection(), friendly);
 
     // PING
     protocol->written.clear();
