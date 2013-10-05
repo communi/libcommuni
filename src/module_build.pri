@@ -42,6 +42,7 @@ coverage {
     capture.commands = @mkdir -p ../../coverage
     capture.commands += && lcov --base-directory $$_PRO_FILE_PWD_ --directory \$(OBJECTS_DIR) --capture --output-file $$capture.file
     capture.filters = \"/usr/*\" \"moc_*.cpp\"
+    !isEqual(IRC_MODULE, "IrcCore"):capture.filters += \"*/IrcCore/*\"
     capture.commands += && lcov --remove $$capture.file $$capture.filters --output-file $$capture.file
     QMAKE_EXTRA_TARGETS += capture
 
