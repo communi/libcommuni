@@ -11,7 +11,11 @@ script:
   - cd tests/build
   - qmake && make
 notifications:
-  email: false
+  email:
+    recipients:
+      - jpnurmi@gmail.com
+    on_success: never
+    on_failure: always
   irc:
     channels:
       - "irc.freenode.org#communi"
