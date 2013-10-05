@@ -80,6 +80,7 @@ private slots:
 
     void testSecure();
     void testSasl();
+    void testSsl();
 
     void testOpen();
 
@@ -430,6 +431,39 @@ void tst_IrcConnection::testSasl()
     waitForWritten(":irc.freenode.net 900 user nick!user@host nick :You are now logged in as user.\r\n");
     waitForWritten(":irc.freenode.net 903 user :SASL authentication successful\r\n");
     waitForWritten(":irc.freenode.net 001 user :Welcome to the freenode Internet Relay Chat Network user\r\n");
+}
+
+#ifndef QT_NO_OPENSSL
+class SslSocket : public QSslSocket
+{
+    Q_OBJECT
+
+public:
+    SslSocket(QObject* parent) : QSslSocket(parent), clientEncryptionStarted(false) { }
+    bool clientEncryptionStarted;
+
+public slots:
+    void startClientEncryption()
+    {
+        clientEncryptionStarted = true;
+        QSslSocket::startClientEncryption();
+    }
+};
+#endif // !QT_NO_OPENSSL
+
+void tst_IrcConnection::testSsl()
+{
+#ifndef QT_NO_OPENSSL
+    if (!serverSocket)
+        Q4SKIP("The address is not available");
+
+    SslSocket* socket = new SslSocket(connection);
+    connection->close();
+    connection->setSocket(socket);
+    connection->open();
+    waitForOpened();
+    QVERIFY(socket->clientEncryptionStarted);
+#endif // !QT_NO_OPENSSL
 }
 
 void tst_IrcConnection::testOpen()
