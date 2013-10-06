@@ -1486,7 +1486,7 @@ void tst_IrcConnection::testCtcp()
     qmlConnection.setNickName("nick");
     qmlConnection.setRealName("real");
     qmlConnection.setPassword("secret");
-    qmlConnection.setHost("127.0.0.7");
+    qmlConnection.setHost("127.0.0.1");
     qmlConnection.setPort(server->serverPort());
 
     TestProtocol* qmlProtocol = new TestProtocol(&qmlConnection);
