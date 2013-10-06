@@ -1199,14 +1199,27 @@ void tst_IrcConnection::testMessageFilter()
     QCOMPARE(filter1.messageFiltered, 0);
     QCOMPARE(messageSpy.count(), ++messageCount);
 
-    // commit a suicide
-    QPointer<TestFilter> suicidal = new TestFilter;
-    connection->installMessageFilter(suicidal);
-    suicidal->commitSuicide = true;
+    // commit a suicide & filter
+    QPointer<TestFilter> suicidal1 = new TestFilter;
+    connection->installMessageFilter(suicidal1);
+    suicidal1->clear();
+    suicidal1->messageFilterEnabled = true;
+    suicidal1->commitSuicide = true;
 
     waitForWritten(":communi!~communi@hidd.en PART #freenode\r\n");
+    QCOMPARE(messageSpy.count(), messageCount);
+    QVERIFY(!suicidal1);
+
+    // commit a suicide & don't filter
+    QPointer<TestFilter> suicidal2 = new TestFilter;
+    connection->installMessageFilter(suicidal2);
+    suicidal2->clear();
+    suicidal2->messageFilterEnabled = false;
+    suicidal2->commitSuicide = true;
+
+    waitForWritten(":communi!~communi@hidd.en JOIN #qt\r\n");
     QCOMPARE(messageSpy.count(), ++messageCount);
-    QVERIFY(!suicidal);
+    QVERIFY(!suicidal2);
 }
 
 void tst_IrcConnection::testCommandFilter()
