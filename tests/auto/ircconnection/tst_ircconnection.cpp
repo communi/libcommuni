@@ -1386,6 +1386,7 @@ class FakeQmlConnection : public IrcConnection
     friend class tst_IrcConnection;
 
 public slots:
+    // -Wno-overloaded-virtual
     QVariant createCtcpReply(const QVariant& request)
     {
         return QVariant::fromValue(IrcConnection::createCtcpReply(request.value<IrcPrivateMessage*>()));
