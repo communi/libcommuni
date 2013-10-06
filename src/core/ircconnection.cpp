@@ -923,6 +923,8 @@ void IrcConnection::setSaslMechanism(const QString& mechanism)
         qWarning("IrcConnection::setSaslMechanism(): unsupported mechanism: '%s'", qPrintable(mechanism));
         return;
     }
+    if (isActive())
+        qWarning("IrcConnection::setSaslMechanism() has no effect until re-connect");
     if (d->saslMechanism != mechanism) {
         d->saslMechanism = mechanism.toUpper();
         emit saslMechanismChanged(mechanism);

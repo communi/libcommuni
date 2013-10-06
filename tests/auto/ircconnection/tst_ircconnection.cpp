@@ -1375,6 +1375,9 @@ void tst_IrcConnection::testWarnings()
 
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setPassword() has no effect until re-connect");
     connection->setPassword("foo");
+
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSaslMechanism() has no effect until re-connect");
+    connection->setSaslMechanism("PLAIN");
 }
 
 class FakeQmlConnection : public IrcConnection
