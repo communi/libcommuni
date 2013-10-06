@@ -724,6 +724,36 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
 
     QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
+
+    QVERIFY(waitForWritten(":communi!communi@hidd.en QUIT :bye"));
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
+
+    serverSocket->close();
+    QVERIFY(clientSocket->waitForDisconnected(100));
+    QVERIFY(!connection->isConnected());
+    QVERIFY(!connection->isActive());
+
+    QCOMPARE(bufferModel.count(), buffers.count());
+    QCOMPARE(bufferModel.buffers(), buffers);
+    QCOMPARE(bufferModel.channels(), channels);
+
+    for (int i = 0; i < bufferModel.count(); ++i) {
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+        QVERIFY(!buffers.at(i)->isActive());
+    }
+
+    QCOMPARE(countChangedSpy.count(), countChangedCount);
+    QCOMPARE(aboutToBeAddedSpy.count(), aboutToBeAddedCount);
+    QCOMPARE(addedSpy.count(), addedCount);
+    QCOMPARE(buffersChangedSpy.count(), buffersChangedCount);
+    QCOMPARE(channelsChangedSpy.count(), channelsChangedCount);
+    QCOMPARE(dataChangedSpy.count(), dataChangedCount);
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), rowsAboutToBeRemovedCount);
+    QCOMPARE(rowsRemovedSpy.count(), rowsRemovedCount);
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
+    QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
 }
 
 QTEST_MAIN(tst_IrcBufferModel)
