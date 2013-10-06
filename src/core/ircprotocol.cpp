@@ -190,7 +190,7 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
                     requestedCaps += QLatin1String("sasl");
             }
             if (!requestedCaps.isEmpty())
-                connection->sendCommand(IrcCommand::createCapability("REQ", requestedCaps));
+                connection->sendRaw("CAP REQ :" + requestedCaps.join(" "));
             else
                 QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
         }
@@ -268,7 +268,7 @@ void IrcProtocol::open()
     if (d->connection->saslMechanism().isEmpty() && !d->connection->password().isEmpty())
         authenticate(false);
 
-    d->connection->sendCommand(IrcCommand::createNick(d->connection->nickName()));
+    d->connection->sendRaw(QString("NICK %1").arg(d->connection->nickName()));
     d->connection->sendRaw(QString("USER %1 hostname servername :%2").arg(d->connection->userName(), d->connection->realName()));
 }
 
