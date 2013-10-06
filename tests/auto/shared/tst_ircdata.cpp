@@ -7,17 +7,17 @@
  * completely or partially.
  */
 
-#include "tst_data.h"
+#include "tst_ircdata.h"
 #include "tst_freenode.h"
 #include "tst_ircnet.h"
 #include "tst_euirc.h"
 
-QList<QByteArray> tst_Data::keys()
+QList<QByteArray> tst_IrcData::keys()
 {
     return QList<QByteArray>() << "freenode" << "ircnet" << "euirc";
 }
 
-QByteArray tst_Data::welcome(const QByteArray& key)
+QByteArray tst_IrcData::welcome(const QByteArray& key)
 {
     static QHash<QByteArray, QByteArray> blobs;
     if (blobs.isEmpty()) {
@@ -28,7 +28,7 @@ QByteArray tst_Data::welcome(const QByteArray& key)
     return blobs.value(key.isEmpty() ? keys().first() : key);
 }
 
-QByteArray tst_Data::join(const QByteArray& key)
+QByteArray tst_IrcData::join(const QByteArray& key)
 {
     static QHash<QByteArray, QByteArray> blobs;
     if (blobs.isEmpty()) {
@@ -39,7 +39,7 @@ QByteArray tst_Data::join(const QByteArray& key)
     return blobs.value(key.isEmpty() ? keys().first() : key);
 }
 
-QStringList tst_Data::names(const QByteArray& key)
+QStringList tst_IrcData::names(const QByteArray& key)
 {
     static QHash<QByteArray, QStringList> blobs;
     if (blobs.isEmpty()) {
@@ -50,7 +50,7 @@ QStringList tst_Data::names(const QByteArray& key)
     return blobs.value(key.isEmpty() ? keys().first() : key);
 }
 
-QStringList tst_Data::admins(const QByteArray& key)
+QStringList tst_IrcData::admins(const QByteArray& key)
 {
     static QHash<QByteArray, QStringList> blobs;
     if (blobs.isEmpty()) {
@@ -61,7 +61,7 @@ QStringList tst_Data::admins(const QByteArray& key)
     return blobs.value(key.isEmpty() ? keys().first() : key);
 }
 
-QStringList tst_Data::ops(const QByteArray& key)
+QStringList tst_IrcData::ops(const QByteArray& key)
 {
     static QHash<QByteArray, QStringList> blobs;
     if (blobs.isEmpty()) {
@@ -72,7 +72,7 @@ QStringList tst_Data::ops(const QByteArray& key)
     return blobs.value(key.isEmpty() ? keys().first() : key);
 }
 
-QStringList tst_Data::halfops(const QByteArray& key)
+QStringList tst_IrcData::halfops(const QByteArray& key)
 {
     static QHash<QByteArray, QStringList> blobs;
     if (blobs.isEmpty()) {
@@ -83,7 +83,7 @@ QStringList tst_Data::halfops(const QByteArray& key)
     return blobs.value(key.isEmpty() ? keys().first() : key);
 }
 
-QStringList tst_Data::voices(const QByteArray& key)
+QStringList tst_IrcData::voices(const QByteArray& key)
 {
     static QHash<QByteArray, QStringList> blobs;
     if (blobs.isEmpty()) {

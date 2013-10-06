@@ -7,9 +7,9 @@
  * completely or partially.
  */
 
-#include "tst_clientserver.h"
+#include "tst_ircclientserver.h"
 
-void tst_ClientServer::init()
+void tst_IrcClientServer::init()
 {
     server = new QTcpServer(this);
     QVERIFY(server->listen());
@@ -21,33 +21,30 @@ void tst_ClientServer::init()
     connection->setPassword("secret");
     connection->setHost(server->serverAddress().toString());
     connection->setPort(server->serverPort());
-
-    connection->open();
-    waitForOpened();
 }
 
-void tst_ClientServer::cleanup()
+void tst_IrcClientServer::cleanup()
 {
     delete server;
     delete connection;
 }
 
-void tst_ClientServer::waitForOpened()
+bool tst_IrcClientServer::waitForOpened(int timeout)
 {
-    if (!server->waitForNewConnection(200))
-        QEXPECT_FAIL("", "The address is not available", Abort);
+    if (!server->waitForNewConnection(timeout))
+        return false;
     serverSocket = server->nextPendingConnection();
-    QVERIFY(serverSocket);
-
     clientSocket = connection->socket();
-    QVERIFY(clientSocket);
-    QVERIFY(clientSocket->waitForConnected());
+    return serverSocket && clientSocket && clientSocket->waitForConnected(1000);
 }
 
-void tst_ClientServer::waitForWritten(const QByteArray& data)
+bool tst_IrcClientServer::waitForWritten(const QByteArray& data, int timeout)
 {
-    if (!data.isNull())
-        serverSocket->write(data);
-    QVERIFY(serverSocket->waitForBytesWritten());
-    QVERIFY(clientSocket->waitForReadyRead());
+    if (!data.isNull()) {
+        if (data.endsWith('\r') || data.endsWith('\n'))
+            serverSocket->write(data);
+        else
+            serverSocket->write(data + "\r\n");
+    }
+    return serverSocket->waitForBytesWritten(timeout) && clientSocket->waitForReadyRead(timeout);
 }

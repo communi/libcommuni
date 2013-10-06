@@ -11,10 +11,10 @@
 #include "irccommand.h"
 #include "ircconnection.h"
 #include <QtTest/QtTest>
-#include "tst_clientserver.h"
-#include "tst_data.h"
+#include "tst_ircclientserver.h"
+#include "tst_ircdata.h"
 
-class tst_IrcNetwork : public tst_ClientServer
+class tst_IrcNetwork : public tst_IrcClientServer
 {
     Q_OBJECT
 
@@ -49,16 +49,13 @@ void tst_IrcNetwork::testInfo_data()
     QTest::addColumn<QString>("prefixes");
     QTest::addColumn<QString>("channelTypes");
 
-    QTest::newRow("freenode") << tst_Data::welcome("freenode") << "freenode" << "ov" << "@+" << "#";
-    QTest::newRow("ircnet") << tst_Data::welcome("ircnet") << "IRCNet" << "ov" << "@+" << "#&!+";
-    QTest::newRow("euirc") << tst_Data::welcome("euirc") << "euIRCnet" << "qaohv" << "*!@%+" << "#&+";
+    QTest::newRow("freenode") << tst_IrcData::welcome("freenode") << "freenode" << "ov" << "@+" << "#";
+    QTest::newRow("ircnet") << tst_IrcData::welcome("ircnet") << "IRCNet" << "ov" << "@+" << "#&!+";
+    QTest::newRow("euirc") << tst_IrcData::welcome("euirc") << "euIRCnet" << "qaohv" << "*!@%+" << "#&+";
 }
 
 void tst_IrcNetwork::testInfo()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     QFETCH(QByteArray, welcome);
     QFETCH(QString, name);
     QFETCH(QString, modes);
@@ -77,7 +74,10 @@ void tst_IrcNetwork::testInfo()
     QVERIFY(prefixesSpy.isValid());
     QVERIFY(channelTypesSpy.isValid());
 
-    waitForWritten(welcome);
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+    QVERIFY(waitForWritten(welcome));
 
     QCOMPARE(network->name(), name);
     QCOMPARE(network->modes(), modes.split("", QString::SkipEmptyParts));
@@ -243,9 +243,6 @@ static bool equalCaps(const QString& left, const QString& right)
 
 void tst_IrcNetwork::testCapabilities()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     QFETCH(QString, initialCaps);
     QFETCH(QString, requestedCaps);
     QFETCH(QString, ackedCaps);
@@ -282,8 +279,12 @@ void tst_IrcNetwork::testCapabilities()
     foreach (const QString& cap, activeCaps.split(" ", QString::SkipEmptyParts))
         QVERIFY(!network->isCapable(cap));
 
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
     if (!initialCaps.isEmpty()) {
-        waitForWritten(":irc.ser.ver CAP * LS :" + initialCaps.toUtf8() + "\r\n");
+        QVERIFY(waitForWritten(":irc.ser.ver CAP * LS :" + initialCaps.toUtf8()));
         ++availableCount;
         ++requestingCount;
     }
@@ -296,7 +297,7 @@ void tst_IrcNetwork::testCapabilities()
         QVERIFY(!network->isCapable(cap));
 
     if (!ackedCaps.isEmpty()) {
-        waitForWritten(":irc.ser.ver CAP jpnurmi ACK :" + ackedCaps.toUtf8() + "\r\n");
+        QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi ACK :" + ackedCaps.toUtf8()));
         ++activeCount;
     }
     QCOMPARE(activeSpy.count(), activeCount);
@@ -307,10 +308,10 @@ void tst_IrcNetwork::testCapabilities()
         QVERIFY(network->isCapable(cap));
 
     if (!nakedCaps.isEmpty())
-        waitForWritten(":irc.ser.ver CAP jpnurmi NAK :" + nakedCaps.toUtf8() + "\r\n");
+        QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi NAK :" + nakedCaps.toUtf8()));
 
     if (!listedCaps.isEmpty()) {
-        waitForWritten(":irc.ser.ver CAP jpnurmi LS :" + listedCaps.toUtf8() + "\r\n");
+        QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi LS :" + listedCaps.toUtf8()));
         if (!equalCaps(listedCaps, initialCaps))
             ++availableCount;
     }
@@ -334,7 +335,7 @@ void tst_IrcNetwork::testCapabilities()
     QString clearCaps;
     foreach (const QString& cap, activeCaps.split(" ", QString::SkipEmptyParts))
         clearCaps += QString("-") + cap;
-    waitForWritten(":irc.ser.ver CAP jpnurmi ACK :" + clearCaps.toUtf8() + "\r\n");
+    QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi ACK :" + clearCaps.toUtf8()));
 
     if (!activeCaps.isEmpty())
         ++activeCount;

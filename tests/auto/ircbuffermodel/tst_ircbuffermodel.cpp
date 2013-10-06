@@ -12,9 +12,9 @@
 #include "ircchannel.h"
 #include "ircbuffer.h"
 #include <QtTest/QtTest>
-#include "tst_clientserver.h"
+#include "tst_ircclientserver.h"
 
-class tst_IrcBufferModel : public tst_ClientServer
+class tst_IrcBufferModel : public tst_IrcClientServer
 {
     Q_OBJECT
 
@@ -193,9 +193,6 @@ void tst_IrcBufferModel::testPrototypes()
 
 void tst_IrcBufferModel::testChanges()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     IrcBufferModel bufferModel;
 
     // IrcBufferModel signals
@@ -259,20 +256,24 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(connectionChangedSpy.count(), ++connectionChangedCount);
     QCOMPARE(networkChangedSpy.count(), ++networkChangedCount);
 
-    waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi\r\n");
-    waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server\r\n");
-    waitForWritten(":moorcock.freenode.net 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server\r\n");
-    waitForWritten(":moorcock.freenode.net 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server\r\n");
-    waitForWritten(":moorcock.freenode.net 375 communi :- moorcock.freenode.net Message of the Day -\r\n");
-    waitForWritten(":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ...\r\n");
-    waitForWritten(":moorcock.freenode.net 376 communi :End of /MOTD command.\r\n");
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
+    QVERIFY(waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi"));
+    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server"));
+    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
+    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
+    QVERIFY(waitForWritten(":moorcock.freenode.net 375 communi :- moorcock.freenode.net Message of the Day -"));
+    QVERIFY(waitForWritten(":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ..."));
+    QVERIFY(waitForWritten(":moorcock.freenode.net 376 communi :End of /MOTD command."));
 
     messageIgnoredCount = 7 + 1; // 7 lines + a combined motd msg
 
     QCOMPARE(bufferModel.count(), 0);
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
-    waitForWritten(":communi!communi@hidd.en JOIN :#communi\r\n");
+    QVERIFY(waitForWritten(":communi!communi@hidd.en JOIN :#communi"));
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QCOMPARE(bufferModel.count(), 1);
@@ -327,7 +328,7 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
-    waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :fake...\r\n");
+    QVERIFY(waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :fake..."));
     QCOMPARE(messageIgnoredSpy.count(), ++messageIgnoredCount);
 
     QCOMPARE(bufferModel.count(), buffers.count());
@@ -344,7 +345,7 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
     QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
 
-    waitForWritten(":ChanServ!ChanServ@services. PRIVMSG communi :fake...\r\n");
+    QVERIFY(waitForWritten(":ChanServ!ChanServ@services. PRIVMSG communi :fake..."));
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QPointer<IrcBuffer> ChanServ = bufferModel.get(1);
@@ -399,7 +400,7 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
-    waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :fake...\r\n");
+    QVERIFY(waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :fake..."));
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QCOMPARE(bufferModel.count(), buffers.count());
@@ -423,7 +424,7 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
     QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
 
-    waitForWritten(":communi!communi@hidd.en JOIN :#freenode\r\n");
+    QVERIFY(waitForWritten(":communi!communi@hidd.en JOIN :#freenode"));
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QPointer<IrcChannel> freenode = bufferModel.get(2)->toChannel();
@@ -526,7 +527,7 @@ void tst_IrcBufferModel::testChanges()
         QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
     }
 
-    waitForWritten(":qtassistant!qtassistant@hidd.en PRIVMSG communi :hola\r\n");
+    QVERIFY(waitForWritten(":qtassistant!qtassistant@hidd.en PRIVMSG communi :hola"));
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QPointer<IrcBuffer> qtassistant = bufferModel.get(0);
@@ -593,7 +594,7 @@ void tst_IrcBufferModel::testChanges()
     int nameChangedCount = 0;
     int prefixChangedCount = 0;
 
-    waitForWritten(":qtassistant!qtassistant@hidd.en NICK assistant :hola\r\n");
+    QVERIFY(waitForWritten(":qtassistant!qtassistant@hidd.en NICK assistant :hola"));
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QCOMPARE(qtassistant->title(), QString("assistant"));
@@ -663,7 +664,7 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
-    waitForWritten(":communi!communi@hidd.en PART #communi\r\n");
+    QVERIFY(waitForWritten(":communi!communi@hidd.en PART #communi"));
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QVERIFY(communi); // deleteLater()'d

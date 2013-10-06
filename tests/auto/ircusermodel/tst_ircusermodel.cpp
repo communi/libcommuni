@@ -14,8 +14,8 @@
 #include "ircuser.h"
 #include "irc.h"
 
-#include "tst_data.h"
-#include "tst_clientserver.h"
+#include "tst_ircdata.h"
+#include "tst_ircclientserver.h"
 
 #include <QtTest/QtTest>
 
@@ -29,7 +29,7 @@ static bool caseInsensitiveGreaterThan(const QString& s1, const QString& s2)
     return s1.compare(s2, Qt::CaseInsensitive) > 0;
 }
 
-class tst_IrcUserModel : public tst_ClientServer
+class tst_IrcUserModel : public tst_IrcClientServer
 {
     Q_OBJECT
 
@@ -64,23 +64,20 @@ void tst_IrcUserModel::testSorting_data()
     QTest::addColumn<QStringList>("halfops");
     QTest::addColumn<QStringList>("voices");
 
-    foreach (const QByteArray& key, tst_Data::keys()) {
+    foreach (const QByteArray& key, tst_IrcData::keys()) {
         QTest::newRow(key)
-            << tst_Data::welcome(key)
-            << tst_Data::join(key)
-            << tst_Data::names(key)
-            << tst_Data::admins(key)
-            << tst_Data::ops(key)
-            << tst_Data::halfops(key)
-            << tst_Data::voices(key);
+            << tst_IrcData::welcome(key)
+            << tst_IrcData::join(key)
+            << tst_IrcData::names(key)
+            << tst_IrcData::admins(key)
+            << tst_IrcData::ops(key)
+            << tst_IrcData::halfops(key)
+            << tst_IrcData::voices(key);
     }
 }
 
 void tst_IrcUserModel::testSorting()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     QFETCH(QByteArray, welcomeData);
     QFETCH(QByteArray, joinData);
     QFETCH(QStringList, names);
@@ -92,10 +89,14 @@ void tst_IrcUserModel::testSorting()
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
 
-    waitForWritten(welcomeData);
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
+    QVERIFY(waitForWritten(welcomeData));
     QCOMPARE(bufferModel.count(), 0);
 
-    waitForWritten(joinData);
+    QVERIFY(waitForWritten(joinData));
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
@@ -240,22 +241,23 @@ void tst_IrcUserModel::testSorting()
 
 void tst_IrcUserModel::testActivity_freenode()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
 
-    waitForWritten(tst_Data::welcome("freenode"));
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
+    QVERIFY(waitForWritten(tst_IrcData::welcome("freenode")));
     QCOMPARE(bufferModel.count(), 0);
 
-    waitForWritten(tst_Data::join("freenode"));
+    QVERIFY(waitForWritten(tst_IrcData::join("freenode")));
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
     QVERIFY(channel);
 
-    QStringList names = tst_Data::names("freenode");
+    QStringList names = tst_IrcData::names("freenode");
 
     IrcUserModel activityModel(channel);
     activityModel.setDynamicSort(true);
@@ -263,36 +265,36 @@ void tst_IrcUserModel::testActivity_freenode()
 
     int count = names.count();
 
-    waitForWritten(":smurfy!~smurfy@hidd.en PART #freenode\r\n");
+    QVERIFY(waitForWritten(":smurfy!~smurfy@hidd.en PART #freenode"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("smurfy"));
 
-    waitForWritten(":ToApolytoXaos!~ToApolyto@hidd.en QUIT :Quit: Leaving\r\n");
+    QVERIFY(waitForWritten(":ToApolytoXaos!~ToApolyto@hidd.en QUIT :Quit: Leaving"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("ToApolytoXaos"));
 
-    waitForWritten(":agsrv!~guest@hidd.en JOIN #freenode\r\n");
+    QVERIFY(waitForWritten(":agsrv!~guest@hidd.en JOIN #freenode"));
     QCOMPARE(activityModel.count(), ++count);
     QCOMPARE(activityModel.indexOf(activityModel.find("agsrv")), 0);
 
-    waitForWritten(":Hello71!~Hello71@hidd.en PRIVMSG #freenode :straterra: there are many users on it\r\n");
+    QVERIFY(waitForWritten(":Hello71!~Hello71@hidd.en PRIVMSG #freenode :straterra: there are many users on it"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.find("straterra")), 1);
 
-    waitForWritten(":straterra!straterra@hidd.en PRIVMSG #freenode :what?\r\n");
+    QVERIFY(waitForWritten(":straterra!straterra@hidd.en PRIVMSG #freenode :what?"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("straterra")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 1);
 
-    waitForWritten(":JuxTApose!~indigital@hidd.en NICK :JuxTApose_afk\r\n");
+    QVERIFY(waitForWritten(":JuxTApose!~indigital@hidd.en NICK :JuxTApose_afk"));
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("JuxTApose"));
     QCOMPARE(activityModel.indexOf(activityModel.find("JuxTApose_afk")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.find("straterra")), 1);
     QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 2);
 
-    waitForWritten(":communi!communi@hidd.en PRIVMSG #freenode :+tomaw: ping\r\n");
+    QVERIFY(waitForWritten(":communi!communi@hidd.en PRIVMSG #freenode :+tomaw: ping"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("communi")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.find("tomaw")), 1);
@@ -300,22 +302,23 @@ void tst_IrcUserModel::testActivity_freenode()
 
 void tst_IrcUserModel::testActivity_ircnet()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
 
-    waitForWritten(tst_Data::welcome("ircnet"));
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
+    QVERIFY(waitForWritten(tst_IrcData::welcome("ircnet")));
     QCOMPARE(bufferModel.count(), 0);
 
-    waitForWritten(tst_Data::join("ircnet"));
+    QVERIFY(waitForWritten(tst_IrcData::join("ircnet")));
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
     QVERIFY(channel);
 
-    QStringList names = tst_Data::names("ircnet");
+    QStringList names = tst_IrcData::names("ircnet");
 
     IrcUserModel activityModel(channel);
     activityModel.setDynamicSort(true);
@@ -323,80 +326,81 @@ void tst_IrcUserModel::testActivity_ircnet()
 
     int count = names.count();
 
-    waitForWritten(":_box!~box@hidd.en QUIT :Broken pipe\r\n");
+    QVERIFY(waitForWritten(":_box!~box@hidd.en QUIT :Broken pipe"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("_box"));
 
-    waitForWritten(":ip!~v6@hidd.en QUIT :Connection reset by peer\r\n");
+    QVERIFY(waitForWritten(":ip!~v6@hidd.en QUIT :Connection reset by peer"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("ip"));
 
-    waitForWritten(":[m]!m@hidd.en MODE #uptimed +b *!*x@does.matter.not*\r\n");
+    QVERIFY(waitForWritten(":[m]!m@hidd.en MODE #uptimed +b *!*x@does.matter.not*"));
     QCOMPARE(activityModel.count(), count);
 
-    waitForWritten(":[m]!m@hidd.en KICK #uptimed \\x00 :lame exit sorry :P\r\n");
+    QVERIFY(waitForWritten(":[m]!m@hidd.en KICK #uptimed \\x00 :lame exit sorry :P"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("\\x00"));
 
-    waitForWritten(":_box!~box@hidd.en JOIN :#uptimed\r\n");
+    QVERIFY(waitForWritten(":_box!~box@hidd.en JOIN :#uptimed"));
     QCOMPARE(activityModel.count(), ++count);
     QCOMPARE(activityModel.indexOf(activityModel.find("_box")), 0);
 
-    waitForWritten(":Voicer!mrozu@hidd.en MODE #uptimed +v _box\r\n");
+    QVERIFY(waitForWritten(":Voicer!mrozu@hidd.en MODE #uptimed +v _box"));
     QCOMPARE(activityModel.count(), count);
 
-    waitForWritten(":t0r-!t0r@hidd.en PRIVMSG #uptimed :there is no sense for _box and ip to join the contest\r\n");
+    QVERIFY(waitForWritten(":t0r-!t0r@hidd.en PRIVMSG #uptimed :there is no sense for _box and ip to join the contest"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("t0r-")), 0);
 
-    waitForWritten(":ip!~v6@hidd.en JOIN :#uptimed\r\n");
+    QVERIFY(waitForWritten(":ip!~v6@hidd.en JOIN :#uptimed"));
     QCOMPARE(activityModel.count(), ++count);
     QCOMPARE(activityModel.indexOf(activityModel.find("ip")), 0);
 
-    waitForWritten(":Voicer!mrozu@hidd.en MODE #uptimed +v ip\r\n");
+    QVERIFY(waitForWritten(":Voicer!mrozu@hidd.en MODE #uptimed +v ip"));
     QCOMPARE(activityModel.count(), count);
 
-    waitForWritten(":[m]!m@hidd.en MODE #uptimed +b *!*v6@*.does.matter.not\r\n");
+    QVERIFY(waitForWritten(":[m]!m@hidd.en MODE #uptimed +b *!*v6@*.does.matter.not"));
     QCOMPARE(activityModel.count(), count);
 
-    waitForWritten(":[m]!m@hidd.en KICK #uptimed ip :no reason\r\n");
+    QVERIFY(waitForWritten(":[m]!m@hidd.en KICK #uptimed ip :no reason"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("ip"));
 
-    waitForWritten(":t0r-!t0r@hidd.en PRIVMSG #uptimed :they are going down every second\r\n");
+    QVERIFY(waitForWritten(":t0r-!t0r@hidd.en PRIVMSG #uptimed :they are going down every second"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("t0r-")), 0);
 
-    waitForWritten(":t0r-!t0r@hidd.en PRIVMSG #uptimed :yeah\r\n");
+    QVERIFY(waitForWritten(":t0r-!t0r@hidd.en PRIVMSG #uptimed :yeah"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("t0r-")), 0);
 
-    waitForWritten(":[m]!m@hidd.en MODE #uptimed +b *!*box@*.does.not.matter\r\n");
+    QVERIFY(waitForWritten(":[m]!m@hidd.en MODE #uptimed +b *!*box@*.does.not.matter"));
     QCOMPARE(activityModel.count(), count);
 
-    waitForWritten(":[m]!m@hidd.en KICK #uptimed _box :no reason\r\n");
+    QVERIFY(waitForWritten(":[m]!m@hidd.en KICK #uptimed _box :no reason"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("_box"));
 }
 
 void tst_IrcUserModel::testActivity_euirc()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
 
-    waitForWritten(tst_Data::welcome("euirc"));
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
+    QVERIFY(waitForWritten(tst_IrcData::welcome("euirc")));
     QCOMPARE(bufferModel.count(), 0);
 
-    waitForWritten(tst_Data::join("euirc"));
+    QVERIFY(waitForWritten(tst_IrcData::join("euirc")));
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
     QVERIFY(channel);
 
-    QStringList names = tst_Data::names("euirc");
+    QStringList names = tst_IrcData::names("euirc");
 
     IrcUserModel activityModel(channel);
     activityModel.setDynamicSort(true);
@@ -404,77 +408,77 @@ void tst_IrcUserModel::testActivity_euirc()
 
     int count = names.count();
 
-    waitForWritten(":Marko10_000!~marko@hidd.en JOIN :#euirc\n");
+    QVERIFY(waitForWritten(":Marko10_000!~marko@hidd.en JOIN :#euirc\n"));
     QCOMPARE(activityModel.count(), ++count);
     QCOMPARE(activityModel.indexOf(activityModel.find("Marko10_000")), 0);
 
-    waitForWritten(":Marko10_000!~marko@hidd.en NICK :Guest775\n");
+    QVERIFY(waitForWritten(":Marko10_000!~marko@hidd.en NICK :Guest775\n"));
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("Marko10_000"));
     QCOMPARE(activityModel.indexOf(activityModel.find("Guest775")), 0);
 
-    waitForWritten(":Guest775!~marko@hidd.en QUIT :Quit: Verlassend\n");
+    QVERIFY(waitForWritten(":Guest775!~marko@hidd.en QUIT :Quit: Verlassend\n"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("Guest775"));
 
-    waitForWritten(":Marko10_000!~marko@hidd.en JOIN :#euirc\n");
+    QVERIFY(waitForWritten(":Marko10_000!~marko@hidd.en JOIN :#euirc\n"));
     QCOMPARE(activityModel.count(), ++count);
     QCOMPARE(activityModel.indexOf(activityModel.find("Marko10_000")), 0);
 
-    waitForWritten(":Guest774!absk007@hidd.en QUIT :Quit: Good Bye. I Quit...\n");
+    QVERIFY(waitForWritten(":Guest774!absk007@hidd.en QUIT :Quit: Good Bye. I Quit...\n"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("Guest774"));
 
-    waitForWritten(":absk007!absk007@hidd.en JOIN :#euirc\n");
+    QVERIFY(waitForWritten(":absk007!absk007@hidd.en JOIN :#euirc\n"));
     QCOMPARE(activityModel.count(), ++count);
     QCOMPARE(activityModel.indexOf(activityModel.find("absk007")), 0);
 
-    waitForWritten(":charly6!~Miranda@hidd.en QUIT :Client exited\n");
+    QVERIFY(waitForWritten(":charly6!~Miranda@hidd.en QUIT :Client exited\n"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("charly6"));
 
-    waitForWritten(":absk007!absk007@hidd.en NICK :Guest776\n");
+    QVERIFY(waitForWritten(":absk007!absk007@hidd.en NICK :Guest776\n"));
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("absk007"));
     QCOMPARE(activityModel.indexOf(activityModel.find("Guest776")), 0);
 
-    waitForWritten(":Tina-chan_onAir!~kvirc@hidd.en NICK :Tina-chan\n");
+    QVERIFY(waitForWritten(":Tina-chan_onAir!~kvirc@hidd.en NICK :Tina-chan\n"));
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("Tina-chan_onAir"));
     QCOMPARE(activityModel.indexOf(activityModel.find("Tina-chan")), 0);
 
-    waitForWritten(":Guest776!absk007@hidd.en NICK :absk007\n");
+    QVERIFY(waitForWritten(":Guest776!absk007@hidd.en NICK :absk007\n"));
     QCOMPARE(activityModel.count(), count);
     QVERIFY(!activityModel.contains("Guest776"));
     QCOMPARE(activityModel.indexOf(activityModel.find("absk007")), 0);
 
-    waitForWritten(":aleksandr!~aleksandr@hidd.en PRIVMSG #euirc :absk007, last warning. fix your client/script\n");
+    QVERIFY(waitForWritten(":aleksandr!~aleksandr@hidd.en PRIVMSG #euirc :absk007, last warning. fix your client/script\n"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("aleksandr")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.find("absk007")), 1);
 
-    waitForWritten(":charly6!~Miranda@hidd.en JOIN :#euirc\n");
+    QVERIFY(waitForWritten(":charly6!~Miranda@hidd.en JOIN :#euirc\n"));
     QCOMPARE(activityModel.count(), ++count);
     QCOMPARE(activityModel.indexOf(activityModel.find("charly6")), 0);
 
-    waitForWritten(":absk007!absk007@hidd.en PRIVMSG #euirc :aleksandr, what did i do this time?\n");
+    QVERIFY(waitForWritten(":absk007!absk007@hidd.en PRIVMSG #euirc :aleksandr, what did i do this time?\n"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("absk007")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.find("aleksandr")), 1);
 
-    waitForWritten(":aleksandr!~aleksandr@hidd.en PRIVMSG #euirc :if you need help, join #opers\n");
+    QVERIFY(waitForWritten(":aleksandr!~aleksandr@hidd.en PRIVMSG #euirc :if you need help, join #opers\n"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("aleksandr")), 0);
 
-    waitForWritten(":charly6!~Miranda@hidd.en QUIT :Client exited\n");
+    QVERIFY(waitForWritten(":charly6!~Miranda@hidd.en QUIT :Client exited\n"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("charly6"));
 
-    waitForWritten(":icefly!~icefly@hidd.en PART #euirc :Once you know what it is you want to be true, instinct is a very useful device for enabling you to know that it is\n");
+    QVERIFY(waitForWritten(":icefly!~icefly@hidd.en PART #euirc :Once you know what it is you want to be true, instinct is a very useful device for enabling you to know that it is\n"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("icefly"));
 
-    waitForWritten(":icefly!~icefly@hidd.en JOIN :#euirc\n");
+    QVERIFY(waitForWritten(":icefly!~icefly@hidd.en JOIN :#euirc\n"));
     QCOMPARE(activityModel.count(), ++count);
     QCOMPARE(activityModel.indexOf(activityModel.find("icefly")), 0);
 }
@@ -482,9 +486,6 @@ void tst_IrcUserModel::testActivity_euirc()
 Q_DECLARE_METATYPE(QModelIndex)
 void tst_IrcUserModel::testChanges()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     qRegisterMetaType<QModelIndex>();
     qRegisterMetaType<IrcUser*>("IrcUser*");
     qRegisterMetaType<IrcChannel*>("IrcChannel*");
@@ -548,10 +549,15 @@ void tst_IrcUserModel::testChanges()
     // ### setup #communi (5): communi @ChanServ +qtassistant Guest1234 +qout
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
-    waitForWritten(tst_Data::welcome());
-    waitForWritten(":communi!~communi@hidd.en JOIN :#communi\r\n");
-    waitForWritten(":irc.ifi.uio.no 353 communi = #communi :communi @ChanServ +qtassistant Guest1234 +qout\r\n");
-    waitForWritten(":irc.ifi.uio.no 366 communi #communi :End of NAMES list.\r\n");
+
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
+    QVERIFY(waitForWritten(":communi!~communi@hidd.en JOIN :#communi"));
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 353 communi = #communi :communi @ChanServ +qtassistant Guest1234 +qout"));
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 366 communi #communi :End of NAMES list."));
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
     QVERIFY(channel);
@@ -708,7 +714,7 @@ void tst_IrcUserModel::testChanges()
     int guestModeChangedCount = 0;
 
     // ### sorted by activity -> trigger a change in names & users, count remains intact
-    waitForWritten(":Guest1234!~Guest1234@hidd.en NICK :Guest5678\r\n");
+    QVERIFY(waitForWritten(":Guest1234!~Guest1234@hidd.en NICK :Guest5678"));
 
     QCOMPARE(Guest1234->name(), QString("Guest5678"));
     QCOMPARE(Guest1234->title(), QString("Guest5678"));
@@ -800,7 +806,7 @@ void tst_IrcUserModel::testChanges()
     }
 
     // ### sorted by title -> trigger a change in names & users, count remains intact
-    waitForWritten(":Guest5678!~Guest1234@hidd.en NICK :Guest1234\r\n");
+    QVERIFY(waitForWritten(":Guest5678!~Guest1234@hidd.en NICK :Guest1234"));
 
     QCOMPARE(Guest1234->name(), QString("Guest1234"));
     QCOMPARE(Guest1234->title(), QString("Guest1234"));
@@ -871,7 +877,7 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
     // ### sorted by title -> trigger a change in users, count & names remain intact
-    waitForWritten(":ChanServ!ChanServ@services. MODE #communi +v Guest1234\r\n");
+    QVERIFY(waitForWritten(":ChanServ!ChanServ@services. MODE #communi +v Guest1234"));
 
     QCOMPARE(Guest1234->name(), QString("Guest1234"));
     QCOMPARE(Guest1234->title(), QString("+Guest1234"));
@@ -942,7 +948,7 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
     // ### sorted by title -> trigger a change in count, users & names
-    waitForWritten(":Guest1234!~Guest1234@hidd.en PART #communi\r\n");
+    QVERIFY(waitForWritten(":Guest1234!~Guest1234@hidd.en PART #communi"));
 
     QVERIFY(Guest1234); // deleteLater()'d
 
@@ -997,7 +1003,7 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
 
     // ### sorted by title -> trigger a change in count, users & names
-    waitForWritten(":Guest1234!~Guest1234@hidd.en JOIN #communi\r\n");
+    QVERIFY(waitForWritten(":Guest1234!~Guest1234@hidd.en JOIN #communi"));
 
     Guest1234 = userModel.find("Guest1234");
     QVERIFY(Guest1234);
@@ -1066,7 +1072,7 @@ void tst_IrcUserModel::testChanges()
     int botModeChangedCount = 0;
 
     // ### sorted by title -> trigger a change in users & names, count remains intact
-    waitForWritten(":Guest1234!~Guest1234@hidd.en NICK :Bot\r\n");
+    QVERIFY(waitForWritten(":Guest1234!~Guest1234@hidd.en NICK :Bot"));
 
     QCOMPARE(Bot->name(), QString("Bot"));
     QCOMPARE(Bot->title(), QString("Bot"));

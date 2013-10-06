@@ -20,8 +20,8 @@
 #include <QtNetwork/QSslSocket>
 #endif
 
-#include "tst_data.h"
-#include "tst_clientserver.h"
+#include "tst_ircdata.h"
+#include "tst_ircclientserver.h"
 
 class FriendlyConnection : public IrcConnection
 {
@@ -44,7 +44,7 @@ public:
     QByteArray written;
 };
 
-class tst_IrcConnection : public tst_ClientServer
+class tst_IrcConnection : public tst_IrcClientServer
 {
     Q_OBJECT
 
@@ -375,15 +375,11 @@ void tst_IrcConnection::testSecure()
 
 void tst_IrcConnection::testSasl()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     QVERIFY(!IrcConnection::supportedSaslMechanisms().contains("UNKNOWN"));
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSaslMechanism(): unsupported mechanism: 'UNKNOWN'");
     connection->setSaslMechanism("UNKNOWN");
     QVERIFY(connection->saslMechanism().isEmpty());
 
-    connection->close();
     IrcProtocol* protocol = static_cast<FriendlyConnection*>(connection.data())->protocol();
     QVERIFY(protocol);
 
@@ -392,18 +388,20 @@ void tst_IrcConnection::testSasl()
     QCOMPARE(connection->saslMechanism(), QString("PLAIN"));
 
     connection->open();
-    waitForOpened();
-    QVERIFY(clientSocket->waitForBytesWritten());
-    QVERIFY(serverSocket->waitForReadyRead());
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
+    QVERIFY(clientSocket->waitForBytesWritten(1000));
+    QVERIFY(serverSocket->waitForReadyRead(1000));
     QByteArray written = serverSocket->readAll();
     QVERIFY(written.contains("CAP LS"));
     QVERIFY(written.contains("NICK nick"));
     QVERIFY(!written.contains("PASS secret"));
     QVERIFY(!written.contains("CAP REQ :sasl"));
 
-    waitForWritten(":irc.freenode.net CAP * LS :sasl\r\n");
-    QVERIFY(clientSocket->waitForBytesWritten());
-    QVERIFY(serverSocket->waitForReadyRead());
+    QVERIFY(waitForWritten(":irc.freenode.net CAP * LS :sasl"));
+    QVERIFY(clientSocket->waitForBytesWritten(1000));
+    QVERIFY(serverSocket->waitForReadyRead(1000));
     written = serverSocket->readAll();
     QVERIFY(!written.contains("CAP LS"));
     QVERIFY(!written.contains("NICK nick"));
@@ -412,16 +410,16 @@ void tst_IrcConnection::testSasl()
 
     // do not resume handshake too early
     QCoreApplication::sendPostedEvents(protocol, QEvent::MetaCall);
-    QVERIFY(!clientSocket->waitForBytesWritten());
+    QVERIFY(!clientSocket->waitForBytesWritten(1000));
 
-    waitForWritten(":irc.freenode.net CAP user ACK :sasl\r\n");
-    QVERIFY(clientSocket->waitForBytesWritten());
-    serverSocket->waitForReadyRead();
+    QVERIFY(waitForWritten(":irc.freenode.net CAP user ACK :sasl"));
+    QVERIFY(clientSocket->waitForBytesWritten(1000));
+    QVERIFY(serverSocket->waitForReadyRead(1000));
     QVERIFY(serverSocket->readAll().contains("AUTHENTICATE PLAIN"));
 
-    waitForWritten("AUTHENTICATE +\r\n");
-    QVERIFY(clientSocket->waitForBytesWritten());
-    serverSocket->waitForReadyRead();
+    QVERIFY(waitForWritten("AUTHENTICATE +"));
+    QVERIFY(clientSocket->waitForBytesWritten(1000));
+    QVERIFY(serverSocket->waitForReadyRead(1000));
 
     QByteArray response = serverSocket->readAll();
     int index = response.indexOf("AUTHENTICATE");
@@ -439,13 +437,14 @@ void tst_IrcConnection::testSasl()
     // resume handshake
     QCoreApplication::sendPostedEvents(protocol, QEvent::MetaCall);
 
-    QVERIFY(clientSocket->waitForBytesWritten());
-    serverSocket->waitForReadyRead();
+    QVERIFY(clientSocket->waitForBytesWritten(1000));
+    QVERIFY(serverSocket->waitForReadyRead(1000));
     QVERIFY(serverSocket->readAll().contains("CAP END"));
 
-    waitForWritten(":irc.freenode.net 900 user nick!user@host nick :You are now logged in as user.\r\n");
-    waitForWritten(":irc.freenode.net 903 user :SASL authentication successful\r\n");
-    waitForWritten(":irc.freenode.net 001 user :Welcome to the freenode Internet Relay Chat Network user\r\n");
+    // TODO:
+    QVERIFY(waitForWritten(":irc.freenode.net 900 user nick!user@host nick :You are now logged in as user."));
+    QVERIFY(waitForWritten(":irc.freenode.net 903 user :SASL authentication successful"));
+    QVERIFY(waitForWritten(":irc.freenode.net 001 user :Welcome to the freenode Internet Relay Chat Network user"));
 }
 
 #ifndef QT_NO_OPENSSL
@@ -469,14 +468,14 @@ public slots:
 void tst_IrcConnection::testSsl()
 {
 #ifndef QT_NO_OPENSSL
-    if (!serverSocket)
+    SslSocket* socket = new SslSocket(connection);
+    connection->setSocket(socket);
+    QCOMPARE(connection->socket(), socket);
+
+    connection->open();
+    if (!waitForOpened())
         Q4SKIP("The address is not available");
 
-    SslSocket* socket = new SslSocket(connection);
-    connection->close();
-    connection->setSocket(socket);
-    connection->open();
-    waitForOpened();
     QVERIFY(socket->clientEncryptionStarted);
 #endif // !QT_NO_OPENSSL
 }
@@ -510,15 +509,7 @@ void tst_IrcConnection::testOpen()
 
 void tst_IrcConnection::testStatus()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     Irc::registerMetaTypes();
-
-    // tst_ClientServer::init() opens the connection
-    QCOMPARE(connection->status(), IrcConnection::Connecting);
-    QVERIFY(!connection->isConnected());
-    QVERIFY(connection->isActive());
 
     QSignalSpy statusSpy(connection, SIGNAL(statusChanged(IrcConnection::Status)));
     QSignalSpy connectingSpy(connection, SIGNAL(connecting()));
@@ -535,7 +526,17 @@ void tst_IrcConnection::testStatus()
     int connectedCount = 0;
     int disconnectedCount = 0;
 
-    waitForWritten(tst_Data::welcome());
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+    QVERIFY(connection->isActive());
+    QVERIFY(!connection->isConnected());
+    QCOMPARE(connection->status(), IrcConnection::Connecting);
+    QCOMPARE(statusSpy.count(), ++statusCount);
+    QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connecting);
+    QCOMPARE(connectingSpy.count(), ++connectingCount);
+
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
     QVERIFY(connection->isActive());
     QVERIFY(connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connected);
@@ -559,7 +560,7 @@ void tst_IrcConnection::testStatus()
     QCOMPARE(disconnectedSpy.count(), ++disconnectedCount);
 
     connection->open();
-    waitForOpened();
+    QVERIFY(waitForOpened());
     QVERIFY(connection->isActive());
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connecting);
@@ -567,7 +568,7 @@ void tst_IrcConnection::testStatus()
     QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connecting);
     QCOMPARE(connectingSpy.count(), ++connectingCount);
 
-    waitForWritten(tst_Data::welcome());
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
     QVERIFY(connection->isActive());
     QVERIFY(connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connected);
@@ -593,7 +594,7 @@ void tst_IrcConnection::testStatus()
     QCOMPARE(disconnectedSpy.count(), ++disconnectedCount);
 
     connection->open();
-    waitForOpened();
+    QVERIFY(waitForOpened());
     QVERIFY(connection->isActive());
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connecting);
@@ -601,7 +602,7 @@ void tst_IrcConnection::testStatus()
     QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connecting);
     QCOMPARE(connectingSpy.count(), ++connectingCount);
 
-    waitForWritten(tst_Data::welcome());
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
     QVERIFY(connection->isActive());
     QVERIFY(connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connected);
@@ -631,7 +632,7 @@ void tst_IrcConnection::testStatus()
     QCOMPARE(statusSpy.count(), ++statusCount);
     QCOMPARE(statusSpy.last().at(0).value<IrcConnection::Status>(), IrcConnection::Connecting);
 
-    waitForOpened();
+    QVERIFY(waitForOpened());
     QCOMPARE(connectingSpy.count(), ++connectingCount);
 
     // trigger an error _after_ quit -> no automatic reconnect
@@ -647,9 +648,6 @@ void tst_IrcConnection::testStatus()
 
 void tst_IrcConnection::testConnection()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     Irc::registerMetaTypes();
 
     TestProtocol* protocol = new TestProtocol(connection);
@@ -658,12 +656,15 @@ void tst_IrcConnection::testConnection()
     QCOMPARE(friendly->protocol(), protocol);
     QCOMPARE(protocol->connection(), connection.data());
 
-    // tst_ClientServer::init() opens the connection
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
     QVERIFY(connection->isActive());
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connecting);
 
-    waitForWritten(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n");
+    QVERIFY(waitForWritten(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick"));
     QVERIFY(connection->isActive());
     QVERIFY(connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connected);
@@ -680,7 +681,7 @@ void tst_IrcConnection::testConnection()
     QCOMPARE(connection->status(), IrcConnection::Closed);
 
     connection->open();
-    waitForOpened();
+    QVERIFY(waitForOpened());
     QVERIFY(connection->isActive());
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connecting);
@@ -695,7 +696,7 @@ void tst_IrcConnection::testConnection()
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connecting);
 
-    waitForOpened();
+    QVERIFY(waitForOpened());
 
     protocol->written.clear();
     connection->network()->requestCapability("identify-msg");
@@ -708,7 +709,7 @@ void tst_IrcConnection::testConnection()
     QVERIFY(protocol->written.contains("sasl"));
     QVERIFY(protocol->written.contains("communi"));
 
-    waitForWritten(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick\r\n");
+    QVERIFY(waitForWritten(":irc.ser.ver 001 nick :Welcome to the Internet Relay Chat Network nick"));
     QVERIFY(connection->isActive());
     QVERIFY(connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connected);
@@ -753,9 +754,6 @@ public slots:
 Q_DECLARE_METATYPE(QString*)
 void tst_IrcConnection::testMessages()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     Irc::registerMetaTypes();
     qRegisterMetaType<QString*>();
 
@@ -800,96 +798,100 @@ void tst_IrcConnection::testMessages()
     int messageCount = 0;
     int numericMessageCount = 0;
 
-    waitForWritten(":moorcock.freenode.net CAP * LS :account-notify extended-join identify-msg multi-prefix sasl\r\n");
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
+    QVERIFY(waitForWritten(":moorcock.freenode.net CAP * LS :account-notify extended-join identify-msg multi-prefix sasl"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(capabilityMessageSpy.count(), 1);
 
-    waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten(":moorcock.freenode.net 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten(":moorcock.freenode.net 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten(":moorcock.freenode.net 375 communi :- moorcock.freenode.net Message of the Day -\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 375 communi :- moorcock.freenode.net Message of the Day -"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten(":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ...\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ..."));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten(":moorcock.freenode.net 376 communi :End of /MOTD command.\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 376 communi :End of /MOTD command."));
     messageCount += 2; // RPL_ENDOFMOTD + IrcMotdMessage
     QCOMPARE(messageSpy.count(), messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
     QCOMPARE(motdMessageSpy.count(), 1);
 
-    waitForWritten(":communi!~communi@hidd.en JOIN #freenode\r\n");
+    QVERIFY(waitForWritten(":communi!~communi@hidd.en JOIN #freenode"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(joinMessageSpy.count(), 1);
 
-    waitForWritten(":moorcock.freenode.net 332 communi #freenode :Welcome to #freenode | Staff are voiced; some may also be on /stats p -- feel free to /msg us at any time | FAQ: http://freenode.net/faq.shtml | Unwelcome queries? Use /mode your_nick +R to block them. | Channel guidelines: http://freenode.net/poundfreenode.shtml | Blog: http://blog.freenode.net | Please don't comment on spam/trolls.\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 332 communi #freenode :Welcome to #freenode | Staff are voiced; some may also be on /stats p -- feel free to /msg us at any time | FAQ: http://freenode.net/faq.shtml | Unwelcome queries? Use /mode your_nick +R to block them. | Channel guidelines: http://freenode.net/poundfreenode.shtml | Blog: http://blog.freenode.net | Please don't comment on spam/trolls."));
     messageCount += 2; // RPL_TOPIC & IrcTopicMessage
     QCOMPARE(messageSpy.count(), messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
     QCOMPARE(topicMessageSpy.count(), 1);
 
-    waitForWritten(":moorcock.freenode.net 333 communi #freenode erry 1379357591\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 333 communi #freenode erry 1379357591"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten(":moorcock.freenode.net 353 communi = #freenode :communi straterra absk007 pefn xlys Gromit TooCool Sambler gat0rs KarneAsada danis_963 Kiryx chrismeller deefloo black_male sxlnxdx bjork Kinny phobos_anomaly T13|sleeps JuxTApose Kolega2357 rorx techhelper1 hermatize Azimi iqualfragile fwilson skasturi mwallacesd mayday Guest76549 mcjohansen MangaKaDenza ARISTIDES ketas `- claptor ylluminate Cooky Brand3n cheater_1 Kirito digitaloktay Will| Iarfen abrotman smurfy Inaunt +mist Karol RougeR_\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 353 communi = #freenode :communi straterra absk007 pefn xlys Gromit TooCool Sambler gat0rs KarneAsada danis_963 Kiryx chrismeller deefloo black_male sxlnxdx bjork Kinny phobos_anomaly T13|sleeps JuxTApose Kolega2357 rorx techhelper1 hermatize Azimi iqualfragile fwilson skasturi mwallacesd mayday Guest76549 mcjohansen MangaKaDenza ARISTIDES ketas `- claptor ylluminate Cooky Brand3n cheater_1 Kirito digitaloktay Will| Iarfen abrotman smurfy Inaunt +mist Karol RougeR_"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten(":moorcock.freenode.net 353 communi = #freenode :publickeating An_Ony_Moose michagogo Guest915` davidfg4 Ragnor s1lent_1 keee GingerGeek[Away] hibari derp S_T_A_N anonymuse asantoni road|runner LLckfan neoian2 aviancarrier nipples danieldaniel Pyrus Bry8Star shadowm_desktop furtardo rdymac TTSDA seaworthy Chiyo yscc Zombiebaron redpill f4cl3y Boohbah applebloom zorael kameloso^ Zetetic XAMPP wheels_up Cuppy-Cake mindlessjohnny Kymru mquin_ Rodja babilen kirin` David Affix jshyeung_ DarkAceZ karakedi\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 353 communi = #freenode :publickeating An_Ony_Moose michagogo Guest915` davidfg4 Ragnor s1lent_1 keee GingerGeek[Away] hibari derp S_T_A_N anonymuse asantoni road|runner LLckfan neoian2 aviancarrier nipples danieldaniel Pyrus Bry8Star shadowm_desktop furtardo rdymac TTSDA seaworthy Chiyo yscc Zombiebaron redpill f4cl3y Boohbah applebloom zorael kameloso^ Zetetic XAMPP wheels_up Cuppy-Cake mindlessjohnny Kymru mquin_ Rodja babilen kirin` David Affix jshyeung_ DarkAceZ karakedi"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten(":moorcock.freenode.net 366 communi #freenode :End of /NAMES list.\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 366 communi #freenode :End of /NAMES list."));
     messageCount += 2; // RPL_ENDOFNAMES & IrcNamesMessage
     QCOMPARE(messageSpy.count(), messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
     QCOMPARE(namesMessageSpy.count(), 1);
 
-    waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :[#freenode] Welcome to #freenode. All network staff are voiced in here, but may not always be around - type /stats p to get a list of on call staff. Others may be hiding so do feel free to ping and /msg us at will! Also please read the channel guidelines at http://freenode.net/poundfreenode.shtml - thanks.\r\n");
+    QVERIFY(waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :[#freenode] Welcome to #freenode. All network staff are voiced in here, but may not always be around - type /stats p to get a list of on call staff. Others may be hiding so do feel free to ping and /msg us at will! Also please read the channel guidelines at http://freenode.net/poundfreenode.shtml - thanks."));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(noticeMessageSpy.count(), 1);
 
-    waitForWritten(":services. 328 communi #freenode :http://freenode.net/\r\n");
+    QVERIFY(waitForWritten(":services. 328 communi #freenode :http://freenode.net/"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
 
-    waitForWritten("PING :moorcock.freenode.net\r\n");
+    QVERIFY(waitForWritten("PING :moorcock.freenode.net"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(pingMessageSpy.count(), 1);
 
-    waitForWritten("PONG :moorcock.freenode.net\r\n");
+    QVERIFY(waitForWritten("PONG :moorcock.freenode.net"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(pongMessageSpy.count(), 1);
 
-    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi INVITE Communi84194 :#communi\r\n");
+    QVERIFY(waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi INVITE Communi84194 :#communi"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(inviteMessageSpy.count(), 1);
 
-    waitForWritten(":Communi84194!ident@host NICK :communi\r\n");
+    QVERIFY(waitForWritten(":Communi84194!ident@host NICK :communi"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(nickMessageSpy.count(), 1);
 
     // own nick name changes
     QSignalSpy nickNameChangedSpy(connection, SIGNAL(nickNameChanged(QString)));
     QVERIFY(nickNameChangedSpy.isValid());
-    waitForWritten(":communi!user@host NICK :own\r\n");
+    QVERIFY(waitForWritten(":communi!user@host NICK :own"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(nickMessageSpy.count(), 2);
     QCOMPARE(connection->nickName(), QString("own"));
@@ -902,39 +904,39 @@ void tst_IrcConnection::testMessages()
     changer.setAlternate = "communi_";
     QSignalSpy nickNameReservedSpy(connection, SIGNAL(nickNameReserved(QString*)));
     QVERIFY(nickNameReservedSpy.isValid());
-    waitForWritten(":moorcock.freenode.net 433 * communi :Nickname is already in use.\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 433 * communi :Nickname is already in use."));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
     QCOMPARE(nickNameReservedSpy.count(), 1);
     QCOMPARE(changer.passedAlternate, prevNick);
 
-    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi MODE #communi +v communi\r\n");
+    QVERIFY(waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi MODE #communi +v communi"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(modeMessageSpy.count(), 1);
 
-    waitForWritten(":moorcock.freenode.net 324 communi #communi +ms\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 324 communi #communi +ms"));
     messageCount += 2; // RPL_CHANNELMODEIS + IrcModeMessage
     QCOMPARE(messageSpy.count(), messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
     QCOMPARE(modeMessageSpy.count(), 2);
 
-    waitForWritten(":qtassistant!jpnurmi@qt/jpnurmi/bot/qtassistant PART #communi\r\n");
+    QVERIFY(waitForWritten(":qtassistant!jpnurmi@qt/jpnurmi/bot/qtassistant PART #communi"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(partMessageSpy.count(), 1);
 
-    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi PRIVMSG #communi :hello\r\n");
+    QVERIFY(waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi PRIVMSG #communi :hello"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(privateMessageSpy.count(), 1);
 
-    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi QUIT :Client Quit\r\n");
+    QVERIFY(waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi QUIT :Client Quit"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(quitMessageSpy.count(), 1);
 
-    waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi KICK #communi communi\r\n");
+    QVERIFY(waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi KICK #communi communi"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(kickMessageSpy.count(), 1);
 
-    waitForWritten("ERROR :just testing...\r\n");
+    QVERIFY(waitForWritten("ERROR :just testing..."));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(errorMessageSpy.count(), 1);
 }
@@ -968,80 +970,81 @@ public:
 
 void tst_IrcConnection::testMessageFlags()
 {
-    if (!serverSocket)
+    connection->open();
+    if (!waitForOpened())
         Q4SKIP("The address is not available");
 
     int count = 0;
     MsgFilter filter;
     connection->installMessageFilter(&filter);
 
-    waitForWritten(":server CAP * LS :identify-msg\r\n");
+    QVERIFY(waitForWritten(":server CAP * LS :identify-msg"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Capability);
     QCOMPARE(filter.flags, IrcMessage::None);
 
-    waitForWritten(":server CAP communi ACK :identify-msg\r\n");
+    QVERIFY(waitForWritten(":server CAP communi ACK :identify-msg"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Capability);
     QCOMPARE(filter.flags, IrcMessage::None);
 
-    waitForWritten(":server 001 communi :Welcome...\r\n");
+    QVERIFY(waitForWritten(":server 001 communi :Welcome..."));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Numeric);
     QCOMPARE(filter.flags, IrcMessage::None);
 
-    waitForWritten(":server 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=fake KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server\r\n");
+    QVERIFY(waitForWritten(":server 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=fake KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Numeric);
     QCOMPARE(filter.flags, IrcMessage::None);
 
-    waitForWritten(":server 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server\r\n");
+    QVERIFY(waitForWritten(":server 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Numeric);
     QCOMPARE(filter.flags, IrcMessage::None);
 
-    waitForWritten(":server 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server\r\n");
+    QVERIFY(waitForWritten(":server 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Numeric);
     QCOMPARE(filter.flags, IrcMessage::None);
 
     filter.property = "message";
-    waitForWritten(":communi!ident@host PRIVMSG #communi :hi all\r\n");
+    QVERIFY(waitForWritten(":communi!ident@host PRIVMSG #communi :hi all"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
     QCOMPARE(filter.flags, IrcMessage::Own);
     QCOMPARE(filter.value.toString(), QString("hi all"));
 
     filter.property = "message";
-    waitForWritten(":jpnurmi!ident@host PRIVMSG #communi :+hello there, communi\r\n");
+    QVERIFY(waitForWritten(":jpnurmi!ident@host PRIVMSG #communi :+hello there, communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
     QCOMPARE(filter.flags, IrcMessage::Identified);
     QCOMPARE(filter.value.toString(), QString("hello there, communi"));
 
     filter.property = "message";
-    waitForWritten(":Guest1234!ident@host PRIVMSG #communi :-hi communi\r\n");
+    QVERIFY(waitForWritten(":Guest1234!ident@host PRIVMSG #communi :-hi communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
     QCOMPARE(filter.flags, IrcMessage::Unidentified);
     QCOMPARE(filter.value.toString(), QString("hi communi"));
 
     filter.property = "message";
-    waitForWritten(":communi!ident@host NOTICE #communi :hi all\r\n");
+    QVERIFY(waitForWritten(":communi!ident@host NOTICE #communi :hi all"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
     QCOMPARE(filter.flags, IrcMessage::Own);
     QCOMPARE(filter.value.toString(), QString("hi all"));
 
     filter.property = "message";
-    waitForWritten(":jpnurmi!ident@host NOTICE #communi :+hello there, communi\r\n");
+    QVERIFY(waitForWritten(":jpnurmi!ident@host NOTICE #communi :+hello there, communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
     QCOMPARE(filter.flags, IrcMessage::Identified);
     QCOMPARE(filter.value.toString(), QString("hello there, communi"));
 
     filter.property = "message";
-    waitForWritten(":Guest1234!ident@host NOTICE #communi :-hi communi\r\n");
+    QVERIFY(waitForWritten(":Guest1234!ident@host NOTICE #communi :-hi communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
     QCOMPARE(filter.flags, IrcMessage::Unidentified);
@@ -1054,11 +1057,19 @@ void tst_IrcConnection::testSendCommand()
     QVERIFY(!conn.sendCommand(0));
     QVERIFY(!conn.sendCommand(IrcCommand::createQuit()));
 
-    if (!serverSocket)
+    TestProtocol* protocol = new TestProtocol(connection);
+    FriendlyConnection* friendly = static_cast<FriendlyConnection*>(connection.data());
+    friendly->setProtocol(protocol);
+    QCOMPARE(friendly->protocol(), protocol);
+    QCOMPARE(protocol->connection(), connection.data());
+
+    connection->open();
+    if (!waitForOpened())
         Q4SKIP("The address is not available");
 
     QVERIFY(connection->sendCommand(IrcCommand::createQuit()));
     QVERIFY(!connection->sendCommand(0));
+    QVERIFY(protocol->written.contains("QUIT"));
 }
 
 void tst_IrcConnection::testSendData()
@@ -1066,10 +1077,18 @@ void tst_IrcConnection::testSendData()
     IrcConnection conn;
     QVERIFY(!conn.sendData("QUIT"));
 
-    if (!serverSocket)
+    TestProtocol* protocol = new TestProtocol(connection);
+    FriendlyConnection* friendly = static_cast<FriendlyConnection*>(connection.data());
+    friendly->setProtocol(protocol);
+    QCOMPARE(friendly->protocol(), protocol);
+    QCOMPARE(protocol->connection(), connection.data());
+
+    connection->open();
+    if (!waitForOpened())
         Q4SKIP("The address is not available");
 
     QVERIFY(connection->sendData("QUIT"));
+    QVERIFY(protocol->written.contains("QUIT"));
 }
 
 class TestFilter : public QObject, public IrcMessageFilter, public IrcCommandFilter
@@ -1112,9 +1131,6 @@ public:
 
 void tst_IrcConnection::testMessageFilter()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     Irc::registerMetaTypes();
 
     QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
@@ -1131,7 +1147,11 @@ void tst_IrcConnection::testMessageFilter()
     connection->installMessageFilter(filter2.data());
     connection->installMessageFilter(filter3.data());
 
-    waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi\r\n");
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
+
+    QVERIFY(waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi"));
     QCOMPARE(filter1.messageFiltered, 1);
     QCOMPARE(filter2->messageFiltered, 1);
     QCOMPARE(filter3->messageFiltered, 1);
@@ -1140,7 +1160,7 @@ void tst_IrcConnection::testMessageFilter()
     filter1.clear(); filter2->clear(); filter3->clear();
     filter3->messageFilterEnabled = true;
 
-    waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server"));
     QCOMPARE(filter1.messageFiltered, 0);
     QCOMPARE(filter2->messageFiltered, 0);
     QCOMPARE(filter3->messageFiltered, 1);
@@ -1149,7 +1169,7 @@ void tst_IrcConnection::testMessageFilter()
     filter1.clear(); filter2->clear(); filter3->clear();
     filter2->messageFilterEnabled = true;
 
-    waitForWritten(":moorcock.freenode.net 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
     QCOMPARE(filter1.messageFiltered, 0);
     QCOMPARE(filter2->messageFiltered, 1);
     QCOMPARE(filter3->messageFiltered, 1);
@@ -1158,7 +1178,7 @@ void tst_IrcConnection::testMessageFilter()
     filter1.clear(); filter2->clear(); filter3->clear();
     filter1.messageFilterEnabled = true;
 
-    waitForWritten(":moorcock.freenode.net 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
     QCOMPARE(filter1.messageFiltered, 1);
     QCOMPARE(filter2->messageFiltered, 1);
     QCOMPARE(filter3->messageFiltered, 1);
@@ -1166,7 +1186,7 @@ void tst_IrcConnection::testMessageFilter()
 
     filter1.clear(); filter2->clear(); filter3->clear();
 
-    waitForWritten(":moorcock.freenode.net 375 communi :- moorcock.freenode.net Message of the Day -\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 375 communi :- moorcock.freenode.net Message of the Day -"));
     QCOMPARE(filter1.messageFiltered, 1);
     QCOMPARE(filter2->messageFiltered, 1);
     QCOMPARE(filter3->messageFiltered, 1);
@@ -1176,12 +1196,12 @@ void tst_IrcConnection::testMessageFilter()
     filter2.reset();
     filter1.clear(); filter3->clear();
 
-    waitForWritten(":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ...\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ..."));
     QCOMPARE(filter1.messageFiltered, 1);
     QCOMPARE(filter3->messageFiltered, 1);
     QCOMPARE(messageSpy.count(), ++messageCount);
 
-    waitForWritten(":moorcock.freenode.net 376 communi :End of /MOTD command.\r\n");
+    QVERIFY(waitForWritten(":moorcock.freenode.net 376 communi :End of /MOTD command."));
     messageCount += 2; // RPL_ENDOFMOTD + IrcMotdMessage
     QCOMPARE(messageSpy.count(), messageCount);
 
@@ -1190,7 +1210,7 @@ void tst_IrcConnection::testMessageFilter()
     connection->installMessageFilter(filter3.data());
     filter1.clear(); filter3->clear();
 
-    waitForWritten(":communi!~communi@hidd.en JOIN #freenode\r\n");
+    QVERIFY(waitForWritten(":communi!~communi@hidd.en JOIN #freenode"));
     QCOMPARE(filter1.messageFiltered, 2);
     QCOMPARE(filter3->messageFiltered, 2);
     QCOMPARE(messageSpy.count(), ++messageCount);
@@ -1200,7 +1220,7 @@ void tst_IrcConnection::testMessageFilter()
     filter1.messageFilterEnabled = true;
     connection->removeMessageFilter(filter3.data());
 
-    waitForWritten(":communi!~communi@hidd.en JOIN #communi\r\n");
+    QVERIFY(waitForWritten(":communi!~communi@hidd.en JOIN #communi"));
     QCOMPARE(filter1.messageFiltered, 1);
     QCOMPARE(filter3->messageFiltered, 0);
     QCOMPARE(messageSpy.count(), messageCount);
@@ -1210,7 +1230,7 @@ void tst_IrcConnection::testMessageFilter()
     filter1.clear();
     connection->removeMessageFilter(&filter1);
 
-    waitForWritten(":communi!~communi@hidd.en PART #communi\r\n");
+    QVERIFY(waitForWritten(":communi!~communi@hidd.en PART #communi"));
     QCOMPARE(filter1.messageFiltered, 0);
     QCOMPARE(messageSpy.count(), ++messageCount);
 
@@ -1221,7 +1241,7 @@ void tst_IrcConnection::testMessageFilter()
     suicidal1->messageFilterEnabled = true;
     suicidal1->commitSuicide = true;
 
-    waitForWritten(":communi!~communi@hidd.en PART #freenode\r\n");
+    QVERIFY(waitForWritten(":communi!~communi@hidd.en PART #freenode"));
     QCOMPARE(messageSpy.count(), messageCount);
     QVERIFY(!suicidal1);
 
@@ -1232,16 +1252,13 @@ void tst_IrcConnection::testMessageFilter()
     suicidal2->messageFilterEnabled = false;
     suicidal2->commitSuicide = true;
 
-    waitForWritten(":communi!~communi@hidd.en JOIN #qt\r\n");
+    QVERIFY(waitForWritten(":communi!~communi@hidd.en JOIN #qt"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QVERIFY(!suicidal2);
 }
 
 void tst_IrcConnection::testCommandFilter()
 {
-    if (!serverSocket)
-        Q4SKIP("The address is not available");
-
     TestProtocol* protocol = new TestProtocol(connection);
     FriendlyConnection* friendly = static_cast<FriendlyConnection*>(connection.data());
     friendly->setProtocol(protocol);
@@ -1257,6 +1274,10 @@ void tst_IrcConnection::testCommandFilter()
     connection->installCommandFilter(&filter1);
     connection->installCommandFilter(filter2.data());
     connection->installCommandFilter(filter3.data());
+
+    connection->open();
+    if (!waitForOpened())
+        Q4SKIP("The address is not available");
 
     connection->sendCommand(IrcCommand::createJoin("#freenode"));
     QCOMPARE(filter1.commandFiltered, 1);
@@ -1356,7 +1377,8 @@ void tst_IrcConnection::testCommandFilter()
 
 void tst_IrcConnection::testWarnings()
 {
-    if (!serverSocket)
+    connection->open();
+    if (!waitForOpened())
         Q4SKIP("The address is not available");
 
     QVERIFY(connection->isActive());
@@ -1470,20 +1492,21 @@ void tst_IrcConnection::testCtcp()
     qmlConnection.open();
 
     if (!server->waitForNewConnection(200))
-        QEXPECT_FAIL("", "The address is not available", Abort);
+        Q4SKIP("The address is not available");
     QAbstractSocket* qmlServerSocket = server->nextPendingConnection();
     QVERIFY(qmlServerSocket);
     QAbstractSocket* qmlClientSocket = qmlConnection.socket();
     QVERIFY(qmlClientSocket);
-    QVERIFY(qmlClientSocket->waitForConnected());
+    QVERIFY(qmlClientSocket->waitForConnected(200));
 
     qmlProtocol->written.clear();
     qmlServerSocket->write(":nick!user@host PRIVMSG communi :\1PING qml\1\r\n");
-    QVERIFY(qmlServerSocket->waitForBytesWritten());
-    QVERIFY(qmlClientSocket->waitForReadyRead());
+    QVERIFY(qmlServerSocket->waitForBytesWritten(1000));
+    QVERIFY(qmlClientSocket->waitForReadyRead(1000));
     QCOMPARE(qmlProtocol->written, QByteArray("NOTICE nick :\1PING qml\1"));
 
-    if (!serverSocket)
+    connection->open();
+    if (!waitForOpened())
         Q4SKIP("The address is not available");
 
     TestProtocol* protocol = new TestProtocol(friendly);
@@ -1493,32 +1516,32 @@ void tst_IrcConnection::testCtcp()
 
     // PING
     protocol->written.clear();
-    waitForWritten(":nick!user@host PRIVMSG communi :\1PING timestamp\1\r\n");
+    QVERIFY(waitForWritten(":nick!user@host PRIVMSG communi :\1PING timestamp\1\r\n"));
     QCOMPARE(protocol->written, QByteArray("NOTICE nick :\1PING timestamp\1"));
 
     // TIME
     protocol->written.clear();
-    waitForWritten(":nick!user@host PRIVMSG communi :\1TIME\1\r\n");
+    QVERIFY(waitForWritten(":nick!user@host PRIVMSG communi :\1TIME\1\r\n"));
     QVERIFY(protocol->written.startsWith("NOTICE nick :\1TIME "));
     QVERIFY(protocol->written.endsWith("\1"));
 
     // VERSION
     protocol->written.clear();
-    waitForWritten(":nick!user@host PRIVMSG communi :\1VERSION\1\r\n");
+    QVERIFY(waitForWritten(":nick!user@host PRIVMSG communi :\1VERSION\1\r\n"));
     QVERIFY(protocol->written.startsWith("NOTICE nick :\1VERSION "));
     QVERIFY(protocol->written.contains(Irc::version().toUtf8()));
     QVERIFY(protocol->written.endsWith("\1"));
 
     // SOURCE
     protocol->written.clear();
-    waitForWritten(":nick!user@host PRIVMSG communi :\1SOURCE\1\r\n");
+    QVERIFY(waitForWritten(":nick!user@host PRIVMSG communi :\1SOURCE\1\r\n"));
     QVERIFY(protocol->written.startsWith("NOTICE nick :\1SOURCE "));
     QVERIFY(protocol->written.contains("http://"));
     QVERIFY(protocol->written.endsWith("\1"));
 
     // CLIENTINFO
     protocol->written.clear();
-    waitForWritten(":nick!user@host PRIVMSG communi :\1CLIENTINFO\1\r\n");
+    QVERIFY(waitForWritten(":nick!user@host PRIVMSG communi :\1CLIENTINFO\1\r\n"));
     QVERIFY(protocol->written.startsWith("NOTICE nick :\1CLIENTINFO "));
     QVERIFY(protocol->written.contains("PING"));
     QVERIFY(protocol->written.contains("TIME"));

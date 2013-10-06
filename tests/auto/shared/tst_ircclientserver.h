@@ -7,8 +7,8 @@
  * completely or partially.
  */
 
-#ifndef TST_CLIENTSERVER_H
-#define TST_CLIENTSERVER_H
+#ifndef TST_IRCCLIENTSERVER_H
+#define TST_IRCCLIENTSERVER_H
 
 #include <IrcConnection>
 
@@ -23,7 +23,7 @@
 #define Q4SKIP(description) QSKIP(description, SkipAll)
 #endif
 
-class tst_ClientServer : public QObject
+class tst_IrcClientServer : public QObject
 {
     Q_OBJECT
 
@@ -32,8 +32,8 @@ private slots:
     void cleanup();
 
 protected:
-    void waitForOpened();
-    void waitForWritten(const QByteArray& data = QByteArray());
+    bool waitForOpened(int timeout = 200);
+    bool waitForWritten(const QByteArray& data, int timeout = 1000);
 
     QPointer<QTcpServer> server;
     QPointer<QTcpSocket> serverSocket;
@@ -41,4 +41,4 @@ protected:
     QPointer<QAbstractSocket> clientSocket;
 };
 
-#endif // TST_CLIENTSERVER_H
+#endif // TST_IRCCLIENTSERVER_H

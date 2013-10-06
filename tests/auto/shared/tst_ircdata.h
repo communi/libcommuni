@@ -7,8 +7,8 @@
  * completely or partially.
  */
 
-#ifndef TST_DATA_H
-#define TST_DATA_H
+#ifndef TST_IRCDATA_H
+#define TST_IRCDATA_H
 
 #include <QList>
 #include <QString>
@@ -16,7 +16,7 @@
 #include <QByteArray>
 #include <QStringList>
 
-class tst_Data
+class tst_IrcData
 {
 public:
     static QList<QByteArray> keys();
@@ -29,4 +29,4 @@ public:
     static QStringList voices(const QByteArray& key = QByteArray());
 };
 
-#endif // TST_DATA_H
+#endif // TST_IRCDATA_H
