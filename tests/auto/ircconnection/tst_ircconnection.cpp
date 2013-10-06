@@ -360,17 +360,32 @@ void tst_IrcConnection::testSecure()
     QVERIFY(spy.isValid());
     QVERIFY(!connection.isSecure());
 
+#ifdef QT_NO_OPENSSL
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSecure(): the Qt build does not support SSL");
+#endif
+
     connection.setSecure(true);
+
+#ifndef QT_NO_OPENSSL
     QVERIFY(connection.isSecure());
     QVERIFY(connection.socket()->inherits("QSslSocket"));
     QCOMPARE(spy.count(), 1);
     QVERIFY(spy.first().first().toBool());
+#else
+    QVERIFY(!connection.isSecure());
+    QVERIFY(!connection.socket()->inherits("QSslSocket"));
+    QCOMPARE(spy.count(), 0);
+#endif
 
     connection.setSecure(false);
     QVERIFY(!connection.isSecure());
     QVERIFY(!connection.socket()->inherits("QSslSocket"));
+#ifndef QT_NO_OPENSSL
     QCOMPARE(spy.count(), 2);
     QVERIFY(!spy.last().last().toBool());
+#else
+    QCOMPARE(spy.count(), 0);
+#endif
 }
 
 void tst_IrcConnection::testSasl()
