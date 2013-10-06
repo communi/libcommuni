@@ -75,8 +75,7 @@ void tst_IrcNetwork::testInfo()
     QVERIFY(channelTypesSpy.isValid());
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
     QVERIFY(waitForWritten(welcome));
 
     QCOMPARE(network->name(), name);
@@ -280,8 +279,7 @@ void tst_IrcNetwork::testCapabilities()
         QVERIFY(!network->isCapable(cap));
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     if (!initialCaps.isEmpty()) {
         QVERIFY(waitForWritten(":irc.ser.ver CAP * LS :" + initialCaps.toUtf8()));

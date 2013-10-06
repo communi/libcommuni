@@ -9,23 +9,34 @@
 
 #include "tst_ircclientserver.h"
 
-void tst_IrcClientServer::init()
+tst_IrcClientServer::tst_IrcClientServer()
 {
     server = new QTcpServer(this);
-    QVERIFY(server->listen());
+}
 
+void tst_IrcClientServer::initTestCase()
+{
+    QVERIFY(server->listen());
+}
+
+void tst_IrcClientServer::cleanupTestCase()
+{
+    server->close();
+}
+
+void tst_IrcClientServer::init()
+{
     connection = new IrcConnection(this);
     connection->setUserName("user");
     connection->setNickName("nick");
     connection->setRealName("real");
     connection->setPassword("secret");
-    connection->setHost(server->serverAddress().toString());
+    connection->setHost("127.0.0.1");
     connection->setPort(server->serverPort());
 }
 
 void tst_IrcClientServer::cleanup()
 {
-    delete server;
     delete connection;
 }
 

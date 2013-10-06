@@ -27,7 +27,13 @@ class tst_IrcClientServer : public QObject
 {
     Q_OBJECT
 
+public:
+    tst_IrcClientServer();
+
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
     void init();
     void cleanup();
 

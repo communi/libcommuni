@@ -403,8 +403,7 @@ void tst_IrcConnection::testSasl()
     QCOMPARE(connection->saslMechanism(), QString("PLAIN"));
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(clientSocket->waitForBytesWritten(1000));
     QVERIFY(serverSocket->waitForReadyRead(1000));
@@ -488,8 +487,7 @@ void tst_IrcConnection::testSsl()
     QCOMPARE(connection->socket(), socket);
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(socket->clientEncryptionStarted);
 #endif // !QT_NO_OPENSSL
@@ -542,8 +540,7 @@ void tst_IrcConnection::testStatus()
     int disconnectedCount = 0;
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
     QVERIFY(connection->isActive());
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connecting);
@@ -672,8 +669,7 @@ void tst_IrcConnection::testConnection()
     QCOMPARE(protocol->connection(), connection.data());
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(connection->isActive());
     QVERIFY(!connection->isConnected());
@@ -814,8 +810,7 @@ void tst_IrcConnection::testMessages()
     int numericMessageCount = 0;
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(waitForWritten(":moorcock.freenode.net CAP * LS :account-notify extended-join identify-msg multi-prefix sasl"));
     QCOMPARE(messageSpy.count(), ++messageCount);
@@ -986,8 +981,7 @@ public:
 void tst_IrcConnection::testMessageFlags()
 {
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     int count = 0;
     MsgFilter filter;
@@ -1079,8 +1073,7 @@ void tst_IrcConnection::testSendCommand()
     QCOMPARE(protocol->connection(), connection.data());
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(connection->sendCommand(IrcCommand::createQuit()));
     QVERIFY(!connection->sendCommand(0));
@@ -1099,8 +1092,7 @@ void tst_IrcConnection::testSendData()
     QCOMPARE(protocol->connection(), connection.data());
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(connection->sendData("QUIT"));
     QVERIFY(protocol->written.contains("QUIT"));
@@ -1163,8 +1155,7 @@ void tst_IrcConnection::testMessageFilter()
     connection->installMessageFilter(filter3.data());
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi"));
     QCOMPARE(filter1.messageFiltered, 1);
@@ -1264,11 +1255,9 @@ void tst_IrcConnection::testMessageFilter()
     QPointer<TestFilter> suicidal2 = new TestFilter;
     connection->installMessageFilter(suicidal2);
     suicidal2->clear();
-    suicidal2->messageFilterEnabled = false;
     suicidal2->commitSuicide = true;
 
     QVERIFY(waitForWritten(":communi!~communi@hidd.en JOIN #qt"));
-    QCOMPARE(messageSpy.count(), ++messageCount);
     QVERIFY(!suicidal2);
 }
 
@@ -1291,8 +1280,7 @@ void tst_IrcConnection::testCommandFilter()
     connection->installCommandFilter(filter3.data());
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     connection->sendCommand(IrcCommand::createJoin("#freenode"));
     QCOMPARE(filter1.commandFiltered, 1);
@@ -1393,8 +1381,7 @@ void tst_IrcConnection::testCommandFilter()
 void tst_IrcConnection::testWarnings()
 {
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(connection->isActive());
 
@@ -1499,15 +1486,14 @@ void tst_IrcConnection::testCtcp()
     qmlConnection.setNickName("nick");
     qmlConnection.setRealName("real");
     qmlConnection.setPassword("secret");
-    qmlConnection.setHost(server->serverAddress().toString());
+    qmlConnection.setHost("127.0.0.7");
     qmlConnection.setPort(server->serverPort());
 
     TestProtocol* qmlProtocol = new TestProtocol(&qmlConnection);
     qmlConnection.setProtocol(qmlProtocol);
     qmlConnection.open();
 
-    if (!server->waitForNewConnection(200))
-        Q4SKIP("The address is not available");
+    QVERIFY(server->waitForNewConnection(200));
     QAbstractSocket* qmlServerSocket = server->nextPendingConnection();
     QVERIFY(qmlServerSocket);
     QAbstractSocket* qmlClientSocket = qmlConnection.socket();
@@ -1521,8 +1507,7 @@ void tst_IrcConnection::testCtcp()
     QCOMPARE(qmlProtocol->written, QByteArray("NOTICE nick :\1PING qml\1"));
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     TestProtocol* protocol = new TestProtocol(friendly);
     friendly->setProtocol(protocol);

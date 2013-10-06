@@ -90,8 +90,7 @@ void tst_IrcUserModel::testSorting()
     bufferModel.setConnection(connection);
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(waitForWritten(welcomeData));
     QCOMPARE(bufferModel.count(), 0);
@@ -245,8 +244,7 @@ void tst_IrcUserModel::testActivity_freenode()
     bufferModel.setConnection(connection);
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(waitForWritten(tst_IrcData::welcome("freenode")));
     QCOMPARE(bufferModel.count(), 0);
@@ -306,8 +304,7 @@ void tst_IrcUserModel::testActivity_ircnet()
     bufferModel.setConnection(connection);
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(waitForWritten(tst_IrcData::welcome("ircnet")));
     QCOMPARE(bufferModel.count(), 0);
@@ -388,8 +385,7 @@ void tst_IrcUserModel::testActivity_euirc()
     bufferModel.setConnection(connection);
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(waitForWritten(tst_IrcData::welcome("euirc")));
     QCOMPARE(bufferModel.count(), 0);
@@ -551,8 +547,7 @@ void tst_IrcUserModel::testChanges()
     bufferModel.setConnection(connection);
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(waitForWritten(tst_IrcData::welcome()));
     QVERIFY(waitForWritten(":communi!~communi@hidd.en JOIN :#communi"));

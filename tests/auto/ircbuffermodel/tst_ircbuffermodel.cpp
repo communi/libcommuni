@@ -18,9 +18,10 @@ class tst_IrcBufferModel : public tst_IrcClientServer
 {
     Q_OBJECT
 
-private slots:
-    void initTestCase();
+public:
+    tst_IrcBufferModel();
 
+private slots:
     void testDefaults();
     void testAddRemove();
     void testPrototypes();
@@ -28,7 +29,7 @@ private slots:
 };
 
 Q_DECLARE_METATYPE(QModelIndex)
-void tst_IrcBufferModel::initTestCase()
+tst_IrcBufferModel::tst_IrcBufferModel()
 {
     Irc::registerMetaTypes();
     qRegisterMetaType<QModelIndex>();
@@ -257,8 +258,7 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(networkChangedSpy.count(), ++networkChangedCount);
 
     connection->open();
-    if (!waitForOpened())
-        Q4SKIP("The address is not available");
+    QVERIFY(waitForOpened());
 
     QVERIFY(waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi"));
     QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server"));
