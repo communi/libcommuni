@@ -24,8 +24,11 @@ public:
 private slots:
     void testDefaults();
     void testAddRemove();
+    void testClear();
     void testPrototypes();
     void testChanges();
+    void testRoles();
+    void testAIM();
 };
 
 Q_DECLARE_METATYPE(QModelIndex)
@@ -45,6 +48,7 @@ void tst_IrcBufferModel::testDefaults()
     IrcBufferModel model;
     QCOMPARE(model.count(), 0);
     QVERIFY(!model.dynamicSort());
+    QCOMPARE(model.sortMethod(), Irc::SortByTitle);
     QVERIFY(model.channels().isEmpty());
     QCOMPARE(model.displayRole(), Irc::TitleRole);
     QVERIFY(model.buffers().isEmpty());
@@ -162,6 +166,56 @@ void tst_IrcBufferModel::testAddRemove()
     QCOMPARE(buffersSpy.count(), 4);
     QCOMPARE(buffersSpy.last().last().value<QList<IrcBuffer*> >(), QList<IrcBuffer*>());
     QCOMPARE(channelsSpy.count(), 0);
+}
+
+void tst_IrcBufferModel::testClear()
+{
+    IrcBufferModel model(connection);
+    QPointer<IrcBuffer> a = model.add("#a");
+    QPointer<IrcBuffer> b = model.add("#b");
+    QPointer<IrcBuffer> c = model.add("c");
+
+    QSignalSpy countSpy(&model, SIGNAL(countChanged(int)));
+    QSignalSpy buffersSpy(&model, SIGNAL(buffersChanged(QList<IrcBuffer*>)));
+    QSignalSpy channelsSpy(&model, SIGNAL(channelsChanged(QStringList)));
+    QSignalSpy modelAboutToBeResetSpy(&model, SIGNAL(modelAboutToBeReset()));
+    QSignalSpy modelResetSpy(&model, SIGNAL(modelReset()));
+
+    QVERIFY(countSpy.isValid());
+    QVERIFY(buffersSpy.isValid());
+    QVERIFY(channelsSpy.isValid());
+    QVERIFY(modelAboutToBeResetSpy.isValid());
+    QVERIFY(modelResetSpy.isValid());
+
+    model.clear();
+
+    QCOMPARE(model.count(), 0);
+    QCOMPARE(model.buffers(), QList<IrcBuffer*>());
+    QCOMPARE(model.channels(), QStringList());
+
+    QVERIFY(!model.get(0));
+    QVERIFY(!model.find("#a"));
+    QVERIFY(!model.find("#b"));
+    QVERIFY(!model.find("c"));
+    QVERIFY(!model.contains("#a"));
+    QVERIFY(!model.contains("#b"));
+    QVERIFY(!model.contains("c"));
+
+    QVERIFY(!a);
+    QVERIFY(!b);
+    QVERIFY(!c);
+
+    QCOMPARE(countSpy.count(), 1);
+    QCOMPARE(countSpy.last().at(0).toInt(), 0);
+
+    QCOMPARE(buffersSpy.count(), 1);
+    QCOMPARE(buffersSpy.last().at(0).value<QList<IrcBuffer*> >(), QList<IrcBuffer*>());
+
+    QCOMPARE(channelsSpy.count(), 1);
+    QCOMPARE(channelsSpy.last().at(0).toStringList(), QStringList());
+
+    QCOMPARE(modelAboutToBeResetSpy.count(), 1);
+    QCOMPARE(modelResetSpy.count(), 1);
 }
 
 void tst_IrcBufferModel::testPrototypes()
@@ -725,6 +779,67 @@ void tst_IrcBufferModel::testChanges()
 
     QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
 
+    QVERIFY(waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi KICK #freenode communi"));
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
+
+    QVERIFY(freenode); // deleteLater()'d
+
+    QCOMPARE(aboutToBeRemovedSpy.count(), ++aboutToBeRemovedCount);
+    QCOMPARE(aboutToBeRemovedSpy.last().at(0).value<IrcBuffer*>(), freenode.data());
+
+    QCOMPARE(removedSpy.count(), ++removedCount);
+    QCOMPARE(removedSpy.last().at(0).value<IrcBuffer*>(), freenode.data());
+
+    previousIndex = buffers.indexOf(freenode);
+
+    QCoreApplication::sendPostedEvents(freenode, QEvent::DeferredDelete);
+    QVERIFY(!freenode);
+
+    // Irc::SortByName, Qt::DescendingOrder
+    buffers = QList<IrcBuffer*>() << ChanServ << qtassistant;
+    channels = QStringList();
+
+    nextIndex = buffers.indexOf(freenode);
+
+    QCOMPARE(bufferModel.count(), buffers.count());
+    QCOMPARE(bufferModel.buffers(), buffers);
+    QCOMPARE(bufferModel.channels(), channels);
+
+    for (int i = 0; i < bufferModel.count(); ++i) {
+        QCOMPARE(bufferModel.get(i), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::BufferRole).value<IrcBuffer*>(), buffers.at(i));
+        QCOMPARE(bufferModel.index(i).data(Irc::ChannelRole).value<IrcChannel*>(), buffers.at(i)->toChannel());
+    }
+
+    QCOMPARE(countChangedSpy.count(), ++countChangedCount);
+    QCOMPARE(countChangedSpy.last().at(0).toInt(), buffers.count());
+
+    QCOMPARE(aboutToBeAddedSpy.count(), aboutToBeAddedCount);
+
+    QCOMPARE(addedSpy.count(), addedCount);
+
+    QCOMPARE(buffersChangedSpy.count(), ++buffersChangedCount);
+    QCOMPARE(buffersChangedSpy.last().at(0).value<QList<IrcBuffer*> >(), buffers);
+
+    QCOMPARE(channelsChangedSpy.count(), ++channelsChangedCount);
+    QCOMPARE(channelsChangedSpy.last().at(0).toStringList(), channels);
+
+    QCOMPARE(dataChangedSpy.count(), dataChangedCount);
+
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), ++rowsAboutToBeRemovedCount);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsRemovedSpy.count(), ++rowsRemovedCount);
+    QCOMPARE(rowsRemovedSpy.last().at(0).value<QModelIndex>(), QModelIndex());
+    QCOMPARE(rowsRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
+
+    QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
+
     QVERIFY(waitForWritten(":communi!communi@hidd.en QUIT :bye"));
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
@@ -754,6 +869,92 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsRemovedSpy.count(), rowsRemovedCount);
     QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
     QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
+}
+
+void tst_IrcBufferModel::testRoles()
+{
+    IrcBufferModel model;
+    QHash<int, QByteArray> roles = model.roleNames();
+    QCOMPARE(roles.take(Qt::DisplayRole), QByteArray("display"));
+    QCOMPARE(roles.take(Irc::BufferRole), QByteArray("buffer"));
+    QCOMPARE(roles.take(Irc::ChannelRole), QByteArray("channel"));
+    QCOMPARE(roles.take(Irc::NameRole), QByteArray("name"));
+    QCOMPARE(roles.take(Irc::PrefixRole), QByteArray("prefix"));
+    QCOMPARE(roles.take(Irc::TitleRole), QByteArray("title"));
+    QVERIFY(roles.isEmpty());
+}
+
+void tst_IrcBufferModel::testAIM()
+{
+    IrcBufferModel bufferModel(connection);
+    IrcBuffer* a = bufferModel.add("#a");
+    IrcBuffer* b = bufferModel.add("#b");
+    IrcBuffer* c = bufferModel.add("c");
+    IrcBuffer* o = 0;
+
+    QAbstractItemModel* aim = &bufferModel;
+    QModelIndex ai = aim->index(0, 0);
+    QModelIndex bi = aim->index(1, 0);
+    QModelIndex ci = aim->index(2, 0);
+    QModelIndex oi = aim->index(100, 100);
+
+    QVERIFY(ai.isValid());
+    QVERIFY(bi.isValid());
+    QVERIFY(ci.isValid());
+    QVERIFY(!oi.isValid());
+
+    QCOMPARE(aim->rowCount(QModelIndex()), 3);
+    QCOMPARE(aim->rowCount(ai), 0);
+
+    QCOMPARE(aim->columnCount(QModelIndex()), 1);
+    QCOMPARE(aim->columnCount(ai), 0);
+
+    QCOMPARE(bufferModel.index(a), ai);
+    QCOMPARE(bufferModel.index(b), bi);
+    QCOMPARE(bufferModel.index(c), ci);
+    QVERIFY(!bufferModel.index(o).isValid());
+
+    QCOMPARE(bufferModel.buffer(ai), a);
+    QCOMPARE(bufferModel.buffer(bi), b);
+    QCOMPARE(bufferModel.buffer(ci), c);
+    QVERIFY(!bufferModel.buffer(oi));
+
+    bufferModel.setDisplayRole(Irc::TitleRole);
+    QCOMPARE(aim->data(ai, Qt::DisplayRole).toString(), a->title());
+    QCOMPARE(aim->data(bi, Qt::DisplayRole).toString(), b->title());
+    QCOMPARE(aim->data(ci, Qt::DisplayRole).toString(), c->title());
+    QVERIFY(aim->data(oi, Qt::DisplayRole).toString().isEmpty());
+
+    bufferModel.setDisplayRole(Irc::BufferRole);
+    QCOMPARE(aim->data(ai, Qt::DisplayRole).value<IrcBuffer*>(), a);
+    QCOMPARE(aim->data(bi, Qt::DisplayRole).value<IrcBuffer*>(), b);
+    QCOMPARE(aim->data(ci, Qt::DisplayRole).value<IrcBuffer*>(), c);
+    QVERIFY(!aim->data(oi, Qt::DisplayRole).value<IrcBuffer*>());
+
+    QCOMPARE(aim->data(ai, Irc::BufferRole).value<IrcBuffer*>(), a);
+    QCOMPARE(aim->data(bi, Irc::BufferRole).value<IrcBuffer*>(), b);
+    QCOMPARE(aim->data(ci, Irc::BufferRole).value<IrcBuffer*>(), c);
+    QVERIFY(!aim->data(oi, Irc::BufferRole).value<IrcBuffer*>());
+
+    QCOMPARE(aim->data(ai, Irc::ChannelRole).value<IrcChannel*>(), a->toChannel());
+    QCOMPARE(aim->data(bi, Irc::ChannelRole).value<IrcChannel*>(), b->toChannel());
+    QCOMPARE(aim->data(ci, Irc::ChannelRole).value<IrcChannel*>(), c->toChannel());
+    QVERIFY(!aim->data(oi, Irc::ChannelRole).value<IrcChannel*>());
+
+    QCOMPARE(aim->data(ai, Irc::TitleRole).toString(), a->title());
+    QCOMPARE(aim->data(bi, Irc::TitleRole).toString(), b->title());
+    QCOMPARE(aim->data(ci, Irc::TitleRole).toString(), c->title());
+    QVERIFY(aim->data(oi, Irc::TitleRole).toString().isEmpty());
+
+    QCOMPARE(aim->data(ai, Irc::NameRole).toString(), a->name());
+    QCOMPARE(aim->data(bi, Irc::NameRole).toString(), b->name());
+    QCOMPARE(aim->data(ci, Irc::NameRole).toString(), c->name());
+    QVERIFY(aim->data(oi, Irc::NameRole).toString().isEmpty());
+
+    QVERIFY(aim->data(ai, Irc::PrefixRole).toString().isEmpty());
+    QVERIFY(aim->data(bi, Irc::PrefixRole).toString().isEmpty());
+    QVERIFY(aim->data(ci, Irc::PrefixRole).toString().isEmpty());
+    QVERIFY(aim->data(oi, Irc::PrefixRole).toString().isEmpty());
 }
 
 QTEST_MAIN(tst_IrcBufferModel)
