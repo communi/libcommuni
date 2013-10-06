@@ -654,7 +654,10 @@ void IrcBufferModel::clear()
     Q_D(IrcBufferModel);
     if (!d->bufferList.isEmpty()) {
         beginResetModel();
-        qDeleteAll(d->bufferList);
+        foreach (IrcBuffer* buffer, d->bufferList) {
+            buffer->disconnect();
+            delete buffer;
+        }
         d->bufferList.clear();
         d->bufferMap.clear();
         d->channels.clear();
