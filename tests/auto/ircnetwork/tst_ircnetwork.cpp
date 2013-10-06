@@ -282,7 +282,8 @@ void tst_IrcNetwork::testCapabilities()
     QVERIFY(waitForOpened());
 
     if (!initialCaps.isEmpty()) {
-        QVERIFY(waitForWritten(":irc.ser.ver CAP * LS :" + initialCaps.toUtf8()));
+        // typical ircd: "*", znc: "unknown-nick"
+        QVERIFY(waitForWritten(":irc.ser.ver CAP unknown-nick LS :" + initialCaps.toUtf8()));
         ++availableCount;
         ++requestingCount;
     }
@@ -307,6 +308,8 @@ void tst_IrcNetwork::testCapabilities()
 
     if (!nakedCaps.isEmpty())
         QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi NAK :" + nakedCaps.toUtf8()));
+
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
 
     if (!listedCaps.isEmpty()) {
         QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi LS :" + listedCaps.toUtf8()));
