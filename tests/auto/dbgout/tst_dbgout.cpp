@@ -11,13 +11,15 @@
 #include "irccommand.h"
 #include "ircmessage.h"
 #include "ircnetwork.h"
-#include "ircnetwork_p.h"
 #include "ircconnection.h"
 #include "ircchannel.h"
 #include "ircbuffer.h"
 #include "ircuser.h"
 #include <QtTest/QtTest>
 #include <QRegExp>
+#ifdef Q_OS_LINUX
+#include "ircnetwork_p.h"
+#endif // Q_OS_LINUX
 
 class tst_DebugOutput : public QObject
 {
@@ -178,10 +180,13 @@ void tst_DebugOutput::testIrcNetwork()
     QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
     str.clear();
 
+#ifdef Q_OS_LINUX
+    // others have problems with symbols (win) or private headers (osx frameworks)
     IrcNetworkPrivate::get(connection.network())->name = "net";
     dbg << connection.network();
     QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj, network=net\\) ").exactMatch(str));
     str.clear();
+#endif // Q_OS_LINUX
 
     dbg << IrcNetwork::MessageLength;
     QCOMPARE(str.trimmed(), QString::fromLatin1("MessageLength"));
