@@ -378,22 +378,37 @@ void tst_IrcConnection::testSasl()
     if (!serverSocket)
         Q4SKIP("The address is not available");
 
-    IrcProtocol* protocol = static_cast<FriendlyConnection*>(connection.data())->protocol();
-    QVERIFY(protocol);
-
     QVERIFY(!IrcConnection::supportedSaslMechanisms().contains("UNKNOWN"));
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSaslMechanism(): unsupported mechanism: 'UNKNOWN'");
     connection->setSaslMechanism("UNKNOWN");
     QVERIFY(connection->saslMechanism().isEmpty());
 
+    connection->close();
+    IrcProtocol* protocol = static_cast<FriendlyConnection*>(connection.data())->protocol();
+    QVERIFY(protocol);
+
     QVERIFY(IrcConnection::supportedSaslMechanisms().contains("PLAIN"));
     connection->setSaslMechanism("PLAIN");
     QCOMPARE(connection->saslMechanism(), QString("PLAIN"));
 
+    connection->open();
+    waitForOpened();
+    QVERIFY(clientSocket->waitForBytesWritten());
+    QVERIFY(serverSocket->waitForReadyRead());
+    QByteArray written = serverSocket->readAll();
+    QVERIFY(written.contains("CAP LS"));
+    QVERIFY(written.contains("NICK nick"));
+    QVERIFY(!written.contains("PASS secret"));
+    QVERIFY(!written.contains("CAP REQ :sasl"));
+
     waitForWritten(":irc.freenode.net CAP * LS :sasl\r\n");
     QVERIFY(clientSocket->waitForBytesWritten());
-    serverSocket->waitForReadyRead();
-    QVERIFY(serverSocket->readAll().contains("CAP REQ :sasl"));
+    QVERIFY(serverSocket->waitForReadyRead());
+    written = serverSocket->readAll();
+    QVERIFY(!written.contains("CAP LS"));
+    QVERIFY(!written.contains("NICK nick"));
+    QVERIFY(!written.contains("PASS secret"));
+    QVERIFY(written.contains("CAP REQ :sasl"));
 
     // do not resume handshake too early
     QCoreApplication::sendPostedEvents(protocol, QEvent::MetaCall);
