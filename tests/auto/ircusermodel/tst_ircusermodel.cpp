@@ -513,7 +513,7 @@ void tst_IrcUserModel::testActivity_ircnet()
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("t0r-")), 0);
 
-    QVERIFY(waitForWritten(":[m]!m@hidd.en MODE #uptimed +b *!*box@*.does.not.matter"));
+    QVERIFY(waitForWritten(":[m]!m@hidd.en MODE #uptimed -b *!*box@*.does.not.matter"));
     QCOMPARE(activityModel.count(), count);
 
     QVERIFY(waitForWritten(":[m]!m@hidd.en KICK #uptimed _box :no reason"));
@@ -1032,6 +1032,77 @@ void tst_IrcUserModel::testChanges()
     users = QList<IrcUser*>() << ChanServ << Guest1234 << qout << qtassistant << communi;
     names = QStringList() << "ChanServ" << "Guest1234" << "qout" << "qtassistant" << "communi";
     titles = QStringList() << "@ChanServ" << "+Guest1234" << "+qout" << "+qtassistant" << "communi";
+
+    nextIndex = users.indexOf(Guest1234);
+
+    QCOMPARE(userModel.count(), names.count());
+    for (int i = 0; i < userModel.count(); ++i) {
+        QCOMPARE(userModel.get(i)->name(), names.at(i));
+        QCOMPARE(userModel.get(i)->title(), titles.at(i));
+        QCOMPARE(userModel.get(i), users.at(i));
+    }
+
+    QCOMPARE(countChangedSpy.count(), countChangedCount);
+
+    QCOMPARE(namesChangedSpy.count(), namesChangedCount);
+
+    QCOMPARE(usersChangedSpy.count(), ++usersChangedCount);
+    QCOMPARE(usersChangedSpy.last().at(0).value<QList<IrcUser*> >(), users);
+
+    QCOMPARE(dataChangedSpy.count(), ++dataChangedCount);
+    topLeft = dataChangedSpy.last().at(0).value<QModelIndex>();
+    bottomRight = dataChangedSpy.last().at(1).value<QModelIndex>();
+    QVERIFY(topLeft.isValid());
+    QVERIFY(bottomRight.isValid());
+    QVERIFY(topLeft == bottomRight);
+    QCOMPARE(topLeft.row(), previousIndex);
+    QCOMPARE(topLeft.column(), 0);
+
+    QCOMPARE(rowsAboutToBeRemovedSpy.count(), ++rowsAboutToBeRemovedCount);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(0).value<QModelIndex>(), topLeft.parent());
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsAboutToBeRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsRemovedSpy.count(), ++rowsRemovedCount);
+    QCOMPARE(rowsRemovedSpy.last().at(0).value<QModelIndex>(), topLeft.parent());
+    QCOMPARE(rowsRemovedSpy.last().at(1).toInt(), previousIndex);
+    QCOMPARE(rowsRemovedSpy.last().at(2).toInt(), previousIndex);
+
+    QCOMPARE(rowsAboutToBeInsertedSpy.count(), ++rowsAboutToBeInsertedCount);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(0).value<QModelIndex>(), topLeft.parent());
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsAboutToBeInsertedSpy.last().at(2).toInt(), nextIndex);
+
+    QCOMPARE(rowsInsertedSpy.count(), ++rowsInsertedCount);
+    QCOMPARE(rowsInsertedSpy.last().at(0).value<QModelIndex>(), topLeft.parent());
+    QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
+    QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
+
+    // ### sorted by title -> trigger a change in users, count & names remain intact
+    QVERIFY(waitForWritten(":ChanServ!ChanServ@services. MODE #communi -v Guest1234"));
+
+    QCOMPARE(Guest1234->name(), QString("Guest1234"));
+    QCOMPARE(Guest1234->title(), QString("Guest1234"));
+    QCOMPARE(Guest1234->prefix(), QString());
+    QCOMPARE(Guest1234->mode(), QString());
+
+    QCOMPARE(guestTitleChangedSpy.count(), ++guestTitleChangedCount);
+    QCOMPARE(guestTitleChangedSpy.last().at(0).toString(), QString("Guest1234"));
+
+    QCOMPARE(guestNameChangedSpy.count(), guestNameChangedCount);
+
+    QCOMPARE(guestPrefixChangedSpy.count(), ++guestPrefixChangedCount);
+    QCOMPARE(guestPrefixChangedSpy.last().at(0).toString(), QString());
+
+    QCOMPARE(guestModeChangedSpy.count(), ++guestModeChangedCount);
+    QCOMPARE(guestModeChangedSpy.last().at(0).toString(), QString());
+
+    previousIndex = users.indexOf(Guest1234);
+
+    // Irc::SortByTitle
+    users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi << Guest1234;
+    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "communi" << "Guest1234";
+    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "communi" << "Guest1234";
 
     nextIndex = users.indexOf(Guest1234);
 

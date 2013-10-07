@@ -779,6 +779,10 @@ void tst_IrcBufferModel::testChanges()
 
     QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
 
+    waitForWritten(":moorcock.freenode.net 324 communi #freenode +s");
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
+    QCOMPARE(freenode->mode(), QString("+s"));
+
     QVERIFY(waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi KICK #freenode communi"));
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
