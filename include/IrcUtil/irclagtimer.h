@@ -44,7 +44,7 @@ public:
     void setInterval(int seconds);
 
 Q_SIGNALS:
-    void lagChanged(int lag);
+    void lagChanged(qint64 lag);
 
 private:
     QScopedPointer<IrcLagTimerPrivate> d_ptr;
