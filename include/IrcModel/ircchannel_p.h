@@ -44,7 +44,6 @@ public:
     bool renameUser(const QString& from, const QString& to);
     void setUserMode(const QString& user, const QString& mode);
     void promoteUser(const QString& user);
-    void clearUsers();
 
     virtual bool processJoinMessage(IrcJoinMessage* message);
     virtual bool processKickMessage(IrcKickMessage* message);

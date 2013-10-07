@@ -246,16 +246,9 @@ void IrcChannelPrivate::promoteUser(const QString& name)
     }
 }
 
-void IrcChannelPrivate::clearUsers()
-{
-    if (!userList.isEmpty())
-        setUsers(QStringList());
-}
-
 bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
-        clearUsers();
         ++joined;
         emitActiveChanged();
     } else {
@@ -267,7 +260,6 @@ bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
 {
     if (!message->user().compare(message->connection()->nickName(), Qt::CaseInsensitive)) {
-        clearUsers();
         ++left;
         emitActiveChanged();
         return true;
@@ -318,7 +310,6 @@ bool IrcChannelPrivate::processNumericMessage(IrcNumericMessage* message)
 bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
-        clearUsers();
         ++left;
         emitActiveChanged();
         return true;
@@ -344,7 +335,6 @@ bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
 bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
-        clearUsers();
         ++left;
         emitActiveChanged();
         return true;
