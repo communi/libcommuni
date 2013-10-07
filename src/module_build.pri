@@ -48,6 +48,5 @@ coverage {
 
     genhtml.dir = ../../coverage/$${IRC_MODULE}
     genhtml.commands = @genhtml --output-directory $$genhtml.dir $$capture.file
-    genhtml.commands += && xdg-open $$genhtml.dir/index.html
     QMAKE_EXTRA_TARGETS += genhtml
 }
