@@ -54,7 +54,7 @@ tst_IrcUserModel::tst_IrcUserModel()
 {
     Irc::registerMetaTypes();
     qRegisterMetaType<QModelIndex>();
-    qRegisterMetaType<IrcBuffer*>("IrcUser*");
+    qRegisterMetaType<IrcUser*>("IrcUser*");
     qRegisterMetaType<IrcChannel*>("IrcChannel*");
     qRegisterMetaType<QList<IrcUser*> >("QList<IrcUser*>");
 }
