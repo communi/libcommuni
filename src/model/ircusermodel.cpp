@@ -313,7 +313,7 @@ int IrcUserModel::count() const
 QStringList IrcUserModel::names() const
 {
     Q_D(const IrcUserModel);
-    if (d->channel)
+    if (d->channel && !d->userList.isEmpty())
         return IrcChannelPrivate::get(d->channel)->userMap.keys();
     return QStringList();
 }
@@ -350,7 +350,7 @@ IrcUser* IrcUserModel::get(int index) const
 IrcUser* IrcUserModel::find(const QString& name) const
 {
     Q_D(const IrcUserModel);
-    if (d->channel)
+    if (d->channel && !d->userList.isEmpty())
         return IrcChannelPrivate::get(d->channel)->userMap.value(name);
     return 0;
 }
@@ -361,7 +361,7 @@ IrcUser* IrcUserModel::find(const QString& name) const
 bool IrcUserModel::contains(const QString& name) const
 {
     Q_D(const IrcUserModel);
-    if (d->channel)
+    if (d->channel && !d->userList.isEmpty())
         return IrcChannelPrivate::get(d->channel)->userMap.contains(name);
     return false;
 }
@@ -572,6 +572,22 @@ QModelIndex IrcUserModel::index(int row, int column, const QModelIndex& parent) 
         return QModelIndex();
 
     return createIndex(row, column, d->userList.value(row));
+}
+
+/*!
+    Clears the model.
+ */
+void IrcUserModel::clear()
+{
+    Q_D(IrcUserModel);
+    if (!d->userList.isEmpty()) {
+        beginResetModel();
+        d->userList.clear();
+        endResetModel();
+        emit namesChanged(QStringList());
+        emit usersChanged(QList<IrcUser*>());
+        emit countChanged(0);
+    }
 }
 
 /*!

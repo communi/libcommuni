@@ -71,6 +71,7 @@ public:
     QModelIndex index(int row, int column = 0, const QModelIndex& parent = QModelIndex()) const;
 
 public Q_SLOTS:
+    void clear();
     void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
 
 Q_SIGNALS:
