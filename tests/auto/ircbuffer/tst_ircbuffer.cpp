@@ -8,6 +8,7 @@
  */
 
 #include "ircbuffer.h"
+#include "ircmessage.h"
 #include <QtTest/QtTest>
 
 class tst_IrcBuffer : public QObject
@@ -19,6 +20,7 @@ private slots:
     void testTitleNamePrefix();
     void testSticky();
     void testPersistent();
+    void testReceive();
 };
 
 void tst_IrcBuffer::testDefaults()
@@ -105,6 +107,24 @@ void tst_IrcBuffer::testPersistent()
     QVERIFY(!buffer.isPersistent());
     QCOMPARE(spy.count(), 2);
     QVERIFY(!spy.last().last().toBool());
+}
+
+void tst_IrcBuffer::testReceive()
+{
+    Irc::registerMetaTypes();
+
+    IrcBuffer buffer;
+
+    QSignalSpy spy(&buffer, SIGNAL(messageReceived(IrcMessage*)));
+    QVERIFY(spy.isValid());
+
+    buffer.receiveMessage(0);
+    QCOMPARE(spy.count(), 0);
+
+    IrcMessage msg(0);
+    buffer.receiveMessage(&msg);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.last().at(0).value<IrcMessage*>(), &msg);
 }
 
 QTEST_MAIN(tst_IrcBuffer)

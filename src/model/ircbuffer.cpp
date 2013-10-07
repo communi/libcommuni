@@ -494,7 +494,8 @@ bool IrcBuffer::sendCommand(IrcCommand* command)
  */
 void IrcBuffer::receiveMessage(IrcMessage* message)
 {
-    emit messageReceived(message);
+    if (message)
+        emit messageReceived(message);
 }
 
 #ifndef QT_NO_DEBUG_STREAM
