@@ -4,4 +4,4 @@
 
 SOURCES += tst_ircchannel.cpp
 
-include (../auto.pri)
+include(../auto.pri)

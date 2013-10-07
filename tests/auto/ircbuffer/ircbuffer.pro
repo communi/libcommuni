@@ -4,4 +4,4 @@
 
 SOURCES += tst_ircbuffer.cpp
 
-include (../auto.pri)
+include(../auto.pri)

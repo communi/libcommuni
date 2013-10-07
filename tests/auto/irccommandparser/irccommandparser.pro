@@ -4,4 +4,4 @@
 
 SOURCES += tst_irccommandparser.cpp
 
-include (../auto.pri)
+include(../auto.pri)

@@ -4,4 +4,4 @@
 
 SOURCES += tst_dbgout.cpp
 
-include (../auto.pri)
+include(../auto.pri)

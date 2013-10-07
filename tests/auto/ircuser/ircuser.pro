@@ -4,4 +4,4 @@
 
 SOURCES += tst_ircuser.cpp
 
-include (../auto.pri)
+include(../auto.pri)

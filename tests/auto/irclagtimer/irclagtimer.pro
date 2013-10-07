@@ -4,4 +4,4 @@
 
 SOURCES += tst_irclagtimer.cpp
 
-include (../auto.pri)
+include(../auto.pri)

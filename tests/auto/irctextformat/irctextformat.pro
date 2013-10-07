@@ -4,4 +4,4 @@
 
 SOURCES += tst_irctextformat.cpp
 
-include (../auto.pri)
+include(../auto.pri)
