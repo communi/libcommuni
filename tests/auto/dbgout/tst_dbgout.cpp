@@ -19,6 +19,7 @@
 #include <QRegExp>
 #ifdef Q_OS_LINUX
 #include "ircnetwork_p.h"
+#include "ircuser_p.h"
 #endif // Q_OS_LINUX
 
 class tst_DebugOutput : public QObject
@@ -227,21 +228,53 @@ void tst_DebugOutput::testIrcModel()
     str.clear();
 
     IrcChannel channel;
+    dbg << &channel;
+    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    str.clear();
+
+    channel.setObjectName("obj");
+    dbg << &channel;
+    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    str.clear();
+
     channel.setPrefix("#");
     channel.setName("communi");
     dbg << &channel;
-    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+, title=#communi\\) ").exactMatch(str));
+    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj, title=#communi\\) ").exactMatch(str));
     str.clear();
 
     IrcBuffer buffer;
-    buffer.setName("Communi");
     dbg << &buffer;
-    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+, title=Communi\\) ").exactMatch(str));
+    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    str.clear();
+
+    buffer.setObjectName("obj");
+    dbg << &buffer;
+    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    str.clear();
+
+    buffer.setName("buf");
+    dbg << &buffer;
+    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj, title=buf\\) ").exactMatch(str));
     str.clear();
 
     IrcUser user;
     dbg << &user;
     QVERIFY(QRegExp("IrcUser\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    str.clear();
+
+    user.setObjectName("obj");
+    dbg << &user;
+    QVERIFY(QRegExp("IrcUser\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    str.clear();
+
+#ifdef Q_OS_LINUX
+    // others have problems with symbols (win) or private headers (osx frameworks)
+    IrcUserPrivate::get(&user)->setName("usr");
+    dbg << &user;
+    QVERIFY(QRegExp("IrcUser\\(0x[0-9A-Fa-f]+, name=obj, user=usr\\) ").exactMatch(str));
+    str.clear();
+#endif // Q_OS_LINUX
 }
 
 QTEST_MAIN(tst_DebugOutput)
