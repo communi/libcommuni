@@ -61,6 +61,10 @@ void tst_IrcTextFormat::testPlainText_data()
         QString color = format.colorName(i);
         QTest::newRow(color.toUtf8()) << QString("\x03%1%2\x0f").arg(i).arg(color) << color;
     }
+
+    QTest::newRow("dummy \\x03") << "foo\x03 \02bold\x0f bar\x03" << "foo bold bar";
+    QTest::newRow("extra \\x0f") << "foo\x0f \02bold\x0f bar\x0f" << "foo bold bar";
+    QTest::newRow("background") << QString("foo \x03%1,%1red\x0f on \x03%1,%1red\x03 bar").arg(Irc::Red) << "foo red on red bar";
 }
 
 void tst_IrcTextFormat::testPlainText()
@@ -77,18 +81,21 @@ void tst_IrcTextFormat::testHtml_data()
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("output");
 
-    QTest::newRow("bold") << "\02bold\x0f" << "<span style='font-weight: bold'>bold</span>";
-    QTest::newRow("strike-through") << "\x13strike-through\x0f" << "<span style='text-decoration: line-through'>strike-through</span>";
-    QTest::newRow("underline") << "\x15underline\x0f" << "<span style='text-decoration: underline'>underline</span>";
+    QTest::newRow("bold") << "foo \02bold\x0f and \02bold\02 bar" << "foo <span style='font-weight: bold'>bold</span> and <span style='font-weight: bold'>bold</span> bar";
+    QTest::newRow("strike-through") << "foo \x13strike\x0f and \x13through\x13 bar" << "foo <span style='text-decoration: line-through'>strike</span> and <span style='text-decoration: line-through'>through</span> bar";
+    QTest::newRow("underline1") << "foo \x15under\x0f and \x15line\x15 bar" << "foo <span style='text-decoration: underline'>under</span> and <span style='text-decoration: underline'>line</span> bar";
     //TODO: QTest::newRow("inverse") << "\x16inverse\x0f" << "inverse";
-    QTest::newRow("italic") << "\x1ditalic\x0f" << "<span style='font-style: italic'>italic</span>";
-    QTest::newRow("underline") << "\x1funderline\x0f" << "<span style='text-decoration: underline'>underline</span>";
+    QTest::newRow("italic") << "foo \x1ditalic\x0f and \x1ditalic\x1d bar" << "foo <span style='font-style: italic'>italic</span> and <span style='font-style: italic'>italic</span> bar";
+    QTest::newRow("underline2") << "foo \x1funder\x0f and \x1fline\x1f bar" << "foo <span style='text-decoration: underline'>under</span> and <span style='text-decoration: underline'>line</span> bar";
 
     IrcTextFormat format;
     for (int i = Irc::White; i <= Irc::LightGray; ++i) {
         QString color = format.colorName(i);
-        QTest::newRow(color.toUtf8()) << QString("\x03%1%2\x0f").arg(i).arg(color) << QString("<span style='color:%1'>%1</span>").arg(color);
+        QTest::newRow(color.toUtf8()) << QString("foo \x03%1%2\x0f and \x03%1%2\x03 bar").arg(i).arg(color) << QString("foo <span style='color:%1'>%1</span> and <span style='color:%1'>%1</span> bar").arg(color);
     }
+
+    QTest::newRow("extra \\x0f") << "foo\x0f \02bold\x0f bar\x0f" << "foo <span style='font-weight: bold'>bold</span> bar";
+    QTest::newRow("background") << QString("foo \x03%1,%1red\x0f on \x03%1,%1red\x03 bar").arg(Irc::Red) << "foo <span style='color:red;background-color:red'>red</span> on <span style='color:red;background-color:red'>red</span> bar";
 }
 
 void tst_IrcTextFormat::testHtml()
@@ -102,21 +109,28 @@ void tst_IrcTextFormat::testHtml()
 
 void tst_IrcTextFormat::testUrls_data()
 {
+    QTest::addColumn<QString>("pattern");
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("output");
 
-    QTest::newRow("www.fi") << "www.fi" << "<a href='http://www.fi'>www.fi</a>";
-    QTest::newRow("ftp.funet.fi") << "ftp.funet.fi" << "<a href='ftp://ftp.funet.fi'>ftp.funet.fi</a>";
-    QTest::newRow("jpnurmi@gmail.com") << "jpnurmi@gmail.com" << "<a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>";
-    QTest::newRow("github commits") << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>";
+    QString defaultPattern = IrcTextFormat().urlPattern();
+
+    QTest::newRow("www.fi") << defaultPattern << "www.fi" << "<a href='http://www.fi'>www.fi</a>";
+    QTest::newRow("ftp.funet.fi") << defaultPattern << "ftp.funet.fi" << "<a href='ftp://ftp.funet.fi'>ftp.funet.fi</a>";
+    QTest::newRow("jpnurmi@gmail.com") << defaultPattern << "jpnurmi@gmail.com" << "<a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>";
+    QTest::newRow("github commits") << defaultPattern << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>";
+    QTest::newRow("empty pattern") << QString() << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "www.fi ftp.funet.fi jpnurmi@gmail.com";
 }
 
 void tst_IrcTextFormat::testUrls()
 {
+    QFETCH(QString, pattern);
     QFETCH(QString, input);
     QFETCH(QString, output);
 
     IrcTextFormat format;
+    format.setUrlPattern(pattern);
+    QCOMPARE(format.urlPattern(), pattern);
     QCOMPARE(format.toHtml(input), output);
 }
 
