@@ -30,7 +30,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcBufferModel ircbuffermodel.h <IrcBufferModel>
-    \ingroup model
+    \ingroup models
     \brief Keeps track of buffers.
 
     IrcBufferModel automatically keeps track of channel and query buffers
@@ -46,8 +46,6 @@ IRC_BEGIN_NAMESPACE
     connect(model, SIGNAL(removed(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
     listView->setModel(model);
     \endcode
-
-    \sa models
  */
 
 /*!
@@ -499,9 +497,6 @@ int IrcBufferModel::indexOf(IrcBuffer* buffer) const
 
 /*!
     Adds a buffer with \a title to the model and returns it.
-
-    \note IrcBufferModel automatically keeps track of the buffers.
-    Normally you do not need to manually alter the list of buffers.
  */
 IrcBuffer* IrcBufferModel::add(const QString& title)
 {
@@ -511,9 +506,6 @@ IrcBuffer* IrcBufferModel::add(const QString& title)
 
 /*!
     Adds the \a buffer to the model.
-
-    \note IrcBufferModel automatically keeps track of the buffers.
-    Normally you do not need to manually alter the list of buffers.
  */
 void IrcBufferModel::add(IrcBuffer* buffer)
 {
@@ -523,9 +515,6 @@ void IrcBufferModel::add(IrcBuffer* buffer)
 
 /*!
     Removes a buffer with \a title from the model.
-
-    \note IrcBufferModel automatically keeps track of the buffers.
-    Normally you do not need to manually alter the list of buffers.
  */
 void IrcBufferModel::remove(const QString& title)
 {
@@ -535,9 +524,6 @@ void IrcBufferModel::remove(const QString& title)
 
 /*!
     Removes a \a buffer from the model.
-
-    \note IrcBufferModel automatically keeps track of the buffers.
-    Normally you do not need to manually alter the list of buffers.
  */
 void IrcBufferModel::remove(IrcBuffer* buffer)
 {
@@ -705,10 +691,10 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
     IrcBufferModel will automatically call this factory method when a
     need for the buffer object occurs ie. a private message is received.
 
-    The default implementation creates an instance of \ref bufferPrototype.
+    The default implementation creates an instance of the buffer prototype.
     Reimplement this function in order to alter the default behavior.
 
-    \sa bufferPrototype, createChannel()
+    \sa bufferPrototype
  */
 IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
 {
@@ -724,10 +710,10 @@ IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
     IrcBufferModel will automatically call this factory method when a
     need for the channel object occurs ie. a channel is being joined.
 
-    The default implementation creates an instance of \ref channelPrototype.
+    The default implementation creates an instance of the channel prototype.
     Reimplement this function in order to alter the default behavior.
 
-    \sa channelPrototype, createBuffer()
+    \sa channelPrototype
  */
 IrcChannel* IrcBufferModel::createChannel(const QString& title)
 {
@@ -868,8 +854,8 @@ QModelIndex IrcBufferModel::index(int row, int column, const QModelIndex& parent
     \note The prototype must have an invokable constructor.
 
     \par Access functions:
-    \li IrcBuffer* <b>bufferPrototype</b>() const
-    \li void <b>setBufferPrototype</b>(IrcBuffer* prototype)
+    \li \ref IrcBuffer* <b>bufferPrototype</b>() const
+    \li void <b>setBufferPrototype</b>(\ref IrcBuffer* prototype)
  */
 IrcBuffer* IrcBufferModel::bufferPrototype() const
 {
@@ -896,8 +882,8 @@ void IrcBufferModel::setBufferPrototype(IrcBuffer* prototype)
     \note The prototype must have an invokable constructor.
 
     \par Access functions:
-    \li IrcChannel* <b>channelPrototype</b>() const
-    \li void <b>setChannelPrototype</b>(IrcChannel* prototype)
+    \li \ref IrcChannel* <b>channelPrototype</b>() const
+    \li void <b>setChannelPrototype</b>(\ref IrcChannel* prototype)
  */
 IrcChannel* IrcBufferModel::channelPrototype() const
 {

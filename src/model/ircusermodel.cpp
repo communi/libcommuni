@@ -29,7 +29,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcUserModel ircusermodel.h <IrcUserModel>
-    \ingroup model
+    \ingroup models
     \brief Keeps track of channel users.
 
     In order to keep track of channel users, create an instance of IrcUserModel.
@@ -50,8 +50,6 @@ IRC_BEGIN_NAMESPACE
     \section sorting Sorting
 
     TODO
-
-    \sa model
 */
 
 /*!

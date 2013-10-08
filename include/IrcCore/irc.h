@@ -22,6 +22,16 @@
 
 IRC_BEGIN_NAMESPACE
 
+#ifdef IRC_DOXYGEN
+namespace Irc
+{
+    Q_INVOKABLE QString version();
+    Q_INVOKABLE QString codeToString(int code);
+    Q_INVOKABLE QString nickFromPrefix(const QString& prefix);
+    Q_INVOKABLE QString identFromPrefix(const QString& prefix);
+    Q_INVOKABLE QString hostFromPrefix(const QString& prefix);
+    Q_INVOKABLE void registerMetaTypes();
+#else
 class IRC_CORE_EXPORT Irc : public QObject
 {
     Q_OBJECT
@@ -30,12 +40,11 @@ class IRC_CORE_EXPORT Irc : public QObject
 public:
     Q_INVOKABLE static QString version();
     Q_INVOKABLE static QString codeToString(int code);
-
     Q_INVOKABLE static QString nickFromPrefix(const QString& prefix);
     Q_INVOKABLE static QString identFromPrefix(const QString& prefix);
     Q_INVOKABLE static QString hostFromPrefix(const QString& prefix);
-
     Q_INVOKABLE static void registerMetaTypes();
+#endif
 
     enum Code {
         RPL_WELCOME = 1,

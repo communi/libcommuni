@@ -107,7 +107,7 @@ IRC_BEGIN_NAMESPACE
     connection.destroy(timeout);
     \endcode
 
-    \sa IrcMessage and IrcCommand
+    \sa IrcNetwork, IrcMessage, IrcCommand
  */
 
 /*!

@@ -21,12 +21,26 @@
 
 IRC_BEGIN_NAMESPACE
 
-/*! \mainpage Communi - a cross-platform IRC framework written with Qt
+/*! \mainpage Communi - a cross-platform IRC framework written with %Qt
 
     \section introduction Introduction
 
-    Communi is a cross-platform IRC framework written with Qt. IRC (Internet
-    Relay Chat protocol) is a simple text-based communication protocol.
+    Communi is a cross-platform <a href="http://en.wikipedia.org/wiki/Internet_Relay_Chat">IRC</a>
+    framework written with <a href="http://qt-project.org/">Qt</a>. Communi provides a set of tools
+    for enabling IRC connectivity in both Qt C++ or QML based applications.
+
+    IRC (Internet Relay Chat protocol) is a simple text-based communication protocol. IRC was created
+    back in 1988 and is still popular particularly amongst open source projects. The Communi project's
+    own IRC channel \c \#communi is located on <a href="http://freenode.net/">Freenode</a>.
+
+    \subsection concepts Core concepts
+    \li IrcConnection manages the connection to an IRC server.
+    \li IrcNetwork accessed via IrcConnection::network() provides information about the IRC network.
+    \li IrcMessage represents a message received from an IRC server via IrcConnection::messageReceived().
+    \li IrcCommand represents a command sent to an IRC server via IrcConnection::sendCommand().
+
+    See the <a href="modules.html">modules</a> and <a href="modules.html">classes</a> pages for
+    a complete list of available modules and classes.
 
     \section install Installation
 
@@ -41,58 +55,60 @@ IRC_BEGIN_NAMESPACE
 
     \section usage Usage
 
-    Add the following line to your qmake project (.pro) file:
+    \subsection library Library
+
+    In order to use Communi as a library, add the following line to your qmake project (.pro) file:
     \code
     CONFIG += communi
+    COMMUNI += core model util
     \endcode
 
-    This adds the necessary include paths and linker rules in order to use the library.
+    This sets up the necessary include paths and linker rules in order to use the library. Notice
+    that the needed Communi modules can be controlled via the \c COMMUNI qmake variable. The above
+    example enables all available modules.
 
-    Communi in a nutshell:
-    \li IrcConnection manages the connection to an IRC server
-    \li IrcMessage represents a message received from an IRC server via IrcConnection::messageReceived().
-    \li IrcCommand represents a command sent to an IRC server via IrcConnection::sendCommand().
+    \subsection embed Embed
+
+    In order to embed Communi into the application, add the following line to your qmake project (.pro) file:
+    \code
+    include(path/to/libcommuni/src/src.pri)
+    \endcode
+
+    This sets up the necessary include paths, and builds Communi sources into the application
+    for convenient deployment on systems that do not have Communi installed.
 
     \defgroup core IrcCore
     \brief The core classes.
 
+    In order to enable the module, add the following lines to your qmake project (.pro) file:
+    \code
+    CONFIG += communi
+    COMMUNI += core
+    \endcode
+
+    \defgroup models IrcModel
+    \brief Models to keep track of channels and users.
+
+    In order to enable the module, add the following lines to your qmake project (.pro) file:
+    \code
+    CONFIG += communi
+    COMMUNI += core model
+    \endcode
+
     \defgroup util IrcUtil
     \brief Miscellaneous utility classes.
 
-    \defgroup model IrcModel
-    \brief Models to keep track of channels and users.
-
-    \section chanmodel Channels and queries
-
-    In order to keep track of channels and queries, create an instance of
-    IrcBufferModel. It will notify via signals when channel and query
-    buffers are added and/or removed. IrcBufferModel can be used directly
-    as a data model for Qt's item views - both in C++ and QML.
-
+    In order to enable the module, add the following lines to your qmake project (.pro) file:
     \code
-    IrcConnection* connection = new IrcConnection(this);
-    IrcBufferModel* model = new IrcBufferModel(connection);
-    connect(model, SIGNAL(added(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
-    connect(model, SIGNAL(removed(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
-    listView->setModel(model);
+    CONFIG += communi
+    COMMUNI += core util
     \endcode
+ */
 
-    \section usermodel Channel users
+/*!
+    \ingroup modules
 
-    In order to keep track of channel users, create an instance of IrcUserModel.
-    It will notify via signals when users are added and/or removed. IrcUserModel
-    can be used directly as a data model for Qt's item views - both in C++ and QML.
-
-    \code
-    void ChatView::setChannel(IrcChannel* channel)
-    {
-        IrcUserModel* model = new IrcUserModel(channel);
-        connect(model, SIGNAL(added(IrcUser*)), this, SLOT(onUserAdded(IrcUser*)));
-        connect(model, SIGNAL(removed(IrcUser*)), this, SLOT(onUserRemoved(IrcUser*)));
-        nickCompleter->setModel(model);
-        userListView->setModel(model);
-    }
-    \endcode
+    Foo bar....
  */
 
 /*!
@@ -116,16 +132,16 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \class Irc irc.h <Irc>
+    \namespace Irc
     \ingroup core
-    \brief The Irc class contains miscellaneous identifiers used throughout the library.
+    \brief Contains miscellaneous identifiers used throughout the library.
  */
 
 /*!
     Returns the version number of Communi at run-time as a string (for example, "1.2.3").
     This may be a different version than the version the application was compiled against.
 
-    \sa IRC_VERSION and IRC_VERSION_STR
+    \sa IRC_VERSION, IRC_VERSION_STR
  */
 QString Irc::version()
 {
@@ -133,9 +149,9 @@ QString Irc::version()
 }
 
 /*!
-    Returns the numeric \a code as a string or \a 0 if the code is unknown.
+    Returns the numeric \a code as a string or a null string if the code is unknown.
 
-    \sa Irc::Code and IrcNumericMessage::code()
+    \sa Irc::Code, IrcNumericMessage::code()
  */
 QString Irc::codeToString(int code)
 {
@@ -196,7 +212,7 @@ QString Irc::hostFromPrefix(const QString& prefix)
 }
 
 /*!
-    Registers IrcCore types to the Qt meta-system.
+    Registers IrcCore types to the %Qt meta-system.
 
     \sa qRegisterMetaType()
  */
@@ -2012,22 +2028,22 @@ void Irc::registerMetaTypes()
 
 /*!
     \var Irc::UserRole
-    \brief User object (IrcUser*)
+    \brief User object (\ref IrcUser*)
  */
 
 /*!
     \var Irc::BufferRole
-    \brief Buffer object (IrcBuffer*)
+    \brief Buffer object (\ref IrcBuffer*)
  */
 
 /*!
     \var Irc::ChannelRole
-    \brief Channel object (IrcChannel*)
+    \brief Channel object (\ref IrcChannel*)
  */
 
 /*!
     \var Irc::NameRole
-    \brief Channel/user name (QString)
+    \brief Buffer/user name (QString)
  */
 
 /*!
@@ -2056,82 +2072,82 @@ void Irc::registerMetaTypes()
 
 /*!
     \var Irc::White
-    \brief The default value is "white"
+    \brief The default value is \c "white"
  */
 
 /*!
     \var Irc::Black
-    \brief The default value is "black"
+    \brief The default value is \c "black"
  */
 
 /*!
     \var Irc::Blue
-    \brief The default value is "navy"
+    \brief The default value is \c "navy"
  */
 
 /*!
     \var Irc::Green
-    \brief The default value is "green"
+    \brief The default value is \c "green"
  */
 
 /*!
     \var Irc::Red
-    \brief The default value is "red"
+    \brief The default value is \c "red"
  */
 
 /*!
     \var Irc::Brown
-    \brief The default value is "maroon"
+    \brief The default value is \c "maroon"
  */
 
 /*!
     \var Irc::Purple
-    \brief The default value is "purple"
+    \brief The default value is \c "purple"
  */
 
 /*!
     \var Irc::Orange
-    \brief The default value is "olive"
+    \brief The default value is \c "olive"
  */
 
 /*!
     \var Irc::Yellow
-    \brief The default value is "yellow"
+    \brief The default value is \c "yellow"
  */
 
 /*!
     \var Irc::LightGreen
-    \brief The default value is "lime"
+    \brief The default value is \c "lime"
  */
 
 /*!
     \var Irc::Cyan
-    \brief The default value is "teal"
+    \brief The default value is \c "teal"
  */
 
 /*!
     \var Irc::LightCyan
-    \brief The default value is "aqua"
+    \brief The default value is \c "aqua"
  */
 
 /*!
     \var Irc::LightBlue
-    \brief The default value is "royalblue"
+    \brief The default value is \c "royalblue"
  */
 
 /*!
     \var Irc::Pink
-    \brief The default value is "fuchsia"
+    \brief The default value is \c "fuchsia"
  */
 
 /*!
     \var Irc::Gray
-    \brief The default value is "gray"
+    \brief The default value is \c "gray"
  */
 
 /*!
     \var Irc::LightGray
-    \brief The default value is "lightgray"
+    \brief The default value is \c "lightgray"
  */
 
 /*!

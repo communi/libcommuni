@@ -66,7 +66,7 @@
  #endif
     \endcode
 
-    \sa IRC_VERSION_STR and Irc::version().
+    \sa Irc::version()
  */
 #define IRC_VERSION 0x030000
 
@@ -76,7 +76,7 @@
     This macro expands to a string that specifies Communi's version number (for example, "1.2.3").
     This is the version against which the application is compiled.
 
-    \sa Irc::version() and IRC_VERSION.
+    \sa Irc::version()
  */
 #define IRC_VERSION_STR "3.0.0"
 

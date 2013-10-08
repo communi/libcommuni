@@ -25,12 +25,10 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcUser ircuser.h <IrcUser>
-    \ingroup model
+    \ingroup models
     \brief Keeps track of user status on a channel.
 
-    \note IrcUser does not work on its own. Use an instance managed by IrcUserModel.
-
-    \sa model
+    \sa IrcUserModel
 */
 
 #ifndef IRC_DOXYGEN
@@ -66,10 +64,6 @@ void IrcUserPrivate::setMode(const QString& m)
 
 /*!
     Constructs a new user with \a parent.
-
-    \note IrcUser does not work on its own. Use an instance managed by IrcUserModel.
-
-    \sa IrcUserModel::added()
  */
 IrcUser::IrcUser(QObject* parent)
     : QObject(parent), d_ptr(new IrcUserPrivate)
@@ -81,10 +75,6 @@ IrcUser::IrcUser(QObject* parent)
 
 /*!
     Destructs the user object.
-
-    \warning Do not delete an instance managed by IrcUserModel.
-
-    \sa IrcUserModel::removed()
  */
 IrcUser::~IrcUser()
 {

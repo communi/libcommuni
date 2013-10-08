@@ -28,12 +28,10 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcBuffer ircbuffer.h <IrcBuffer>
-    \ingroup model
+    \ingroup models
     \brief Keeps track of buffer status.
 
-    \note IrcBuffer does not work on its own. Use an instance managed by IrcBufferModel.
-
-    \sa model
+    \sa IrcBufferModel
 */
 
 /*!
@@ -221,10 +219,6 @@ bool IrcBufferPrivate::processTopicMessage(IrcTopicMessage* message)
 
 /*!
     Constructs a new buffer object with \a parent.
-
-    \note IrcBuffer does not work on its own. Use an instance managed by IrcBufferModel.
-
-    \sa IrcBufferModel::added()
  */
 IrcBuffer::IrcBuffer(QObject* parent)
     : QObject(parent), d_ptr(new IrcBufferPrivate)
@@ -245,8 +239,6 @@ IrcBuffer::IrcBuffer(IrcBufferPrivate& dd, QObject* parent)
 
 /*!
     Destructs the buffer object.
-
-    \sa IrcBufferModel::removed()
  */
 IrcBuffer::~IrcBuffer()
 {
@@ -254,7 +246,7 @@ IrcBuffer::~IrcBuffer()
 }
 
 /*!
-    This property holds the buffer title.
+    This property holds the whole buffer title.
 
     The title consists of \ref prefix and \ref name.
 
@@ -271,9 +263,9 @@ QString IrcBuffer::title() const
 }
 
 /*!
-    This property holds the buffer name.
+    This property holds the name part of the buffer \ref title.
 
-    \par Access function:
+    \par Access functions:
     \li QString <b>name</b>() const
     \li void <b>setName</b>(const QString& name)
 
@@ -293,9 +285,9 @@ void IrcBuffer::setName(const QString& name)
 }
 
 /*!
-    This property holds the buffer prefix.
+    This property holds the prefix part of the buffer \ref title.
 
-    \par Access function:
+    \par Access functions:
     \li QString <b>prefix</b>() const
     \li void <b>setPrefix</b>(const QString& prefix)
 
@@ -332,7 +324,7 @@ bool IrcBuffer::isChannel() const
     Returns the buffer cast to a IrcChannel,
     if the class is actually a channel, \c 0 otherwise.
 
-    \sa isChannel()
+    \sa \ref channel "isChannel()"
 */
 IrcChannel* IrcBuffer::toChannel()
 {
@@ -379,9 +371,8 @@ IrcBufferModel* IrcBuffer::model() const
     \property bool IrcBuffer::active
     This property holds whether the buffer is active.
 
-    A buffer is considered active when the \ref IrcBuffer::connection "connection"
-    is connected. Furthermore, channel buffers are only considered active when
-    the user is on the channel.
+    A buffer is considered active when a %connection is established. Furthermore,
+    channel buffers are only considered active when the user is on the channel.
 
     \par Access function:
     \li bool <b>isActive</b>() const
@@ -403,11 +394,11 @@ bool IrcBuffer::isActive() const
     This property holds whether the buffer is sticky.
 
     A sticky buffer stays in the beginning (Qt::AscendingOrder) or
-    end (Qt::DescendingOrder) of the list buffers in IrcBufferModel.
+    end (Qt::DescendingOrder) of the list of buffers in IrcBufferModel.
 
     The default value is \c false.
 
-    \par Access function:
+    \par Access functions:
     \li bool <b>isSticky</b>() const
     \li void <b>setSticky</b>(bool sticky)
 
@@ -489,8 +480,6 @@ bool IrcBuffer::sendCommand(IrcCommand* command)
     easy to implement handling for the rest, non-buffer specific messages.
     This method can be used to forward such ignored messages to the desired
     buffers (for instance the one that is currently active in the GUI).
-
-    \sa IrcBuffer::messageReceived()
  */
 void IrcBuffer::receiveMessage(IrcMessage* message)
 {

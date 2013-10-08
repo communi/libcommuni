@@ -32,12 +32,10 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \class IrcChannel ircchannel.h <IrcChannel>
-    \ingroup model
+    \ingroup models
     \brief Keeps track of channel status.
 
-    \note IrcChannel does not work on its own. Use an instance managed by IrcBufferModel.
-
-    \sa model
+    \sa IrcBufferModel
 */
 
 #ifndef IRC_DOXYGEN
@@ -351,10 +349,6 @@ bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
 
 /*!
     Constructs a new channel object with \a parent.
-
-    \note IrcChannel does not work on its own. Use an instance managed by IrcBufferModel.
-
-    \sa IrcBufferModel::added()
  */
 IrcChannel::IrcChannel(QObject* parent)
     : IrcBuffer(*new IrcChannelPrivate, parent)
@@ -363,8 +357,6 @@ IrcChannel::IrcChannel(QObject* parent)
 
 /*!
     Destructs the channel object.
-
-    \sa IrcBufferModel::removed()
  */
 IrcChannel::~IrcChannel()
 {
