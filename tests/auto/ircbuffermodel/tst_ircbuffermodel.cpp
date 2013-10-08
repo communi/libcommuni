@@ -31,6 +31,7 @@ private slots:
     void testChanges();
     void testRoles();
     void testAIM();
+    void testQML();
 };
 
 Q_DECLARE_METATYPE(QModelIndex)
@@ -1051,6 +1052,40 @@ void tst_IrcBufferModel::testAIM()
     QVERIFY(aim->data(bi, Irc::PrefixRole).toString().isEmpty());
     QVERIFY(aim->data(ci, Irc::PrefixRole).toString().isEmpty());
     QVERIFY(aim->data(oi, Irc::PrefixRole).toString().isEmpty());
+}
+
+class FakeQmlBufferModel : public IrcBufferModel
+{
+    Q_OBJECT
+    friend class tst_IrcBufferModel;
+
+public slots:
+    // -Wno-overloaded-virtual
+    QVariant createBuffer(const QVariant& title)
+    {
+        IrcBuffer* buffer = IrcBufferModel::createBuffer(title.toString());
+        buffer->setObjectName("QML buffer");
+        return QVariant::fromValue(buffer);
+    }
+    QVariant createChannel(const QVariant& title)
+    {
+        IrcChannel* channel = IrcBufferModel::createChannel(title.toString());
+        channel->setObjectName("QML channel");
+        return QVariant::fromValue(channel);
+    }
+};
+
+void tst_IrcBufferModel::testQML()
+{
+    FakeQmlBufferModel model;
+    model.setConnection(connection);
+
+    connection->open();
+    QVERIFY(waitForOpened());
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
+
+    QCOMPARE(model.add("buffer")->objectName(), QString("QML buffer"));
+    QCOMPARE(model.add("#channel")->objectName(), QString("QML channel"));
 }
 
 QTEST_MAIN(tst_IrcBufferModel)
