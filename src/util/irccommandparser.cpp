@@ -14,6 +14,7 @@
 
 #include "irccommandparser.h"
 #include <climits>
+#include <qmap.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -92,6 +93,11 @@ IRC_BEGIN_NAMESPACE
 
 struct IrcCommandInfo
 {
+    QString fullSyntax()
+    {
+        return command + QLatin1Char(' ') + syntax;
+    }
+
     IrcCommand::Type type;
     QString command;
     QString syntax;
@@ -109,7 +115,7 @@ public:
     QString prefix;
     QString current;
     QStringList channels;
-    QList<IrcCommandInfo> commands;
+    QMultiMap<QString, IrcCommandInfo> commands;
 };
 
 QList<IrcCommandInfo> IrcCommandParserPrivate::find(const QString& command) const
@@ -191,8 +197,10 @@ IrcCommand* IrcCommandParserPrivate::parse(const IrcCommandInfo& command, QStrin
 void IrcCommandParser::clear()
 {
     Q_D(IrcCommandParser);
-    d->commands.clear();
-    emit commandsChanged(QStringList());
+    if (!d->commands.isEmpty()) {
+        d->commands.clear();
+        emit commandsChanged(QStringList());
+    }
 }
 
 /*!
@@ -223,6 +231,8 @@ IrcCommandParser::~IrcCommandParser()
 /*!
     This property holds the known commands.
 
+    The commands are uppercased and in alphabetical order.
+
     \par Access function:
     \li QStringList <b>commands</b>() const
 
@@ -234,21 +244,20 @@ IrcCommandParser::~IrcCommandParser()
 QStringList IrcCommandParser::commands() const
 {
     Q_D(const IrcCommandParser);
-    QStringList result;
-    foreach (const IrcCommandInfo& cmd, d->commands)
-        result += cmd.command;
-    return result;
+    return d->commands.uniqueKeys();
 }
 
 /*!
     Returns the syntax for the given \a command.
+
+    The syntax is normalized ie. the command is uppercased.
  */
 QString IrcCommandParser::syntax(const QString& command) const
 {
     Q_D(const IrcCommandParser);
     IrcCommandInfo info = d->find(command.toUpper()).value(0);
     if (!info.command.isEmpty())
-        return info.command + QLatin1Char(' ') + info.syntax;
+        return info.fullSyntax();
     return QString();
 }
 
@@ -264,8 +273,10 @@ void IrcCommandParser::addCommand(IrcCommand::Type type, const QString& syntax)
         cmd.type = type;
         cmd.command = words.takeFirst().toUpper();
         cmd.syntax = words.join(QLatin1String(" "));
-        d->commands += cmd;
-        emit commandsChanged(commands());
+        const bool contains = d->commands.contains(cmd.command);
+        d->commands.insert(cmd.command, cmd);
+        if (!contains)
+            emit commandsChanged(commands());
     }
 }
 
@@ -275,14 +286,17 @@ void IrcCommandParser::addCommand(IrcCommand::Type type, const QString& syntax)
 void IrcCommandParser::removeCommand(IrcCommand::Type type, const QString& syntax)
 {
     Q_D(IrcCommandParser);
-    int count = d->commands.count();
-    QMutableListIterator<IrcCommandInfo> it(d->commands);
+    bool changed = false;
+    QMutableMapIterator<QString, IrcCommandInfo> it(d->commands);
     while (it.hasNext()) {
-        IrcCommandInfo cmd = it.next();
-        if (cmd.type == type && (syntax.isEmpty() || !syntax.compare(cmd.syntax, Qt::CaseInsensitive)))
+        IrcCommandInfo cmd = it.next().value();
+        if (cmd.type == type && (syntax.isEmpty() || !syntax.compare(cmd.fullSyntax(), Qt::CaseInsensitive))) {
             it.remove();
+            if (!d->commands.contains(cmd.command))
+                changed = true;
+        }
     }
-    if (d->commands.count() != count)
+    if (changed)
         emit commandsChanged(commands());
 }
 
@@ -400,8 +414,10 @@ void IrcCommandParser::setTolerant(bool tolerant)
 
 static bool isMessage(const QString& input, const QString& prefix)
 {
-    if (prefix.isEmpty() || input.isEmpty())
+    if (input.isEmpty())
         return false;
+    if (prefix.isEmpty())
+        return true;
 
     return !input.startsWith(prefix) || input.startsWith(prefix.repeated(2)) || input.startsWith(prefix + QLatin1Char(' '));
 }
@@ -414,7 +430,7 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
     Q_D(const IrcCommandParser);
     if (isMessage(input, d->prefix)) {
         QString message = input;
-        if (message.startsWith(d->prefix))
+        if (!d->prefix.isEmpty() && message.startsWith(d->prefix))
             message.remove(0, 1);
         return IrcCommand::createMessage(d->current, message.trimmed());
     } else {
