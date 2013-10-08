@@ -32,6 +32,8 @@ private slots:
     void testParameters_data();
     void testParameters();
 
+    void testFlags();
+
     void testEncoding_data();
     void testEncoding();
 
@@ -146,6 +148,13 @@ void tst_IrcMessage::testParameters()
     QCOMPARE(message->prefix(), prefix);
     QCOMPARE(message->command(), command);
     QCOMPARE(message->parameters(), params);
+}
+
+void tst_IrcMessage::testFlags()
+{
+    IrcMessage msg(0);
+    msg.setPrefix("a!b@c");
+    QCOMPARE(msg.flags(), IrcMessage::None);
 }
 
 void tst_IrcMessage::testEncoding_data()

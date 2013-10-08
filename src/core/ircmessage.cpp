@@ -257,17 +257,18 @@ IrcMessage::Flags IrcMessage::flags() const
     Q_D(const IrcMessage);
     if (d->flags == -1) {
         d->flags = IrcMessage::None;
-        const QString prefix = d->prefix();
-        if (!prefix.isEmpty() && d->nick() == d->connection->nickName())
-            d->flags |= IrcMessage::Own;
+        if (d->connection) {
+            if (!d->prefix().isEmpty() && d->nick() == d->connection->nickName())
+                d->flags |= IrcMessage::Own;
 
-        if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
-                d->connection->network()->activeCapabilities().contains("identify-msg")) {
-            QString msg = property("message").toString();
-            if (msg.startsWith("+"))
-                d->flags |= IrcMessage::Identified;
-            else if (msg.startsWith("-"))
-                d->flags |= IrcMessage::Unidentified;
+            if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
+                    network()->activeCapabilities().contains("identify-msg")) {
+                QString msg = property("message").toString();
+                if (msg.startsWith("+"))
+                    d->flags |= IrcMessage::Identified;
+                else if (msg.startsWith("-"))
+                    d->flags |= IrcMessage::Unidentified;
+            }
         }
     }
     return IrcMessage::Flags(d->flags);
