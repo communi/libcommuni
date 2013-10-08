@@ -8,42 +8,73 @@
  */
 
 #include "ircbot.h"
-#include <IrcCommand>
 #include <IrcMessage>
+#include <IrcCommand>
+#include <QCoreApplication>
+#include <QTimer>
 
 IrcBot::IrcBot(QObject* parent) : IrcConnection(parent)
 {
-    connect(this, SIGNAL(connected()), this, SLOT(onConnected()));
     connect(this, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(onMessageReceived(IrcMessage*)));
+
+    parser.setPrefix("!");
+    parser.addCommand(IrcCommand::CtcpAction, "ACT [target] <message...>");
+    parser.addCommand(IrcCommand::Custom, "HELP (<command...>)");
+    parser.addCommand(IrcCommand::Nick, "NICK <nick>");
+    parser.addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
+    parser.addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
+    parser.addCommand(IrcCommand::Quit, "QUIT (<message...>)");
+    parser.addCommand(IrcCommand::Message, "SAY [target] <message...>");
+
+    model.setConnection(this);
+    connect(&model, SIGNAL(channelsChanged(QStringList)), &parser, SLOT(setChannels(QStringList)));
 }
 
-QString IrcBot::channel() const
+void IrcBot::join(QString channel)
 {
-    return m_channel;
-}
-
-void IrcBot::setChannel(const QString& channel)
-{
-    m_channel = channel;
-}
-
-void IrcBot::onConnected()
-{
-    sendCommand(IrcCommand::createJoin(m_channel));
+    sendCommand(IrcCommand::createJoin(channel));
 }
 
 void IrcBot::onMessageReceived(IrcMessage* message)
 {
+    qDebug() << QString::fromUtf8(message->toData());
+
     if (message->type() == IrcMessage::Private) {
         IrcPrivateMessage* msg = static_cast<IrcPrivateMessage*>(message);
 
-        if (!msg->target().compare(nickName(), Qt::CaseInsensitive)) {
-            // echo private message
-            sendCommand(IrcCommand::createMessage(msg->nick(), msg->message()));
-        } else if (msg->message().startsWith(nickName(), Qt::CaseInsensitive)) {
-            // echo prefixed channel message
-            QString reply = msg->message().mid(msg->message().indexOf(" "));
-            sendCommand(IrcCommand::createMessage(m_channel, msg->nick() + ":" + reply));
+        QString content = msg->message();
+        if (content.startsWith(nickName(), Qt::CaseInsensitive))
+            content = content.mid(content.indexOf(" ")).trimmed();
+
+        if (!msg->target().compare(nickName(), Qt::CaseInsensitive))
+            parser.setCurrentTarget(msg->nick());
+        else
+            parser.setCurrentTarget(msg->target());
+
+        IrcCommand* cmd = parser.parse(content);
+        if (cmd) {
+            if (cmd->type() == IrcCommand::Custom && cmd->parameters().value(0) == "HELP") {
+                help(cmd->parameters().mid(1));
+            } else {
+                sendCommand(cmd);
+
+                if (cmd->type() == IrcCommand::Quit) {
+                    connect(this, SIGNAL(disconnected()), qApp, SLOT(quit()));
+                    QTimer::singleShot(1000, qApp, SLOT(quit()));
+                }
+            }
         }
+    }
+}
+
+void IrcBot::help(QStringList commands)
+{
+    if (commands.isEmpty())
+        commands = parser.commands();
+
+    QString target = parser.currentTarget();
+    foreach (const QString& command, commands) {
+        QString syntax = parser.syntax(command);
+        sendCommand(IrcCommand::createMessage(target, syntax));
     }
 }

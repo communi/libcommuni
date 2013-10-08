@@ -11,24 +11,27 @@
 #define IRCBOT_H
 
 #include <IrcConnection>
+#include <IrcBufferModel>
+#include <IrcCommandParser>
 
 class IrcBot : public IrcConnection
 {
     Q_OBJECT
-    Q_PROPERTY(QString channel READ channel WRITE setChannel)
 
 public:
     IrcBot(QObject* parent = 0);
 
-    QString channel() const;
-    void setChannel(const QString& channel);
+public slots:
+    void join(QString channel);
 
 private slots:
-    void onConnected();
     void onMessageReceived(IrcMessage* message);
 
 private:
-    QString m_channel;
+    void help(QStringList commands);
+
+    IrcBufferModel model;
+    IrcCommandParser parser;
 };
 
 #endif // IRCBOT_H
