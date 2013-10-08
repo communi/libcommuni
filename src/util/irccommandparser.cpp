@@ -91,6 +91,51 @@ IRC_BEGIN_NAMESPACE
     \endcode
  */
 
+/*!
+    \enum IrcCommandParser::Detail
+    This enum describes the available syntax details.
+ */
+
+/*!
+    \var IrcCommandParser::Full
+    \brief The syntax in full details
+ */
+
+/*!
+    \var IrcCommandParser::NoTarget
+    \brief The syntax has injected [target] removed
+ */
+
+/*!
+    \var IrcCommandParser::NoPrefix
+    \brief The syntax has \#channel prefixes removed
+ */
+
+/*!
+    \var IrcCommandParser::NoEllipsis
+    \brief The syntax has ellipsis... removed
+ */
+
+/*!
+    \var IrcCommandParser::NoParentheses
+    \brief The syntax has parentheses () removed
+ */
+
+/*!
+    \var IrcCommandParser::NoBrackets
+    \brief The syntax has brackets [] removed
+ */
+
+/*!
+    \var IrcCommandParser::NoAngles
+    \brief The syntax has angle brackets <> removed
+ */
+
+/*!
+    \var IrcCommandParser::Visual
+    \brief The syntax suitable for visual representation
+ */
+
 struct IrcCommandInfo
 {
     QString fullSyntax()
@@ -248,16 +293,30 @@ QStringList IrcCommandParser::commands() const
 }
 
 /*!
-    Returns the syntax for the given \a command.
-
-    The syntax is normalized ie. the command is uppercased.
+    Returns syntax for the given \a command in gived \a details level.
  */
-QString IrcCommandParser::syntax(const QString& command) const
+QString IrcCommandParser::syntax(const QString& command, Details details) const
 {
     Q_D(const IrcCommandParser);
     IrcCommandInfo info = d->find(command.toUpper()).value(0);
-    if (!info.command.isEmpty())
-        return info.fullSyntax();
+    if (!info.command.isEmpty()) {
+        QString str = info.fullSyntax();
+        if (details != Full) {
+            if (details & NoTarget)
+                str.remove(QRegExp("\\[[^\\]]+\\]"));
+            if (details & NoPrefix)
+                str.remove("#");
+            if (details & NoEllipsis)
+                str.remove("...");
+            if (details & NoParentheses)
+                str.remove("(").remove(")");
+            if (details & NoBrackets)
+                str.remove("[").remove("]");
+            if (details & NoAngles)
+                str.remove("<").remove(">");
+        }
+        return str.simplified();
+    }
     return QString();
 }
 

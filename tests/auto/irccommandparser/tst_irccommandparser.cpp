@@ -24,6 +24,7 @@ private slots:
     void testClear();
     void testReset();
     void testAddRemove();
+    void testSyntax_data();
     void testSyntax();
     void testTolerancy();
     void testCustom();
@@ -295,14 +296,73 @@ void tst_IrcCommandParser::testAddRemove()
     QVERIFY(parser.commands().isEmpty());
 }
 
+void tst_IrcCommandParser::testSyntax_data()
+{
+    QTest::addColumn<QString>("command");
+    QTest::addColumn<QString>("syntax");
+    QTest::addColumn<uint>("details");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("full")
+            << QString("foo")
+            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << uint(IrcCommandParser::Full)
+            << QString("FOO [param] <#chan> (<arg>) (<rest...>)");
+
+    QTest::newRow("no target")
+            << QString("fOO")
+            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << uint(IrcCommandParser::NoTarget)
+            << QString("FOO <#chan> (<arg>) (<rest...>)");
+
+    QTest::newRow("no ellipsis")
+            << QString("fOO")
+            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << uint(IrcCommandParser::NoEllipsis)
+            << QString("FOO [param] <#chan> (<arg>) (<rest>)");
+
+    QTest::newRow("no prefix")
+            << QString("fOO")
+            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << uint(IrcCommandParser::NoPrefix)
+            << QString("FOO [param] <chan> (<arg>) (<rest...>)");
+
+    QTest::newRow("no parentheses")
+            << QString("Foo")
+            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << uint(IrcCommandParser::NoParentheses)
+            << QString("FOO [param] <#chan> <arg> <rest...>");
+
+    QTest::newRow("no brackets")
+            << QString("FOO")
+            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << uint(IrcCommandParser::NoBrackets)
+            << QString("FOO param <#chan> (<arg>) (<rest...>)");
+
+    QTest::newRow("no angles")
+            << QString("FOO")
+            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << uint(IrcCommandParser::NoAngles)
+            << QString("FOO [param] #chan (arg) (rest...)");
+
+    QTest::newRow("visual")
+            << QString("FOO")
+            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << uint(IrcCommandParser::Visual)
+            << QString("FOO <chan> (<arg>) (<rest>)");
+}
+
 void tst_IrcCommandParser::testSyntax()
 {
-    IrcCommandParser parser;
-    QVERIFY(parser.commands().isEmpty());
+    QFETCH(QString, command);
+    QFETCH(QString, syntax);
+    QFETCH(uint, details);
+    QFETCH(QString, expected);
 
-    parser.addCommand(IrcCommand::Join, "jOiN <#channel> (<key>)");
-    QCOMPARE(parser.commands(), QStringList() << "JOIN");
-    QCOMPARE(parser.syntax("JOIN"), QString("JOIN <#channel> (<key>)"));
+    IrcCommandParser parser;
+    parser.addCommand(IrcCommand::Custom, syntax);
+    QString actual = parser.syntax(command, IrcCommandParser::Details(details));
+    QCOMPARE(actual, expected);
 }
 
 void tst_IrcCommandParser::testTolerancy()

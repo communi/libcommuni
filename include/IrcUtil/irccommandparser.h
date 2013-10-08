@@ -32,13 +32,27 @@ class IRC_UTIL_EXPORT IrcCommandParser : public QObject
     Q_PROPERTY(QStringList channels READ channels WRITE setChannels NOTIFY channelsChanged)
     Q_PROPERTY(QString currentTarget READ currentTarget WRITE setCurrentTarget NOTIFY currentTargetChanged)
     Q_PROPERTY(bool tolerant READ isTolerant WRITE setTolerant NOTIFY tolerancyChanged)
+    Q_FLAGS(Details)
 
 public:
     explicit IrcCommandParser(QObject* parent = 0);
     virtual ~IrcCommandParser();
 
     QStringList commands() const;
-    QString syntax(const QString& command) const;
+
+    enum Detail {
+        Full = 0x0,
+        NoTarget = 0x1,
+        NoPrefix = 0x2,
+        NoEllipsis = 0x4,
+        NoParentheses = 0x8,
+        NoBrackets = 0x10,
+        NoAngles = 0x20,
+        Visual = NoTarget | NoPrefix | NoEllipsis
+    };
+    Q_DECLARE_FLAGS(Details, Detail)
+
+    Q_INVOKABLE QString syntax(const QString& command, Details details = Visual) const;
 
     Q_INVOKABLE void addCommand(IrcCommand::Type type, const QString& syntax);
     Q_INVOKABLE void removeCommand(IrcCommand::Type type, const QString& syntax = QString());
@@ -72,6 +86,8 @@ private:
     Q_DECLARE_PRIVATE(IrcCommandParser)
     Q_DISABLE_COPY(IrcCommandParser)
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(IrcCommandParser::Details)
 
 IRC_END_NAMESPACE
 
