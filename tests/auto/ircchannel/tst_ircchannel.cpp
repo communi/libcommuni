@@ -9,6 +9,7 @@
 
 #include "ircchannel.h"
 #include <QtTest/QtTest>
+#include <QtCore/QRegExp>
 
 class tst_IrcChannel : public QObject
 {
@@ -17,6 +18,7 @@ class tst_IrcChannel : public QObject
 private slots:
     void testDefaults();
     void testSignals();
+    void testDebug();
 };
 
 void tst_IrcChannel::testDefaults()
@@ -44,6 +46,32 @@ void tst_IrcChannel::testSignals()
     QSignalSpy topicSpy(&channel, SIGNAL(topicChanged(QString)));
     QVERIFY(modeSpy.isValid());
     QVERIFY(topicSpy.isValid());
+}
+
+void tst_IrcChannel::testDebug()
+{
+    QString str;
+    QDebug dbg(&str);
+
+    dbg << static_cast<IrcChannel*>(0);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("IrcChannel(0x0)"));
+    str.clear();
+
+    IrcChannel channel;
+    dbg << &channel;
+    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    str.clear();
+
+    channel.setObjectName("obj");
+    dbg << &channel;
+    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    str.clear();
+
+    channel.setPrefix("#");
+    channel.setName("communi");
+    dbg << &channel;
+    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj, title=#communi\\) ").exactMatch(str));
+    str.clear();
 }
 
 QTEST_MAIN(tst_IrcChannel)

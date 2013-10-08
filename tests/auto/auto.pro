@@ -22,6 +22,3 @@ SUBDIRS += ircusermodel
 SUBDIRS += irccommandparser
 SUBDIRS += irclagtimer
 SUBDIRS += irctextformat
-
-# Other
-SUBDIRS += dbgout

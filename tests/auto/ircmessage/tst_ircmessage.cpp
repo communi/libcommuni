@@ -11,6 +11,7 @@
 #include "ircconnection.h"
 #include "ircprotocol.h"
 #include <QtTest/QtTest>
+#include <QtCore/QRegExp>
 #include <QtCore/QTextCodec>
 #include <QtCore/QScopedPointer>
 
@@ -67,6 +68,8 @@ private slots:
     void testQuitMessage();
     void testTopicMessage_data();
     void testTopicMessage();
+
+    void testDebug();
 };
 
 void tst_IrcMessage::testDefaults()
@@ -786,6 +789,52 @@ void tst_IrcMessage::testTopicMessage()
     QCOMPARE(topicMessage->channel(), channel);
     QCOMPARE(topicMessage->topic(), topic);
     QCOMPARE(topicMessage->isReply(), reply);
+}
+
+void tst_IrcMessage::testDebug()
+{
+    QString str;
+    QDebug dbg(&str);
+
+    dbg << static_cast<IrcMessage*>(0);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("IrcMessage(0x0)"));
+    str.clear();
+
+    IrcMessage message(0);
+    dbg << &message;
+    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, flags=\\(None\\)\\) ").exactMatch(str));
+    str.clear();
+
+    message.setObjectName("foo");
+    dbg << &message;
+    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\)\\) ").exactMatch(str));
+    str.clear();
+
+    message.setPrefix("nick!ident@host");
+    dbg << &message;
+    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\), prefix=nick!ident@host\\) ").exactMatch(str));
+    str.clear();
+
+    message.setCommand("COMMAND");
+    dbg << &message;
+    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\), prefix=nick!ident@host, command=COMMAND\\) ").exactMatch(str));
+    str.clear();
+
+    dbg << IrcMessage::Join;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("Join"));
+    str.clear();
+
+    dbg << IrcMessage::Unidentified;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("Unidentified"));
+    str.clear();
+
+    dbg << (IrcMessage::Own | IrcMessage::Identified | IrcMessage::Unidentified);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("(Own|Identified|Unidentified)"));
+    str.clear();
+
+    dbg << IrcModeMessage::Channel;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("Channel"));
+    str.clear();
 }
 
 QTEST_MAIN(tst_IrcMessage)

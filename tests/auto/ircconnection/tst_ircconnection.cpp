@@ -14,6 +14,7 @@
 #include "ircmessage.h"
 #include "ircfilter.h"
 #include <QtTest/QtTest>
+#include <QtCore/QRegExp>
 #include <QtCore/QTextCodec>
 #include <QtCore/QScopedPointer>
 #ifndef QT_NO_OPENSSL
@@ -95,6 +96,7 @@ private slots:
     void testMessageFilter();
     void testCommandFilter();
 
+    void testDebug();
     void testWarnings();
 
     void testCtcp();
@@ -1376,6 +1378,35 @@ void tst_IrcConnection::testCommandFilter()
 
     connection->sendCommand(IrcCommand::createPart("#qt"));
     QVERIFY(!suicidal);
+}
+
+void tst_IrcConnection::testDebug()
+{
+    QString str;
+    QDebug dbg(&str);
+
+    dbg << static_cast<IrcConnection*>(0);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("IrcConnection(0x0)"));
+    str.clear();
+
+    IrcConnection connection;
+    dbg << &connection;
+    QVERIFY(QRegExp("IrcConnection\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    str.clear();
+
+    connection.setHost("irc.freenode.net");
+    dbg << &connection;
+    QVERIFY(QRegExp("IrcConnection\\(0x[0-9A-Fa-f]+, irc.freenode.net\\) ").exactMatch(str));
+    str.clear();
+
+    connection.setDisplayName("Freenode");
+    dbg << &connection;
+    QVERIFY(QRegExp("IrcConnection\\(0x[0-9A-Fa-f]+, Freenode\\) ").exactMatch(str));
+    str.clear();
+
+    dbg << IrcConnection::Connected;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("Connected"));
+    str.clear();
 }
 
 void tst_IrcConnection::testWarnings()

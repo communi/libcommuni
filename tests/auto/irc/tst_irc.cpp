@@ -9,6 +9,7 @@
 
 #include "irc.h"
 #include <QtTest/QtTest>
+#include <QtCore/QRegExp>
 
 class tst_Irc : public QObject
 {
@@ -25,6 +26,8 @@ private slots:
 
     void testPrefix_data();
     void testPrefix();
+
+    void testDebug();
 };
 
 void tst_Irc::testCreation()
@@ -125,6 +128,28 @@ void tst_Irc::testPrefix()
     QCOMPARE(expectedNick, actualNick);
     QCOMPARE(expectedIdent, actualIdent);
     QCOMPARE(expectedHost, actualHost);
+}
+
+void tst_Irc::testDebug()
+{
+    QString str;
+    QDebug dbg(&str);
+
+    dbg << Irc::RPL_AWAY;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("RPL_AWAY"));
+    str.clear();
+
+    dbg << Irc::NameRole;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("NameRole"));
+    str.clear();
+
+    dbg << Irc::Brown;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("Brown"));
+    str.clear();
+
+    dbg << Irc::SortByActivity;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("SortByActivity"));
+    str.clear();
 }
 
 QTEST_MAIN(tst_Irc)

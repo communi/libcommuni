@@ -11,6 +11,7 @@
 #include "ircmessage.h"
 #include "ircconnection.h"
 #include <QtTest/QtTest>
+#include <QtCore/QRegExp>
 #include <QtCore/QTextCodec>
 #include <QtCore/QScopedPointer>
 
@@ -58,6 +59,8 @@ private slots:
     void testWho();
     void testWhois();
     void testWhowas();
+
+    void testDebug();
 };
 
 void tst_IrcCommand::testDefaults()
@@ -489,6 +492,36 @@ void tst_IrcCommand::testWhowas()
     QCOMPARE(cmd->type(), IrcCommand::Whowas);
     QVERIFY(cmd->toString().contains(QRegExp("\\bWHOWAS\\b")));
     QVERIFY(cmd->toString().contains(QRegExp("\\bmask\\b")));
+}
+
+void tst_IrcCommand::testDebug()
+{
+    QString str;
+    QDebug dbg(&str);
+
+    dbg << static_cast<IrcCommand*>(0);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("IrcCommand(0x0)"));
+    str.clear();
+
+    IrcCommand command;
+    QTest::ignoreMessage(QtWarningMsg, "Reimplement IrcCommand::toString() for IrcCommand::Custom");
+    dbg << &command;
+    QVERIFY(QRegExp("IrcCommand\\(0x[0-9A-Fa-f]+, type=Custom\\) ").exactMatch(str));
+    str.clear();
+
+    command.setType(IrcCommand::Quit);
+    dbg << &command;
+    QVERIFY(QRegExp("IrcCommand\\(0x[0-9A-Fa-f]+, type=Quit, \"QUIT :\"\\) ").exactMatch(str));
+    str.clear();
+
+    command.setObjectName("foo");
+    dbg << &command;
+    QVERIFY(QRegExp("IrcCommand\\(0x[0-9A-Fa-f]+, name=foo, type=Quit, \"QUIT :\"\\) ").exactMatch(str));
+    str.clear();
+
+    dbg << IrcCommand::Join;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("Join"));
+    str.clear();
 }
 
 QTEST_MAIN(tst_IrcCommand)

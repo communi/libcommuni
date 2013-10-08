@@ -10,6 +10,7 @@
 #include "ircbuffer.h"
 #include "ircmessage.h"
 #include <QtTest/QtTest>
+#include <QtCore/QRegExp>
 
 class tst_IrcBuffer : public QObject
 {
@@ -21,6 +22,7 @@ private slots:
     void testSticky();
     void testPersistent();
     void testReceive();
+    void testDebug();
 };
 
 void tst_IrcBuffer::testDefaults()
@@ -125,6 +127,31 @@ void tst_IrcBuffer::testReceive()
     buffer.receiveMessage(&msg);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.last().at(0).value<IrcMessage*>(), &msg);
+}
+
+void tst_IrcBuffer::testDebug()
+{
+    QString str;
+    QDebug dbg(&str);
+
+    dbg << static_cast<IrcBuffer*>(0);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("IrcBuffer(0x0)"));
+    str.clear();
+
+    IrcBuffer buffer;
+    dbg << &buffer;
+    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    str.clear();
+
+    buffer.setObjectName("obj");
+    dbg << &buffer;
+    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    str.clear();
+
+    buffer.setName("buf");
+    dbg << &buffer;
+    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj, title=buf\\) ").exactMatch(str));
+    str.clear();
 }
 
 QTEST_MAIN(tst_IrcBuffer)

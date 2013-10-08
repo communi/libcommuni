@@ -11,8 +11,12 @@
 #include "irccommand.h"
 #include "ircconnection.h"
 #include <QtTest/QtTest>
+#include <QtCore/QRegExp>
 #include "tst_ircclientserver.h"
 #include "tst_ircdata.h"
+#ifdef Q_OS_LINUX
+#include "ircnetwork_p.h"
+#endif // Q_OS_LINUX
 
 class tst_IrcNetwork : public tst_IrcClientServer
 {
@@ -26,6 +30,8 @@ private slots:
 
     void testCapabilities_data();
     void testCapabilities();
+
+    void testDebug();
 };
 
 void tst_IrcNetwork::testDefaults()
@@ -341,6 +347,54 @@ void tst_IrcNetwork::testCapabilities()
     if (!activeCaps.isEmpty())
         ++activeCount;
     QCOMPARE(activeSpy.count(), activeCount);
+}
+
+void tst_IrcNetwork::testDebug()
+{
+    QString str;
+    QDebug dbg(&str);
+
+    dbg << static_cast<IrcNetwork*>(0);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("IrcNetwork(0x0)"));
+    str.clear();
+
+    IrcConnection connection;
+    dbg << connection.network();
+    QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    str.clear();
+
+    connection.network()->setObjectName("obj");
+    dbg << connection.network();
+    QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    str.clear();
+
+#ifdef Q_OS_LINUX
+    // others have problems with symbols (win) or private headers (osx frameworks)
+    IrcNetworkPrivate::get(connection.network())->name = "net";
+    dbg << connection.network();
+    QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj, network=net\\) ").exactMatch(str));
+    str.clear();
+#endif // Q_OS_LINUX
+
+    dbg << IrcNetwork::MessageLength;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("MessageLength"));
+    str.clear();
+
+    dbg << IrcNetwork::AllTypes;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("AllTypes"));
+    str.clear();
+
+    dbg << (IrcNetwork::TypeA | IrcNetwork::TypeD);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("(TypeA|TypeD)"));
+    str.clear();
+
+    dbg << (IrcNetwork::TypeB | IrcNetwork::TypeC);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("(TypeB|TypeC)"));
+    str.clear();
+
+    dbg << (IrcNetwork::TypeA | IrcNetwork::TypeB | IrcNetwork::TypeC | IrcNetwork::TypeD);
+    QCOMPARE(str.trimmed(), QString::fromLatin1("(AllTypes)"));
+    str.clear();
 }
 
 QTEST_MAIN(tst_IrcNetwork)
