@@ -7,18 +7,19 @@
  * completely or partially.
  */
 
-#include <QCoreApplication>
-#include <QSettings>
+#include <QtCore>
 #include "ircbot.h"
 
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
 
+    qsrand(QTime::currentTime().msec());
+
     IrcBot bot;
     bot.setHost("irc.freenode.net");
     bot.setUserName("communi");
-    bot.setNickName("CommuniBot");
+    bot.setNickName("CommuniBot" + QString::number(qrand()));
     bot.setRealName("Communi " + Irc::version() + " example bot");
 
     bool joined = false;
