@@ -392,8 +392,10 @@ void IrcBufferModel::setConnection(IrcConnection* connection)
 {
     Q_D(IrcBufferModel);
     if (d->connection != connection) {
-        if (d->connection)
-            qFatal("IrcBufferModel::setConnection(): changing the connection on the fly is not supported.");
+        if (d->connection) {
+            qCritical("IrcBufferModel::setConnection(): changing the connection on the fly is not supported.");
+            return;
+        }
         d->connection = connection;
         d->connection->installMessageFilter(d);
         connect(d->connection, SIGNAL(statusChanged(IrcConnection::Status)), this, SLOT(_irc_connectionStatusChanged()));

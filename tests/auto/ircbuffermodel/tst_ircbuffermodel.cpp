@@ -32,6 +32,7 @@ private slots:
     void testRoles();
     void testAIM();
     void testQML();
+    void testWarnings();
 };
 
 Q_DECLARE_METATYPE(QModelIndex)
@@ -1086,6 +1087,17 @@ void tst_IrcBufferModel::testQML()
 
     QCOMPARE(model.add("buffer")->objectName(), QString("QML buffer"));
     QCOMPARE(model.add("#channel")->objectName(), QString("QML channel"));
+}
+
+void tst_IrcBufferModel::testWarnings()
+{
+    IrcBufferModel model(connection);
+    model.setConnection(connection);
+
+    QTest::ignoreMessage(QtCriticalMsg, "IrcBufferModel::setConnection(): changing the connection on the fly is not supported.");
+
+    IrcConnection another;
+    model.setConnection(&another);
 }
 
 QTEST_MAIN(tst_IrcBufferModel)
