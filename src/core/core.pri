@@ -51,13 +51,6 @@ SOURCES += $$PWD/ircprotocol.cpp
 
 include(../3rdparty/mozilla/mozilla.pri)
 
-# respect the (no_)icu/(no_)uchardet config if specified,
-# otherwise try to automatically detect using pkg-config
-include(../3rdparty/pkg.pri)
-!icu:!no_icu:!uchardet:!no_uchardet {
-    pkgExists(icu)|pkgExists(icu-i18n):CONFIG += icu
-}
-
 CONFIG(icu, icu|no_icu) {
     DEFINES += HAVE_ICU
     SOURCES += $$PWD/ircmessagedecoder_icu.cpp
