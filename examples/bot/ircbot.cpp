@@ -46,10 +46,9 @@ void IrcBot::onMessageReceived(IrcMessage* message)
         if (content.startsWith(nickName(), Qt::CaseInsensitive))
             content = content.mid(content.indexOf(" ")).trimmed();
 
-        if (!msg->target().compare(nickName(), Qt::CaseInsensitive))
-            parser.setCurrentTarget(msg->nick());
-        else
-            parser.setCurrentTarget(msg->target());
+        // - private message: reply to the message sender
+        // - channel message: reply to the target channel
+        parser.setCurrentTarget(msg->isPrivate() ? msg->nick() : msg->target());
 
         IrcCommand* cmd = parser.parse(content);
         if (cmd) {

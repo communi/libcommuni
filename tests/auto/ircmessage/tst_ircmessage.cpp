@@ -432,13 +432,15 @@ void tst_IrcMessage::testNoticeMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("target");
     QTest::addColumn<QString>("msg");
+    QTest::addColumn<bool>("priv");
     QTest::addColumn<bool>("reply");
 
-    QTest::newRow("no prefix") << true << QByteArray("NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
-    QTest::newRow("empty prefix") << false << QByteArray(": NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
-    QTest::newRow("no params") << false << QByteArray(":Angel NOTICE Wiz") << QString("Wiz") << QString() << false;
-    QTest::newRow("all ok") << true << QByteArray(":Angel NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false;
-    QTest::newRow("reply") << true << QByteArray(":Angel NOTICE Wiz :\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << true;
+    QTest::newRow("no prefix") << true << QByteArray("NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false;
+    QTest::newRow("empty prefix") << false << QByteArray(": NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false;
+    QTest::newRow("no params") << false << QByteArray(":Angel NOTICE Wiz") << QString("Wiz") << QString() << false << false;
+    QTest::newRow("all ok") << true << QByteArray(":Angel NOTICE Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false;
+    QTest::newRow("private") << true << QByteArray(":Angel NOTICE communi :Hello are you receiving this message ?") << QString("communi") << QString("Hello are you receiving this message ?") << true << false;
+    QTest::newRow("reply") << true << QByteArray(":Angel NOTICE Wiz :\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true;
 }
 
 void tst_IrcMessage::testNoticeMessage()
@@ -447,15 +449,18 @@ void tst_IrcMessage::testNoticeMessage()
     QFETCH(QByteArray, data);
     QFETCH(QString, target);
     QFETCH(QString, msg);
+    QFETCH(bool, priv);
     QFETCH(bool, reply);
 
     IrcConnection connection;
+    connection.setNickName("communi");
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Notice);
     QCOMPARE(message->command(), QString("NOTICE"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
     QCOMPARE(message->property("message").toString(), msg);
+    QCOMPARE(message->property("private").toBool(), priv);
     QCOMPARE(message->property("reply").toBool(), reply);
 
     IrcNoticeMessage* noticeMessage = qobject_cast<IrcNoticeMessage*>(message);
@@ -463,6 +468,7 @@ void tst_IrcMessage::testNoticeMessage()
     QCOMPARE(noticeMessage->isValid(), valid);
     QCOMPARE(noticeMessage->target(), target);
     QCOMPARE(noticeMessage->message(), msg);
+    QCOMPARE(noticeMessage->isPrivate(), priv);
     QCOMPARE(noticeMessage->isReply(), reply);
 }
 
@@ -644,27 +650,31 @@ void tst_IrcMessage::testPrivateMessage_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("target");
     QTest::addColumn<QString>("msg");
+    QTest::addColumn<bool>("priv");
     QTest::addColumn<bool>("action");
     QTest::addColumn<bool>("request");
     QTest::addColumn<uint>("flags");
 
-    QTest::newRow("no prefix") << true << QString() << QByteArray("PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
-    QTest::newRow("empty prefix") << false << QString() << QByteArray(": PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
-    QTest::newRow("no params") << false << QString() << QByteArray(":Angel PRIVMSG Wiz") << QString("Wiz") << QString() << false << false << static_cast<uint>(IrcMessage::None);
-    QTest::newRow("all ok") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
-    QTest::newRow("action") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << true << false << static_cast<uint>(IrcMessage::None);
-    QTest::newRow("request") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("no prefix") << true << QString() << QByteArray("PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("empty prefix") << false << QString() << QByteArray(": PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("no params") << false << QString() << QByteArray(":Angel PRIVMSG Wiz") << QString("Wiz") << QString() << false << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("all ok") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("private") << true << QString() << QByteArray(":Angel PRIVMSG communi :Hello are you receiving this message ?") << QString("communi") << QString("Hello are you receiving this message ?") << true << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("action") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("request") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << true << static_cast<uint>(IrcMessage::None);
 
-    QTest::newRow("identified") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :+Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::Identified);
-    QTest::newRow("identified action") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :+\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << true << false << static_cast<uint>(IrcMessage::Identified);
-    QTest::newRow("identified request") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :+\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true << static_cast<uint>(IrcMessage::Identified);
+    QTest::newRow("identified") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :+Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::Identified);
+    QTest::newRow("identified private") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG communi :+Hello are you receiving this message ?") << QString("communi") << QString("Hello are you receiving this message ?") << true << false << false << static_cast<uint>(IrcMessage::Identified);
+    QTest::newRow("identified action") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :+\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true << false << static_cast<uint>(IrcMessage::Identified);
+    QTest::newRow("identified request") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :+\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << true << static_cast<uint>(IrcMessage::Identified);
 
-    QTest::newRow("unidentified") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :-Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::Unidentified);
-    QTest::newRow("unidentified action") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :-\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << true << false << static_cast<uint>(IrcMessage::Unidentified);
-    QTest::newRow("unidentified request") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :-\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true << static_cast<uint>(IrcMessage::Unidentified);
+    QTest::newRow("unidentified") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :-Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::Unidentified);
+    QTest::newRow("unidentified private") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG communi :-Hello are you receiving this message ?") << QString("communi") << QString("Hello are you receiving this message ?") << true << false << false << static_cast<uint>(IrcMessage::Unidentified);
+    QTest::newRow("unidentified action") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :-\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true << false << static_cast<uint>(IrcMessage::Unidentified);
+    QTest::newRow("unidentified request") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :-\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << true << static_cast<uint>(IrcMessage::Unidentified);
 
-    QTest::newRow("no-caps identified") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :+Hello are you receiving this message ?") << QString("Wiz") << QString("+Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
-    QTest::newRow("no-caps unidentified") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :-Hello are you receiving this message ?") << QString("Wiz") << QString("-Hello are you receiving this message ?") << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("no-caps identified") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :+Hello are you receiving this message ?") << QString("Wiz") << QString("+Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::None);
+    QTest::newRow("no-caps unidentified") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :-Hello are you receiving this message ?") << QString("Wiz") << QString("-Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::None);
 }
 
 class TestProtocol : public IrcProtocol
@@ -691,11 +701,13 @@ void tst_IrcMessage::testPrivateMessage()
     QFETCH(QByteArray, data);
     QFETCH(QString, target);
     QFETCH(QString, msg);
+    QFETCH(bool, priv);
     QFETCH(bool, action);
     QFETCH(bool, request);
     QFETCH(uint, flags);
 
     IrcConnection connection;
+    connection.setNickName("communi");
     TestProtocol protocol(cap, &connection);
     static_cast<FriendConnection*>(&connection)->setProtocol(&protocol);
 
@@ -705,6 +717,7 @@ void tst_IrcMessage::testPrivateMessage()
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
     QCOMPARE(message->property("message").toString(), msg);
+    QCOMPARE(message->property("private").toBool(), priv);
     QCOMPARE(message->property("action").toBool(), action);
     QCOMPARE(message->property("request").toBool(), request);
     QCOMPARE(message->property("flags").toUInt(), flags);
@@ -714,6 +727,7 @@ void tst_IrcMessage::testPrivateMessage()
     QCOMPARE(privateMessage->isValid(), valid);
     QCOMPARE(privateMessage->target(), target);
     QCOMPARE(privateMessage->message(), msg);
+    QCOMPARE(privateMessage->isPrivate(), priv);
     QCOMPARE(privateMessage->isAction(), action);
     QCOMPARE(privateMessage->isRequest(), request);
     QCOMPARE(static_cast<uint>(privateMessage->flags()), flags);

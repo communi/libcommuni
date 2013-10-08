@@ -983,6 +983,22 @@ QString IrcPrivateMessage::message() const
 }
 
 /*!
+    \property bool IrcPrivateMessage::private
+    This property is \c true if the message is private,
+    or \c false if it is a channel message.
+
+    \par Access functions:
+    \li bool <b>isPrivate</b>() const
+ */
+bool IrcPrivateMessage::isPrivate() const
+{
+    Q_D(const IrcMessage);
+    if (d->connection)
+        return !target().compare(d->connection->nickName(), Qt::CaseInsensitive);
+    return false;
+}
+
+/*!
     \property bool IrcPrivateMessage::action
     This property is \c true if the message is an action; otherwise \c false.
 
@@ -1063,6 +1079,22 @@ QString IrcNoticeMessage::message() const
         msg.chop(1);
     }
     return msg;
+}
+
+/*!
+    \property bool IrcNoticeMessage::private
+    This property is \c true if the notice is private,
+    or \c false if it is a channel notice.
+
+    \par Access functions:
+    \li bool <b>isPrivate</b>() const
+ */
+bool IrcNoticeMessage::isPrivate() const
+{
+    Q_D(const IrcMessage);
+    if (d->connection)
+        return !target().compare(d->connection->nickName(), Qt::CaseInsensitive);
+    return false;
 }
 
 /*!
