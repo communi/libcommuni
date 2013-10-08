@@ -13,6 +13,7 @@
 #include "ircbuffer.h"
 #include <QtTest/QtTest>
 #include "tst_ircclientserver.h"
+#include "tst_ircdata.h"
 
 class tst_IrcBufferModel : public tst_IrcClientServer
 {
@@ -24,6 +25,7 @@ public:
 private slots:
     void testDefaults();
     void testAddRemove();
+    void testSorting();
     void testClear();
     void testPrototypes();
     void testChanges();
@@ -166,6 +168,96 @@ void tst_IrcBufferModel::testAddRemove()
     QCOMPARE(buffersSpy.count(), 4);
     QCOMPARE(buffersSpy.last().last().value<QList<IrcBuffer*> >(), QList<IrcBuffer*>());
     QCOMPARE(channelsSpy.count(), 0);
+}
+
+void tst_IrcBufferModel::testSorting()
+{
+    IrcBufferModel staticModel(connection);
+    IrcBufferModel dynamicModel(connection);
+
+    connection->open();
+    waitForOpened();
+    waitForWritten(tst_IrcData::welcome());
+
+    IrcBuffer* b = staticModel.add("b");
+    IrcBuffer* c = staticModel.add("#c");
+    IrcBuffer* a = staticModel.add("#a");
+
+    QList<IrcBuffer*> buffers =  QList<IrcBuffer*>() << b << c << a;
+    QCOMPARE(staticModel.buffers(), buffers);
+
+    // IGNORE INVALID COLUMNS
+    staticModel.sort(-1, Qt::AscendingOrder);
+    QCOMPARE(staticModel.buffers(), buffers);
+
+    staticModel.sort(1, Qt::AscendingOrder);
+    QCOMPARE(staticModel.buffers(), buffers);
+
+    // STATIC - BY NAME - ASCENDING
+    buffers =  QList<IrcBuffer*>() << a << b << c;
+    staticModel.setSortMethod(Irc::SortByName);
+    staticModel.sort(0, Qt::AscendingOrder);
+    QCOMPARE(staticModel.buffers(), buffers);
+
+    // STATIC - BY NAME - DESCENDING
+    buffers =  QList<IrcBuffer*>() << c << b << a;
+    staticModel.setSortMethod(Irc::SortByName);
+    staticModel.sort(0, Qt::DescendingOrder);
+    QCOMPARE(staticModel.buffers(), buffers);
+
+    // STATIC - BY TITLE - ASCENDING
+    buffers =  QList<IrcBuffer*>() << a << c << b;
+    staticModel.setSortMethod(Irc::SortByTitle);
+    staticModel.sort(0, Qt::AscendingOrder);
+    QCOMPARE(staticModel.buffers(), buffers);
+
+    // STATIC - BY TITLE - DESCENDING
+    buffers =  QList<IrcBuffer*>() << b << c << a;
+    staticModel.setSortMethod(Irc::SortByTitle);
+    staticModel.sort(0, Qt::DescendingOrder);
+    QCOMPARE(staticModel.buffers(), buffers);
+
+    // STATIC - BY TITLE - ASCENDING & STICKY
+    c->setSticky(true);
+    buffers =  QList<IrcBuffer*>() << c << a << b;
+    staticModel.setSortMethod(Irc::SortByTitle);
+    staticModel.sort(0, Qt::AscendingOrder);
+    QCOMPARE(staticModel.buffers(), buffers);
+
+    // STATIC - BY TITLE - ASCENDING & 2 STICKIES
+    b->setSticky(true);
+    buffers =  QList<IrcBuffer*>() << c << b << a;
+    staticModel.setSortMethod(Irc::SortByTitle);
+    staticModel.sort(0, Qt::AscendingOrder);
+    QCOMPARE(staticModel.buffers(), buffers);
+
+    dynamicModel.setDynamicSort(true);
+
+    b = dynamicModel.add("b");
+    c = dynamicModel.add("#c");
+    a = dynamicModel.add("#a");
+
+    // DYNAMIC - BY NAME - ASCENDING
+    buffers =  QList<IrcBuffer*>() << a << b << c;
+    dynamicModel.setSortMethod(Irc::SortByName);
+    QCOMPARE(dynamicModel.buffers(), buffers);
+
+    // DYNAMIC - BY TITLE - ASCENDING
+    buffers =  QList<IrcBuffer*>() << a << c << b;
+    dynamicModel.setSortMethod(Irc::SortByTitle);
+    QCOMPARE(dynamicModel.buffers(), buffers);
+
+    dynamicModel.sort(0, Qt::DescendingOrder);
+
+    // DYNAMIC - BY NAME - DESCENDING
+    buffers =  QList<IrcBuffer*>() << c << b << a;
+    dynamicModel.setSortMethod(Irc::SortByName);
+    QCOMPARE(dynamicModel.buffers(), buffers);
+
+    // DYNAMIC - BY TITLE - DESCENDING
+    buffers =  QList<IrcBuffer*>() << b << c << a;
+    dynamicModel.setSortMethod(Irc::SortByTitle);
+    QCOMPARE(dynamicModel.buffers(), buffers);
 }
 
 void tst_IrcBufferModel::testClear()

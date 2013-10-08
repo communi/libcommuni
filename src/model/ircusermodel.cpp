@@ -595,8 +595,9 @@ void IrcUserModel::clear()
  */
 void IrcUserModel::sort(int column, Qt::SortOrder order)
 {
-    Q_UNUSED(column);
     Q_D(IrcUserModel);
+    if (column != 0)
+        return;
 
     emit layoutAboutToBeChanged();
 

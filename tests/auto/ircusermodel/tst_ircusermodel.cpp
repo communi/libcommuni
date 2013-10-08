@@ -222,6 +222,15 @@ void tst_IrcUserModel::testSorting()
     qSort(sorted);
     QCOMPARE(staticModel.names(), sorted);
 
+    // IGNORE INVALID COLUMNS
+    staticModel.sort(-1, Qt::AscendingOrder);
+    for (int i = 0; i < staticModel.count(); ++i)
+        QCOMPARE(staticModel.get(i)->name(), names.at(i));
+
+    staticModel.sort(1, Qt::AscendingOrder);
+    for (int i = 0; i < staticModel.count(); ++i)
+        QCOMPARE(staticModel.get(i)->name(), names.at(i));
+
     // STATIC - BY NAME - ASCENDING
     staticModel.setSortMethod(Irc::SortByName);
     staticModel.sort(0, Qt::AscendingOrder);

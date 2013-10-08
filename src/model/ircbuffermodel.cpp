@@ -661,8 +661,9 @@ void IrcBufferModel::clear()
  */
 void IrcBufferModel::sort(int column, Qt::SortOrder order)
 {
-    Q_UNUSED(column);
     Q_D(IrcBufferModel);
+    if (column != 0)
+        return;
 
     emit layoutAboutToBeChanged();
 
