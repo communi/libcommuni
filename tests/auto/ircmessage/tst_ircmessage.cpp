@@ -14,6 +14,10 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QScopedPointer>
 
+#ifdef Q_OS_LINUX
+#include "ircmessagedecoder_p.h"
+#endif // Q_OS_LINUX
+
 class tst_IrcMessage : public QObject
 {
     Q_OBJECT
@@ -29,6 +33,9 @@ private slots:
 
     void testEncoding_data();
     void testEncoding();
+
+    void testDecoder_data();
+    void testDecoder();
 
     void testCapabilityMessage_data();
     void testCapabilityMessage();
@@ -164,6 +171,31 @@ void tst_IrcMessage::testEncoding()
     IrcMessage msg(0);
     msg.setEncoding(encoding);
     QCOMPARE(msg.encoding(), actual);
+}
+
+void tst_IrcMessage::testDecoder_data()
+{
+    QTest::addColumn<QByteArray>("encoding");
+    QTest::addColumn<QByteArray>("base64");
+
+    QTest::newRow("windows-1251") << QByteArray("windows-1251") << QByteArray("7+Xt8eju7eXw4Owg7+7k5OXr/O375Q==");
+    QTest::newRow("EUC-JP") << QByteArray("EUC-JP") << QByteArray("pKSkxKTHpOKkyaSzpMek4qGhpbml3qXbyMc=");
+    QTest::newRow("Shift-JIS") << QByteArray("Shift-JIS") << QByteArray("lbaOmoNSgVuDaJVcg1aDdINn");
+    QTest::newRow("ISO-8859-15") << QByteArray("ISO-8859-15") << QByteArray("5Gl0aWVucORpduQ="); // TODO: QByteArray("5OQ=");
+}
+
+void tst_IrcMessage::testDecoder()
+{
+    QFETCH(QByteArray, encoding);
+    QFETCH(QByteArray, base64);
+
+#ifdef Q_OS_LINUX
+    // others have problems with symbols (win) or private headers (osx frameworks)
+    IrcMessageDecoder decoder;
+    QString actual = decoder.decode(QByteArray::fromBase64(base64), encoding);
+    QString expected = QTextCodec::codecForName(encoding)->toUnicode(QByteArray::fromBase64(base64));
+    QCOMPARE(actual, expected);
+#endif // Q_OS_LINUX
 }
 
 void tst_IrcMessage::testCapabilityMessage_data()
