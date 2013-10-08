@@ -94,7 +94,7 @@ IrcUser::~IrcUser()
 QString IrcUser::title() const
 {
     Q_D(const IrcUser);
-    return d->prefix + d->name;
+    return d->prefix.left(1) + d->name;
 }
 
 /*!

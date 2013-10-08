@@ -808,10 +808,11 @@ int IrcBufferModel::rowCount(const QModelIndex& parent) const
 QVariant IrcBufferModel::data(const QModelIndex& index, int role) const
 {
     Q_D(const IrcBufferModel);
-    if (!hasIndex(index.row(), index.column()))
+    if (!hasIndex(index.row(), index.column(), index.parent()))
         return QVariant();
 
     IrcBuffer* buffer = static_cast<IrcBuffer*>(index.internalPointer());
+    Q_ASSERT(buffer);
 
     switch (role) {
     case Qt::DisplayRole:
@@ -821,17 +822,11 @@ QVariant IrcBufferModel::data(const QModelIndex& index, int role) const
     case Irc::ChannelRole:
         return QVariant::fromValue(buffer->toChannel());
     case Irc::NameRole:
-        if (buffer)
-            return buffer->name();
-        break;
+        return buffer->name();
     case Irc::PrefixRole:
-        if (buffer)
-            return buffer->prefix();
-        break;
+        return buffer->prefix();
     case Irc::TitleRole:
-        if (buffer)
-            return buffer->title();
-        break;
+        return buffer->title();
     }
 
     return QVariant();

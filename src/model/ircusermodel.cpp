@@ -529,10 +529,11 @@ int IrcUserModel::rowCount(const QModelIndex& parent) const
 QVariant IrcUserModel::data(const QModelIndex& index, int role) const
 {
     Q_D(const IrcUserModel);
-    if (!d->channel || !hasIndex(index.row(), index.column()))
+    if (!d->channel || !hasIndex(index.row(), index.column(), index.parent()))
         return QVariant();
 
     IrcUser* user = static_cast<IrcUser*>(index.internalPointer());
+    Q_ASSERT(user);
 
     switch (role) {
     case Qt::DisplayRole:
@@ -540,21 +541,13 @@ QVariant IrcUserModel::data(const QModelIndex& index, int role) const
     case Irc::UserRole:
         return QVariant::fromValue(user);
     case Irc::NameRole:
-        if (user)
-            return user->name();
-        break;
+        return user->name();
     case Irc::PrefixRole:
-        if (user)
-            return user->prefix().left(1);
-        break;
+        return user->prefix().left(1);
     case Irc::ModeRole:
-        if (user)
-            return user->mode().left(1);
-        break;
+        return user->mode().left(1);
     case Irc::TitleRole:
-        if (user)
-            return user->prefix().left(1) + user->name();
-        break;
+        return user->title();
     }
 
     return QVariant();
