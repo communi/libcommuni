@@ -35,15 +35,15 @@ IRC_BEGIN_NAMESPACE
 
     IrcNetwork provides various IRC network information. This
     includes the network name, supported channel types, channel
-    user modes and prefixes, and various numerical limitations,
+    user modes and prefixes, and various numeric limitations,
     such as the maximum nick, channel, topic and message lengths.
 
     Furthermore, IrcNetwork provides means for capability management
     by maintaining a list of available and active capabilities, and
     by providing convenient methods for requesting capabilities.
 
-    \note Most IrcNetwork properties have empty or "null" values until
-    the client-server handshake has been done and the connection has
+    \note Most IrcNetwork properties have empty values until the
+    client-server handshake has been done and the connection has
     been fully established.
 
     \sa IrcConnection::network
@@ -111,7 +111,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \enum IrcNetwork::Limit
-    This enum describes the numerical limit types.
+    This enum describes the numeric limit types.
  */
 
 /*!
@@ -254,6 +254,7 @@ void IrcNetworkPrivate::setChannelTypes(const QStringList& value)
 #endif // IRC_DOXYGEN
 
 /*!
+    \internal
     Constructs a new network object for IRC \a connection.
  */
 IrcNetwork::IrcNetwork(IrcConnection* connection) : QObject(connection), d_ptr(new IrcNetworkPrivate)
@@ -264,6 +265,7 @@ IrcNetwork::IrcNetwork(IrcConnection* connection) : QObject(connection), d_ptr(n
 }
 
 /*!
+    \internal
     Destructs the IRC network.
  */
 IrcNetwork::~IrcNetwork()
@@ -411,7 +413,7 @@ QStringList IrcNetwork::channelModes(IrcNetwork::ModeTypes types) const
 }
 
 /*!
-    Returns a numerical type of \a limit, or -1 if the limitation is not known.
+    Returns a numeric type of \a limit, or \c -1 if the limitation is not known.
 
     \sa modeLimit(), channelLimit(), targetLimit()
  */
@@ -432,7 +434,7 @@ int IrcNetwork::numericLimit(Limit limit) const
 }
 
 /*!
-    Returns the limit of entries in the list per \a mode, or -1 if the limitation is not known.
+    Returns the limit of entries in the list per \a mode, or \c -1 if the limitation is not known.
 
     \sa modes()
  */
@@ -443,7 +445,7 @@ int IrcNetwork::modeLimit(const QString& mode) const
 }
 
 /*!
-    Returns the limit for a \a type of channels, or -1 if the limitation is not known.
+    Returns the limit for a \a type of channels, or \c -1 if the limitation is not known.
 
     \sa channelTypes()
  */
@@ -454,7 +456,7 @@ int IrcNetwork::channelLimit(const QString& type) const
 }
 
 /*!
-    Returns the limit of targets for a \a command, or -1 if the limitation is not known.
+    Returns the limit of targets for a \a command, or \c -1 if the limitation is not known.
  */
 int IrcNetwork::targetLimit(const QString& command) const
 {
