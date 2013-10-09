@@ -22,6 +22,16 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \file ircmessagefilter.h
+    \brief \#include &lt;%IrcMessageFilter&gt;
+ */
+
+/*!
+    \file irccommandfilter.h
+    \brief \#include &lt;%IrcCommandFilter&gt;
+ */
+
+/*!
     \class IrcMessageFilter ircfilter.h <IrcMessageFilter>
     \ingroup core
     \brief Provides an interface for filtering messages
