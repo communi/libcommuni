@@ -55,11 +55,12 @@ IRC_BEGIN_NAMESPACE
     for convenience. In addition to the \ref status "statusChanged()" signal,
     the most important statuses are informed via the following convenience
     signals:
-    \li connecting()   - The underlying socket has been connected, but
-                         the IRC connection is not yet fully established.
-    \li connected()    - The IRC connection has been established,
-                         and the connection is ready to start sending commands.
-    \li disconnected() - The connection has been disconnected.
+    \li connecting() -
+        The connection is being established.
+    \li \ref connected "connected()" -
+        The IRC connection has been established, and the server is ready to receive commands.
+    \li disconnected() -
+        The connection has been lost.
 
     \section messages Receiving messages
 
@@ -73,7 +74,7 @@ IRC_BEGIN_NAMESPACE
     Sending commands to a server is most conveniently done by creating
     them via the various static \ref IrcCommand "IrcCommand::createXxx()"
     methods and passing them to sendCommand(). Also sendData() is provided
-    for more low-level access.
+    for more low-level access. See IrcCommand for more details.
 
     \section example Example
 
@@ -86,24 +87,6 @@ IRC_BEGIN_NAMESPACE
     connection->setRealName("And I");
     connection->sendCommand(IrcCommand::createJoin("#mine"));
     connection->open();
-    \endcode
-
-    \section closing Closing a connection
-
-    Calling close() when connected makes the connection close immediately and thus
-    leads to "remote host closed the connection". In order to quit gracefully, send
-    a QUIT command and let the server handle closing the connection.
-
-    C++ example:
-    \code
-    connection->quit(reason);
-    QTimer::singleShot(timeout, connection, SLOT(deleteLater()));
-    \endcode
-
-    QML example:
-    \code
-    connection.quit(reason);
-    connection.destroy(timeout);
     \endcode
 
     \sa IrcNetwork, IrcMessage, IrcCommand
@@ -121,7 +104,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \var IrcConnection::Waiting
-    \brief The connection is waiting for reconnect.
+    \brief The connection is waiting for a reconnect.
  */
 
 /*!
@@ -131,7 +114,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \var IrcConnection::Connected
-    \brief The connection is established.
+    \brief The connection has been established.
  */
 
 /*!
@@ -153,6 +136,9 @@ IRC_BEGIN_NAMESPACE
     \fn void IrcConnection::connecting()
 
     This signal is emitted when the connection is being established.
+
+    The underlying \ref socket has connected, but the IRC handshake is
+    not yet finished and the server is not yet ready to receive commands.
  */
 
 /*!
@@ -161,28 +147,22 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when the requested nick name is reserved
     and an \a alternate nick name should be provided.
 
+    An alternate nick name may be set via the provided argument, by changing
+    the \ref nickName property, or by sending a nick command directly.
+
     \sa Irc::ERR_NICKNAMEINUSE, Irc::ERR_NICKCOLLISION
- */
-
-/*!
-    \fn void IrcConnection::connected()
-
-    This signal is emitted when the connection has been established ie.
-    the welcome message has been received and the server is ready to receive commands.
-
-    \sa Irc::RPL_WELCOME
  */
 
 /*!
     \fn void IrcConnection::disconnected()
 
-    This signal is emitted when the connection has been disconnected.
+    This signal is emitted when the connection has been lost.
  */
 
 /*!
     \fn void IrcConnection::socketError(QAbstractSocket::SocketError error)
 
-    This signal is emitted whenever a socket \a error occurs.
+    This signal is emitted when a \ref socket \a error occurs.
 
     \sa QAbstractSocket::error()
  */
@@ -190,7 +170,7 @@ IRC_BEGIN_NAMESPACE
 /*!
     \fn void IrcConnection::socketStateChanged(QAbstractSocket::SocketState state)
 
-    This signal is emitted whenever the socket's \a state changes.
+    This signal is emitted when the \a state of the underlying \ref socket changes.
 
     \sa QAbstractSocket::stateChanged()
  */
@@ -198,7 +178,7 @@ IRC_BEGIN_NAMESPACE
 /*!
     \fn void IrcConnection::messageReceived(IrcMessage* message)
 
-    This signal is emitted whenever any type of \a message is received.
+    This signal is emitted when a \a message is received.
 
     In addition, message type specific signals are provided for convenience:
     \li void <b>capabilityMessageReceived</b>(\ref IrcCapabilityMessage* message)
@@ -715,7 +695,7 @@ void IrcConnection::setDisplayName(const QString& name)
     \property Status IrcConnection::status
     This property holds the connection status.
 
-    \par Access functions:
+    \par Access function:
     \li Status <b>status</b>() const
 
     \par Notifier signal:
@@ -733,7 +713,7 @@ IrcConnection::Status IrcConnection::status() const
 
     The connection is considered active when its either connecting, connected or closing.
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isActive</b>() const
  */
 bool IrcConnection::isActive() const
@@ -744,15 +724,18 @@ bool IrcConnection::isActive() const
 
 /*!
     \property bool IrcConnection::connected
-    This property holds whether the connection is connected.
+    This property holds whether the connection has been established.
 
-    The connection is considered connected when the welcome message
+    The connection has been established when the welcome message
     has been received and the server is ready to receive commands.
 
     \sa Irc::RPL_WELCOME
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isConnected</b>() const
+
+    \par Notifier signal:
+    \li void <b>connected</b>()
  */
 bool IrcConnection::isConnected() const
 {
@@ -824,7 +807,7 @@ void IrcConnection::setReconnectDelay(int seconds)
 }
 
 /*!
-    This property holds the socket. IrcConnection creates an instance of QTcpSocket by default.
+    This property holds the socket. The default value is an instance of QTcpSocket.
 
     The previously set socket is deleted if its parent is \c this.
 
@@ -929,7 +912,7 @@ void IrcConnection::setSecure(bool secure)
 }
 
 /*!
-    This property holds the used SASL mechanism.
+    This property holds the used SASL (Simple Authentication and Security Layer) mechanism.
 
     \par Access functions:
     \li QString <b>saslMechanism</b>() const
@@ -938,7 +921,7 @@ void IrcConnection::setSecure(bool secure)
     \par Notifier signal:
     \li void <b>saslMechanismChanged</b>(const QString& mechanism)
 
-    \sa supportedSaslMechanisms()
+    \sa supportedSaslMechanisms
  */
 QString IrcConnection::saslMechanism() const
 {
@@ -962,9 +945,9 @@ void IrcConnection::setSaslMechanism(const QString& mechanism)
 }
 
 /*!
-    This property holds the list of supported SASL mechanism.
+    This property holds the list of supported SASL (Simple Authentication and Security Layer) mechanisms.
 
-    \par Access functions:
+    \par Access function:
     \li static QStringList <b>supportedSaslMechanisms</b>()
 
     \sa saslMechanism
@@ -977,7 +960,7 @@ QStringList IrcConnection::supportedSaslMechanisms()
 /*!
     This property holds the network information.
 
-    \par Access functions:
+    \par Access function:
     \li IrcNetwork* <b>network</b>() const
  */
 IrcNetwork* IrcConnection::network() const
@@ -998,19 +981,19 @@ void IrcConnection::open()
 {
     Q_D(IrcConnection);
     if (d->host.isEmpty()) {
-        qCritical("IrcConnection::open(): host is empty!");
+        qWarning("IrcConnection::open(): host is empty!");
         return;
     }
     if (d->userName.isEmpty()) {
-        qCritical("IrcConnection::open(): userName is empty!");
+        qWarning("IrcConnection::open(): userName is empty!");
         return;
     }
     if (d->nickName.isEmpty()) {
-        qCritical("IrcConnection::open(): nickName is empty!");
+        qWarning("IrcConnection::open(): nickName is empty!");
         return;
     }
     if (d->realName.isEmpty()) {
-        qCritical("IrcConnection::open(): realName is empty!");
+        qWarning("IrcConnection::open(): realName is empty!");
         return;
     }
     if (d->enabled && d->socket)
@@ -1019,6 +1002,22 @@ void IrcConnection::open()
 
 /*!
     Immediately closes the connection to the server.
+
+    Calling close() when connected makes the connection close immediately and thus
+    leads to "remote host closed the connection". In order to quit gracefully, send
+    a QUIT command and let the server handle closing the connection.
+
+    C++ example:
+    \code
+    connection->quit(reason);
+    QTimer::singleShot(timeout, connection, SLOT(deleteLater()));
+    \endcode
+
+    QML example:
+    \code
+    connection.quit(reason);
+    connection.destroy(timeout);
+    \endcode
 
     \sa quit()
  */
@@ -1115,9 +1114,7 @@ bool IrcConnection::sendData(const QByteArray& data)
 }
 
 /*!
-    Sends raw \a message to the server.
-
-    \note The \a message is sent using UTF-8 encoding.
+    Sends raw \a message to the server using UTF-8 encoding.
 
     \sa sendData(), sendCommand()
  */
@@ -1127,17 +1124,17 @@ bool IrcConnection::sendRaw(const QString& message)
 }
 
 /*!
-    Installs a message \a filter on this connection.
+    Installs a message \a filter on the connection. The \a filter must implement the IrcMessageFilter interface.
 
-    A message filter receives all messages that are sent to this connection.
-    The message filter receives messages via its messageFilter() function.
-    The messageFilter() function must return \c true if the message should
-    be filtered, (i.e. stopped); otherwise it must return \c false.
+    A message filter receives all messages that are sent to the connection. The filter
+    receives messages via the \ref IrcMessageFilter::messageFilter() "messageFilter()"
+    function. The function must return \c true if the message should be filtered,
+    (i.e. stopped); otherwise it must return \c false.
 
     If multiple message filters are installed on the same connection, the filter
     that was installed last is activated first.
 
-    \sa IrcMessageFilter, removeMessageFilter()
+    \sa removeMessageFilter()
  */
 void IrcConnection::installMessageFilter(QObject* filter)
 {
@@ -1150,11 +1147,11 @@ void IrcConnection::installMessageFilter(QObject* filter)
 }
 
 /*!
-    Removes a message \a filter from this connection.
+    Removes a message \a filter from the connection.
 
     The request is ignored if such message filter has not been installed.
-    All message filters for this connection are automatically removed
-    when this connection is destroyed.
+    All message filters for a connection are automatically removed
+    when the connection is destroyed.
 
     \sa installMessageFilter()
  */
@@ -1169,17 +1166,17 @@ void IrcConnection::removeMessageFilter(QObject* filter)
 }
 
 /*!
-    Installs a command \a filter on this connection.
+    Installs a command \a filter on the connection. The \a filter must implement the IrcCommandFilter interface.
 
-    A command filter receives all commands that are sent from this connection.
-    The command filter receives commands via its commandFilter() function.
-    The commandFilter() function must return \c true if the command should
-    be filtered, (i.e. stopped); otherwise it must return \c false.
+    A command filter receives all commands that are sent from the connection. The filter
+    receives commands via the \ref IrcCommandFilter::commandFilter() "commandFilter()"
+    function. The function must return \c true if the command should be filtered,
+    (i.e. stopped); otherwise it must return \c false.
 
     If multiple command filters are installed on the same connection, the filter
     that was installed last is activated first.
 
-    \sa IrcCommandFilter, removeMessageFilter()
+    \sa removeCommandFilter()
  */
 void IrcConnection::installCommandFilter(QObject* filter)
 {
@@ -1192,13 +1189,13 @@ void IrcConnection::installCommandFilter(QObject* filter)
 }
 
 /*!
-    Removes a command \a filter from this connection.
+    Removes a command \a filter from the connection.
 
     The request is ignored if such command filter has not been installed.
-    All command filters for this connection are automatically removed when
-    this connection is destroyed.
+    All command filters for a connection are automatically removed when
+    the connection is destroyed.
 
-    \sa installMessageFilter()
+    \sa installCommandFilter()
  */
 void IrcConnection::removeCommandFilter(QObject* filter)
 {

@@ -499,22 +499,22 @@ void tst_IrcConnection::testSsl()
 void tst_IrcConnection::testOpen()
 {
     IrcConnection connection;
-    QTest::ignoreMessage(QtCriticalMsg, "IrcConnection::open(): host is empty!");
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::open(): host is empty!");
     connection.open();
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
     connection.setHost("irc.ser.ver");
-    QTest::ignoreMessage(QtCriticalMsg, "IrcConnection::open(): userName is empty!");
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::open(): userName is empty!");
     connection.open();
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
     connection.setUserName("user");
-    QTest::ignoreMessage(QtCriticalMsg, "IrcConnection::open(): nickName is empty!");
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::open(): nickName is empty!");
     connection.open();
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
     connection.setNickName("nick");
-    QTest::ignoreMessage(QtCriticalMsg, "IrcConnection::open(): realName is empty!");
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::open(): realName is empty!");
     connection.open();
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
