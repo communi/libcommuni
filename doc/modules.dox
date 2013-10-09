@@ -1,0 +1,67 @@
+/*
+* Copyright (C) 2008-2013 The Communi Project
+*
+* This library is free software; you can redistribute it and/or modify it
+* under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This library is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+* License for more details.
+*/
+
+/*!
+    \file irccore.h
+    \brief \#include &lt;%IrcCore&gt;
+ */
+
+/*!
+    \file ircmodel.h
+    \brief \#include &lt;%IrcModel&gt;
+ */
+
+/*!
+    \file ircutil.h
+    \brief \#include &lt;%IrcUtil&gt;
+ */
+
+/*!
+    \defgroup core IrcCore
+    \brief The core classes.
+
+    In order to enable the module, add the following lines to your qmake project (.pro) file:
+    \code
+    CONFIG += communi
+    COMMUNI += core
+    \endcode
+
+    This sets up the necessary include paths and linker rules in order to use the module.
+ */
+
+/*!
+    \defgroup models IrcModel
+    \brief Models to keep track of channels and users.
+
+    In order to enable the module, add the following lines to your qmake project (.pro) file:
+    \code
+    CONFIG += communi
+    COMMUNI += core model
+    \endcode
+
+    This sets up the necessary include paths and linker rules in order to use the module.
+ */
+
+/*!
+    \defgroup util IrcUtil
+    \brief Miscellaneous utility classes.
+
+    In order to enable the module, add the following lines to your qmake project (.pro) file:
+    \code
+    CONFIG += communi
+    COMMUNI += core util
+    \endcode
+
+    This sets up the necessary include paths and linker rules in order to use the module.
+ */

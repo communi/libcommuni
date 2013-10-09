@@ -1,0 +1,71 @@
+/*
+* Copyright (C) 2008-2013 The Communi Project
+*
+* This library is free software; you can redistribute it and/or modify it
+* under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This library is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+* License for more details.
+*/
+
+/*!
+    \mainpage Communi - a cross-platform IRC framework written with %Qt
+
+    \section introduction Introduction
+
+    Communi is a cross-platform <a href="http://en.wikipedia.org/wiki/Internet_Relay_Chat">IRC</a>
+    framework written with <a href="http://qt-project.org/">Qt</a>. Communi provides a set of tools
+    for enabling IRC connectivity in both Qt C++ or QML based applications.
+
+    IRC (Internet Relay Chat protocol) is a simple text-based communication protocol. IRC was created
+    back in 1988 and is still popular particularly amongst open source projects. The Communi project's
+    own IRC channel \c \#communi is located on <a href="http://freenode.net/">Freenode</a>.
+
+    \subsection concepts Core concepts
+    \li IrcConnection manages the connection to an IRC server.
+    \li IrcNetwork accessed via IrcConnection::network() provides information about the IRC network.
+    \li IrcMessage represents a message received from an IRC server via IrcConnection::messageReceived().
+    \li IrcCommand represents a command sent to an IRC server via IrcConnection::sendCommand().
+
+    See the <a href="modules.html">modules</a> and <a href="modules.html">classes</a> pages for
+    a complete list of available modules and classes.
+
+    \section install Installation
+
+    To build and install Communi, do the standard mantra:
+    \code
+    $ qmake
+    $ make
+    $ sudo make install
+    \endcode
+
+    See the INSTALL file for more details.
+
+    \section usage Usage
+
+    \subsection library Library
+
+    In order to use Communi as a library, add the following line to your qmake project (.pro) file:
+    \code
+    CONFIG += communi
+    COMMUNI += core model util
+    \endcode
+
+    This sets up the necessary include paths and linker rules in order to use the library. Notice
+    that the needed Communi modules can be controlled via the \c COMMUNI qmake variable. The above
+    example enables all available modules.
+
+    \subsection embed Embed
+
+    In order to embed Communi into the application, add the following line to your qmake project (.pro) file:
+    \code
+    include(path/to/libcommuni/src/src.pri)
+    \endcode
+
+    This sets up the necessary include paths, and builds Communi sources into the application
+    for convenient deployment on systems that do not have Communi installed.
+ */
