@@ -90,10 +90,9 @@ IRC_BEGIN_NAMESPACE
 
     \section closing Closing a connection
 
-    Calling close() or reset() when connected makes the connection close
-    immediately and thus leads to "remote host closed the connection". In
-    order to quit gracefully, send a QUIT command and let the server handle
-    closing the connection.
+    Calling close() when connected makes the connection close immediately and thus
+    leads to "remote host closed the connection". In order to quit gracefully, send
+    a QUIT command and let the server handle closing the connection.
 
     C++ example:
     \code
@@ -243,6 +242,7 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
     userName(),
     nickName(),
     realName(),
+    enabled(true),
     status(IrcConnection::Inactive)
 {
 }
@@ -258,7 +258,7 @@ void IrcConnectionPrivate::_irc_disconnected()
 {
     Q_Q(IrcConnection);
     emit q->disconnected();
-    if ((status != IrcConnection::Closed || !protocol->hasQuit()) && !reconnecter.isActive() && reconnecter.interval() > 0) {
+    if (enabled && (status != IrcConnection::Closed || !protocol->hasQuit()) && !reconnecter.isActive() && reconnecter.interval() > 0) {
         reconnecter.start();
         setStatus(IrcConnection::Waiting);
     }
@@ -761,6 +761,36 @@ bool IrcConnection::isConnected() const
 }
 
 /*!
+    \property bool IrcConnection::enabled
+    This property holds whether the connection is enabled.
+
+    The default value is \c true.
+
+    When set to \c false, a disabled connection does nothing when open() is called.
+
+    \par Access functions:
+    \li bool <b>isEnabled</b>() const
+    \li void <b>setEnabled</b>(bool enabled)
+
+    \par Notifier signal:
+    \li void <b>enabledChanged</b>(bool enabled)
+ */
+bool IrcConnection::isEnabled() const
+{
+    Q_D(const IrcConnection);
+    return d->enabled;
+}
+
+void IrcConnection::setEnabled(bool enabled)
+{
+    Q_D(IrcConnection);
+    if (d->enabled != enabled) {
+        d->enabled = enabled;
+        emit enabledChanged(enabled);
+    }
+}
+
+/*!
     \property int IrcConnection::reconnectDelay
     This property holds the reconnect delay in seconds.
 
@@ -959,6 +989,8 @@ IrcNetwork* IrcConnection::network() const
 /*!
     Opens a connection to the server.
 
+    The function does nothing when the connection is \ref enabled "disabled".
+
     \note The function merely outputs a warnings and returns immediately if
     either \ref host, \ref userName, \ref nickName or \ref realName is empty.
  */
@@ -981,14 +1013,14 @@ void IrcConnection::open()
         qCritical("IrcConnection::open(): realName is empty!");
         return;
     }
-    if (d->socket)
+    if (d->enabled && d->socket)
         d->socket->connectToHost(d->host, d->port);
 }
 
 /*!
     Immediately closes the connection to the server.
 
-    \sa quit(), reset()
+    \sa quit()
  */
 void IrcConnection::close()
 {
@@ -1016,38 +1048,6 @@ void IrcConnection::close()
 void IrcConnection::quit(const QString& reason)
 {
     sendCommand(IrcCommand::createQuit(reason));
-}
-
-/*!
-    Resets a non-closed connection to the server.
-
-    The connection is immediately closed and becomes inactive.
-
-    \note This method has no effect if the connection has been explicitly closed.
-
-    \sa resume()
- */
-void IrcConnection::reset()
-{
-    Q_D(IrcConnection);
-    if (d->status != Closed) {
-        close();
-        d->setStatus(IrcConnection::Inactive);
-    }
-}
-
-/*!
-    Resumes a non-closed connection to the server.
-
-    \note This method has no effect if the connection has been explicitly closed.
-
-    \sa reset()
- */
-void IrcConnection::resume()
-{
-    Q_D(IrcConnection);
-    if (d->status != Closed)
-        open();
 }
 
 /*!

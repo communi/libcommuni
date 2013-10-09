@@ -72,6 +72,7 @@ public:
     QString displayName;
     QTimer reconnecter;
     QString saslMechanism;
+    bool enabled;
     IrcConnection::Status status;
     QList<IrcCommand*> pendingCommands;
     QList<QObject*> commandFilters;

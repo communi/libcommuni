@@ -116,6 +116,7 @@ void tst_IrcConnection::testDefaults()
     QCOMPARE(connection.status(), IrcConnection::Inactive);
     QVERIFY(!connection.isActive());
     QVERIFY(!connection.isConnected());
+    QVERIFY(connection.isEnabled());
     QCOMPARE(connection.reconnectDelay(), 0);
     QVERIFY(connection.socket());
     QVERIFY(!connection.isSecure());
@@ -687,24 +688,16 @@ void tst_IrcConnection::testConnection()
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Closed);
 
-    // does nothing when explicitly closed
-    connection->resume();
+    // don't open when disabled
+    connection->setEnabled(false);
+    connection->open();
     QVERIFY(!connection->isActive());
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Closed);
 
+    // re-enable
+    connection->setEnabled(true);
     connection->open();
-    QVERIFY(waitForOpened());
-    QVERIFY(connection->isActive());
-    QVERIFY(!connection->isConnected());
-    QCOMPARE(connection->status(), IrcConnection::Connecting);
-
-    connection->reset();
-    QVERIFY(!connection->isActive());
-    QVERIFY(!connection->isConnected());
-    QCOMPARE(connection->status(), IrcConnection::Inactive);
-
-    connection->resume();
     QVERIFY(connection->isActive());
     QVERIFY(!connection->isConnected());
     QCOMPARE(connection->status(), IrcConnection::Connecting);
