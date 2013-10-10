@@ -213,8 +213,8 @@ IrcMessage::~IrcMessage()
 /*!
     This property holds the message connection.
 
-    \par Access functions:
-    \li IrcConnection* <b>connection</b>() const
+    \par Access function:
+    \li \ref IrcConnection* <b>connection</b>() const
  */
 IrcConnection* IrcMessage::connection() const
 {
@@ -225,8 +225,8 @@ IrcConnection* IrcMessage::connection() const
 /*!
     This property holds the message network.
 
-    \par Access functions:
-    \li IrcNetwork* <b>network</b>() const
+    \par Access function:
+    \li \ref IrcNetwork* <b>network</b>() const
  */
 IrcNetwork* IrcMessage::network() const
 {
@@ -237,8 +237,8 @@ IrcNetwork* IrcMessage::network() const
 /*!
     This property holds the message type.
 
-    \par Access functions:
-    \li IrcMessage::Type <b>type</b>() const
+    \par Access function:
+    \li \ref IrcMessage::Type <b>type</b>() const
  */
 IrcMessage::Type IrcMessage::type() const
 {
@@ -249,8 +249,8 @@ IrcMessage::Type IrcMessage::type() const
 /*!
     This property holds the message flags.
 
-    \par Access functions:
-    \li IrcMessage::Flags <b>flags</b>() const
+    \par Access function:
+    \li \ref IrcMessage::Flag "IrcMessage::Flags" <b>flags</b>() const
  */
 IrcMessage::Flags IrcMessage::flags() const
 {
@@ -298,14 +298,12 @@ void IrcMessage::setCommand(const QString& command)
 
     The prefix consists of \ref nick, \ref ident and \ref host as specified in RFC 1459:
     <pre>
-    &lt;prefix&gt; ::= &lt;nick&gt; [ '!' &lt;ident&gt; ] [ '@' &lt;host&gt; ]
+    &lt;prefix&gt; ::= &lt;\ref nick&gt; [ '!' &lt;\ref ident&gt; ] [ '@' &lt;\ref host&gt; ]
     </pre>
 
     \par Access functions:
     \li QString <b>prefix</b>() const
     \li void <b>setPrefix</b>(const QString& prefix)
-
-    \sa nick(), ident(), host()
  */
 QString IrcMessage::prefix() const
 {
@@ -324,13 +322,11 @@ void IrcMessage::setPrefix(const QString& prefix)
 
     Nick is part of the sender \ref prefix as specified in RFC 1459:
     <pre>
-    <b>&lt;nick&gt;</b> [ '!' &lt;ident&gt; ] [ '@' &lt;host&gt; ]
+    <b>&lt;nick&gt;</b> [ '!' &lt;\ref ident&gt; ] [ '@' &lt;\ref host&gt; ]
     </pre>
 
-    \par Access functions:
-    \li QString <b>prefix</b>() const
-
-    \sa prefix()
+    \par Access function:
+    \li QString <b>nick</b>() const
  */
 QString IrcMessage::nick() const
 {
@@ -343,13 +339,11 @@ QString IrcMessage::nick() const
 
     Ident is part of the sender \ref prefix as specified in RFC 1459:
     <pre>
-    &lt;nick&gt; [ '!' <b>&lt;ident&gt;</b> ] [ '@' &lt;host&gt; ]
+    &lt;\ref nick&gt; [ '!' <b>&lt;ident&gt;</b> ] [ '@' &lt;\ref host&gt; ]
     </pre>
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>ident</b>() const
-
-    \sa prefix()
  */
 QString IrcMessage::ident() const
 {
@@ -362,13 +356,11 @@ QString IrcMessage::ident() const
 
     Host is part of the sender \ref prefix as specified in RFC 1459:
     <pre>
-    &lt;nick&gt; [ '!' &lt;ident&gt; ] [ '@' <b>&lt;host&gt;</b> ]
+    &lt;\ref nick&gt; [ '!' &lt;\ref ident&gt; ] [ '@' <b>&lt;host&gt;</b> ]
     </pre>
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>host</b>() const
-
-    \sa prefix()
  */
 QString IrcMessage::host() const
 {
@@ -488,7 +480,7 @@ IrcMessage* IrcMessage::fromParameters(const QString& prefix, const QString& com
     A message is considered valid if the prefix is not empty
     and the parameters match the message.
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isValid</b>() const
  */
 bool IrcMessage::isValid() const
@@ -527,7 +519,7 @@ IrcNickMessage::IrcNickMessage(IrcConnection* connection) : IrcMessage(connectio
     This property is provided for symmetry with \ref newNick
     and is equal to \ref nick.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>oldNick</b>() const
  */
 QString IrcNickMessage::oldNick() const
@@ -539,7 +531,7 @@ QString IrcNickMessage::oldNick() const
 /*!
     This property holds the new nick.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>newNick</b>() const
  */
 QString IrcNickMessage::newNick() const
@@ -571,7 +563,7 @@ IrcQuitMessage::IrcQuitMessage(IrcConnection* connection) : IrcMessage(connectio
 /*!
     This property holds the optional quit reason.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>reason</b>() const
  */
 QString IrcQuitMessage::reason() const
@@ -603,7 +595,7 @@ IrcJoinMessage::IrcJoinMessage(IrcConnection* connection) : IrcMessage(connectio
 /*!
     This property holds the channel in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>channel</b>() const
  */
 QString IrcJoinMessage::channel() const
@@ -635,7 +627,7 @@ IrcPartMessage::IrcPartMessage(IrcConnection* connection) : IrcMessage(connectio
 /*!
     This property holds the channel in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>channel</b>() const
  */
 QString IrcPartMessage::channel() const
@@ -647,7 +639,7 @@ QString IrcPartMessage::channel() const
 /*!
     This property holds the optional part reason.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>reason</b>() const
  */
 QString IrcPartMessage::reason() const
@@ -679,7 +671,7 @@ IrcTopicMessage::IrcTopicMessage(IrcConnection* connection) : IrcMessage(connect
 /*!
     This property holds the channel in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>channel</b>() const
  */
 QString IrcTopicMessage::channel() const
@@ -691,7 +683,7 @@ QString IrcTopicMessage::channel() const
 /*!
     This property holds the new channel topic.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>topic</b>() const
  */
 QString IrcTopicMessage::topic() const
@@ -708,7 +700,7 @@ QString IrcTopicMessage::topic() const
     \li as a reply when joining a channel (\c true), or
     \li as a reply when explicitly querying the channel topic (\c true).
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isReply</b>() const
 
     \sa Irc::RPL_TOPIC, Irc::RPL_NOTOPIC, IrcTopicCommand
@@ -743,7 +735,7 @@ IrcInviteMessage::IrcInviteMessage(IrcConnection* connection) : IrcMessage(conne
 /*!
     This property holds the user in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>user</b>() const
  */
 QString IrcInviteMessage::user() const
@@ -755,7 +747,7 @@ QString IrcInviteMessage::user() const
 /*!
     This property holds the channel in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>channel</b>() const
  */
 QString IrcInviteMessage::channel() const
@@ -787,7 +779,7 @@ IrcKickMessage::IrcKickMessage(IrcConnection* connection) : IrcMessage(connectio
 /*!
     This property holds the channel in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>channel</b>() const
  */
 QString IrcKickMessage::channel() const
@@ -799,7 +791,7 @@ QString IrcKickMessage::channel() const
 /*!
     This property holds the user in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>user</b>() const
  */
 QString IrcKickMessage::user() const
@@ -811,7 +803,7 @@ QString IrcKickMessage::user() const
 /*!
     This property holds the optional kick reason.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>reason</b>() const
  */
 QString IrcKickMessage::reason() const
@@ -858,7 +850,7 @@ IrcModeMessage::IrcModeMessage(IrcConnection* connection) : IrcMessage(connectio
 /*!
     This property holds the target channel or user in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>target</b>() const
  */
 QString IrcModeMessage::target() const
@@ -870,7 +862,7 @@ QString IrcModeMessage::target() const
 /*!
     This property holds the channel or user mode.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>mode</b>() const
  */
 QString IrcModeMessage::mode() const
@@ -882,7 +874,7 @@ QString IrcModeMessage::mode() const
 /*!
     This property holds the mode argument.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>argument</b>() const
  */
 QString IrcModeMessage::argument() const
@@ -897,7 +889,7 @@ QString IrcModeMessage::argument() const
     Mode messages are sent when a mode changes (\c false)
     and when joining a channel (\c true).
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isReply</b>() const
 
     \sa Irc::RPL_CHANNELMODEIS
@@ -912,7 +904,7 @@ bool IrcModeMessage::isReply() const
 /*!
     This property holds the kind of the mode.
 
-    \par Access functions:
+    \par Access function:
     \li Kind <b>kind</b>() const
  */
 IrcModeMessage::Kind IrcModeMessage::kind() const
@@ -954,7 +946,7 @@ IrcPrivateMessage::IrcPrivateMessage(IrcConnection* connection) : IrcMessage(con
 /*!
     This property holds the target channel or user in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>target</b>() const
  */
 QString IrcPrivateMessage::target() const
@@ -966,7 +958,7 @@ QString IrcPrivateMessage::target() const
 /*!
     This property holds the message.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>message</b>() const
  */
 QString IrcPrivateMessage::message() const
@@ -988,7 +980,7 @@ QString IrcPrivateMessage::message() const
     This property is \c true if the message is private,
     or \c false if it is a channel message.
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isPrivate</b>() const
  */
 bool IrcPrivateMessage::isPrivate() const
@@ -1003,7 +995,7 @@ bool IrcPrivateMessage::isPrivate() const
     \property bool IrcPrivateMessage::action
     This property is \c true if the message is an action; otherwise \c false.
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isAction</b>() const
  */
 bool IrcPrivateMessage::isAction() const
@@ -1019,7 +1011,7 @@ bool IrcPrivateMessage::isAction() const
     \property bool IrcPrivateMessage::request
     This property is \c true if the message is a request; otherwise \c false.
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isRequest</b>() const
  */
 bool IrcPrivateMessage::isRequest() const
@@ -1054,7 +1046,7 @@ IrcNoticeMessage::IrcNoticeMessage(IrcConnection* connection) : IrcMessage(conne
 /*!
     This property holds the target channel or user in question.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>target</b>() const
  */
 QString IrcNoticeMessage::target() const
@@ -1066,7 +1058,7 @@ QString IrcNoticeMessage::target() const
 /*!
     This property holds the message.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>message</b>() const
  */
 QString IrcNoticeMessage::message() const
@@ -1087,7 +1079,7 @@ QString IrcNoticeMessage::message() const
     This property is \c true if the notice is private,
     or \c false if it is a channel notice.
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isPrivate</b>() const
  */
 bool IrcNoticeMessage::isPrivate() const
@@ -1102,7 +1094,7 @@ bool IrcNoticeMessage::isPrivate() const
     \property bool IrcNoticeMessage::reply
     This property is \c true if the message is a reply; otherwise \c false.
 
-    \par Access functions:
+    \par Access function:
     \li bool <b>isReply</b>() const
  */
 bool IrcNoticeMessage::isReply() const
@@ -1135,7 +1127,7 @@ IrcPingMessage::IrcPingMessage(IrcConnection* connection) : IrcMessage(connectio
 /*!
     This property holds the optional message argument.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>argument</b>() const
  */
 QString IrcPingMessage::argument() const
@@ -1167,7 +1159,7 @@ IrcPongMessage::IrcPongMessage(IrcConnection* connection) : IrcMessage(connectio
 /*!
     This property holds the optional message argument.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>argument</b>() const
  */
 QString IrcPongMessage::argument() const
@@ -1199,7 +1191,7 @@ IrcErrorMessage::IrcErrorMessage(IrcConnection* connection) : IrcMessage(connect
 /*!
     This property holds the error.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>error</b>() const
  */
 QString IrcErrorMessage::error() const
@@ -1231,7 +1223,7 @@ IrcNumericMessage::IrcNumericMessage(IrcConnection* connection) : IrcMessage(con
 /*!
     This property holds the numeric code.
 
-    \par Access functions:
+    \par Access function:
     \li int <b>code</b>() const
  */
 int IrcNumericMessage::code() const
@@ -1268,7 +1260,7 @@ IrcCapabilityMessage::IrcCapabilityMessage(IrcConnection* connection) : IrcMessa
     The following capability subcommands are defined:
     LS, LIST, REQ, ACK, NAK, CLEAR, END
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>subCommand</b>() const
  */
 QString IrcCapabilityMessage::subCommand() const
@@ -1283,7 +1275,7 @@ QString IrcCapabilityMessage::subCommand() const
     A list of capabilities may exist for the following
     subcommands: LS, LIST, REQ, ACK and NAK.
 
-    \par Access functions:
+    \par Access function:
     \li QStringList <b>capabilities</b>() const
  */
 QStringList IrcCapabilityMessage::capabilities() const
@@ -1320,7 +1312,7 @@ IrcMotdMessage::IrcMotdMessage(IrcConnection* connection) : IrcMessage(connectio
 /*!
     This property holds the message of the day lines.
 
-    \par Access functions:
+    \par Access function:
     \li QStringList <b>lines</b>() const
  */
 QStringList IrcMotdMessage::lines() const
@@ -1354,7 +1346,7 @@ IrcNamesMessage::IrcNamesMessage(IrcConnection* connection) : IrcMessage(connect
 /*!
     This property holds the channel.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>channel</b>() const
  */
 QString IrcNamesMessage::channel() const
@@ -1366,7 +1358,7 @@ QString IrcNamesMessage::channel() const
 /*!
     This property holds the list of names.
 
-    \par Access functions:
+    \par Access function:
     \li QStringList <b>names</b>() const
  */
 QStringList IrcNamesMessage::names() const
