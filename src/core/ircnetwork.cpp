@@ -33,17 +33,29 @@ IRC_BEGIN_NAMESPACE
     \ingroup core
     \brief Provides network information and capability management.
 
-    IrcNetwork provides various IRC network information. This
-    includes the network name, supported channel types, channel
-    user modes and prefixes, and various numeric limitations,
-    such as the maximum nick, channel, topic and message lengths.
+    \section info Network information
 
-    Furthermore, IrcNetwork provides means for capability management
-    by maintaining a list of available and active capabilities, and
-    by providing convenient methods for requesting capabilities.
+    IrcNetwork provides various information about the IRC network of a
+    \ref IrcConnection::network "connection". This includes the \ref name
+    "network name", supported \ref channelTypes "channel types", channel
+    user \ref modes "mode characters" and \ref prefixes "prefix letters",
+    and various \ref numericLimit "numeric limitations", such as the maximum
+    nick, channel, topic and message lengths.
+
+    Furthermore, IrcNetwork provides convenient methods for converting channel user
+    \ref modeToPrefix() "modes to prefixes" and \ref prefixToMode() "vice versa" and
+    testing whether a target name \ref isChannel() "is a channel".
 
     \note Most properties have empty values until the network
     information has been \ref initialized.
+
+    \section capabilities Capability management
+
+    IrcNetwork also provides means for capability management. It maintais a
+    list of \ref availableCapabilities "available" and \ref activeCapabilities
+    "active" capabilities, automatically \ref requestedCapabilities "requests"
+    desired capabilities, and provides convenient methods for \ref requestCapability()
+    "manual capability requests".
 
     \sa IrcConnection::network
  */
@@ -299,7 +311,7 @@ bool IrcNetwork::isInitialized()
 /*!
     This property holds the network name.
 
-    \par Access functions:
+    \par Access function:
     \li QString <b>name</b>() const
 
     \par Notifier signal:
@@ -320,7 +332,7 @@ QString IrcNetwork::name() const
     Channel operator | \b o       | @
     Voiced user      | \b v       | +
 
-    \par Access functions:
+    \par Access function:
     \li QStringList <b>modes</b>() const
 
     \par Notifier signal:
@@ -343,7 +355,7 @@ QStringList IrcNetwork::modes() const
     Channel operator | o          | \b @
     Voiced user      | v          | \b +
 
-    \par Access functions:
+    \par Access function:
     \li QStringList <b>prefixes</b>() const
 
     \par Notifier signal:
@@ -369,7 +381,7 @@ QString IrcNetwork::modeToPrefix(const QString& mode) const
 }
 
 /*!
-    Converts a channel mode prefix character to a letter.
+    Converts a channel mode prefix character to a mode letter.
 
     \sa prefixes, modeToPrefix()
  */
@@ -388,7 +400,7 @@ QString IrcNetwork::prefixToMode(const QString& prefix) const
     Normal channel   | \#   | \#communi
     Local channel    | &    | &foo
 
-    \par Access functions:
+    \par Access function:
     \li QStringList <b>channelTypes</b>() const
 
     \par Notifier signal:
@@ -403,9 +415,10 @@ QStringList IrcNetwork::channelTypes() const
 /*!
     Returns \c true if the \a name is a channel.
 
-    This method is provided for convenience. It is equal to:
     \code
-    !name.isEmpty() && network->channelTypes().contains(name.at(0))
+    QString name = ...;
+    if (connection->network()->isChannel(name))
+        doSomeChannelAction(name);
     \endcode
 
     \sa channelTypes
@@ -491,8 +504,11 @@ int IrcNetwork::targetLimit(const QString& command) const
 /*!
     This property holds the available capabilities.
 
-    \par Access functions:
+    \par Access function:
     \li QStringList <b>availableCapabilities</b>() const
+
+    \par Notifier signal:
+    \li void <b>availableCapabilitiesChanged</b>(const QStringList& capabilities)
 
     \sa requestedCapabilities, activeCapabilities
  */
@@ -505,8 +521,11 @@ QStringList IrcNetwork::availableCapabilities() const
 /*!
     This property holds the active capabilities.
 
-    \par Access functions:
+    \par Access function:
     \li QStringList <b>activeCapabilities</b>() const
+
+    \par Notifier signal:
+    \li void <b>activeCapabilitiesChanged</b>(const QStringList& capabilities)
 
     \sa requestedCapabilities, availableCapabilities
  */
@@ -519,11 +538,6 @@ QStringList IrcNetwork::activeCapabilities() const
 /*!
     Returns \c true if the \a capability is \b available.
 
-    This method is provided for convenience. It is equal to:
-    \code
-    network->availableCapabilities().contains(capability)
-    \endcode
-
     \sa availableCapabilities
  */
 bool IrcNetwork::hasCapability(const QString& capability) const
@@ -535,11 +549,6 @@ bool IrcNetwork::hasCapability(const QString& capability) const
 /*!
     Returns \c true if the \a capability is \b active.
 
-    This method is provided for convenience. It is equal to:
-    \code
-    network->activeCapabilities().contains(capability)
-    \endcode
-
     \sa activeCapabilities
  */
 bool IrcNetwork::isCapable(const QString& capability) const
@@ -550,11 +559,6 @@ bool IrcNetwork::isCapable(const QString& capability) const
 
 /*!
     Requests the specified \a capability.
-
-    This method is provided for convenience. It is equal to:
-    \code
-    connection->sendCommand(IrcCommand::createCapability("REQ", capability))
-    \endcode
 
     \note The \a capability is NOT added to the list of \ref requestedCapabilities
           "requested capabilities" to avoid them "piling up".
@@ -569,11 +573,6 @@ bool IrcNetwork::requestCapability(const QString& capability)
 
 /*!
     Requests the specified \a capabilities.
-
-    This method is provided for convenience. It is equal to:
-    \code
-    connection->sendCommand(IrcCommand::createCapability("REQ", capabilities))
-    \endcode
 
     \note The \a capabilities are NOT added to the list of \ref requestedCapabilities
           "requested capabilities" to avoid them "piling up".
