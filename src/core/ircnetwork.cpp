@@ -161,7 +161,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 #ifndef IRC_DOXYGEN
-IrcNetworkPrivate::IrcNetworkPrivate() : q_ptr(0)
+IrcNetworkPrivate::IrcNetworkPrivate() : q_ptr(0), initialized(false)
 {
 }
 
