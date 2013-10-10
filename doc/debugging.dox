@@ -13,17 +13,19 @@
 */
 
 /*!
-    \page minimal Minimal example
+    \page debugging Debugging techniques
 
-    The example illustrates the minimum amount of code required for:
-    \li Setting up and opening a connection,
-    \li joining a channel,
-    \li sending a channel message,
-    \li and quiting.
+    Communi recognizes the following environment variables at runtime:
 
-    \snippet minimal/main.cpp minimal
-
-    If you're curious what the example does behind the scenes, try setting an
-    environment variable \c IRC_DEBUG=1 in order to enable verbose debug output
-    as explained in \ref debugging.
+    <table>
+        <tr>
+            <th>Variable</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>IRC_DEBUG</td>
+            <td>Set to a non-zero value to make Communi print out connection status
+            changes and all activity including the received messages and sent commands.</td>
+        </tr>
+    </table>
  */

@@ -64,4 +64,8 @@
     [17:44:18] <jpnurmi> CommuniRocks: !quit
     [17:44:19] ! CommuniRocks (~communi@12.34.56.78) has quit (Client Quit)
     \endcode
+
+    If you're curious what the bot does behind the scenes, try setting an
+    environment variable \c IRC_DEBUG=1 in order to enable verbose debug output
+    as explained in \ref debugging.
  */
