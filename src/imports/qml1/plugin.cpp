@@ -27,11 +27,7 @@ class IrcQmlFilter : public QObject,
     Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection NOTIFY connectionChanged)
 
 public:
-    IrcQmlFilter(QObject* parent = 0) : QObject(parent), conn(0)
-    {
-        qRegisterMetaType<IrcMessage*>();
-        qRegisterMetaType<IrcCommand*>();
-    }
+    IrcQmlFilter(QObject* parent = 0) : QObject(parent), conn(0) { }
 
     IrcConnection* connection() const { return conn; }
     void setConnection(IrcConnection* connection)
@@ -91,12 +87,8 @@ class CommuniPlugin : public QDeclarativeExtensionPlugin
 
 public:
     void registerTypes(const char* uri) {
-        // Enums
-        qRegisterMetaType<Irc::Code>();
-        qRegisterMetaType<IrcMessage::Type>();
-        qRegisterMetaType<IrcCommand::Type>();
-
         // IrcCore
+        Irc::registerMetaTypes();
         qmlRegisterType<Irc>(uri, 3, 0, "Irc");
         qmlRegisterType<IrcCommand>(uri, 3, 0, "IrcCommand");
         qmlRegisterType<IrcConnection>(uri, 3, 0, "IrcConnection");
