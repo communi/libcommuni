@@ -27,13 +27,14 @@
 
     \section getting-started Getting started
 
-    \li IrcConnection manages the connection to an IRC server.
-    \li IrcNetwork accessed via IrcConnection::network() provides information about the IRC network.
-    \li IrcMessage represents a message received from an IRC server via IrcConnection::messageReceived().
-    \li IrcCommand represents a command sent to an IRC server via IrcConnection::sendCommand().
+    Communi is divided in three <a href="modules.html" style="font-weight: bold;">modules</a>.
+    The following classes from the \ref core module are the most essential classes to get started.
 
-    See the \ref usage document, and the list of
-    <a href="pages.html" style="font-weight: bold;">Examples</a>,
-    <a href="modules.html" style="font-weight: bold;">Modules</a> and
-    <a href="annotated.html" style="font-weight: bold;">Classes</a> for further details.
+    \li IrcConnection manages a connection to an IRC server.
+    \li IrcNetwork provides information about the connected IRC network.
+    \li IrcMessage represents a message received from the IRC server.
+    \li IrcCommand represents a command sent to the IRC server.
+
+    Refer to the \ref usage document, and the list of
+    <a href="pages.html" style="font-weight: bold;">examples</a> for further details and help.
  */
