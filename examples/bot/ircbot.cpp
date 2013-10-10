@@ -15,8 +15,11 @@
 
 IrcBot::IrcBot(QObject* parent) : IrcConnection(parent)
 {
-    connect(this, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(onMessageReceived(IrcMessage*)));
+//! [messages]
+    connect(this, SIGNAL(privateMessageReceived(IrcPrivateMessage*)), this, SLOT(onMessageReceived(IrcPrivateMessage*)));
+//! [messages]
 
+//! [commands]
     parser.setPrefix("!");
     parser.addCommand(IrcCommand::CtcpAction, "ACT [target] <message...>");
     parser.addCommand(IrcCommand::Custom, "HELP (<command...>)");
@@ -25,9 +28,12 @@ IrcBot::IrcBot(QObject* parent) : IrcConnection(parent)
     parser.addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
     parser.addCommand(IrcCommand::Quit, "QUIT (<message...>)");
     parser.addCommand(IrcCommand::Message, "SAY [target] <message...>");
+//! [commands]
 
-    model.setConnection(this);
-    connect(&model, SIGNAL(channelsChanged(QStringList)), &parser, SLOT(setChannels(QStringList)));
+    bufferModel.setConnection(this);
+//! [channels]
+    connect(&bufferModel, SIGNAL(channelsChanged(QStringList)), &parser, SLOT(setChannels(QStringList)));
+//! [channels]
 }
 
 void IrcBot::join(QString channel)
@@ -35,35 +41,31 @@ void IrcBot::join(QString channel)
     sendCommand(IrcCommand::createJoin(channel));
 }
 
-void IrcBot::onMessageReceived(IrcMessage* message)
+void IrcBot::onMessageReceived(IrcPrivateMessage* message)
 {
-    qDebug() << QString::fromUtf8(message->toData());
+//![receive]
+    QString content = message->message();
+    if (content.startsWith(nickName(), Qt::CaseInsensitive))
+        content = content.mid(content.indexOf(" ")).trimmed();
 
-    if (message->type() == IrcMessage::Private) {
-        IrcPrivateMessage* msg = static_cast<IrcPrivateMessage*>(message);
+    // - private message: reply to the message sender
+    // - channel message: reply to the target channel
+    parser.setCurrentTarget(message->isPrivate() ? message->nick() : message->target());
 
-        QString content = msg->message();
-        if (content.startsWith(nickName(), Qt::CaseInsensitive))
-            content = content.mid(content.indexOf(" ")).trimmed();
+    IrcCommand* cmd = parser.parse(content);
+    if (cmd) {
+        if (cmd->type() == IrcCommand::Custom && cmd->parameters().value(0) == "HELP") {
+            help(cmd->parameters().mid(1));
+        } else {
+            sendCommand(cmd);
 
-        // - private message: reply to the message sender
-        // - channel message: reply to the target channel
-        parser.setCurrentTarget(msg->isPrivate() ? msg->nick() : msg->target());
-
-        IrcCommand* cmd = parser.parse(content);
-        if (cmd) {
-            if (cmd->type() == IrcCommand::Custom && cmd->parameters().value(0) == "HELP") {
-                help(cmd->parameters().mid(1));
-            } else {
-                sendCommand(cmd);
-
-                if (cmd->type() == IrcCommand::Quit) {
-                    connect(this, SIGNAL(disconnected()), qApp, SLOT(quit()));
-                    QTimer::singleShot(1000, qApp, SLOT(quit()));
-                }
+            if (cmd->type() == IrcCommand::Quit) {
+                connect(this, SIGNAL(disconnected()), qApp, SLOT(quit()));
+                QTimer::singleShot(1000, qApp, SLOT(quit()));
             }
         }
     }
+//![receive]
 }
 
 void IrcBot::help(QStringList commands)

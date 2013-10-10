@@ -1,0 +1,67 @@
+/*
+* Copyright (C) 2008-2013 The Communi Project
+*
+* This library is free software; you can redistribute it and/or modify it
+* under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This library is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+* License for more details.
+*/
+
+/*!
+    \page bot Bot example
+
+    The example presents a simple IRC bot that can handle half a dozen commands.
+    This article focuses on handling messages, and parsing and sending commands.
+    See the \ref minimal "Minimal example" for basics on setting up an IRC
+    connection.
+
+    The bot uses IrcCommandParser for parsing commands from messages received
+    from other clients. In order to take it in use, the desired commands must
+    be first introduced.
+
+    \snippet bot/ircbot.cpp commands
+
+    Some of the commands are context sensitive. Thus, the parser must know
+    the list of channels the bot is on. This is easily achieved with help of
+    IrcBufferModel.
+
+    \snippet bot/ircbot.cpp channels
+
+    Furthermore, the current target of the parser is later updated whenever
+    messages are received and parsed for commands.
+
+    In order for the bot to be able to process private and channel messages,
+    it connects to the IrcConnection::privateMessageReceived() signal.
+
+    \snippet bot/ircbot.cpp messages
+
+    The next snippet illustrates how the logic of the bot has been implemented.
+    First it does some simple processing and removes it's own name from the
+    beginning of the message content. Then it updates the parser's current
+    target depending on whether the received message was a channel or private
+    message. Finally, the content is parsed by using IrcCommandParser and the
+    command is sent to the server if parsing succeeded.
+
+    \snippet bot/ircbot.cpp receive
+
+    Notice how the help command is implemented as a "custom" command. This is
+    because it does not correspond to any actual IRC command, but we want the
+    bot to reply with a help message instead of performing an actual command.
+
+    Finally, the last snippet shows the bot in action!
+
+    \code
+    [17:42:44] ! CommuniBot172375 (~communi@12.34.56.78) joined #communi
+    [17:42:59] <jpnurmi> !say Communi rocks!
+    [17:42:59] <CommuniBot172375> Communi rocks!
+    [17:44:05] <jpnurmi> CommuniBot172375: !nick CommuniRocks
+    [17:44:05] ! CommuniBot172375 changed nick to CommuniRocks
+    [17:44:18] <jpnurmi> CommuniRocks: !quit
+    [17:44:19] ! CommuniRocks (~communi@12.34.56.78) has quit (Client Quit)
+    \endcode
+ */

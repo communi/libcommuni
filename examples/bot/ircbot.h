@@ -25,13 +25,13 @@ public slots:
     void join(QString channel);
 
 private slots:
-    void onMessageReceived(IrcMessage* message);
+    void onMessageReceived(IrcPrivateMessage* message);
 
 private:
     void help(QStringList commands);
 
-    IrcBufferModel model;
     IrcCommandParser parser;
+    IrcBufferModel bufferModel;
 };
 
 #endif // IRCBOT_H
