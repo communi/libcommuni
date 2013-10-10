@@ -29,6 +29,7 @@ class IrcNetworkPrivate;
 class IRC_CORE_EXPORT IrcNetwork : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool initialized READ isInitialized NOTIFY initialized)
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QStringList modes READ modes NOTIFY modesChanged)
     Q_PROPERTY(QStringList prefixes READ prefixes NOTIFY prefixesChanged)
@@ -41,6 +42,8 @@ class IRC_CORE_EXPORT IrcNetwork : public QObject
 
 public:
     virtual ~IrcNetwork();
+
+    bool isInitialized();
 
     QString name() const;
 
@@ -94,6 +97,7 @@ public Q_SLOTS:
     void setRequestedCapabilities(const QStringList& capabilities);
 
 Q_SIGNALS:
+    void initialized();
     void nameChanged(const QString& name);
     void modesChanged(const QStringList& modes);
     void prefixesChanged(const QStringList& prefixes);

@@ -45,6 +45,7 @@ public:
     IrcProtocol* q_ptr;
     IrcConnection* connection;
     IrcMessageBuilder* builder;
+    QHash<QString, QString> info;
     QByteArray buffer;
     bool resumed;
     bool quit;
@@ -120,14 +121,15 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
         q->setStatus(IrcConnection::Connected);
         break;
     case Irc::RPL_ISUPPORT: {
-        QHash<QString, QString> info;
         foreach (const QString& param, msg->parameters().mid(1)) {
             QStringList keyValue = param.split("=", QString::SkipEmptyParts);
             info.insert(keyValue.value(0), keyValue.value(1));
         }
-        q->setInfo(info);
         break;
     }
+    case Irc::RPL_MOTDSTART:
+        q->setInfo(info);
+        break;
     case Irc::ERR_NICKNAMEINUSE:
     case Irc::ERR_NICKCOLLISION: {
         QString alternate = connection->nickName();
@@ -331,8 +333,10 @@ void IrcProtocol::setStatus(IrcConnection::Status status)
 void IrcProtocol::setInfo(const QHash<QString, QString>& info)
 {
     Q_D(IrcProtocol);
-    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
-    priv->setInfo(info);
+    if (!info.isEmpty()) {
+        IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
+        priv->setInfo(info);
+    }
 }
 
 void IrcProtocol::setAvailableCapabilities(const QSet<QString>& capabilities)

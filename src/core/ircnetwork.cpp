@@ -42,9 +42,8 @@ IRC_BEGIN_NAMESPACE
     by maintaining a list of available and active capabilities, and
     by providing convenient methods for requesting capabilities.
 
-    \note Most IrcNetwork properties have empty values until the
-    client-server handshake has been done and the connection has
-    been fully established.
+    \note Most properties have empty values until the network
+    information has been \ref initialized.
 
     \sa IrcConnection::network
  */
@@ -165,6 +164,7 @@ static QHash<QString, int> numericValues(const QString& parameter)
 
 void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& info)
 {
+    Q_Q(IrcNetwork);
     if (info.contains("NETWORK"))
         setName(info.value("NETWORK"));
     if (info.contains("PREFIX")) {
@@ -196,6 +196,11 @@ void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& info)
         channelLimits = numericValues(info.value("CHANLIMIT"));
     if (info.contains("TARGMAX"))
         targetLimits = numericValues(info.value("TARGMAX"));
+
+    if (!initialized) {
+        initialized = true;
+        emit q->initialized();
+    }
 }
 
 void IrcNetworkPrivate::setAvailableCapabilities(const QSet<QString>& capabilities)
@@ -270,6 +275,25 @@ IrcNetwork::IrcNetwork(IrcConnection* connection) : QObject(connection), d_ptr(n
  */
 IrcNetwork::~IrcNetwork()
 {
+}
+
+/*!
+    \property bool IrcNetwork::initialized
+    This property holds whether the network information has been initialized.
+
+    Most properties have empty values until the server provides the
+    relevant network information during the client-server handshake.
+
+    \par Access function:
+    \li bool <b>isInitialized</b>() const
+
+    \par Notifier signal:
+    \li void <b>initialized</b>()
+ */
+bool IrcNetwork::isInitialized()
+{
+    Q_D(const IrcNetwork);
+    return d->initialized;
 }
 
 /*!

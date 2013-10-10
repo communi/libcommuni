@@ -38,6 +38,7 @@ void tst_IrcNetwork::testDefaults()
 {
     IrcConnection connection;
     IrcNetwork* network = connection.network();
+    QVERIFY(!network->isInitialized());
     QVERIFY(network->name().isNull());
     QVERIFY(network->modes().isEmpty());
     QVERIFY(network->prefixes().isEmpty());
@@ -70,11 +71,13 @@ void tst_IrcNetwork::testInfo()
 
     IrcNetwork* network = connection->network();
 
+    QSignalSpy initSpy(network, SIGNAL(initialized()));
     QSignalSpy nameSpy(network, SIGNAL(nameChanged(QString)));
     QSignalSpy modesSpy(network, SIGNAL(modesChanged(QStringList)));
     QSignalSpy prefixesSpy(network, SIGNAL(prefixesChanged(QStringList)));
     QSignalSpy channelTypesSpy(network, SIGNAL(channelTypesChanged(QStringList)));
 
+    QVERIFY(initSpy.isValid());
     QVERIFY(nameSpy.isValid());
     QVERIFY(modesSpy.isValid());
     QVERIFY(prefixesSpy.isValid());
@@ -83,6 +86,8 @@ void tst_IrcNetwork::testInfo()
     connection->open();
     QVERIFY(waitForOpened());
     QVERIFY(waitForWritten(welcome));
+
+    QVERIFY(network->isInitialized());
 
     QCOMPARE(network->name(), name);
     QCOMPARE(network->modes(), modes.split("", QString::SkipEmptyParts));
@@ -163,6 +168,7 @@ void tst_IrcNetwork::testInfo()
         QVERIFY(limited);
     }
 
+    QCOMPARE(initSpy.count(), 1);
     QCOMPARE(nameSpy.count(), 1);
     QCOMPARE(modesSpy.count(), 1);
     QCOMPARE(prefixesSpy.count(), 1);
