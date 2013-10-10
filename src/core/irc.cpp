@@ -116,7 +116,7 @@ void Irc::registerMetaTypes()
     qRegisterMetaType<IrcConnection*>("IrcConnection*");
     qRegisterMetaType<IrcConnection::Status>("IrcConnection::Status");
 
-    qRegisterMetaType<IrcCommand*>("IrcNetwork*");
+    qRegisterMetaType<IrcNetwork*>("IrcNetwork*");
 
     qRegisterMetaType<IrcCommand*>("IrcCommand*");
     qRegisterMetaType<IrcCommand::Type>("IrcCommand::Type");
