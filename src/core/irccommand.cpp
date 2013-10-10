@@ -49,9 +49,9 @@ IRC_BEGIN_NAMESPACE
     A "custom command" here refers to command types not listed in IrcCommand::Type,
     the list of built-in command types. There are two ways to send custom commands:
     \li by passing the string representation of a command directly to
-    IrcConnection::sendRaw() or
+    IrcConnection::sendRaw() or IrcConnection::sendData(), or
     \li by subclassing IrcCommand and reimplementing
-    IrcCommand::toString(), which essentially creates the string representation
+    IrcCommand::toString(), which eventually creates the string representation
     of the command.
 
     Example implementation of a custom command:
@@ -122,8 +122,6 @@ IRC_BEGIN_NAMESPACE
 /*!
     \var IrcCommand::Custom
     \brief A custom command
-
-    \sa IrcCommand::toString()
  */
 
 /*!
@@ -334,7 +332,7 @@ void IrcCommand::setParameters(const QStringList& parameters)
     sending the command via IrcConnection::sendCommand().
 
     See QTextCodec::availableCodes() for the list of
-    supported encodings. The default value is "UTF-8".
+    supported encodings. The default value is \c "UTF-8".
 
     \par Access functions:
     \li QByteArray <b>encoding</b>() const
@@ -412,14 +410,19 @@ QString IrcCommand::toString() const
 }
 
 /*!
-    Returns the command as a message.
-
-    Reimplement for custom commands.
-    \sa IrcCommand::Custom
- */
-
-/*!
     Creates a new message from this command for \a prefix and \a connection.
+
+    Notice that IRC servers do not echo sent message commands back to the client.
+    This function is particularly useful for converting sent message commands as
+    messages for presentation purposes.
+
+    \code
+    if (command->type() == IrcCommand::Message) {
+        IrcMessage* message = command->toMessage(connection->nickName(), connection);
+        receiveMessage(message);
+        message->deleteLater();
+    }
+    \endcode
  */
 IrcMessage* IrcCommand::toMessage(const QString& prefix, IrcConnection* connection) const
 {
