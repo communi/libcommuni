@@ -148,6 +148,9 @@ void tst_IrcConnection::testHost()
     QCOMPARE(spy.count(), !host.isEmpty() ? 1 : 0);
     if (!spy.isEmpty())
         QCOMPARE(spy.first().first().toString(), host);
+
+    IrcConnection another(host);
+    QCOMPARE(another.host(), host);
 }
 
 void tst_IrcConnection::testPort_data()

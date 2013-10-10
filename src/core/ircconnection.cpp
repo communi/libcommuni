@@ -227,6 +227,15 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
 {
 }
 
+void IrcConnectionPrivate::init(IrcConnection* connection)
+{
+    q_ptr = connection;
+    network = IrcNetworkPrivate::create(connection);
+    connection->setSocket(new QTcpSocket(connection));
+    connection->setProtocol(new IrcProtocol(connection));
+    QObject::connect(&reconnecter, SIGNAL(timeout()), connection, SLOT(_irc_reconnect()));
+}
+
 void IrcConnectionPrivate::_irc_connected()
 {
     Q_Q(IrcConnection);
@@ -435,12 +444,17 @@ IrcCommand* IrcConnectionPrivate::createCtcpReply(IrcPrivateMessage* request)
 IrcConnection::IrcConnection(QObject* parent) : QObject(parent), d_ptr(new IrcConnectionPrivate)
 {
     Q_D(IrcConnection);
-    d->q_ptr = this;
-    d->network = new IrcNetwork(this);
-    setSocket(new QTcpSocket(this));
-    setProtocol(new IrcProtocol(this));
-    qRegisterMetaType<IrcNetwork*>();
-    connect(&d->reconnecter, SIGNAL(timeout()), this, SLOT(_irc_reconnect()));
+    d->init(this);
+}
+
+/*!
+    Constructs a new IRC connection with \a host and \a parent.
+ */
+IrcConnection::IrcConnection(const QString& host, QObject* parent) : QObject(parent), d_ptr(new IrcConnectionPrivate)
+{
+    Q_D(IrcConnection);
+    d->init(this);
+    setHost(host);
 }
 
 /*!

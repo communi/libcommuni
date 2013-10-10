@@ -37,6 +37,8 @@ class IrcConnectionPrivate
 public:
     IrcConnectionPrivate();
 
+    void init(IrcConnection* connection);
+
     void _irc_connected();
     void _irc_disconnected();
     void _irc_error(QAbstractSocket::SocketError error);

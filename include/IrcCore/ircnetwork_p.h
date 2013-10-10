@@ -40,6 +40,11 @@ public:
     void setPrefixes(const QStringList& prefixes);
     void setChannelTypes(const QStringList& types);
 
+    static IrcNetwork* create(IrcConnection* connection)
+    {
+        return new IrcNetwork(connection);
+    }
+
     static IrcNetworkPrivate* get(const IrcNetwork* network)
     {
         return network->d_ptr.data();

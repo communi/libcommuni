@@ -55,6 +55,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
 
 public:
     explicit IrcConnection(QObject* parent = 0);
+    explicit IrcConnection(const QString& host, QObject* parent = 0);
     virtual ~IrcConnection();
 
     QString host() const;
