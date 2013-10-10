@@ -19,7 +19,7 @@
 
     Communi is a cross-platform <a href="http://en.wikipedia.org/wiki/Internet_Relay_Chat">IRC</a>
     framework written with <a href="http://qt-project.org/">Qt</a>. Communi provides a set of tools
-    for enabling IRC connectivity in both Qt C++ or QML based applications.
+    for enabling IRC connectivity in Qt-based C++ and QML applications.
 
     IRC (Internet Relay Chat protocol) is a simple text-based communication protocol. IRC was created
     back in 1988 and is still popular particularly amongst open source projects. The Communi project's
@@ -32,45 +32,8 @@
     \li IrcMessage represents a message received from an IRC server via IrcConnection::messageReceived().
     \li IrcCommand represents a command sent to an IRC server via IrcConnection::sendCommand().
 
-    See the <a href="modules.html">modules</a> and <a href="modules.html">classes</a> pages for
-    a complete list of available modules and classes.
-
-    \section library Using as a library
-
-    In order to use Communi as a library, build and install Communi using the standard mantra:
-    \code
-    $ qmake
-    $ make
-    $ sudo make install
-    \endcode
-
-    This integrates Communi with qmake from the corresponding %Qt installation. To take Communi
-    in use in your application, add the following lines to your qmake project (.pro) file:
-    \code
-    CONFIG += communi
-    COMMUNI += core model util
-    \endcode
-
-    This sets up the necessary include paths and linker rules in order to use the library.
-    Notice that the needed Communi <a href="modules.html">modules</a> can be controlled via
-    the \c COMMUNI qmake variable. The above example enables all available
-    <a href="modules.html">modules</a>.
-
-    \section embed Building into application
-
-    In order to embed the whole Communi to an application, add the following line to your
-    qmake project (.pro) file:
-    \code
-    include(path/to/libcommuni/src/src.pri)
-    \endcode
-
-    Alternatively, only specific module(s) can be included, for example:
-    \code
-    include(path/to/libcommuni/src/core/core.pri)
-    include(path/to/libcommuni/src/util/util.pri)
-    \endcode
-
-    This sets up the necessary include paths, and builds Communi sources into the application
-    for convenient deployment on systems that do not have Communi installed. This option is
-    also convenient when adding Communi as a Git submodule to your project tree.
+    See the \ref usage document, and the list of
+    <a href="pages.html" style="font-weight: bold;">Examples</a>,
+    <a href="modules.html" style="font-weight: bold;">Modules</a> and
+    <a href="annotated.html" style="font-weight: bold;">Classes</a> for further details.
  */
