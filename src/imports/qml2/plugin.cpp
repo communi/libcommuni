@@ -88,6 +88,7 @@ class CommuniPlugin : public QQmlExtensionPlugin
 
 public:
     void registerTypes(const char* uri) {
+//! [qml-register-types]
         // IrcCore
         Irc::registerMetaTypes();
         qmlRegisterType<Irc>(uri, 3, 0, "Irc");
@@ -110,6 +111,7 @@ public:
         qmlRegisterType<IrcCommandParser>(uri, 3, 0, "IrcCommandParser");
         qmlRegisterType<IrcLagTimer>(uri, 3, 0, "IrcLagTimer");
         qmlRegisterType<IrcTextFormat>(uri, 3, 0, "IrcTextFormat");
+//! [qml-register-types]
     }
 };
 
