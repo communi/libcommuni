@@ -636,6 +636,8 @@ void IrcBufferModel::setSortMethod(Irc::SortMethod method)
 
 /*!
     Clears the model.
+
+    All buffers except persistent buffers are removed and destroyed.
  */
 void IrcBufferModel::clear()
 {
@@ -643,16 +645,18 @@ void IrcBufferModel::clear()
     if (!d->bufferList.isEmpty()) {
         beginResetModel();
         foreach (IrcBuffer* buffer, d->bufferList) {
-            buffer->disconnect();
-            delete buffer;
+            if (!buffer->isPersistent()) {
+                buffer->disconnect();
+                d->bufferList.removeOne(buffer);
+                d->channels.removeOne(buffer->title());
+                d->bufferMap.remove(buffer->title().toLower());
+                delete buffer;
+            }
         }
-        d->bufferList.clear();
-        d->bufferMap.clear();
-        d->channels.clear();
         endResetModel();
-        emit channelsChanged(QStringList());
-        emit buffersChanged(QList<IrcBuffer*>());
-        emit countChanged(0);
+        emit channelsChanged(d->channels);
+        emit buffersChanged(d->bufferList);
+        emit countChanged(d->bufferList.count());
     }
 }
 
