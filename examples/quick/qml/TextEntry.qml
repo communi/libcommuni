@@ -19,7 +19,8 @@ TextField {
 
     signal messageSent(IrcMessage message)
 
-    placeholderText: "..."
+    focus: true
+    placeholderText: qsTr("...")
 
     IrcCommandParser {
         id: parser

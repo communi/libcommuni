@@ -16,7 +16,7 @@ Rectangle {
 
     property IrcChannel channel
 
-    signal queried(string user)
+    signal queried(IrcUser user)
 
     color: "#edf3fe"
 
@@ -62,10 +62,8 @@ Rectangle {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    onPressed: {
-                        listView.currentIndex = index
-                    }
-                    onDoubleClicked: queried(model.user.name)
+                    onPressed: listView.currentIndex = index
+                    onDoubleClicked: queried(model.user)
                 }
             }
         }

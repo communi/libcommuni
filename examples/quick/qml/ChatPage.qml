@@ -16,24 +16,15 @@ import Communi 3.0
 Item {
     id: page
 
+    property IrcBuffer serverBuffer
+    property alias bufferModel: bufferListView.bufferModel
     property alias currentBuffer: bufferListView.currentBuffer
-    property ListModel connections: ListModel {
-        id: connectionModel
-    }
+    property IrcChannel currentChannel: currentBuffer ? currentBuffer.toChannel() : null
 
-    function addConnection(connection) {
-        connectionModel.append({connection: connection})
-        if (!currentBuffer)
-            currentBuffer = connection.serverBuffer
-    }
-
-    function removeConnection(connection) {
-        for (var i = 0; i < connectionModel.count; ++i) {
-            if (connectionModel.get(i).connection === connection) {
-                connectionModel.remove(i)
-                break
-            }
-        }
+    Connections {
+        target: bufferModel
+        onAdded: currentBuffer = buffer
+        onAboutToBeRemoved: currentBuffer = bufferModel.get(Math.max(0, bufferModel.indexOf(buffer) - 1))
     }
 
     SplitView {
@@ -43,8 +34,16 @@ Item {
 
         BufferListView {
             id: bufferListView
-            width: window.width / 6
-            model: connectionModel
+            width: page.width / 6
+            onClosed: {
+                if (buffer === serverBuffer) {
+                    bufferModel.quit()
+                } else {
+                    if (buffer.channel)
+                        buffer.part(qsTr("Communi %1 QtQuick example").arg(irc.version()))
+                    bufferModel.remove(buffer)
+                }
+            }
         }
 
         Column {
@@ -53,13 +52,13 @@ Item {
             TopicLabel {
                 id: topicLabel
                 width: parent.width
-                visible: channel
-                channel: currentBuffer ? currentBuffer.toChannel() : null
+                visible: currentChannel
+                channel: currentChannel
             }
 
             SplitView {
                 width: parent.width
-                height: parent.height - (topicLabel.visible ? topicLabel.height : 0) - textEntry.height
+                height: parent.height - (currentChannel ? topicLabel.height : 0) - textEntry.height
 
                 handleDelegate: Item { }
 
@@ -72,26 +71,20 @@ Item {
 
                     Repeater {
                         anchors.fill: parent
-                        model: connectionModel
-
-                        delegate: Repeater {
+                        model: bufferModel
+                        delegate: TextBrowser {
                             anchors.fill: parent
-                            model: connection.bufferModel
-
-                            delegate: TextBrowser {
-                                buffer: model.buffer
-                                anchors.fill: parent
-                                visible: buffer == currentBuffer
-                            }
+                            buffer: model.buffer
+                            visible: buffer == currentBuffer
                         }
                     }
                 }
 
                 UserListView {
-                    width: window.width / 6
-                    visible: currentBuffer && currentBuffer.channel
-                    channel: currentBuffer ? currentBuffer.toChannel() : null
-                    onQueried: currentBuffer = currentBuffer.model.add(user)
+                    width: page.width / 6
+                    visible: currentChannel
+                    channel: currentChannel
+                    onQueried: currentBuffer = currentBuffer.model.add(user.name)
                 }
             }
 
@@ -101,6 +94,14 @@ Item {
                 buffer: currentBuffer
                 enabled: currentBuffer
                 onMessageSent: currentBuffer.receiveMessage(message)
+
+                Connections {
+                    target: page
+                    onCurrentBufferChanged: {
+                        if (page.visible && currentBuffer)
+                            textEntry.forceActiveFocus()
+                    }
+                }
             }
         }
     }

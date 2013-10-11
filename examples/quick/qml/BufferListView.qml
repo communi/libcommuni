@@ -14,8 +14,10 @@ import Communi 3.0
 Rectangle {
     id: background
 
+    property alias bufferModel: listView.model
     property IrcBuffer currentBuffer
-    property alias model: listView.model
+
+    signal closed(IrcBuffer buffer)
 
     color: "#edf3fe"
 
@@ -27,6 +29,16 @@ Rectangle {
         border.color: "#aaa"
     }
 
+    Menu {
+        id: menu
+        MenuItem {
+            text: qsTr("Close")
+            shortcut: qsTr("Ctrl+W")
+            enabled: !!currentBuffer
+            onTriggered: closed(currentBuffer)
+        }
+    }
+
     ScrollView {
         id: scrollView
 
@@ -36,74 +48,42 @@ Rectangle {
         ListView {
             id: listView
 
-            delegate: Column {
-                width: parent.width
-                property Connection connection: modelData
-                Connections {
-                    target: connection ? connection.bufferModel : null
-                    onAdded: currentBuffer = buffer
-                    onAboutToBeRemoved: {
-                        if (buffer === currentBuffer) {
-                            var model = connection.bufferModel
-                            var idx = model.indexOf(buffer)
-                            currentBuffer = model.get(Math.max(0, idx - 1))
-                        }
-                    }
+            delegate: Rectangle {
+                property bool first: index === 0
+                property bool current: model.buffer === currentBuffer
+                anchors.left: parent ? parent.left : undefined
+                anchors.right: parent ? parent.right : undefined
+                anchors.margins: 1
+                height: Math.max(21, label.implicitHeight + 5)
+                color: first ? "#ddd" : current ? "#b5d5ff" : "transparent"
+                Rectangle {
+                    visible: first
+                    width: parent.width
+                    height: 1
+                    anchors.bottom: parent.bottom
+                    anchors.fill: parent
+                    anchors.leftMargin: -1
+                    anchors.rightMargin: -1
+                    color: "transparent"
+                    border.color: "#aaa"
                 }
-                Repeater {
-                    model: connection ? connection.bufferModel : 0
-                    delegate: Rectangle {
-                        property bool first: index === 0
-                        property bool current: model.buffer === currentBuffer
-                        anchors.left: parent ? parent.left : undefined
-                        anchors.right: parent ? parent.right : undefined
-                        anchors.margins: 1
-                        height: Math.max(21, label.implicitHeight + 5)
-                        color: first ? "#ddd" : current ? "#b5d5ff" : "transparent"
-                        Rectangle {
-                            visible: first
-                            width: parent.width
-                            height: 1
-                            anchors.bottom: parent.bottom
-                            anchors.fill: parent
-                            anchors.leftMargin: -1
-                            anchors.rightMargin: -1
-                            color: "transparent"
-                            border.color: "#aaa"
-                        }
-                        Label {
-                            id: label
-                            text: model.title
-                            font.bold: first
-                            anchors.margins: 2
-                            anchors.leftMargin: 6
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            acceptedButtons: Qt.LeftButton | Qt.RightButton
-                            onPressed: {
-                                currentBuffer = model.buffer
-                                if (mouse.button === Qt.RightButton)
-                                    menu.popup()
-                            }
-                        }
-                        Menu {
-                            id: menu
-                            MenuItem {
-                                text: "Close"
-                                shortcut: "Ctrl+W"
-                                enabled: !!currentBuffer
-                                onTriggered: {
-                                    var channel = currentBuffer.toChannel()
-                                    if (channel)
-                                        channel.part(qsTr("Communi %1 QtQuick example").arg(irc.version()))
-                                    currentBuffer.destroy()
-                                }
-                            }
-                        }
+                Label {
+                    id: label
+                    text: model.title
+                    font.bold: first
+                    anchors.margins: 2
+                    anchors.leftMargin: 6
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onPressed: {
+                        currentBuffer = model.buffer
+                        if (mouse.button === Qt.RightButton)
+                            menu.popup()
                     }
                 }
             }

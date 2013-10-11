@@ -21,74 +21,59 @@ ApplicationWindow {
     height: 480
 
     minimumWidth: connectPage.implicitWidth
-    minimumHeight: connectPage.implicitHeight + toolBar.height
+    minimumHeight: connectPage.implicitHeight
 
     color: Qt.darker(palette.base, 1.06)
 
-    SystemPalette {
-        id: palette
-    }
+    SystemPalette { id: palette }
 
-    Irc {
-        id: irc
-    }
-
-    toolBar: ToolBar {
-        ToolButton {
-            text: "+"
-            enabled: !connectPage.visible
-            onClicked: connectPage.visible = true
-        }
-    }
-
-    Component {
-        id: connection
-        Connection { }
-    }
+    Irc { id: irc }
+    IrcCommand { id: cmd }
 
     ConnectPage {
         id: connectPage
-
         anchors.fill: parent
-        cancelButton.enabled: chatPage.connections.count
-
+        visible: !connection.active
         onAccepted: {
-            var conn = connection.createObject(window, {"host": host, "port": port, "secure": secure,
-                                                        "nickName": nickName, "realName": realName,
-                                                        "userName": userName, "password": password,
-                                                        "channel": channel})
-            conn.open()
-            chatPage.addConnection(conn)
-            connectPage.visible = false
+            chatPage.currentBuffer = serverBuffer
+            connection.sendCommand(cmd.createJoin(channel))
+            connection.open()
         }
-        onRejected: connectPage.visible = false
+        onRejected: Qt.quit()
     }
 
     ChatPage {
         id: chatPage
         anchors.fill: parent
-        visible: !connectPage.visible
-
-        Connections {
-            target: chatPage.connections
-            onCountChanged: {
-                if (chatPage.connections.count === 0)
-                    connectPage.visible = true
+        visible: connection.active
+        bufferModel: IrcBufferModel {
+            id: bufferModel
+            dynamicSort: true
+            connection: IrcConnection {
+                id: connection
+                host: connectPage.host
+                port: connectPage.port
+                secure: connectPage.secure
+                nickName: connectPage.nickName
+                realName: connectPage.realName
+                userName: connectPage.userName
+                password: connectPage.password
             }
+            onMessageIgnored: serverBuffer.receiveMessage(message)
+            function quit() {
+                bufferModel.clear()
+                connection.quit(qsTr("Communi %1 QtQuick example").arg(irc.version()))
+                connection.close()
+            }
+        }
+        serverBuffer: IrcBuffer {
+            id: serverBuffer
+            sticky: true
+            persistent: true
+            name: connection.displayName
+            Component.onCompleted: bufferModel.add(serverBuffer)
         }
     }
 
-    Timer {
-        id: quitTimer
-        interval: 1000
-        onTriggered: Qt.quit()
-    }
-
-    onClosing: {
-        // let connections close gracefully
-        // TODO: connection.quit(window.title)
-        close.accepted = false
-        window.visible = false
-        quitTimer.start()
-    }
+    onClosing: bufferModel.quit()
 }

@@ -27,31 +27,29 @@ Item {
     signal accepted()
     signal rejected()
 
-    property alias okButton: okButton
-    property alias cancelButton: cancelButton
-
     implicitWidth: grid.implicitWidth + row.implicitWidth
-    implicitHeight: grid.implicitHeight + row.implicitHeight + 60
+    implicitHeight: grid.implicitHeight + row.implicitHeight + 48
 
     GridLayout {
         id: grid
 
         width: page.width * 2 / 3
         anchors.centerIn: parent
-        anchors.verticalCenterOffset: -row.height
+        anchors.verticalCenterOffset: -row.height + 12
 
         columns: 2
         rowSpacing: 12
         columnSpacing: 12
 
-        Label { text: "Host:" }
+        Label { text: qsTr("Host:") }
         TextField {
             id: hostField
+            focus: true
             Layout.fillWidth: true
             placeholderText: "irc.freenode.net"
         }
 
-        Label { text: "Port:" }
+        Label { text: qsTr("Port:") }
         RowLayout {
             SpinBox {
                 id: portField
@@ -62,39 +60,39 @@ Item {
             }
             CheckBox {
                 id: secureField
-                text: "Secure"
+                text: qsTr("Secure")
             }
         }
 
-        Label { text: "Nick name:" }
+        Label { text: qsTr("Nick name:") }
         TextField {
             id: nickNameField
             Layout.fillWidth: true
             placeholderText: "Communi" + Math.round(Math.random() * 9999)
         }
 
-        Label { text: "Real name:" }
+        Label { text: qsTr("Real name:") }
         TextField {
             id: realNameField
             Layout.fillWidth: true
             placeholderText: qsTr("Communi %1 QtQuick example").arg(irc.version())
         }
 
-        Label { text: "User name:" }
+        Label { text: qsTr("User name:") }
         TextField {
             id: userNameField
             Layout.fillWidth: true
             placeholderText: "communi"
         }
 
-        Label { text: "Password:" }
+        Label { text: qsTr("Password:") }
         TextField {
             id: passwordField
             echoMode: TextInput.Password
             Layout.fillWidth: true
         }
 
-        Label { text: "Channel:" }
+        Label { text: qsTr("Channel:") }
         TextField {
             id: channelField
             Layout.fillWidth: true
@@ -129,13 +127,14 @@ Item {
 
         Button {
             id: okButton
-            text: "Ok"
+            text: qsTr("Ok")
+            enabled: page.visible
             onClicked: page.accepted()
         }
 
         Button {
             id: cancelButton
-            text: "Cancel"
+            text: qsTr("Cancel")
             onClicked: page.rejected()
         }
     }
