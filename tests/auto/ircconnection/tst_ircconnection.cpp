@@ -84,6 +84,7 @@ private slots:
     void testSsl();
 
     void testOpen();
+    void testEnabled();
 
     void testStatus();
     void testConnection();
@@ -524,6 +525,40 @@ void tst_IrcConnection::testOpen()
     connection.setRealName("real");
     connection.open();
     QVERIFY(connection.status() != IrcConnection::Inactive);
+
+    connection.close();
+    QCOMPARE(connection.status(), IrcConnection::Closed);
+
+    connection.setEnabled(false);
+    connection.open();
+    QCOMPARE(connection.status(), IrcConnection::Closed);
+}
+
+void tst_IrcConnection::testEnabled()
+{
+    IrcConnection connection;
+    QVERIFY(connection.isEnabled());
+
+    QSignalSpy spy(&connection, SIGNAL(enabledChanged(bool)));
+    QVERIFY(spy.isValid());
+
+    connection.setEnabled(false);
+    QVERIFY(!connection.isEnabled());
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.last().at(0).toBool(), false);
+
+    connection.setDisabled(true);
+    QVERIFY(!connection.isEnabled());
+    QCOMPARE(spy.count(), 1);
+
+    connection.setDisabled(false);
+    QVERIFY(connection.isEnabled());
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(spy.last().at(0).toBool(), true);
+
+    connection.setEnabled(true);
+    QVERIFY(connection.isEnabled());
+    QCOMPARE(spy.count(), 2);
 }
 
 void tst_IrcConnection::testStatus()

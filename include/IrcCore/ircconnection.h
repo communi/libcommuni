@@ -94,9 +94,7 @@ public:
     Status status() const;
     bool isActive() const;
     bool isConnected() const;
-
     bool isEnabled() const;
-    void setEnabled(bool enabled);
 
     int reconnectDelay() const;
     void setReconnectDelay(int seconds);
@@ -128,6 +126,8 @@ public Q_SLOTS:
     void open();
     void close();
     void quit(const QString& reason = QString());
+    void setEnabled(bool enabled = true);
+    void setDisabled(bool disabled = true);
 
 Q_SIGNALS:
     void connecting();
