@@ -49,12 +49,14 @@ private slots:
     void onBufferActivated(const QModelIndex& index);
     void onUserActivated(const QModelIndex& index);
 
-    void receiveServerMessage(IrcMessage* message);
-    void receiveBufferMessage(IrcMessage* message);
+    void receiveMessage(IrcMessage* message);
 
 private:
-    void createUi();
+    void createLayout();
+    void createCompleter();
     void createParser();
+    void createUserList();
+    void createBufferList();
     void createConnection();
 
     QLineEdit* lineEdit;
@@ -64,13 +66,10 @@ private:
     QListView* bufferList;
 
     IrcCommandParser* parser;
-
-    QTextDocument* serverDocument;
-    QHash<IrcBuffer*, QTextDocument*> bufferDocuments;
-
     IrcConnection* connection;
     IrcBufferModel* bufferModel;
     QHash<IrcBuffer*, IrcUserModel*> userModels;
+    QHash<IrcBuffer*, QTextDocument*> documents;
 };
 
 #endif // IRCCLIENT_H

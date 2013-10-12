@@ -10,7 +10,6 @@
 #include "ircclient.h"
 #include "ircmessageformatter.h"
 
-#include <QSortFilterProxyModel>
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QVBoxLayout>
@@ -23,10 +22,10 @@
 #include <Irc>
 #include <IrcUser>
 #include <IrcBuffer>
-#include <IrcConnection>
 #include <IrcCommand>
 #include <IrcMessage>
 #include <IrcUserModel>
+#include <IrcConnection>
 #include <IrcBufferModel>
 #include <IrcCommandParser>
 
@@ -35,19 +34,27 @@ static const char* SERVER = "irc.freenode.net";
 
 IrcClient::IrcClient(QWidget* parent) : QSplitter(parent)
 {
-    createConnection();
     createParser();
-    createUi();
+    createConnection();
+    createCompleter();
+    createUserList();
+    createLayout();
+    createBufferList();
 
+    // queue a command to automatically join the channel when connected
+    connection->sendCommand(IrcCommand::createJoin(CHANNEL));
     connection->open();
+
+    textEdit->append(IrcMessageFormatter::formatMessage(tr("! Welcome to the Communi %1 example client.").arg(IRC_VERSION_STR)));
+    textEdit->append(IrcMessageFormatter::formatMessage(tr("! This example connects %1 and joins %2.").arg(SERVER, CHANNEL)));
+    textEdit->append(IrcMessageFormatter::formatMessage(tr("! PS. Available commands: JOIN, ME, NICK, PART")));
 }
 
 IrcClient::~IrcClient()
 {
     if (connection->isActive()) {
-        connection->sendCommand(IrcCommand::createQuit(connection->realName()));
-        // let the server process the quit message and close the connection
-        connection->socket()->waitForDisconnected(1000);
+        connection->quit(connection->realName());
+        connection->close();
     }
 }
 
@@ -55,7 +62,6 @@ void IrcClient::onConnected()
 {
     textEdit->append(IrcMessageFormatter::formatMessage("! Connected to %1.").arg(SERVER));
     textEdit->append(IrcMessageFormatter::formatMessage("! Joining %1...").arg(CHANNEL));
-    connection->sendCommand(IrcCommand::createJoin(CHANNEL));
 }
 
 void IrcClient::onConnecting()
@@ -84,7 +90,7 @@ void IrcClient::onTextEntered()
         // echo own messages (servers do not send our own messages back)
         if (command->type() == IrcCommand::Message || command->type() == IrcCommand::CtcpAction) {
             IrcMessage* msg = command->toMessage(connection->nickName(), connection);
-            receiveBufferMessage(msg);
+            receiveMessage(msg);
             delete msg;
         }
 
@@ -104,15 +110,15 @@ void IrcClient::onTextEntered()
 void IrcClient::onBufferAdded(IrcBuffer* buffer)
 {
     // joined a buffer - start listening to buffer specific messages
-    connect(buffer, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveBufferMessage(IrcMessage*)));
+    connect(buffer, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveMessage(IrcMessage*)));
 
     // create a document for storing the buffer specific messages
     QTextDocument* document = new QTextDocument(buffer);
-    bufferDocuments.insert(buffer, document);
+    documents.insert(buffer, document);
 
-    // create a model for buffer users
+    // create a sorted model for buffer users
     IrcUserModel* userModel = new IrcUserModel(buffer);
-    userModel->setDisplayRole(Irc::NameRole);
+    userModel->setDynamicSort(true);
     userModels.insert(buffer, userModel);
 
     // activate the new buffer
@@ -125,7 +131,7 @@ void IrcClient::onBufferRemoved(IrcBuffer* buffer)
 {
     // the buffer specific models and documents are no longer needed
     delete userModels.take(buffer);
-    delete bufferDocuments.take(buffer);
+    delete documents.take(buffer);
 }
 
 void IrcClient::onBufferActivated(const QModelIndex& index)
@@ -134,17 +140,11 @@ void IrcClient::onBufferActivated(const QModelIndex& index)
 
     // user list and nick completion for the current buffer
     IrcUserModel* userModel = userModels.value(buffer);
-    QSortFilterProxyModel* proxy = qobject_cast<QSortFilterProxyModel*>(userList->model());
-    if (proxy)
-        proxy->setSourceModel(userModel);
+    userList->setModel(userModel);
     completer->setModel(userModel);
 
     // document for the current buffer
-    QTextDocument* document = bufferDocuments.value(buffer);
-    if (document)
-        textEdit->setDocument(document);
-    else
-        textEdit->setDocument(serverDocument);
+    textEdit->setDocument(documents.value(buffer));
 
     // keep the command parser aware of the context
     if (buffer)
@@ -176,20 +176,13 @@ static void appendHtml(QTextDocument* document, const QString& html)
     cursor.endEditBlock();
 }
 
-void IrcClient::receiveServerMessage(IrcMessage* message)
-{
-    QString html = IrcMessageFormatter::formatMessage(message);
-    if (!html.isEmpty())
-        appendHtml(serverDocument, html);
-}
-
-void IrcClient::receiveBufferMessage(IrcMessage* message)
+void IrcClient::receiveMessage(IrcMessage* message)
 {
     IrcBuffer* buffer = qobject_cast<IrcBuffer*>(sender());
     if (!buffer)
         buffer = bufferList->currentIndex().data(Irc::BufferRole).value<IrcBuffer*>();
 
-    QTextDocument* document = bufferDocuments.value(buffer);
+    QTextDocument* document = documents.value(buffer);
     if (document) {
         QString html = IrcMessageFormatter::formatMessage(message);
         if (!html.isEmpty())
@@ -197,63 +190,21 @@ void IrcClient::receiveBufferMessage(IrcMessage* message)
     }
 }
 
-void IrcClient::createUi()
+void IrcClient::createLayout()
 {
     setWindowTitle(tr("Communi %1 example client").arg(IRC_VERSION_STR));
 
-    // keep track of buffers
-    bufferModel = new IrcBufferModel(connection);
-    bufferList = new QListView(this);
-    bufferList->setFocusPolicy(Qt::NoFocus);
-    bufferList->setModel(bufferModel);
-    connect(bufferModel, SIGNAL(added(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
-    connect(bufferModel, SIGNAL(removed(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
-
-    // keep the command parser aware of the context
-    connect(bufferModel, SIGNAL(channelsChanged(QStringList)), parser, SLOT(setChannels(QStringList)));
-
-    // keep track of the current buffer, see also onBufferActivated()
-    connect(bufferList->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onBufferActivated(QModelIndex)));
-
-    // IrcBufferModel::messageIgnored() is emitted for non-buffer specific messages
-    connect(bufferModel, SIGNAL(messageIgnored(IrcMessage*)), this, SLOT(receiveServerMessage(IrcMessage*)));
-
-    // create a document for non-buffer specific messages
-    serverDocument = new QTextDocument(this);
-
     // a read-only text editor for showing the messages
     textEdit = new QTextEdit(this);
-    textEdit->setDocument(serverDocument);
     textEdit->setReadOnly(true);
-    textEdit->append(IrcMessageFormatter::formatMessage(tr("! Welcome to the Communi %1 example client.").arg(IRC_VERSION_STR)));
-    textEdit->append(IrcMessageFormatter::formatMessage(tr("! This example connects %1 and joins %2.").arg(SERVER, CHANNEL)));
-    textEdit->append(IrcMessageFormatter::formatMessage(tr("! PS. Available commands: JOIN, ME, NICK, PART")));
 
     // a line editor for entering commands
     lineEdit = new QLineEdit(this);
+    lineEdit->setCompleter(completer);
     lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     textEdit->setFocusProxy(lineEdit);
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(onTextEntered()));
     connect(lineEdit, SIGNAL(textEdited(QString)), this, SLOT(onTextEdited()));
-
-    // nick name completion
-    completer = new QCompleter(lineEdit);
-    completer->setCompletionMode(QCompleter::InlineCompletion);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setCompletionRole(Irc::NameRole);
-    lineEdit->setCompleter(completer);
-
-    // user list in alphabetical order
-    QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
-    proxy->setDynamicSortFilter(true);
-    proxy->sort(0, Qt::AscendingOrder);
-
-    userList = new QListView(this);
-    userList->setFocusPolicy(Qt::NoFocus);
-    userList->setModel(proxy);
-
-    // open a private query when double clicking a user
-    connect(userList, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onUserActivated(QModelIndex)));
 
     // the rest is just setting up the UI layout...
     QSplitter* splitter = new QSplitter(this);
@@ -270,13 +221,18 @@ void IrcClient::createUi()
     layout->addWidget(splitter);
     layout->addWidget(lineEdit);
 
-    addWidget(bufferList);
     addWidget(container);
 
-    setStretchFactor(0, 1);
-    setStretchFactor(1, 3);
-
     setHandleWidth(1);
+}
+
+void IrcClient::createCompleter()
+{
+    // nick name completion
+    completer = new QCompleter(this);
+    completer->setCompletionMode(QCompleter::InlineCompletion);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setCompletionRole(Irc::NameRole);
 }
 
 void IrcClient::createParser()
@@ -286,10 +242,49 @@ void IrcClient::createParser()
     // createUi() and onBufferActivated()
 
     parser = new IrcCommandParser(this);
+    parser->setTriggers(QStringList("/"));
     parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
     parser->addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
     parser->addCommand(IrcCommand::Nick, "NICK <nick>");
     parser->addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
+}
+
+void IrcClient::createUserList()
+{
+    // a list of channel users
+    userList = new QListView(this);
+    userList->setFocusPolicy(Qt::NoFocus);
+
+    // open a private query when double clicking a user
+    connect(userList, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onUserActivated(QModelIndex)));
+}
+
+void IrcClient::createBufferList()
+{
+    bufferModel = new IrcBufferModel(connection);
+    connect(bufferModel, SIGNAL(added(IrcBuffer*)), this, SLOT(onBufferAdded(IrcBuffer*)));
+    connect(bufferModel, SIGNAL(removed(IrcBuffer*)), this, SLOT(onBufferRemoved(IrcBuffer*)));
+
+    bufferList = new QListView(this);
+    bufferList->setFocusPolicy(Qt::NoFocus);
+    bufferList->setModel(bufferModel);
+
+    // keep the command parser aware of the context
+    connect(bufferModel, SIGNAL(channelsChanged(QStringList)), parser, SLOT(setChannels(QStringList)));
+
+    // keep track of the current buffer, see also onBufferActivated()
+    connect(bufferList->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onBufferActivated(QModelIndex)));
+
+    // create a server buffer for non-targeted messages...
+    IrcBuffer* serverBuffer = bufferModel->add(connection->host());
+
+    // ...and connect it to IrcBufferModel::messageIgnored()
+    connect(bufferModel, SIGNAL(messageIgnored(IrcMessage*)), serverBuffer, SLOT(receiveMessage(IrcMessage*)));
+
+    insertWidget(0, bufferList);
+
+    setStretchFactor(0, 1);
+    setStretchFactor(1, 3);
 }
 
 void IrcClient::createConnection()
@@ -303,6 +298,6 @@ void IrcClient::createConnection()
 
     connection->setHost(SERVER);
     connection->setUserName("communi");
-    connection->setNickName(tr("Communi%1").arg(qrand() % 99999));
+    connection->setNickName(tr("Client%1").arg(qrand() % 99999));
     connection->setRealName(tr("Communi %1 example client").arg(IRC_VERSION_STR));
 }

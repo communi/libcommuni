@@ -15,8 +15,10 @@
 /*!
     \page client Client example
 
-    The example illustrates how to create a simple GUI client. See \ref minimal
-    and \ref bot for getting familiar with the core concepts of Communi.
+    The example illustrates how to create a simple GUI client. This example
+    is not fully documented for the time being, but the source code including
+    verbose and explanatory comments is included below. See \ref minimal and
+    \ref bot for getting familiar with the core concepts of Communi.
 
     \b main.cpp
     \include client/main.cpp
