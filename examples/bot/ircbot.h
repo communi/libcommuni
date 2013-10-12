@@ -25,7 +25,7 @@ public slots:
     void join(QString channel);
 
 private slots:
-    void onMessageReceived(IrcPrivateMessage* message);
+    void processMessage(IrcPrivateMessage* message);
 
 private:
     void help(QStringList commands);

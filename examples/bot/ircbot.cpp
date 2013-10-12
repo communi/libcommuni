@@ -16,11 +16,10 @@
 IrcBot::IrcBot(QObject* parent) : IrcConnection(parent)
 {
 //! [messages]
-    connect(this, SIGNAL(privateMessageReceived(IrcPrivateMessage*)), this, SLOT(onMessageReceived(IrcPrivateMessage*)));
+    connect(this, SIGNAL(privateMessageReceived(IrcPrivateMessage*)), this, SLOT(processMessage(IrcPrivateMessage*)));
 //! [messages]
 
 //! [commands]
-    parser.setTrigger("!");
     parser.addCommand(IrcCommand::CtcpAction, "ACT [target] <message...>");
     parser.addCommand(IrcCommand::Custom, "HELP (<command...>)");
     parser.addCommand(IrcCommand::Nick, "NICK <nick>");
@@ -41,18 +40,22 @@ void IrcBot::join(QString channel)
     sendCommand(IrcCommand::createJoin(channel));
 }
 
-void IrcBot::onMessageReceived(IrcPrivateMessage* message)
-{
 //![receive]
-    QString content = message->message();
-    if (content.startsWith(nickName(), Qt::CaseInsensitive))
-        content = content.mid(content.indexOf(" ")).trimmed();
+void IrcBot::processMessage(IrcPrivateMessage* message)
+{
+    if (message->isPrivate()) {
+        // private message: reply to the message sender
+        // => triggers: "!<cmd> <params>" and "<cmd> <params>"
+        parser.setTarget(message->nick());
+        parser.setTriggers(QStringList() << "!" << "");
+    } else {
+        // channel message: reply to the target channel
+        // => triggers: "!<cmd> <params>" and "bot: <cmd> <params>"
+        parser.setTarget(message->target());
+        parser.setTriggers(QStringList() << "!" << nickName().append(":"));
+    }
 
-    // - private message: reply to the message sender
-    // - channel message: reply to the target channel
-    parser.setTarget(message->isPrivate() ? message->nick() : message->target());
-
-    IrcCommand* cmd = parser.parse(content);
+    IrcCommand* cmd = parser.parse(message->message());
     if (cmd) {
         if (cmd->type() == IrcCommand::Custom && cmd->parameters().value(0) == "HELP") {
             help(cmd->parameters().mid(1));
@@ -65,8 +68,8 @@ void IrcBot::onMessageReceived(IrcPrivateMessage* message)
             }
         }
     }
-//![receive]
 }
+//![receive]
 
 void IrcBot::help(QStringList commands)
 {

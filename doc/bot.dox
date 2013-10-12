@@ -35,17 +35,16 @@
     Furthermore, the current target of the parser is later updated whenever
     messages are received and parsed for commands.
 
-    In order for the bot to be able to process private and channel messages,
-    it connects to the IrcConnection::privateMessageReceived() signal.
+    In order for the bot to be able to process private and channel
+    messages, it connects to the \ref IrcConnection::messageReceived()
+    "IrcConnection::privateMessageReceived()" signal.
 
     \snippet bot/ircbot.cpp messages
 
-    The next snippet illustrates how the logic of the bot has been implemented.
-    First it does some simple processing and removes it's own name from the
-    beginning of the message content. Then it updates the parser's current
-    target depending on whether the received message was a channel or private
-    message. Finally, the content is parsed by using IrcCommandParser and the
-    command is sent to the server if parsing succeeded.
+    The current target of the parser, and command triggers are chosen depending
+    on whether the received message is a channel or private message. The next
+    snippet illustrates how the logic of the bot has been implemented using
+    IrcCommandParser.
 
     \snippet bot/ircbot.cpp receive
 
@@ -59,13 +58,9 @@
     [17:42:44] ! CommuniBot172375 (~communi@12.34.56.78) joined #communi
     [17:42:59] <jpnurmi> !say Communi rocks!
     [17:42:59] <CommuniBot172375> Communi rocks!
-    [17:44:05] <jpnurmi> CommuniBot172375: !nick CommuniRocks
+    [17:44:05] <jpnurmi> CommuniBot172375: nick CommuniRocks
     [17:44:05] ! CommuniBot172375 changed nick to CommuniRocks
-    [17:44:18] <jpnurmi> CommuniRocks: !quit
+    [17:44:18] <jpnurmi> CommuniRocks: quit
     [17:44:19] ! CommuniRocks (~communi@12.34.56.78) has quit (Client Quit)
     \endcode
-
-    If you're curious what the bot does behind the scenes, try setting an
-    environment variable \c IRC_DEBUG=1 in order to enable verbose debug output
-    as explained in \ref debugging.
  */
