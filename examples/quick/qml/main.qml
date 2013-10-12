@@ -75,5 +75,5 @@ ApplicationWindow {
         }
     }
 
-    onClosing: bufferModel.quit()
+    Component.onDestruction: bufferModel.quit()
 }

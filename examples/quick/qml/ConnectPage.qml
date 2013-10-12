@@ -68,7 +68,7 @@ Item {
         TextField {
             id: nickNameField
             Layout.fillWidth: true
-            placeholderText: "Communi" + Math.round(Math.random() * 9999)
+            placeholderText: "Quick" + Math.round(Math.random() * 9999)
         }
 
         Label { text: qsTr("Real name:") }
