@@ -1029,9 +1029,12 @@ void IrcConnection::open()
 /*!
     Immediately closes the connection to the server.
 
-    Calling close() when connected makes the connection close immediately and thus
-    leads to "remote host closed the connection". In order to quit gracefully, send
-    a QUIT command and let the server handle closing the connection.
+    Calling close() makes the connection close immediately and thus might lead to
+    "remote host closed the connection". In order to quit gracefully, call quit()
+    first. This function attempts to flush the underlying socket, but this does
+    not guarantee that the server ever receives the QUIT command if the connection
+    is closed immediately after sending the command. In order to ensure a graceful
+    quit, let the server handle closing the connection.
 
     C++ example:
     \code
