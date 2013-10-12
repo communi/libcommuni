@@ -17,7 +17,7 @@ class tst_IrcCommandParser : public QObject
 private slots:
     void testParse_data();
     void testParse();
-    void testTrigger();
+    void testTriggers();
     void testTarget();
     void testChannels();
     void testCommands();
@@ -78,8 +78,10 @@ void tst_IrcCommandParser::testParse()
     QFETCH(QString, output);
 
     IrcCommandParser parser;
-    QCOMPARE(parser.trigger(), QString("/"));
-    parser.setPrefixes(QStringList() << "//" << "/ /");
+    parser.setTriggers(QStringList("/"));
+    QCOMPARE(parser.triggers(), QStringList("/"));
+    parser.setExcludes(QStringList() << "//" << "/ /");
+    QCOMPARE(parser.excludes(), QStringList() << "//" << "/ /");
 
     parser.addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
     parser.addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
@@ -94,20 +96,20 @@ void tst_IrcCommandParser::testParse()
     QCOMPARE(cmd ? cmd->toString() : QString(), output);
 }
 
-void tst_IrcCommandParser::testTrigger()
+void tst_IrcCommandParser::testTriggers()
 {
     IrcCommandParser parser;
-    QCOMPARE(parser.trigger(), QString("/"));
+    parser.setTriggers(QStringList("/"));
     parser.addCommand(IrcCommand::Join, "JOIN #channel");
     parser.setTarget("#target");
 
-    QSignalSpy triggerSpy(&parser, SIGNAL(triggerChanged(QString)));
+    QSignalSpy triggerSpy(&parser, SIGNAL(triggersChanged(QStringList)));
     QVERIFY(triggerSpy.isValid());
 
-    parser.setTrigger("!");
-    QCOMPARE(parser.trigger(), QString("!"));
+    parser.setTriggers(QStringList("!"));
+    QCOMPARE(parser.triggers(), QStringList("!"));
     QCOMPARE(triggerSpy.count(), 1);
-    QCOMPARE(triggerSpy.last().at(0).toString(), QString("!"));
+    QCOMPARE(triggerSpy.last().at(0).toStringList(), QStringList("!"));
 
     IrcCommand* cmd = parser.parse("!join #communi");
     QVERIFY(cmd);
@@ -115,10 +117,10 @@ void tst_IrcCommandParser::testTrigger()
     QCOMPARE(cmd->toString(), QString("JOIN #communi"));
     delete cmd;
 
-    parser.setTrigger(QString());
-    QCOMPARE(parser.trigger(), QString());
+    parser.setTriggers(QStringList());
+    QCOMPARE(parser.triggers(), QStringList());
     QCOMPARE(triggerSpy.count(), 2);
-    QCOMPARE(triggerSpy.last().at(0).toString(), QString());
+    QCOMPARE(triggerSpy.last().at(0).toStringList(), QStringList());
 
     cmd = parser.parse("!join #communi");
     QVERIFY(cmd);
@@ -369,6 +371,7 @@ void tst_IrcCommandParser::testSyntax()
 void tst_IrcCommandParser::testTolerancy()
 {
     IrcCommandParser parser;
+    parser.setTriggers(QStringList("/"));
     QVERIFY(!parser.isTolerant());
 
     IrcCommand* cmd = parser.parse("/NS help");
@@ -400,7 +403,7 @@ void tst_IrcCommandParser::testTolerancy()
 void tst_IrcCommandParser::testCustom()
 {
     IrcCommandParser parser;
-    QCOMPARE(parser.trigger(), QString("/"));
+    parser.setTriggers(QStringList("/"));
 
     parser.addCommand(IrcCommand::Custom, "Hello <a> <b> <c>");
     QCOMPARE(parser.commands(), QStringList() << "HELLO");

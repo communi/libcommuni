@@ -151,15 +151,15 @@ struct IrcCommandInfo
 class IrcCommandParserPrivate
 {
 public:
-    IrcCommandParserPrivate() : tolerant(false), trigger(QLatin1Char('/')) { }
+    IrcCommandParserPrivate() : tolerant(false) { }
 
     QList<IrcCommandInfo> find(const QString& command) const;
     IrcCommand* parse(const IrcCommandInfo& command, QStringList params) const;
 
     bool tolerant;
-    QString trigger;
     QString target;
-    QStringList prefixes;
+    QStringList triggers;
+    QStringList excludes;
     QStringList channels;
     QMultiMap<QString, IrcCommandInfo> commands;
 };
@@ -413,54 +413,52 @@ void IrcCommandParser::setTarget(const QString& target)
 }
 
 /*!
-    This property holds the command trigger.
-
-    The default value is "/".
+    This property holds the command triggers.
 
     \par Access function:
-    \li QString <b>trigger</b>() const
-    \li void <b>setTrigger</b>(const QString& trigger)
+    \li QString <b>triggers</b>() const
+    \li void <b>setTriggers</b>(const QStringList& triggers)
 
     \par Notifier signal:
-    \li void <b>triggerChanged</b>(const QString& trigger)
+    \li void <b>triggersChanged</b>(const QStringList& triggers)
  */
-QString IrcCommandParser::trigger() const
+QStringList IrcCommandParser::triggers() const
 {
     Q_D(const IrcCommandParser);
-    return d->trigger;
+    return d->triggers;
 }
 
-void IrcCommandParser::setTrigger(const QString& trigger)
+void IrcCommandParser::setTriggers(const QStringList& triggers)
 {
     Q_D(IrcCommandParser);
-    if (d->trigger != trigger) {
-        d->trigger = trigger;
-        emit triggerChanged(trigger);
+    if (d->triggers != triggers) {
+        d->triggers = triggers;
+        emit triggersChanged(triggers);
     }
 }
 
 /*!
-    This property holds the message prefixes.
+    This property holds the excluded prefixes.
 
     \par Access function:
-    \li QStringList <b>prefixes</b>() const
-    \li void <b>setPrefixes</b>(const QStringList& prefixes)
+    \li QStringList <b>excludes</b>() const
+    \li void <b>setExcludes</b>(const QStringList& excludes)
 
     \par Notifier signal:
-    \li void <b>prefixesChanged</b>(const QStringList& prefixes)
+    \li void <b>excludesChanged</b>(const QStringList& excludes)
  */
-QStringList IrcCommandParser::prefixes() const
+QStringList IrcCommandParser::excludes() const
 {
     Q_D(const IrcCommandParser);
-    return d->prefixes;
+    return d->excludes;
 }
 
-void IrcCommandParser::setPrefixes(const QStringList& prefixes)
+void IrcCommandParser::setExcludes(const QStringList& excludes)
 {
     Q_D(IrcCommandParser);
-    if (d->prefixes != prefixes) {
-        d->prefixes = prefixes;
-        emit prefixesChanged(prefixes);
+    if (d->excludes != excludes) {
+        d->excludes = excludes;
+        emit excludesChanged(excludes);
     }
 }
 
@@ -497,21 +495,28 @@ void IrcCommandParser::setTolerant(bool tolerant)
     }
 }
 
-static bool isMessage(QString* input, const QStringList& prefixes, const QString& trigger)
+static bool processMessage(QString* input, const QStringList& excludes, const QStringList& triggers)
 {
     if (input->isEmpty())
         return false;
-    if (trigger.isEmpty())
+    if (triggers.isEmpty())
         return true;
 
-    foreach (const QString& prefix, prefixes) {
-        if (input->startsWith(prefix)) {
+    foreach (const QString& exclude, excludes) {
+        if (input->startsWith(exclude)) {
             input->remove(0, 1);
             return true;
         }
     }
 
-    return !input->startsWith(trigger) || input->startsWith(trigger.repeated(2)) || input->startsWith(trigger + QLatin1Char(' '));
+    foreach (const QString& trigger, triggers) {
+        if (input->startsWith(trigger)) {
+            input->remove(0, trigger.length());
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /*!
@@ -521,10 +526,10 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
 {
     Q_D(const IrcCommandParser);
     QString message = input;
-    if (isMessage(&message, d->prefixes, d->trigger)) {
+    if (processMessage(&message, d->excludes, d->triggers)) {
         return IrcCommand::createMessage(d->target, message.trimmed());
     } else {
-        QStringList params = input.mid(d->trigger.length()).split(QLatin1Char(' '), QString::SkipEmptyParts);
+        QStringList params = message.split(QLatin1Char(' '), QString::SkipEmptyParts);
         if (!params.isEmpty()) {
             const QString command = params.takeFirst().toUpper();
             const QList<IrcCommandInfo> commands = d->find(command);
