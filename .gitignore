@@ -44,6 +44,7 @@ qrc_*.cpp
 /examples/bot/bot
 /examples/client/client
 /examples/minimal/minimal
+/examples/qmlbot/qmlbot
 /examples/quick/quick
 /tests/auto/dbgout/tst_dbgout
 /tests/auto/irc/tst_irc
