@@ -79,6 +79,7 @@ void tst_IrcCommandParser::testParse()
 
     IrcCommandParser parser;
     QCOMPARE(parser.trigger(), QString("/"));
+    parser.setPrefixes(QStringList() << "//" << "/ /");
 
     parser.addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
     parser.addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");

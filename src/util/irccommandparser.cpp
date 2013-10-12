@@ -159,6 +159,7 @@ public:
     bool tolerant;
     QString trigger;
     QString target;
+    QStringList prefixes;
     QStringList channels;
     QMultiMap<QString, IrcCommandInfo> commands;
 };
@@ -439,6 +440,31 @@ void IrcCommandParser::setTrigger(const QString& trigger)
 }
 
 /*!
+    This property holds the message prefixes.
+
+    \par Access function:
+    \li QStringList <b>prefixes</b>() const
+    \li void <b>setPrefixes</b>(const QStringList& prefixes)
+
+    \par Notifier signal:
+    \li void <b>prefixesChanged</b>(const QStringList& prefixes)
+ */
+QStringList IrcCommandParser::prefixes() const
+{
+    Q_D(const IrcCommandParser);
+    return d->prefixes;
+}
+
+void IrcCommandParser::setPrefixes(const QStringList& prefixes)
+{
+    Q_D(IrcCommandParser);
+    if (d->prefixes != prefixes) {
+        d->prefixes = prefixes;
+        emit prefixesChanged(prefixes);
+    }
+}
+
+/*!
     This property holds whether the parser is tolerant.
 
     A tolerant parser creates raw server command out of
@@ -471,14 +497,21 @@ void IrcCommandParser::setTolerant(bool tolerant)
     }
 }
 
-static bool isMessage(const QString& input, const QString& trigger)
+static bool isMessage(QString* input, const QStringList& prefixes, const QString& trigger)
 {
-    if (input.isEmpty())
+    if (input->isEmpty())
         return false;
     if (trigger.isEmpty())
         return true;
 
-    return !input.startsWith(trigger) || input.startsWith(trigger.repeated(2)) || input.startsWith(trigger + QLatin1Char(' '));
+    foreach (const QString& prefix, prefixes) {
+        if (input->startsWith(prefix)) {
+            input->remove(0, 1);
+            return true;
+        }
+    }
+
+    return !input->startsWith(trigger) || input->startsWith(trigger.repeated(2)) || input->startsWith(trigger + QLatin1Char(' '));
 }
 
 /*!
@@ -487,10 +520,8 @@ static bool isMessage(const QString& input, const QString& trigger)
 IrcCommand* IrcCommandParser::parse(const QString& input) const
 {
     Q_D(const IrcCommandParser);
-    if (isMessage(input, d->trigger)) {
-        QString message = input;
-        if (!d->trigger.isEmpty() && message.startsWith(d->trigger))
-            message.remove(0, d->trigger.length());
+    QString message = input;
+    if (isMessage(&message, d->prefixes, d->trigger)) {
         return IrcCommand::createMessage(d->target, message.trimmed());
     } else {
         QStringList params = input.mid(d->trigger.length()).split(QLatin1Char(' '), QString::SkipEmptyParts);

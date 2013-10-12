@@ -29,6 +29,7 @@ class IRC_UTIL_EXPORT IrcCommandParser : public QObject
     Q_OBJECT
     Q_PROPERTY(QStringList commands READ commands NOTIFY commandsChanged)
     Q_PROPERTY(QString trigger READ trigger WRITE setTrigger NOTIFY triggerChanged)
+    Q_PROPERTY(QStringList prefixes READ prefixes WRITE setPrefixes NOTIFY prefixesChanged)
     Q_PROPERTY(QStringList channels READ channels WRITE setChannels NOTIFY channelsChanged)
     Q_PROPERTY(QString target READ target WRITE setTarget NOTIFY targetChanged)
     Q_PROPERTY(bool tolerant READ isTolerant WRITE setTolerant NOTIFY tolerancyChanged)
@@ -58,6 +59,7 @@ public:
     Q_INVOKABLE void removeCommand(IrcCommand::Type type, const QString& syntax = QString());
 
     QString trigger() const;
+    QStringList prefixes() const;
     QStringList channels() const;
     QString target() const;
 
@@ -71,11 +73,13 @@ public Q_SLOTS:
     void reset();
 
     void setTrigger(const QString& trigger);
+    void setPrefixes(const QStringList& prefixes);
     void setChannels(const QStringList& channels);
     void setTarget(const QString& target);
 
 Q_SIGNALS:
     void commandsChanged(const QStringList& commands);
+    void prefixesChanged(const QStringList& prefixes);
     void channelsChanged(const QStringList& channels);
     void targetChanged(const QString& target);
     void triggerChanged(const QString& trigger);
