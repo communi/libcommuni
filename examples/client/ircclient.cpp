@@ -148,7 +148,7 @@ void IrcClient::onBufferActivated(const QModelIndex& index)
 
     // keep the command parser aware of the context
     if (buffer)
-        parser->setCurrentTarget(buffer->title());
+        parser->setTarget(buffer->title());
 }
 
 void IrcClient::onUserActivated(const QModelIndex& index)

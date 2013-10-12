@@ -57,7 +57,7 @@ IRC_BEGIN_NAMESPACE
     may accept an optional parameter that is filled up with the current
     target (channel/query) name when absent, another command may always
     inject the current target name as a certain parameter. Therefore
-    IrcCommandParser must be kept up-to-date with the \ref currentTarget
+    IrcCommandParser must be kept up-to-date with the \ref target
     "current target" and the \ref channels "list of channels".
 
     \section example Example
@@ -71,7 +71,7 @@ IRC_BEGIN_NAMESPACE
     parser->addCommand(IrcCommand::CtcpAction, "ACTION <target> <message...>");
 
     // currently in a query, and also present on some channels
-    parser->setCurrentTarget("jpnurmi");
+    parser->setTarget("jpnurmi");
     parser->setChannels(QStringList() << "#communi" << "#freenode");
     \endcode
 
@@ -158,7 +158,7 @@ public:
 
     bool tolerant;
     QString prefix;
-    QString current;
+    QString target;
     QStringList channels;
     QMultiMap<QString, IrcCommandInfo> commands;
 };
@@ -196,7 +196,7 @@ static inline bool isCurrent(const QString& token)
 IrcCommand* IrcCommandParserPrivate::parse(const IrcCommandInfo& command, QStringList params) const
 {
     const QStringList tokens = command.syntax.split(QLatin1Char(' '), QString::SkipEmptyParts);
-    const bool onChannel = channels.contains(current, Qt::CaseInsensitive);
+    const bool onChannel = channels.contains(target, Qt::CaseInsensitive);
 
     int min = 0;
     int max = tokens.count();
@@ -212,13 +212,13 @@ IrcCommand* IrcCommandParserPrivate::parse(const IrcCommandInfo& command, QStrin
             if (onChannel) {
                 const QString param = params.value(i);
                 if (param.isNull() || !channels.contains(param, Qt::CaseInsensitive))
-                    params.insert(i, current);
+                    params.insert(i, target);
             } else  if (!channels.contains(params.value(i))) {
                 return 0;
             }
             ++min;
         } else if (isCurrent(token)) {
-            params.insert(i, current);
+            params.insert(i, target);
         }
     }
 
@@ -256,7 +256,7 @@ void IrcCommandParser::clear()
 void IrcCommandParser::reset()
 {
     setChannels(QStringList());
-    setCurrentTarget(QString());
+    setTarget(QString());
 }
 
 /*!
@@ -390,24 +390,24 @@ void IrcCommandParser::setChannels(const QStringList& channels)
     This property holds the current target.
 
     \par Access function:
-    \li QString <b>currentTarget</b>() const
-    \li void <b>setCurrentTarget</b>(const QString& target)
+    \li QString <b>target</b>() const
+    \li void <b>setTarget</b>(const QString& target)
 
     \par Notifier signal:
-    \li void <b>currentTargetChanged</b>(const QString& target)
+    \li void <b>targetChanged</b>(const QString& target)
  */
-QString IrcCommandParser::currentTarget() const
+QString IrcCommandParser::target() const
 {
     Q_D(const IrcCommandParser);
-    return d->current;
+    return d->target;
 }
 
-void IrcCommandParser::setCurrentTarget(const QString& target)
+void IrcCommandParser::setTarget(const QString& target)
 {
     Q_D(IrcCommandParser);
-    if (d->current != target) {
-        d->current = target;
-        emit currentTargetChanged(target);
+    if (d->target != target) {
+        d->target = target;
+        emit targetChanged(target);
     }
 }
 
@@ -491,7 +491,7 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
         QString message = input;
         if (!d->prefix.isEmpty() && message.startsWith(d->prefix))
             message.remove(0, 1);
-        return IrcCommand::createMessage(d->current, message.trimmed());
+        return IrcCommand::createMessage(d->target, message.trimmed());
     } else {
         QStringList params = input.mid(d->prefix.length()).split(QLatin1Char(' '), QString::SkipEmptyParts);
         if (!params.isEmpty()) {

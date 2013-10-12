@@ -30,7 +30,7 @@ class IRC_UTIL_EXPORT IrcCommandParser : public QObject
     Q_PROPERTY(QStringList commands READ commands NOTIFY commandsChanged)
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix NOTIFY prefixChanged)
     Q_PROPERTY(QStringList channels READ channels WRITE setChannels NOTIFY channelsChanged)
-    Q_PROPERTY(QString currentTarget READ currentTarget WRITE setCurrentTarget NOTIFY currentTargetChanged)
+    Q_PROPERTY(QString target READ target WRITE setTarget NOTIFY targetChanged)
     Q_PROPERTY(bool tolerant READ isTolerant WRITE setTolerant NOTIFY tolerancyChanged)
     Q_FLAGS(Details)
 
@@ -59,7 +59,7 @@ public:
 
     QString prefix() const;
     QStringList channels() const;
-    QString currentTarget() const;
+    QString target() const;
 
     bool isTolerant() const;
     void setTolerant(bool tolerant);
@@ -72,12 +72,12 @@ public Q_SLOTS:
 
     void setPrefix(const QString& prefix);
     void setChannels(const QStringList& channels);
-    void setCurrentTarget(const QString& target);
+    void setTarget(const QString& target);
 
 Q_SIGNALS:
     void commandsChanged(const QStringList& commands);
     void channelsChanged(const QStringList& channels);
-    void currentTargetChanged(const QString& target);
+    void targetChanged(const QString& target);
     void prefixChanged(const QString& prefix);
     void tolerancyChanged(bool tolerant);
 

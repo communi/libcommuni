@@ -50,7 +50,7 @@ void IrcBot::onMessageReceived(IrcPrivateMessage* message)
 
     // - private message: reply to the message sender
     // - channel message: reply to the target channel
-    parser.setCurrentTarget(message->isPrivate() ? message->nick() : message->target());
+    parser.setTarget(message->isPrivate() ? message->nick() : message->target());
 
     IrcCommand* cmd = parser.parse(content);
     if (cmd) {
@@ -73,7 +73,7 @@ void IrcBot::help(QStringList commands)
     if (commands.isEmpty())
         commands = parser.commands();
 
-    QString target = parser.currentTarget();
+    QString target = parser.target();
     foreach (const QString& command, commands) {
         QString syntax = parser.syntax(command);
         sendCommand(IrcCommand::createMessage(target, syntax));

@@ -26,7 +26,7 @@ TextField {
         id: parser
 
         channels: buffer ? buffer.model.channels : []
-        currentTarget: buffer ? buffer.title : ""
+        target: buffer ? buffer.title : ""
 
         Component.onCompleted: {
             parser.addCommand(IrcCommand.Join, "JOIN <#channel> (<key>)")

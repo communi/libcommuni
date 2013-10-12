@@ -86,7 +86,7 @@ void tst_IrcCommandParser::testParse()
     parser.addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
     parser.addCommand(IrcCommand::CtcpAction, "ACTION <target> <message...>");
 
-    parser.setCurrentTarget(target);
+    parser.setTarget(target);
     parser.setChannels(QStringList() << "#freenode" << "#communi");
 
     IrcCommand* cmd = parser.parse(input);
@@ -98,7 +98,7 @@ void tst_IrcCommandParser::testPrefix()
     IrcCommandParser parser;
     QCOMPARE(parser.prefix(), QString("/"));
     parser.addCommand(IrcCommand::Join, "JOIN #channel");
-    parser.setCurrentTarget("#target");
+    parser.setTarget("#target");
 
     QSignalSpy prefixSpy(&parser, SIGNAL(prefixChanged(QString)));
     QVERIFY(prefixSpy.isValid());
@@ -131,21 +131,21 @@ void tst_IrcCommandParser::testPrefix()
 void tst_IrcCommandParser::testTarget()
 {
     IrcCommandParser parser;
-    QVERIFY(parser.currentTarget().isEmpty());
+    QVERIFY(parser.target().isEmpty());
 
-    QSignalSpy targetSpy(&parser, SIGNAL(currentTargetChanged(QString)));
+    QSignalSpy targetSpy(&parser, SIGNAL(targetChanged(QString)));
     QVERIFY(targetSpy.isValid());
 
-    parser.setCurrentTarget("#tgt");
-    QCOMPARE(parser.currentTarget(), QString("#tgt"));
+    parser.setTarget("#tgt");
+    QCOMPARE(parser.target(), QString("#tgt"));
     QCOMPARE(targetSpy.count(), 1);
     QCOMPARE(targetSpy.last().at(0).toString(), QString("#tgt"));
 
-    parser.setCurrentTarget("#tgt");
+    parser.setTarget("#tgt");
     QCOMPARE(targetSpy.count(), 1);
 
-    parser.setCurrentTarget(QString());
-    QCOMPARE(parser.currentTarget(), QString());
+    parser.setTarget(QString());
+    QCOMPARE(parser.target(), QString());
     QCOMPARE(targetSpy.count(), 2);
     QCOMPARE(targetSpy.last().at(0).toString(), QString());
 }
@@ -224,13 +224,13 @@ void tst_IrcCommandParser::testReset()
 {
     IrcCommandParser parser;
 
-    QSignalSpy targetSpy(&parser, SIGNAL(currentTargetChanged(QString)));
+    QSignalSpy targetSpy(&parser, SIGNAL(targetChanged(QString)));
     QVERIFY(targetSpy.isValid());
 
     QSignalSpy channelSpy(&parser, SIGNAL(channelsChanged(QStringList)));
     QVERIFY(channelSpy.isValid());
 
-    parser.setCurrentTarget("#tgt");
+    parser.setTarget("#tgt");
     QCOMPARE(targetSpy.count(), 1);
     QCOMPARE(targetSpy.last().at(0).toString(), QString("#tgt"));
 
