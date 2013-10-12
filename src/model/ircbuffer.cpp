@@ -425,10 +425,13 @@ void IrcBuffer::setSticky(bool sticky)
     \property bool IrcBuffer::persistent
     This property holds whether the buffer is persistent.
 
-    A persistent buffer does not get automatically removed
-    from its IrcBufferModel e.g. when leaving a channel.
-
     The default value is \c false.
+
+    A persistent buffer does not get removed and destructed
+    when calling IrcBufferModel::clear(), or when when leaving
+    the corresponding channel. In order to remove a persistent
+    buffer, either explicitly call IrcBufferModel::remove() or
+    delete the buffer.
 
     \par Access function:
     \li bool <b>isPersistent</b>() const

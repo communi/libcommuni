@@ -516,7 +516,7 @@ void IrcBufferModel::add(IrcBuffer* buffer)
 }
 
 /*!
-    Removes a buffer with \a title from the model.
+    Removes and destroys a buffer with \a title from the model.
  */
 void IrcBufferModel::remove(const QString& title)
 {
@@ -525,7 +525,7 @@ void IrcBufferModel::remove(const QString& title)
 }
 
 /*!
-    Removes a \a buffer from the model.
+    Removes and destroys a \a buffer from the model.
  */
 void IrcBufferModel::remove(IrcBuffer* buffer)
 {
@@ -637,15 +637,23 @@ void IrcBufferModel::setSortMethod(Irc::SortMethod method)
 /*!
     Clears the model.
 
-    All buffers except persistent buffers are removed and destroyed.
+    All buffers except \ref IrcBuffer::persistent "persistent" buffers are removed and destroyed.
+
+    In order to remove a persistent buffer, either explicitly call remove() or delete the buffer.
  */
 void IrcBufferModel::clear()
 {
     Q_D(IrcBufferModel);
     if (!d->bufferList.isEmpty()) {
-        beginResetModel();
+        bool bufferRemoved = false;
+        bool channelRemoved = false;
         foreach (IrcBuffer* buffer, d->bufferList) {
             if (!buffer->isPersistent()) {
+                if (!bufferRemoved) {
+                    beginResetModel();
+                    bufferRemoved = true;
+                }
+                channelRemoved |= buffer->isChannel();
                 buffer->disconnect();
                 d->bufferList.removeOne(buffer);
                 d->channels.removeOne(buffer->title());
@@ -653,10 +661,13 @@ void IrcBufferModel::clear()
                 delete buffer;
             }
         }
-        endResetModel();
-        emit channelsChanged(d->channels);
-        emit buffersChanged(d->bufferList);
-        emit countChanged(d->bufferList.count());
+        if (bufferRemoved) {
+            endResetModel();
+            if (channelRemoved)
+                emit channelsChanged(d->channels);
+            emit buffersChanged(d->bufferList);
+            emit countChanged(d->bufferList.count());
+        }
     }
 }
 

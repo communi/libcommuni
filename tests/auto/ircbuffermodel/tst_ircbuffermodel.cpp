@@ -265,9 +265,14 @@ void tst_IrcBufferModel::testSorting()
 void tst_IrcBufferModel::testClear()
 {
     IrcBufferModel model(connection);
+    connection->open();
+    QVERIFY(waitForOpened());
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
+
     QPointer<IrcBuffer> a = model.add("#a");
     QPointer<IrcBuffer> b = model.add("#b");
     QPointer<IrcBuffer> c = model.add("c");
+    QPointer<IrcBuffer> d = model.add("d");
 
     QSignalSpy countSpy(&model, SIGNAL(countChanged(int)));
     QSignalSpy buffersSpy(&model, SIGNAL(buffersChanged(QList<IrcBuffer*>)));
@@ -281,6 +286,91 @@ void tst_IrcBufferModel::testClear()
     QVERIFY(modelAboutToBeResetSpy.isValid());
     QVERIFY(modelResetSpy.isValid());
 
+    b->setPersistent(true);
+    d->setPersistent(true);
+
+    // #a, #b*, c, d*
+    model.clear();
+
+    QCOMPARE(model.count(), 2);
+    QCOMPARE(model.buffers(), QList<IrcBuffer*>() << b << d);
+    QCOMPARE(model.channels(), QStringList() << "#b");
+
+    QCOMPARE(model.get(0), b.data());
+    QCOMPARE(model.get(1), d.data());
+    QVERIFY(!model.get(2));
+    QVERIFY(!model.find("#a"));
+    QVERIFY(model.find("#b"));
+    QVERIFY(!model.find("c"));
+    QVERIFY(model.find("d"));
+    QVERIFY(!model.contains("#a"));
+    QVERIFY(model.contains("#b"));
+    QVERIFY(!model.contains("c"));
+    QVERIFY(model.contains("d"));
+
+    QVERIFY(!a);
+    QVERIFY(b);
+    QVERIFY(!c);
+    QVERIFY(d);
+
+    QCOMPARE(countSpy.count(), 1);
+    QCOMPARE(countSpy.last().at(0).toInt(), 2);
+
+    QCOMPARE(buffersSpy.count(), 1);
+    QCOMPARE(buffersSpy.last().at(0).value<QList<IrcBuffer*> >(), QList<IrcBuffer*>() << b << d);
+
+    QCOMPARE(channelsSpy.count(), 1);
+    QCOMPARE(channelsSpy.last().at(0).toStringList(), QStringList() << "#b");
+
+    QCOMPARE(modelAboutToBeResetSpy.count(), 1);
+    QCOMPARE(modelResetSpy.count(), 1);
+
+    b->setPersistent(false);
+
+    countSpy.clear();
+    buffersSpy.clear();
+    channelsSpy.clear();
+    modelAboutToBeResetSpy.clear();
+    modelResetSpy.clear();
+
+    // #b, d*
+    model.clear();
+
+    QCOMPARE(model.count(), 1);
+    QCOMPARE(model.buffers(), QList<IrcBuffer*>() << d);
+    QCOMPARE(model.channels(), QStringList());
+
+    QCOMPARE(model.get(0), d.data());
+    QVERIFY(!model.get(1));
+    QVERIFY(!model.find("#b"));
+    QVERIFY(model.find("d"));
+    QVERIFY(!model.contains("#b"));
+    QVERIFY(model.contains("d"));
+
+    QVERIFY(!b);
+    QVERIFY(d);
+
+    QCOMPARE(countSpy.count(), 1);
+    QCOMPARE(countSpy.last().at(0).toInt(), 1);
+
+    QCOMPARE(buffersSpy.count(), 1);
+    QCOMPARE(buffersSpy.last().at(0).value<QList<IrcBuffer*> >(), QList<IrcBuffer*>() << d);
+
+    QCOMPARE(channelsSpy.count(), 1);
+    QCOMPARE(channelsSpy.last().at(0).toStringList(), QStringList());
+
+    QCOMPARE(modelAboutToBeResetSpy.count(), 1);
+    QCOMPARE(modelResetSpy.count(), 1);
+
+    d->setPersistent(false);
+
+    countSpy.clear();
+    buffersSpy.clear();
+    channelsSpy.clear();
+    modelAboutToBeResetSpy.clear();
+    modelResetSpy.clear();
+
+    // d
     model.clear();
 
     QCOMPARE(model.count(), 0);
@@ -288,16 +378,10 @@ void tst_IrcBufferModel::testClear()
     QCOMPARE(model.channels(), QStringList());
 
     QVERIFY(!model.get(0));
-    QVERIFY(!model.find("#a"));
-    QVERIFY(!model.find("#b"));
-    QVERIFY(!model.find("c"));
-    QVERIFY(!model.contains("#a"));
-    QVERIFY(!model.contains("#b"));
-    QVERIFY(!model.contains("c"));
+    QVERIFY(!model.find("d"));
+    QVERIFY(!model.contains("d"));
 
-    QVERIFY(!a);
-    QVERIFY(!b);
-    QVERIFY(!c);
+    QVERIFY(!d);
 
     QCOMPARE(countSpy.count(), 1);
     QCOMPARE(countSpy.last().at(0).toInt(), 0);
@@ -305,11 +389,77 @@ void tst_IrcBufferModel::testClear()
     QCOMPARE(buffersSpy.count(), 1);
     QCOMPARE(buffersSpy.last().at(0).value<QList<IrcBuffer*> >(), QList<IrcBuffer*>());
 
-    QCOMPARE(channelsSpy.count(), 1);
-    QCOMPARE(channelsSpy.last().at(0).toStringList(), QStringList());
+    QCOMPARE(channelsSpy.count(), 0);
 
     QCOMPARE(modelAboutToBeResetSpy.count(), 1);
     QCOMPARE(modelResetSpy.count(), 1);
+
+    countSpy.clear();
+    buffersSpy.clear();
+    channelsSpy.clear();
+    modelAboutToBeResetSpy.clear();
+    modelResetSpy.clear();
+
+    // <empty>
+    model.clear();
+
+    QCOMPARE(countSpy.count(), 0);
+    QCOMPARE(buffersSpy.count(), 0);
+    QCOMPARE(channelsSpy.count(), 0);
+    QCOMPARE(modelAboutToBeResetSpy.count(), 0);
+    QCOMPARE(modelResetSpy.count(), 0);
+
+    QPointer<IrcBuffer> e = model.add("e");
+    QPointer<IrcBuffer> f = model.add("f");
+
+    e->setPersistent(true);
+    f->setPersistent(true);
+
+    countSpy.clear();
+    buffersSpy.clear();
+    channelsSpy.clear();
+    modelAboutToBeResetSpy.clear();
+    modelResetSpy.clear();
+
+    // e*, f*
+    model.clear();
+
+    QVERIFY(e);
+    QVERIFY(f);
+
+    QCOMPARE(countSpy.count(), 0);
+    QCOMPARE(buffersSpy.count(), 0);
+    QCOMPARE(channelsSpy.count(), 0);
+    QCOMPARE(modelAboutToBeResetSpy.count(), 0);
+    QCOMPARE(modelResetSpy.count(), 0);
+
+    qDeleteAll(model.buffers());
+
+    QCOMPARE(model.count(), 0);
+    QCOMPARE(model.buffers(), QList<IrcBuffer*>());
+    QCOMPARE(model.channels(), QStringList());
+
+    QVERIFY(!model.get(0));
+    QVERIFY(!model.find("e"));
+    QVERIFY(!model.find("f"));
+    QVERIFY(!model.contains("e"));
+    QVERIFY(!model.contains("f"));
+
+    QVERIFY(!e);
+    QVERIFY(!f);
+
+    QCOMPARE(countSpy.count(), 2);
+    QCOMPARE(countSpy.at(0).at(0).toInt(), 1);
+    QCOMPARE(countSpy.at(1).at(0).toInt(), 0);
+
+    QCOMPARE(buffersSpy.count(), 2);
+    QCOMPARE(buffersSpy.at(0).at(0).value<QList<IrcBuffer*> >().count(), 1);
+    QCOMPARE(buffersSpy.at(1).at(0).value<QList<IrcBuffer*> >(), QList<IrcBuffer*>());
+
+    QCOMPARE(channelsSpy.count(), 0);
+
+    QCOMPARE(modelAboutToBeResetSpy.count(), 0);
+    QCOMPARE(modelResetSpy.count(), 0);
 }
 
 void tst_IrcBufferModel::testPrototypes()
