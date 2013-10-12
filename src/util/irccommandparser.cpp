@@ -48,6 +48,16 @@ IRC_BEGIN_NAMESPACE
     -# Multi-word parameters are only supported in the last parameter position.
     -# An optional channel parameter is filled up with the current channel when absent.
 
+    The following example presents introducing some typical commands.
+    \code
+    IrcCommandParser* parser = new IrcCommandParser(this);
+    parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
+    parser->addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
+    parser->addCommand(IrcCommand::Kick, "KICK (<#channel>) <nick> (<reason...>)");
+    parser->addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
+    parser->addCommand(IrcCommand::CtcpAction, "ACTION <target> <message...>");
+    \endcode
+
     \note The parameter names are insignificant, but descriptive
     parameter names are recommended for the sake of readability.
 
@@ -60,20 +70,39 @@ IRC_BEGIN_NAMESPACE
     IrcCommandParser must be kept up-to-date with the \ref target
     "current target" and the \ref channels "list of channels".
 
-    \section example Example
-
     \code
-    IrcCommandParser* parser = new IrcCommandParser(this);
-    parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
-    parser->addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
-    parser->addCommand(IrcCommand::Kick, "KICK (<#channel>) <nick> (<reason...>)");
-    parser->addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
-    parser->addCommand(IrcCommand::CtcpAction, "ACTION <target> <message...>");
-
     // currently in a query, and also present on some channels
     parser->setTarget("jpnurmi");
     parser->setChannels(QStringList() << "#communi" << "#freenode");
     \endcode
+
+    \section triggers Command triggers
+
+    IrcCommandParser serves as a generic parser for typical IRC commands.
+    It can be utilized for parsing commands from user input in GUI clients,
+    and from messages from other clients when implementing IRC bots.
+
+    The command parsing behavior is controlled by setting up command
+    \ref triggers and \ref excludes "excluded" prefixes. Whilst a typical
+    GUI client might use \c "/" as a command trigger, an IRC bot might use
+    \c "!" and the nick name of the bot. The following snippet illustrates
+    a typical GUI client usage.
+
+    \code
+    parser->setTarget("#communi");
+    parser->setTriggers(QStringList() << "/");
+    parser->setExcludes(QStringList() << "//");
+    parser->parse(input);
+    \endcode
+
+    \p
+    Input             | Result              | Description
+    ------------------|---------------------|------------
+    "hello"           | IrcCommand::Message | No matching command trigger => a message "hello" to \#communi
+    "/join #channel"  | IrcCommand::Join    | Matching command trigger => a command to join "#channel"
+    "//join #channel" | IrcCommand::Message | Matching excluded prefix => a message "/join #channel" to \#communi
+
+    See the \ref bot "bot example" to see how the parser can be effectively utilized for IRC bots.
 
     \section custom Custom commands
 
@@ -87,7 +116,7 @@ IRC_BEGIN_NAMESPACE
     parser.addCommand(IrcCommand::Custom, "QUERY <user>");
     IrcCommand* command = parser.parse("/query jpnurmi");
     Q_ASSERT(command->type() == IrcCommand::Custom);
-    qDebug() << command->parameters; // ("QUERY", "jpnurmi")
+    qDebug() << command->parameters(); // ("QUERY", "jpnurmi")
     \endcode
  */
 
@@ -294,7 +323,7 @@ QStringList IrcCommandParser::commands() const
 }
 
 /*!
-    Returns syntax for the given \a command in gived \a details level.
+    Returns syntax for the given \a command in given \a details level.
  */
 QString IrcCommandParser::syntax(const QString& command, Details details) const
 {
@@ -363,9 +392,9 @@ void IrcCommandParser::removeCommand(IrcCommand::Type type, const QString& synta
 /*!
     This property holds the available channels.
 
-    \par Access function:
+    \par Access functions:
     \li QStringList <b>channels</b>() const
-    \li void <b>setChannels</b>(const QStringList& channels)
+    \li void <b>setChannels</b>(const QStringList& channels) [slot]
 
     \par Notifier signal:
     \li void <b>channelsChanged</b>(const QStringList& channels)
@@ -390,9 +419,9 @@ void IrcCommandParser::setChannels(const QStringList& channels)
 /*!
     This property holds the current target.
 
-    \par Access function:
+    \par Access functions:
     \li QString <b>target</b>() const
-    \li void <b>setTarget</b>(const QString& target)
+    \li void <b>setTarget</b>(const QString& target) [slot]
 
     \par Notifier signal:
     \li void <b>targetChanged</b>(const QString& target)
@@ -415,9 +444,9 @@ void IrcCommandParser::setTarget(const QString& target)
 /*!
     This property holds the command triggers.
 
-    \par Access function:
-    \li QString <b>triggers</b>() const
-    \li void <b>setTriggers</b>(const QStringList& triggers)
+    \par Access functions:
+    \li QStringList <b>triggers</b>() const
+    \li void <b>setTriggers</b>(const QStringList& triggers) [slot]
 
     \par Notifier signal:
     \li void <b>triggersChanged</b>(const QStringList& triggers)
@@ -440,9 +469,9 @@ void IrcCommandParser::setTriggers(const QStringList& triggers)
 /*!
     This property holds the excluded prefixes.
 
-    \par Access function:
+    \par Access functions:
     \li QStringList <b>excludes</b>() const
-    \li void <b>setExcludes</b>(const QStringList& excludes)
+    \li void <b>setExcludes</b>(const QStringList& excludes) [slot]
 
     \par Notifier signal:
     \li void <b>excludesChanged</b>(const QStringList& excludes)
@@ -471,7 +500,7 @@ void IrcCommandParser::setExcludes(const QStringList& excludes)
 
     The default value is \c false.
 
-    \par Access function:
+    \par Access functions:
     \li bool <b>isTolerant</b>() const
     \li void <b>setTolerant</b>(bool tolerant)
 
