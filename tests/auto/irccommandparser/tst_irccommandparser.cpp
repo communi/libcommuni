@@ -17,7 +17,7 @@ class tst_IrcCommandParser : public QObject
 private slots:
     void testParse_data();
     void testParse();
-    void testPrefix();
+    void testTrigger();
     void testTarget();
     void testChannels();
     void testCommands();
@@ -78,7 +78,7 @@ void tst_IrcCommandParser::testParse()
     QFETCH(QString, output);
 
     IrcCommandParser parser;
-    QCOMPARE(parser.prefix(), QString("/"));
+    QCOMPARE(parser.trigger(), QString("/"));
 
     parser.addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
     parser.addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
@@ -93,20 +93,20 @@ void tst_IrcCommandParser::testParse()
     QCOMPARE(cmd ? cmd->toString() : QString(), output);
 }
 
-void tst_IrcCommandParser::testPrefix()
+void tst_IrcCommandParser::testTrigger()
 {
     IrcCommandParser parser;
-    QCOMPARE(parser.prefix(), QString("/"));
+    QCOMPARE(parser.trigger(), QString("/"));
     parser.addCommand(IrcCommand::Join, "JOIN #channel");
     parser.setTarget("#target");
 
-    QSignalSpy prefixSpy(&parser, SIGNAL(prefixChanged(QString)));
-    QVERIFY(prefixSpy.isValid());
+    QSignalSpy triggerSpy(&parser, SIGNAL(triggerChanged(QString)));
+    QVERIFY(triggerSpy.isValid());
 
-    parser.setPrefix("!");
-    QCOMPARE(parser.prefix(), QString("!"));
-    QCOMPARE(prefixSpy.count(), 1);
-    QCOMPARE(prefixSpy.last().at(0).toString(), QString("!"));
+    parser.setTrigger("!");
+    QCOMPARE(parser.trigger(), QString("!"));
+    QCOMPARE(triggerSpy.count(), 1);
+    QCOMPARE(triggerSpy.last().at(0).toString(), QString("!"));
 
     IrcCommand* cmd = parser.parse("!join #communi");
     QVERIFY(cmd);
@@ -114,10 +114,10 @@ void tst_IrcCommandParser::testPrefix()
     QCOMPARE(cmd->toString(), QString("JOIN #communi"));
     delete cmd;
 
-    parser.setPrefix(QString());
-    QCOMPARE(parser.prefix(), QString());
-    QCOMPARE(prefixSpy.count(), 2);
-    QCOMPARE(prefixSpy.last().at(0).toString(), QString());
+    parser.setTrigger(QString());
+    QCOMPARE(parser.trigger(), QString());
+    QCOMPARE(triggerSpy.count(), 2);
+    QCOMPARE(triggerSpy.last().at(0).toString(), QString());
 
     cmd = parser.parse("!join #communi");
     QVERIFY(cmd);
@@ -399,7 +399,7 @@ void tst_IrcCommandParser::testTolerancy()
 void tst_IrcCommandParser::testCustom()
 {
     IrcCommandParser parser;
-    QCOMPARE(parser.prefix(), QString("/"));
+    QCOMPARE(parser.trigger(), QString("/"));
 
     parser.addCommand(IrcCommand::Custom, "Hello <a> <b> <c>");
     QCOMPARE(parser.commands(), QStringList() << "HELLO");

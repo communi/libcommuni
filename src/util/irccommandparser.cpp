@@ -151,13 +151,13 @@ struct IrcCommandInfo
 class IrcCommandParserPrivate
 {
 public:
-    IrcCommandParserPrivate() : tolerant(false), prefix(QLatin1Char('/')) { }
+    IrcCommandParserPrivate() : tolerant(false), trigger(QLatin1Char('/')) { }
 
     QList<IrcCommandInfo> find(const QString& command) const;
     IrcCommand* parse(const IrcCommandInfo& command, QStringList params) const;
 
     bool tolerant;
-    QString prefix;
+    QString trigger;
     QString target;
     QStringList channels;
     QMultiMap<QString, IrcCommandInfo> commands;
@@ -412,29 +412,29 @@ void IrcCommandParser::setTarget(const QString& target)
 }
 
 /*!
-    This property holds the command prefix.
+    This property holds the command trigger.
 
     The default value is "/".
 
     \par Access function:
-    \li QString <b>prefix</b>() const
-    \li void <b>setPrefix</b>(const QString& prefix)
+    \li QString <b>trigger</b>() const
+    \li void <b>setTrigger</b>(const QString& trigger)
 
     \par Notifier signal:
-    \li void <b>prefixChanged</b>(const QString& prefix)
+    \li void <b>triggerChanged</b>(const QString& trigger)
  */
-QString IrcCommandParser::prefix() const
+QString IrcCommandParser::trigger() const
 {
     Q_D(const IrcCommandParser);
-    return d->prefix;
+    return d->trigger;
 }
 
-void IrcCommandParser::setPrefix(const QString& prefix)
+void IrcCommandParser::setTrigger(const QString& trigger)
 {
     Q_D(IrcCommandParser);
-    if (d->prefix != prefix) {
-        d->prefix = prefix;
-        emit prefixChanged(prefix);
+    if (d->trigger != trigger) {
+        d->trigger = trigger;
+        emit triggerChanged(trigger);
     }
 }
 
@@ -471,14 +471,14 @@ void IrcCommandParser::setTolerant(bool tolerant)
     }
 }
 
-static bool isMessage(const QString& input, const QString& prefix)
+static bool isMessage(const QString& input, const QString& trigger)
 {
     if (input.isEmpty())
         return false;
-    if (prefix.isEmpty())
+    if (trigger.isEmpty())
         return true;
 
-    return !input.startsWith(prefix) || input.startsWith(prefix.repeated(2)) || input.startsWith(prefix + QLatin1Char(' '));
+    return !input.startsWith(trigger) || input.startsWith(trigger.repeated(2)) || input.startsWith(trigger + QLatin1Char(' '));
 }
 
 /*!
@@ -487,13 +487,13 @@ static bool isMessage(const QString& input, const QString& prefix)
 IrcCommand* IrcCommandParser::parse(const QString& input) const
 {
     Q_D(const IrcCommandParser);
-    if (isMessage(input, d->prefix)) {
+    if (isMessage(input, d->trigger)) {
         QString message = input;
-        if (!d->prefix.isEmpty() && message.startsWith(d->prefix))
-            message.remove(0, 1);
+        if (!d->trigger.isEmpty() && message.startsWith(d->trigger))
+            message.remove(0, d->trigger.length());
         return IrcCommand::createMessage(d->target, message.trimmed());
     } else {
-        QStringList params = input.mid(d->prefix.length()).split(QLatin1Char(' '), QString::SkipEmptyParts);
+        QStringList params = input.mid(d->trigger.length()).split(QLatin1Char(' '), QString::SkipEmptyParts);
         if (!params.isEmpty()) {
             const QString command = params.takeFirst().toUpper();
             const QList<IrcCommandInfo> commands = d->find(command);

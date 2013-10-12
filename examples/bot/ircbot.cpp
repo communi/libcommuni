@@ -20,7 +20,7 @@ IrcBot::IrcBot(QObject* parent) : IrcConnection(parent)
 //! [messages]
 
 //! [commands]
-    parser.setPrefix("!");
+    parser.setTrigger("!");
     parser.addCommand(IrcCommand::CtcpAction, "ACT [target] <message...>");
     parser.addCommand(IrcCommand::Custom, "HELP (<command...>)");
     parser.addCommand(IrcCommand::Nick, "NICK <nick>");
