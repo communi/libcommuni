@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 //! [minimal]
     IrcConnection connection("irc.freenode.net");
     connection.setUserName("communi");
-    connection.setNickName(QString("Communimal%1").arg(qrand()));
+    connection.setNickName(QString("Minimal%1").arg(qrand()));
     connection.setRealName(QString("Communi %1 minimal example").arg(Irc::version()));
     connection.sendCommand(IrcCommand::createJoin("#communi"));
     connection.sendCommand(IrcCommand::createMessage("#communi", "Hi, kthxbye!"));
