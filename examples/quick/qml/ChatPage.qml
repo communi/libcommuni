@@ -24,7 +24,10 @@ Item {
     Connections {
         target: bufferModel
         onAdded: currentBuffer = buffer
-        onAboutToBeRemoved: currentBuffer = bufferModel.get(Math.max(0, bufferModel.indexOf(buffer) - 1))
+        onAboutToBeRemoved: {
+            var idx = bufferModel.indexOf(buffer)
+            currentBuffer = bufferModel.get(idx + 1) || bufferModel.get(Math.max(0, idx - 1))
+        }
     }
 
     SplitView {
