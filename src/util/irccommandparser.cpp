@@ -83,15 +83,13 @@ IRC_BEGIN_NAMESPACE
     and from messages from other clients when implementing IRC bots.
 
     The command parsing behavior is controlled by setting up command
-    \ref triggers and \ref excludes "excluded" prefixes. Whilst a typical
-    GUI client might use \c "/" as a command trigger, an IRC bot might use
-    \c "!" and the nick name of the bot. The following snippet illustrates
-    a typical GUI client usage.
+    \ref triggers. Whilst a typical GUI client might use \c "/" as a command
+    trigger, an IRC bot might use \c "!" and the nick name of the bot. The
+    following snippet illustrates a typical GUI client usage.
 
     \code
     parser->setTarget("#communi");
     parser->setTriggers(QStringList() << "/");
-    parser->setExcludes(QStringList() << "//");
     parser->parse(input);
     \endcode
 
@@ -100,7 +98,6 @@ IRC_BEGIN_NAMESPACE
     ------------------|---------------------|------------
     "hello"           | IrcCommand::Message | No matching command trigger => a message "hello" to \#communi
     "/join #channel"  | IrcCommand::Join    | Matching command trigger => a command to join "#channel"
-    "//join #channel" | IrcCommand::Message | Matching excluded prefix => a message "/join #channel" to \#communi
 
     See the \ref bot "bot example" to see how the parser can be effectively utilized for IRC bots.
 
@@ -188,7 +185,6 @@ public:
     bool tolerant;
     QString target;
     QStringList triggers;
-    QStringList excludes;
     QStringList channels;
     QMultiMap<QString, IrcCommandInfo> commands;
 };
@@ -467,31 +463,6 @@ void IrcCommandParser::setTriggers(const QStringList& triggers)
 }
 
 /*!
-    This property holds the excluded prefixes.
-
-    \par Access functions:
-    \li QStringList <b>excludes</b>() const
-    \li void <b>setExcludes</b>(const QStringList& excludes) [slot]
-
-    \par Notifier signal:
-    \li void <b>excludesChanged</b>(const QStringList& excludes)
- */
-QStringList IrcCommandParser::excludes() const
-{
-    Q_D(const IrcCommandParser);
-    return d->excludes;
-}
-
-void IrcCommandParser::setExcludes(const QStringList& excludes)
-{
-    Q_D(IrcCommandParser);
-    if (d->excludes != excludes) {
-        d->excludes = excludes;
-        emit excludesChanged(excludes);
-    }
-}
-
-/*!
     This property holds whether the parser is tolerant.
 
     A tolerant parser creates raw server command out of
@@ -524,19 +495,12 @@ void IrcCommandParser::setTolerant(bool tolerant)
     }
 }
 
-static bool processMessage(QString* input, const QStringList& excludes, const QStringList& triggers)
+static bool processMessage(QString* input, const QStringList& triggers)
 {
     if (input->isEmpty())
         return false;
     if (triggers.isEmpty())
         return true;
-
-    foreach (const QString& exclude, excludes) {
-        if (input->startsWith(exclude)) {
-            input->remove(0, 1);
-            return true;
-        }
-    }
 
     foreach (const QString& trigger, triggers) {
         if (input->startsWith(trigger)) {
@@ -555,7 +519,7 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
 {
     Q_D(const IrcCommandParser);
     QString message = input;
-    if (processMessage(&message, d->excludes, d->triggers)) {
+    if (processMessage(&message, d->triggers)) {
         return IrcCommand::createMessage(d->target, message.trimmed());
     } else {
         QStringList params = message.split(QLatin1Char(' '), QString::SkipEmptyParts);

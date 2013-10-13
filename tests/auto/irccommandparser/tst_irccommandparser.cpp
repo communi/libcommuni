@@ -37,8 +37,6 @@ void tst_IrcCommandParser::testParse_data()
     QTest::addColumn<QString>("output");
 
     QTest::newRow("msg") << QString("#communi") << QString("Hello all!") << QString("PRIVMSG #communi :Hello all!");
-    QTest::newRow("//msg") << QString("#communi") << QString("//msg test") << QString("PRIVMSG #communi :/msg test");
-    QTest::newRow("/ /msg") << QString("#communi") << QString("/ /msg test") << QString("PRIVMSG #communi :/msg test");
 
     QTest::newRow("join1") << QString("#communi") << QString("/JOIN") << QString();
     QTest::newRow("join2") << QString("#communi") << QString("/JOIN #chan") << QString("JOIN #chan");
@@ -80,8 +78,6 @@ void tst_IrcCommandParser::testParse()
     IrcCommandParser parser;
     parser.setTriggers(QStringList("/"));
     QCOMPARE(parser.triggers(), QStringList("/"));
-    parser.setExcludes(QStringList() << "//" << "/ /");
-    QCOMPARE(parser.excludes(), QStringList() << "//" << "/ /");
 
     parser.addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
     parser.addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
