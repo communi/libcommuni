@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
             bot.setNickName(args.value(++i));
         } else if (arg == "-channel") {
             bot.join(args.value(++i));
+            joined = true;
         }
     }
     if (!joined)
