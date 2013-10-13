@@ -12,8 +12,11 @@
 
 int main(int argc, char* argv[])
 {
-    qputenv("IRC_DEBUG", "1");
     QCoreApplication app(argc, argv);
+
+    // enable debug output
+    qputenv("IRC_DEBUG", "1");
+
     QQmlApplicationEngine engine(QUrl("qrc:/main.qml"));
     return app.exec();
 }

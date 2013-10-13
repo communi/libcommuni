@@ -16,6 +16,9 @@
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
+
+    // enable debug output
+    qputenv("IRC_DEBUG", "1");
     qsrand(QTime::currentTime().msec());
 
 //! [minimal]
