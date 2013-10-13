@@ -27,7 +27,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircmessage.h
-    \brief \#include &lt;%IrcMessage&gt;
+    \brief \#include &lt;IrcMessage&gt;
  */
 
 /*!

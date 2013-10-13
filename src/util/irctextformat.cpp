@@ -30,7 +30,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file irctextformat.h
-    \brief \#include &lt;%IrcTextFormat&gt;
+    \brief \#include &lt;IrcTextFormat&gt;
  */
 
 /*!

@@ -20,7 +20,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircuser.h
-    \brief \#include &lt;%IrcUser&gt;
+    \brief \#include &lt;IrcUser&gt;
  */
 
 /*!

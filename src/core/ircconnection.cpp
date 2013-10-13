@@ -37,7 +37,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircconnection.h
-    \brief \#include &lt;%IrcConnection&gt;
+    \brief \#include &lt;IrcConnection&gt;
  */
 
 /*!

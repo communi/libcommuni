@@ -25,7 +25,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircbuffermodel.h
-    \brief \#include &lt;%IrcBufferModel&gt;
+    \brief \#include &lt;IrcBufferModel&gt;
  */
 
 /*!

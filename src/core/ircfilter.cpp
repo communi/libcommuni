@@ -18,17 +18,17 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file ircfilter.h
-    \brief \#include &lt;%IrcFilter&gt;
+    \brief \#include &lt;\ref ircfilter.h "IrcFilter"&gt;
  */
 
 /*!
     \file ircmessagefilter.h
-    \brief \#include &lt;%IrcMessageFilter&gt;
+    \brief \#include &lt;IrcMessageFilter&gt;
  */
 
 /*!
     \file irccommandfilter.h
-    \brief \#include &lt;%IrcCommandFilter&gt;
+    \brief \#include &lt;IrcCommandFilter&gt;
  */
 
 /*!

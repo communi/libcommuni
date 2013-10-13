@@ -14,17 +14,17 @@
 
 /*!
     \file irccore.h
-    \brief \#include &lt;%IrcCore&gt;
+    \brief \#include &lt;\ref core "IrcCore"&gt;
  */
 
 /*!
     \file ircmodel.h
-    \brief \#include &lt;%IrcModel&gt;
+    \brief \#include &lt;\ref models "IrcModel"&gt;
  */
 
 /*!
     \file ircutil.h
-    \brief \#include &lt;%IrcUtil&gt;
+    \brief \#include &lt;\ref util "IrcUtil"&gt;
  */
 
 /*!

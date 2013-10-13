@@ -20,7 +20,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file irccommandparser.h
-    \brief \#include &lt;%IrcCommandParser&gt;
+    \brief \#include &lt;IrcCommandParser&gt;
  */
 
 /*!

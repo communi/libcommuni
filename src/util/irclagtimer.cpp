@@ -25,7 +25,7 @@ static const int DEFAULT_INTERVAL = 60;
 
 /*!
     \file irclagtimer.h
-    \brief \#include &lt;%IrcLagTimer&gt;
+    \brief \#include &lt;IrcLagTimer&gt;
  */
 
 /*!

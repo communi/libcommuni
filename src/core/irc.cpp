@@ -23,7 +23,7 @@ IRC_BEGIN_NAMESPACE
 
 /*!
     \file irc.h
-    \brief \#include &lt;%Irc&gt;
+    \brief \#include &lt;Irc&gt;
  */
 
 /*!
