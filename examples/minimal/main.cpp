@@ -12,6 +12,7 @@
 #include <IrcCommand>
 #include <Irc>
 
+#ifndef IRC_DOXYGEN
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -31,3 +32,4 @@ int main(int argc, char* argv[])
     QObject::connect(&connection, SIGNAL(disconnected()), &app, SLOT(quit()));
     return app.exec();
 }
+#endif

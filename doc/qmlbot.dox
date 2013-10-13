@@ -40,4 +40,16 @@
     taught earlier.
 
     \snippet qmlbot/qml/main.qml receive
+
+    Files:
+    \li \ref examples/qmlbot/main.cpp
+    \li \ref examples/qmlbot/qml/main.qml
+
+    \file examples/qmlbot/main.cpp
+    \brief \ref qmlbot
+    \include examples/qmlbot/main.cpp
+
+    \file examples/qmlbot/qml/main.qml
+    \brief \ref qmlbot
+    \include examples/qmlbot/qml/main.qml
  */

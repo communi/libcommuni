@@ -26,4 +26,11 @@
     If you're curious what the example does behind the scenes, try setting an
     environment variable \c IRC_DEBUG=1 in order to enable verbose debug output
     as explained in \ref debugging.
+
+    Files:
+    \li \ref examples/minimal/main.cpp
+
+    \file examples/minimal/main.cpp
+    \brief \ref minimal
+    \include examples/minimal/main.cpp
  */

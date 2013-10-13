@@ -1,0 +1,75 @@
+/*
+* Copyright (C) 2008-2013 The Communi Project
+*
+* This library is free software; you can redistribute it and/or modify it
+* under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This library is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+* License for more details.
+*/
+
+/*!
+    \page quick Qt Quick example
+
+    The example illustrates how to create a simple GUI client using %Qt Quick.
+
+    If you're curious what the example does behind the scenes, try setting an
+    environment variable \c IRC_DEBUG=1 in order to enable verbose debug output
+    as explained in \ref debugging.
+
+    Files:
+    \li \ref examples/quick/main.cpp
+    \li \ref examples/quick/qml/main.qml
+    \li \ref examples/quick/qml/BufferListView.qml
+    \li \ref examples/quick/qml/ChatPage.qml
+    \li \ref examples/quick/qml/ConnectPage.qml
+    \li \ref examples/quick/qml/MessageFormatter.qml
+    \li \ref examples/quick/qml/TextBrowser.qml
+    \li \ref examples/quick/qml/TextEntry.qml
+    \li \ref examples/quick/qml/TopicLabel.qml
+    \li \ref examples/quick/qml/UserListView.qml
+
+    \file examples/quick/main.cpp
+    \brief \ref quick
+    \include examples/quick/main.cpp
+
+    \file examples/quick/qml/main.qml
+    \brief \ref quick
+    \include examples/quick/qml/main.qml
+
+    \file examples/quick/qml/BufferListView.qml
+    \brief \ref quick
+    \include examples/quick/qml/BufferListView.qml
+
+    \file examples/quick/qml/ChatPage.qml
+    \brief \ref quick
+    \include examples/quick/qml/ChatPage.qml
+
+    \file examples/quick/qml/ConnectPage.qml
+    \brief \ref quick
+    \include examples/quick/qml/ConnectPage.qml
+
+    \file examples/quick/qml/MessageFormatter.qml
+    \brief \ref quick
+    \include examples/quick/qml/MessageFormatter.qml
+
+    \file examples/quick/qml/TextBrowser.qml
+    \brief \ref quick
+    \include examples/quick/qml/TextBrowser.qml
+
+    \file examples/quick/qml/TextEntry.qml
+    \brief \ref quick
+    \include examples/quick/qml/TextEntry.qml
+
+    \file examples/quick/qml/TopicLabel.qml
+    \brief \ref quick
+    \include examples/quick/qml/TopicLabel.qml
+
+    \file examples/quick/qml/UserListView.qml
+    \brief \ref quick
+    \include examples/quick/qml/UserListView.qml
+ */

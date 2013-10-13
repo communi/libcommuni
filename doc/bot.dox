@@ -63,4 +63,21 @@
     [17:44:18] <jpnurmi> CommuniRocks: quit
     [17:44:19] ! CommuniRocks (~communi@12.34.56.78) has quit (Client Quit)
     \endcode
+
+    Files:
+    \li \ref examples/bot/main.cpp
+    \li \ref examples/bot/ircbot.h
+    \li \ref examples/bot/ircbot.cpp
+
+    \file examples/bot/main.cpp
+    \brief \ref bot
+    \include examples/bot/main.cpp
+
+    \file examples/bot/ircbot.h
+    \brief \ref bot
+    \include examples/bot/ircbot.h
+
+    \file examples/bot/ircbot.cpp
+    \brief \ref bot
+    \include examples/bot/ircbot.cpp
  */
