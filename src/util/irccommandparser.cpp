@@ -463,11 +463,14 @@ void IrcCommandParser::setTriggers(const QStringList& triggers)
 }
 
 /*!
+    \property bool IrcCommandParser::tolerant
+
     This property holds whether the parser is tolerant.
 
-    A tolerant parser creates raw server command out of
-    unknown commands. Known commands with invalid arguments
-    are still considered invalid.
+    A tolerant parser creates message commands out of input that does not
+    start with a command trigger, and raw server commands when the input
+    starts with a command trigger but the command is unrecognized. Known
+    commands with invalid arguments are still considered invalid.
 
     The default value is \c false.
 
@@ -508,7 +511,6 @@ static bool processMessage(QString* input, const QStringList& triggers)
             return false;
         }
     }
-
     return true;
 }
 
@@ -519,7 +521,7 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
 {
     Q_D(const IrcCommandParser);
     QString message = input;
-    if (processMessage(&message, d->triggers)) {
+    if (processMessage(&message, d->triggers) && d->tolerant) {
         return IrcCommand::createMessage(d->target, message.trimmed());
     } else {
         QStringList params = message.split(QLatin1Char(' '), QString::SkipEmptyParts);

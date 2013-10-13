@@ -76,6 +76,7 @@ void tst_IrcCommandParser::testParse()
     QFETCH(QString, output);
 
     IrcCommandParser parser;
+    parser.setTolerant(true);
     parser.setTriggers(QStringList("/"));
     QCOMPARE(parser.triggers(), QStringList("/"));
 
@@ -119,7 +120,10 @@ void tst_IrcCommandParser::testTriggers()
     QCOMPARE(triggerSpy.last().at(0).toStringList(), QStringList());
 
     cmd = parser.parse("!join #communi");
-    QVERIFY(cmd);
+    QVERIFY(!cmd);
+
+    parser.setTolerant(true);
+    cmd = parser.parse("!join #communi");
     QCOMPARE(cmd->type(), IrcCommand::Message);
     QCOMPARE(cmd->toString(), QString("PRIVMSG #target :!join #communi"));
     delete cmd;
