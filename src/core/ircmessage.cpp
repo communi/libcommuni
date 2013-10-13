@@ -263,7 +263,7 @@ IrcMessage::Flags IrcMessage::flags() const
 
             if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
                     network()->activeCapabilities().contains("identify-msg")) {
-                QString msg = property("message").toString();
+                QString msg = property("content").toString();
                 if (msg.startsWith("+"))
                     d->flags |= IrcMessage::Identified;
                 else if (msg.startsWith("-"))
@@ -956,12 +956,12 @@ QString IrcPrivateMessage::target() const
 }
 
 /*!
-    This property holds the message.
+    This property holds the message content.
 
     \par Access function:
-    \li QString <b>message</b>() const
+    \li QString <b>content</b>() const
  */
-QString IrcPrivateMessage::message() const
+QString IrcPrivateMessage::content() const
 {
     Q_D(const IrcMessage);
     QString msg = d->param(1);
@@ -1025,7 +1025,7 @@ bool IrcPrivateMessage::isRequest() const
 
 bool IrcPrivateMessage::isValid() const
 {
-    return IrcMessage::isValid() && !target().isEmpty() && !message().isEmpty();
+    return IrcMessage::isValid() && !target().isEmpty() && !content().isEmpty();
 }
 
 /*!
@@ -1056,12 +1056,12 @@ QString IrcNoticeMessage::target() const
 }
 
 /*!
-    This property holds the message.
+    This property holds the message content.
 
     \par Access function:
-    \li QString <b>message</b>() const
+    \li QString <b>content</b>() const
  */
-QString IrcNoticeMessage::message() const
+QString IrcNoticeMessage::content() const
 {
     Q_D(const IrcMessage);
     QString msg = d->param(1);
@@ -1106,7 +1106,7 @@ bool IrcNoticeMessage::isReply() const
 
 bool IrcNoticeMessage::isValid() const
 {
-    return IrcMessage::isValid() && !target().isEmpty() && !message().isEmpty();
+    return IrcMessage::isValid() && !target().isEmpty() && !content().isEmpty();
 }
 
 /*!

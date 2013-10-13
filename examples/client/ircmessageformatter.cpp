@@ -85,7 +85,7 @@ QString IrcMessageFormatter::formatPartMessage(IrcPartMessage* message)
 
 QString IrcMessageFormatter::formatPrivateMessage(IrcPrivateMessage* message)
 {
-    const QString content = IrcTextFormat().toHtml(message->message());
+    const QString content = IrcTextFormat().toHtml(message->content());
     if (message->isAction())
         return QObject::tr("* %1 %2").arg(message->nick(), content);
     else

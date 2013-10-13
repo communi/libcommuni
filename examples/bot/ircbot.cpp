@@ -55,7 +55,7 @@ void IrcBot::processMessage(IrcPrivateMessage* message)
         parser.setTriggers(QStringList() << "!" << nickName().append(":"));
     }
 
-    IrcCommand* cmd = parser.parse(message->message());
+    IrcCommand* cmd = parser.parse(message->content());
     if (cmd) {
         if (cmd->type() == IrcCommand::Custom && cmd->parameters().value(0) == "HELP") {
             help(cmd->parameters().mid(1));

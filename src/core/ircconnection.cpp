@@ -1246,9 +1246,9 @@ void IrcConnection::removeCommandFilter(QObject* filter)
 IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
 {
     QString reply;
-    QString type = request->message().split(" ", QString::SkipEmptyParts).value(0).toUpper();
+    QString type = request->content().split(" ", QString::SkipEmptyParts).value(0).toUpper();
     if (type == "PING")
-        reply = request->message();
+        reply = request->content();
     else if (type == "TIME")
         reply = QLatin1String("TIME ") + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat);
     else if (type == "VERSION")

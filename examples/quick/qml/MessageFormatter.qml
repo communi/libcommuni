@@ -87,8 +87,8 @@ QtObject {
 
     function formatNoticeMessage(message) {
         var sender = formatName(message.nick)
-        var msg = formatHtml(message.message)
-        return qsTr("[%1] %2").arg(sender).arg(msg)
+        var content = formatHtml(message.content)
+        return qsTr("[%1] %2").arg(sender).arg(content)
     }
 
     function formatNumericMessage(message) {
@@ -113,12 +113,12 @@ QtObject {
 
     function formatPrivateMessage(message) {
         var sender = formatName(message.nick)
-        var msg = formatHtml(message.message)
+        var content = formatHtml(message.content)
         if (message.action)
-            return qsTr("* %1 %2").arg(sender).arg(msg)
+            return qsTr("* %1 %2").arg(sender).arg(content)
         if (message.request)
-            return qsTr("! %1 requested %2").arg(sender).arg(msg.split(" ")[0].toLowerCase())
-        return qsTr("&lt;%1&gt; %2").arg(sender).arg(msg)
+            return qsTr("! %1 requested %2").arg(sender).arg(content.split(" ")[0].toLowerCase())
+        return qsTr("&lt;%1&gt; %2").arg(sender).arg(content)
     }
 
     function formatQuitMessage(message) {

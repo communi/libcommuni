@@ -1050,42 +1050,42 @@ void tst_IrcConnection::testMessageFlags()
     QCOMPARE(filter.type, IrcMessage::Numeric);
     QCOMPARE(filter.flags, IrcMessage::None);
 
-    filter.property = "message";
+    filter.property = "content";
     QVERIFY(waitForWritten(":communi!ident@host PRIVMSG #communi :hi all"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
     QCOMPARE(filter.flags, IrcMessage::Own);
     QCOMPARE(filter.value.toString(), QString("hi all"));
 
-    filter.property = "message";
+    filter.property = "content";
     QVERIFY(waitForWritten(":jpnurmi!ident@host PRIVMSG #communi :+hello there, communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
     QCOMPARE(filter.flags, IrcMessage::Identified);
     QCOMPARE(filter.value.toString(), QString("hello there, communi"));
 
-    filter.property = "message";
+    filter.property = "content";
     QVERIFY(waitForWritten(":Guest1234!ident@host PRIVMSG #communi :-hi communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
     QCOMPARE(filter.flags, IrcMessage::Unidentified);
     QCOMPARE(filter.value.toString(), QString("hi communi"));
 
-    filter.property = "message";
+    filter.property = "content";
     QVERIFY(waitForWritten(":communi!ident@host NOTICE #communi :hi all"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
     QCOMPARE(filter.flags, IrcMessage::Own);
     QCOMPARE(filter.value.toString(), QString("hi all"));
 
-    filter.property = "message";
+    filter.property = "content";
     QVERIFY(waitForWritten(":jpnurmi!ident@host NOTICE #communi :+hello there, communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
     QCOMPARE(filter.flags, IrcMessage::Identified);
     QCOMPARE(filter.value.toString(), QString("hello there, communi"));
 
-    filter.property = "message";
+    filter.property = "content";
     QVERIFY(waitForWritten(":Guest1234!ident@host NOTICE #communi :-hi communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);

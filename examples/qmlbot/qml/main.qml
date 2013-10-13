@@ -44,7 +44,7 @@ QtObject {
                     // - on channel, reply to the target channel
                     parser.target = message.private ? message.nick : message.target
 
-                    var command = parser.parse(message.message)
+                    var command = parser.parse(message.content)
                     if (command) {
                         // send the command to the IRC server
                         sendCommand(command)

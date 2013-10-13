@@ -116,7 +116,7 @@ void tst_IrcCommand::testConversion()
     QCOMPARE(msg->connection(), &conn);
     QCOMPARE(msg->prefix(), QString("prefix"));
     QCOMPARE(msg->property("target").toString(), QString("target"));
-    QCOMPARE(msg->property("message").toString(), QString("foo bar"));
+    QCOMPARE(msg->property("content").toString(), QString("foo bar"));
 }
 
 void tst_IrcCommand::testAdmin()

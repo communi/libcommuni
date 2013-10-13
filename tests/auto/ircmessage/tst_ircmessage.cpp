@@ -440,7 +440,7 @@ void tst_IrcMessage::testNoticeMessage_data()
     QTest::addColumn<bool>("valid");
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("target");
-    QTest::addColumn<QString>("msg");
+    QTest::addColumn<QString>("content");
     QTest::addColumn<bool>("priv");
     QTest::addColumn<bool>("reply");
 
@@ -457,7 +457,7 @@ void tst_IrcMessage::testNoticeMessage()
     QFETCH(bool, valid);
     QFETCH(QByteArray, data);
     QFETCH(QString, target);
-    QFETCH(QString, msg);
+    QFETCH(QString, content);
     QFETCH(bool, priv);
     QFETCH(bool, reply);
 
@@ -468,7 +468,7 @@ void tst_IrcMessage::testNoticeMessage()
     QCOMPARE(message->command(), QString("NOTICE"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
-    QCOMPARE(message->property("message").toString(), msg);
+    QCOMPARE(message->property("content").toString(), content);
     QCOMPARE(message->property("private").toBool(), priv);
     QCOMPARE(message->property("reply").toBool(), reply);
 
@@ -476,7 +476,7 @@ void tst_IrcMessage::testNoticeMessage()
     QVERIFY(noticeMessage);
     QCOMPARE(noticeMessage->isValid(), valid);
     QCOMPARE(noticeMessage->target(), target);
-    QCOMPARE(noticeMessage->message(), msg);
+    QCOMPARE(noticeMessage->content(), content);
     QCOMPARE(noticeMessage->isPrivate(), priv);
     QCOMPARE(noticeMessage->isReply(), reply);
 }
@@ -658,7 +658,7 @@ void tst_IrcMessage::testPrivateMessage_data()
     QTest::addColumn<QString>("cap");
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("target");
-    QTest::addColumn<QString>("msg");
+    QTest::addColumn<QString>("content");
     QTest::addColumn<bool>("priv");
     QTest::addColumn<bool>("action");
     QTest::addColumn<bool>("request");
@@ -709,7 +709,7 @@ void tst_IrcMessage::testPrivateMessage()
     QFETCH(QString, cap);
     QFETCH(QByteArray, data);
     QFETCH(QString, target);
-    QFETCH(QString, msg);
+    QFETCH(QString, content);
     QFETCH(bool, priv);
     QFETCH(bool, action);
     QFETCH(bool, request);
@@ -725,7 +725,7 @@ void tst_IrcMessage::testPrivateMessage()
     QCOMPARE(message->command(), QString("PRIVMSG"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
-    QCOMPARE(message->property("message").toString(), msg);
+    QCOMPARE(message->property("content").toString(), content);
     QCOMPARE(message->property("private").toBool(), priv);
     QCOMPARE(message->property("action").toBool(), action);
     QCOMPARE(message->property("request").toBool(), request);
@@ -735,7 +735,7 @@ void tst_IrcMessage::testPrivateMessage()
     QVERIFY(privateMessage);
     QCOMPARE(privateMessage->isValid(), valid);
     QCOMPARE(privateMessage->target(), target);
-    QCOMPARE(privateMessage->message(), msg);
+    QCOMPARE(privateMessage->content(), content);
     QCOMPARE(privateMessage->isPrivate(), priv);
     QCOMPARE(privateMessage->isAction(), action);
     QCOMPARE(privateMessage->isRequest(), request);
