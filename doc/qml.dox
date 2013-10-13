@@ -132,8 +132,9 @@
     \code
     IrcCommandParser {
         id: parser
-        channels: bufferModel.channels
+        triggers: ["/"]
         target: currentBuffer.title
+        channels: bufferModel.channels
         Component.onCompleted: {
             parser.addCommand(IrcCommand.Join, "JOIN <#channel> (<key>)");
             parser.addCommand(IrcCommand.Part, "PART (<#channel>) (<message...>)");

@@ -15,7 +15,29 @@
 /*!
     \page qmlbot QML bot example
 
-    The example presents a simple IRC bot written in QML.
+    The QML bot example is a simplified version of the \ref bot "bot example",
+    written in QML. See the \ref qml article for more QML specific details.
 
-    \include qmlbot/qml/main.qml
+    The following snippet illustrates how IrcConnection is prepared and opened,
+    and how a command is queued to automatically join a channel when connected.
+
+    \snippet qmlbot/qml/main.qml connection
+
+    The example utilizes IrcCommandParser for parsing commands from messages
+    received from other clients. In order to take the parser in use, the supported
+    commands must be teached, as illustrated below. Some of the commands are context
+    sensitive, and the parser must be therefore kept aware of the list of channels
+    the bot is on. This is easily achieved by binding the IrcCommandParser::channels
+    property to the value of the IrcBufferModel::channels property. Furthermore, like
+    a typical IRC bot, the commands are triggered using a slightly different syntax in
+    queries and channels.
+
+    \snippet qmlbot/qml/main.qml parser
+
+    The bot listens to incoming messages via \ref IrcConnection::messageReceived().
+    The current target is chosen based on whether the incoming message is a channel
+    or a private message. Each message content is parsed for commands that were
+    taught earlier.
+
+    \snippet qmlbot/qml/main.qml receive
  */

@@ -11,6 +11,7 @@ OTHER_FILES += $$PWD/mainpage.dox
 OTHER_FILES += $$PWD/minimal.dox
 OTHER_FILES += $$PWD/modules.dox
 OTHER_FILES += $$PWD/qml.dox
+OTHER_FILES += $$PWD/qmlbot.dox
 OTHER_FILES += $$PWD/usage.dox
 
 isEqual(_PRO_FILE_PWD_, $$OUT_PWD) {

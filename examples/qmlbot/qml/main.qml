@@ -13,14 +13,15 @@ import Communi 3.0
 QtObject {
     id: bot
 
-    property string channel: "#jpnurmi"
+    property string channel: "#communi"
 
     property Irc irc: Irc { id: irc }
-    property IrcCommand cmd: IrcCommand { id: cmd }
+    property IrcCommand command: IrcCommand { id: command }
 
     property IrcBufferModel model: IrcBufferModel {
         id: model
 
+//! [connection]
         connection: IrcConnection {
             id: connection
 
@@ -29,66 +30,49 @@ QtObject {
             nickName: "QmlBot" + Math.round(Math.random() * 9999)
             realName: qsTr("Communi %1 QML bot example").arg(irc.version())
 
+            Component.onCompleted: {
+                // queue a command to automatically join a channel when connected
+                sendCommand(command.createJoin(channel))
+                open()
+            }
+//! [connection]
+
+//! [receive]
             onMessageReceived: {
                 if (message.type === IrcMessage.Private) {
-                    if (message.private) {
-                        // private message: reply to the message sender
-                        // => triggers: "!<cmd> <params>" and "<cmd> <params>"
-                        parser.target = message.nick
-                        parser.triggers = ["!", ""]
-                    } else {
-                        // channel message: reply to the target channel
-                        // => triggers: "!<cmd> <params>" and "bot: <cmd> <params>"
-                        console.log(message)
-                        console.log(message.target)
-                        parser.target = message.target
-                        parser.triggers = ["!", nickName + ":"]
-                    }
+                    // - in private, reply to the message sender
+                    // - on channel, reply to the target channel
+                    parser.target = message.private ? message.nick : message.target
 
-                    var cmd = parser.parse(message.message)
-                    if (cmd) {
-                        if (cmd.type === IrcCommand.Custom && cmd.parameters[0] === "HELP") {
-                            help(cmd.parameters.slice(1))
-                        } else {
-                            sendCommand(cmd)
-                            if (cmd.type === IrcCommand.Quit)
-                                Qt.quit()
+                    var command = parser.parse(message.message)
+                    if (command) {
+                        // send the command to the IRC server
+                        sendCommand(command)
+                        if (command.type === IrcCommand.Quit) {
+                            // close the connection & quit the app when a !quit command was received
+                            close()
+                            Qt.quit()
                         }
                     }
                 }
             }
-
-            function help(commands) {
-                if (!commands.length)
-                    commands = parser.commands
-
-                var target = parser.target
-                for (var i = 0; i < commands.length; ++i) {
-                    var syntax = parser.syntax(commands[i])
-                    sendCommand(cmd.createMessage(target, syntax))
-                }
-            }
-
-            Component.onCompleted: {
-                sendCommand(cmd.createJoin(channel))
-                open()
-            }
-
-            Component.onDestruction: {
-                quit(qsTr("Communi %1 QML bot example").arg(irc.version()))
-                close()
-            }
+//! [receive]
         }
     }
 
+//! [parser]
     property IrcCommandParser parser: IrcCommandParser {
         id: parser
 
+        // keep the parser aware of the context
         channels: model.channels
 
+        // - on channel, respond to: "!<command> <params>" and "bot: <command> <params>"
+        // - in query, respond to: "!<command> <params>" and "<command> <params>"
+        triggers: connection.network.isChannel(target) ? ["!", connection.nickName + ":"] : ["!", ""]
+
         Component.onCompleted: {
-            parser.addCommand(IrcCommand.CtcpAction, "ACT [target] <message...>");
-            parser.addCommand(IrcCommand.Custom, "HELP (<command...>)");
+            // teach the bot some commands
             parser.addCommand(IrcCommand.Nick, "NICK <nick>");
             parser.addCommand(IrcCommand.Join, "JOIN <#channel> (<key>)");
             parser.addCommand(IrcCommand.Part, "PART (<#channel>) (<message...>)");
@@ -96,4 +80,5 @@ QtObject {
             parser.addCommand(IrcCommand.Message, "SAY [target] <message...>");
         }
     }
+//! [parser]
 }
