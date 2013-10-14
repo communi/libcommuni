@@ -267,7 +267,7 @@ QString IrcBuffer::title() const
 
     \par Access functions:
     \li QString <b>name</b>() const
-    \li void <b>setName</b>(const QString& name)
+    \li void <b>setName</b>(const QString& name) [slot]
 
     \par Notifier signal:
     \li void <b>nameChanged</b>(const QString& name)
@@ -289,7 +289,7 @@ void IrcBuffer::setName(const QString& name)
 
     \par Access functions:
     \li QString <b>prefix</b>() const
-    \li void <b>setPrefix</b>(const QString& prefix)
+    \li void <b>setPrefix</b>(const QString& prefix) [slot]
 
     \par Notifier signal:
     \li void <b>prefixChanged</b>(const QString& prefix)
@@ -433,7 +433,7 @@ void IrcBuffer::setSticky(bool sticky)
     buffer, either explicitly call IrcBufferModel::remove() or
     delete the buffer.
 
-    \par Access function:
+    \par Access functions:
     \li bool <b>isPersistent</b>() const
     \li void <b>setPersistent</b>(bool persistent)
 

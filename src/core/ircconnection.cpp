@@ -767,8 +767,8 @@ bool IrcConnection::isConnected() const
 
     \par Access functions:
     \li bool <b>isEnabled</b>() const
-    \li void <b>setEnabled</b>(bool enabled)
-    \li void <b>setDisabled</b>(bool disabled)
+    \li void <b>setEnabled</b>(bool enabled) [slot]
+    \li void <b>setDisabled</b>(bool disabled) [slot]
 
     \par Notifier signal:
     \li void <b>enabledChanged</b>(bool enabled)
@@ -779,9 +779,6 @@ bool IrcConnection::isEnabled() const
     return d->enabled;
 }
 
-/*!
-    Sets the connection \ref enabled.
- */
 void IrcConnection::setEnabled(bool enabled)
 {
     Q_D(IrcConnection);
@@ -791,9 +788,6 @@ void IrcConnection::setEnabled(bool enabled)
     }
 }
 
-/*!
-    Sets the connection \ref enabled "disabled".
- */
 void IrcConnection::setDisabled(bool disabled)
 {
     setEnabled(!disabled);
