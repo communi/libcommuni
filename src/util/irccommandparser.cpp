@@ -498,20 +498,24 @@ void IrcCommandParser::setTolerant(bool tolerant)
     }
 }
 
-static bool processMessage(QString* input, const QStringList& triggers)
+static bool processMessage(QString* input, const QStringList& triggers, bool tolerant)
 {
     if (input->isEmpty())
         return false;
     if (triggers.isEmpty())
-        return true;
+        return tolerant;
 
     foreach (const QString& trigger, triggers) {
-        if (input->startsWith(trigger)) {
+        if (tolerant && trigger.length() == 1 && (input->startsWith(trigger.repeated(2)) || input->startsWith(trigger + QLatin1Char(' ')))) {
+            // treat "//cmd" and "/ /cmd" as message (-> "/cmd")
+            input->remove(0, 1);
+            return true;
+        } else if (input->startsWith(trigger)) {
             input->remove(0, trigger.length());
             return false;
         }
     }
-    return true;
+    return tolerant;
 }
 
 /*!
@@ -521,7 +525,7 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
 {
     Q_D(const IrcCommandParser);
     QString message = input;
-    if (processMessage(&message, d->triggers) && d->tolerant) {
+    if (processMessage(&message, d->triggers, d->tolerant)) {
         return IrcCommand::createMessage(d->target, message.trimmed());
     } else {
         QStringList params = message.split(QLatin1Char(' '), QString::SkipEmptyParts);
