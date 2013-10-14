@@ -20,6 +20,8 @@
     See the \ref minimal "Minimal example" for basics on setting up an IRC
     connection.
 
+    \image html bot.png "The bot example in action"
+
     The bot uses IrcCommandParser for parsing commands from messages received
     from other clients. In order to take it in use, the desired commands must
     be first introduced.

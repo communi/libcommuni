@@ -18,6 +18,8 @@
     The QML bot example is a simplified version of the \ref bot "bot example",
     written in QML. See the \ref qml article for more QML specific details.
 
+    \image html qmlbot.png "The QML bot example in action"
+
     The following snippet illustrates how IrcConnection is prepared and opened,
     and how a command is queued to automatically join a channel when connected.
 

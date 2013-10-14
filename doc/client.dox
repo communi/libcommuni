@@ -18,6 +18,8 @@
     The example illustrates how to create a simple GUI client. See \ref minimal
     and \ref bot for getting familiar with the core concepts of Communi.
 
+    \image html client.png "The client example in action"
+
     If you're curious what the example does behind the scenes, try setting an
     environment variable \c IRC_DEBUG=1 in order to enable verbose debug output
     as explained in \ref debugging.
