@@ -242,6 +242,7 @@ void IrcClient::createParser()
     // createUi() and onBufferActivated()
 
     parser = new IrcCommandParser(this);
+    parser->setTolerant(true);
     parser->setTriggers(QStringList("/"));
     parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
     parser->addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");

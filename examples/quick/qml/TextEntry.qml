@@ -25,6 +25,7 @@ TextField {
     IrcCommandParser {
         id: parser
 
+        tolerant: true
         triggers: ["/"]
         channels: buffer ? buffer.model.channels : []
         target: buffer ? buffer.title : ""
