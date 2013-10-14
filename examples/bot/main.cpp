@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     IrcBot bot;
     bot.setHost("irc.freenode.net");
     bot.setUserName("communi");
-    bot.setNickName("Bot" + QString::number(qrand()));
+    bot.setNickName("Bot" + QString::number(qrand() % 9999));
     bot.setRealName("Communi " + Irc::version() + " example bot");
 
     bool joined = false;

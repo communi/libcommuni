@@ -298,6 +298,6 @@ void IrcClient::createConnection()
 
     connection->setHost(SERVER);
     connection->setUserName("communi");
-    connection->setNickName(tr("Client%1").arg(qrand() % 99999));
+    connection->setNickName(tr("Client%1").arg(qrand() % 9999));
     connection->setRealName(tr("Communi %1 example client").arg(IRC_VERSION_STR));
 }
