@@ -4,7 +4,7 @@
 
 TEMPLATE = subdirs
 SUBDIRS += src
-CONFIG += ordered
+CONFIG += ordered no_tests no_examples
 
 !no_tests {
     SUBDIRS += tests
