@@ -50,23 +50,23 @@ class IRC_CORE_EXPORT IrcMessage : public QObject
 public:
     enum Type {
         Unknown,
-        Nick,
-        Quit,
-        Join,
-        Part,
-        Topic,
+        Capability,
+        Error,
         Invite,
+        Join,
         Kick,
         Mode,
-        Private,
+        Motd,
+        Names,
+        Nick,
         Notice,
+        Numeric,
+        Part,
         Ping,
         Pong,
-        Error,
-        Numeric,
-        Capability,
-        Motd,
-        Names
+        Private,
+        Quit,
+        Topic
     };
 
     enum Flag {
@@ -119,92 +119,38 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IrcMessage::Flags)
 
-class IRC_CORE_EXPORT IrcNickMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcCapabilityMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString oldNick READ oldNick)
-    Q_PROPERTY(QString newNick READ newNick)
+    Q_PROPERTY(QString subCommand READ subCommand)
+    Q_PROPERTY(QStringList capabilities READ capabilities)
 
 public:
-    Q_INVOKABLE explicit IrcNickMessage(IrcConnection* connection);
+    Q_INVOKABLE explicit IrcCapabilityMessage(IrcConnection* connection);
 
-    QString oldNick() const;
-    QString newNick() const;
+    QString subCommand() const;
+    QStringList capabilities() const;
 
     bool isValid() const;
 
 private:
-    Q_DISABLE_COPY(IrcNickMessage)
+    Q_DISABLE_COPY(IrcCapabilityMessage)
 };
 
-class IRC_CORE_EXPORT IrcQuitMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcErrorMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString reason READ reason)
+    Q_PROPERTY(QString error READ error)
 
 public:
-    Q_INVOKABLE explicit IrcQuitMessage(IrcConnection* connection);
+    Q_INVOKABLE explicit IrcErrorMessage(IrcConnection* connection);
 
-    QString reason() const;
+    QString error() const;
 
     bool isValid() const;
 
 private:
-    Q_DISABLE_COPY(IrcQuitMessage)
-};
-
-class IRC_CORE_EXPORT IrcJoinMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString channel READ channel)
-
-public:
-    Q_INVOKABLE explicit IrcJoinMessage(IrcConnection* connection);
-
-    QString channel() const;
-
-    bool isValid() const;
-
-private:
-    Q_DISABLE_COPY(IrcJoinMessage)
-};
-
-class IRC_CORE_EXPORT IrcPartMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString channel READ channel)
-    Q_PROPERTY(QString reason READ reason)
-
-public:
-    Q_INVOKABLE explicit IrcPartMessage(IrcConnection* connection);
-
-    QString channel() const;
-    QString reason() const;
-
-    bool isValid() const;
-
-private:
-    Q_DISABLE_COPY(IrcPartMessage)
-};
-
-class IRC_CORE_EXPORT IrcTopicMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString channel READ channel)
-    Q_PROPERTY(QString topic READ topic)
-    Q_PROPERTY(bool reply READ isReply)
-
-public:
-    Q_INVOKABLE explicit IrcTopicMessage(IrcConnection* connection);
-
-    QString channel() const;
-    QString topic() const;
-    bool isReply() const;
-
-    bool isValid() const;
-
-private:
-    Q_DISABLE_COPY(IrcTopicMessage)
+    Q_DISABLE_COPY(IrcErrorMessage)
 };
 
 class IRC_CORE_EXPORT IrcInviteMessage : public IrcMessage
@@ -223,6 +169,22 @@ public:
 
 private:
     Q_DISABLE_COPY(IrcInviteMessage)
+};
+
+class IRC_CORE_EXPORT IrcJoinMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString channel READ channel)
+
+public:
+    Q_INVOKABLE explicit IrcJoinMessage(IrcConnection* connection);
+
+    QString channel() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcJoinMessage)
 };
 
 class IRC_CORE_EXPORT IrcKickMessage : public IrcMessage
@@ -272,28 +234,56 @@ private:
     Q_DISABLE_COPY(IrcModeMessage)
 };
 
-class IRC_CORE_EXPORT IrcPrivateMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcMotdMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString target READ target)
-    Q_PROPERTY(QString content READ content)
-    Q_PROPERTY(bool private READ isPrivate)
-    Q_PROPERTY(bool action READ isAction)
-    Q_PROPERTY(bool request READ isRequest)
+    Q_PROPERTY(QStringList lines READ lines)
 
 public:
-    Q_INVOKABLE explicit IrcPrivateMessage(IrcConnection* connection);
+    Q_INVOKABLE explicit IrcMotdMessage(IrcConnection* connection);
 
-    QString target() const;
-    QString content() const;
-    bool isPrivate() const;
-    bool isAction() const;
-    bool isRequest() const;
+    QStringList lines() const;
 
     bool isValid() const;
 
 private:
-    Q_DISABLE_COPY(IrcPrivateMessage)
+    Q_DISABLE_COPY(IrcMotdMessage)
+};
+
+class IRC_CORE_EXPORT IrcNamesMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString channel READ channel)
+    Q_PROPERTY(QStringList names READ names)
+
+public:
+    Q_INVOKABLE explicit IrcNamesMessage(IrcConnection* connection);
+
+    QString channel() const;
+    QStringList names() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcNamesMessage)
+};
+
+class IRC_CORE_EXPORT IrcNickMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString oldNick READ oldNick)
+    Q_PROPERTY(QString newNick READ newNick)
+
+public:
+    Q_INVOKABLE explicit IrcNickMessage(IrcConnection* connection);
+
+    QString oldNick() const;
+    QString newNick() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcNickMessage)
 };
 
 class IRC_CORE_EXPORT IrcNoticeMessage : public IrcMessage
@@ -316,6 +306,40 @@ public:
 
 private:
     Q_DISABLE_COPY(IrcNoticeMessage)
+};
+
+class IRC_CORE_EXPORT IrcNumericMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(int code READ code)
+
+public:
+    Q_INVOKABLE explicit IrcNumericMessage(IrcConnection* connection);
+
+    int code() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcNumericMessage)
+};
+
+class IRC_CORE_EXPORT IrcPartMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString channel READ channel)
+    Q_PROPERTY(QString reason READ reason)
+
+public:
+    Q_INVOKABLE explicit IrcPartMessage(IrcConnection* connection);
+
+    QString channel() const;
+    QString reason() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcPartMessage)
 };
 
 class IRC_CORE_EXPORT IrcPingMessage : public IrcMessage
@@ -350,88 +374,64 @@ private:
     Q_DISABLE_COPY(IrcPongMessage)
 };
 
-class IRC_CORE_EXPORT IrcErrorMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcPrivateMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(QString error READ error)
+    Q_PROPERTY(QString target READ target)
+    Q_PROPERTY(QString content READ content)
+    Q_PROPERTY(bool private READ isPrivate)
+    Q_PROPERTY(bool action READ isAction)
+    Q_PROPERTY(bool request READ isRequest)
 
 public:
-    Q_INVOKABLE explicit IrcErrorMessage(IrcConnection* connection);
+    Q_INVOKABLE explicit IrcPrivateMessage(IrcConnection* connection);
 
-    QString error() const;
+    QString target() const;
+    QString content() const;
+    bool isPrivate() const;
+    bool isAction() const;
+    bool isRequest() const;
 
     bool isValid() const;
 
 private:
-    Q_DISABLE_COPY(IrcErrorMessage)
+    Q_DISABLE_COPY(IrcPrivateMessage)
 };
 
-class IRC_CORE_EXPORT IrcNumericMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcQuitMessage : public IrcMessage
 {
     Q_OBJECT
-    Q_PROPERTY(int code READ code)
+    Q_PROPERTY(QString reason READ reason)
 
 public:
-    Q_INVOKABLE explicit IrcNumericMessage(IrcConnection* connection);
+    Q_INVOKABLE explicit IrcQuitMessage(IrcConnection* connection);
 
-    int code() const;
+    QString reason() const;
 
     bool isValid() const;
 
 private:
-    Q_DISABLE_COPY(IrcNumericMessage)
+    Q_DISABLE_COPY(IrcQuitMessage)
 };
 
-class IRC_CORE_EXPORT IrcCapabilityMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QString subCommand READ subCommand)
-    Q_PROPERTY(QStringList capabilities READ capabilities)
-
-public:
-    Q_INVOKABLE explicit IrcCapabilityMessage(IrcConnection* connection);
-
-    QString subCommand() const;
-    QStringList capabilities() const;
-
-    bool isValid() const;
-
-private:
-    Q_DISABLE_COPY(IrcCapabilityMessage)
-};
-
-class IRC_CORE_EXPORT IrcMotdMessage : public IrcMessage
-{
-    Q_OBJECT
-    Q_PROPERTY(QStringList lines READ lines)
-
-public:
-    Q_INVOKABLE explicit IrcMotdMessage(IrcConnection* connection);
-
-    QStringList lines() const;
-
-    bool isValid() const;
-
-private:
-    Q_DISABLE_COPY(IrcMotdMessage)
-};
-
-class IRC_CORE_EXPORT IrcNamesMessage : public IrcMessage
+class IRC_CORE_EXPORT IrcTopicMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel)
-    Q_PROPERTY(QStringList names READ names)
+    Q_PROPERTY(QString topic READ topic)
+    Q_PROPERTY(bool reply READ isReply)
 
 public:
-    Q_INVOKABLE explicit IrcNamesMessage(IrcConnection* connection);
+    Q_INVOKABLE explicit IrcTopicMessage(IrcConnection* connection);
 
     QString channel() const;
-    QStringList names() const;
+    QString topic() const;
+    bool isReply() const;
 
     bool isValid() const;
 
 private:
-    Q_DISABLE_COPY(IrcNamesMessage)
+    Q_DISABLE_COPY(IrcTopicMessage)
 };
 
 #ifndef QT_NO_DEBUG_STREAM

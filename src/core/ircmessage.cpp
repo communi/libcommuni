@@ -58,33 +58,23 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \var IrcMessage::Nick
-    \brief A nick message (IrcNickMessage).
+    \var IrcMessage::Capability
+    \brief A capability message (IrcCapabilityMessage).
  */
 
 /*!
-    \var IrcMessage::Quit
-    \brief A quit message (IrcQuitMessage).
- */
-
-/*!
-    \var IrcMessage::Join
-    \brief A join message (IrcJoinMessage).
- */
-
-/*!
-    \var IrcMessage::Part
-    \brief A part message (IrcPartMessage).
- */
-
-/*!
-    \var IrcMessage::Topic
-    \brief A topic message (IrcTopicMessage).
+    \var IrcMessage::Error
+    \brief An error message (IrcErrorMessage).
  */
 
 /*!
     \var IrcMessage::Invite
     \brief An invite message (IrcInviteMessage).
+ */
+
+/*!
+    \var IrcMessage::Join
+    \brief A join message (IrcJoinMessage).
  */
 
 /*!
@@ -98,13 +88,33 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \var IrcMessage::Private
-    \brief A private message (IrcPrivateMessage).
+    \var IrcMessage::Motd
+    \brief A message of the day (IrcMotdMessage).
+ */
+
+/*!
+    \var IrcMessage::Names
+    \brief A names message (IrcNamesMessage).
+ */
+
+/*!
+    \var IrcMessage::Nick
+    \brief A nick message (IrcNickMessage).
  */
 
 /*!
     \var IrcMessage::Notice
     \brief A notice message (IrcNoticeMessage).
+ */
+
+/*!
+    \var IrcMessage::Numeric
+    \brief A numeric message (IrcNumericMessage).
+ */
+
+/*!
+    \var IrcMessage::Part
+    \brief A part message (IrcPartMessage).
  */
 
 /*!
@@ -118,23 +128,18 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \var IrcMessage::Error
-    \brief An error message (IrcErrorMessage).
+    \var IrcMessage::Private
+    \brief A private message (IrcPrivateMessage).
  */
 
 /*!
-    \var IrcMessage::Numeric
-    \brief A numeric message (IrcNumericMessage).
+    \var IrcMessage::Quit
+    \brief A quit message (IrcQuitMessage).
  */
 
 /*!
-    \var IrcMessage::Motd
-    \brief A message of the day (IrcMotdMessage).
- */
-
-/*!
-    \var IrcMessage::Names
-    \brief A names message (IrcNamesMessage).
+    \var IrcMessage::Topic
+    \brief A topic message (IrcTopicMessage).
  */
 
 /*!
@@ -166,20 +171,20 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
 {
     static QHash<QString, const QMetaObject*> metaObjects;
     if (metaObjects.isEmpty()) {
-        metaObjects.insert("NICK", &IrcNickMessage::staticMetaObject);
-        metaObjects.insert("QUIT", &IrcQuitMessage::staticMetaObject);
-        metaObjects.insert("JOIN", &IrcJoinMessage::staticMetaObject);
-        metaObjects.insert("PART", &IrcPartMessage::staticMetaObject);
-        metaObjects.insert("TOPIC", &IrcTopicMessage::staticMetaObject);
+        metaObjects.insert("CAP", &IrcCapabilityMessage::staticMetaObject);
+        metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
         metaObjects.insert("INVITE", &IrcInviteMessage::staticMetaObject);
+        metaObjects.insert("JOIN", &IrcJoinMessage::staticMetaObject);
         metaObjects.insert("KICK", &IrcKickMessage::staticMetaObject);
         metaObjects.insert("MODE", &IrcModeMessage::staticMetaObject);
-        metaObjects.insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
+        metaObjects.insert("NICK", &IrcNickMessage::staticMetaObject);
         metaObjects.insert("NOTICE", &IrcNoticeMessage::staticMetaObject);
+        metaObjects.insert("PART", &IrcPartMessage::staticMetaObject);
         metaObjects.insert("PING", &IrcPingMessage::staticMetaObject);
         metaObjects.insert("PONG", &IrcPongMessage::staticMetaObject);
-        metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
-        metaObjects.insert("CAP", &IrcCapabilityMessage::staticMetaObject);
+        metaObjects.insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
+        metaObjects.insert("QUIT", &IrcQuitMessage::staticMetaObject);
+        metaObjects.insert("TOPIC", &IrcTopicMessage::staticMetaObject);
     }
 
     const QMetaObject* metaObject = metaObjects.value(command.toUpper());
@@ -499,222 +504,89 @@ QByteArray IrcMessage::toData() const
 }
 
 /*!
-    \class IrcNickMessage ircmessage.h <IrcMessage>
+    \class IrcCapabilityMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief Represents a nick message.
+    \brief Represents a capability message.
  */
 
 /*!
-    Constructs a new IrcNickMessage with \a connection.
+    Constructs a new IrcCapabilityMessage with \a connection.
  */
-IrcNickMessage::IrcNickMessage(IrcConnection* connection) : IrcMessage(connection)
+IrcCapabilityMessage::IrcCapabilityMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
-    d->type = Nick;
+    d->type = Capability;
 }
 
 /*!
-    This property holds the old nick.
+    This property holds the subcommand.
 
-    This property is provided for symmetry with \ref newNick
-    and is equal to \ref nick.
+    The following capability subcommands are defined:
+    LS, LIST, REQ, ACK, NAK, CLEAR, END
 
     \par Access function:
-    \li QString <b>oldNick</b>() const
+    \li QString <b>subCommand</b>() const
  */
-QString IrcNickMessage::oldNick() const
+QString IrcCapabilityMessage::subCommand() const
 {
     Q_D(const IrcMessage);
-    return d->nick();
+    return d->param(1);
 }
 
 /*!
-    This property holds the new nick.
+    This property holds the capabilities.
+
+    A list of capabilities may exist for the following
+    subcommands: LS, LIST, REQ, ACK and NAK.
 
     \par Access function:
-    \li QString <b>newNick</b>() const
+    \li QStringList <b>capabilities</b>() const
  */
-QString IrcNickMessage::newNick() const
+QStringList IrcCapabilityMessage::capabilities() const
 {
     Q_D(const IrcMessage);
-    return d->param(0);
+    QStringList caps;
+    QStringList params = d->params();
+    if (params.count() > 2)
+        caps = params.last().split(QLatin1Char(' '), QString::SkipEmptyParts);
+    return caps;
 }
 
-bool IrcNickMessage::isValid() const
-{
-    return IrcMessage::isValid() && !newNick().isEmpty();
-}
-
-/*!
-    \class IrcQuitMessage ircmessage.h <IrcMessage>
-    \ingroup message
-    \brief Represents a quit message.
- */
-
-/*!
-    Constructs a new IrcQuitMessage with \a connection.
- */
-IrcQuitMessage::IrcQuitMessage(IrcConnection* connection) : IrcMessage(connection)
-{
-    Q_D(IrcMessage);
-    d->type = Quit;
-}
-
-/*!
-    This property holds the optional quit reason.
-
-    \par Access function:
-    \li QString <b>reason</b>() const
- */
-QString IrcQuitMessage::reason() const
-{
-    Q_D(const IrcMessage);
-    return d->param(0);
-}
-
-bool IrcQuitMessage::isValid() const
+bool IrcCapabilityMessage::isValid() const
 {
     return IrcMessage::isValid();
 }
 
 /*!
-    \class IrcJoinMessage ircmessage.h <IrcMessage>
+    \class IrcErrorMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief Represents a join message.
+    \brief Represents an error message.
  */
 
 /*!
-    Constructs a new IrcJoinMessage with \a connection.
+    Constructs a new IrcErrorMessage with \a connection.
  */
-IrcJoinMessage::IrcJoinMessage(IrcConnection* connection) : IrcMessage(connection)
+IrcErrorMessage::IrcErrorMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
-    d->type = Join;
+    d->type = Error;
 }
 
 /*!
-    This property holds the channel in question.
+    This property holds the error.
 
     \par Access function:
-    \li QString <b>channel</b>() const
+    \li QString <b>error</b>() const
  */
-QString IrcJoinMessage::channel() const
+QString IrcErrorMessage::error() const
 {
     Q_D(const IrcMessage);
     return d->param(0);
 }
 
-bool IrcJoinMessage::isValid() const
+bool IrcErrorMessage::isValid() const
 {
-    return IrcMessage::isValid() && !channel().isEmpty();
-}
-
-/*!
-    \class IrcPartMessage ircmessage.h <IrcMessage>
-    \ingroup message
-    \brief Represents a part message.
- */
-
-/*!
-    Constructs a new IrcPartMessage with \a connection.
- */
-IrcPartMessage::IrcPartMessage(IrcConnection* connection) : IrcMessage(connection)
-{
-    Q_D(IrcMessage);
-    d->type = Part;
-}
-
-/*!
-    This property holds the channel in question.
-
-    \par Access function:
-    \li QString <b>channel</b>() const
- */
-QString IrcPartMessage::channel() const
-{
-    Q_D(const IrcMessage);
-    return d->param(0);
-}
-
-/*!
-    This property holds the optional part reason.
-
-    \par Access function:
-    \li QString <b>reason</b>() const
- */
-QString IrcPartMessage::reason() const
-{
-    Q_D(const IrcMessage);
-    return d->param(1);
-}
-
-bool IrcPartMessage::isValid() const
-{
-    return IrcMessage::isValid() && !channel().isEmpty();
-}
-
-/*!
-    \class IrcTopicMessage ircmessage.h <IrcMessage>
-    \ingroup message
-    \brief Represents a topic message.
- */
-
-/*!
-    Constructs a new IrcTopicMessage with \a connection.
- */
-IrcTopicMessage::IrcTopicMessage(IrcConnection* connection) : IrcMessage(connection)
-{
-    Q_D(IrcMessage);
-    d->type = Topic;
-}
-
-/*!
-    This property holds the channel in question.
-
-    \par Access function:
-    \li QString <b>channel</b>() const
- */
-QString IrcTopicMessage::channel() const
-{
-    Q_D(const IrcMessage);
-    return d->param(0);
-}
-
-/*!
-    This property holds the new channel topic.
-
-    \par Access function:
-    \li QString <b>topic</b>() const
- */
-QString IrcTopicMessage::topic() const
-{
-    Q_D(const IrcMessage);
-    return d->param(1);
-}
-
-/*!
-    This property holds whether the message is a reply.
-
-    Topic messages are sent in three situations:
-    \li as a notification of a topic change (\c false),
-    \li as a reply when joining a channel (\c true), or
-    \li as a reply when explicitly querying the channel topic (\c true).
-
-    \par Access function:
-    \li bool <b>isReply</b>() const
-
-    \sa Irc::RPL_TOPIC, Irc::RPL_NOTOPIC, IrcTopicCommand
- */
-bool IrcTopicMessage::isReply() const
-{
-    Q_D(const IrcMessage);
-    int rpl = d->command().toInt();
-    return rpl == Irc::RPL_TOPIC || rpl == Irc::RPL_NOTOPIC;
-}
-
-bool IrcTopicMessage::isValid() const
-{
-    return IrcMessage::isValid() && !channel().isEmpty();
+    return IrcMessage::isValid() && !error().isEmpty();
 }
 
 /*!
@@ -759,6 +631,38 @@ QString IrcInviteMessage::channel() const
 bool IrcInviteMessage::isValid() const
 {
     return IrcMessage::isValid() && !user().isEmpty() && !channel().isEmpty();
+}
+
+/*!
+    \class IrcJoinMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a join message.
+ */
+
+/*!
+    Constructs a new IrcJoinMessage with \a connection.
+ */
+IrcJoinMessage::IrcJoinMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Join;
+}
+
+/*!
+    This property holds the channel in question.
+
+    \par Access function:
+    \li QString <b>channel</b>() const
+ */
+QString IrcJoinMessage::channel() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+bool IrcJoinMessage::isValid() const
+{
+    return IrcMessage::isValid() && !channel().isEmpty();
 }
 
 /*!
@@ -929,6 +833,356 @@ bool IrcModeMessage::isValid() const
 }
 
 /*!
+    \class IrcMotdMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a message of the day.
+ */
+
+/*!
+    Constructs a new IrcMotdMessage with \a connection.
+ */
+IrcMotdMessage::IrcMotdMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Motd;
+    setCommand(QLatin1String("MOTD"));
+}
+
+/*!
+    This property holds the message of the day lines.
+
+    \par Access function:
+    \li QStringList <b>lines</b>() const
+ */
+QStringList IrcMotdMessage::lines() const
+{
+    Q_D(const IrcMessage);
+    return d->params().mid(1);
+}
+
+bool IrcMotdMessage::isValid() const
+{
+    Q_D(const IrcMessage);
+    return IrcMessage::isValid() && !d->params().isEmpty();
+}
+
+/*!
+    \class IrcNamesMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a names list message.
+ */
+
+/*!
+    Constructs a new IrcNamesMessage with \a connection.
+ */
+IrcNamesMessage::IrcNamesMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Names;
+    setCommand(QLatin1String("NAMES"));
+}
+
+/*!
+    This property holds the channel.
+
+    \par Access function:
+    \li QString <b>channel</b>() const
+ */
+QString IrcNamesMessage::channel() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+/*!
+    This property holds the list of names.
+
+    \par Access function:
+    \li QStringList <b>names</b>() const
+ */
+QStringList IrcNamesMessage::names() const
+{
+    Q_D(const IrcMessage);
+    return d->params().mid(1);
+}
+
+bool IrcNamesMessage::isValid() const
+{
+    Q_D(const IrcMessage);
+    return IrcMessage::isValid() && !d->params().isEmpty();
+}
+
+/*!
+    \class IrcNickMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a nick message.
+ */
+
+/*!
+    Constructs a new IrcNickMessage with \a connection.
+ */
+IrcNickMessage::IrcNickMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Nick;
+}
+
+/*!
+    This property holds the old nick.
+
+    This property is provided for symmetry with \ref newNick
+    and is equal to \ref nick.
+
+    \par Access function:
+    \li QString <b>oldNick</b>() const
+ */
+QString IrcNickMessage::oldNick() const
+{
+    Q_D(const IrcMessage);
+    return d->nick();
+}
+
+/*!
+    This property holds the new nick.
+
+    \par Access function:
+    \li QString <b>newNick</b>() const
+ */
+QString IrcNickMessage::newNick() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+bool IrcNickMessage::isValid() const
+{
+    return IrcMessage::isValid() && !newNick().isEmpty();
+}
+
+/*!
+    \class IrcNoticeMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a notice message.
+ */
+
+/*!
+    Constructs a new IrcNoticeMessage with \a connection.
+ */
+IrcNoticeMessage::IrcNoticeMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Notice;
+}
+
+/*!
+    This property holds the target channel or user in question.
+
+    \par Access function:
+    \li QString <b>target</b>() const
+ */
+QString IrcNoticeMessage::target() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+/*!
+    This property holds the message content.
+
+    \par Access function:
+    \li QString <b>content</b>() const
+ */
+QString IrcNoticeMessage::content() const
+{
+    Q_D(const IrcMessage);
+    QString msg = d->param(1);
+    if (flags() & (Identified | Unidentified))
+        msg.remove(0, 1);
+    if (isReply()) {
+        msg.remove(0, 1);
+        msg.chop(1);
+    }
+    return msg;
+}
+
+/*!
+    \property bool IrcNoticeMessage::private
+    This property is \c true if the notice is private,
+    or \c false if it is a channel notice.
+
+    \par Access function:
+    \li bool <b>isPrivate</b>() const
+ */
+bool IrcNoticeMessage::isPrivate() const
+{
+    Q_D(const IrcMessage);
+    if (d->connection)
+        return !target().compare(d->connection->nickName(), Qt::CaseInsensitive);
+    return false;
+}
+
+/*!
+    \property bool IrcNoticeMessage::reply
+    This property is \c true if the message is a reply; otherwise \c false.
+
+    \par Access function:
+    \li bool <b>isReply</b>() const
+ */
+bool IrcNoticeMessage::isReply() const
+{
+    Q_D(const IrcMessage);
+    QString msg = d->param(1);
+    return msg.startsWith('\1') && msg.endsWith('\1');
+}
+
+bool IrcNoticeMessage::isValid() const
+{
+    return IrcMessage::isValid() && !target().isEmpty() && !content().isEmpty();
+}
+
+/*!
+    \class IrcNumericMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a numeric message.
+ */
+
+/*!
+    Constructs a new IrcNumericMessage with \a connection.
+ */
+IrcNumericMessage::IrcNumericMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Numeric;
+}
+
+/*!
+    This property holds the numeric code.
+
+    \par Access function:
+    \li int <b>code</b>() const
+ */
+int IrcNumericMessage::code() const
+{
+    Q_D(const IrcMessage);
+    bool ok = false;
+    int number = d->command().toInt(&ok);
+    return ok ? number : -1;
+}
+
+bool IrcNumericMessage::isValid() const
+{
+    return IrcMessage::isValid() && code() != -1;
+}
+
+/*!
+    \class IrcPartMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a part message.
+ */
+
+/*!
+    Constructs a new IrcPartMessage with \a connection.
+ */
+IrcPartMessage::IrcPartMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Part;
+}
+
+/*!
+    This property holds the channel in question.
+
+    \par Access function:
+    \li QString <b>channel</b>() const
+ */
+QString IrcPartMessage::channel() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+/*!
+    This property holds the optional part reason.
+
+    \par Access function:
+    \li QString <b>reason</b>() const
+ */
+QString IrcPartMessage::reason() const
+{
+    Q_D(const IrcMessage);
+    return d->param(1);
+}
+
+bool IrcPartMessage::isValid() const
+{
+    return IrcMessage::isValid() && !channel().isEmpty();
+}
+
+/*!
+    \class IrcPingMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a ping message.
+ */
+
+/*!
+    Constructs a new IrcPingMessage with \a connection.
+ */
+IrcPingMessage::IrcPingMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Ping;
+}
+
+/*!
+    This property holds the optional message argument.
+
+    \par Access function:
+    \li QString <b>argument</b>() const
+ */
+QString IrcPingMessage::argument() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+bool IrcPingMessage::isValid() const
+{
+    return IrcMessage::isValid();
+}
+
+/*!
+    \class IrcPongMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a pong message.
+ */
+
+/*!
+    Constructs a new IrcPongMessage with \a connection.
+ */
+IrcPongMessage::IrcPongMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Pong;
+}
+
+/*!
+    This property holds the optional message argument.
+
+    \par Access function:
+    \li QString <b>argument</b>() const
+ */
+QString IrcPongMessage::argument() const
+{
+    Q_D(const IrcMessage);
+    return d->param(1);
+}
+
+bool IrcPongMessage::isValid() const
+{
+    return IrcMessage::isValid();
+}
+
+/*!
     \class IrcPrivateMessage ircmessage.h <IrcMessage>
     \ingroup message
     \brief Represents a private message.
@@ -1029,348 +1283,99 @@ bool IrcPrivateMessage::isValid() const
 }
 
 /*!
-    \class IrcNoticeMessage ircmessage.h <IrcMessage>
+    \class IrcQuitMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief Represents a notice message.
+    \brief Represents a quit message.
  */
 
 /*!
-    Constructs a new IrcNoticeMessage with \a connection.
+    Constructs a new IrcQuitMessage with \a connection.
  */
-IrcNoticeMessage::IrcNoticeMessage(IrcConnection* connection) : IrcMessage(connection)
+IrcQuitMessage::IrcQuitMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
-    d->type = Notice;
+    d->type = Quit;
 }
 
 /*!
-    This property holds the target channel or user in question.
+    This property holds the optional quit reason.
 
     \par Access function:
-    \li QString <b>target</b>() const
+    \li QString <b>reason</b>() const
  */
-QString IrcNoticeMessage::target() const
+QString IrcQuitMessage::reason() const
 {
     Q_D(const IrcMessage);
     return d->param(0);
 }
 
-/*!
-    This property holds the message content.
-
-    \par Access function:
-    \li QString <b>content</b>() const
- */
-QString IrcNoticeMessage::content() const
-{
-    Q_D(const IrcMessage);
-    QString msg = d->param(1);
-    if (flags() & (Identified | Unidentified))
-        msg.remove(0, 1);
-    if (isReply()) {
-        msg.remove(0, 1);
-        msg.chop(1);
-    }
-    return msg;
-}
-
-/*!
-    \property bool IrcNoticeMessage::private
-    This property is \c true if the notice is private,
-    or \c false if it is a channel notice.
-
-    \par Access function:
-    \li bool <b>isPrivate</b>() const
- */
-bool IrcNoticeMessage::isPrivate() const
-{
-    Q_D(const IrcMessage);
-    if (d->connection)
-        return !target().compare(d->connection->nickName(), Qt::CaseInsensitive);
-    return false;
-}
-
-/*!
-    \property bool IrcNoticeMessage::reply
-    This property is \c true if the message is a reply; otherwise \c false.
-
-    \par Access function:
-    \li bool <b>isReply</b>() const
- */
-bool IrcNoticeMessage::isReply() const
-{
-    Q_D(const IrcMessage);
-    QString msg = d->param(1);
-    return msg.startsWith('\1') && msg.endsWith('\1');
-}
-
-bool IrcNoticeMessage::isValid() const
-{
-    return IrcMessage::isValid() && !target().isEmpty() && !content().isEmpty();
-}
-
-/*!
-    \class IrcPingMessage ircmessage.h <IrcMessage>
-    \ingroup message
-    \brief Represents a ping message.
- */
-
-/*!
-    Constructs a new IrcPingMessage with \a connection.
- */
-IrcPingMessage::IrcPingMessage(IrcConnection* connection) : IrcMessage(connection)
-{
-    Q_D(IrcMessage);
-    d->type = Ping;
-}
-
-/*!
-    This property holds the optional message argument.
-
-    \par Access function:
-    \li QString <b>argument</b>() const
- */
-QString IrcPingMessage::argument() const
-{
-    Q_D(const IrcMessage);
-    return d->param(0);
-}
-
-bool IrcPingMessage::isValid() const
+bool IrcQuitMessage::isValid() const
 {
     return IrcMessage::isValid();
 }
 
 /*!
-    \class IrcPongMessage ircmessage.h <IrcMessage>
+    \class IrcTopicMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief Represents a pong message.
+    \brief Represents a topic message.
  */
 
 /*!
-    Constructs a new IrcPongMessage with \a connection.
+    Constructs a new IrcTopicMessage with \a connection.
  */
-IrcPongMessage::IrcPongMessage(IrcConnection* connection) : IrcMessage(connection)
+IrcTopicMessage::IrcTopicMessage(IrcConnection* connection) : IrcMessage(connection)
 {
     Q_D(IrcMessage);
-    d->type = Pong;
+    d->type = Topic;
 }
 
 /*!
-    This property holds the optional message argument.
-
-    \par Access function:
-    \li QString <b>argument</b>() const
- */
-QString IrcPongMessage::argument() const
-{
-    Q_D(const IrcMessage);
-    return d->param(1);
-}
-
-bool IrcPongMessage::isValid() const
-{
-    return IrcMessage::isValid();
-}
-
-/*!
-    \class IrcErrorMessage ircmessage.h <IrcMessage>
-    \ingroup message
-    \brief Represents an error message.
- */
-
-/*!
-    Constructs a new IrcErrorMessage with \a connection.
- */
-IrcErrorMessage::IrcErrorMessage(IrcConnection* connection) : IrcMessage(connection)
-{
-    Q_D(IrcMessage);
-    d->type = Error;
-}
-
-/*!
-    This property holds the error.
-
-    \par Access function:
-    \li QString <b>error</b>() const
- */
-QString IrcErrorMessage::error() const
-{
-    Q_D(const IrcMessage);
-    return d->param(0);
-}
-
-bool IrcErrorMessage::isValid() const
-{
-    return IrcMessage::isValid() && !error().isEmpty();
-}
-
-/*!
-    \class IrcNumericMessage ircmessage.h <IrcMessage>
-    \ingroup message
-    \brief Represents a numeric message.
- */
-
-/*!
-    Constructs a new IrcNumericMessage with \a connection.
- */
-IrcNumericMessage::IrcNumericMessage(IrcConnection* connection) : IrcMessage(connection)
-{
-    Q_D(IrcMessage);
-    d->type = Numeric;
-}
-
-/*!
-    This property holds the numeric code.
-
-    \par Access function:
-    \li int <b>code</b>() const
- */
-int IrcNumericMessage::code() const
-{
-    Q_D(const IrcMessage);
-    bool ok = false;
-    int number = d->command().toInt(&ok);
-    return ok ? number : -1;
-}
-
-bool IrcNumericMessage::isValid() const
-{
-    return IrcMessage::isValid() && code() != -1;
-}
-
-/*!
-    \class IrcCapabilityMessage ircmessage.h <IrcMessage>
-    \ingroup message
-    \brief Represents a capability message.
- */
-
-/*!
-    Constructs a new IrcCapabilityMessage with \a connection.
- */
-IrcCapabilityMessage::IrcCapabilityMessage(IrcConnection* connection) : IrcMessage(connection)
-{
-    Q_D(IrcMessage);
-    d->type = Capability;
-}
-
-/*!
-    This property holds the subcommand.
-
-    The following capability subcommands are defined:
-    LS, LIST, REQ, ACK, NAK, CLEAR, END
-
-    \par Access function:
-    \li QString <b>subCommand</b>() const
- */
-QString IrcCapabilityMessage::subCommand() const
-{
-    Q_D(const IrcMessage);
-    return d->param(1);
-}
-
-/*!
-    This property holds the capabilities.
-
-    A list of capabilities may exist for the following
-    subcommands: LS, LIST, REQ, ACK and NAK.
-
-    \par Access function:
-    \li QStringList <b>capabilities</b>() const
- */
-QStringList IrcCapabilityMessage::capabilities() const
-{
-    Q_D(const IrcMessage);
-    QStringList caps;
-    QStringList params = d->params();
-    if (params.count() > 2)
-        caps = params.last().split(QLatin1Char(' '), QString::SkipEmptyParts);
-    return caps;
-}
-
-bool IrcCapabilityMessage::isValid() const
-{
-    return IrcMessage::isValid();
-}
-
-/*!
-    \class IrcMotdMessage ircmessage.h <IrcMessage>
-    \ingroup message
-    \brief Represents a message of the day.
- */
-
-/*!
-    Constructs a new IrcMotdMessage with \a connection.
- */
-IrcMotdMessage::IrcMotdMessage(IrcConnection* connection) : IrcMessage(connection)
-{
-    Q_D(IrcMessage);
-    d->type = Motd;
-    setCommand(QLatin1String("MOTD"));
-}
-
-/*!
-    This property holds the message of the day lines.
-
-    \par Access function:
-    \li QStringList <b>lines</b>() const
- */
-QStringList IrcMotdMessage::lines() const
-{
-    Q_D(const IrcMessage);
-    return d->params().mid(1);
-}
-
-bool IrcMotdMessage::isValid() const
-{
-    Q_D(const IrcMessage);
-    return IrcMessage::isValid() && !d->params().isEmpty();
-}
-
-/*!
-    \class IrcNamesMessage ircmessage.h <IrcMessage>
-    \ingroup message
-    \brief Represents a names list message.
- */
-
-/*!
-    Constructs a new IrcNamesMessage with \a connection.
- */
-IrcNamesMessage::IrcNamesMessage(IrcConnection* connection) : IrcMessage(connection)
-{
-    Q_D(IrcMessage);
-    d->type = Names;
-    setCommand(QLatin1String("NAMES"));
-}
-
-/*!
-    This property holds the channel.
+    This property holds the channel in question.
 
     \par Access function:
     \li QString <b>channel</b>() const
  */
-QString IrcNamesMessage::channel() const
+QString IrcTopicMessage::channel() const
 {
     Q_D(const IrcMessage);
     return d->param(0);
 }
 
 /*!
-    This property holds the list of names.
+    This property holds the new channel topic.
 
     \par Access function:
-    \li QStringList <b>names</b>() const
+    \li QString <b>topic</b>() const
  */
-QStringList IrcNamesMessage::names() const
+QString IrcTopicMessage::topic() const
 {
     Q_D(const IrcMessage);
-    return d->params().mid(1);
+    return d->param(1);
 }
 
-bool IrcNamesMessage::isValid() const
+/*!
+    This property holds whether the message is a reply.
+
+    Topic messages are sent in three situations:
+    \li as a notification of a topic change (\c false),
+    \li as a reply when joining a channel (\c true), or
+    \li as a reply when explicitly querying the channel topic (\c true).
+
+    \par Access function:
+    \li bool <b>isReply</b>() const
+
+    \sa Irc::RPL_TOPIC, Irc::RPL_NOTOPIC, IrcTopicCommand
+ */
+bool IrcTopicMessage::isReply() const
 {
     Q_D(const IrcMessage);
-    return IrcMessage::isValid() && !d->params().isEmpty();
+    int rpl = d->command().toInt();
+    return rpl == Irc::RPL_TOPIC || rpl == Irc::RPL_NOTOPIC;
+}
+
+bool IrcTopicMessage::isValid() const
+{
+    return IrcMessage::isValid() && !channel().isEmpty();
 }
 
 #ifndef QT_NO_DEBUG_STREAM
