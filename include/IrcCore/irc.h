@@ -35,7 +35,7 @@ namespace Irc
 class IRC_CORE_EXPORT Irc : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Code DataRole Color SortMethod)
+    Q_ENUMS(Color DataRole SortMethod Code)
 
 public:
     Q_INVOKABLE static QString version();
@@ -45,6 +45,41 @@ public:
     Q_INVOKABLE static QString hostFromPrefix(const QString& prefix);
     Q_INVOKABLE static void registerMetaTypes();
 #endif
+
+    enum Color {
+        White = 0,
+        Black = 1,
+        Blue = 2,
+        Green = 3,
+        Red = 4,
+        Brown = 5,
+        Purple = 6,
+        Orange = 7,
+        Yellow = 8,
+        LightGreen = 9,
+        Cyan = 10,
+        LightCyan = 11,
+        LightBlue = 12,
+        Pink = 13,
+        Gray = 14,
+        LightGray = 15
+    };
+
+    enum DataRole {
+        UserRole = Qt::UserRole,
+        BufferRole,
+        ChannelRole,
+        NameRole,
+        PrefixRole,
+        ModeRole,
+        TitleRole
+    };
+
+    enum SortMethod {
+        SortByName = 1,
+        SortByTitle,
+        SortByActivity
+    };
 
     enum Code {
         RPL_WELCOME = 1,
@@ -487,41 +522,6 @@ public:
         ERR_NOLANGUAGE = 982,
         ERR_TEXTTOOSHORT = 983,
         ERR_NUMERIC_ERR = 999
-    };
-
-    enum DataRole {
-        UserRole = Qt::UserRole,
-        BufferRole,
-        ChannelRole,
-        NameRole,
-        PrefixRole,
-        ModeRole,
-        TitleRole
-    };
-
-    enum Color {
-        White = 0,
-        Black = 1,
-        Blue = 2,
-        Green = 3,
-        Red = 4,
-        Brown = 5,
-        Purple = 6,
-        Orange = 7,
-        Yellow = 8,
-        LightGreen = 9,
-        Cyan = 10,
-        LightCyan = 11,
-        LightBlue = 12,
-        Pink = 13,
-        Gray = 14,
-        LightGray = 15
-    };
-
-    enum SortMethod {
-        SortByName = 1,
-        SortByTitle,
-        SortByActivity
     };
 };
 
