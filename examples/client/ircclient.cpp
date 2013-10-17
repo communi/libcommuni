@@ -118,7 +118,7 @@ void IrcClient::onBufferAdded(IrcBuffer* buffer)
 
     // create a sorted model for buffer users
     IrcUserModel* userModel = new IrcUserModel(buffer);
-    userModel->setDynamicSort(true);
+    userModel->setSortMethod(Irc::SortByTitle);
     userModels.insert(buffer, userModel);
 
     // activate the new buffer

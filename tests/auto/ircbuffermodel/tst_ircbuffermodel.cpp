@@ -51,8 +51,8 @@ void tst_IrcBufferModel::testDefaults()
 {
     IrcBufferModel model;
     QCOMPARE(model.count(), 0);
-    QVERIFY(!model.dynamicSort());
-    QCOMPARE(model.sortMethod(), Irc::SortByTitle);
+    QCOMPARE(model.sortOrder(), Qt::AscendingOrder);
+    QCOMPARE(model.sortMethod(), Irc::SortByHand);
     QVERIFY(model.channels().isEmpty());
     QCOMPARE(model.displayRole(), Irc::TitleRole);
     QVERIFY(model.buffers().isEmpty());
@@ -233,8 +233,6 @@ void tst_IrcBufferModel::testSorting()
     staticModel.sort(0, Qt::AscendingOrder);
     QCOMPARE(staticModel.buffers(), buffers);
 
-    dynamicModel.setDynamicSort(true);
-
     b = dynamicModel.add("b");
     c = dynamicModel.add("#c");
     a = dynamicModel.add("#a");
@@ -249,7 +247,7 @@ void tst_IrcBufferModel::testSorting()
     dynamicModel.setSortMethod(Irc::SortByTitle);
     QCOMPARE(dynamicModel.buffers(), buffers);
 
-    dynamicModel.sort(0, Qt::DescendingOrder);
+    dynamicModel.setSortOrder(Qt::DescendingOrder);
 
     // DYNAMIC - BY NAME - DESCENDING
     buffers =  QList<IrcBuffer*>() << c << b << a;
@@ -259,6 +257,10 @@ void tst_IrcBufferModel::testSorting()
     // DYNAMIC - BY TITLE - DESCENDING
     buffers =  QList<IrcBuffer*>() << b << c << a;
     dynamicModel.setSortMethod(Irc::SortByTitle);
+    QCOMPARE(dynamicModel.buffers(), buffers);
+
+    // DO NOTHING
+    dynamicModel.sort(Irc::SortByHand);
     QCOMPARE(dynamicModel.buffers(), buffers);
 }
 
@@ -777,7 +779,7 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
-    bufferModel.setDynamicSort(true);
+    bufferModel.setSortMethod(Irc::SortByTitle);
     QCOMPARE(layoutAboutToBeChangedSpy.count(), ++layoutAboutToBeChangedCount);
     QCOMPARE(layoutChangedSpy.count(), ++layoutChangedCount);
 
@@ -803,7 +805,7 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(layoutAboutToBeChangedSpy.count(), ++layoutAboutToBeChangedCount);
     QCOMPARE(layoutChangedSpy.count(), ++layoutChangedCount);
 
-    bufferModel.sort(0, Qt::DescendingOrder);
+    bufferModel.setSortOrder(Qt::DescendingOrder);
     QCOMPARE(layoutAboutToBeChangedSpy.count(), ++layoutAboutToBeChangedCount);
     QCOMPARE(layoutChangedSpy.count(), ++layoutChangedCount);
 

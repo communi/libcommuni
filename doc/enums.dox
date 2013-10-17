@@ -109,6 +109,11 @@
  */
 
 /*!
+    \var Irc::SortByHand
+    \brief Sort by hand by calling sort()
+ */
+
+/*!
     \var Irc::SortByName
     \brief Sort by name (Irc::NameRole)
  */

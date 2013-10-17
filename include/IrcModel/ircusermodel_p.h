@@ -48,7 +48,6 @@ public:
     QPointer<IrcChannel> channel;
     Irc::SortMethod sortMethod;
     Qt::SortOrder sortOrder;
-    bool dynamicSort;
 };
 
 IRC_END_NAMESPACE

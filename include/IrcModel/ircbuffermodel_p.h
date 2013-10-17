@@ -54,16 +54,6 @@ public:
         return model->d_func();
     }
 
-    static bool bufferLessThan(IrcBuffer* b1, IrcBuffer* b2)
-    {
-        return b1->model()->lessThan(b1, b2);
-    }
-
-    static bool bufferGreaterThan(IrcBuffer* b1, IrcBuffer* b2)
-    {
-        return b2->model()->lessThan(b2, b1);
-    }
-
     IrcBufferModel* q_ptr;
     Irc::DataRole role;
     QPointer<IrcConnection> connection;
@@ -72,7 +62,6 @@ public:
     QStringList channels;
     Irc::SortMethod sortMethod;
     Qt::SortOrder sortOrder;
-    bool dynamicSort;
     IrcBuffer* bufferProto;
     IrcChannel* channelProto;
 };

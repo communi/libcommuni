@@ -67,8 +67,8 @@ void tst_IrcUserModel::testDefaults()
     QVERIFY(model.users().isEmpty());
     QCOMPARE(model.displayRole(), Irc::TitleRole);
     QVERIFY(!model.channel());
-    QVERIFY(!model.dynamicSort());
-    QCOMPARE(model.sortMethod(), Irc::SortByTitle);
+    QCOMPARE(model.sortMethod(), Irc::SortByHand);
+    QCOMPARE(model.sortOrder(), Qt::AscendingOrder);
 }
 
 void tst_IrcUserModel::testClear()
@@ -198,7 +198,6 @@ void tst_IrcUserModel::testSorting()
     QVERIFY(channel);
 
     IrcUserModel staticModel(channel);
-    staticModel.setDynamicSort(false);
     QCOMPARE(staticModel.count(), names.count());
     for (int i = 0; i < staticModel.count(); ++i) {
         IrcUser* user = staticModel.get(i);
@@ -313,7 +312,6 @@ void tst_IrcUserModel::testSorting()
 
     // DYNAMIC - BY NAME, TITLE & ACTIVITY - ASCENDING
     IrcUserModel dynamicModel(channel);
-    dynamicModel.setDynamicSort(true);
 
     dynamicModel.setSortMethod(Irc::SortByName);
     for (int i = 0; i < dynamicModel.count(); ++i)
@@ -328,7 +326,7 @@ void tst_IrcUserModel::testSorting()
         QCOMPARE(dynamicModel.get(i)->name(), names.at(i));
 
     // DYNAMIC - BY NAME, TITLE & ACTIVITY - DESCENDING
-    dynamicModel.sort(0, Qt::DescendingOrder);
+    dynamicModel.setSortOrder(Qt::DescendingOrder);
 
     dynamicModel.setSortMethod(Irc::SortByName);
     for (int i = 0; i < dynamicModel.count(); ++i)
@@ -343,7 +341,7 @@ void tst_IrcUserModel::testSorting()
         QCOMPARE(dynamicModel.get(i)->name(), names.at(names.count() - 1 - i));
 
     // RESTORE USERS IN ASCENDING ORDER
-    dynamicModel.sort(0, Qt::AscendingOrder);
+    dynamicModel.setSortOrder(Qt::AscendingOrder);
 
     dynamicModel.setChannel(0);
     dynamicModel.setSortMethod(Irc::SortByName);
@@ -364,7 +362,7 @@ void tst_IrcUserModel::testSorting()
         QCOMPARE(dynamicModel.get(i)->name(), names.at(i));
 
     // RESTORE USERS IN DESCENDING ORDER
-    dynamicModel.sort(0, Qt::DescendingOrder);
+    dynamicModel.setSortOrder(Qt::DescendingOrder);
 
     dynamicModel.setChannel(0);
     dynamicModel.setSortMethod(Irc::SortByName);
@@ -381,6 +379,11 @@ void tst_IrcUserModel::testSorting()
     dynamicModel.setChannel(0);
     dynamicModel.setSortMethod(Irc::SortByActivity);
     dynamicModel.setChannel(channel);
+    for (int i = 0; i < dynamicModel.count(); ++i)
+        QCOMPARE(dynamicModel.get(i)->name(), names.at(names.count() - 1 - i));
+
+    // DO NOTHING
+    dynamicModel.sort(Irc::SortByHand);
     for (int i = 0; i < dynamicModel.count(); ++i)
         QCOMPARE(dynamicModel.get(i)->name(), names.at(names.count() - 1 - i));
 }
@@ -405,7 +408,6 @@ void tst_IrcUserModel::testActivity_freenode()
     QStringList names = tst_IrcData::names("freenode");
 
     IrcUserModel activityModel(channel);
-    activityModel.setDynamicSort(true);
     activityModel.setSortMethod(Irc::SortByActivity);
 
     int count = names.count();
@@ -469,7 +471,6 @@ void tst_IrcUserModel::testActivity_ircnet()
     QStringList names = tst_IrcData::names("ircnet");
 
     IrcUserModel activityModel(channel);
-    activityModel.setDynamicSort(true);
     activityModel.setSortMethod(Irc::SortByActivity);
 
     int count = names.count();
@@ -550,7 +551,6 @@ void tst_IrcUserModel::testActivity_euirc()
     QStringList names = tst_IrcData::names("euirc");
 
     IrcUserModel activityModel(channel);
-    activityModel.setDynamicSort(true);
     activityModel.setSortMethod(Irc::SortByActivity);
 
     int count = names.count();
@@ -759,7 +759,7 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(usersChangedSpy.last().at(0).value<QList<IrcUser*> >(), users);
 
     // ### trigger sort -> layout change
-    userModel.setDynamicSort(true);
+    userModel.setSortMethod(Irc::SortByTitle);
     QCOMPARE(layoutAboutToBeChangedSpy.count(), ++layoutAboutToBeChangedCount);
     QCOMPARE(layoutChangedSpy.count(), ++layoutChangedCount);
 
@@ -1351,7 +1351,7 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
     // ### sorted by name, descending -> trigger a change in count, users & names
-    userModel.sort(0, Qt::DescendingOrder);
+    userModel.setSortOrder(Qt::DescendingOrder);
     userModel.setSortMethod(Irc::SortByName);
     QVERIFY(waitForWritten(":fake!fake@hidd.en JOIN #communi"));
 

@@ -80,23 +80,25 @@ IRC_BEGIN_NAMESPACE
 class IrcUserLessThan
 {
 public:
-    IrcUserLessThan(IrcUserModel* model) : model(model) { }
-    bool operator()(IrcUser* u1, IrcUser* u2) const { return model->lessThan(u1, u2); }
+    IrcUserLessThan(IrcUserModel* model, Irc::SortMethod method) : model(model), method(method) { }
+    bool operator()(IrcUser* u1, IrcUser* u2) const { return model->lessThan(u1, u2, method); }
 private:
     IrcUserModel* model;
+    Irc::SortMethod method;
 };
 
 class IrcUserGreaterThan
 {
 public:
-    IrcUserGreaterThan(IrcUserModel* model) : model(model) { }
-    bool operator()(IrcUser* u1, IrcUser* u2) const { return model->lessThan(u2, u1); }
+    IrcUserGreaterThan(IrcUserModel* model, Irc::SortMethod method) : model(model), method(method) { }
+    bool operator()(IrcUser* u1, IrcUser* u2) const { return model->lessThan(u2, u1, method); }
 private:
     IrcUserModel* model;
+    Irc::SortMethod method;
 };
 
 IrcUserModelPrivate::IrcUserModelPrivate() : q_ptr(0), role(Irc::TitleRole),
-    sortMethod(Irc::SortByTitle), sortOrder(Qt::AscendingOrder), dynamicSort(false)
+    sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder)
 {
 }
 
@@ -110,12 +112,12 @@ void IrcUserModelPrivate::insertUser(int index, IrcUser* user, bool notify)
     Q_Q(IrcUserModel);
     if (index == -1)
         index = userList.count();
-    if (dynamicSort) {
+    if (sortMethod != Irc::SortByHand) {
         QList<IrcUser*>::iterator it;
         if (sortOrder == Qt::AscendingOrder)
-            it = qUpperBound(userList.begin(), userList.end(), user, IrcUserLessThan(q));
+            it = qUpperBound(userList.begin(), userList.end(), user, IrcUserLessThan(q, sortMethod));
         else
-            it = qUpperBound(userList.begin(), userList.end(), user, IrcUserGreaterThan(q));
+            it = qUpperBound(userList.begin(), userList.end(), user, IrcUserGreaterThan(q, sortMethod));
         index = it - userList.begin();
     }
     if (notify)
@@ -156,11 +158,11 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users, bool reset)
     if (reset)
         q->beginResetModel();
     userList = users;
-    if (dynamicSort) {
+    if (sortMethod != Irc::SortByHand) {
         if (sortOrder == Qt::AscendingOrder)
-            qSort(userList.begin(), userList.end(), IrcUserLessThan(q));
+            qSort(userList.begin(), userList.end(), IrcUserLessThan(q, sortMethod));
         else
-            qSort(userList.begin(), userList.end(), IrcUserGreaterThan(q));
+            qSort(userList.begin(), userList.end(), IrcUserGreaterThan(q, sortMethod));
     }
     if (reset)
         q->endResetModel();
@@ -180,7 +182,7 @@ void IrcUserModelPrivate::renameUser(IrcUser* user)
         QModelIndex index = q->index(idx, 0);
         emit q->dataChanged(index, index);
 
-        if (dynamicSort) {
+        if (sortMethod != Irc::SortByHand) {
             QList<IrcUser*> users = userList;
             const bool notify = false;
             removeUser(user, notify);
@@ -199,7 +201,7 @@ void IrcUserModelPrivate::setUserMode(IrcUser* user)
         QModelIndex index = q->index(idx, 0);
         emit q->dataChanged(index, index);
 
-        if (dynamicSort && sortMethod == Irc::SortByTitle) {
+        if (sortMethod == Irc::SortByTitle) {
             const bool notify = false;
             removeUser(user, notify);
             insertUser(0, user, notify);
@@ -211,7 +213,7 @@ void IrcUserModelPrivate::setUserMode(IrcUser* user)
 void IrcUserModelPrivate::promoteUser(IrcUser* user)
 {
     Q_Q(IrcUserModel);
-    if (dynamicSort && sortMethod == Irc::SortByActivity) {
+    if (sortMethod == Irc::SortByActivity) {
         const bool notify = false;
         removeUser(user, notify);
         insertUser(0, user, notify);
@@ -377,10 +379,11 @@ int IrcUserModel::indexOf(IrcUser* user) const
 /*!
     This property holds the model sort method.
 
-    The default value is \c Irc::SortByTitle.
+    The default value is \c Irc::SortByHand.
 
     Method              | Description                                                                                       | Example
     --------------------|---------------------------------------------------------------------------------------------------|----------------------------------------------
+    Irc::SortByHand     | Users are not sorted automatically, but only by calling sort().                                   | -
     Irc::SortByName     | Users are sorted alphabetically, ignoring any mode prefix.                                        | "bot", "@ChanServ", "jpnurmi", "+qtassistant"
     Irc::SortByTitle    | Users are sorted alphabetically, and special users (operators, voiced users) before normal users. | "@ChanServ", "+qtassistant", "bot", "jpnurmi"
     Irc::SortByActivity | Users are sorted based on their activity, last active and mentioned (1) users first.              | -
@@ -393,7 +396,7 @@ int IrcUserModel::indexOf(IrcUser* user) const
     \li Irc::SortMethod <b>sortMethod</b>() const
     \li void <b>setSortMethod</b>(Irc::SortMethod method)
 
-    \sa sort(), lessThan(), dynamicSort
+    \sa sort(), lessThan()
  */
 Irc::SortMethod IrcUserModel::sortMethod() const
 {
@@ -408,35 +411,35 @@ void IrcUserModel::setSortMethod(Irc::SortMethod method)
         d->sortMethod = method;
         if (method == Irc::SortByActivity && d->channel)
             d->userList = IrcChannelPrivate::get(d->channel)->activeUsers;
-        if (d->dynamicSort && !d->userList.isEmpty())
-            sort(0, d->sortOrder);
+        if (d->sortMethod != Irc::SortByHand && !d->userList.isEmpty())
+            sort(d->sortMethod, d->sortOrder);
     }
 }
 
 /*!
-    This property holds whether the model is dynamically sorted.
+    This property holds the model sort order.
 
-    The default value is \c false.
+    The default value is \c Qt::AscendingOrder.
 
     \par Access functions:
-    \li bool <b>dynamicSort</b>() const
-    \li void <b>setDynamicSort</b>(bool dynamic)
+    \li Qt::SortOrder <b>sortOrder</b>() const
+    \li void <b>setSortOrder</b>(Qt::SortOrder order)
 
-    \sa sort(), lessThan(), sortMethod
+    \sa sort(), lessThan()
  */
-bool IrcUserModel::dynamicSort() const
+Qt::SortOrder IrcUserModel::sortOrder() const
 {
     Q_D(const IrcUserModel);
-    return d->dynamicSort;
+    return d->sortOrder;
 }
 
-void IrcUserModel::setDynamicSort(bool dynamic)
+void IrcUserModel::setSortOrder(Qt::SortOrder order)
 {
     Q_D(IrcUserModel);
-    if (d->dynamicSort != dynamic) {
-        d->dynamicSort = dynamic;
-        if (d->dynamicSort && !d->userList.isEmpty())
-            sort(0, d->sortOrder);
+    if (d->sortOrder != order) {
+        d->sortOrder = order;
+        if (d->sortMethod != Irc::SortByHand && !d->userList.isEmpty())
+            sort(d->sortMethod, d->sortOrder);
     }
 }
 
@@ -582,14 +585,24 @@ void IrcUserModel::clear()
 }
 
 /*!
-    Sorts the model in the given \a order.
-
-    \sa lessThan(), dynamicSort
+    \reimp
  */
 void IrcUserModel::sort(int column, Qt::SortOrder order)
 {
     Q_D(IrcUserModel);
-    if (column != 0)
+    if (column == 0)
+        sort(d->sortMethod, order);
+}
+
+/*!
+    Sorts the model using the given \a method and \a order.
+
+    \sa lessThan()
+ */
+void IrcUserModel::sort(Irc::SortMethod method, Qt::SortOrder order)
+{
+    Q_D(IrcUserModel);
+    if (method == Irc::SortByHand)
         return;
 
     emit layoutAboutToBeChanged();
@@ -599,11 +612,10 @@ void IrcUserModel::sort(int column, Qt::SortOrder order)
     foreach (const QModelIndex& index, oldPersistentIndexes)
         persistentUsers += static_cast<IrcUser*>(index.internalPointer());
 
-    d->sortOrder = order;
     if (order == Qt::AscendingOrder)
-        qSort(d->userList.begin(), d->userList.end(), IrcUserLessThan(this));
+        qSort(d->userList.begin(), d->userList.end(), IrcUserLessThan(this, method));
     else
-        qSort(d->userList.begin(), d->userList.end(), IrcUserGreaterThan(this));
+        qSort(d->userList.begin(), d->userList.end(), IrcUserGreaterThan(this, method));
 
     QModelIndexList newPersistentIndexes;
     foreach (IrcUser* user, persistentUsers)
@@ -620,17 +632,16 @@ void IrcUserModel::sort(int column, Qt::SortOrder order)
     The default implementation sorts according to the specified sort method.
     Reimplement this function in order to customize the sort order.
 
-    \sa sort(), dynamicSort, sortMethod
+    \sa sort(), sortMethod
  */
-bool IrcUserModel::lessThan(IrcUser* one, IrcUser* another) const
+bool IrcUserModel::lessThan(IrcUser* one, IrcUser* another, Irc::SortMethod method) const
 {
-    Q_D(const IrcUserModel);
-    if (d->sortMethod == Irc::SortByActivity) {
+    if (method == Irc::SortByActivity) {
         QList<IrcUser*> activeUsers = IrcChannelPrivate::get(one->channel())->activeUsers;
         const int i1 = activeUsers.indexOf(one);
         const int i2 = activeUsers.indexOf(another);
         return i1 < i2;
-    } else if (d->sortMethod == Irc::SortByTitle) {
+    } else if (method == Irc::SortByTitle) {
         const IrcNetwork* network = one->channel()->network();
         const QStringList prefixes = network->prefixes();
 

@@ -86,8 +86,28 @@ IRC_BEGIN_NAMESPACE
  */
 
 #ifndef IRC_DOXYGEN
+class IrcBufferLessThan
+{
+public:
+    IrcBufferLessThan(IrcBufferModel* model, Irc::SortMethod method) : model(model), method(method) { }
+    bool operator()(IrcBuffer* b1, IrcBuffer* b2) const { return model->lessThan(b1, b2, method); }
+private:
+    IrcBufferModel* model;
+    Irc::SortMethod method;
+};
+
+class IrcBufferGreaterThan
+{
+public:
+    IrcBufferGreaterThan(IrcBufferModel* model, Irc::SortMethod method) : model(model), method(method) { }
+    bool operator()(IrcBuffer* b1, IrcBuffer* b2) const { return model->lessThan(b2, b1, method); }
+private:
+    IrcBufferModel* model;
+    Irc::SortMethod method;
+};
+
 IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(0), role(Irc::TitleRole),
-    sortMethod(Irc::SortByTitle), sortOrder(Qt::AscendingOrder), dynamicSort(false), bufferProto(0), channelProto(0)
+    sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder), bufferProto(0), channelProto(0)
 {
 }
 
@@ -241,8 +261,12 @@ void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool noti
             return;
         }
         const bool isChannel = buffer->isChannel();
-        if (dynamicSort) {
-            QList<IrcBuffer*>::iterator it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, sortOrder == Qt::AscendingOrder ? bufferLessThan : bufferGreaterThan);
+        if (sortMethod != Irc::SortByHand) {
+            QList<IrcBuffer*>::iterator it;
+            if (sortOrder == Qt::AscendingOrder)
+                it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, IrcBufferLessThan(q, sortMethod));
+            else
+                it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, IrcBufferGreaterThan(q, sortMethod));
             index = it - bufferList.begin();
         } else if (index == -1) {
             index = bufferList.count();
@@ -304,7 +328,7 @@ bool IrcBufferModelPrivate::renameBuffer(const QString& from, const QString& to)
         QModelIndex index = q->index(idx);
         emit q->dataChanged(index, index);
 
-        if (dynamicSort) {
+        if (sortMethod != Irc::SortByHand) {
             QList<IrcBuffer*> buffers = bufferList;
             const bool notify = false;
             removeBuffer(buffer, notify);
@@ -576,47 +600,48 @@ IrcBuffer* IrcBufferModel::buffer(const QModelIndex& index) const
 }
 
 /*!
-    This property holds whether the model is dynamically sorted.
+    This property holds the model sort order.
 
-    The default value is \c false.
+    The default value is \c Qt::AscendingOrder.
 
     \par Access functions:
-    \li bool <b>dynamicSort</b>() const
-    \li void <b>setDynamicSort</b>(bool dynamic)
+    \li Qt::SortOrder <b>sortOrder</b>() const
+    \li void <b>setSortOrder</b>(Qt::SortOrder order)
 
-    \sa sort(), lessThan(), sortMethod
+    \sa sort(), lessThan()
  */
-bool IrcBufferModel::dynamicSort() const
+Qt::SortOrder IrcBufferModel::sortOrder() const
 {
     Q_D(const IrcBufferModel);
-    return d->dynamicSort;
+    return d->sortOrder;
 }
 
-void IrcBufferModel::setDynamicSort(bool dynamic)
+void IrcBufferModel::setSortOrder(Qt::SortOrder order)
 {
     Q_D(IrcBufferModel);
-    if (d->dynamicSort != dynamic) {
-        d->dynamicSort = dynamic;
-        if (d->dynamicSort && !d->bufferList.isEmpty())
-            sort(0, d->sortOrder);
+    if (d->sortOrder != order) {
+        d->sortOrder = order;
+        if (d->sortMethod != Irc::SortByHand && !d->bufferList.isEmpty())
+            sort(d->sortMethod, d->sortOrder);
     }
 }
 
 /*!
     This property holds the model sort method.
 
-    The default value is \c Irc::SortByTitle.
+    The default value is \c Irc::SortByHand.
 
-    Method           | Description                                                     | Example
-    -----------------|-----------------------------------------------------------------|-------------------------------------------------
-    Irc::SortByName  | Buffers are sorted alphabetically, ignoring any channel prefix. | "bot", "#communi", "#freenode", "jpnurmi", "#qt"
-    Irc::SortByTitle | Buffers are sorted alphabetically, and channels before queries. | "#communi", "#freenode", "#qt", "bot", "jpnurmi"
+    Method           | Description                                                       | Example
+    -----------------|-------------------------------------------------------------------|-------------------------------------------------
+    Irc::SortByHand  | Buffers are not sorted automatically, but only by calling sort(). | -
+    Irc::SortByName  | Buffers are sorted alphabetically, ignoring any channel prefix.   | "bot", "#communi", "#freenode", "jpnurmi", "#qt"
+    Irc::SortByTitle | Buffers are sorted alphabetically, and channels before queries.   | "#communi", "#freenode", "#qt", "bot", "jpnurmi"
 
     \par Access functions:
     \li Irc::SortMethod <b>sortMethod</b>() const
     \li void <b>setSortMethod</b>(Irc::SortMethod method)
 
-    \sa sort(), lessThan(), dynamicSort
+    \sa sort(), lessThan()
  */
 Irc::SortMethod IrcBufferModel::sortMethod() const
 {
@@ -629,8 +654,8 @@ void IrcBufferModel::setSortMethod(Irc::SortMethod method)
     Q_D(IrcBufferModel);
     if (d->sortMethod != method) {
         d->sortMethod = method;
-        if (d->dynamicSort && !d->bufferList.isEmpty())
-            sort(0, d->sortOrder);
+        if (d->sortMethod != Irc::SortByHand && !d->bufferList.isEmpty())
+            sort(d->sortMethod, d->sortOrder);
     }
 }
 
@@ -672,14 +697,24 @@ void IrcBufferModel::clear()
 }
 
 /*!
-    Sorts the model in the given \a order.
-
-    \sa lessThan(), dynamicSort
+    \reimp
  */
 void IrcBufferModel::sort(int column, Qt::SortOrder order)
 {
     Q_D(IrcBufferModel);
-    if (column != 0)
+    if (column == 0)
+        sort(d->sortMethod, order);
+}
+
+/*!
+    Sorts the model using the given \a method and \a order.
+
+    \sa lessThan()
+ */
+void IrcBufferModel::sort(Irc::SortMethod method, Qt::SortOrder order)
+{
+    Q_D(IrcBufferModel);
+    if (method == Irc::SortByHand)
         return;
 
     emit layoutAboutToBeChanged();
@@ -689,11 +724,10 @@ void IrcBufferModel::sort(int column, Qt::SortOrder order)
     foreach (const QModelIndex& index, oldPersistentIndexes)
         persistentBuffers += static_cast<IrcBuffer*>(index.internalPointer());
 
-    d->sortOrder = order;
     if (order == Qt::AscendingOrder)
-        qSort(d->bufferList.begin(), d->bufferList.end(), IrcBufferModelPrivate::bufferLessThan);
+        qSort(d->bufferList.begin(), d->bufferList.end(), IrcBufferLessThan(this, method));
     else
-        qSort(d->bufferList.begin(), d->bufferList.end(), IrcBufferModelPrivate::bufferGreaterThan);
+        qSort(d->bufferList.begin(), d->bufferList.end(), IrcBufferGreaterThan(this, method));
 
     QModelIndexList newPersistentIndexes;
     foreach (IrcBuffer* buffer, persistentBuffers)
@@ -748,15 +782,14 @@ IrcChannel* IrcBufferModel::createChannel(const QString& title)
     The default implementation sorts according to the specified sort method.
     Reimplement this function in order to customize the sort order.
 
-    \sa sort(), dynamicSort, sortMethod
+    \sa sort(), sortMethod
  */
-bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another) const
+bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another, Irc::SortMethod method) const
 {
-    Q_D(const IrcBufferModel);
     if (one->isSticky() != another->isSticky())
         return one->isSticky();
 
-    if (d->sortMethod == Irc::SortByTitle) {
+    if (method == Irc::SortByTitle) {
         const QStringList prefixes = one->network()->channelTypes();
 
         const QString p1 = one->prefix();

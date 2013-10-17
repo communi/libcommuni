@@ -42,7 +42,7 @@ Rectangle {
 
             model: IrcUserModel {
                 id: userModel
-                dynamicSort: true
+                sortMethod: Irc.SortByTitle
                 channel: background.channel
                 onChannelChanged: listView.currentIndex = -1
             }

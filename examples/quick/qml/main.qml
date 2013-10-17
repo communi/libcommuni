@@ -48,7 +48,7 @@ ApplicationWindow {
         visible: connection.active
         bufferModel: IrcBufferModel {
             id: bufferModel
-            dynamicSort: true
+            sortMethod: Irc.SortByTitle
             connection: IrcConnection {
                 id: connection
                 host: connectPage.host

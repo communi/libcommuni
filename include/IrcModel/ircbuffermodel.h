@@ -33,7 +33,7 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
-    Q_PROPERTY(bool dynamicSort READ dynamicSort WRITE setDynamicSort)
+    Q_PROPERTY(Qt::SortOrder sortOrder READ sortOrder WRITE setSortOrder)
     Q_PROPERTY(Irc::SortMethod sortMethod READ sortMethod WRITE setSortMethod)
     Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
     Q_PROPERTY(Irc::DataRole displayRole READ displayRole WRITE setDisplayRole)
@@ -65,8 +65,8 @@ public:
     Q_INVOKABLE void remove(const QString& title);
     Q_INVOKABLE void remove(IrcBuffer* buffer);
 
-    bool dynamicSort() const;
-    void setDynamicSort(bool dynamic);
+    Qt::SortOrder sortOrder() const;
+    void setSortOrder(Qt::SortOrder order);
 
     Irc::SortMethod sortMethod() const;
     void setSortMethod(Irc::SortMethod method);
@@ -91,6 +91,7 @@ public:
 public Q_SLOTS:
     void clear();
     void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
+    void sort(Irc::SortMethod method, Qt::SortOrder order = Qt::AscendingOrder);
 
 Q_SIGNALS:
     void countChanged(int count);
@@ -111,9 +112,11 @@ protected Q_SLOTS:
     virtual IrcChannel* createChannel(const QString& title);
 
 protected:
-    virtual bool lessThan(IrcBuffer* one, IrcBuffer* another) const;
+    virtual bool lessThan(IrcBuffer* one, IrcBuffer* another, Irc::SortMethod method) const;
 
 private:
+    friend class IrcBufferLessThan;
+    friend class IrcBufferGreaterThan;
     QScopedPointer<IrcBufferModelPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcBufferModel)
     Q_DISABLE_COPY(IrcBufferModel)

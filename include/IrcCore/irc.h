@@ -76,7 +76,8 @@ public:
     };
 
     enum SortMethod {
-        SortByName = 1,
+        SortByHand,
+        SortByName,
         SortByTitle,
         SortByActivity
     };

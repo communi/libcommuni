@@ -36,7 +36,7 @@ class IRC_MODEL_EXPORT IrcUserModel : public QAbstractListModel
     Q_PROPERTY(Irc::DataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(IrcChannel* channel READ channel WRITE setChannel NOTIFY channelChanged)
     Q_PROPERTY(Irc::SortMethod sortMethod READ sortMethod WRITE setSortMethod)
-    Q_PROPERTY(bool dynamicSort READ dynamicSort WRITE setDynamicSort)
+    Q_PROPERTY(Qt::SortOrder sortOrder READ sortOrder WRITE setSortOrder)
 
 public:
     explicit IrcUserModel(QObject* parent = 0);
@@ -59,8 +59,8 @@ public:
     Irc::SortMethod sortMethod() const;
     void setSortMethod(Irc::SortMethod method);
 
-    bool dynamicSort() const;
-    void setDynamicSort(bool dynamic);
+    Qt::SortOrder sortOrder() const;
+    void setSortOrder(Qt::SortOrder order);
 
     QModelIndex index(IrcUser* user) const;
     IrcUser* user(const QModelIndex& index) const;
@@ -73,6 +73,7 @@ public:
 public Q_SLOTS:
     void clear();
     void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
+    void sort(Irc::SortMethod method, Qt::SortOrder order = Qt::AscendingOrder);
 
 Q_SIGNALS:
     void added(IrcUser* user);
@@ -85,7 +86,7 @@ Q_SIGNALS:
     void channelChanged(IrcChannel* channel);
 
 protected:
-    virtual bool lessThan(IrcUser* one, IrcUser* another) const;
+    virtual bool lessThan(IrcUser* one, IrcUser* another, Irc::SortMethod method) const;
 
 private:
     friend class IrcUserLessThan;
