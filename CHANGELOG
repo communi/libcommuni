@@ -1,29 +1,63 @@
 3.0.0
 -----
-- Modularized: IrcCore, IrcModel & IrcUtil
-  - CONFIG += communi; COMMUNI += core model util
-  - include(path/to/libcommuni/src/src.pri)
-- Added namespace support
-  - DEFINES += IRC_NAMESPACE=Communi
-- Renamed IrcSession to IrcConnection
-- Renamed IrcSessionInfo to IrcNetwork
-  - Accessible via IrcConnection::network()
-- Changed IrcConnection::password to a property
-- Added IrcConnection::saslMechanism & supportedSaslMechanisms
-- IrcUserModel: support sorting
-- Added IrcUserModel::indexOf(IrcUser*)
-- Added a Qt Quick Controls based example
-- Added IrcBufferModel::add(IrcBuffer*) overload
-- Added IrcBufferModel::indexOf(IrcBuffer*)
-- Added bool IrcBuffer::sticky [property]
-- Added IrcBuffer::receiveMessage() slot
-- Full QML compatibility
-  - Inherited IrcNetwork and IrcTextFormat from QObject and revised
-    the APIs to be property-based & offer invokables/slots
-  - IrcMessage::fromCommand() -> IrcCommand::toMessage()
-  - Made IrcBuffer::toChannel() invokable
-  - Replaced IrcSender with IrcMessage::(prefix|nick|ident|host) properties
+- General
+  - Modularized: IrcCore, IrcModel & IrcUtil
+  - Added namespace support
+  - Full QML support & restored the QML plugin
+  - Renamed all COMMUNI_XXX macros to IRC_XXX
+  - Made uchardet the default encoding detection backend
+- IrcCore
+  - Added Irc::registerMetaTypes()
+  - Renamed Irc::toString() to Irc::codeToString()
+  - Added Irc::nick/ident/hostFromPrefix()
+  - Renamed IrcSessionInfo to IrcNetwork
+  - Renamed IrcSession to IrcConnection
+  - Added IrcConnection::network
+  - Added IrcConnection::enabled
+  - Added IrcConnection::status
+  - Added IrcConnection::displayName
+  - Added IrcConnection::reconnectDelay
+  - Replaced IrcConnection::password signal with a property
+  - Added IrcConnection::saslMechanism & supportedSaslMechanisms
+  - Added IrcConnection(host, parent) convenience constructor
+  - Made IrcConnection::sendCommand() queue when inactive
+  - Introduced IrcCommandFilter
+  - Removed IrcSender
+  - Replaced IrcMessage::sender with IrcMessage::(prefix|nick|ident|host)
+  - Added IrcMessage::network
+  - Added IrcPrivate/NoticeMessage::private property
+  - Replaced IrcNickMessage::nick with oldNick & newNick
+  - Renamed IrcPrivate/NoticeMessage::message to content
+  - Replaced IrcMessage::fromCommand() with IrcCommand::toMessage()
+- IrcModel
+  - Added IrcUserModel::sortOrder & sortMethod
+  - Added IrcUserModel::indexOf(IrcUser*)
+  - Added IrcUserModel::clear()
+  - Added IrcUser::title
+  - Renamed IrcUserModel::user(QString) to find(QString)
+  - Added IrcBufferModel::network
+  - Added IrcBufferModel::sortOrder & sortMethod
+  - Added IrcBufferModel::add(IrcBuffer*)
+  - Added IrcBufferModel::indexOf(IrcBuffer*)
+  - Added IrcBufferModel::remove(IrcBuffer*)
+  - Added IrcBufferModel::buffer/channelPrototype
+  - Split IrcBufferModel::create() to createBuffer() & createChannel()
+  - Renamed IrcBufferModel::user(QString) to find(QString)
+  - Removed IrcBufferModel::destroy()
+  - Added IrcBuffer::persistent
+  - Added IrcBuffer::sticky
+  - Added IrcBuffer::network
+  - Added IrcBuffer::receiveMessage()
+- IrcUtil
+  - Added IrcCommandParser::tolerant
+  - Renamed IrcCommandParser::currentTarget to target
+  - Replaced IrcCommandParser::prefix with triggers
+  - Added details for IrcCommandParser::syntax()
   - Merged IrcPalette to IrcTextFormat
+- Examples
+  - Added a minimal example - connect, join & message in 8 lines of code
+  - Added a Qt Quick based GUI client example
+  - Added a bot example written in QML
 
 2.2.0
 -----
