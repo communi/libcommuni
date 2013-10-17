@@ -46,10 +46,6 @@ IRC_BEGIN_NAMESPACE
         userListView->setModel(model);
     }
     \endcode
-
-    \section sorting Sorting
-
-    TODO
 */
 
 /*!
@@ -585,7 +581,7 @@ void IrcUserModel::clear()
 }
 
 /*!
-    \reimp
+    Sorts the model using the given \a order.
  */
 void IrcUserModel::sort(int column, Qt::SortOrder order)
 {

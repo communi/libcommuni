@@ -697,7 +697,7 @@ void IrcBufferModel::clear()
 }
 
 /*!
-    \reimp
+    Sorts the model using the given \a order.
  */
 void IrcBufferModel::sort(int column, Qt::SortOrder order)
 {
