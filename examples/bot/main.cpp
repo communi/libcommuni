@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     for (int i = 0; i < args.count(); ++i) {
         QString arg = args.at(i);
         if (arg == "-help") {
-            qDebug() << "Usage:" << argv[0] << "(-host <host>) (-port <port>) (-ssl) (-nick <nick>) (-channel <channel>)";
+            qDebug() << "Usage:" << argv[0] << "(-host <host>) (-port <port>) (-ssl) (-nick <nick>) (-user <user>) (-password <password>) (-channel <channel>)";
             return 0;
         } else if (arg == "-port") {
             bool ok = false;
@@ -40,6 +40,10 @@ int main(int argc, char* argv[])
             bot.setSecure(true);
         } else if (arg == "-host") {
             bot.setHost(args.value(++i));
+        } else if (arg == "-user") {
+            bot.setUserName(args.value(++i));
+        } else if (arg == "-password") {
+            bot.setPassword(args.value(++i));
         } else if (arg == "-nick") {
             bot.setNickName(args.value(++i));
         } else if (arg == "-channel") {
