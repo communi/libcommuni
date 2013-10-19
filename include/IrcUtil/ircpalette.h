@@ -19,6 +19,7 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qscopedpointer.h>
 
 IRC_BEGIN_NAMESPACE
