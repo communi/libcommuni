@@ -19,6 +19,8 @@
     The default values are
     <a href="http://www.w3.org/TR/SVG/types.html#ColorKeywords">SVG color keyword names</a>
     provided by the World Wide Web Consortium
+
+    \sa IrcPalette
  */
 
 /*!
@@ -33,7 +35,7 @@
 
 /*!
     \var Irc::Blue
-    \brief The default value is \c "navy"
+    \brief The default value is \c "blue"
  */
 
 /*!
@@ -48,7 +50,7 @@
 
 /*!
     \var Irc::Brown
-    \brief The default value is \c "maroon"
+    \brief The default value is \c "brown"
  */
 
 /*!
@@ -58,7 +60,7 @@
 
 /*!
     \var Irc::Orange
-    \brief The default value is \c "olive"
+    \brief The default value is \c "orange"
  */
 
 /*!
@@ -68,27 +70,27 @@
 
 /*!
     \var Irc::LightGreen
-    \brief The default value is \c "lime"
+    \brief The default value is \c "lightgreen"
  */
 
 /*!
     \var Irc::Cyan
-    \brief The default value is \c "teal"
+    \brief The default value is \c "cyan"
  */
 
 /*!
     \var Irc::LightCyan
-    \brief The default value is \c "aqua"
+    \brief The default value is \c "lightcyan"
  */
 
 /*!
     \var Irc::LightBlue
-    \brief The default value is \c "royalblue"
+    \brief The default value is \c "lightblue"
  */
 
 /*!
     \var Irc::Pink
-    \brief The default value is \c "fuchsia"
+    \brief The default value is \c "pink"
  */
 
 /*!

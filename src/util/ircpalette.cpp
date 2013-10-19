@@ -56,18 +56,18 @@ static QMap<int, QString>& irc_default_colors()
     if (x.isEmpty()) {
         x.insert(Irc::White, QLatin1String("white"));
         x.insert(Irc::Black, QLatin1String("black"));
-        x.insert(Irc::Blue, QLatin1String("navy"));
+        x.insert(Irc::Blue, QLatin1String("blue"));
         x.insert(Irc::Green, QLatin1String("green"));
         x.insert(Irc::Red, QLatin1String("red"));
-        x.insert(Irc::Brown, QLatin1String("maroon"));
+        x.insert(Irc::Brown, QLatin1String("brown"));
         x.insert(Irc::Purple, QLatin1String("purple"));
-        x.insert(Irc::Orange, QLatin1String("olive"));
+        x.insert(Irc::Orange, QLatin1String("orange"));
         x.insert(Irc::Yellow, QLatin1String("yellow"));
-        x.insert(Irc::LightGreen, QLatin1String("lime"));
-        x.insert(Irc::Cyan, QLatin1String("teal"));
-        x.insert(Irc::LightCyan, QLatin1String("aqua"));
-        x.insert(Irc::LightBlue, QLatin1String("royalblue"));
-        x.insert(Irc::Pink, QLatin1String("fuchsia"));
+        x.insert(Irc::LightGreen, QLatin1String("lightgreen"));
+        x.insert(Irc::Cyan, QLatin1String("cyan"));
+        x.insert(Irc::LightCyan, QLatin1String("lightcyan"));
+        x.insert(Irc::LightBlue, QLatin1String("lightblue"));
+        x.insert(Irc::Pink, QLatin1String("pink"));
         x.insert(Irc::Gray, QLatin1String("gray"));
         x.insert(Irc::LightGray, QLatin1String("lightgray"));
     }
@@ -141,7 +141,7 @@ void IrcPalette::setBlack(const QString& color)
 /*!
     This property holds the blue color name.
 
-    The default value is \c "navy".
+    The default value is \c "blue".
 
     \par Access functions:
     \li QString <b>blue</b>() const
@@ -210,7 +210,7 @@ void IrcPalette::setRed(const QString& color)
 /*!
     This property holds the brown color name.
 
-    The default value is \c "maroon".
+    The default value is \c "brown".
 
     \par Access functions:
     \li QString <b>brown</b>() const
@@ -256,7 +256,7 @@ void IrcPalette::setPurple(const QString& color)
 /*!
     This property holds the orange color name.
 
-    The default value is \c "olive".
+    The default value is \c "orange".
 
     \par Access functions:
     \li QString <b>orange</b>() const
@@ -302,7 +302,7 @@ void IrcPalette::setYellow(const QString& color)
 /*!
     This property holds the light green color name.
 
-    The default value is \c "lime".
+    The default value is \c "lightgreen".
 
     \par Access functions:
     \li QString <b>lightGreen</b>() const
@@ -325,7 +325,7 @@ void IrcPalette::setLightGreen(const QString& color)
 /*!
     This property holds the cyan color name.
 
-    The default value is \c "teal".
+    The default value is \c "cyan".
 
     \par Access functions:
     \li QString <b>cyan</b>() const
@@ -348,7 +348,7 @@ void IrcPalette::setCyan(const QString& color)
 /*!
     This property holds the light cyan color name.
 
-    The default value is \c "aqua".
+    The default value is \c "lightcyan".
 
     \par Access functions:
     \li QString <b>lightCyan</b>() const
@@ -371,7 +371,7 @@ void IrcPalette::setLightCyan(const QString& color)
 /*!
     This property holds the light blue color name.
 
-    The default value is \c "royalblue".
+    The default value is \c "lightblue".
 
     \par Access functions:
     \li QString <b>lightBlue</b>() const
@@ -394,7 +394,7 @@ void IrcPalette::setLightBlue(const QString& color)
 /*!
     This property holds the pink color name.
 
-    The default value is \c "fuchsia".
+    The default value is \c "pink".
 
     \par Access functions:
     \li QString <b>pink</b>() const

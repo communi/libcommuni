@@ -86,7 +86,7 @@ void tst_IrcPalette::testProperties()
     QVERIFY(format.palette());
     IrcPalette* palette = format.palette();
 
-    QCOMPARE(palette->property(prop.toUtf8()).toString(), palette->colorName(color));
+    QCOMPARE(palette->property(prop.toUtf8()).toString(), prop.toLower());
 
     QVERIFY(palette->setProperty(prop.toUtf8(), QString("dummy")));
     QCOMPARE(palette->colorName(color), QString("dummy"));
