@@ -111,6 +111,7 @@ public:
         qmlRegisterType<IrcCommandParser>(uri, 3, 0, "IrcCommandParser");
         qmlRegisterType<IrcLagTimer>(uri, 3, 0, "IrcLagTimer");
         qmlRegisterType<IrcTextFormat>(uri, 3, 0, "IrcTextFormat");
+        qmlRegisterUncreatableType<IrcPalette>(uri, 3, 0, "IrcPalette", "Cannot create an instance of IrcPalette. Use IrcTextFormat::palette property instead.");
 //! [qml-register-types]
     }
 };

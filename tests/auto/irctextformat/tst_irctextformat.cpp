@@ -9,6 +9,7 @@
 
 #include "irc.h"
 #include "irctextformat.h"
+#include "ircpalette.h"
 #include <QtTest/QtTest>
 
 class tst_IrcTextFormat : public QObject
@@ -17,7 +18,6 @@ class tst_IrcTextFormat : public QObject
 
 private slots:
     void testDefaults();
-    void testColorName();
     void testPlainText_data();
     void testPlainText();
     void testHtml_data();
@@ -29,19 +29,8 @@ private slots:
 void tst_IrcTextFormat::testDefaults()
 {
     IrcTextFormat format;
+    QVERIFY(format.palette());
     QVERIFY(!format.urlPattern().isEmpty());
-    for (int i = Irc::White; i <= Irc::LightGray; ++i)
-        QVERIFY(!format.colorName(i).isEmpty());
-    QCOMPARE(format.colorName(-1, "fallback"), QString("fallback"));
-}
-
-void tst_IrcTextFormat::testColorName()
-{
-    IrcTextFormat format;
-    for (int i = -1; i <= 123; ++i) {
-        format.setColorName(i, QString::number(i));
-        QCOMPARE(format.colorName(i), QString::number(i));
-    }
 }
 
 void tst_IrcTextFormat::testPlainText_data()
@@ -57,8 +46,10 @@ void tst_IrcTextFormat::testPlainText_data()
     QTest::newRow("underline") << "\x1funderline\x0f" << "underline";
 
     IrcTextFormat format;
+    QVERIFY(format.palette());
+    IrcPalette* palette = format.palette();
     for (int i = Irc::White; i <= Irc::LightGray; ++i) {
-        QString color = format.colorName(i);
+        QString color = palette->colorName(i);
         QTest::newRow(color.toUtf8()) << QString("\x03%1%2\x0f").arg(i).arg(color) << color;
     }
 
@@ -89,8 +80,10 @@ void tst_IrcTextFormat::testHtml_data()
     QTest::newRow("underline2") << "foo \x1funder\x0f and \x1fline\x1f bar" << "foo <span style='text-decoration: underline'>under</span> and <span style='text-decoration: underline'>line</span> bar";
 
     IrcTextFormat format;
+    QVERIFY(format.palette());
+    IrcPalette* palette = format.palette();
     for (int i = Irc::White; i <= Irc::LightGray; ++i) {
-        QString color = format.colorName(i);
+        QString color = palette->colorName(i);
         QTest::newRow(color.toUtf8()) << QString("foo \x03%1%2\x0f and \x03%1%2\x03 bar").arg(i).arg(color) << QString("foo <span style='color:%1'>%1</span> and <span style='color:%1'>%1</span> bar").arg(color);
     }
 
@@ -133,7 +126,6 @@ void tst_IrcTextFormat::testUrls()
     QCOMPARE(format.urlPattern(), pattern);
     QCOMPARE(format.toHtml(input), output);
 }
-
 
 QTEST_MAIN(tst_IrcTextFormat)
 

@@ -57,6 +57,7 @@ qrc_*.cpp
 /tests/auto/irclagtimer/tst_irclagtimer
 /tests/auto/ircmessage/tst_ircmessage
 /tests/auto/ircnetwork/tst_ircnetwork
+/tests/auto/ircpalette/tst_ircpalette
 /tests/auto/irctextformat/tst_irctextformat
 /tests/auto/ircuser/tst_ircuser
 /tests/auto/ircusermodel/tst_ircusermodel

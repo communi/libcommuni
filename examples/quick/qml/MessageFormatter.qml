@@ -15,6 +15,23 @@ QtObject {
 
     property IrcTextFormat textFormat: IrcTextFormat {
         id: textFormat
+
+        palette.gray: "#606060"
+        palette.lightGray: "#808080"
+
+        // http://ethanschoonover.com/solarized
+        palette.blue: "#268bd2"
+        palette.green: "#859900"
+        palette.red: "#dc322f"
+        palette.brown: "#cb4b16"
+        palette.purple: "#6c71c4"
+        palette.orange: "#cb4b16"
+        palette.yellow: "#b58900"
+        palette.lightGreen: "#859900"
+        palette.cyan: "#2aa198"
+        palette.lightCyan: "#2aa198"
+        palette.lightBlue: "#268bd2"
+        palette.pink: "#6c71c4"
     }
 
     function formatMessage(message) {

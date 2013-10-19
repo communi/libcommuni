@@ -53,7 +53,7 @@
   - Renamed IrcCommandParser::currentTarget to target
   - Replaced IrcCommandParser::prefix with triggers
   - Added details for IrcCommandParser::syntax()
-  - Merged IrcPalette to IrcTextFormat
+  - Added IrcPalette color name properties
 - Examples
   - Added a minimal example - connect, join & message in 8 lines of code
   - Added a Qt Quick based GUI client example

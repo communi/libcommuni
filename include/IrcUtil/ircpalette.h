@@ -1,0 +1,118 @@
+/*
+* Copyright (C) 2008-2013 The Communi Project
+*
+* This library is free software; you can redistribute it and/or modify it
+* under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This library is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+* License for more details.
+*/
+
+#ifndef IRCPALETTE_H
+#define IRCPALETTE_H
+
+#include <IrcGlobal>
+#include <QtCore/qmap.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qscopedpointer.h>
+
+IRC_BEGIN_NAMESPACE
+
+class IrcPalettePrivate;
+
+class IrcPalette : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString white READ white WRITE setWhite)
+    Q_PROPERTY(QString black READ black WRITE setBlack)
+    Q_PROPERTY(QString blue READ blue WRITE setBlue)
+    Q_PROPERTY(QString green READ green WRITE setGreen)
+    Q_PROPERTY(QString red READ red WRITE setRed)
+    Q_PROPERTY(QString brown READ brown WRITE setBrown)
+    Q_PROPERTY(QString purple READ purple WRITE setPurple)
+    Q_PROPERTY(QString orange READ orange WRITE setOrange)
+    Q_PROPERTY(QString yellow READ yellow WRITE setYellow)
+    Q_PROPERTY(QString lightGreen READ lightGreen WRITE setLightGreen)
+    Q_PROPERTY(QString cyan READ cyan WRITE setCyan)
+    Q_PROPERTY(QString lightCyan READ lightCyan WRITE setLightCyan)
+    Q_PROPERTY(QString lightBlue READ lightBlue WRITE setLightBlue)
+    Q_PROPERTY(QString pink READ pink WRITE setPink)
+    Q_PROPERTY(QString gray READ gray WRITE setGray)
+    Q_PROPERTY(QString lightGray READ lightGray WRITE setLightGray)
+
+public:
+    ~IrcPalette();
+
+    QMap<int, QString> colorNames() const;
+    void setColorNames(const QMap<int, QString>& names);
+
+    QString colorName(int color, const QString& fallback = QLatin1String("black")) const;
+    void setColorName(int color, const QString& name);
+
+    QString white() const;
+    void setWhite(const QString& color);
+
+    QString black() const;
+    void setBlack(const QString& color);
+
+    QString blue() const;
+    void setBlue(const QString& color);
+
+    QString green() const;
+    void setGreen(const QString& color);
+
+    QString red() const;
+    void setRed(const QString& color);
+
+    QString brown() const;
+    void setBrown(const QString& color);
+
+    QString purple() const;
+    void setPurple(const QString& color);
+
+    QString orange() const;
+    void setOrange(const QString& color);
+
+    QString yellow() const;
+    void setYellow(const QString& color);
+
+    QString lightGreen() const;
+    void setLightGreen(const QString& color);
+
+    QString cyan() const;
+    void setCyan(const QString& color);
+
+    QString lightCyan() const;
+    void setLightCyan(const QString& color);
+
+    QString lightBlue() const;
+    void setLightBlue(const QString& color);
+
+    QString pink() const;
+    void setPink(const QString& color);
+
+    QString gray() const;
+    void setGray(const QString& color);
+
+    QString lightGray() const;
+    void setLightGray(const QString& color);
+
+private:
+    friend class IrcTextFormat;
+    explicit IrcPalette(QObject* parent);
+
+    QScopedPointer<IrcPalettePrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcPalette)
+    Q_DISABLE_COPY(IrcPalette)
+};
+
+IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcPalette*))
+
+#endif // IRCPALETTE_H
