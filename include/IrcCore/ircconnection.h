@@ -112,10 +112,6 @@ public:
 
     IrcNetwork* network() const;
 
-    Q_INVOKABLE bool sendCommand(IrcCommand* command);
-    Q_INVOKABLE bool sendData(const QByteArray& data);
-    Q_INVOKABLE bool sendRaw(const QString& message);
-
     void installMessageFilter(QObject* filter);
     void removeMessageFilter(QObject* filter);
 
@@ -128,6 +124,10 @@ public Q_SLOTS:
     void quit(const QString& reason = QString());
     void setEnabled(bool enabled = true);
     void setDisabled(bool disabled = true);
+
+    bool sendCommand(IrcCommand* command);
+    bool sendData(const QByteArray& data);
+    bool sendRaw(const QString& message);
 
 Q_SIGNALS:
     void connecting();
