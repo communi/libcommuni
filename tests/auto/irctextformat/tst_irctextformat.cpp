@@ -111,6 +111,9 @@ void tst_IrcTextFormat::testUrls_data()
     QTest::newRow("www.fi") << defaultPattern << "www.fi" << "<a href='http://www.fi'>www.fi</a>";
     QTest::newRow("ftp.funet.fi") << defaultPattern << "ftp.funet.fi" << "<a href='ftp://ftp.funet.fi'>ftp.funet.fi</a>";
     QTest::newRow("jpnurmi@gmail.com") << defaultPattern << "jpnurmi@gmail.com" << "<a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>";
+    QTest::newRow("quote") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing</a>";
+    QTest::newRow("percent") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing</a>";
+    QTest::newRow("parentheses") << defaultPattern << "http://en.wikipedia.org/wiki/Qt_(software)" << "<a href='http://en.wikipedia.org/wiki/Qt_%28software%29'>http://en.wikipedia.org/wiki/Qt_(software)</a>";
     QTest::newRow("github commits") << defaultPattern << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>";
     QTest::newRow("empty pattern") << QString() << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "www.fi ftp.funet.fi jpnurmi@gmail.com";
 }
