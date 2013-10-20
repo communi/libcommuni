@@ -17,6 +17,7 @@
 
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qscopedpointer.h>
 
 IRC_BEGIN_NAMESPACE
@@ -57,5 +58,7 @@ private:
 };
 
 IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcLagTimer*))
 
 #endif // IRCLAGTIMER_H

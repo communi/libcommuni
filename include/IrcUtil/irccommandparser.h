@@ -18,6 +18,7 @@
 #include <IrcGlobal>
 #include <IrcCommand>
 #include <QtCore/qobject.h>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qstringlist.h>
 
 IRC_BEGIN_NAMESPACE
@@ -91,5 +92,7 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(IrcCommandParser::Details)
 
 IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCommandParser*))
 
 #endif // IRCCOMMANDPARSER_H
