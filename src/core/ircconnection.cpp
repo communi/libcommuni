@@ -992,7 +992,8 @@ IrcNetwork* IrcConnection::network() const
 /*!
     Opens a connection to the server.
 
-    The function does nothing when the connection is \ref enabled "disabled".
+    The function does nothing when the connection is already \ref active
+    or explicitly \ref enabled "disabled".
 
     \note The function merely outputs a warnings and returns immediately if
     either \ref host, \ref userName, \ref nickName or \ref realName is empty.
@@ -1016,7 +1017,7 @@ void IrcConnection::open()
         qWarning("IrcConnection::open(): realName is empty!");
         return;
     }
-    if (d->enabled && d->socket)
+    if (d->enabled && d->socket && !isActive())
         d->socket->connectToHost(d->host, d->port);
 }
 
