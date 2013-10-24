@@ -304,7 +304,7 @@ QString IrcTextFormat::toHtml(const QString& text) const
                     protocol = QLatin1String("http://");
             }
 
-            QString link = QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, QUrl::toPercentEncoding(href, ":/@%"), href);
+            QString link = QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, QUrl::toPercentEncoding(href, ":/@%#"), href);
             processed.replace(pos, len, link);
             pos += link.length();
         }
