@@ -26,7 +26,7 @@ IRC_BEGIN_NAMESPACE
 
 class IrcPalettePrivate;
 
-class IrcPalette : public QObject
+class IRC_UTIL_EXPORT IrcPalette : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString white READ white WRITE setWhite)
