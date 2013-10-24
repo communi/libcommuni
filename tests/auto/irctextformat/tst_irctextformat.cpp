@@ -115,6 +115,7 @@ void tst_IrcTextFormat::testUrls_data()
     QTest::newRow("percent") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing</a>";
     QTest::newRow("parentheses") << defaultPattern << "http://en.wikipedia.org/wiki/Qt_(software)" << "<a href='http://en.wikipedia.org/wiki/Qt_%28software%29'>http://en.wikipedia.org/wiki/Qt_(software)</a>";
     QTest::newRow("hash & comma") << defaultPattern << "https://codereview.qt-project.org/#change,1" << "<a href='https://codereview.qt-project.org/#change%2C1'>https://codereview.qt-project.org/#change,1</a>";
+    QTest::newRow("equal & question") << defaultPattern << "https://www.google.no/imghp?hl=en" << "<a href='https://www.google.no/imghp?hl=en'>https://www.google.no/imghp?hl=en</a>";
     QTest::newRow("github commits") << defaultPattern << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>";
     QTest::newRow("empty pattern") << QString() << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "www.fi ftp.funet.fi jpnurmi@gmail.com";
 }
