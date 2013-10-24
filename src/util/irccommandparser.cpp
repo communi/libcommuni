@@ -13,8 +13,8 @@
 */
 
 #include "irccommandparser.h"
+#include "irccommandparser_p.h"
 #include <climits>
-#include <qmap.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -162,32 +162,10 @@ IRC_BEGIN_NAMESPACE
     \brief The syntax suitable for visual representation
  */
 
-struct IrcCommandInfo
+#ifndef IRC_DOXYGEN
+IrcCommandParserPrivate::IrcCommandParserPrivate() : tolerant(false)
 {
-    QString fullSyntax()
-    {
-        return command + QLatin1Char(' ') + syntax;
-    }
-
-    IrcCommand::Type type;
-    QString command;
-    QString syntax;
-};
-
-class IrcCommandParserPrivate
-{
-public:
-    IrcCommandParserPrivate() : tolerant(false) { }
-
-    QList<IrcCommandInfo> find(const QString& command) const;
-    IrcCommand* parse(const IrcCommandInfo& command, QStringList params) const;
-
-    bool tolerant;
-    QString target;
-    QStringList triggers;
-    QStringList channels;
-    QMultiMap<QString, IrcCommandInfo> commands;
-};
+}
 
 QList<IrcCommandInfo> IrcCommandParserPrivate::find(const QString& command) const
 {
@@ -219,71 +197,100 @@ static inline bool isCurrent(const QString& token)
     return token.startsWith(QLatin1Char('[')) && token.endsWith(QLatin1Char(']'));
 }
 
-IrcCommand* IrcCommandParserPrivate::parse(const IrcCommandInfo& command, QStringList params) const
+IrcCommandInfo IrcCommandParserPrivate::parseSyntax(IrcCommand::Type type, const QString& syntax)
 {
-    const QStringList tokens = command.syntax.split(QLatin1Char(' '), QString::SkipEmptyParts);
-    const bool onChannel = channels.contains(target, Qt::CaseInsensitive);
+    IrcCommandInfo cmd;
+    QStringList tokens = syntax.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    if (!tokens.isEmpty()) {
+        cmd.type = type;
+        cmd.command = tokens.takeFirst().toUpper();
+        cmd.syntax = tokens.join(QLatin1String(" "));
+        cmd.max = tokens.count();
 
-    int min = 0;
-    int max = tokens.count();
-
-    for (int i = 0; i < tokens.count(); ++i) {
-        const QString token = tokens.at(i);
-        if (!isOptional(token))
-            ++min;
-        const bool last = (i == tokens.count() - 1);
-        if (last && isMultiWord(token))
-            max = INT_MAX;
-        if (isOptional(token) && isChannel(token)) {
-            if (onChannel) {
-                const QString param = params.value(i);
-                if (param.isNull() || !channels.contains(param, Qt::CaseInsensitive))
-                    params.insert(i, target);
-            } else  if (!channels.contains(params.value(i))) {
-                return 0;
-            }
-            ++min;
-        } else if (isCurrent(token)) {
-            params.insert(i, target);
+        IrcParameterInfo param;
+        for (int i = 0; i < tokens.count(); ++i) {
+            const QString& token = tokens.at(i);
+            param.optional = isOptional(token);
+            param.channel = isChannel(token);
+            param.current = isCurrent(token);
+            param.multi = isMultiWord(token);
+            if (!param.optional)
+                ++cmd.min;
+            if (param.optional && param.channel)
+                ++cmd.min;
+            const bool last = (i == tokens.count() - 1);
+            if (last && param.multi)
+                cmd.max = INT_MAX;
+            cmd.params += param;
         }
     }
-
-    if (params.count() >= min && params.count() <= max) {
-        IrcCommand* cmd = new IrcCommand;
-        cmd->setType(command.type);
-        if (command.type == IrcCommand::Custom)
-            params.prepend(command.command);
-        cmd->setParameters(params);
-        return cmd;
-    }
-
-    return 0;
+    return cmd;
 }
 
-/*!
-    Clears the list of commands.
-
-    \sa reset()
- */
-void IrcCommandParser::clear()
+IrcCommand* IrcCommandParserPrivate::parseCommand(const IrcCommandInfo& command, QStringList* params) const
 {
-    Q_D(IrcCommandParser);
-    if (!d->commands.isEmpty()) {
-        d->commands.clear();
-        emit commandsChanged(QStringList());
+    IrcCommand* cmd = 0;
+    if (processParameters(command, params)) {
+        const int count = params->count();
+        if (count >= command.min && count <= command.max) {
+            cmd = new IrcCommand;
+            cmd->setType(command.type);
+            if (command.type == IrcCommand::Custom)
+                params->prepend(command.command);
+            cmd->setParameters(*params);
+        }
     }
+    return cmd;
 }
 
-/*!
-    Resets the channels and the current target.
-
-    \sa clear()
- */
-void IrcCommandParser::reset()
+bool IrcCommandParserPrivate::processParameters(const IrcCommandInfo& command, QStringList* params) const
 {
-    setChannels(QStringList());
-    setTarget(QString());
+    for (int i = 0; i < command.params.count(); ++i) {
+        const IrcParameterInfo& info = command.params.at(i);
+        if (info.optional && info.channel) {
+            const QString param = params->value(i);
+            if (onChannel()) {
+                if (param.isNull() || !channels.contains(param, Qt::CaseInsensitive))
+                    params->insert(i, target);
+            } else  if (!channels.contains(param)) {
+                return false;
+            }
+        } else if (info.current) {
+            params->insert(i, target);
+        }
+    }
+    return true;
 }
+
+bool IrcCommandParserPrivate::processMessage(QString* input, int* removed) const
+{
+    if (input->isEmpty())
+        return false;
+    if (triggers.isEmpty())
+        return tolerant;
+
+    foreach (const QString& trigger, triggers) {
+        if (tolerant && trigger.length() == 1 && (input->startsWith(trigger.repeated(2)) || input->startsWith(trigger + QLatin1Char(' ')))) {
+            // treat "//cmd" and "/ /cmd" as message (-> "/cmd")
+            input->remove(0, 1);
+            if (removed)
+                *removed = 1;
+            return true;
+        } else if (input->startsWith(trigger)) {
+            input->remove(0, trigger.length());
+            if (removed)
+                *removed = trigger.length();
+            return false;
+        }
+    }
+    return tolerant;
+}
+
+bool IrcCommandParserPrivate::onChannel() const
+{
+    return channels.contains(target, Qt::CaseInsensitive);
+}
+#endif // IRC_DOXYGEN
 
 /*!
     Constructs a command parser with \a parent.
@@ -352,12 +359,8 @@ QString IrcCommandParser::syntax(const QString& command, Details details) const
 void IrcCommandParser::addCommand(IrcCommand::Type type, const QString& syntax)
 {
     Q_D(IrcCommandParser);
-    QStringList words = syntax.split(QLatin1Char(' '), QString::SkipEmptyParts);
-    if (!words.isEmpty()) {
-        IrcCommandInfo cmd;
-        cmd.type = type;
-        cmd.command = words.takeFirst().toUpper();
-        cmd.syntax = words.join(QLatin1String(" "));
+    IrcCommandInfo cmd = d->parseSyntax(type, syntax);
+    if (!cmd.command.isEmpty()) {
         const bool contains = d->commands.contains(cmd.command);
         d->commands.insert(cmd.command, cmd);
         if (!contains)
@@ -498,26 +501,6 @@ void IrcCommandParser::setTolerant(bool tolerant)
     }
 }
 
-static bool processMessage(QString* input, const QStringList& triggers, bool tolerant)
-{
-    if (input->isEmpty())
-        return false;
-    if (triggers.isEmpty())
-        return tolerant;
-
-    foreach (const QString& trigger, triggers) {
-        if (tolerant && trigger.length() == 1 && (input->startsWith(trigger.repeated(2)) || input->startsWith(trigger + QLatin1Char(' ')))) {
-            // treat "//cmd" and "/ /cmd" as message (-> "/cmd")
-            input->remove(0, 1);
-            return true;
-        } else if (input->startsWith(trigger)) {
-            input->remove(0, trigger.length());
-            return false;
-        }
-    }
-    return tolerant;
-}
-
 /*!
     Parses and returns the command for \a input, or \c 0 if the input is not valid.
  */
@@ -525,7 +508,7 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
 {
     Q_D(const IrcCommandParser);
     QString message = input;
-    if (processMessage(&message, d->triggers, d->tolerant)) {
+    if (d->processMessage(&message)) {
         return IrcCommand::createMessage(d->target, message.trimmed());
     } else {
         QStringList params = message.split(QLatin1Char(' '), QString::SkipEmptyParts);
@@ -534,20 +517,43 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
             const QList<IrcCommandInfo> commands = d->find(command);
             if (!commands.isEmpty()) {
                 foreach (const IrcCommandInfo& c, commands) {
-                    IrcCommand* cmd = d->parse(c, params);
+                    IrcCommand* cmd = d->parseCommand(c, &params);
                     if (cmd)
                         return cmd;
                 }
             } else if (d->tolerant) {
-                IrcCommandInfo info;
-                info.type = IrcCommand::Quote;
-                info.syntax = QLatin1String("(<parameters...>)");
-                params.prepend(command);
-                return d->parse(info, params);
+                IrcCommandInfo custom = d->parseSyntax(IrcCommand::Quote, QString(QLatin1String("%1 (<parameters...>)")).arg(command));
+                params.prepend(custom.command);
+                return d->parseCommand(custom, &params);
             }
         }
     }
     return 0;
+}
+
+/*!
+    Clears the list of commands.
+
+    \sa reset()
+ */
+void IrcCommandParser::clear()
+{
+    Q_D(IrcCommandParser);
+    if (!d->commands.isEmpty()) {
+        d->commands.clear();
+        emit commandsChanged(QStringList());
+    }
+}
+
+/*!
+    Resets the channels and the current target.
+
+    \sa clear()
+ */
+void IrcCommandParser::reset()
+{
+    setChannels(QStringList());
+    setTarget(QString());
 }
 
 #include "moc_irccommandparser.cpp"

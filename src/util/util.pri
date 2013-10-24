@@ -21,7 +21,8 @@ PUB_HEADERS += $$INCDIR/ircpalette.h
 PUB_HEADERS += $$INCDIR/irctextformat.h
 PUB_HEADERS += $$INCDIR/ircutil.h
 
-PRIV_HEADERS = $$INCDIR/irclagtimer_p.h
+PRIV_HEADERS  = $$INCDIR/irccommandparser_p.h
+PRIV_HEADERS += $$INCDIR/irclagtimer_p.h
 
 HEADERS += $$PUB_HEADERS
 HEADERS += $$PRIV_HEADERS
