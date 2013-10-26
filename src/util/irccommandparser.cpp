@@ -262,27 +262,33 @@ bool IrcCommandParserPrivate::processParameters(const IrcCommandInfo& command, Q
     return true;
 }
 
-bool IrcCommandParserPrivate::processMessage(QString* input, int* removed) const
+bool IrcCommandParserPrivate::processCommand(QString* input, int* removed) const
 {
-    if (input->isEmpty())
-        return false;
-    if (triggers.isEmpty())
-        return tolerant;
-
     foreach (const QString& trigger, triggers) {
         if (tolerant && trigger.length() == 1 && (input->startsWith(trigger.repeated(2)) || input->startsWith(trigger + QLatin1Char(' ')))) {
             // treat "//cmd" and "/ /cmd" as message (-> "/cmd")
             input->remove(0, 1);
             if (removed)
                 *removed = 1;
-            return true;
+            return false;
         } else if (input->startsWith(trigger)) {
             input->remove(0, trigger.length());
             if (removed)
                 *removed = trigger.length();
-            return false;
+            return true;
         }
     }
+    return false;
+}
+
+bool IrcCommandParserPrivate::processMessage(QString* input, int* removed) const
+{
+    if (input->isEmpty())
+        return false;
+    if (triggers.isEmpty())
+        return tolerant;
+    if (processCommand(input, removed))
+        return false;
     return tolerant;
 }
 
