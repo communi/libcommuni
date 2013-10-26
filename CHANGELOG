@@ -1,5 +1,7 @@
 3.1.0
 -----
+- General
+  - IrcUtil now depends on IrcModel
 - IrcUtil
   - Introduced IrcCompleter
 

@@ -51,6 +51,8 @@
     \endcode
 
     This sets up the necessary include paths and linker rules in order to use the module.
+
+    \note IrcModel depends on \ref core "IrcCore"
  */
 
 /*!
@@ -60,8 +62,10 @@
     In order to enable the module, add the following lines to your qmake project (.pro) file:
     \code
     CONFIG += communi
-    COMMUNI += core util
+    COMMUNI += core model util
     \endcode
 
     This sets up the necessary include paths and linker rules in order to use the module.
+
+    \note IrcUtil depends on \ref core "IrcCore" and \ref models "IrcModel"
  */
