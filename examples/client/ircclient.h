@@ -14,16 +14,16 @@
 #include <QHash>
 
 class IrcBuffer;
-class IrcConnection;
 class IrcMessage;
 class IrcUserModel;
+class IrcCompleter;
+class IrcConnection;
 class IrcBufferModel;
 class IrcCommandParser;
 
 QT_FORWARD_DECLARE_CLASS(QLineEdit)
 QT_FORWARD_DECLARE_CLASS(QListView)
 QT_FORWARD_DECLARE_CLASS(QTextEdit)
-QT_FORWARD_DECLARE_CLASS(QCompleter)
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
 
@@ -43,6 +43,9 @@ private slots:
     void onTextEdited();
     void onTextEntered();
 
+    void onCompletion();
+    void onCompleted(const QString& text, int cursor);
+
     void onBufferAdded(IrcBuffer* buffer);
     void onBufferRemoved(IrcBuffer* buffer);
 
@@ -61,10 +64,10 @@ private:
 
     QLineEdit* lineEdit;
     QTextEdit* textEdit;
-    QCompleter* completer;
     QListView* userList;
     QListView* bufferList;
 
+    IrcCompleter* completer;
     IrcCommandParser* parser;
     IrcConnection* connection;
     IrcBufferModel* bufferModel;
