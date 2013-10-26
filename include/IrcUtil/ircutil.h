@@ -1,4 +1,5 @@
 #include "irccommandparser.h"
+#include "irccompleter.h"
 #include "irclagtimer.h"
 #include "ircpalette.h"
 #include "irctextformat.h"
