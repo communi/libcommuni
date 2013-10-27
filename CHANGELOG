@@ -4,6 +4,9 @@
   - IrcUtil now depends on IrcModel
 - IrcCore
   - Added IrcModeMessage::arguments()
+- IrcModel
+  - Added IrcChannel::key
+  - Added IrcChannel::join(QString key)
 - IrcUtil
   - Introduced IrcCompleter
 

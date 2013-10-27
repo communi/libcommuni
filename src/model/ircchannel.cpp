@@ -109,6 +109,7 @@ void IrcChannelPrivate::changeModes(const QString& value, const QStringList& arg
     }
 
     if (modes != ms) {
+        setKey(ms.value(QLatin1String("k")));
         modes = ms;
         emit q->modeChanged(q->mode());
     }
@@ -133,6 +134,7 @@ void IrcChannelPrivate::setModes(const QString& value, const QStringList& argume
     }
 
     if (modes != ms) {
+        setKey(ms.value(QLatin1String("k")));
         modes = ms;
         emit q->modeChanged(q->mode());
     }
@@ -144,6 +146,15 @@ void IrcChannelPrivate::setTopic(const QString& value)
     if (topic != value) {
         topic = value;
         emit q->topicChanged(topic);
+    }
+}
+
+void IrcChannelPrivate::setKey(const QString& value)
+{
+    Q_Q(IrcChannel);
+    if (modes.value(QLatin1String("k")) != value) {
+        modes.insert(QLatin1String("k"), value);
+        emit q->keyChanged(value);
     }
 }
 
@@ -396,6 +407,21 @@ IrcChannel::~IrcChannel()
 }
 
 /*!
+    This property holds the channel key.
+
+    \par Access function:
+    \li QString <b>key</b>() const
+
+    \par Notifier signal:
+    \li void <b>keyChanged</b>(const QString& key)
+ */
+QString IrcChannel::key() const
+{
+    Q_D(const IrcChannel);
+    return d->modes.value(QLatin1String("k"));
+}
+
+/*!
     This property holds the complete channel mode including possible arguments.
 
     \par Access function:
@@ -436,6 +462,25 @@ bool IrcChannel::isActive() const
 {
     Q_D(const IrcChannel);
     return IrcBuffer::isActive() && d->joined > d->left;
+}
+
+/*!
+    Joins the channel with an optional \a key.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    IrcCommand* command = IrcCommand::createJoin(channel->title(), key);
+    channel->sendCommand(command);
+    \endcode
+
+    \sa IrcBuffer::sendCommand(), IrcCommand::createJoin()
+ */
+void IrcChannel::join(const QString& key)
+{
+    Q_D(IrcChannel);
+    if (!key.isEmpty())
+        d->setKey(key);
+    sendCommand(IrcCommand::createJoin(title(), key));
 }
 
 /*!

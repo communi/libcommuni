@@ -37,6 +37,7 @@ public:
     void changeModes(const QString& value, const QStringList& arguments);
     void setModes(const QString& value, const QStringList& arguments);
     void setTopic(const QString& value);
+    void setKey(const QString& value);
 
     void addUser(const QString& user);
     bool removeUser(const QString& user);
