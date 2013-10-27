@@ -815,14 +815,11 @@ IrcModeMessage::Kind IrcModeMessage::kind() const
 {
     Q_D(const IrcMessage);
     const IrcNetwork* network = d->connection->network();
-    QStringList channelModes = network->channelModes(IrcNetwork::AllTypes);
-    QString m = mode();
-    if (m.startsWith(QLatin1Char('+')) || m.startsWith(QLatin1Char('-')))
-        m.remove(0, 1);
-    while (!m.isEmpty()) {
-        if (!channelModes.contains(m.at(0)))
+    const QStringList channelModes = network->channelModes(IrcNetwork::AllTypes);
+    const QString m = mode().remove(QLatin1Char('+')).remove(QLatin1Char('-'));
+    for (int i = 0; i < m.length(); ++i) {
+        if (!channelModes.contains(m.at(i)))
             return User;
-        m.remove(0, 1);
     }
     return Channel;
 }
