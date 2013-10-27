@@ -34,8 +34,8 @@ public:
 
     virtual void init(const QString& title, IrcBufferModel* model);
 
-    void changeMode(const QString& value);
-    void setMode(const QString& value);
+    void changeModes(const QString& value, const QStringList& arguments);
+    void setModes(const QString& value, const QStringList& arguments);
     void setTopic(const QString& value);
 
     void addUser(const QString& user);
@@ -62,7 +62,7 @@ public:
         return channel->d_func();
     }
 
-    QString mode;
+    QMap<QString, QString> modes;
     QString topic;
     int joined, left;
     QList<IrcUser*> userList;
