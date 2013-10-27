@@ -2,6 +2,8 @@
 -----
 - General
   - IrcUtil now depends on IrcModel
+- IrcCore
+  - Added IrcModeMessage::arguments()
 - IrcUtil
   - Introduced IrcCompleter
 

@@ -776,7 +776,7 @@ QString IrcModeMessage::mode() const
 }
 
 /*!
-    This property holds the mode argument.
+    This property holds the first mode argument.
 
     \par Access function:
     \li QString <b>argument</b>() const
@@ -785,6 +785,19 @@ QString IrcModeMessage::argument() const
 {
     Q_D(const IrcMessage);
     return d->param(2);
+}
+
+/*!
+    \since 3.1
+    This property holds the all mode arguments.
+
+    \par Access function:
+    \li QStringList <b>arguments</b>() const
+ */
+QStringList IrcModeMessage::arguments() const
+{
+    Q_D(const IrcMessage);
+    return d->params().mid(2);
 }
 
 /*!
