@@ -250,6 +250,9 @@ IrcUserModel::~IrcUserModel()
     \par Access functions:
     \li \ref IrcChannel* <b>channel</b>() const
     \li void <b>setChannel</b>(\ref IrcChannel* channel)
+
+    \par Notifier signal:
+    \li void <b>channelChanged</b>(\ref IrcChannel* channel)
  */
 IrcChannel* IrcUserModel::channel() const
 {

@@ -260,6 +260,7 @@ void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool noti
             qWarning() << "IrcBufferModel: ignored duplicate buffer" << title;
             return;
         }
+        IrcBufferPrivate::get(buffer)->setModel(q);
         const bool isChannel = buffer->isChannel();
         if (sortMethod != Irc::SortByHand) {
             QList<IrcBuffer*>::iterator it;
@@ -274,7 +275,6 @@ void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool noti
         if (notify)
             emit q->aboutToBeAdded(buffer);
         q->beginInsertRows(QModelIndex(), index, index);
-        IrcBufferPrivate::get(buffer)->setModel(q);
         bufferList.insert(index, buffer);
         bufferMap.insert(lower, buffer);
         if (isChannel)
