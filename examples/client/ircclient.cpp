@@ -256,6 +256,7 @@ void IrcClient::createParser()
     parser->setTriggers(QStringList("/"));
     parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
     parser->addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
+    parser->addCommand(IrcCommand::Mode, "MODE (<channel/user>) (<mode>) (<arg>)");
     parser->addCommand(IrcCommand::Nick, "NICK <nick>");
     parser->addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
 }

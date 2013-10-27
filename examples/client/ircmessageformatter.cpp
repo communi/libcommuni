@@ -21,6 +21,9 @@ QString IrcMessageFormatter::formatMessage(IrcMessage* message)
         case IrcMessage::Join:
             formatted = formatJoinMessage(static_cast<IrcJoinMessage*>(message));
             break;
+        case IrcMessage::Mode:
+            formatted = formatModeMessage(static_cast<IrcModeMessage*>(message));
+            break;
         case IrcMessage::Names:
             formatted = formatNamesMessage(static_cast<IrcNamesMessage*>(message));
             break;
@@ -63,6 +66,15 @@ QString IrcMessageFormatter::formatJoinMessage(IrcJoinMessage* message)
         return QObject::tr("! You have joined %1 as %2").arg(message->channel(), message->nick());
     else
         return QObject::tr("! %1 has joined %2").arg(message->nick(), message->channel());
+}
+
+QString IrcMessageFormatter::formatModeMessage(IrcModeMessage* message)
+{
+    QString args = message->arguments().join(" ");
+    if (message->isReply())
+        return QObject::tr("! %1 mode is %2 %3").arg(message->target(), message->mode(), args);
+    else
+        return QObject::tr("! %1 sets mode %2 %3 %4").arg(message->nick(), message->target(), message->mode(), args);
 }
 
 QString IrcMessageFormatter::formatNamesMessage(IrcNamesMessage* message)
