@@ -75,7 +75,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         d.message->setPrefix(message->prefix());
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
-        d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
+        d.message->setParameters(message->parameters().mid(1));
         emit messageReceived(d.message);
         d.message = 0;
         break;
