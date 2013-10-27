@@ -480,7 +480,7 @@ void IrcChannel::join(const QString& key)
     Q_D(IrcChannel);
     if (!key.isEmpty())
         d->setKey(key);
-    sendCommand(IrcCommand::createJoin(title(), key));
+    sendCommand(IrcCommand::createJoin(title(), IrcChannel::key()));
 }
 
 /*!
