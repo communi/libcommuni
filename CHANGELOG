@@ -7,6 +7,8 @@
   - Added IrcConnection::restoreState()
   - Added IrcModeMessage::arguments()
 - IrcModel
+  - Added IrcBufferModel::saveState()
+  - Added IrcBufferModel::restoreState()
   - Added IrcChannel::key
   - Added IrcChannel::join(QString key)
 - IrcUtil

@@ -21,7 +21,10 @@
 #include "ircmessage.h"
 #include "irccommand.h"
 #include "ircconnection.h"
+#include <qmetatype.h>
 #include <qmetaobject.h>
+#include <qdatastream.h>
+#include <qvariant.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -965,6 +968,91 @@ void IrcBufferModel::setChannelPrototype(IrcChannel* prototype)
         d->channelProto = prototype ? prototype : new IrcChannel(this);
         emit channelPrototypeChanged(d->channelProto);
     }
+}
+
+/*!
+    Saves the state of the model. The \a version number is stored as part of the state data.
+
+    To restore the saved state, pass the return value and \a version number to restoreState().
+ */
+QByteArray IrcBufferModel::saveState(int version) const
+{
+    Q_D(const IrcBufferModel);
+    QVariantMap args;
+    args.insert("version", version);
+    args.insert("sortOrder", d->sortOrder);
+    args.insert("sortMethod", d->sortMethod);
+    args.insert("displayRole", d->role);
+
+    QVariantList bufs;
+    foreach (IrcBuffer* buffer, d->bufferList) {
+        QVariantMap b;
+        b.insert("channel", buffer->isChannel());
+        b.insert("name", buffer->name());
+        b.insert("prefix", buffer->prefix());
+        b.insert("title", buffer->title());
+        if (IrcChannel* channel = buffer->toChannel()) {
+            IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
+            b.insert("modes", QStringList(p->modes.keys()));
+            b.insert("args", QStringList(p->modes.values()));
+            b.insert("topic", channel->topic());
+        }
+        b.insert("stick", buffer->isSticky());
+        b.insert("persistent", buffer->isPersistent());
+        bufs += b;
+    }
+    args.insert("buffers", bufs);
+
+    QByteArray state;
+    QDataStream out(&state, QIODevice::WriteOnly);
+    out << args;
+    return state;
+}
+
+/*!
+    Restores the \a state of the model. The \a version number is compared with that stored in \a state.
+    If they do not match, the model state is left unchanged, and this function returns \c false; otherwise,
+    the state is restored, and \c true is returned.
+
+    \sa saveState()
+ */
+bool IrcBufferModel::restoreState(const QByteArray& state, int version)
+{
+    Q_D(IrcBufferModel);
+    QVariantMap args;
+    QDataStream in(state);
+    in >> args;
+    if (in.status() != QDataStream::Ok || args.value("version", -1).toInt() != version)
+        return false;
+
+    setSortOrder(static_cast<Qt::SortOrder>(args.value("sortOrder", sortOrder()).toInt()));
+    setSortMethod(static_cast<Irc::SortMethod>(args.value("sortMethod", sortMethod()).toInt()));
+    setDisplayRole(static_cast<Irc::DataRole>(args.value("displayRole", displayRole()).toInt()));
+
+    QVariantList buffers = args.value("buffers").toList();
+    foreach (const QVariant& v, buffers) {
+        QVariantMap b = v.toMap();
+        IrcBuffer* buffer = 0;
+        if (b.value("channel").toBool())
+            buffer = d->createChannelHelper(b.value("title").toString());
+        else
+            buffer = d->createBufferHelper(b.value("title").toString());
+        buffer->setName(b.value("name").toString());
+        buffer->setPrefix(b.value("prefix").toString());
+        buffer->setSticky(b.value("sticky").toBool());
+        buffer->setPersistent(b.value("persistent").toBool());
+        add(buffer);
+        IrcChannel* channel = buffer->toChannel();
+        if (channel) {
+            IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
+            const QStringList modes = b.value("modes").toStringList();
+            const QStringList args = b.value("args").toStringList();
+            for (int i = 0; i < modes.count(); ++i)
+                p->modes.insert(modes.at(i), args.value(i));
+            channel->join();
+        }
+    }
+    return true;
 }
 
 #include "moc_ircbuffermodel.cpp"
