@@ -118,6 +118,9 @@ public:
     void installCommandFilter(QObject* filter);
     void removeCommandFilter(QObject* filter);
 
+    Q_INVOKABLE QByteArray saveState(int version = 0) const;
+    Q_INVOKABLE bool restoreState(const QByteArray& state, int version = 0);
+
 public Q_SLOTS:
     void open();
     void close();
