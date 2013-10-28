@@ -22,16 +22,17 @@
 
 IRC_BEGIN_NAMESPACE
 
-class IrcBufferModelPrivate : public QObject, public IrcMessageFilter
+class IrcBufferModelPrivate : public QObject, public IrcMessageFilter, public IrcCommandFilter
 {
     Q_OBJECT
-    Q_INTERFACES(IrcMessageFilter)
     Q_DECLARE_PUBLIC(IrcBufferModel)
+    Q_INTERFACES(IrcMessageFilter IrcCommandFilter)
 
 public:
     IrcBufferModelPrivate();
 
     bool messageFilter(IrcMessage* message);
+    bool commandFilter(IrcCommand* command);
 
     IrcBuffer* createBufferHelper(const QString& title);
     IrcChannel* createChannelHelper(const QString& title);
@@ -59,6 +60,7 @@ public:
     QPointer<IrcConnection> connection;
     QList<IrcBuffer*> bufferList;
     QMap<QString, IrcBuffer*> bufferMap;
+    QHash<QString, QString> keys;
     QStringList channels;
     Irc::SortMethod sortMethod;
     Qt::SortOrder sortOrder;

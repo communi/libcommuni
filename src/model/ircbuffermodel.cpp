@@ -14,10 +14,12 @@
 
 #include "ircbuffermodel.h"
 #include "ircbuffermodel_p.h"
+#include "ircchannel_p.h"
 #include "ircbuffer_p.h"
 #include "ircnetwork.h"
 #include "ircchannel.h"
 #include "ircmessage.h"
+#include "irccommand.h"
 #include "ircconnection.h"
 #include <qmetaobject.h>
 
@@ -177,6 +179,19 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
     return false;
 }
 
+bool IrcBufferModelPrivate::commandFilter(IrcCommand* cmd)
+{
+    if (cmd->type() == IrcCommand::Join) {
+        const QString channel = cmd->parameters().value(0).toLower();
+        const QString key = cmd->parameters().value(1);
+        if (!key.isEmpty())
+            keys.insert(channel, key);
+        else
+            keys.remove(channel);
+    }
+    return false;
+}
+
 IrcBuffer* IrcBufferModelPrivate::createBufferHelper(const QString& title)
 {
     Q_Q(IrcBufferModel);
@@ -277,8 +292,11 @@ void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool noti
         q->beginInsertRows(QModelIndex(), index, index);
         bufferList.insert(index, buffer);
         bufferMap.insert(lower, buffer);
-        if (isChannel)
+        if (isChannel) {
             channels += title;
+            if (keys.contains(lower))
+                IrcChannelPrivate::get(buffer->toChannel())->setKey(keys.take(lower));
+        }
         q->connect(buffer, SIGNAL(destroyed(IrcBuffer*)), SLOT(_irc_bufferDestroyed(IrcBuffer*)));
         q->endInsertRows();
         if (notify) {
@@ -422,6 +440,7 @@ void IrcBufferModel::setConnection(IrcConnection* connection)
         }
         d->connection = connection;
         d->connection->installMessageFilter(d);
+        d->connection->installCommandFilter(d);
         connect(d->connection, SIGNAL(statusChanged(IrcConnection::Status)), this, SLOT(_irc_connectionStatusChanged()));
         emit connectionChanged(connection);
         emit networkChanged(network());
