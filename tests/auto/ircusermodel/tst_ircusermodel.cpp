@@ -188,12 +188,10 @@ void tst_IrcUserModel::testSorting()
     connection->open();
     QVERIFY(waitForOpened());
 
-    foreach (const QByteArray& line, welcomeData.split('\n'))
-        QVERIFY(waitForWritten(line + '\n'));
+    QVERIFY(waitForWritten(welcomeData));
     QCOMPARE(bufferModel.count(), 0);
 
-    foreach (const QByteArray& line, joinData.split('\n'))
-        QVERIFY(waitForWritten(line + '\n'));
+    QVERIFY(waitForWritten(joinData));
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
