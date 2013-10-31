@@ -17,6 +17,7 @@
 #include "irccommandparser_p.h"
 #include "ircbuffermodel.h"
 #include "ircusermodel.h"
+#include "ircnetwork.h"
 #include "ircchannel.h"
 #include "ircuser.h"
 
@@ -84,21 +85,45 @@ IRC_BEGIN_NAMESPACE
 #define EndOfItem EndWord
 #endif // QT_VERSION
 
-static QPair<int, int> findWordBoundaries(const QString& text, int pos)
+static bool isPrefixed(const QString& text, int pos, const QStringList& prefixes, int* len)
+{
+    foreach (const QString& prefix, prefixes) {
+        const int ll = prefix.length();
+        if (text.mid(pos, ll) == prefix) {
+            if (len)
+                *len = 0;
+            return true;
+        } else if (text.mid(pos - ll, ll) == prefix) {
+            if (len)
+                *len = ll;
+            return true;
+        }
+    }
+    return false;
+}
+
+static QPair<int, int> findWordBoundaries(const QString& text, int pos, const QStringList& prefixes)
 {
     QTextBoundaryFinder finder(QTextBoundaryFinder::Word, text);
     finder.setPosition(pos);
 
-    if (finder.boundaryReasons() & QTextBoundaryFinder::StartOfItem) {
+    int pfx = 0;
+    if (finder.boundaryReasons() & QTextBoundaryFinder::StartOfItem || (finder.isAtBoundary() && isPrefixed(text, pos, prefixes, &pfx))) {
         int end = finder.toNextBoundary();
+        if (end == -1)
+            end = pos;
+        pos -= pfx;
         return qMakePair(pos, end - pos);
     } else if (finder.boundaryReasons() & QTextBoundaryFinder::EndOfItem) {
         int begin = finder.toPreviousBoundary();
         return qMakePair(begin, pos - begin);
     } else {
         int begin = finder.toPreviousBoundary();
-        if (finder.boundaryReasons() & QTextBoundaryFinder::StartOfItem) {
+        if (finder.boundaryReasons() & QTextBoundaryFinder::StartOfItem || (finder.isAtBoundary() && isPrefixed(text, pos, prefixes, &pfx))) {
             int end = finder.toNextBoundary();
+            if (end == -1)
+                end = begin;
+            begin -= pfx;
             return qMakePair(begin, end - begin);
         } else {
             int end = finder.toPreviousBoundary();
@@ -232,31 +257,42 @@ static IrcCompletion completeWord(const QString& text, int from, int len, const 
 
 QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int pos) const
 {
-    if (!buffer)
+    if (!buffer || !buffer->network())
         return QList<IrcCompletion>();
 
     QList<IrcCompletion> completions;
 
-    const QPair<int, int> bounds = findWordBoundaries(text, pos);
+    const QPair<int, int> bounds = findWordBoundaries(text, pos, buffer->network()->channelTypes());
     if (bounds.first != -1 && bounds.second != -1) {
         const QString word = text.mid(bounds.first, bounds.second);
 
-        const IrcBufferModel* model = buffer->model();
-        foreach (IrcBuffer* buffer, model->buffers()) {
+        int pfx = 0;
+        QString prefix;
+        bool isChannel = isPrefixed(text, bounds.first, buffer->network()->channelTypes(), &pfx);
+        if (isChannel && pfx > 0)
+            prefix = text.mid(bounds.first - pfx, pfx);
+
+        QList<IrcBuffer*> buffers = buffer->model()->buffers();
+        buffers.move(buffers.indexOf(buffer), 0); // promote the current buffer
+        foreach (IrcBuffer* buffer, buffers) {
             const QString title = buffer->title();
             if (title.startsWith(word, Qt::CaseInsensitive))
                 completions += completeWord(text, bounds.first, bounds.second, title);
+            else if (isChannel && !prefix.isEmpty() && title.startsWith(prefix + word, Qt::CaseInsensitive))
+                completions += completeWord(text, bounds.first - prefix.length(), bounds.second + prefix.length(), title);
         }
 
-        IrcUserModel userModel;
-        userModel.setSortMethod(Irc::SortByActivity);
-        userModel.setChannel(qobject_cast<IrcChannel*>(buffer));
-        foreach (IrcUser* user, userModel.users()) {
-            if (user->name().startsWith(word, Qt::CaseInsensitive)) {
-                QString name = user->name();
-                if (indexOfWord(text, pos) == 0)
-                    name += QLatin1Char(':'); // TODO: configurable
-                completions += completeWord(text, bounds.first, bounds.second, name);
+        if (!isChannel) {
+            IrcUserModel userModel;
+            userModel.setSortMethod(Irc::SortByActivity);
+            userModel.setChannel(qobject_cast<IrcChannel*>(buffer));
+            foreach (IrcUser* user, userModel.users()) {
+                if (user->name().startsWith(word, Qt::CaseInsensitive)) {
+                    QString name = user->name();
+                    if (indexOfWord(text, pos) == 0)
+                        name += QLatin1Char(':'); // TODO: configurable
+                    completions += completeWord(text, bounds.first, bounds.second, name);
+                }
             }
         }
     }
