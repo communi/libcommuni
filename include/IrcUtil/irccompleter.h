@@ -36,12 +36,12 @@ public:
     virtual ~IrcCompleter();
 
     IrcBuffer* buffer() const;
-    void setBuffer(IrcBuffer* buffer);
-
     IrcCommandParser* parser() const;
-    void setParser(IrcCommandParser* parser);
 
 public Q_SLOTS:
+    void setBuffer(IrcBuffer* buffer);
+    void setParser(IrcCommandParser* parser);
+
     void complete(const QString& text, int cursor);
 
 Q_SIGNALS:

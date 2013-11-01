@@ -321,7 +321,7 @@ IrcCompleter::~IrcCompleter()
 
     \par Access functions:
     \li \ref IrcBuffer* <b>buffer</b>() const
-    \li void <b>setBuffer</b>(\ref IrcBuffer* buffer)
+    \li void <b>setBuffer</b>(\ref IrcBuffer* buffer) [slot]
 
     \par Notifier signal:
     \li void <b>bufferChanged</b>(\ref IrcBuffer* buffer)
@@ -346,7 +346,7 @@ void IrcCompleter::setBuffer(IrcBuffer* buffer)
 
     \par Access functions:
     \li \ref IrcCommandParser* <b>parser</b>() const
-    \li void <b>setParser</b>(\ref IrcCommandParser* parser)
+    \li void <b>setParser</b>(\ref IrcCommandParser* parser) [slot]
 
     \par Notifier signal:
     \li void <b>parserChanged</b>(\ref IrcCommandParser* parser)
