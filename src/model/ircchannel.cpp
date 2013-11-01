@@ -66,6 +66,8 @@ static QString userName(const QString& name, const QStringList& prefixes)
 
 IrcChannelPrivate::IrcChannelPrivate() : joined(0), left(0)
 {
+    qRegisterMetaType<IrcChannel*>();
+    qRegisterMetaType<QList<IrcChannel*> >();
 }
 
 IrcChannelPrivate::~IrcChannelPrivate()

@@ -11,6 +11,7 @@
   - Added IrcBufferModel::restoreState()
   - Added IrcChannel::key
   - Added IrcChannel::join(QString key)
+  - Added IrcBuffer::data()
 - IrcUtil
   - Introduced IrcCompleter
 

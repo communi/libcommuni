@@ -68,6 +68,8 @@ public:
     bool isPersistent() const;
     void setPersistent(bool persistent);
 
+    virtual QVariant data(int role) const;
+
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
 
 public Q_SLOTS:
