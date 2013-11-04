@@ -333,7 +333,8 @@ bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
 bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
-        ++left;
+        joined = 0;
+        left = 0;
         emitActiveChanged();
         return true;
     }
