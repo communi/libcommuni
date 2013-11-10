@@ -465,6 +465,7 @@ IrcConnection::IrcConnection(const QString& host, QObject* parent) : QObject(par
 IrcConnection::~IrcConnection()
 {
     close();
+    emit destroyed(this);
 }
 
 /*!

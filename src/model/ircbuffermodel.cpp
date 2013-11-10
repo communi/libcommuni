@@ -415,6 +415,7 @@ IrcBufferModel::~IrcBufferModel()
     d->bufferList.clear();
     d->bufferMap.clear();
     d->channels.clear();
+    emit destroyed(this);
 }
 
 /*!

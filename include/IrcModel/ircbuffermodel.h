@@ -109,6 +109,7 @@ Q_SIGNALS:
     void messageIgnored(IrcMessage* message);
     void bufferPrototypeChanged(IrcBuffer* prototype);
     void channelPrototypeChanged(IrcChannel* prototype);
+    void destroyed(IrcBufferModel* model);
 
 protected Q_SLOTS:
     virtual IrcBuffer* createBuffer(const QString& title);

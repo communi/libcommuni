@@ -48,7 +48,7 @@ Q_SIGNALS:
     void keyChanged(const QString& key);
     void modeChanged(const QString& mode);
     void topicChanged(const QString& topic);
-
+    void destroyed(IrcChannel* channel);
 private:
     Q_DECLARE_PRIVATE(IrcChannel)
     Q_DISABLE_COPY(IrcChannel)

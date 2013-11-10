@@ -174,6 +174,8 @@ Q_SIGNALS:
     void secureChanged(bool secure);
     void saslMechanismChanged(const QString& mechanism);
 
+    void destroyed(IrcConnection* connection);
+
 protected Q_SLOTS:
     virtual IrcCommand* createCtcpReply(IrcPrivateMessage* request) const;
 
