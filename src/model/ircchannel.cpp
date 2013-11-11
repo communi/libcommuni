@@ -224,9 +224,19 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
             }
         }
 
+        QString sortedMode;
+        foreach (const QString& m, network->modes())
+            if (mode.contains(m))
+                sortedMode += m;
+
+        QString sortedPrefix;
+        foreach (const QString& p, network->prefixes())
+            if (prefix.contains(p))
+                sortedPrefix += p;
+
         IrcUserPrivate* priv = IrcUserPrivate::get(user);
-        priv->setPrefix(prefix);
-        priv->setMode(mode);
+        priv->setPrefix(sortedPrefix);
+        priv->setMode(sortedMode);
 
         foreach (IrcUserModel* model, userModels)
             IrcUserModelPrivate::get(model)->setUserMode(user);
