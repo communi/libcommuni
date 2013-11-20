@@ -641,6 +641,11 @@ bool IrcUserModel::lessThan(IrcUser* one, IrcUser* another, Irc::SortMethod meth
         const int i2 = activeUsers.indexOf(another);
         return i1 < i2;
     } else if (method == Irc::SortByTitle) {
+        if(!one->isServOp() && another->isServOp())
+            return false;
+        if(one->isServOp() && !another->isServOp())
+            return true;
+
         const IrcNetwork* network = one->channel()->network();
         const QStringList prefixes = network->prefixes();
 

@@ -66,7 +66,7 @@ void IrcUserPrivate::setMode(const QString& m)
     Constructs a new user with \a parent.
  */
 IrcUser::IrcUser(QObject* parent)
-    : QObject(parent), d_ptr(new IrcUserPrivate)
+    : QObject(parent), d_ptr(new IrcUserPrivate), away(false), servOp(false)
 {
     Q_D(IrcUser);
     d->q_ptr = this;
@@ -144,6 +144,32 @@ QString IrcUser::mode() const
 {
     Q_D(const IrcUser);
     return d->mode;
+}
+
+void IrcUser::setServOp(bool o)
+{
+    if(servOp != o) {
+        servOp = o;
+        emit servOpChanged(servOp);
+    }
+}
+
+bool IrcUser::isServOp() const
+{
+    return servOp;
+}
+
+void IrcUser::setAway(bool a)
+{
+    if(away != a) {
+        away = a;
+        emit awayChanged(away);
+    }
+}
+
+bool IrcUser::isAway() const
+{
+    return away;
 }
 
 

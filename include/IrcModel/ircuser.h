@@ -42,6 +42,10 @@ public:
     QString name() const;
     QString prefix() const;
     QString mode() const;
+    bool isServOp() const;
+    void setServOp(bool o);
+    bool isAway() const;
+    void setAway(bool a);
 
     IrcChannel* channel() const;
 
@@ -50,11 +54,15 @@ Q_SIGNALS:
     void nameChanged(const QString& name);
     void prefixChanged(const QString& prefix);
     void modeChanged(const QString& mode);
+    void servOpChanged(bool servOp);
+    void awayChanged(bool away);
 
 private:
     QScopedPointer<IrcUserPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcUser)
     Q_DISABLE_COPY(IrcUser)
+    bool servOp;
+    bool away;
 };
 
 #ifndef QT_NO_DEBUG_STREAM
