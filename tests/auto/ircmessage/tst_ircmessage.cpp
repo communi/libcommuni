@@ -540,6 +540,8 @@ void tst_IrcMessage::testModeMessage_data()
     QTest::newRow("10b") << false << QByteArray(": MODE WiZ -w") << QString("WiZ") << QString("-w") << QString();
     QTest::newRow("11") << true << QByteArray(":Angel MODE Angel +i") << QString("Angel") << QString("+i") << QString();
     QTest::newRow("12") << true << QByteArray(":WiZ MODE WiZ -o") << QString("WiZ") << QString("-o") << QString();
+
+    QTest::newRow("args") << true << QByteArray(":someone MODE #chan +lk 10 secret") << QString("#chan") << QString("+lk") << QString("10 secret");
 }
 
 void tst_IrcMessage::testModeMessage()
@@ -550,6 +552,9 @@ void tst_IrcMessage::testModeMessage()
     QFETCH(QString, mode);
     QFETCH(QString, argument);
 
+    const QString arg = argument.split(" ", QString::SkipEmptyParts).value(0);
+    const QStringList args = argument.split(" ", QString::SkipEmptyParts);
+
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
     QCOMPARE(message->type(), IrcMessage::Mode);
@@ -557,14 +562,16 @@ void tst_IrcMessage::testModeMessage()
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("target").toString(), target);
     QCOMPARE(message->property("mode").toString(), mode);
-    QCOMPARE(message->property("argument").toString(), argument);
+    QCOMPARE(message->property("argument").toString(), arg);
+    QCOMPARE(message->property("arguments").toStringList(), args);
 
     IrcModeMessage* modeMessage = qobject_cast<IrcModeMessage*>(message);
     QVERIFY(modeMessage);
     QCOMPARE(modeMessage->isValid(), valid);
     QCOMPARE(modeMessage->target(), target);
     QCOMPARE(modeMessage->mode(), mode);
-    QCOMPARE(modeMessage->argument(), argument);
+    QCOMPARE(modeMessage->argument(), arg);
+    QCOMPARE(modeMessage->arguments(), args);
 }
 
 void tst_IrcMessage::testMotdMessage()

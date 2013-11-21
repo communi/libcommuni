@@ -24,6 +24,7 @@ public:
 
 private slots:
     void testDefaults();
+    void testBufferInit();
     void testAddRemove();
     void testSorting();
     void testClear();
@@ -60,6 +61,18 @@ void tst_IrcBufferModel::testDefaults()
     QVERIFY(!model.network());
     QVERIFY(model.bufferPrototype());
     QVERIFY(model.channelPrototype());
+}
+
+void tst_IrcBufferModel::testBufferInit()
+{
+    IrcBufferModel model(connection);
+    model.setSortMethod(Irc::SortByTitle);
+    IrcBuffer* buffer1 = new IrcBuffer(&model);
+    buffer1->setName("1");
+    model.add(buffer1);
+    IrcBuffer* buffer2 = new IrcBuffer(&model);
+    buffer2->setName("2");
+    model.add(buffer2);
 }
 
 void tst_IrcBufferModel::testAddRemove()

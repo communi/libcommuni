@@ -59,6 +59,8 @@ IRC_BEGIN_NAMESPACE
 IrcBufferPrivate::IrcBufferPrivate()
     : q_ptr(0), model(0), persistent(false), sticky(false)
 {
+    qRegisterMetaType<IrcBuffer*>();
+    qRegisterMetaType<QList<IrcBuffer*> >();
 }
 
 IrcBufferPrivate::~IrcBufferPrivate()
@@ -453,6 +455,32 @@ void IrcBuffer::setPersistent(bool persistent)
     if (d->persistent != persistent) {
         d->persistent = persistent;
         emit persistentChanged(persistent);
+    }
+}
+
+/*!
+    Returns model data for the specified \a role.
+ */
+QVariant IrcBuffer::data(int role) const
+{
+    Q_D(const IrcBuffer);
+    if (d->model && role == Qt::DisplayRole)
+        return data(d->model->displayRole());
+
+    IrcBuffer* buffer = const_cast<IrcBuffer*>(this);
+    switch (role) {
+    case Irc::BufferRole:
+        return QVariant::fromValue(buffer);
+    case Irc::ChannelRole:
+        return QVariant::fromValue(buffer->toChannel());
+    case Irc::NameRole:
+        return name();
+    case Irc::PrefixRole:
+        return prefix();
+    case Irc::TitleRole:
+        return title();
+    default:
+        return QVariant();
     }
 }
 

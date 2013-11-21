@@ -2,4 +2,7 @@
 # Communi
 ######################################################################
 
-IRC_VERSION = 3.1.0
+SOURCES += tst_irccompleter.cpp
+
+include(../shared/shared.pri)
+include(../auto.pri)

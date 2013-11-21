@@ -6,7 +6,7 @@ TEMPLATE = subdirs
 SUBDIRS += core model util imports
 
 model.depends = core
-util.depends = core
+util.depends = core model
 imports.depends = core model util
 
 coverage {

@@ -10,31 +10,42 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Controls.Styles 1.0
-import Communi 3.0
+import Communi 3.1
 
 TextField {
     id: textField
 
-    property IrcBuffer buffer
+    property alias buffer: completer.buffer
 
     signal messageSent(IrcMessage message)
 
     focus: true
     placeholderText: qsTr("...")
 
-    IrcCommandParser {
-        id: parser
+    Keys.onTabPressed: completer.complete(text, cursorPosition)
 
-        tolerant: true
-        triggers: ["/"]
-        channels: buffer ? buffer.model.channels : []
-        target: buffer ? buffer.title : ""
+    IrcCompleter {
+        id: completer
 
-        Component.onCompleted: {
-            parser.addCommand(IrcCommand.Join, "JOIN <#channel> (<key>)")
-            parser.addCommand(IrcCommand.CtcpAction, "ME [target] <message...>")
-            parser.addCommand(IrcCommand.Nick, "NICK <nick>")
-            parser.addCommand(IrcCommand.Part, "PART (<#channel>) (<message...>)")
+        onCompleted: {
+            textField.text = text
+            textField.cursorPosition = cursor
+        }
+
+        parser: IrcCommandParser {
+            id: parser
+
+            tolerant: true
+            triggers: ["/"]
+            channels: buffer ? buffer.model.channels : []
+            target: buffer ? buffer.title : ""
+
+            Component.onCompleted: {
+                parser.addCommand(IrcCommand.Join, "JOIN <#channel> (<key>)")
+                parser.addCommand(IrcCommand.CtcpAction, "ME [target] <message...>")
+                parser.addCommand(IrcCommand.Nick, "NICK <nick>")
+                parser.addCommand(IrcCommand.Part, "PART (<#channel>) (<message...>)")
+            }
         }
     }
 

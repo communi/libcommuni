@@ -18,8 +18,9 @@
 #include "ircusermodel_p.h"
 #include "ircbuffermodel.h"
 #include "ircbuffermodel_p.h"
-#include "irccommand.h"
 #include "ircconnection.h"
+#include "ircnetwork.h"
+#include "irccommand.h"
 #include "ircuser_p.h"
 #include "irc.h"
 
@@ -65,6 +66,8 @@ static QString userName(const QString& name, const QStringList& prefixes)
 
 IrcChannelPrivate::IrcChannelPrivate() : joined(0), left(0)
 {
+    qRegisterMetaType<IrcChannel*>();
+    qRegisterMetaType<QList<IrcChannel*> >();
 }
 
 IrcChannelPrivate::~IrcChannelPrivate()
@@ -80,34 +83,62 @@ void IrcChannelPrivate::init(const QString& title, IrcBufferModel* m)
     name = channelName(title, chanTypes);
 }
 
-void IrcChannelPrivate::changeMode(const QString& value)
+void IrcChannelPrivate::changeModes(const QString& value, const QStringList& arguments)
 {
-    QString copy = mode;
+    Q_Q(IrcChannel);
+    const IrcNetwork* network = q->network();
+
+    QMap<QString, QString> ms = modes;
+    QStringList args = arguments;
+
     bool add = true;
     for (int i = 0; i < value.size(); ++i) {
-        QChar c = value.at(i);
-        if (c == QLatin1Char('+')) {
+        const QString m = value.at(i);
+        if (m == QLatin1String("+")) {
             add = true;
-        } else if (c == QLatin1Char('-')) {
+        } else if (m == QLatin1String("-")) {
             add = false;
         } else {
             if (add) {
-                if (!copy.contains(c))
-                    copy += c;
+                QString a;
+                if (!args.isEmpty() && network && network->channelModes(IrcNetwork::TypeB | IrcNetwork::TypeC).contains(m))
+                    a = args.takeFirst();
+                ms.insert(m, a);
             } else {
-                copy.remove(c);
+                ms.remove(m);
             }
         }
     }
-    setMode(copy);
+
+    if (modes != ms) {
+        setKey(ms.value(QLatin1String("k")));
+        modes = ms;
+        emit q->modeChanged(q->mode());
+    }
 }
 
-void IrcChannelPrivate::setMode(const QString& value)
+void IrcChannelPrivate::setModes(const QString& value, const QStringList& arguments)
 {
     Q_Q(IrcChannel);
-    if (mode != value) {
-        mode = value;
-        emit q->modeChanged(mode);
+    const IrcNetwork* network = q->network();
+
+    QMap<QString, QString> ms;
+    QStringList args = arguments;
+
+    for (int i = 0; i < value.size(); ++i) {
+        const QString m = value.at(i);
+        if (m != QLatin1String("+") && m != QLatin1String("-")) {
+            QString a;
+            if (!args.isEmpty() && network && network->channelModes(IrcNetwork::TypeB | IrcNetwork::TypeC).contains(m))
+                a = args.takeFirst();
+            ms.insert(m, a);
+        }
+    }
+
+    if (modes != ms) {
+        setKey(ms.value(QLatin1String("k")));
+        modes = ms;
+        emit q->modeChanged(q->mode());
     }
 }
 
@@ -117,6 +148,15 @@ void IrcChannelPrivate::setTopic(const QString& value)
     if (topic != value) {
         topic = value;
         emit q->topicChanged(topic);
+    }
+}
+
+void IrcChannelPrivate::setKey(const QString& value)
+{
+    Q_Q(IrcChannel);
+    if (modes.value(QLatin1String("k")) != value) {
+        modes.insert(QLatin1String("k"), value);
+        emit q->keyChanged(value);
     }
 }
 
@@ -224,9 +264,19 @@ void IrcChannelPrivate::setUserMode(const QString& name, const QString& command)
             }
         }
 
+        QString sortedMode;
+        foreach (const QString& m, network->modes())
+            if (mode.contains(m))
+                sortedMode += m;
+
+        QString sortedPrefix;
+        foreach (const QString& p, network->prefixes())
+            if (prefix.contains(p))
+                sortedPrefix += p;
+
         IrcUserPrivate* priv = IrcUserPrivate::get(user);
-        priv->setPrefix(prefix);
-        priv->setMode(mode);
+        priv->setPrefix(sortedPrefix);
+        priv->setMode(sortedMode);
 
         foreach (IrcUserModel* model, userModels)
             IrcUserModelPrivate::get(model)->setUserMode(user);
@@ -269,9 +319,9 @@ bool IrcChannelPrivate::processModeMessage(IrcModeMessage* message)
 {
     if (message->kind() == IrcModeMessage::Channel) {
         if (message->isReply())
-            setMode(message->mode());
+            setModes(message->mode(), message->arguments());
         else
-            changeMode(message->mode());
+            changeModes(message->mode(), message->arguments());
         return true;
     } else if (!message->argument().isEmpty()) {
         setUserMode(message->argument(), message->mode());
@@ -333,7 +383,8 @@ bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
 bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
-        ++left;
+        joined = 0;
+        left = 0;
         emitActiveChanged();
         return true;
     }
@@ -369,7 +420,22 @@ IrcChannel::~IrcChannel()
 }
 
 /*!
-    This property holds the channel mode.
+    This property holds the channel key.
+
+    \par Access function:
+    \li QString <b>key</b>() const
+
+    \par Notifier signal:
+    \li void <b>keyChanged</b>(const QString& key)
+ */
+QString IrcChannel::key() const
+{
+    Q_D(const IrcChannel);
+    return d->modes.value(QLatin1String("k"));
+}
+
+/*!
+    This property holds the complete channel mode including possible arguments.
 
     \par Access function:
     \li QString <b>mode</b>() const
@@ -380,7 +446,14 @@ IrcChannel::~IrcChannel()
 QString IrcChannel::mode() const
 {
     Q_D(const IrcChannel);
-    return d->mode;
+    QString m = QStringList(d->modes.keys()).join(QString());
+    QStringList a = d->modes.values();
+    a.removeAll(QString());
+    if (!a.isEmpty())
+        m += QLatin1String(" ") + a.join(QLatin1String(" "));
+    if (!m.isEmpty())
+        m.prepend(QLatin1String("+"));
+    return m;
 }
 
 /*!
@@ -402,6 +475,25 @@ bool IrcChannel::isActive() const
 {
     Q_D(const IrcChannel);
     return IrcBuffer::isActive() && d->joined > d->left;
+}
+
+/*!
+    Joins the channel with an optional \a key.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    IrcCommand* command = IrcCommand::createJoin(channel->title(), key);
+    channel->sendCommand(command);
+    \endcode
+
+    \sa IrcBuffer::sendCommand(), IrcCommand::createJoin()
+ */
+void IrcChannel::join(const QString& key)
+{
+    Q_D(IrcChannel);
+    if (!key.isEmpty())
+        d->setKey(key);
+    sendCommand(IrcCommand::createJoin(title(), IrcChannel::key()));
 }
 
 /*!

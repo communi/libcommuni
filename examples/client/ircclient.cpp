@@ -13,8 +13,8 @@
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QVBoxLayout>
-#include <QCompleter>
 #include <QLineEdit>
+#include <QShortcut>
 #include <QListView>
 #include <QTextEdit>
 #include <QTime>
@@ -25,6 +25,7 @@
 #include <IrcCommand>
 #include <IrcMessage>
 #include <IrcUserModel>
+#include <IrcCompleter>
 #include <IrcConnection>
 #include <IrcBufferModel>
 #include <IrcCommandParser>
@@ -107,6 +108,17 @@ void IrcClient::onTextEntered()
     }
 }
 
+void IrcClient::onCompletion()
+{
+    completer->complete(lineEdit->text(), lineEdit->cursorPosition());
+}
+
+void IrcClient::onCompleted(const QString& text, int cursor)
+{
+    lineEdit->setText(text);
+    lineEdit->setCursorPosition(cursor);
+}
+
 void IrcClient::onBufferAdded(IrcBuffer* buffer)
 {
     // joined a buffer - start listening to buffer specific messages
@@ -138,13 +150,10 @@ void IrcClient::onBufferActivated(const QModelIndex& index)
 {
     IrcBuffer* buffer = index.data(Irc::BufferRole).value<IrcBuffer*>();
 
-    // user list and nick completion for the current buffer
-    IrcUserModel* userModel = userModels.value(buffer);
-    userList->setModel(userModel);
-    completer->setModel(userModel);
-
-    // document for the current buffer
+    // document, user list and nick completion for the current buffer
     textEdit->setDocument(documents.value(buffer));
+    userList->setModel(userModels.value(buffer));
+    completer->setBuffer(buffer);
 
     // keep the command parser aware of the context
     if (buffer)
@@ -200,7 +209,6 @@ void IrcClient::createLayout()
 
     // a line editor for entering commands
     lineEdit = new QLineEdit(this);
-    lineEdit->setCompleter(completer);
     lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     textEdit->setFocusProxy(lineEdit);
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(onTextEntered()));
@@ -229,10 +237,12 @@ void IrcClient::createLayout()
 void IrcClient::createCompleter()
 {
     // nick name completion
-    completer = new QCompleter(this);
-    completer->setCompletionMode(QCompleter::InlineCompletion);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setCompletionRole(Irc::NameRole);
+    completer = new IrcCompleter(this);
+    completer->setParser(parser);
+    connect(completer, SIGNAL(completed(QString,int)), this, SLOT(onCompleted(QString,int)));
+
+    QShortcut* shortcut = new QShortcut(Qt::Key_Tab, this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(onCompletion()));
 }
 
 void IrcClient::createParser()
@@ -246,6 +256,7 @@ void IrcClient::createParser()
     parser->setTriggers(QStringList("/"));
     parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
     parser->addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
+    parser->addCommand(IrcCommand::Mode, "MODE (<channel/user>) (<mode>) (<arg>)");
     parser->addCommand(IrcCommand::Nick, "NICK <nick>");
     parser->addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
 }

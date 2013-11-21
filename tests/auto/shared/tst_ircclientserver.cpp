@@ -52,6 +52,12 @@ bool tst_IrcClientServer::waitForOpened(int timeout)
 bool tst_IrcClientServer::waitForWritten(const QByteArray& data, int timeout)
 {
     if (!data.isNull()) {
+        if (data.count('\n') > 1) {
+            bool success = true;
+            foreach (const QByteArray& line, data.split('\n'))
+                success &= waitForWritten(line + '\n', timeout);
+            return success;
+        }
         if (data.endsWith('\r') || data.endsWith('\n'))
             serverSocket->write(data);
         else

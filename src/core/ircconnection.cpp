@@ -32,6 +32,8 @@
 #ifndef QT_NO_OPENSSL
 #include <QSslSocket>
 #endif // QT_NO_OPENSSL
+#include <QDataStream>
+#include <QVariantMap>
 
 IRC_BEGIN_NAMESPACE
 
@@ -463,6 +465,7 @@ IrcConnection::IrcConnection(const QString& host, QObject* parent) : QObject(par
 IrcConnection::~IrcConnection()
 {
     close();
+    emit destroyed(this);
 }
 
 /*!
@@ -992,7 +995,8 @@ IrcNetwork* IrcConnection::network() const
 /*!
     Opens a connection to the server.
 
-    The function does nothing when the connection is \ref enabled "disabled".
+    The function does nothing when the connection is already \ref active
+    or explicitly \ref enabled "disabled".
 
     \note The function merely outputs a warnings and returns immediately if
     either \ref host, \ref userName, \ref nickName or \ref realName is empty.
@@ -1016,7 +1020,7 @@ void IrcConnection::open()
         qWarning("IrcConnection::open(): realName is empty!");
         return;
     }
-    if (d->enabled && d->socket)
+    if (d->enabled && d->socket && !isActive())
         d->socket->connectToHost(d->host, d->port);
 }
 
@@ -1228,6 +1232,68 @@ void IrcConnection::removeCommandFilter(QObject* filter)
         d->commandFilters.removeAll(filter);
         disconnect(filter, SIGNAL(destroyed(QObject*)), this, SLOT(_irc_filterDestroyed(QObject*)));
     }
+}
+
+/*!
+    Saves the state of the connection. The \a version number is stored as part of the state data.
+
+    To restore the saved state, pass the return value and \a version number to restoreState().
+ */
+QByteArray IrcConnection::saveState(int version) const
+{
+    Q_D(const IrcConnection);
+    QVariantMap args;
+    args.insert("version", version);
+    args.insert("host", host());
+    args.insert("port", port());
+    args.insert("userName", userName());
+    args.insert("nickName", nickName());
+    args.insert("realName", realName());
+    args.insert("password", password());
+    args.insert("displayName", d->displayName);
+    args.insert("encoding", encoding());
+    args.insert("enabled", isEnabled());
+    args.insert("reconnectDelay", reconnectDelay());
+    args.insert("secure", isSecure());
+    args.insert("saslMechanism", saslMechanism());
+
+    QByteArray state;
+    QDataStream out(&state, QIODevice::WriteOnly);
+    out << args;
+    return state;
+}
+
+/*!
+    Restores the \a state of the connection. The \a version number is compared with that stored in \a state.
+    If they do not match, the connection state is left unchanged, and this function returns \c false; otherwise,
+    the state is restored, and \c true is returned.
+
+    \sa saveState()
+ */
+bool IrcConnection::restoreState(const QByteArray& state, int version)
+{
+    if (isActive())
+        return false;
+
+    QVariantMap args;
+    QDataStream in(state);
+    in >> args;
+    if (in.status() != QDataStream::Ok || args.value("version", -1).toInt() != version)
+        return false;
+
+    setHost(args.value("host", host()).toString());
+    setPort(args.value("port", port()).toInt());
+    setUserName(args.value("userName", userName()).toString());
+    setNickName(args.value("nickName", nickName()).toString());
+    setRealName(args.value("realName", realName()).toString());
+    setPassword(args.value("password", password()).toString());
+    setDisplayName(args.value("displayName").toString());
+    setEncoding(args.value("encoding", encoding()).toByteArray());
+    setEnabled(args.value("enabled", isEnabled()).toBool());
+    setReconnectDelay(args.value("reconnectDelay", reconnectDelay()).toInt());
+    setSecure(args.value("secure", isSecure()).toBool());
+    setSaslMechanism(args.value("saslMechanism", saslMechanism()).toString());
+    return true;
 }
 
 /*!

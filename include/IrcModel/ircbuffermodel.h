@@ -88,6 +88,9 @@ public:
     IrcChannel* channelPrototype() const;
     void setChannelPrototype(IrcChannel* prototype);
 
+    Q_INVOKABLE QByteArray saveState(int version = 0) const;
+    Q_INVOKABLE bool restoreState(const QByteArray& state, int version = 0);
+
 public Q_SLOTS:
     void clear();
     void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
@@ -106,6 +109,7 @@ Q_SIGNALS:
     void messageIgnored(IrcMessage* message);
     void bufferPrototypeChanged(IrcBuffer* prototype);
     void channelPrototypeChanged(IrcChannel* prototype);
+    void destroyed(IrcBufferModel* model);
 
 protected Q_SLOTS:
     virtual IrcBuffer* createBuffer(const QString& title);
