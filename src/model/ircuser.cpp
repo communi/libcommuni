@@ -57,120 +57,146 @@ void IrcUserPrivate::setMode(const QString& m)
     Q_Q(IrcUser);
     if (mode != m) {
         mode = m;
-        emit q->modeChanged(mode);
-    }
+                emit q->modeChanged(mode);
+        }
 }
 #endif // IRC_DOXYGEN
 
 /*!
-    Constructs a new user with \a parent.
+        Constructs a new user with \a parent.
  */
 IrcUser::IrcUser(QObject* parent)
-    : QObject(parent), d_ptr(new IrcUserPrivate)
+        : QObject(parent), d_ptr(new IrcUserPrivate), away(false), servOp(false)
 {
-    Q_D(IrcUser);
-    d->q_ptr = this;
-    d->channel = 0;
+        Q_D(IrcUser);
+        d->q_ptr = this;
+        d->channel = 0;
 }
 
 /*!
-    Destructs the user object.
+        Destructs the user object.
  */
 IrcUser::~IrcUser()
 {
 }
 
 /*!
-    This property holds the title.
+        This property holds the title.
 
-    The title consists of \ref prefix and \ref name.
+        The title consists of \ref prefix and \ref name.
 
-    \par Access function:
-    \li QString <b>title</b>() const
+        \par Access function:
+        \li QString <b>title</b>() const
 
-    \par Notifier signal:
-    \li void <b>titleChanged</b>(const QString& title)
+        \par Notifier signal:
+        \li void <b>titleChanged</b>(const QString& title)
  */
 QString IrcUser::title() const
 {
-    Q_D(const IrcUser);
-    return d->prefix.left(1) + d->name;
+        Q_D(const IrcUser);
+        return d->prefix.left(1) + d->name;
 }
 
 /*!
-    This property holds the name.
+        This property holds the name.
 
-    \par Access function:
-    \li QString <b>name</b>() const
+        \par Access function:
+        \li QString <b>name</b>() const
 
-    \par Notifier signal:
-    \li void <b>nameChanged</b>(const QString& name)
+        \par Notifier signal:
+        \li void <b>nameChanged</b>(const QString& name)
  */
 QString IrcUser::name() const
 {
-    Q_D(const IrcUser);
-    return d->name;
+        Q_D(const IrcUser);
+        return d->name;
 }
 
 /*!
-    This property holds the prefix character.
+        This property holds the prefix character.
 
-    Typical prefix characters are \c @ (op) and \c + (voice).
+        Typical prefix characters are \c @ (op) and \c + (voice).
 
-    \par Access function:
-    \li QString <b>prefix</b>() const
+        \par Access function:
+        \li QString <b>prefix</b>() const
 
-    \par Notifier signal:
-    \li void <b>prefixChanged</b>(const QString& prefix)
+        \par Notifier signal:
+        \li void <b>prefixChanged</b>(const QString& prefix)
  */
 QString IrcUser::prefix() const
 {
-    Q_D(const IrcUser);
-    return d->prefix;
+        Q_D(const IrcUser);
+        return d->prefix;
 }
 
 /*!
-    This property holds the mode letter.
+        This property holds the mode letter.
 
-    Typical mode letters are \c o (op) and \c v (voice).
+        Typical mode letters are \c o (op) and \c v (voice).
 
-    \par Access function:
-    \li QString <b>mode</b>() const
+        \par Access function:
+        \li QString <b>mode</b>() const
 
-    \par Notifier signal:
-    \li void <b>modeChanged</b>(const QString& mode)
+        \par Notifier signal:
+        \li void <b>modeChanged</b>(const QString& mode)
  */
 QString IrcUser::mode() const
 {
-    Q_D(const IrcUser);
-    return d->mode;
+        Q_D(const IrcUser);
+        return d->mode;
+}
+
+void IrcUser::setServOp(bool o)
+{
+        if(servOp != o) {
+                servOp = o;
+                emit servOpChanged(servOp);
+        }
+}
+
+bool IrcUser::isServOp() const
+{
+        return servOp;
+}
+
+void IrcUser::setAway(bool a)
+{
+        if(away != a) {
+                away = a;
+                emit awayChanged(away);
+        }
+}
+
+bool IrcUser::isAway() const
+{
+        return away;
 }
 
 
 /*!
-    This property holds the channel of the user.
+        This property holds the channel of the user.
 
-    \par Access function:
-    \li \ref IrcChannel* <b>channel</b>() const
+        \par Access function:
+        \li \ref IrcChannel* <b>channel</b>() const
  */
 IrcChannel* IrcUser::channel() const
 {
-    Q_D(const IrcUser);
-    return d->channel;
+        Q_D(const IrcUser);
+        return d->channel;
 }
 
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const IrcUser* user)
 {
-    if (!user)
-        return debug << "IrcUser(0x0) ";
-    debug.nospace() << user->metaObject()->className() << '(' << (void*) user;
-    if (!user->objectName().isEmpty())
-        debug.nospace() << ", name=" << qPrintable(user->objectName());
-    if (!user->name().isEmpty())
-        debug.nospace() << ", user=" << qPrintable(user->name());
-    debug.nospace() << ')';
-    return debug.space();
+        if (!user)
+                return debug << "IrcUser(0x0) ";
+        debug.nospace() << user->metaObject()->className() << '(' << (void*) user;
+        if (!user->objectName().isEmpty())
+                debug.nospace() << ", name=" << qPrintable(user->objectName());
+        if (!user->name().isEmpty())
+                debug.nospace() << ", user=" << qPrintable(user->name());
+        debug.nospace() << ')';
+        return debug.space();
 }
 #endif // QT_NO_DEBUG_STREAM
 
