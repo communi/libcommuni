@@ -35,34 +35,34 @@ class IRC_MODEL_EXPORT IrcUser : public QObject
     Q_PROPERTY(IrcChannel* channel READ channel CONSTANT)
 
 public:
-        explicit IrcUser(QObject* parent = 0);
-        virtual ~IrcUser();
+    explicit IrcUser(QObject* parent = 0);
+    virtual ~IrcUser();
 
-        QString title() const;
-        QString name() const;
-        QString prefix() const;
-        QString mode() const;
-        bool isServOp() const;
-        void setServOp(bool o);
-        bool isAway() const;
-        void setAway(bool a);
+    QString title() const;
+    QString name() const;
+    QString prefix() const;
+    QString mode() const;
+    bool isServOp() const;
+    void setServOp(bool o);
+    bool isAway() const;
+    void setAway(bool a);
 
-        IrcChannel* channel() const;
+    IrcChannel* channel() const;
 
 Q_SIGNALS:
-        void titleChanged(const QString& title);
-        void nameChanged(const QString& name);
-        void prefixChanged(const QString& prefix);
-        void modeChanged(const QString& mode);
-        void servOpChanged(bool servOp);
-        void awayChanged(bool away);
+    void titleChanged(const QString& title);
+    void nameChanged(const QString& name);
+    void prefixChanged(const QString& prefix);
+    void modeChanged(const QString& mode);
+    void servOpChanged(bool servOp);
+    void awayChanged(bool away);
 
 private:
-        QScopedPointer<IrcUserPrivate> d_ptr;
-        Q_DECLARE_PRIVATE(IrcUser)
-        Q_DISABLE_COPY(IrcUser)
-        bool servOp;
-        bool away;
+    QScopedPointer<IrcUserPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcUser)
+    Q_DISABLE_COPY(IrcUser)
+    bool servOp;
+    bool away;
 };
 
 #ifndef QT_NO_DEBUG_STREAM
