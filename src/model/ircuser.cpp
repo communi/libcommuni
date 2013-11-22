@@ -166,12 +166,50 @@ QString IrcUser::mode() const
     return d->mode;
 }
 
+/*!
+    \property bool IrcUser::servOp
+    This property holds whether the user is a server operator.
+
+    \note IRC servers do not send this information by default.
+    In order to fetch the information for all users on a channel,
+    issue a WHO command on the channel:
+    \code
+    IrcChannel* channel = user->channel();
+    IrcCommand* command = IrcCommand::createWho(channel->title());
+    channel->sendCommand(command);
+    \endcode
+
+    \par Access function:
+    \li bool <b>isServOp</b>() const
+
+    \par Notifier signal:
+    \li void <b>servOpChanged</b>(bool servOp)
+ */
 bool IrcUser::isServOp() const
 {
     Q_D(const IrcUser);
     return d->servOp;
 }
 
+/*!
+    \property bool IrcUser::away
+    This property holds whether the user is marked as being away.
+
+    \note IRC servers do not send this information by default.
+    In order to fetch the information for all users on a channel,
+    issue a WHO command on the channel:
+    \code
+    IrcChannel* channel = user->channel();
+    IrcCommand* command = IrcCommand::createWho(channel->title());
+    channel->sendCommand(command);
+    \endcode
+
+    \par Access function:
+    \li bool <b>isAway</b>() const
+
+    \par Notifier signal:
+    \li void <b>awayChanged</b>(bool away)
+ */
 bool IrcUser::isAway() const
 {
     Q_D(const IrcUser);
