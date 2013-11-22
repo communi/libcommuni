@@ -54,8 +54,8 @@ Q_SIGNALS:
     void nameChanged(const QString& name);
     void prefixChanged(const QString& prefix);
     void modeChanged(const QString& mode);
-    void servOpChanged(const bool& servOp);
-    void awayChanged(const bool& away);
+    void servOpChanged(bool servOp);
+    void awayChanged(bool away);
 
 private:
     QScopedPointer<IrcUserPrivate> d_ptr;
