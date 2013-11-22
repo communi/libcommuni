@@ -64,7 +64,7 @@ void IrcUserPrivate::setMode(const QString& m)
 void IrcUserPrivate::setServOp(const bool& o)
 {
     Q_Q(IrcUser);
-    if(servOp != o) {
+    if (servOp != o) {
         servOp = o;
         emit q->servOpChanged(servOp);
     }
@@ -73,7 +73,7 @@ void IrcUserPrivate::setServOp(const bool& o)
 void IrcUserPrivate::setAway(const bool& a)
 {
     Q_Q(IrcUser);
-    if(away != a) {
+    if (away != a) {
         away = a;
         emit q->awayChanged(away);
     }
@@ -177,7 +177,6 @@ bool IrcUser::isAway() const
     Q_D(const IrcUser);
     return d->away;
 }
-
 
 /*!
     This property holds the channel of the user.
