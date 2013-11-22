@@ -27,6 +27,8 @@ public:
     void setName(const QString& n);
     void setPrefix(const QString& p);
     void setMode(const QString& m);
+    void setServOp(const bool& o);
+    void setAway(const bool& a);
 
     static IrcUserPrivate* get(IrcUser* user)
     {
@@ -38,6 +40,8 @@ public:
     QString name;
     QString prefix;
     QString mode;
+    bool servOp;
+    bool away;
 };
 
 IRC_END_NAMESPACE

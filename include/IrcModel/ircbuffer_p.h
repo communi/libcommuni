@@ -53,6 +53,7 @@ public:
     virtual bool processPrivateMessage(IrcPrivateMessage* message);
     virtual bool processQuitMessage(IrcQuitMessage* message);
     virtual bool processTopicMessage(IrcTopicMessage* message);
+    virtual bool processWhoReplyMessage(IrcWhoReplyMessage* message);
 
     void emitActiveChanged()
     {

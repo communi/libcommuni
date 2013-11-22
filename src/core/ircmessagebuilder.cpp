@@ -70,6 +70,16 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         d.message = 0;
         break;
 
+    case Irc::RPL_WHOREPLY:
+        d.message = new IrcWhoReplyMessage(d.connection);
+        d.message->setPrefix(message->prefix());
+        d.message->setTimeStamp(message->timeStamp());
+        d.message->setCommand(QString::number(message->code()));
+        d.message->setParameters(message->parameters().mid(1));
+        emit messageReceived(d.message);
+        d.message = 0;
+        break;
+
     case Irc::RPL_CHANNELMODEIS:
         d.message = new IrcModeMessage(d.connection);
         d.message->setPrefix(message->prefix());

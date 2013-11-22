@@ -185,6 +185,7 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
         metaObjects.insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
         metaObjects.insert("QUIT", &IrcQuitMessage::staticMetaObject);
         metaObjects.insert("TOPIC", &IrcTopicMessage::staticMetaObject);
+        metaObjects.insert("WHOREPLY", &IrcWhoReplyMessage::staticMetaObject);
     }
 
     const QMetaObject* metaObject = metaObjects.value(command.toUpper());
@@ -1386,6 +1387,87 @@ bool IrcTopicMessage::isReply() const
 bool IrcTopicMessage::isValid() const
 {
     return IrcMessage::isValid() && !channel().isEmpty();
+}
+
+/*!
+    \class IrcTopicMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a topic message.
+ */
+
+/*!
+    Constructs a new IrcTopicMessage with \a connection.
+ */
+IrcWhoReplyMessage::IrcWhoReplyMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = WhoReply;
+}
+
+QString IrcWhoReplyMessage::target() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+QString IrcWhoReplyMessage::channel() const
+{
+    Q_D(const IrcMessage);
+    return d->param(1);
+}
+
+QString IrcWhoReplyMessage::userName() const
+{
+    Q_D(const IrcMessage);
+    return d->param(2);
+}
+
+QString IrcWhoReplyMessage::userHost() const
+{
+    Q_D(const IrcMessage);
+    return d->param(3);
+}
+
+QString IrcWhoReplyMessage::server() const
+{
+    Q_D(const IrcMessage);
+    return d->param(4);
+}
+
+QString IrcWhoReplyMessage::nickName() const
+{
+    Q_D(const IrcMessage);
+    return d->param(5);
+}
+
+bool IrcWhoReplyMessage::isAway() const
+{
+    Q_D(const IrcMessage);
+    return d->param(6).contains("G");
+}
+
+bool IrcWhoReplyMessage::isServOp() const
+{
+    Q_D(const IrcMessage);
+    return d->param(6).contains("*");
+}
+
+int IrcWhoReplyMessage::hops() const
+{
+    Q_D(const IrcMessage);
+    return d->param(7).toInt();
+}
+
+QString IrcWhoReplyMessage::realName() const
+{
+    Q_D(const IrcMessage);
+    QStringList lRealName = d->params().mid(8);
+    return lRealName.join(" ");
+}
+
+bool IrcWhoReplyMessage::isValid() const
+{
+    return IrcMessage::isValid() && !target().isEmpty() && !channel().isEmpty() && !nick().isEmpty();
 }
 
 #ifndef QT_NO_DEBUG_STREAM
