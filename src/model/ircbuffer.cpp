@@ -224,7 +224,7 @@ bool IrcBufferPrivate::processTopicMessage(IrcTopicMessage* message)
 bool IrcBufferPrivate::processWhoReplyMessage(IrcWhoReplyMessage *message)
 {
     Q_UNUSED(message);
-    return false;
+    return true;
 }
 #endif // IRC_DOXYGEN
 
