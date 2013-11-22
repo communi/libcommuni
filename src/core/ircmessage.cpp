@@ -1404,70 +1404,66 @@ IrcWhoReplyMessage::IrcWhoReplyMessage(IrcConnection* connection) : IrcMessage(c
     d->type = WhoReply;
 }
 
-QString IrcWhoReplyMessage::target() const
+QString IrcWhoReplyMessage::channel() const
 {
     Q_D(const IrcMessage);
     return d->param(0);
 }
 
-QString IrcWhoReplyMessage::channel() const
+QString IrcWhoReplyMessage::userName() const
 {
     Q_D(const IrcMessage);
     return d->param(1);
 }
 
-QString IrcWhoReplyMessage::userName() const
+QString IrcWhoReplyMessage::userHost() const
 {
     Q_D(const IrcMessage);
     return d->param(2);
 }
 
-QString IrcWhoReplyMessage::userHost() const
+QString IrcWhoReplyMessage::server() const
 {
     Q_D(const IrcMessage);
     return d->param(3);
 }
 
-QString IrcWhoReplyMessage::server() const
+QString IrcWhoReplyMessage::nickName() const
 {
     Q_D(const IrcMessage);
     return d->param(4);
 }
 
-QString IrcWhoReplyMessage::nickName() const
-{
-    Q_D(const IrcMessage);
-    return d->param(5);
-}
-
 bool IrcWhoReplyMessage::isAway() const
 {
     Q_D(const IrcMessage);
-    return d->param(6).contains("G");
+    return d->param(5).contains("G");
 }
 
 bool IrcWhoReplyMessage::isServOp() const
 {
     Q_D(const IrcMessage);
-    return d->param(6).contains("*");
+    return d->param(5).contains("*");
 }
 
 int IrcWhoReplyMessage::hops() const
 {
     Q_D(const IrcMessage);
-    return d->param(7).toInt();
+    QStringList args = d->param(6).split(" ");
+    return args.value(0).toInt();
 }
 
 QString IrcWhoReplyMessage::realName() const
 {
     Q_D(const IrcMessage);
-    QStringList lRealName = d->params().mid(8);
+    QStringList args = d->param(6).split(" ");
+    QStringList lRealName = args.mid(1);
     return lRealName.join(" ");
 }
 
 bool IrcWhoReplyMessage::isValid() const
 {
-    return IrcMessage::isValid() && !target().isEmpty() && !channel().isEmpty() && !nick().isEmpty();
+    return IrcMessage::isValid() && !channel().isEmpty() && !nick().isEmpty();
 }
 
 #ifndef QT_NO_DEBUG_STREAM
