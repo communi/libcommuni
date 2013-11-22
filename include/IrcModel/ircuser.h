@@ -32,6 +32,8 @@ class IRC_MODEL_EXPORT IrcUser : public QObject
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString prefix READ prefix NOTIFY prefixChanged)
     Q_PROPERTY(QString mode READ mode NOTIFY modeChanged)
+    Q_PROPERTY(bool servOp READ isServOp NOTIFY servOpChanged)
+    Q_PROPERTY(bool away READ isAway NOTIFY awayChanged)
     Q_PROPERTY(IrcChannel* channel READ channel CONSTANT)
 
 public:
