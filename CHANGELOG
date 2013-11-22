@@ -1,3 +1,18 @@
+3.0.1
+-----
+- IrcCore
+  - Fixed IrcConnection::open() to bail out when already active
+  - Fixed IrcModeMessage::kind() for modes with arguments
+- IrcModel
+  - Added missing IrcUserModel::channelChanged() to docs
+  - Fixed a potential crash in IrcUserModel sorting
+  - Fixed IrcChannel::isActive() on quit
+  - Fixed IrcBufferModel to deliver messages only to active buffers
+  - Fixed IrcUser mode & prefix sorting in the "ranking" order
+- IrcUtil
+  - Added missing export macro to IrcPalette
+  - Fixed IrcTextFormat::toHtml() to percent encode special characters in URLs
+
 3.0.0
 -----
 - General
