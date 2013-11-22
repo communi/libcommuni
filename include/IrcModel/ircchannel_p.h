@@ -45,6 +45,8 @@ public:
     bool renameUser(const QString& from, const QString& to);
     void setUserMode(const QString& user, const QString& mode);
     void promoteUser(const QString& user);
+    void setUserAway(const QString &name, const bool& away);
+    void setUserServOp(const QString &name, const bool& servOp);
 
     virtual bool processJoinMessage(IrcJoinMessage* message);
     virtual bool processKickMessage(IrcKickMessage* message);
@@ -57,6 +59,7 @@ public:
     virtual bool processPrivateMessage(IrcPrivateMessage* message);
     virtual bool processQuitMessage(IrcQuitMessage* message);
     virtual bool processTopicMessage(IrcTopicMessage* message);
+    virtual bool processWhoReplyMessage(IrcWhoReplyMessage* message);
 
     static IrcChannelPrivate* get(IrcChannel* channel)
     {

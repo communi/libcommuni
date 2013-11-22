@@ -42,6 +42,8 @@ public:
     QString name() const;
     QString prefix() const;
     QString mode() const;
+    bool isServOp() const;
+    bool isAway() const;
 
     IrcChannel* channel() const;
 
@@ -50,6 +52,8 @@ Q_SIGNALS:
     void nameChanged(const QString& name);
     void prefixChanged(const QString& prefix);
     void modeChanged(const QString& mode);
+    void servOpChanged(const bool& servOp);
+    void awayChanged(const bool& away);
 
 private:
     QScopedPointer<IrcUserPrivate> d_ptr;

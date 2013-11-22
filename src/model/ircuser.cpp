@@ -60,6 +60,24 @@ void IrcUserPrivate::setMode(const QString& m)
         emit q->modeChanged(mode);
     }
 }
+
+void IrcUserPrivate::setServOp(const bool& o)
+{
+    Q_Q(IrcUser);
+    if(servOp != o) {
+        servOp = o;
+        emit q->servOpChanged(servOp);
+    }
+}
+
+void IrcUserPrivate::setAway(const bool& a)
+{
+    Q_Q(IrcUser);
+    if(away != a) {
+        away = a;
+        emit q->awayChanged(away);
+    }
+}
 #endif // IRC_DOXYGEN
 
 /*!
@@ -71,6 +89,8 @@ IrcUser::IrcUser(QObject* parent)
     Q_D(IrcUser);
     d->q_ptr = this;
     d->channel = 0;
+    d->away = false;
+    d->servOp = false;
 }
 
 /*!
@@ -144,6 +164,18 @@ QString IrcUser::mode() const
 {
     Q_D(const IrcUser);
     return d->mode;
+}
+
+bool IrcUser::isServOp() const
+{
+    Q_D(const IrcUser);
+    return d->servOp;
+}
+
+bool IrcUser::isAway() const
+{
+    Q_D(const IrcUser);
+    return d->away;
 }
 
 

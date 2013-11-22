@@ -160,6 +160,7 @@ Q_SIGNALS:
     void privateMessageReceived(IrcPrivateMessage* message);
     void quitMessageReceived(IrcQuitMessage* message);
     void topicMessageReceived(IrcTopicMessage* message);
+    void whoReplyMessageReceived(IrcWhoReplyMessage* message);
 
     void hostChanged(const QString& host);
     void portChanged(int port);

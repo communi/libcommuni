@@ -374,6 +374,9 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
         case IrcMessage::Topic:
             emit q->topicMessageReceived(static_cast<IrcTopicMessage*>(msg));
             break;
+        case IrcMessage::WhoReply:
+            emit q->whoReplyMessageReceived(static_cast<IrcWhoReplyMessage*>(msg));
+            break;
         case IrcMessage::Invite:
             emit q->inviteMessageReceived(static_cast<IrcInviteMessage*>(msg));
             break;

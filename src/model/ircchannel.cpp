@@ -294,6 +294,24 @@ void IrcChannelPrivate::promoteUser(const QString& name)
     }
 }
 
+void IrcChannelPrivate::setUserAway(const QString& name, const bool &away)
+{
+    if (IrcUser* user = userMap.value(name)) {
+        IrcUserPrivate* priv = IrcUserPrivate::get(user);
+
+        priv->setAway(away);
+    }
+}
+
+void IrcChannelPrivate::setUserServOp(const QString& name, const bool &servOp)
+{
+    if (IrcUser* user = userMap.value(name)) {
+        IrcUserPrivate* priv = IrcUserPrivate::get(user);
+
+        priv->setServOp(servOp);
+    }
+}
+
 bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
@@ -395,6 +413,16 @@ bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
 {
     setTopic(message->topic());
     return true;
+}
+
+bool IrcChannelPrivate::processWhoReplyMessage(IrcWhoReplyMessage *message)
+{
+    if(message->isValid()) {
+        setUserAway(message->nickName(), message->isAway());
+        setUserServOp(message->nickName(), message->isServOp());
+        return true;
+    }
+    return false;
 }
 #endif // IRC_DOXYGEN
 

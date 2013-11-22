@@ -142,6 +142,9 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
     case IrcMessage::Topic:
         processed = processTopicMessage(static_cast<IrcTopicMessage*>(message));
         break;
+    case IrcMessage::WhoReply:
+        processed = processWhoReplyMessage(static_cast<IrcWhoReplyMessage*>(message));
+        break;
     default:
         break;
     }
@@ -213,6 +216,12 @@ bool IrcBufferPrivate::processQuitMessage(IrcQuitMessage* message)
 }
 
 bool IrcBufferPrivate::processTopicMessage(IrcTopicMessage* message)
+{
+    Q_UNUSED(message);
+    return false;
+}
+
+bool IrcBufferPrivate::processWhoReplyMessage(IrcWhoReplyMessage *message)
 {
     Q_UNUSED(message);
     return false;

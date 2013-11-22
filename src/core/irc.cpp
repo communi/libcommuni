@@ -141,6 +141,7 @@ void Irc::registerMetaTypes()
     qRegisterMetaType<IrcPrivateMessage*>("IrcPrivateMessage*");
     qRegisterMetaType<IrcQuitMessage*>("IrcQuitMessage*");
     qRegisterMetaType<IrcTopicMessage*>("IrcTopicMessage*");
+    qRegisterMetaType<IrcWhoReplyMessage*>("IrcWhoReplyMessage*");
 
 }
 
