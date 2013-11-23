@@ -185,7 +185,6 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
         metaObjects.insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
         metaObjects.insert("QUIT", &IrcQuitMessage::staticMetaObject);
         metaObjects.insert("TOPIC", &IrcTopicMessage::staticMetaObject);
-        metaObjects.insert("WHOREPLY", &IrcWhoReplyMessage::staticMetaObject);
     }
 
     const QMetaObject* metaObject = metaObjects.value(command.toUpper());
