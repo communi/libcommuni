@@ -6,12 +6,15 @@
   - Added IrcConnection::saveState()
   - Added IrcConnection::restoreState()
   - Added IrcModeMessage::arguments()
+  - Introduced IrcWhoReplyMessage
 - IrcModel
   - Added IrcBufferModel::saveState()
   - Added IrcBufferModel::restoreState()
   - Added IrcChannel::key
   - Added IrcChannel::join(QString key)
   - Added IrcBuffer::data()
+  - Added IrcUser::away
+  - Added IrcUser::servOp
 - IrcUtil
   - Introduced IrcCompleter
 
