@@ -1148,10 +1148,6 @@ void tst_IrcConnection::testMessageBuilder()
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
     QCOMPARE(filter.value.toBool(), true);
 
-    filter.property = "hops";
-    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
-    QCOMPARE(filter.value.toInt(), 0);
-
     filter.property = "realName";
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
     QCOMPARE(filter.value.toString(), QString("J-P Nurmi"));

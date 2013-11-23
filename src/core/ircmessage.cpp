@@ -1454,17 +1454,6 @@ bool IrcWhoReplyMessage::isServOp() const
 }
 
 /*!
-    \internal
-    TODO: only used by servers => remove?
- */
-int IrcWhoReplyMessage::hops() const
-{
-    Q_D(const IrcMessage);
-    QStringList args = d->param(6).split(" ");
-    return args.value(0).toInt();
-}
-
-/*!
     This property holds the real name of the user.
 
     \par Access function:

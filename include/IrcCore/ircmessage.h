@@ -444,7 +444,6 @@ class IRC_CORE_EXPORT IrcWhoReplyMessage : public IrcMessage
     Q_PROPERTY(QString server READ server)
     Q_PROPERTY(bool away READ isAway)
     Q_PROPERTY(bool servOp READ isServOp)
-    Q_PROPERTY(int hops READ hops)
     Q_PROPERTY(QString realName READ realName)
 
 public:
@@ -454,7 +453,6 @@ public:
     QString server() const;
     bool isAway() const;
     bool isServOp() const;
-    int hops() const;
     QString realName() const;
 
     bool isValid() const;
