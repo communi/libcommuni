@@ -31,6 +31,8 @@ void tst_IrcUser::testDefaults()
     QVERIFY(user.name().isEmpty());
     QVERIFY(user.prefix().isEmpty());
     QVERIFY(user.mode().isEmpty());
+    QVERIFY(!user.isServOp());
+    QVERIFY(!user.isAway());
     QVERIFY(!user.channel());
 }
 
@@ -41,10 +43,14 @@ void tst_IrcUser::testSignals()
     QSignalSpy nameSpy(&user, SIGNAL(nameChanged(QString)));
     QSignalSpy prefixSpy(&user, SIGNAL(prefixChanged(QString)));
     QSignalSpy modeSpy(&user, SIGNAL(modeChanged(QString)));
+    QSignalSpy servOpSpy(&user, SIGNAL(servOpChanged(bool)));
+    QSignalSpy awaySpy(&user, SIGNAL(awayChanged(bool)));
     QVERIFY(titleSpy.isValid());
     QVERIFY(nameSpy.isValid());
     QVERIFY(prefixSpy.isValid());
     QVERIFY(modeSpy.isValid());
+    QVERIFY(servOpSpy.isValid());
+    QVERIFY(awaySpy.isValid());
 }
 
 void tst_IrcUser::testDebug()
