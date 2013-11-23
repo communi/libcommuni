@@ -1404,12 +1404,12 @@ IrcWhoReplyMessage::IrcWhoReplyMessage(IrcConnection* connection) : IrcMessage(c
 }
 
 /*!
-    This property holds the channel.
+    This property holds the mask.
 
     \par Access function:
-    \li QString <b>channel</b>() const
+    \li QString <b>mask</b>() const
  */
-QString IrcWhoReplyMessage::channel() const
+QString IrcWhoReplyMessage::mask() const
 {
     Q_D(const IrcMessage);
     return d->param(0);
@@ -1480,7 +1480,7 @@ QString IrcWhoReplyMessage::realName() const
 
 bool IrcWhoReplyMessage::isValid() const
 {
-    return IrcMessage::isValid() && !channel().isEmpty() && !nick().isEmpty();
+    return IrcMessage::isValid() && !mask().isEmpty() && !nick().isEmpty();
 }
 
 #ifndef QT_NO_DEBUG_STREAM

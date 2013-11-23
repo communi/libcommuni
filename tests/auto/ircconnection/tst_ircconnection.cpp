@@ -1120,7 +1120,7 @@ void tst_IrcConnection::testMessageBuilder()
     QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
     QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
 
-    filter.property = "channel";
+    filter.property = "mask";
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
     QCOMPARE(filter.value.toString(), QString("#communi"));
 
