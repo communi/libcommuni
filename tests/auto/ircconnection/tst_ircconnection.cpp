@@ -1151,6 +1151,10 @@ void tst_IrcConnection::testMessageBuilder()
     filter.property = "realName";
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
     QCOMPARE(filter.value.toString(), QString("J-P Nurmi"));
+
+    filter.property = "realName";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0"));
+    QCOMPARE(filter.value.toString(), QString());
 }
 
 void tst_IrcConnection::testSendCommand()

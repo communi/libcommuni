@@ -1424,7 +1424,7 @@ QString IrcWhoReplyMessage::mask() const
 QString IrcWhoReplyMessage::server() const
 {
     Q_D(const IrcMessage);
-    return d->param(3);
+    return d->param(1);
 }
 
 /*!
@@ -1437,7 +1437,7 @@ QString IrcWhoReplyMessage::server() const
 bool IrcWhoReplyMessage::isAway() const
 {
     Q_D(const IrcMessage);
-    return d->param(5).contains("G");
+    return d->param(2).contains("G");
 }
 
 /*!
@@ -1450,7 +1450,7 @@ bool IrcWhoReplyMessage::isAway() const
 bool IrcWhoReplyMessage::isServOp() const
 {
     Q_D(const IrcMessage);
-    return d->param(5).contains("*");
+    return d->param(2).contains("*");
 }
 
 /*!
@@ -1462,9 +1462,7 @@ bool IrcWhoReplyMessage::isServOp() const
 QString IrcWhoReplyMessage::realName() const
 {
     Q_D(const IrcMessage);
-    QStringList args = d->param(6).split(" ");
-    QStringList lRealName = args.mid(1);
-    return lRealName.join(" ");
+    return d->param(3);
 }
 
 bool IrcWhoReplyMessage::isValid() const

@@ -70,17 +70,24 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         d.message = 0;
         break;
 
-    case Irc::RPL_WHOREPLY:
+    case Irc::RPL_WHOREPLY: {
         d.message = new IrcWhoReplyMessage(d.connection);
         d.message->setPrefix(message->parameters().value(5) // nick
                              + QLatin1Char('!') + message->parameters().value(2) // ident
                              + QLatin1Char('@') + message->parameters().value(3)); // host
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
-        d.message->setParameters(message->parameters().mid(1));
+        d.message->setParameters(QStringList() << message->parameters().value(1) // mask
+                                               << message->parameters().value(4) // server
+                                               << message->parameters().value(6)); // status
+        QString last = message->parameters().value(7);
+        int index = last.indexOf(QLatin1Char(' ')); // ignore hopcount
+        if (index != -1)
+            d.message->setParameters(d.message->parameters() << last.mid(index + 1)); // real name
         emit messageReceived(d.message);
         d.message = 0;
         break;
+    }
 
     case Irc::RPL_CHANNELMODEIS:
         d.message = new IrcModeMessage(d.connection);
