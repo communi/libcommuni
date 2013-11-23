@@ -819,6 +819,7 @@ void tst_IrcConnection::testMessages()
     QSignalSpy privateMessageSpy(connection, SIGNAL(privateMessageReceived(IrcPrivateMessage*)));
     QSignalSpy quitMessageSpy(connection, SIGNAL(quitMessageReceived(IrcQuitMessage*)));
     QSignalSpy topicMessageSpy(connection, SIGNAL(topicMessageReceived(IrcTopicMessage*)));
+    QSignalSpy whoReplyMessageSpy(connection, SIGNAL(whoReplyMessageReceived(IrcWhoReplyMessage*)));
 
     QVERIFY(messageSpy.isValid());
     QVERIFY(capabilityMessageSpy.isValid());
@@ -838,6 +839,7 @@ void tst_IrcConnection::testMessages()
     QVERIFY(privateMessageSpy.isValid());
     QVERIFY(quitMessageSpy.isValid());
     QVERIFY(topicMessageSpy.isValid());
+    QVERIFY(whoReplyMessageSpy.isValid());
 
     int messageCount = 0;
     int numericMessageCount = 0;
@@ -982,6 +984,17 @@ void tst_IrcConnection::testMessages()
     QVERIFY(waitForWritten("ERROR :just testing..."));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(errorMessageSpy.count(), 1);
+
+    QVERIFY(waitForWritten(":hobana.freenode.net 352 communi #communi ChanServ services. services. ChanServ H@ :0 Channel Services" ));
+    messageCount += 2; // RPL_WHOREPLY + IrcWhoReplyMessage
+    QCOMPARE(messageSpy.count(), messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+    QCOMPARE(whoReplyMessageSpy.count(), 1);
+
+    QVERIFY(waitForWritten(":hobana.freenode.net 315 communi #communi :End of /WHO list."));
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+    QCOMPARE(whoReplyMessageSpy.count(), 1);
 }
 
 class MsgFilter : public QObject, public IrcMessageFilter
