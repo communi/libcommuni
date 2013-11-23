@@ -70,6 +70,8 @@ private slots:
     void testQuitMessage();
     void testTopicMessage_data();
     void testTopicMessage();
+    void testWhoReplyMessage_data();
+    void testWhoReplyMessage();
 
     void testDebug();
 };
@@ -819,6 +821,66 @@ void tst_IrcMessage::testTopicMessage()
     QCOMPARE(topicMessage->channel(), channel);
     QCOMPARE(topicMessage->topic(), topic);
     QCOMPARE(topicMessage->isReply(), reply);
+}
+
+void tst_IrcMessage::testWhoReplyMessage_data()
+{
+    QTest::addColumn<bool>("valid");
+    QTest::addColumn<QString>("prefix");
+    QTest::addColumn<QStringList>("params");
+    QTest::addColumn<QString>("mask");
+    QTest::addColumn<QString>("server");
+    QTest::addColumn<bool>("away");
+    QTest::addColumn<bool>("servOp");
+    QTest::addColumn<QString>("realName");
+
+    QTest::newRow("normal") << true << "nick!ident@host"
+                            << (QStringList() << "#mask" << "irc.ser.ver" << "H@" << "real name")
+                            << "#mask" << "irc.ser.ver" << false << false << "real name";
+
+    QTest::newRow("away") << true << "nick!ident@host"
+                          << (QStringList() << "*" << "127.0.0.1" << "G@" << "real name")
+                          << "*" << "127.0.0.1" << true << false << "real name";
+
+    QTest::newRow("serv op") << true << "nick!ident@host"
+                             << (QStringList() << "*" << "127.0.0.1" << "H*@" << "real name")
+                             << "*" << "127.0.0.1" << false << true << "real name";
+
+    QTest::newRow("no name") << true << "nick!ident@host"
+                             << (QStringList() << "#mask" << "irc.ser.ver" << "H@" << "")
+                             << "#mask" << "irc.ser.ver" << false << false << "";
+}
+
+void tst_IrcMessage::testWhoReplyMessage()
+{
+    QFETCH(bool, valid);
+    QFETCH(QString, prefix);
+    QFETCH(QStringList, params);
+    QFETCH(QString, mask);
+    QFETCH(QString, server);
+    QFETCH(bool, away);
+    QFETCH(bool, servOp);
+    QFETCH(QString, realName);
+
+    IrcConnection connection;
+    IrcWhoReplyMessage message(&connection);
+    message.setPrefix(prefix);
+    message.setParameters(params);
+    QCOMPARE(message.isValid(), valid);
+    QCOMPARE(message.type(), IrcMessage::WhoReply);
+    // TODO: QCOMPARE(message.command(), QString::number(Irc::RPL_WHOREPLY));
+    QCOMPARE(message.mask(), mask);
+    QCOMPARE(message.server(), server);
+    QCOMPARE(message.isAway(), away);
+    QCOMPARE(message.isServOp(), servOp);
+    QCOMPARE(message.realName(), realName);
+
+    QCOMPARE(message.property("valid").toBool(), valid);
+    QCOMPARE(message.property("mask").toString(), mask);
+    QCOMPARE(message.property("server").toString(), server);
+    QCOMPARE(message.property("away").toBool(), away);
+    QCOMPARE(message.property("servOp").toBool(), servOp);
+    QCOMPARE(message.property("realName").toString(), realName);
 }
 
 void tst_IrcMessage::testDebug()
