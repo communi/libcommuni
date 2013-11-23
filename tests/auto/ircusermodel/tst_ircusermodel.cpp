@@ -47,6 +47,7 @@ private slots:
     void testChanges();
     void testRoles();
     void testAIM();
+    void testUser();
 };
 
 Q_DECLARE_METATYPE(QModelIndex)
@@ -1530,6 +1531,149 @@ void tst_IrcUserModel::testAIM()
     QCOMPARE(aim->data(bi, Irc::ModeRole).toString(), QString("o"));
     QCOMPARE(aim->data(ci, Irc::ModeRole).toString(), QString("v"));
     QVERIFY(aim->data(oi, Irc::ModeRole).toString().isEmpty());
+}
+
+void tst_IrcUserModel::testUser()
+{
+    IrcUserModel userModel;
+
+    // ### setup #communi (5): communi @ChanServ +qtassistant Guest1234 +qout
+    IrcBufferModel bufferModel;
+    bufferModel.setConnection(connection);
+
+    connection->open();
+    QVERIFY(waitForOpened());
+
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
+    QVERIFY(waitForWritten(":communi!~communi@hidd.en JOIN :#communi"));
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 353 communi = #communi :communi @ChanServ +qtassistant Guest1234 +qout"));
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 366 communi #communi :End of NAMES list."));
+    QCOMPARE(bufferModel.count(), 1);
+    IrcChannel* channel = bufferModel.get(0)->toChannel();
+    QVERIFY(channel);
+    QCOMPARE(channel->title(), QString("#communi"));
+
+    // ### ready to go!
+    userModel.setChannel(channel);
+    QCOMPARE(userModel.count(), 5);
+
+    QPointer<IrcUser> communi = userModel.get(0);
+    QVERIFY(communi);
+    QCOMPARE(communi->name(), QString("communi"));
+    QVERIFY(!communi->isAway());
+    QVERIFY(!communi->isServOp());
+
+    QPointer<IrcUser> ChanServ = userModel.get(1);
+    QVERIFY(ChanServ);
+    QCOMPARE(ChanServ->name(), QString("ChanServ"));
+    QVERIFY(!ChanServ->isAway());
+    QVERIFY(!ChanServ->isServOp());
+
+    QPointer<IrcUser> qtassistant = userModel.get(2);
+    QVERIFY(qtassistant);
+    QCOMPARE(qtassistant->name(), QString("qtassistant"));
+    QVERIFY(!qtassistant->isAway());
+    QVERIFY(!qtassistant->isServOp());
+
+    QPointer<IrcUser> Guest1234 = userModel.get(3);
+    QVERIFY(Guest1234);
+    QCOMPARE(Guest1234->name(), QString("Guest1234"));
+    QVERIFY(!Guest1234->isAway());
+    QVERIFY(!Guest1234->isServOp());
+
+    QPointer<IrcUser> qout = userModel.get(4);
+    QVERIFY(qout);
+    QCOMPARE(qout->name(), QString("qout"));
+    QVERIFY(!qout->isAway());
+    QVERIFY(!qout->isServOp());
+
+    QSignalSpy communiAwaySpy(communi.data(), SIGNAL(awayChanged(bool)));
+    QSignalSpy ChanServAwaySpy(ChanServ.data(), SIGNAL(awayChanged(bool)));
+    QSignalSpy qtassistantAwaySpy(qtassistant.data(), SIGNAL(awayChanged(bool)));
+    QSignalSpy Guest1234AwaySpy(Guest1234.data(), SIGNAL(awayChanged(bool)));
+    QSignalSpy qoutAwaySpy(qout.data(), SIGNAL(awayChanged(bool)));
+
+    QVERIFY(communiAwaySpy.isValid());
+    QVERIFY(ChanServAwaySpy.isValid());
+    QVERIFY(qtassistantAwaySpy.isValid());
+    QVERIFY(Guest1234AwaySpy.isValid());
+    QVERIFY(qoutAwaySpy.isValid());
+
+    QSignalSpy communiServOpSpy(communi.data(), SIGNAL(servOpChanged(bool)));
+    QSignalSpy ChanServServOpSpy(ChanServ.data(), SIGNAL(servOpChanged(bool)));
+    QSignalSpy qtassistantServOpSpy(qtassistant.data(), SIGNAL(servOpChanged(bool)));
+    QSignalSpy Guest1234ServOpSpy(Guest1234.data(), SIGNAL(servOpChanged(bool)));
+    QSignalSpy qoutServOpSpy(qout.data(), SIGNAL(servOpChanged(bool)));
+
+    QVERIFY(communiServOpSpy.isValid());
+    QVERIFY(ChanServServOpSpy.isValid());
+    QVERIFY(qtassistantServOpSpy.isValid());
+    QVERIFY(Guest1234ServOpSpy.isValid());
+    QVERIFY(qoutServOpSpy.isValid());
+
+    // first round
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ~communi hidd.en irc.ifi.uio.no communi H* :0 Communi"));
+    QVERIFY(!communi->isAway());
+    QVERIFY(communi->isServOp());
+    QCOMPARE(communiAwaySpy.count(), 0);
+    QCOMPARE(communiServOpSpy.count(), 1);
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ChanServ services. irc.ifi.uio.no ChanServ H@ :0 ChanServ"));
+    QVERIFY(!ChanServ->isAway());
+    QVERIFY(!ChanServ->isServOp());
+    QCOMPARE(ChanServAwaySpy.count(), 0);
+    QCOMPARE(ChanServServOpSpy.count(), 0);
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ~qtassistant hidd.en irc.ifi.uio.no qtassistant G+ :0 Qt Assistant"));
+    QVERIFY(qtassistant->isAway());
+    QVERIFY(!qtassistant->isServOp());
+    QCOMPARE(qtassistantAwaySpy.count(), 1);
+    QCOMPARE(qtassistantServOpSpy.count(), 0);
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ~guest hidd.en irc.ifi.uio.no Guest1234 H :0 Just a guest..."));
+    QVERIFY(!Guest1234->isAway());
+    QVERIFY(!Guest1234->isServOp());
+    QCOMPARE(Guest1234AwaySpy.count(), 0);
+    QCOMPARE(Guest1234ServOpSpy.count(), 0);
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ~qout hidd.en irc.ifi.uio.no qout G+ :0"));
+    QVERIFY(qout->isAway());
+    QVERIFY(!qout->isServOp());
+    QCOMPARE(qoutAwaySpy.count(), 1);
+    QCOMPARE(qoutServOpSpy.count(), 0);
+
+    // second round
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ~communi hidd.en irc.ifi.uio.no communi G@ :0 Communi"));
+    QVERIFY(communi->isAway());
+    QVERIFY(!communi->isServOp());
+    QCOMPARE(communiAwaySpy.count(), 1);
+    QCOMPARE(communiServOpSpy.count(), 2);
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ChanServ services. irc.ifi.uio.no ChanServ H@ :0 ChanServ"));
+    QVERIFY(!ChanServ->isAway());
+    QVERIFY(!ChanServ->isServOp());
+    QCOMPARE(ChanServAwaySpy.count(), 0);
+    QCOMPARE(ChanServServOpSpy.count(), 0);
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ~qtassistant hidd.en irc.ifi.uio.no qtassistant H+ :0 Qt Assistant"));
+    QVERIFY(!qtassistant->isAway());
+    QVERIFY(!qtassistant->isServOp());
+    QCOMPARE(qtassistantAwaySpy.count(), 2);
+    QCOMPARE(qtassistantServOpSpy.count(), 0);
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ~guest hidd.en irc.ifi.uio.no Guest1234 G :0 Just a guest..."));
+    QVERIFY(Guest1234->isAway());
+    QVERIFY(!Guest1234->isServOp());
+    QCOMPARE(Guest1234AwaySpy.count(), 1);
+    QCOMPARE(Guest1234ServOpSpy.count(), 0);
+
+    QVERIFY(waitForWritten(":irc.ifi.uio.no 352 communi #communi ~qout hidd.en irc.ifi.uio.no qout G+ :0"));
+    QVERIFY(qout->isAway());
+    QVERIFY(!qout->isServOp());
+    QCOMPARE(qoutAwaySpy.count(), 1);
+    QCOMPARE(qoutServOpSpy.count(), 0);
 }
 
 QTEST_MAIN(tst_IrcUserModel)
