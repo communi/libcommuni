@@ -1389,13 +1389,13 @@ bool IrcTopicMessage::isValid() const
 }
 
 /*!
-    \class IrcTopicMessage ircmessage.h <IrcMessage>
+    \class IrcWhoReplyMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief Represents a topic message.
+    \brief Represents a reply message to a WHO command.
  */
 
 /*!
-    Constructs a new IrcTopicMessage with \a connection.
+    Constructs a new IrcWhoReplyMessage with \a connection.
  */
 IrcWhoReplyMessage::IrcWhoReplyMessage(IrcConnection* connection) : IrcMessage(connection)
 {
@@ -1403,48 +1403,96 @@ IrcWhoReplyMessage::IrcWhoReplyMessage(IrcConnection* connection) : IrcMessage(c
     d->type = WhoReply;
 }
 
+/*!
+    This property holds the channel.
+
+    \par Access function:
+    \li QString <b>channel</b>() const
+ */
 QString IrcWhoReplyMessage::channel() const
 {
     Q_D(const IrcMessage);
     return d->param(0);
 }
 
+/*!
+    This property holds the user name.
+
+    \par Access function:
+    \li QString <b>userName</b>() const
+ */
 QString IrcWhoReplyMessage::userName() const
 {
     Q_D(const IrcMessage);
     return d->param(1);
 }
 
+/*!
+    This property holds the user host.
+
+    \par Access function:
+    \li QString <b>userHost</b>() const
+ */
 QString IrcWhoReplyMessage::userHost() const
 {
     Q_D(const IrcMessage);
     return d->param(2);
 }
 
+/*!
+    This property holds the server of the user.
+
+    \par Access function:
+    \li QString <b>server</b>() const
+ */
 QString IrcWhoReplyMessage::server() const
 {
     Q_D(const IrcMessage);
     return d->param(3);
 }
 
+/*!
+    This property holds the nick name of the user.
+
+    \par Access function:
+    \li QString <b>nickName</b>() const
+ */
 QString IrcWhoReplyMessage::nickName() const
 {
     Q_D(const IrcMessage);
     return d->param(4);
 }
 
+/*!
+    \property bool IrcWhoReplyMessage::away
+    This property holds whether the user is away.
+
+    \par Access function:
+    \li QString <b>isAway</b>() const
+ */
 bool IrcWhoReplyMessage::isAway() const
 {
     Q_D(const IrcMessage);
     return d->param(5).contains("G");
 }
 
+/*!
+    \property bool IrcWhoReplyMessage::servOp
+    This property holds whether the user is a server operator.
+
+    \par Access function:
+    \li QString <b>isServOp</b>() const
+ */
 bool IrcWhoReplyMessage::isServOp() const
 {
     Q_D(const IrcMessage);
     return d->param(5).contains("*");
 }
 
+/*!
+    \internal
+    TODO: only used by servers => remove?
+ */
 int IrcWhoReplyMessage::hops() const
 {
     Q_D(const IrcMessage);
@@ -1452,6 +1500,12 @@ int IrcWhoReplyMessage::hops() const
     return args.value(0).toInt();
 }
 
+/*!
+    This property holds the real name of the user.
+
+    \par Access function:
+    \li QString <b>realName</b>() const
+ */
 QString IrcWhoReplyMessage::realName() const
 {
     Q_D(const IrcMessage);
