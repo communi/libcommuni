@@ -90,6 +90,7 @@ private slots:
     void testConnection();
     void testMessages();
     void testMessageFlags();
+    void testMessageBuilder();
 
     void testSendCommand();
     void testSendData();
@@ -1104,6 +1105,56 @@ void tst_IrcConnection::testMessageFlags()
     QCOMPARE(filter.type, IrcMessage::Notice);
     QCOMPARE(filter.flags, IrcMessage::Unidentified);
     QCOMPARE(filter.value.toString(), QString("hi communi"));
+}
+
+void tst_IrcConnection::testMessageBuilder()
+{
+    connection->open();
+    QVERIFY(waitForOpened());
+
+    MsgFilter filter;
+    connection->installMessageFilter(&filter);
+
+    QVERIFY(waitForWritten(":my.irc.ser.ver 001 communi :Welcome..."));
+    QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=fake KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server"));
+    QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
+    QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
+
+    filter.property = "channel";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
+    QCOMPARE(filter.value.toString(), QString("#communi"));
+
+    filter.property = "userName";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
+    QCOMPARE(filter.value.toString(), QString("~jpnurmi"));
+
+    filter.property = "userHost";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
+    QCOMPARE(filter.value.toString(), QString("qt/jpnurmi"));
+
+    filter.property = "server";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
+    QCOMPARE(filter.value.toString(), QString("his.irc.ser.ver"));
+
+    filter.property = "nickName";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
+    QCOMPARE(filter.value.toString(), QString("jpnurmi"));
+
+    filter.property = "away";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
+    QCOMPARE(filter.value.toBool(), true);
+
+    filter.property = "servOp";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
+    QCOMPARE(filter.value.toBool(), true);
+
+    filter.property = "hops";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
+    QCOMPARE(filter.value.toInt(), 0);
+
+    filter.property = "realName";
+    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
+    QCOMPARE(filter.value.toString(), QString("J-P Nurmi"));
 }
 
 void tst_IrcConnection::testSendCommand()
