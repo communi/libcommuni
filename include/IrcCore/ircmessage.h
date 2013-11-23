@@ -441,10 +441,7 @@ class IRC_CORE_EXPORT IrcWhoReplyMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel)
-    Q_PROPERTY(QString userName READ userName)
-    Q_PROPERTY(QString userHost READ userHost)
     Q_PROPERTY(QString server READ server)
-    Q_PROPERTY(QString nickName READ nickName)
     Q_PROPERTY(bool away READ isAway)
     Q_PROPERTY(bool servOp READ isServOp)
     Q_PROPERTY(int hops READ hops)
@@ -454,10 +451,7 @@ public:
     Q_INVOKABLE explicit IrcWhoReplyMessage(IrcConnection* connection);
 
     QString channel() const;
-    QString userName() const;
-    QString userHost() const;
     QString server() const;
-    QString nickName() const;
     bool isAway() const;
     bool isServOp() const;
     int hops() const;

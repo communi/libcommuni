@@ -1416,30 +1416,6 @@ QString IrcWhoReplyMessage::channel() const
 }
 
 /*!
-    This property holds the user name.
-
-    \par Access function:
-    \li QString <b>userName</b>() const
- */
-QString IrcWhoReplyMessage::userName() const
-{
-    Q_D(const IrcMessage);
-    return d->param(1);
-}
-
-/*!
-    This property holds the user host.
-
-    \par Access function:
-    \li QString <b>userHost</b>() const
- */
-QString IrcWhoReplyMessage::userHost() const
-{
-    Q_D(const IrcMessage);
-    return d->param(2);
-}
-
-/*!
     This property holds the server of the user.
 
     \par Access function:
@@ -1449,18 +1425,6 @@ QString IrcWhoReplyMessage::server() const
 {
     Q_D(const IrcMessage);
     return d->param(3);
-}
-
-/*!
-    This property holds the nick name of the user.
-
-    \par Access function:
-    \li QString <b>nickName</b>() const
- */
-QString IrcWhoReplyMessage::nickName() const
-{
-    Q_D(const IrcMessage);
-    return d->param(4);
 }
 
 /*!

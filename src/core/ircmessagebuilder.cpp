@@ -72,7 +72,9 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
 
     case Irc::RPL_WHOREPLY:
         d.message = new IrcWhoReplyMessage(d.connection);
-        d.message->setPrefix(message->prefix());
+        d.message->setPrefix(message->parameters().value(5) // nick
+                             + QLatin1Char('!') + message->parameters().value(2) // ident
+                             + QLatin1Char('@') + message->parameters().value(3)); // host
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         d.message->setParameters(message->parameters().mid(1));
