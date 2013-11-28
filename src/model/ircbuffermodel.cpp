@@ -412,7 +412,7 @@ IrcBufferModel::~IrcBufferModel()
 {
     Q_D(IrcBufferModel);
     foreach (IrcBuffer* buffer, d->bufferList) {
-        buffer->blockSignals(true);
+        buffer->disconnect(this);
         delete buffer;
     }
     d->bufferList.clear();
@@ -704,7 +704,7 @@ void IrcBufferModel::clear()
                     bufferRemoved = true;
                 }
                 channelRemoved |= buffer->isChannel();
-                buffer->disconnect();
+                buffer->disconnect(this);
                 d->bufferList.removeOne(buffer);
                 d->channels.removeOne(buffer->title());
                 d->bufferMap.remove(buffer->title().toLower());
