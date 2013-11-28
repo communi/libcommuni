@@ -1,3 +1,8 @@
+3.0.2
+-----
+- IrcModel
+  - Fixed IrcBufferModel to not block IrcBuffer signals on destruction/removal
+
 3.0.1
 -----
 - IrcCore
