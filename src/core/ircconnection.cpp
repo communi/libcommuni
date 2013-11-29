@@ -712,6 +712,32 @@ void IrcConnection::setDisplayName(const QString& name)
 }
 
 /*!
+    \since 3.1
+    This property holds arbitrary user data.
+
+    \par Access functions:
+    \li QVariant <b>userData</b>() const
+    \li void <b>setUserData</b>(const QVariant& data)
+
+    \par Notifier signal:
+    \li void <b>userDataChanged</b>(const QVariant& data)
+ */
+QVariant IrcConnection::userData() const
+{
+    Q_D(const IrcConnection);
+    return d->userData;
+}
+
+void IrcConnection::setUserData(const QVariant& data)
+{
+    Q_D(IrcConnection);
+    if (d->userData != data) {
+        d->userData = data;
+        emit userDataChanged(data);
+    }
+}
+
+/*!
     \property Status IrcConnection::status
     This property holds the connection status.
 
@@ -1254,6 +1280,7 @@ QByteArray IrcConnection::saveState(int version) const
     args.insert("realName", realName());
     args.insert("password", password());
     args.insert("displayName", d->displayName);
+    args.insert("userData", userData());
     args.insert("encoding", encoding());
     args.insert("enabled", isEnabled());
     args.insert("reconnectDelay", reconnectDelay());
@@ -1291,6 +1318,7 @@ bool IrcConnection::restoreState(const QByteArray& state, int version)
     setRealName(args.value("realName", realName()).toString());
     setPassword(args.value("password", password()).toString());
     setDisplayName(args.value("displayName").toString());
+    setUserData(args.value("userData", userData()));
     setEncoding(args.value("encoding", encoding()).toByteArray());
     setEnabled(args.value("enabled", isEnabled()).toBool());
     setReconnectDelay(args.value("reconnectDelay", reconnectDelay()).toInt());
