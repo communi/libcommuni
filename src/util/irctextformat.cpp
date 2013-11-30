@@ -133,6 +133,7 @@ void IrcTextFormat::setUrlPattern(const QString& pattern)
 
 /*!
     \since 3.1
+
     This property holds the format used for HTML span-elements.
 
     IrcTextFormat uses HTML span-elements for converting the IRC-style text

@@ -468,6 +468,8 @@ void IrcBuffer::setPersistent(bool persistent)
 }
 
 /*!
+    \since 3.1
+
     Returns model data for the specified \a role.
  */
 QVariant IrcBuffer::data(int role) const

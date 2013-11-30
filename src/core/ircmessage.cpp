@@ -789,6 +789,7 @@ QString IrcModeMessage::argument() const
 
 /*!
     \since 3.1
+
     This property holds the all mode arguments.
 
     \par Access function:
@@ -1389,6 +1390,7 @@ bool IrcTopicMessage::isValid() const
 }
 
 /*!
+    \since 3.1
     \class IrcWhoReplyMessage ircmessage.h <IrcMessage>
     \ingroup message
     \brief Represents a reply message to a WHO command.

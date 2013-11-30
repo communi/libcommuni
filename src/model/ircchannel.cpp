@@ -448,6 +448,8 @@ IrcChannel::~IrcChannel()
 }
 
 /*!
+    \since 3.1
+
     This property holds the channel key.
 
     \par Access function:
@@ -506,6 +508,8 @@ bool IrcChannel::isActive() const
 }
 
 /*!
+    \since 3.1
+
     Joins the channel with an optional \a key.
 
     This method is provided for convenience. It is equal to:

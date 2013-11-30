@@ -167,6 +167,8 @@ QString IrcUser::mode() const
 }
 
 /*!
+    \since 3.1
+
     \property bool IrcUser::servOp
     This property holds whether the user is a server operator.
 
@@ -192,6 +194,8 @@ bool IrcUser::isServOp() const
 }
 
 /*!
+    \since 3.1
+
     \property bool IrcUser::away
     This property holds whether the user is marked as being away.
 

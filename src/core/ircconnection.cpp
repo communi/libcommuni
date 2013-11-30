@@ -713,6 +713,7 @@ void IrcConnection::setDisplayName(const QString& name)
 
 /*!
     \since 3.1
+
     This property holds arbitrary user data.
 
     \par Access functions:
@@ -1264,6 +1265,8 @@ void IrcConnection::removeCommandFilter(QObject* filter)
 }
 
 /*!
+    \since 3.1
+
     Saves the state of the connection. The \a version number is stored as part of the state data.
 
     To restore the saved state, pass the return value and \a version number to restoreState().
@@ -1294,6 +1297,8 @@ QByteArray IrcConnection::saveState(int version) const
 }
 
 /*!
+    \since 3.1
+
     Restores the \a state of the connection. The \a version number is compared with that stored in \a state.
     If they do not match, the connection state is left unchanged, and this function returns \c false; otherwise,
     the state is restored, and \c true is returned.

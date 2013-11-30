@@ -957,6 +957,8 @@ void IrcBufferModel::setChannelPrototype(IrcChannel* prototype)
 }
 
 /*!
+    \since 3.1
+
     Saves the state of the model. The \a version number is stored as part of the state data.
 
     To restore the saved state, pass the return value and \a version number to restoreState().
@@ -996,6 +998,8 @@ QByteArray IrcBufferModel::saveState(int version) const
 }
 
 /*!
+    \since 3.1
+
     Restores the \a state of the model. The \a version number is compared with that stored in \a state.
     If they do not match, the model state is left unchanged, and this function returns \c false; otherwise,
     the state is restored, and \c true is returned.
