@@ -31,6 +31,7 @@ class IRC_UTIL_EXPORT IrcTextFormat : public QObject
     Q_OBJECT
     Q_PROPERTY(IrcPalette* palette READ palette CONSTANT)
     Q_PROPERTY(QString urlPattern READ urlPattern WRITE setUrlPattern)
+    Q_ENUMS(SpanFormat)
 
 public:
     explicit IrcTextFormat(QObject* parent = 0);
@@ -40,6 +41,11 @@ public:
 
     QString urlPattern() const;
     void setUrlPattern(const QString& pattern);
+
+    enum SpanFormat { SpanStyle, SpanClass };
+
+    SpanFormat spanFormat() const;
+    void setSpanFormat(SpanFormat format);
 
     Q_INVOKABLE QString toHtml(const QString& text) const;
     Q_INVOKABLE QString toPlainText(const QString& text) const;
@@ -53,5 +59,6 @@ private:
 IRC_END_NAMESPACE
 
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcTextFormat*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcTextFormat::SpanFormat))
 
 #endif // IRCTEXTFORMAT_H

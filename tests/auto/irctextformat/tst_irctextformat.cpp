@@ -31,6 +31,7 @@ void tst_IrcTextFormat::testDefaults()
     IrcTextFormat format;
     QVERIFY(format.palette());
     QVERIFY(!format.urlPattern().isEmpty());
+    QCOMPARE(format.spanFormat(), IrcTextFormat::SpanStyle);
 }
 
 void tst_IrcTextFormat::testPlainText_data()
@@ -39,7 +40,7 @@ void tst_IrcTextFormat::testPlainText_data()
     QTest::addColumn<QString>("output");
 
     QTest::newRow("bold") << "\02bold\x0f" << "bold";
-    QTest::newRow("strike-through") << "\x13strike-through\x0f" << "strike-through";
+    QTest::newRow("line-through") << "\x13line-through\x0f" << "line-through";
     QTest::newRow("underline") << "\x15underline\x0f" << "underline";
     QTest::newRow("inverse") << "\x16inverse\x0f" << "inverse";
     QTest::newRow("italic") << "\x1ditalic\x0f" << "italic";
@@ -69,34 +70,51 @@ void tst_IrcTextFormat::testPlainText()
 
 void tst_IrcTextFormat::testHtml_data()
 {
+    qRegisterMetaType<IrcTextFormat::SpanFormat>();
+
+    QTest::addColumn<IrcTextFormat::SpanFormat>("span");
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("output");
 
-    QTest::newRow("bold") << "foo \02bold\x0f and \02bold\02 bar" << "foo <span style='font-weight: bold'>bold</span> and <span style='font-weight: bold'>bold</span> bar";
-    QTest::newRow("strike-through") << "foo \x13strike\x0f and \x13through\x13 bar" << "foo <span style='text-decoration: line-through'>strike</span> and <span style='text-decoration: line-through'>through</span> bar";
-    QTest::newRow("underline1") << "foo \x15under\x0f and \x15line\x15 bar" << "foo <span style='text-decoration: underline'>under</span> and <span style='text-decoration: underline'>line</span> bar";
-    //TODO: QTest::newRow("inverse") << "\x16inverse\x0f" << "inverse";
-    QTest::newRow("italic") << "foo \x1ditalic\x0f and \x1ditalic\x1d bar" << "foo <span style='font-style: italic'>italic</span> and <span style='font-style: italic'>italic</span> bar";
-    QTest::newRow("underline2") << "foo \x1funder\x0f and \x1fline\x1f bar" << "foo <span style='text-decoration: underline'>under</span> and <span style='text-decoration: underline'>line</span> bar";
+    QTest::newRow("style=bold") << IrcTextFormat::SpanStyle << "foo \02bold\x0f and \02bold\02 bar" << "foo <span style='font-weight: bold'>bold</span> and <span style='font-weight: bold'>bold</span> bar";
+    QTest::newRow("class=bold") << IrcTextFormat::SpanClass << "foo \02bold\x0f and \02bold\02 bar" << "foo <span class='bold'>bold</span> and <span class='bold'>bold</span> bar";
+
+    QTest::newRow("style=line-through") << IrcTextFormat::SpanStyle << "foo \x13line\x0f and \x13through\x13 bar" << "foo <span style='text-decoration: line-through'>line</span> and <span style='text-decoration: line-through'>through</span> bar";
+    QTest::newRow("class=line-through") << IrcTextFormat::SpanClass << "foo \x13line\x0f and \x13through\x13 bar" << "foo <span class='line-through'>line</span> and <span class='line-through'>through</span> bar";
+
+    QTest::newRow("style=underline1") << IrcTextFormat::SpanStyle << "foo \x15under\x0f and \x15line\x15 bar" << "foo <span style='text-decoration: underline'>under</span> and <span style='text-decoration: underline'>line</span> bar";
+
+    QTest::newRow("style=inverse") << IrcTextFormat::SpanStyle << "foo \x16inverse\x0f and \x16inverse\x16 bar" << "foo <span style='text-decoration: inverse'>inverse</span> and <span style='text-decoration: inverse'>inverse</span> bar";
+    QTest::newRow("class=inverse") << IrcTextFormat::SpanClass << "foo \x16inverse\x0f and \x16inverse\x16 bar" << "foo <span class='inverse'>inverse</span> and <span class='inverse'>inverse</span> bar";
+
+    QTest::newRow("style=italic") << IrcTextFormat::SpanStyle << "foo \x1ditalic\x0f and \x1ditalic\x1d bar" << "foo <span style='font-style: italic'>italic</span> and <span style='font-style: italic'>italic</span> bar";
+    QTest::newRow("class=italic") << IrcTextFormat::SpanClass << "foo \x1ditalic\x0f and \x1ditalic\x1d bar" << "foo <span class='italic'>italic</span> and <span class='italic'>italic</span> bar";
+
+    QTest::newRow("style=underline2") << IrcTextFormat::SpanStyle << "foo \x1funder\x0f and \x1fline\x1f bar" << "foo <span style='text-decoration: underline'>under</span> and <span style='text-decoration: underline'>line</span> bar";
 
     IrcTextFormat format;
     QVERIFY(format.palette());
     IrcPalette* palette = format.palette();
     for (int i = Irc::White; i <= Irc::LightGray; ++i) {
         QString color = palette->colorName(i);
-        QTest::newRow(color.toUtf8()) << QString("foo \x03%1%2\x0f and \x03%1%2\x03 bar").arg(i).arg(color) << QString("foo <span style='color:%1'>%1</span> and <span style='color:%1'>%1</span> bar").arg(color);
+        QTest::newRow(QString("style=%1").arg(color).toUtf8()) << IrcTextFormat::SpanStyle << QString("foo \x03%1%2\x0f and \x03%1%2\x03 bar").arg(i).arg(color) << QString("foo <span style='color: %1'>%1</span> and <span style='color: %1'>%1</span> bar").arg(color);
+        QTest::newRow(QString("class=%1").arg(color).toUtf8()) << IrcTextFormat::SpanClass << QString("foo \x03%1%2\x0f and \x03%1%2\x03 bar").arg(i).arg(color) << QString("foo <span class='%1'>%1</span> and <span class='%1'>%1</span> bar").arg(color);
     }
 
-    QTest::newRow("extra \\x0f") << "foo\x0f \02bold\x0f bar\x0f" << "foo <span style='font-weight: bold'>bold</span> bar";
-    QTest::newRow("background") << QString("foo \x03%1,%1red\x0f on \x03%1,%1red\x03 bar").arg(Irc::Red) << "foo <span style='color:red;background-color:red'>red</span> on <span style='color:red;background-color:red'>red</span> bar";
+    QTest::newRow("extra \\x0f") << IrcTextFormat::SpanStyle << "foo\x0f \02bold\x0f bar\x0f" << "foo <span style='font-weight: bold'>bold</span> bar";
+
+    QTest::newRow("style=background") << IrcTextFormat::SpanStyle << QString("foo \x03%1,%1red\x0f on \x03%1,%1red\x03 bar").arg(Irc::Red) << "foo <span style='color: red; background-color: red'>red</span> on <span style='color: red; background-color: red'>red</span> bar";
+    QTest::newRow("class=background") << IrcTextFormat::SpanClass << QString("foo \x03%1,%1red\x0f on \x03%1,%1red\x03 bar").arg(Irc::Red) << "foo <span class='red red-background'>red</span> on <span class='red red-background'>red</span> bar";
 }
 
 void tst_IrcTextFormat::testHtml()
 {
+    QFETCH(IrcTextFormat::SpanFormat, span);
     QFETCH(QString, input);
     QFETCH(QString, output);
 
     IrcTextFormat format;
+    format.setSpanFormat(span);
     QCOMPARE(format.toHtml(input), output);
 }
 

@@ -59,11 +59,27 @@ IRC_BEGIN_NAMESPACE
     \sa IrcPalette
  */
 
+/*!
+    \enum IrcTextFormat::SpanFormat
+    This enum describes the supported formats for HTML span-elements.
+ */
+
+/*!
+    \var IrcTextFormat::SpanStyle
+    \brief HTML span-elements with style-attributes.
+ */
+
+/*!
+    \var IrcTextFormat::SpanClass
+    \brief HTML span-elements with class-attributes.
+ */
+
 class IrcTextFormatPrivate
 {
 public:
     QString urlPattern;
     IrcPalette* palette;
+    IrcTextFormat::SpanFormat spanFormat;
 };
 
 /*!
@@ -74,6 +90,7 @@ IrcTextFormat::IrcTextFormat(QObject* parent) : QObject(parent), d_ptr(new IrcTe
     Q_D(IrcTextFormat);
     d->palette = new IrcPalette(this);
     d->urlPattern = QString("\\b((?:(?:([a-z][\\w\\.-]+:/{1,3})|www|ftp\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|\\}\\]|[^\\s`!()\\[\\]{};:'\".,<>?%1%2%3%4%5%6])|[a-z0-9.\\-+_]+@[a-z0-9.\\-]+[.][a-z]{1,5}[^\\s/`!()\\[\\]{};:'\".,<>?%1%2%3%4%5%6]))").arg(QChar(0x00AB)).arg(QChar(0x00BB)).arg(QChar(0x201C)).arg(QChar(0x201D)).arg(QChar(0x2018)).arg(QChar(0x2019));
+    d->spanFormat = SpanStyle;
 }
 
 /*!
@@ -114,6 +131,46 @@ void IrcTextFormat::setUrlPattern(const QString& pattern)
     d->urlPattern = pattern;
 }
 
+/*!
+    \since 3.1
+    This property holds the format used for HTML span-elements.
+
+    IrcTextFormat uses HTML span-elements for converting the IRC-style text
+    formatting to the corresponding HTML formatting. The \ref SpanStyle format
+    generates self contained span-elements with style-attributes, resulting to
+    HTML that is ready to be used with Qt's rich text classes without additional
+    styling. For more flexible styling, the \ref SpanClass generates span-elements
+    with class-attributes that can be styled with additional style sheets.
+
+    The default value is \ref SpanStyle. The following table illustrates the
+    difference between \ref SpanStyle and \ref SpanClass HTML formatting:
+
+    IRC format                              | SpanStyle                                                             | SpanClass
+    --------------------------------------- | ----------------------------------------------------------------------|----------
+    Bold ("\02...\0F")                      | &lt;span style='font-weight: bold'&gt;...&lt;/span&gt;                | &lt;span class='bold'&gt;...&lt;/span&gt;
+    Color ("\03fg...\0F")                   | &lt;span style='color: fg;'&gt;...&lt;/span&gt;                       | &lt;span class='fg'&gt;...&lt;/span&gt;
+    Background ("\03fgbg...\0F")            | &lt;span style='color: fg; background-color: bg'&gt;...&lt;/span&gt;  | &lt;span class='fg bg-background'&gt;...&lt;/span&gt;
+    Italic ("\09...\0F")                    | &lt;span style='font-style: italic'&gt;...&lt;/span&gt;               | &lt;span class='italic'&gt;...&lt;/span&gt;
+    Line-through ("\13...\0F")              | &lt;span style='text-decoration: line-through'&gt;...&lt;/span&gt;    | &lt;span class='line-through'&gt;...&lt;/span&gt;
+    Underline ("\15...\0F" or "\1F...\0F")  | &lt;span style='text-decoration: underline'&gt;...&lt;/span&gt;       | &lt;span class='underline'&gt;...&lt;/span&gt;
+    Inverse ("\16...\0F")                   | &lt;span style='text-decoration: inverse'&gt;...&lt;/span&gt;         | &lt;span class='inverse'&gt;...&lt;/span&gt;
+
+    \par Access functions:
+    \li \ref SpanFormat <b>spanFormat</b>() const
+    \li void <b>setSpanFormat</b>(\ref SpanFormat format)
+ */
+IrcTextFormat::SpanFormat IrcTextFormat::spanFormat() const
+{
+    Q_D(const IrcTextFormat);
+    return d->spanFormat;
+}
+
+void IrcTextFormat::setSpanFormat(IrcTextFormat::SpanFormat format)
+{
+    Q_D(IrcTextFormat);
+    d->spanFormat = format;
+}
+
 static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, int* bg = 0)
 {
     // fg(,bg)
@@ -147,7 +204,7 @@ static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, 
     \note URL detection can be disabled by setting an empty
           regular expression pattern used for matching URLs.
 
-    \sa palette, urlPattern, toPlainText()
+    \sa palette, urlPattern, spanFormat, toPlainText()
 */
 QString IrcTextFormat::toHtml(const QString& text) const
 {
@@ -166,7 +223,7 @@ QString IrcTextFormat::toHtml(const QString& text) const
         None            = 0x0,
         Bold            = 0x1,
         Italic          = 0x4,
-        StrikeThrough   = 0x8,
+        LineThrough     = 0x8,
         Underline       = 0x10,
         Inverse         = 0x20
     };
@@ -187,7 +244,10 @@ QString IrcTextFormat::toHtml(const QString& text) const
                     replacement = QLatin1String("</span>");
                 } else {
                     depth++;
-                    replacement = QLatin1String("<span style='font-weight: bold'>");
+                    if (d->spanFormat == SpanStyle)
+                        replacement = QLatin1String("<span style='font-weight: bold'>");
+                    else
+                        replacement = QLatin1String("<span class='bold'>");
                 }
                 state ^= Bold;
                 break;
@@ -195,11 +255,19 @@ QString IrcTextFormat::toHtml(const QString& text) const
             case '\x03': // color
                 if (parseColors(processed, pos + 1, &len, &fg, &bg)) {
                     depth++;
-                    QStringList styles;
-                    styles += QString(QLatin1String("color:%1")).arg(d->palette->colorName(fg, QLatin1String("black")));
-                    if (bg != -1)
-                        styles += QString(QLatin1String("background-color:%1")).arg(d->palette->colorName(bg, QLatin1String("transparent")));
-                    replacement = QString(QLatin1String("<span style='%1'>")).arg(styles.join(QLatin1String(";")));
+                    if (d->spanFormat == SpanStyle) {
+                        QStringList styles;
+                        styles += QString(QLatin1String("color: %1")).arg(d->palette->colorName(fg, QLatin1String("black")));
+                        if (bg != -1)
+                            styles += QString(QLatin1String("background-color: %1")).arg(d->palette->colorName(bg, QLatin1String("transparent")));
+                        replacement = QString(QLatin1String("<span style='%1'>")).arg(styles.join(QLatin1String("; ")));
+                    } else {
+                        QStringList classes;
+                        classes += d->palette->colorName(fg, QLatin1String("black"));
+                        if (bg != -1)
+                            classes += d->palette->colorName(bg, QLatin1String("transparent")) + QLatin1String("-background");
+                        replacement = QString(QLatin1String("<span class='%1'>")).arg(classes.join(QLatin1String(" ")));
+                    }
                     // \x03FF(,BB)
                     processed.replace(pos, len + 1, replacement);
                     pos += replacement.length();
@@ -217,20 +285,26 @@ QString IrcTextFormat::toHtml(const QString& text) const
                     replacement = QLatin1String("</span>");
                 } else {
                     depth++;
-                    replacement = QLatin1String("<span style='font-style: italic'>");
+                    if (d->spanFormat == SpanStyle)
+                        replacement = QLatin1String("<span style='font-style: italic'>");
+                    else
+                        replacement = QLatin1String("<span class='italic'>");
                 }
                 state ^= Italic;
                 break;
 
-            case '\x13': // strike-through
-                if (state & StrikeThrough) {
+            case '\x13': // line-through
+                if (state & LineThrough) {
                     depth--;
                     replacement = QLatin1String("</span>");
                 } else {
                     depth++;
-                    replacement = QLatin1String("<span style='text-decoration: line-through'>");
+                    if (d->spanFormat == SpanStyle)
+                        replacement = QLatin1String("<span style='text-decoration: line-through'>");
+                    else
+                        replacement = QLatin1String("<span class='line-through'>");
                 }
-                state ^= StrikeThrough;
+                state ^= LineThrough;
                 break;
 
             case '\x15': // underline
@@ -240,7 +314,10 @@ QString IrcTextFormat::toHtml(const QString& text) const
                     replacement = QLatin1String("</span>");
                 } else {
                     depth++;
-                    replacement = QLatin1String("<span style='text-decoration: underline'>");
+                    if (d->spanFormat == SpanStyle)
+                        replacement = QLatin1String("<span style='text-decoration: underline'>");
+                    else
+                        replacement = QLatin1String("<span class='underline'>");
                 }
                 state ^= Underline;
                 break;
@@ -251,7 +328,10 @@ QString IrcTextFormat::toHtml(const QString& text) const
                     replacement = QLatin1String("</span>");
                 } else {
                     depth++;
-                    replacement = QLatin1String("<span style='font-weight: bold'>");
+                    if (d->spanFormat == SpanStyle)
+                        replacement = QLatin1String("<span style='text-decoration: inverse'>");
+                    else
+                        replacement = QLatin1String("<span class='inverse'>");
                 }
                 state ^= Inverse;
                 break;
@@ -330,7 +410,7 @@ QString IrcTextFormat::toPlainText(const QString& text) const
         switch (processed.at(pos).unicode()) {
             case '\x02': // bold
             case '\x0f': // none
-            case '\x13': // strike-through
+            case '\x13': // line-through
             case '\x15': // underline
             case '\x16': // inverse
             case '\x1d': // italic

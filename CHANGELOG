@@ -18,6 +18,7 @@
   - Added IrcUser::servOp
 - IrcUtil
   - Introduced IrcCompleter
+  - Added IrcTextFormat::spanFormat
 
 3.0.2
 -----
