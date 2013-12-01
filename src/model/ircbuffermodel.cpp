@@ -322,7 +322,9 @@ bool IrcBufferModelPrivate::renameBuffer(const QString& from, const QString& to)
     Q_Q(IrcBufferModel);
     const QString fromLower = from.toLower();
     const QString toLower = to.toLower();
-    if (bufferMap.contains(fromLower) && !bufferMap.contains(toLower)) {
+    if (bufferMap.contains(toLower))
+        destroyBuffer(toLower, true);
+    if (bufferMap.contains(fromLower)) {
         IrcBuffer* buffer = bufferMap.take(fromLower);
         bufferMap.insert(toLower, buffer);
 
