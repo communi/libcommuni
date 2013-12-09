@@ -28,6 +28,8 @@ CONFIG(debug, debug|release) {
     MOC_DIR = release
 }
 
+DISTFILES += $$CONV_HEADERS
+
 coverage {
     QMAKE_CLEAN += $$OBJECTS_DIR/*.gcda $$OBJECTS_DIR/*.gcno
 
