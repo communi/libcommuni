@@ -35,6 +35,7 @@ Thumbs.db
 .DS_Store
 communi-config.prf
 .qmake.cache
+.qmake.stash
 .config.vars
 .tmp
 *.Debug
