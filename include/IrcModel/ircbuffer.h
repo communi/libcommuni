@@ -76,6 +76,7 @@ public Q_SLOTS:
     void setName(const QString& name);
     void setPrefix(const QString& prefix);
     void receiveMessage(IrcMessage* message);
+    virtual void close(const QString& reason = QString());
 
 Q_SIGNALS:
     void titleChanged(const QString& title);

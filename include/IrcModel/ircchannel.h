@@ -43,6 +43,7 @@ public:
 public Q_SLOTS:
     void join(const QString& key = QString());
     void part(const QString& reason = QString());
+    void close(const QString& reason = QString());
 
 Q_SIGNALS:
     void keyChanged(const QString& key);

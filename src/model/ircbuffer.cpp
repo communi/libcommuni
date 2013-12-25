@@ -529,6 +529,24 @@ void IrcBuffer::receiveMessage(IrcMessage* message)
         emit messageReceived(message);
 }
 
+/*!
+    \since 3.1
+
+    Closes the buffer with an optional \a reason.
+
+    The default implementation removes a \ref persistent "non-persistent"
+    buffer from its \ref model.
+
+    \sa IrcChannel::close()
+ */
+void IrcBuffer::close(const QString& reason)
+{
+    Q_UNUSED(reason);
+    Q_D(const IrcBuffer);
+    if (d->model && !d->persistent)
+        d->model->remove(this);
+}
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const IrcBuffer* buffer)
 {

@@ -544,6 +544,20 @@ void IrcChannel::part(const QString& reason)
     sendCommand(IrcCommand::createPart(title(), reason));
 }
 
+/*!
+    \since 3.1
+
+    Closes the channel with an optional \a reason.
+
+    \sa IrcBuffer::close(), IrcChannel::part()
+ */
+void IrcChannel::close(const QString& reason)
+{
+    if (isActive())
+        part(reason);
+    IrcBuffer::close(reason);
+}
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const IrcChannel* channel)
 {
