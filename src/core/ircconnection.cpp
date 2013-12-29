@@ -1273,7 +1273,6 @@ void IrcConnection::removeCommandFilter(QObject* filter)
  */
 QByteArray IrcConnection::saveState(int version) const
 {
-    Q_D(const IrcConnection);
     QVariantMap args;
     args.insert("version", version);
     args.insert("host", host());
@@ -1282,7 +1281,7 @@ QByteArray IrcConnection::saveState(int version) const
     args.insert("nickName", nickName());
     args.insert("realName", realName());
     args.insert("password", password());
-    args.insert("displayName", d->displayName);
+    args.insert("displayName", displayName());
     args.insert("userData", userData());
     args.insert("encoding", encoding());
     args.insert("enabled", isEnabled());
