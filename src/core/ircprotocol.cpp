@@ -138,6 +138,14 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
             connection->setNickName(alternate);
         break;
     }
+    case Irc::ERR_BADCHANNELKEY: {
+        QString key;
+        QString channel = msg->parameters().value(1);
+        emit connection->channelKeyRequired(channel, &key);
+        if (!key.isEmpty())
+            connection->sendCommand(IrcCommand::createJoin(channel, key));
+        break;
+    }
     default:
         break;
     }

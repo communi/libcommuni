@@ -6,6 +6,7 @@
   - Added IrcConnection::userData
   - Added IrcConnection::saveState()
   - Added IrcConnection::restoreState()
+  - Added IrcConnection::channelKeyRequired() [signal]
   - Added IrcModeMessage::arguments()
   - Introduced IrcWhoReplyMessage
 - IrcModel

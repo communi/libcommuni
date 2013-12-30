@@ -152,7 +152,17 @@ IRC_BEGIN_NAMESPACE
     An alternate nick name may be set via the provided argument, by changing
     the \ref nickName property, or by sending a nick command directly.
 
-    \sa Irc::ERR_NICKNAMEINUSE, Irc::ERR_NICKCOLLISION
+    \sa IrcCommand::createNick(), Irc::ERR_NICKNAMEINUSE, Irc::ERR_NICKCOLLISION
+ */
+
+/*!
+    \fn void IrcConnection::channelKeyRequired(const QString& channel, QString* key)
+
+    This signal is emitted when joining a \a channel requires a \a key.
+    The key may be set via the provided argument, or by sending a new
+    join command directly.
+
+    \sa IrcCommand::createJoin(), Irc::ERR_BADCHANNELKEY
  */
 
 /*!

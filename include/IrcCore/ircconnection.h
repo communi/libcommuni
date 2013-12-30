@@ -139,12 +139,14 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void connecting();
-    void nickNameReserved(QString* alternate);
     void connected();
     void disconnected();
     void statusChanged(IrcConnection::Status status);
     void socketError(QAbstractSocket::SocketError error);
     void socketStateChanged(QAbstractSocket::SocketState state);
+
+    void nickNameReserved(QString* alternate);
+    void channelKeyRequired(const QString& channel, QString* key);
 
     void messageReceived(IrcMessage* message);
 
