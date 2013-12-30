@@ -1,5 +1,7 @@
 3.0.2
 -----
+- General
+  - Added missing QML plugin type info files
 - IrcModel
   - Fixed IrcBufferModel to not block IrcBuffer signals on destruction/removal
 

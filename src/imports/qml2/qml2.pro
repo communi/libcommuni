@@ -8,7 +8,7 @@ TARGETPATH = Communi
 DESTDIR = ../../../qml/$$TARGETPATH
 
 SOURCES += plugin.cpp
-OTHER_FILES += qmldir
+OTHER_FILES += qmldir plugins.qmltypes
 
 isEmpty(IRC_INSTALL_QML):IRC_INSTALL_QML = $$[QT_INSTALL_QML]
 
