@@ -534,8 +534,9 @@ void IrcBuffer::receiveMessage(IrcMessage* message)
 
     Closes the buffer with an optional \a reason.
 
-    The default implementation removes a \ref persistent "non-persistent"
-    buffer from its \ref model.
+    The default implementation removes the buffer from its \ref model.
+    Furthermore, IrcChannel parts the channel with \a reason and custom
+    IrcBuffer subclasses might do some additional tasks.
 
     \sa IrcChannel::close()
  */
@@ -543,7 +544,7 @@ void IrcBuffer::close(const QString& reason)
 {
     Q_UNUSED(reason);
     Q_D(const IrcBuffer);
-    if (d->model && !d->persistent)
+    if (d->model)
         d->model->remove(this);
 }
 
