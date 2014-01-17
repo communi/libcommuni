@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 The Communi Project
+ * Copyright (C) 2008-2014 The Communi Project
  *
  * This example is free, and not covered by the LGPL license. There is no
  * restriction applied to their modification, redistribution, using and so on.
