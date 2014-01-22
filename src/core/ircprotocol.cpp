@@ -127,6 +127,7 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
         }
         break;
     }
+    case Irc::ERR_NOMOTD:
     case Irc::RPL_MOTDSTART:
         q->setInfo(info);
         break;
