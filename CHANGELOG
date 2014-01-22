@@ -26,6 +26,8 @@
 -----
 - General
   - Added missing QML plugin type info files
+- IrcCore
+  - Fixed RPL_ISUPPORT handling when server sends ERR_NOMOTD
 - IrcModel
   - Fixed IrcBufferModel to not block IrcBuffer signals on destruction/removal
 
