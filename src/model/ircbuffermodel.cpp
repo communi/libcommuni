@@ -1031,18 +1031,20 @@ bool IrcBufferModel::restoreState(const QByteArray& state, int version)
     QVariantList buffers = args.value("buffers").toList();
     foreach (const QVariant& v, buffers) {
         QVariantMap b = v.toMap();
-        IrcBuffer* buffer = 0;
-        if (b.value("channel").toBool())
-            buffer = d->createChannelHelper(b.value("title").toString());
-        else
-            buffer = d->createBufferHelper(b.value("title").toString());
-        buffer->setName(b.value("name").toString());
-        buffer->setPrefix(b.value("prefix").toString());
-        buffer->setSticky(b.value("sticky").toBool());
-        buffer->setPersistent(b.value("persistent").toBool());
-        add(buffer);
+        IrcBuffer* buffer = find(b.value("title").toString());
+        if (!buffer) {
+            if (b.value("channel").toBool())
+                buffer = d->createChannelHelper(b.value("title").toString());
+            else
+                buffer = d->createBufferHelper(b.value("title").toString());
+            buffer->setName(b.value("name").toString());
+            buffer->setPrefix(b.value("prefix").toString());
+            buffer->setSticky(b.value("sticky").toBool());
+            buffer->setPersistent(b.value("persistent").toBool());
+            add(buffer);
+        }
         IrcChannel* channel = buffer->toChannel();
-        if (channel) {
+        if (channel && !channel->isActive()) {
             IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
             const QStringList modes = b.value("modes").toStringList();
             const QStringList args = b.value("args").toStringList();
