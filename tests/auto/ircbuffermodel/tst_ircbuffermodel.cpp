@@ -572,16 +572,9 @@ void tst_IrcBufferModel::testChanges()
 
     connection->open();
     QVERIFY(waitForOpened());
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
 
-    QVERIFY(waitForWritten(":moorcock.freenode.net 001 communi :Welcome to the freenode Internet Relay Chat Network communi"));
-    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=freenode KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server"));
-    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
-    QVERIFY(waitForWritten(":moorcock.freenode.net 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
-    QVERIFY(waitForWritten(":moorcock.freenode.net 375 communi :- moorcock.freenode.net Message of the Day -"));
-    QVERIFY(waitForWritten(":moorcock.freenode.net 372 communi :- Welcome to moorcock.freenode.net in ..."));
-    QVERIFY(waitForWritten(":moorcock.freenode.net 376 communi :End of /MOTD command."));
-
-    messageIgnoredCount = 7 + 1; // 7 lines + a combined motd msg
+    messageIgnoredCount = tst_IrcData::welcome().split('\n').count(); // N lines + a combined motd msg
 
     QCOMPARE(bufferModel.count(), 0);
     QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
