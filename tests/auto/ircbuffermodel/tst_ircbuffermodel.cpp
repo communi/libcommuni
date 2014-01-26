@@ -30,6 +30,7 @@ private slots:
     void testClear();
     void testPrototypes();
     void testChanges();
+    void testActive();
     void testRoles();
     void testAIM();
     void testQML();
@@ -1125,6 +1126,76 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsRemovedSpy.count(), rowsRemovedCount);
     QCOMPARE(rowsAboutToBeInsertedSpy.count(), rowsAboutToBeInsertedCount);
     QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
+}
+
+void tst_IrcBufferModel::testActive()
+{
+    IrcBufferModel bufferModel;
+    bufferModel.setConnection(connection);
+
+    connection->open();
+    QVERIFY(waitForOpened());
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
+
+    QVERIFY(waitForWritten(":communi!communi@hidd.en JOIN :#communi"));
+
+    IrcChannel* channel = bufferModel.get(0)->toChannel();
+    IrcBuffer* query = bufferModel.add("qtassistant");
+
+    channel->setPersistent(true);
+    query->setPersistent(true);
+
+    QSignalSpy channelActiveSpy(channel, SIGNAL(activeChanged(bool)));
+    QSignalSpy queryActiveSpy(query, SIGNAL(activeChanged(bool)));
+    QVERIFY(channelActiveSpy.isValid());
+    QVERIFY(queryActiveSpy.isValid());
+    int channelActiveCount = 0;
+    int queryActiveCount = 0;
+
+    QVERIFY(channel->isActive());
+    QVERIFY(query->isActive());
+
+    connection->close();
+
+    QVERIFY(!channel->isActive());
+    QVERIFY(!query->isActive());
+
+    QCOMPARE(channelActiveSpy.count(), ++channelActiveCount);
+    QCOMPARE(queryActiveSpy.count(), ++queryActiveCount);
+
+    connection->open();
+    QVERIFY(waitForOpened());
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
+
+    QVERIFY(!channel->isActive());
+    QVERIFY(query->isActive());
+
+    QCOMPARE(channelActiveSpy.count(), channelActiveCount);
+    QCOMPARE(queryActiveSpy.count(), ++queryActiveCount);
+
+    QVERIFY(waitForWritten(":communi!communi@hidd.en JOIN :#communi"));
+
+    QVERIFY(channel->isActive());
+    QVERIFY(query->isActive());
+
+    QCOMPARE(channelActiveSpy.count(), ++channelActiveCount);
+    QCOMPARE(queryActiveSpy.count(), queryActiveCount);
+
+    QVERIFY(waitForWritten(":communi!communi@hidd.en PART #communi"));
+
+    QVERIFY(!channel->isActive());
+    QVERIFY(query->isActive());
+
+    QCOMPARE(channelActiveSpy.count(), ++channelActiveCount);
+    QCOMPARE(queryActiveSpy.count(), queryActiveCount);
+
+    connection->close();
+
+    QVERIFY(!channel->isActive());
+    QVERIFY(!query->isActive());
+
+    QCOMPARE(channelActiveSpy.count(), channelActiveCount);
+    QCOMPARE(queryActiveSpy.count(), ++queryActiveCount);
 }
 
 void tst_IrcBufferModel::testRoles()

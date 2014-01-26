@@ -33,6 +33,10 @@ public:
     virtual ~IrcChannelPrivate();
 
     virtual void init(const QString& title, IrcBufferModel* model);
+    virtual void connected();
+    virtual void disconnected();
+
+    void setActive(bool active);
 
     void changeModes(const QString& value, const QStringList& arguments);
     void setModes(const QString& value, const QStringList& arguments);
@@ -68,7 +72,7 @@ public:
 
     QMap<QString, QString> modes;
     QString topic;
-    int joined, left;
+    bool active;
     QList<IrcUser*> userList;
     QList<IrcUser*> activeUsers;
     QMap<QString, IrcUser*> userMap;

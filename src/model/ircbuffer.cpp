@@ -73,6 +73,18 @@ void IrcBufferPrivate::init(const QString& title, IrcBufferModel* m)
     setModel(m);
 }
 
+void IrcBufferPrivate::connected()
+{
+    Q_Q(IrcBuffer);
+    emit q->activeChanged(q->isActive());
+}
+
+void IrcBufferPrivate::disconnected()
+{
+    Q_Q(IrcBuffer);
+    emit q->activeChanged(q->isActive());
+}
+
 void IrcBufferPrivate::setName(const QString& value)
 {
     Q_Q(IrcBuffer);

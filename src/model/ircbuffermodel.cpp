@@ -379,10 +379,16 @@ bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* mes
     return false;
 }
 
-void IrcBufferModelPrivate::_irc_connectionStatusChanged()
+void IrcBufferModelPrivate::_irc_connected()
 {
     foreach (IrcBuffer* buffer, bufferList)
-        IrcBufferPrivate::get(buffer)->emitActiveChanged();
+        IrcBufferPrivate::get(buffer)->connected();
+}
+
+void IrcBufferModelPrivate::_irc_disconnected()
+{
+    foreach (IrcBuffer* buffer, bufferList)
+        IrcBufferPrivate::get(buffer)->disconnected();
 }
 
 void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
@@ -449,7 +455,8 @@ void IrcBufferModel::setConnection(IrcConnection* connection)
         d->connection = connection;
         d->connection->installMessageFilter(d);
         d->connection->installCommandFilter(d);
-        connect(d->connection, SIGNAL(statusChanged(IrcConnection::Status)), this, SLOT(_irc_connectionStatusChanged()));
+        connect(d->connection, SIGNAL(connected()), this, SLOT(_irc_connected()));
+        connect(d->connection, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
         emit connectionChanged(connection);
         emit networkChanged(network());
     }

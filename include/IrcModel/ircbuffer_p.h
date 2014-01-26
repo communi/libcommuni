@@ -35,6 +35,8 @@ public:
     virtual ~IrcBufferPrivate();
 
     virtual void init(const QString& title, IrcBufferModel* model);
+    virtual void connected();
+    virtual void disconnected();
 
     void setName(const QString& name);
     void setPrefix(const QString& prefix);
@@ -54,12 +56,6 @@ public:
     virtual bool processQuitMessage(IrcQuitMessage* message);
     virtual bool processTopicMessage(IrcTopicMessage* message);
     virtual bool processWhoReplyMessage(IrcWhoReplyMessage* message);
-
-    void emitActiveChanged()
-    {
-        Q_Q(IrcBuffer);
-        emit q->activeChanged(q->isActive());
-    }
 
     static IrcBufferPrivate* get(IrcBuffer* buffer)
     {

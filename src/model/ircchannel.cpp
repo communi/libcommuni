@@ -64,7 +64,7 @@ static QString userName(const QString& name, const QStringList& prefixes)
     return Irc::nickFromPrefix(copy);
 }
 
-IrcChannelPrivate::IrcChannelPrivate() : joined(0), left(0)
+IrcChannelPrivate::IrcChannelPrivate() : active(false)
 {
     qRegisterMetaType<IrcChannel*>();
     qRegisterMetaType<QList<IrcChannel*> >();
@@ -81,6 +81,26 @@ void IrcChannelPrivate::init(const QString& title, IrcBufferModel* m)
     const QStringList chanTypes = m->network()->channelTypes();
     prefix = getPrefix(title, chanTypes);
     name = channelName(title, chanTypes);
+}
+
+void IrcChannelPrivate::connected()
+{
+    // not active until joined
+    setActive(false);
+}
+
+void IrcChannelPrivate::disconnected()
+{
+    setActive(false);
+}
+
+void IrcChannelPrivate::setActive(bool value)
+{
+    Q_Q(IrcChannel);
+    if (active != value) {
+        active = value;
+        emit q->activeChanged(active);
+    }
 }
 
 void IrcChannelPrivate::changeModes(const QString& value, const QStringList& arguments)
@@ -314,20 +334,17 @@ void IrcChannelPrivate::setUserServOp(const QString& name, const bool &servOp)
 
 bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 {
-    if (message->flags() & IrcMessage::Own) {
-        ++joined;
-        emitActiveChanged();
-    } else {
+    if (message->flags() & IrcMessage::Own)
+        setActive(true);
+    else
         addUser(message->nick());
-    }
     return true;
 }
 
 bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
 {
     if (!message->user().compare(message->connection()->nickName(), Qt::CaseInsensitive)) {
-        ++left;
-        emitActiveChanged();
+        setActive(false);
         return true;
     }
     return removeUser(message->user());
@@ -376,8 +393,7 @@ bool IrcChannelPrivate::processNumericMessage(IrcNumericMessage* message)
 bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
-        ++left;
-        emitActiveChanged();
+        setActive(false);
         return true;
     }
     return removeUser(message->nick());
@@ -401,9 +417,7 @@ bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
 bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
 {
     if (message->flags() & IrcMessage::Own) {
-        joined = 0;
-        left = 0;
-        emitActiveChanged();
+        setActive(false);
         return true;
     }
     return removeUser(message->nick()) || IrcBufferPrivate::processQuitMessage(message);
@@ -504,7 +518,7 @@ QString IrcChannel::topic() const
 bool IrcChannel::isActive() const
 {
     Q_D(const IrcChannel);
-    return IrcBuffer::isActive() && d->joined > d->left;
+    return IrcBuffer::isActive() && d->active;
 }
 
 /*!
