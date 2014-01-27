@@ -10,6 +10,7 @@
   - Added IrcModeMessage::arguments()
   - Introduced IrcWhoReplyMessage
 - IrcModel
+  - Added IrcBufferModel::empty
   - Added IrcBufferModel::saveState()
   - Added IrcBufferModel::restoreState()
   - Added IrcChannel::key

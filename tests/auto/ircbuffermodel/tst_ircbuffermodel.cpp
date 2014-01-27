@@ -53,6 +53,7 @@ void tst_IrcBufferModel::testDefaults()
 {
     IrcBufferModel model;
     QCOMPARE(model.count(), 0);
+    QVERIFY(model.isEmpty());
     QCOMPARE(model.sortOrder(), Qt::AscendingOrder);
     QCOMPARE(model.sortMethod(), Irc::SortByHand);
     QVERIFY(model.channels().isEmpty());
@@ -81,6 +82,7 @@ void tst_IrcBufferModel::testAddRemove()
     IrcBufferModel model;
 
     QSignalSpy countSpy(&model, SIGNAL(countChanged(int)));
+    QSignalSpy emptySpy(&model, SIGNAL(emptyChanged(bool)));
     QSignalSpy addedSpy(&model, SIGNAL(added(IrcBuffer*)));
     QSignalSpy removedSpy(&model, SIGNAL(removed(IrcBuffer*)));
     QSignalSpy aboutToBeAddedSpy(&model, SIGNAL(aboutToBeAdded(IrcBuffer*)));
@@ -88,6 +90,7 @@ void tst_IrcBufferModel::testAddRemove()
     QSignalSpy buffersSpy(&model, SIGNAL(buffersChanged(QList<IrcBuffer*>)));
     QSignalSpy channelsSpy(&model, SIGNAL(channelsChanged(QStringList)));
     QVERIFY(countSpy.isValid());
+    QVERIFY(emptySpy.isValid());
     QVERIFY(addedSpy.isValid());
     QVERIFY(removedSpy.isValid());
     QVERIFY(aboutToBeAddedSpy.isValid());
@@ -98,6 +101,7 @@ void tst_IrcBufferModel::testAddRemove()
     // IrcBuffer* IrcBufferModel::add(const QString& title)
     IrcBuffer* first = model.add("first");
     QCOMPARE(model.count(), 1);
+    QVERIFY(!model.isEmpty());
     QCOMPARE(model.get(0), first);
     QCOMPARE(model.find("first"), first);
     QCOMPARE(model.buffers(), QList<IrcBuffer*>() << first);
@@ -107,6 +111,8 @@ void tst_IrcBufferModel::testAddRemove()
 
     QCOMPARE(countSpy.count(), 1);
     QCOMPARE(countSpy.last().last().toInt(), 1);
+    QCOMPARE(emptySpy.count(), 1);
+    QCOMPARE(emptySpy.last().last().toBool(), false);
     QCOMPARE(aboutToBeAddedSpy.count(), 1);
     QCOMPARE(aboutToBeAddedSpy.last().last().value<IrcBuffer*>(), first);
     QCOMPARE(addedSpy.count(), 1);
@@ -128,6 +134,7 @@ void tst_IrcBufferModel::testAddRemove()
     second->setName("second");
     model.add(second);
     QCOMPARE(model.count(), 2);
+    QVERIFY(!model.isEmpty());
     QCOMPARE(model.get(1), second);
     QCOMPARE(model.find("second"), second);
     QCOMPARE(model.buffers(), QList<IrcBuffer*>() << first << second);
@@ -137,6 +144,7 @@ void tst_IrcBufferModel::testAddRemove()
 
     QCOMPARE(countSpy.count(), 2);
     QCOMPARE(countSpy.last().last().toInt(), 2);
+    QCOMPARE(emptySpy.count(), 1);
     QCOMPARE(aboutToBeAddedSpy.count(), 2);
     QCOMPARE(aboutToBeAddedSpy.last().last().value<IrcBuffer*>(), second);
     QCOMPARE(addedSpy.count(), 2);
@@ -156,6 +164,7 @@ void tst_IrcBufferModel::testAddRemove()
     // void IrcBufferModel::remove(IrcBuffer* buffer)
     model.remove(second);
     QCOMPARE(model.count(), 1);
+    QVERIFY(!model.isEmpty());
     QVERIFY(!model.find("second"));
     QCOMPARE(model.buffers(), QList<IrcBuffer*>() << first);
     QVERIFY(!model.contains("second"));
@@ -163,6 +172,7 @@ void tst_IrcBufferModel::testAddRemove()
 
     QCOMPARE(countSpy.count(), 3);
     QCOMPARE(countSpy.last().last().toInt(), 1);
+    QCOMPARE(emptySpy.count(), 1);
     QCOMPARE(aboutToBeRemovedSpy.count(), 1);
     QCOMPARE(removedSpy.count(), 1);
     QCOMPARE(buffersSpy.count(), 3);
@@ -172,6 +182,7 @@ void tst_IrcBufferModel::testAddRemove()
     // void IrcBufferModel::remove(const QString& title)
     model.remove("first");
     QCOMPARE(model.count(), 0);
+    QVERIFY(model.isEmpty());
     QVERIFY(!model.find("first"));
     QVERIFY(model.buffers().isEmpty());
     QVERIFY(!model.contains("first"));
@@ -179,6 +190,8 @@ void tst_IrcBufferModel::testAddRemove()
 
     QCOMPARE(countSpy.count(), 4);
     QCOMPARE(countSpy.last().last().toInt(), 0);
+    QCOMPARE(emptySpy.count(), 2);
+    QCOMPARE(emptySpy.last().last().toBool(), true);
     QCOMPARE(aboutToBeRemovedSpy.count(), 2);
     QCOMPARE(removedSpy.count(), 2);
     QCOMPARE(buffersSpy.count(), 4);

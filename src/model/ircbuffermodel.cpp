@@ -313,6 +313,8 @@ void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool noti
                 emit q->channelsChanged(channels);
             emit q->buffersChanged(bufferList);
             emit q->countChanged(bufferList.count());
+            if (bufferList.count() == 1)
+                emit q->emptyChanged(false);
         }
     }
 }
@@ -337,6 +339,8 @@ void IrcBufferModelPrivate::removeBuffer(IrcBuffer* buffer, bool notify)
                 emit q->channelsChanged(channels);
             emit q->buffersChanged(bufferList);
             emit q->countChanged(bufferList.count());
+            if (bufferList.isEmpty())
+                emit q->emptyChanged(true);
         }
     }
 }
@@ -486,6 +490,24 @@ IrcNetwork* IrcBufferModel::network() const
 int IrcBufferModel::count() const
 {
     return rowCount();
+}
+
+/*!
+    \since 3.1
+    \property bool IrcBufferModel::empty
+
+    This property holds the whether the model is empty.
+
+    \par Access function:
+    \li bool <b>isEmpty</b>() const
+
+    \par Notifier signal:
+    \li void <b>emptyChanged</b>(bool empty)
+ */
+bool IrcBufferModel::isEmpty() const
+{
+    Q_D(const IrcBufferModel);
+    return d->bufferList.isEmpty();
 }
 
 /*!
@@ -726,6 +748,8 @@ void IrcBufferModel::clear()
                 emit channelsChanged(d->channels);
             emit buffersChanged(d->bufferList);
             emit countChanged(d->bufferList.count());
+            if (d->bufferList.isEmpty())
+                emit emptyChanged(true);
         }
     }
 }

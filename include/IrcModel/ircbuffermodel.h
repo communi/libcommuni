@@ -33,6 +33,7 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
     Q_PROPERTY(Qt::SortOrder sortOrder READ sortOrder WRITE setSortOrder)
     Q_PROPERTY(Irc::SortMethod sortMethod READ sortMethod WRITE setSortMethod)
     Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
@@ -53,6 +54,7 @@ public:
     IrcNetwork* network() const;
 
     int count() const;
+    bool isEmpty() const;
     QStringList channels() const;
     QList<IrcBuffer*> buffers() const;
     Q_INVOKABLE IrcBuffer* get(int index) const;
@@ -98,6 +100,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void countChanged(int count);
+    void emptyChanged(bool empty);
     void added(IrcBuffer* buffer);
     void removed(IrcBuffer* buffer);
     void aboutToBeAdded(IrcBuffer* buffer);
