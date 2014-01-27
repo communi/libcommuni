@@ -64,6 +64,7 @@ void tst_IrcUserModel::testDefaults()
 {
     IrcUserModel model;
     QCOMPARE(model.count(), 0);
+    QVERIFY(model.isEmpty());
     QVERIFY(model.names().isEmpty());
     QVERIFY(model.users().isEmpty());
     QCOMPARE(model.displayRole(), Irc::TitleRole);
@@ -103,12 +104,14 @@ void tst_IrcUserModel::testClear()
     QVERIFY(c);
 
     QSignalSpy countSpy(&userModel, SIGNAL(countChanged(int)));
+    QSignalSpy emptySpy(&userModel, SIGNAL(emptyChanged(bool)));
     QSignalSpy usersSpy(&userModel, SIGNAL(usersChanged(QList<IrcUser*>)));
     QSignalSpy namesSpy(&userModel, SIGNAL(namesChanged(QStringList)));
     QSignalSpy modelAboutToBeResetSpy(&userModel, SIGNAL(modelAboutToBeReset()));
     QSignalSpy modelResetSpy(&userModel, SIGNAL(modelReset()));
 
     QVERIFY(countSpy.isValid());
+    QVERIFY(emptySpy.isValid());
     QVERIFY(usersSpy.isValid());
     QVERIFY(namesSpy.isValid());
     QVERIFY(modelAboutToBeResetSpy.isValid());
@@ -117,6 +120,7 @@ void tst_IrcUserModel::testClear()
     userModel.clear();
 
     QCOMPARE(userModel.count(), 0);
+    QVERIFY(userModel.isEmpty());
     QCOMPARE(userModel.users(), QList<IrcUser*>());
     QCOMPARE(userModel.names(), QStringList());
 
@@ -130,6 +134,9 @@ void tst_IrcUserModel::testClear()
 
     QCOMPARE(countSpy.count(), 1);
     QCOMPARE(countSpy.last().at(0).toInt(), 0);
+
+    QCOMPARE(emptySpy.count(), 1);
+    QCOMPARE(emptySpy.last().at(0).toBool(), true);
 
     QCOMPARE(usersSpy.count(), 1);
     QCOMPARE(usersSpy.last().at(0).value<QList<IrcUser*> >(), QList<IrcUser*>());

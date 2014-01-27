@@ -126,6 +126,8 @@ void IrcUserModelPrivate::insertUser(int index, IrcUser* user, bool notify)
         emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
         emit q->usersChanged(userList);
         emit q->countChanged(userList.count());
+        if (userList.count() == 1)
+            emit q->emptyChanged(false);
     }
 }
 
@@ -144,6 +146,8 @@ void IrcUserModelPrivate::removeUser(IrcUser* user, bool notify)
             emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
             emit q->usersChanged(userList);
             emit q->countChanged(userList.count());
+            if (userList.isEmpty())
+                emit q->emptyChanged(true);
         }
     }
 }
@@ -151,6 +155,7 @@ void IrcUserModelPrivate::removeUser(IrcUser* user, bool notify)
 void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users, bool reset)
 {
     Q_Q(IrcUserModel);
+    bool wasEmpty = userList.isEmpty();
     if (reset)
         q->beginResetModel();
     userList = users;
@@ -168,6 +173,8 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users, bool reset)
     emit q->namesChanged(names);
     emit q->usersChanged(userList);
     emit q->countChanged(userList.count());
+    if (wasEmpty != userList.isEmpty())
+        emit q->emptyChanged(userList.isEmpty());
 }
 
 void IrcUserModelPrivate::renameUser(IrcUser* user)
@@ -298,6 +305,24 @@ void IrcUserModel::setChannel(IrcChannel* channel)
 int IrcUserModel::count() const
 {
     return rowCount();
+}
+
+/*!
+    \since 3.1
+    \property bool IrcUserModel::empty
+
+    This property holds the whether the model is empty.
+
+    \par Access function:
+    \li bool <b>isEmpty</b>() const
+
+    \par Notifier signal:
+    \li void <b>emptyChanged</b>(bool empty)
+ */
+bool IrcUserModel::isEmpty() const
+{
+    Q_D(const IrcUserModel);
+    return d->userList.isEmpty();
 }
 
 /*!
@@ -580,6 +605,7 @@ void IrcUserModel::clear()
         emit namesChanged(QStringList());
         emit usersChanged(QList<IrcUser*>());
         emit countChanged(0);
+        emit emptyChanged(true);
     }
 }
 
