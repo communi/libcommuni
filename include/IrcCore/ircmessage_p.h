@@ -15,8 +15,10 @@
 #ifndef IRCMESSAGE_P_H
 #define IRCMESSAGE_P_H
 
+#include <QtCore/qmap.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qvariant.h>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qstringlist.h>
 
@@ -56,6 +58,7 @@ public:
     QByteArray prefix;
     QByteArray command;
     QList<QByteArray> params;
+    QMap<QByteArray, QByteArray> tags;
 };
 
 class IrcMessagePrivate
@@ -77,6 +80,9 @@ public:
     QString param(int index) const;
     void setParams(const QStringList& params);
 
+    QVariantMap tags() const;
+    void setTags(const QVariantMap& tags);
+
     void invalidate();
 
     static QString decode(const QByteArray& data, const QByteArray& encoding);
@@ -94,6 +100,7 @@ private:
     mutable IrcExplicitValue<QString> m_prefix;
     mutable IrcExplicitValue<QString> m_command;
     mutable IrcExplicitValue<QStringList> m_params;
+    mutable IrcExplicitValue<QVariantMap> m_tags;
 };
 
 IRC_END_NAMESPACE

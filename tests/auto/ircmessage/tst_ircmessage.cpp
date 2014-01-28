@@ -40,6 +40,9 @@ private slots:
     void testDecoder_data();
     void testDecoder();
 
+    void testTags_data();
+    void testTags();
+
     void testCapabilityMessage_data();
     void testCapabilityMessage();
     void testErrorMessage_data();
@@ -210,6 +213,42 @@ void tst_IrcMessage::testDecoder()
     QString expected = QTextCodec::codecForName(encoding)->toUnicode(QByteArray::fromBase64(base64));
     QCOMPARE(actual, expected);
 #endif // Q_OS_LINUX
+}
+
+void tst_IrcMessage::testTags_data()
+{
+    QTest::addColumn<QByteArray>("data");
+    QTest::addColumn<QVariantMap>("tags");
+    QTest::addColumn<QString>("prefix");
+    QTest::addColumn<QString>("command");
+    QTest::addColumn<QString>("target");
+    QTest::addColumn<QString>("content");
+
+    QVariantMap tags;
+    tags.insert("aaa", "bbb");
+    tags.insert("ccc", "");
+    tags.insert("example.com/ddd", "eee");
+
+    QTest::newRow("example") << QByteArray("@aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello")
+                             << tags << "nick!ident@host.com" << "PRIVMSG" << "me" << "Hello";
+}
+
+void tst_IrcMessage::testTags()
+{
+    QFETCH(QByteArray, data);
+    QFETCH(QVariantMap, tags);
+    QFETCH(QString, prefix);
+    QFETCH(QString, command);
+    QFETCH(QString, target);
+    QFETCH(QString, content);
+
+    IrcConnection connection;
+    IrcMessage* message = IrcMessage::fromData(data, &connection);
+    QCOMPARE(message->tags(), tags);
+    QCOMPARE(message->prefix(), prefix);
+    QCOMPARE(message->command(), command);
+    QCOMPARE(message->property("target").toString(), target);
+    QCOMPARE(message->property("content").toString(), content);
 }
 
 void tst_IrcMessage::testCapabilityMessage_data()

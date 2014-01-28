@@ -446,6 +446,29 @@ void IrcMessage::setEncoding(const QByteArray& encoding)
 }
 
 /*!
+    \since 3.1
+
+    This property holds the message tags.
+
+    \par Access functions:
+    \li QVariantMap <b>tags</b>() const
+    \li void <b>setTags</b>(const QVariantMap& tags)
+
+    \sa <a href="http://ircv3.org/specification/message-tags-3.2">IRCv3.2 Message Tags</a>
+ */
+QVariantMap IrcMessage::tags() const
+{
+    Q_D(const IrcMessage);
+    return d->tags();
+}
+
+void IrcMessage::setTags(const QVariantMap& tags)
+{
+    Q_D(IrcMessage);
+    d->setTags(tags);
+}
+
+/*!
     Creates a new message from \a data and \a connection.
  */
 IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connection)

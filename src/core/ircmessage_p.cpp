@@ -99,6 +99,23 @@ void IrcMessagePrivate::setParams(const QStringList& params)
     m_params.setValue(params);
 }
 
+QVariantMap IrcMessagePrivate::tags() const
+{
+    if (!m_tags.isExplicit() && m_tags.isNull() && !data.tags.isEmpty()) {
+        QVariantMap tags;
+        QMap<QByteArray, QByteArray>::const_iterator it;
+        for (it = data.tags.constBegin(); it != data.tags.constEnd(); ++it)
+            tags.insert(decode(it.key(), encoding), decode(it.value(), encoding));
+        m_tags = tags;
+    }
+    return m_tags.value();
+}
+
+void IrcMessagePrivate::setTags(const QVariantMap& tags)
+{
+    m_tags.setValue(tags);
+}
+
 void IrcMessagePrivate::invalidate()
 {
     m_nick.clear();
@@ -108,6 +125,7 @@ void IrcMessagePrivate::invalidate()
     m_prefix.clear();
     m_command.clear();
     m_params.clear();
+    m_tags.clear();
 }
 
 IrcMessageData IrcMessageData::fromData(const QByteArray& data)
@@ -125,7 +143,30 @@ IrcMessageData IrcMessageData::fromData(const QByteArray& data)
     //                 or NUL or CR or LF, the first of which may not be ':'>
     //  <trailing> ::= <Any, possibly *empty*, sequence of octets not including
     //                   NUL or CR or LF>
+
+    // IRCv3.2 Message Tags
+    //  <message> ::= ['@' <tags> <SPACE>] [':' <prefix> <SPACE> ] <command> <params> <crlf>
+    //  <tags>    ::= <tag> [';' <tag>]*
+    //  <tag>     ::= <key> ['=' <value>]
+    //  <key>     ::= [ <vendor> '/' ] <sequence of letters, digits, hyphens (`-`)>
+    //  <value>   ::= <sequence of any characters except NUL, BELL, CR, LF, semicolon (`;`) and SPACE>
+    //  <vendor>  ::= <host>
+
     QByteArray process = data;
+
+    // parse <tags>
+    if (process.startsWith('@')) {
+        process.remove(0, 1);
+        QByteArray tags = process.left(process.indexOf(' '));
+        foreach (const QByteArray& tag, tags.split(';')) {
+            const int idx = tag.indexOf('=');
+            if (idx != -1)
+                message.tags.insert(tag.left(idx), tag.mid(idx + 1));
+            else
+                message.tags.insert(tag, QByteArray());
+        }
+        process.remove(0, tags.length() + 1);
+    }
 
     // parse <prefix>
     if (process.startsWith(':')) {
