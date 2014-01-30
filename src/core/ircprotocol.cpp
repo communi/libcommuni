@@ -48,10 +48,11 @@ public:
     QHash<QString, QString> info;
     QByteArray buffer;
     bool resumed;
+    bool authed;
     bool quit;
 };
 
-IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), builder(0), resumed(false), quit(false)
+IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), builder(0), resumed(false), authed(false), quit(false)
 {
 }
 
@@ -229,12 +230,17 @@ void IrcProtocolPrivate::_irc_pauseHandshake()
     // know whether the server supports the CAP extension.
     connection->sendData("CAP LS");
     resumed = false;
+    authed = false;
 }
 
 void IrcProtocolPrivate::_irc_resumeHandshake()
 {
-    if (!resumed && !connection->isConnected())
+    Q_Q(IrcProtocol);
+    if (!resumed && !connection->isConnected()) {
+        if (!authed && !connection->saslMechanism().isEmpty() && !connection->password().isEmpty())
+            q->authenticate(false);
         connection->sendData("CAP END");
+    }
     resumed = true;
 }
 
@@ -291,9 +297,9 @@ void IrcProtocol::authenticate(bool secure)
         if (secure) {
             const QByteArray userName = d->connection->userName().toUtf8();
             const QByteArray data = userName + '\0' + userName + '\0' + password.toUtf8();
-            d->connection->sendData("AUTHENTICATE " + data.toBase64());
+            d->authed = d->connection->sendData("AUTHENTICATE " + data.toBase64());
         } else {
-            d->connection->sendRaw(QString("PASS %1").arg(password));
+            d->authed = d->connection->sendRaw(QString("PASS %1").arg(password));
         }
     }
 }

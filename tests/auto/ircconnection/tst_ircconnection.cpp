@@ -81,6 +81,7 @@ private slots:
 
     void testSecure();
     void testSasl();
+    void testNoSasl();
     void testSsl();
 
     void testOpen();
@@ -467,6 +468,45 @@ void tst_IrcConnection::testSasl()
     QVERIFY(waitForWritten(":irc.freenode.net 900 user nick!user@host nick :You are now logged in as user."));
     QVERIFY(waitForWritten(":irc.freenode.net 903 user :SASL authentication successful"));
     QVERIFY(waitForWritten(":irc.freenode.net 001 user :Welcome to the freenode Internet Relay Chat Network user"));
+}
+
+void tst_IrcConnection::testNoSasl()
+{
+    QVERIFY(!IrcConnection::supportedSaslMechanisms().contains("UNKNOWN"));
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSaslMechanism(): unsupported mechanism: 'UNKNOWN'");
+    connection->setSaslMechanism("UNKNOWN");
+    QVERIFY(connection->saslMechanism().isEmpty());
+
+    IrcProtocol* protocol = static_cast<FriendlyConnection*>(connection.data())->protocol();
+    QVERIFY(protocol);
+
+    QVERIFY(IrcConnection::supportedSaslMechanisms().contains("PLAIN"));
+    connection->setSaslMechanism("PLAIN");
+    QCOMPARE(connection->saslMechanism(), QString("PLAIN"));
+
+    connection->open();
+    QVERIFY(waitForOpened());
+
+    QVERIFY(clientSocket->waitForBytesWritten(1000));
+    QVERIFY(serverSocket->waitForReadyRead(1000));
+    QByteArray written = serverSocket->readAll();
+    QVERIFY(written.contains("CAP LS"));
+    QVERIFY(written.contains("NICK nick"));
+    QVERIFY(!written.contains("PASS secret"));
+    QVERIFY(!written.contains("CAP REQ :sasl"));
+
+    QVERIFY(waitForWritten(":irc.freenode.net CAP * LS :no s-a-s-l here"));
+    QVERIFY(!clientSocket->waitForBytesWritten(1000));
+    QVERIFY(!serverSocket->waitForReadyRead(1000));
+    QVERIFY(serverSocket->readAll().isEmpty());
+
+    // resume handshake
+    QCoreApplication::sendPostedEvents(protocol, QEvent::MetaCall);
+    QVERIFY(clientSocket->waitForBytesWritten(1000));
+    QVERIFY(serverSocket->waitForReadyRead(1000));
+    written = serverSocket->readAll();
+    QVERIFY(written.contains("PASS secret"));
+    QVERIFY(written.contains("CAP END"));
 }
 
 #ifndef QT_NO_OPENSSL
