@@ -51,6 +51,7 @@ ApplicationWindow {
             sortMethod: Irc.SortByTitle
             connection: IrcConnection {
                 id: connection
+                saslMechanism: "PLAIN"
                 host: connectPage.host
                 port: connectPage.port
                 secure: connectPage.secure
