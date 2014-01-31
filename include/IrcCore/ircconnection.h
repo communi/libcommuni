@@ -145,7 +145,8 @@ Q_SIGNALS:
     void socketError(QAbstractSocket::SocketError error);
     void socketStateChanged(QAbstractSocket::SocketState state);
 
-    void nickNameReserved(QString* alternate);
+    void nickNameReserved(QString* alternate); // deprecated
+    void nickNameRequired(const QString& reserved, QString* alternate);
     void channelKeyRequired(const QString& channel, QString* key);
 
     void messageReceived(IrcMessage* message);

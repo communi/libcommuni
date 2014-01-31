@@ -136,8 +136,13 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
     case Irc::ERR_NICKCOLLISION: {
         QString alternate = connection->nickName();
         emit connection->nickNameReserved(&alternate);
-        if (!alternate.isEmpty() && alternate != connection->nickName())
+        if (!alternate.isEmpty() && alternate != connection->nickName()) {
             connection->setNickName(alternate);
+        } else {
+            emit connection->nickNameRequired(msg->parameters().value(1), &alternate);
+            if (!alternate.isEmpty() && alternate != connection->nickName())
+                connection->setNickName(alternate);
+        }
         break;
     }
     case Irc::ERR_BADCHANNELKEY: {

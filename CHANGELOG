@@ -7,6 +7,8 @@
   - Added IrcConnection::saveState()
   - Added IrcConnection::restoreState()
   - Added IrcConnection::channelKeyRequired() [signal]
+  - Added IrcConnection::nickNameRequired() [signal]
+  - Deprecated IrcConnection::nickNameReserved() [signal]
   - Added IrcMessage::tags
   - Added IrcModeMessage::arguments()
   - Introduced IrcWhoReplyMessage

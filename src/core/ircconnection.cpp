@@ -144,9 +144,9 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \fn void IrcConnection::nickNameReserved(QString* alternate)
+    \fn void IrcConnection::nickNameRequired(const QString& reserved, QString* alternate)
 
-    This signal is emitted when the requested nick name is reserved
+    This signal is emitted when the requested nick name is \a reserved
     and an \a alternate nick name should be provided.
 
     An alternate nick name may be set via the provided argument, by changing
