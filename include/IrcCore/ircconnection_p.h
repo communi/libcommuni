@@ -72,7 +72,7 @@ public:
     QString realName;
     QString password;
     QString displayName;
-    QVariant userData;
+    QVariantMap userData;
     QTimer reconnecter;
     QString saslMechanism;
     bool enabled;

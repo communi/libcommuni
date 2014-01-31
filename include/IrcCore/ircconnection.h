@@ -41,7 +41,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(QString realName READ realName WRITE setRealName NOTIFY realNameChanged)
     Q_PROPERTY(QString password READ password WRITE setPassword NOTIFY passwordChanged)
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(QVariant userData READ userData WRITE setUserData NOTIFY userDataChanged)
+    Q_PROPERTY(QVariantMap userData READ userData WRITE setUserData NOTIFY userDataChanged)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(bool active READ isActive NOTIFY statusChanged)
@@ -81,8 +81,8 @@ public:
     QString displayName() const;
     void setDisplayName(const QString& name);
 
-    QVariant userData() const;
-    void setUserData(const QVariant& data);
+    QVariantMap userData() const;
+    void setUserData(const QVariantMap& data);
 
     QByteArray encoding() const;
     void setEncoding(const QByteArray& encoding);
@@ -176,7 +176,7 @@ Q_SIGNALS:
     void realNameChanged(const QString& name);
     void passwordChanged(const QString& password);
     void displayNameChanged(const QString& name);
-    void userDataChanged(const QVariant& data);
+    void userDataChanged(const QVariantMap& data);
 
     void reconnectDelayChanged(int seconds);
     void enabledChanged(bool enabled);
