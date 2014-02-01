@@ -36,6 +36,7 @@
   - Fixed RPL_ISUPPORT handling when server sends ERR_NOMOTD
 - IrcModel
   - Fixed IrcBufferModel to not block IrcBuffer signals on destruction/removal
+  - Fixed IrcBufferModel to deliver own echoed messages to the target buffer
 - IrcUtil
   - Fixed IrcTextFormat::toHtml() to not percent encode comma in URLs
 
