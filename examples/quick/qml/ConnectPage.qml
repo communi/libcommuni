@@ -18,6 +18,7 @@ Item {
     property string host: hostField.text || hostField.placeholderText
     property int port: portField.value
     property bool secure: secureField.checked
+    property bool sasl: saslField.checked
     property string nickName: nickNameField.text || nickNameField.placeholderText
     property string realName: realNameField.text || realNameField.placeholderText
     property string userName: userNameField.text || userNameField.placeholderText
@@ -60,7 +61,11 @@ Item {
             }
             CheckBox {
                 id: secureField
-                text: qsTr("Secure")
+                text: qsTr("SSL")
+            }
+            CheckBox {
+                id: saslField
+                text: qsTr("SASL")
             }
         }
 
