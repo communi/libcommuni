@@ -123,7 +123,7 @@ void IrcUserModelPrivate::insertUser(int index, IrcUser* user, bool notify)
     q->endInsertRows();
     if (notify) {
         emit q->added(user);
-        emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
+        emit q->namesChanged(IrcChannelPrivate::get(channel)->names);
         emit q->usersChanged(userList);
         emit q->countChanged(userList.count());
         if (userList.count() == 1)
@@ -143,7 +143,7 @@ void IrcUserModelPrivate::removeUser(IrcUser* user, bool notify)
         q->endRemoveRows();
         if (notify) {
             emit q->removed(user);
-            emit q->namesChanged(IrcChannelPrivate::get(channel)->userMap.keys());
+            emit q->namesChanged(IrcChannelPrivate::get(channel)->names);
             emit q->usersChanged(userList);
             emit q->countChanged(userList.count());
             if (userList.isEmpty())
@@ -169,7 +169,7 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users, bool reset)
         q->endResetModel();
     QStringList names;
     if (channel)
-        names = IrcChannelPrivate::get(channel)->userMap.keys();
+        names = IrcChannelPrivate::get(channel)->names;
     emit q->namesChanged(names);
     emit q->usersChanged(userList);
     emit q->countChanged(userList.count());
@@ -338,7 +338,7 @@ QStringList IrcUserModel::names() const
 {
     Q_D(const IrcUserModel);
     if (d->channel && !d->userList.isEmpty())
-        return IrcChannelPrivate::get(d->channel)->userMap.keys();
+        return IrcChannelPrivate::get(d->channel)->names;
     return QStringList();
 }
 

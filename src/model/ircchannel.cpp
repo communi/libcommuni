@@ -194,6 +194,7 @@ void IrcChannelPrivate::addUser(const QString& name)
     activeUsers.prepend(user);
     userList.append(user);
     userMap.insert(user->name(), user);
+    names = userMap.keys();
 
     foreach (IrcUserModel* model, userModels)
         IrcUserModelPrivate::get(model)->addUser(user);
@@ -203,6 +204,7 @@ bool IrcChannelPrivate::removeUser(const QString& name)
 {
     if (IrcUser* user = userMap.value(name)) {
         userMap.remove(name);
+        names = userMap.keys();
         userList.removeOne(user);
         activeUsers.removeOne(user);
         foreach (IrcUserModel* model, userModels)
@@ -213,7 +215,7 @@ bool IrcChannelPrivate::removeUser(const QString& name)
     return false;
 }
 
-void IrcChannelPrivate::setUsers(const QStringList& names)
+void IrcChannelPrivate::setUsers(const QStringList& users)
 {
     Q_Q(IrcChannel);
     const QStringList prefixes = q->network()->prefixes();
@@ -223,8 +225,7 @@ void IrcChannelPrivate::setUsers(const QStringList& names)
     userList.clear();
     activeUsers.clear();
 
-    QList<IrcUser*> users;
-    foreach (const QString& name, names) {
+    foreach (const QString& name, users) {
         IrcUser* user = new IrcUser(q);
         IrcUserPrivate* priv = IrcUserPrivate::get(user);
         priv->channel = q;
@@ -234,11 +235,11 @@ void IrcChannelPrivate::setUsers(const QStringList& names)
         activeUsers.append(user);
         userList.append(user);
         userMap.insert(user->name(), user);
-        users.append(user);
     }
+    names = userMap.keys();
 
     foreach (IrcUserModel* model, userModels)
-        IrcUserModelPrivate::get(model)->setUsers(users);
+        IrcUserModelPrivate::get(model)->setUsers(userList);
 }
 
 bool IrcChannelPrivate::renameUser(const QString& from, const QString& to)
@@ -246,8 +247,8 @@ bool IrcChannelPrivate::renameUser(const QString& from, const QString& to)
     if (IrcUser* user = userMap.take(from)) {
         IrcUserPrivate::get(user)->setName(to);
         userMap.insert(to, user);
+        names = userMap.keys();
 
-        QStringList names = userMap.keys();
         foreach (IrcUserModel* model, userModels) {
             IrcUserModelPrivate::get(model)->renameUser(user);
             emit model->namesChanged(names);
@@ -457,6 +458,7 @@ IrcChannel::~IrcChannel()
     qDeleteAll(d->userList);
     d->userList.clear();
     d->userMap.clear();
+    d->names.clear();
     d->userModels.clear();
     emit destroyed(this);
 }
