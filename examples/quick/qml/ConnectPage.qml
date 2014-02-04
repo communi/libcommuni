@@ -10,6 +10,7 @@
 import QtQuick 2.1
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0
+import Qt.labs.settings 1.0
 import Communi 3.0
 
 Item {
@@ -24,6 +25,19 @@ Item {
     property string userName: userNameField.text || userNameField.placeholderText
     property string password: passwordField.text
     property string channel: channelField.text || channelField.placeholderText
+
+    Settings {
+        id: settings
+        property alias host: hostField.text
+        property alias port: portField.value
+        property alias secure: secureField.checked
+        property alias sasl: saslField.checked
+        property alias nickName: nickNameField.text
+        property alias realName: realNameField.text
+        property alias userName: userNameField.text
+        property alias password: passwordField.text
+        property alias channel: channelField.text
+    }
 
     signal accepted()
     signal rejected()

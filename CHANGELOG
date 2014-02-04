@@ -26,6 +26,8 @@
 - IrcUtil
   - Introduced IrcCompleter
   - Added IrcTextFormat::spanFormat
+- Examples
+  - Made the QtQuick example remember connection settings (requires Qt 5.2)
 
 3.0.2
 -----
