@@ -196,6 +196,39 @@ static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, 
     return *len > 0;
 }
 
+static QString generateLink(const QString& protocol, const QString& href)
+{
+    const char* exclude = ":/?@%#=+&,";
+    QByteArray url = QUrl::toPercentEncoding(href, exclude);
+    return QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, url, href);
+}
+
+static QString parseLinks(const QString& message, const QString& pattern)
+{
+    int pos = 0;
+    QRegExp rx(pattern);
+    QString processed = message;
+    while ((pos = rx.indexIn(processed, pos)) >= 0) {
+        int len = rx.matchedLength();
+        QString href = processed.mid(pos, len);
+
+        QString protocol;
+        if (rx.cap(2).isEmpty()) {
+            if (rx.cap(1).contains(QLatin1Char('@')))
+                protocol = QLatin1String("mailto:");
+            else if (rx.cap(1).startsWith(QLatin1String("ftp."), Qt::CaseInsensitive))
+                protocol = QLatin1String("ftp://");
+            else
+                protocol = QLatin1String("http://");
+        }
+
+        QString link = generateLink(protocol, href);
+        processed.replace(pos, len, link);
+        pos += link.length();
+    }
+    return processed;
+}
+
 /*!
     Converts \a text to HTML. This function parses the text and replaces
     IRC-style formatting (colors, bold, underline etc.) to the corresponding
@@ -367,30 +400,8 @@ QString IrcTextFormat::toHtml(const QString& text) const
         }
     }
 
-    if (potentialUrl && !d->urlPattern.isEmpty()) {
-        pos = 0;
-        QRegExp rx(d->urlPattern);
-        while ((pos = rx.indexIn(processed, pos)) >= 0) {
-            int len = rx.matchedLength();
-            QString href = processed.mid(pos, len);
-
-            QString protocol;
-            if (rx.cap(2).isEmpty())
-            {
-                if (rx.cap(1).contains(QLatin1Char('@')))
-                    protocol = QLatin1String("mailto:");
-                else if (rx.cap(1).startsWith(QLatin1String("ftp."), Qt::CaseInsensitive))
-                    protocol = QLatin1String("ftp://");
-                else
-                    protocol = QLatin1String("http://");
-            }
-
-            const char* exclude = ":/?@%#=+&,";
-            QString link = QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, QUrl::toPercentEncoding(href, exclude), href);
-            processed.replace(pos, len, link);
-            pos += link.length();
-        }
-    }
+    if (potentialUrl && !d->urlPattern.isEmpty())
+        processed = parseLinks(processed, d->urlPattern);
 
     return processed;
 }

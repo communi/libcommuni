@@ -136,6 +136,22 @@ void tst_IrcTextFormat::testUrls_data()
     QTest::newRow("equal & question & ampersand") << defaultPattern << "https://www.google.no/imghp?hl=en&tab=wi" << "<a href='https://www.google.no/imghp?hl=en&tab=wi'>https://www.google.no/imghp?hl=en&tab=wi</a>";
     QTest::newRow("github commits") << defaultPattern << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>";
     QTest::newRow("empty pattern") << QString() << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "www.fi ftp.funet.fi jpnurmi@gmail.com";
+
+    QTest::newRow("info") << defaultPattern
+                          << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://freenode.net/faq.shtml#gettinghelp")
+                          << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: <a href='http://freenode.net/faq.shtml#gettinghelp'>http://freenode.net/faq.shtml#gettinghelp</a>");
+    QTest::newRow("topic") << defaultPattern
+                           << QString("Communi 1.2.2 - IRC framework || Home: http://communi.github.com || Docs: http://communi.github.com/doc || MeeGo: http://store.ovi.com/content/219150")
+                           << QString("Communi 1.2.2 - IRC framework || Home: <a href='http://communi.github.com'>http://communi.github.com</a> || Docs: <a href='http://communi.github.com/doc'>http://communi.github.com/doc</a> || MeeGo: <a href='http://store.ovi.com/content/219150'>http://store.ovi.com/content/219150</a>");
+    QTest::newRow("commit") << defaultPattern
+                            << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8")
+                            << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: <a href='https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8'>https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8</a>");
+    QTest::newRow("with protocol") << defaultPattern
+                                   << QString("aa http://www.fi bb ftp://ftp.funet.fi cc")
+                                   << QString("aa <a href='http://www.fi'>http://www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp://ftp.funet.fi</a> cc");
+    QTest::newRow("without protocol") << defaultPattern
+                                      << QString("aa www.fi bb ftp.funet.fi cc jpnurmi@gmail.com dd")
+                                      << QString("aa <a href='http://www.fi'>www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp.funet.fi</a> cc <a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a> dd");
 }
 
 void tst_IrcTextFormat::testUrls()
