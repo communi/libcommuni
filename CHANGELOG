@@ -26,6 +26,7 @@
 - IrcUtil
   - Introduced IrcCompleter
   - Added IrcTextFormat::spanFormat
+  - Improved IrcTextFormat::toHtml() performance on Qt 5 (QRegularExpression)
 - Examples
   - Made the QtQuick example remember connection settings (requires Qt 5.2)
 

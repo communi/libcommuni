@@ -22,6 +22,9 @@
 
 #include "irctextformat.h"
 #include "ircpalette.h"
+#if QT_VERSION >= 0x050000
+#include <QRegularExpression>
+#endif
 #include <QStringList>
 #include <QRegExp>
 #include <QUrl>
@@ -199,15 +202,39 @@ static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, 
 static QString generateLink(const QString& protocol, const QString& href)
 {
     const char* exclude = ":/?@%#=+&,";
-    QByteArray url = QUrl::toPercentEncoding(href, exclude);
+    const QByteArray url = QUrl::toPercentEncoding(href, exclude);
     return QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, url, href);
 }
 
 static QString parseLinks(const QString& message, const QString& pattern)
 {
+    QString processed = message;
+#if QT_VERSION >= 0x050000
+    int offset = 0;
+    QRegularExpression rx(pattern);
+    QRegularExpressionMatchIterator it = rx.globalMatch(message);
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+        QString protocol;
+        if (match.capturedRef(2).isEmpty()) {
+            QStringRef link = match.capturedRef(1);
+            if (link.startsWith(QStringLiteral("ftp."), Qt::CaseInsensitive))
+                protocol = QStringLiteral("ftp://");
+            else if (link.contains(QStringLiteral("@")))
+                protocol = QStringLiteral("mailto:");
+            else
+                protocol = QStringLiteral("http://");
+        }
+
+        const int start = match.capturedStart();
+        const int len = match.capturedEnd() - start;
+        const QString link = generateLink(protocol, match.captured());
+        processed.replace(start + offset, len, link);
+        offset += link.length() - len;
+    }
+#else
     int pos = 0;
     QRegExp rx(pattern);
-    QString processed = message;
     while ((pos = rx.indexIn(processed, pos)) >= 0) {
         int len = rx.matchedLength();
         QString href = processed.mid(pos, len);
@@ -226,6 +253,7 @@ static QString parseLinks(const QString& message, const QString& pattern)
         processed.replace(pos, len, link);
         pos += link.length();
     }
+#endif
     return processed;
 }
 
