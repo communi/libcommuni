@@ -17,6 +17,7 @@
 
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
+#include <QtCore/qstring.h>
 #include <QtCore/qmetatype.h>
 
 IRC_BEGIN_NAMESPACE
@@ -28,6 +29,7 @@ class IrcCompleterPrivate;
 class IRC_UTIL_EXPORT IrcCompleter : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString suffix READ suffix WRITE setSuffix NOTIFY suffixChanged)
     Q_PROPERTY(IrcBuffer* buffer READ buffer WRITE setBuffer NOTIFY bufferChanged)
     Q_PROPERTY(IrcCommandParser* parser READ parser WRITE setParser NOTIFY parserChanged)
 
@@ -35,16 +37,19 @@ public:
     explicit IrcCompleter(QObject* parent = 0);
     virtual ~IrcCompleter();
 
+    QString suffix() const;
     IrcBuffer* buffer() const;
     IrcCommandParser* parser() const;
 
 public Q_SLOTS:
+    void setSuffix(const QString& suffix);
     void setBuffer(IrcBuffer* buffer);
     void setParser(IrcCommandParser* parser);
 
     void complete(const QString& text, int cursor);
 
 Q_SIGNALS:
+    void suffixChanged(const QString& suffix);
     void bufferChanged(IrcBuffer* buffer);
     void parserChanged(IrcCommandParser* parser);
 

@@ -190,11 +190,12 @@ public:
     QString text;
     QList<IrcCompletion> completions;
 
+    QString suffix;
     QPointer<IrcBuffer> buffer;
     QPointer<IrcCommandParser> parser;
 };
 
-IrcCompleterPrivate::IrcCompleterPrivate() : q_ptr(0), index(-1), cursor(-1), buffer(0), parser(0)
+IrcCompleterPrivate::IrcCompleterPrivate() : q_ptr(0), index(-1), cursor(-1), suffix(":"), buffer(0), parser(0)
 {
 }
 
@@ -290,7 +291,7 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
                 if (user->name().startsWith(word, Qt::CaseInsensitive)) {
                     QString name = user->name();
                     if (indexOfWord(text, pos) == 0)
-                        name += QLatin1Char(':'); // TODO: configurable
+                        name += suffix;
                     completions += completeWord(text, bounds.first, bounds.second, name);
                 }
             }
@@ -314,6 +315,36 @@ IrcCompleter::IrcCompleter(QObject* parent) : QObject(parent), d_ptr(new IrcComp
  */
 IrcCompleter::~IrcCompleter()
 {
+}
+
+/*!
+    This property holds the completion suffix.
+
+    The suffix is appended to the end of a completed nick name, but
+    only when the nick name is in the beginning of completed text.
+
+    The default value is \c ":".
+
+    \par Access functions:
+    \li QString <b>suffix</b>() const
+    \li void <b>setSuffix</b>(const QString& suffix) [slot]
+
+    \par Notifier signal:
+    \li void <b>suffixChanged</b>(const QString& suffix)
+ */
+QString IrcCompleter::suffix() const
+{
+    Q_D(const IrcCompleter);
+    return d->suffix;
+}
+
+void IrcCompleter::setSuffix(const QString& suffix)
+{
+    Q_D(IrcCompleter);
+    if (d->suffix != suffix) {
+        d->suffix = suffix;
+        emit suffixChanged(suffix);
+    }
 }
 
 /*!

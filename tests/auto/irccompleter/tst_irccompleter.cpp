@@ -20,12 +20,29 @@ class tst_IrcCompleter : public tst_IrcClientServer
     Q_OBJECT
 
 private slots:
+    void testSuffix();
     void testBuffer();
     void testParser();
 
     void testCompletion_data();
     void testCompletion();
 };
+
+void tst_IrcCompleter::testSuffix()
+{
+    IrcCompleter completer;
+    QCOMPARE(completer.suffix(), QString(":"));
+    QCOMPARE(completer.property("suffix").toString(), QString(":"));
+
+    QSignalSpy spy(&completer, SIGNAL(suffixChanged(QString)));
+    QVERIFY(spy.isValid());
+
+    completer.setSuffix(",");
+    QCOMPARE(completer.suffix(), QString(","));
+    QCOMPARE(completer.property("suffix").toString(), QString(","));
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.last().at(0).toString(), QString(","));
+}
 
 void tst_IrcCompleter::testBuffer()
 {
@@ -76,62 +93,67 @@ void tst_IrcCompleter::testParser()
 Q_DECLARE_METATYPE(QList<int>)
 void tst_IrcCompleter::testCompletion_data()
 {
+    QTest::addColumn<QString>("suffix");
     QTest::addColumn<QString>("text");
     QTest::addColumn<int>("cursor");
     QTest::addColumn<QStringList>("completions");
     QTest::addColumn<QList<int> >("positions");
 
-
     for (int i = -1; i <= 3; ++i)
-        QTest::newRow("/j @ " + QByteArray::number(i)) << "/j" << i << QStringList("/JOIN ") << (QList<int>() << QString("/JOIN ").length());
+        QTest::newRow("/j @ " + QByteArray::number(i)) << QString() << "/j" << i << QStringList("/JOIN ") << (QList<int>() << QString("/JOIN ").length());
 
-    QTest::newRow("/q #2") << "/q" << QString("/q").length()
+    QTest::newRow("/q #2") << QString() << "/q" << QString("/q").length()
                        << (QStringList() << "/QUERY " << "/QUIT ")
                        << (QList<int>() << QString("/QUERY ").length() << QString("/QUIT ").length());
 
-    QTest::newRow("/QUERY q") << "/quer q " << QString("/quer").length()
+    QTest::newRow("/QUERY q") << QString() << "/quer q " << QString("/quer").length()
                        << (QStringList("/QUERY q "))
                        << (QList<int>() << QString("/QUERY ").length());
 
-    QTest::newRow("/query q") << "/query q" << QString("/query q").length()
+    QTest::newRow("/query q") << QString() << "/query q" << QString("/query q").length()
                        << (QStringList() << "/query qout " << "/query qtassistant ")
                        << (QList<int>() << QString("/query qout ").length() << QString("/query qtassistant ").length());
 
-    QTest::newRow("buffers") << "q" << QString("q").length()
+    QTest::newRow("buffers") << QString() << "q" << QString("q").length()
                        << (QStringList() << "qout " << "qtassistant ")
                        << (QList<int>() << QString("qout ").length() << QString("qtassistant ").length());
 
-    QTest::newRow("repeat") << "qtassistant " << QString("qtassistant ").length()
+    QTest::newRow("repeat") << QString() << "qtassistant " << QString("qtassistant ").length()
                        << (QStringList() << "qtassistant " << "qtassistant ")
                        << (QList<int>() << QString("qtassistant ").length() << QString("qtassistant ").length());
 
-    QStringList names;
+    QStringList names1;
+    QStringList names2;
     QList<int> positions;
     foreach (const QString& name, tst_IrcData::names()) {
         if (name.startsWith("je", Qt::CaseInsensitive)) {
-            names += name + ": ";
+            names1 += name + ": ";
+            names2 += name + ", ";
             positions += name.length() + 2;
         }
     }
-    QTest::newRow("je...:") << "je" << 1 << names << positions;
+    QTest::newRow("je...:") << ":" << "je" << 1 << names1 << positions;
+    QTest::newRow("je...,") << "," << "je" << 1 << names2 << positions;
 
-    names.clear();
+    names1.clear();
+    names2.clear();
     positions.clear();
     foreach (const QString& name, tst_IrcData::names()) {
         if (name.startsWith("sa", Qt::CaseInsensitive)) {
-            names += "... " + name + " ";
+            names1 += "... " + name + " ";
             positions += QString("... ").length() + name.length() + QString(" ").length();
         }
     }
-    QTest::newRow("... sa") << "... sa" << QString("... ").length() << names << positions;
+    QTest::newRow("... sa") << QString() << "... sa" << QString("... ").length() << names1 << positions;
 
-    QTest::newRow("spaces") << "/quit  foo  qt  rest... " << QString("/quit  foo  qt ").length()
+    QTest::newRow("spaces") << QString() << "/quit  foo  qt  rest... " << QString("/quit  foo  qt ").length()
                        << QStringList("/quit  foo  qtassistant  rest... ")
                        << (QList<int>() << QString("/quit  foo  qtassistant ").length());
 }
 
 void tst_IrcCompleter::testCompletion()
 {
+    QFETCH(QString, suffix);
     QFETCH(QString, text);
     QFETCH(int, cursor);
     QFETCH(QStringList, completions);
@@ -158,6 +180,7 @@ void tst_IrcCompleter::testCompletion()
     parser.addCommand(IrcCommand::Quit, "QUIT (<message...>)");
 
     IrcCompleter completer;
+    completer.setSuffix(suffix);
     completer.setBuffer(model.get(0));
     completer.setParser(&parser);
 
