@@ -507,34 +507,6 @@ void IrcBuffer::setUserData(const QVariantMap& data)
 }
 
 /*!
-    \since 3.1
-
-    Returns model data for the specified \a role.
- */
-QVariant IrcBuffer::data(int role) const
-{
-    Q_D(const IrcBuffer);
-    if (d->model && role == Qt::DisplayRole)
-        return data(d->model->displayRole());
-
-    IrcBuffer* buffer = const_cast<IrcBuffer*>(this);
-    switch (role) {
-    case Irc::BufferRole:
-        return QVariant::fromValue(buffer);
-    case Irc::ChannelRole:
-        return QVariant::fromValue(buffer->toChannel());
-    case Irc::NameRole:
-        return name();
-    case Irc::PrefixRole:
-        return prefix();
-    case Irc::TitleRole:
-        return title();
-    default:
-        return QVariant();
-    }
-}
-
-/*!
     Sends a \a command to the server.
 
     This method is provided for convenience. It is equal to:

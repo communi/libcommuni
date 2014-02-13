@@ -19,7 +19,6 @@
   - Added IrcChannel::key
   - Added IrcChannel::join(QString key)
   - Added IrcBuffer::userData
-  - Added IrcBuffer::data()
   - Added IrcBuffer::close()
   - Added IrcUserModel::empty
   - Added IrcUser::away
