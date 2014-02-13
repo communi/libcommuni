@@ -68,6 +68,7 @@ public:
     QString prefix;
     bool persistent;
     bool sticky;
+    QVariantMap userData;
 };
 
 IRC_END_NAMESPACE

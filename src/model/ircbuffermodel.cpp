@@ -1020,6 +1020,7 @@ QByteArray IrcBufferModel::saveState(int version) const
         }
         b.insert("stick", buffer->isSticky());
         b.insert("persistent", buffer->isPersistent());
+        b.insert("userData", buffer->userData());
         bufs += b;
     }
     args.insert("buffers", bufs);
@@ -1065,6 +1066,7 @@ bool IrcBufferModel::restoreState(const QByteArray& state, int version)
             buffer->setPrefix(b.value("prefix").toString());
             buffer->setSticky(b.value("sticky").toBool());
             buffer->setPersistent(b.value("persistent").toBool());
+            buffer->setUserData(b.value("userData").toMap());
             add(buffer);
         }
         IrcChannel* channel = buffer->toChannel();

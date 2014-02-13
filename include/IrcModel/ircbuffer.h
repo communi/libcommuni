@@ -18,6 +18,7 @@
 #include <Irc>
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
+#include <QtCore/qvariant.h>
 #include <QtCore/qmetatype.h>
 #include <QtCore/qscopedpointer.h>
 
@@ -44,6 +45,7 @@ class IRC_MODEL_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(bool channel READ isChannel CONSTANT)
     Q_PROPERTY(bool sticky READ isSticky WRITE setSticky NOTIFY stickyChanged)
     Q_PROPERTY(bool persistent READ isPersistent WRITE setPersistent NOTIFY persistentChanged)
+    Q_PROPERTY(QVariantMap userData READ userData WRITE setUserData NOTIFY userDataChanged)
 
 public:
     Q_INVOKABLE explicit IrcBuffer(QObject* parent = 0);
@@ -68,6 +70,9 @@ public:
     bool isPersistent() const;
     void setPersistent(bool persistent);
 
+    QVariantMap userData() const;
+    void setUserData(const QVariantMap& data);
+
     virtual QVariant data(int role) const;
 
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
@@ -87,6 +92,7 @@ Q_SIGNALS:
     void activeChanged(bool active);
     void stickyChanged(bool sticky);
     void persistentChanged(bool persistent);
+    void userDataChanged(const QVariantMap& data);
 
 protected:
     IrcBuffer(IrcBufferPrivate& dd, QObject* parent);

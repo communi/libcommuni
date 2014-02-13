@@ -482,6 +482,33 @@ void IrcBuffer::setPersistent(bool persistent)
 /*!
     \since 3.1
 
+    This property holds arbitrary user data.
+
+    \par Access functions:
+    \li QVariantMap <b>userData</b>() const
+    \li void <b>setUserData</b>(const QVariantMap& data)
+
+    \par Notifier signal:
+    \li void <b>userDataChanged</b>(const QVariantMap& data)
+ */
+QVariantMap IrcBuffer::userData() const
+{
+    Q_D(const IrcBuffer);
+    return d->userData;
+}
+
+void IrcBuffer::setUserData(const QVariantMap& data)
+{
+    Q_D(IrcBuffer);
+    if (d->userData != data) {
+        d->userData = data;
+        emit userDataChanged(data);
+    }
+}
+
+/*!
+    \since 3.1
+
     Returns model data for the specified \a role.
  */
 QVariant IrcBuffer::data(int role) const
