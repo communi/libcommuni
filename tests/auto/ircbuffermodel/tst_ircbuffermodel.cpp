@@ -28,6 +28,7 @@ private slots:
     void testAddRemove();
     void testSorting();
     void testClear();
+    void testPersistent();
     void testPrototypes();
     void testChanges();
     void testActive();
@@ -58,6 +59,7 @@ void tst_IrcBufferModel::testDefaults()
     QCOMPARE(model.sortMethod(), Irc::SortByHand);
     QVERIFY(model.channels().isEmpty());
     QCOMPARE(model.displayRole(), Irc::TitleRole);
+    QVERIFY(!model.isPersistent());
     QVERIFY(model.buffers().isEmpty());
     QVERIFY(!model.connection());
     QVERIFY(!model.network());
@@ -489,6 +491,63 @@ void tst_IrcBufferModel::testClear()
 
     QCOMPARE(modelAboutToBeResetSpy.count(), 0);
     QCOMPARE(modelResetSpy.count(), 0);
+}
+
+void tst_IrcBufferModel::testPersistent()
+{
+    IrcBufferModel model(connection);
+    connection->open();
+    QVERIFY(waitForOpened());
+    QVERIFY(waitForWritten(tst_IrcData::welcome()));
+
+    QVERIFY(waitForWritten(":communi!communi@hidd.en JOIN :#communi"));
+    QCOMPARE(model.count(), 1);
+
+    QPointer<IrcChannel> channel = model.get(0)->toChannel();
+    QVERIFY(channel);
+
+    QVERIFY(!model.isPersistent());
+    QVERIFY(!channel->isPersistent());
+    QVERIFY(waitForWritten(":communi!communi@hidd.en PART :#communi"));
+    QVERIFY(model.isEmpty());
+    QVERIFY(channel); // deleteLater()'d
+    QCoreApplication::sendPostedEvents(channel, QEvent::DeferredDelete);
+    QVERIFY(!channel); // deleteLater()'d
+
+    QVERIFY(waitForWritten(":communi!communi@hidd.en JOIN :#communi"));
+    QCOMPARE(model.count(), 1);
+    channel = model.get(0)->toChannel();
+    QVERIFY(channel);
+
+    model.setPersistent(true);
+    QVERIFY(model.isPersistent());
+    QVERIFY(!channel->isPersistent());
+    QVERIFY(waitForWritten(":communi!communi@hidd.en PART :#communi"));
+    QVERIFY(channel);
+    QCOMPARE(model.count(), 1);
+
+    channel->setPersistent(true);
+    QVERIFY(model.isPersistent());
+    QVERIFY(channel->isPersistent());
+    QVERIFY(waitForWritten(":communi!communi@hidd.en PART :#communi"));
+    QVERIFY(channel);
+    QCOMPARE(model.count(), 1);
+
+    model.setPersistent(false);
+    QVERIFY(!model.isPersistent());
+    QVERIFY(channel->isPersistent());
+    QVERIFY(waitForWritten(":communi!communi@hidd.en PART :#communi"));
+    QVERIFY(channel);
+    QCOMPARE(model.count(), 1);
+
+    channel->setPersistent(false);
+    QVERIFY(!model.isPersistent());
+    QVERIFY(!channel->isPersistent());
+    QVERIFY(waitForWritten(":communi!communi@hidd.en PART :#communi"));
+    QVERIFY(model.isEmpty());
+    QVERIFY(channel); // deleteLater()'d
+    QCoreApplication::sendPostedEvents(channel, QEvent::DeferredDelete);
+    QVERIFY(!channel); // deleteLater()'d
 }
 
 void tst_IrcBufferModel::testPrototypes()

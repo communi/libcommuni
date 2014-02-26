@@ -67,6 +67,7 @@ public:
     Qt::SortOrder sortOrder;
     IrcBuffer* bufferProto;
     IrcChannel* channelProto;
+    bool persistent;
 };
 
 IRC_END_NAMESPACE

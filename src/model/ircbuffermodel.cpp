@@ -112,7 +112,8 @@ private:
 };
 
 IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(0), role(Irc::TitleRole),
-    sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder), bufferProto(0), channelProto(0)
+    sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder),
+    bufferProto(0), channelProto(0), persistent(false)
 {
 }
 
@@ -262,7 +263,7 @@ IrcBuffer* IrcBufferModelPrivate::createBuffer(const QString& title)
 void IrcBufferModelPrivate::destroyBuffer(const QString& title, bool force)
 {
     IrcBuffer* buffer = bufferMap.value(title.toLower());
-    if (buffer && (force || !buffer->isPersistent())) {
+    if (buffer && (force || (!persistent && !buffer->isPersistent()))) {
         removeBuffer(buffer);
         buffer->deleteLater();
     }
@@ -633,6 +634,41 @@ void IrcBufferModel::setDisplayRole(Irc::DataRole role)
 {
     Q_D(IrcBufferModel);
     d->role = role;
+}
+
+/*!
+    \since 3.1
+
+    \property bool IrcBufferModel::persistent
+    This property holds whether the model is persistent.
+
+    The default value is \c false.
+
+    A persistent model does not remove and destruct channel buffers
+    automatically when leaving the corresponding channels. In order
+    to remove buffers from a persistent model, either call
+    IrcBufferModel::remove() or delete the buffer.
+
+    \par Access functions:
+    \li bool <b>isPersistent</b>() const
+    \li void <b>setPersistent</b>(bool persistent)
+
+    \par Notifier signal:
+    \li void <b>persistentChanged</b>(bool persistent)
+ */
+bool IrcBufferModel::isPersistent() const
+{
+    Q_D(const IrcBufferModel);
+    return d->persistent;
+}
+
+void IrcBufferModel::setPersistent(bool persistent)
+{
+    Q_D(IrcBufferModel);
+    if (d->persistent != persistent) {
+        d->persistent = persistent;
+        emit persistentChanged(persistent);
+    }
 }
 
 /*!
@@ -1021,6 +1057,7 @@ QByteArray IrcBufferModel::saveState(int version) const
     args.insert("sortOrder", d->sortOrder);
     args.insert("sortMethod", d->sortMethod);
     args.insert("displayRole", d->role);
+    args.insert("persistent", d->persistent);
 
     QVariantList bufs;
     foreach (IrcBuffer* buffer, d->bufferList) {
@@ -1069,6 +1106,7 @@ bool IrcBufferModel::restoreState(const QByteArray& state, int version)
     setSortOrder(static_cast<Qt::SortOrder>(args.value("sortOrder", sortOrder()).toInt()));
     setSortMethod(static_cast<Irc::SortMethod>(args.value("sortMethod", sortMethod()).toInt()));
     setDisplayRole(static_cast<Irc::DataRole>(args.value("displayRole", displayRole()).toInt()));
+    setPersistent(args.value("persistent", isPersistent()).toBool());
 
     QVariantList buffers = args.value("buffers").toList();
     foreach (const QVariant& v, buffers) {

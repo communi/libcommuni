@@ -38,6 +38,7 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
     Q_PROPERTY(Irc::SortMethod sortMethod READ sortMethod WRITE setSortMethod)
     Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
     Q_PROPERTY(Irc::DataRole displayRole READ displayRole WRITE setDisplayRole)
+    Q_PROPERTY(bool persistent READ isPersistent WRITE setPersistent NOTIFY persistentChanged)
     Q_PROPERTY(QList<IrcBuffer*> buffers READ buffers NOTIFY buffersChanged)
     Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection NOTIFY connectionChanged)
     Q_PROPERTY(IrcNetwork* network READ network NOTIFY networkChanged)
@@ -76,6 +77,9 @@ public:
     Irc::DataRole displayRole() const;
     void setDisplayRole(Irc::DataRole role);
 
+    bool isPersistent() const;
+    void setPersistent(bool persistent);
+
     QModelIndex index(IrcBuffer* buffer) const;
     IrcBuffer* buffer(const QModelIndex& index) const;
 
@@ -105,6 +109,7 @@ Q_SIGNALS:
     void removed(IrcBuffer* buffer);
     void aboutToBeAdded(IrcBuffer* buffer);
     void aboutToBeRemoved(IrcBuffer* buffer);
+    void persistentChanged(bool persistent);
     void buffersChanged(const QList<IrcBuffer*>& buffers);
     void channelsChanged(const QStringList& channels);
     void connectionChanged(IrcConnection* connection);
