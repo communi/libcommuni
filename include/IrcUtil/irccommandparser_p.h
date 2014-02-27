@@ -79,4 +79,4 @@ public:
 
 IRC_END_NAMESPACE
 
-#endif // IRCLAGTIMER_P_H
+#endif // IRCCOMMANDPARSER_P_H
