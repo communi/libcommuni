@@ -421,6 +421,18 @@ void IrcCompleter::complete(const QString& text, int cursor)
         d->completeNext();
 }
 
+/*!
+    Resets the completer state.
+ */
+void IrcCompleter::reset()
+{
+    Q_D(IrcCompleter);
+    d->index = -1;
+    d->cursor = -1;
+    d->text.clear();
+    d->completions.clear();
+}
+
 #include "moc_irccompleter.cpp"
 
 IRC_END_NAMESPACE

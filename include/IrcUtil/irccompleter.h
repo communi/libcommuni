@@ -47,6 +47,7 @@ public Q_SLOTS:
     void setParser(IrcCommandParser* parser);
 
     void complete(const QString& text, int cursor);
+    void reset();
 
 Q_SIGNALS:
     void suffixChanged(const QString& suffix);

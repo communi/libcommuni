@@ -10,6 +10,7 @@
 #include "irccompleter.h"
 #include "ircbuffermodel.h"
 #include "irccommandparser.h"
+#include "ircchannel.h"
 #include "ircbuffer.h"
 #include <QtTest/QtTest>
 #include "tst_ircclientserver.h"
@@ -26,6 +27,8 @@ private slots:
 
     void testCompletion_data();
     void testCompletion();
+
+    void testReset();
 };
 
 void tst_IrcCompleter::testSuffix()
@@ -193,6 +196,40 @@ void tst_IrcCompleter::testCompletion()
         QCOMPARE(spy.last().at(0).toString(), completions.at(i));
         QCOMPARE(spy.last().at(1).toInt(), positions.at(i));
     }
+}
+
+void tst_IrcCompleter::testReset()
+{
+    IrcBufferModel model(connection);
+    connection->open();
+    waitForOpened();
+    waitForWritten(tst_IrcData::welcome());
+    waitForWritten(tst_IrcData::join());
+    IrcChannel* channel = model.get(0)->toChannel();
+    QVERIFY(channel);
+
+    IrcCompleter completer;
+    completer.setBuffer(channel);
+
+    QSignalSpy spy(&completer, SIGNAL(completed(QString,int)));
+    QVERIFY(spy.isValid());
+
+    completer.complete("Guest", 5);
+    QCOMPARE(spy.count(), 1);
+    QString guest1 = spy.last().at(0).toString();
+    QVERIFY(guest1.startsWith("Guest"));
+
+    completer.complete("Guest", 5);
+    QCOMPARE(spy.count(), 2);
+    QString guest2 = spy.last().at(0).toString();
+    QVERIFY(guest2.startsWith("Guest"));
+    QVERIFY(guest2 != guest1);
+
+    completer.reset();
+    completer.complete("Guest", 5);
+    QCOMPARE(spy.count(), 3);
+    QString guest3 = spy.last().at(0).toString();
+    QCOMPARE(guest3, guest1);
 }
 
 QTEST_MAIN(tst_IrcCompleter)
