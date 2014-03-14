@@ -50,6 +50,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(int reconnectDelay READ reconnectDelay WRITE setReconnectDelay NOTIFY reconnectDelayChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
     Q_PROPERTY(bool secure READ isSecure WRITE setSecure NOTIFY secureChanged)
+    Q_PROPERTY(bool secureSupported READ isSecureSupported)
     Q_PROPERTY(QString saslMechanism READ saslMechanism WRITE setSaslMechanism NOTIFY saslMechanismChanged)
     Q_PROPERTY(QStringList supportedSaslMechanisms READ supportedSaslMechanisms CONSTANT)
     Q_PROPERTY(IrcNetwork* network READ network CONSTANT)
@@ -109,6 +110,7 @@ public:
 
     bool isSecure() const;
     void setSecure(bool secure);
+    static bool isSecureSupported();
 
     QString saslMechanism() const;
     void setSaslMechanism(const QString& mechanism);

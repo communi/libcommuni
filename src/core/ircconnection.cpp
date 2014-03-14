@@ -937,7 +937,7 @@ void IrcConnection::setSocket(QAbstractSocket* socket)
     \par Notifier signal:
     \li void <b>secureChanged</b>(bool secure)
 
-    \sa IrcConnection::socket
+    \sa secureSupported, IrcConnection::socket
  */
 bool IrcConnection::isSecure() const
 {
@@ -972,6 +972,30 @@ void IrcConnection::setSecure(bool secure)
         emit secureChanged(false);
     }
 #endif // !QT_NO_OPENSSL
+}
+
+/*!
+    \since 3.2
+    \property bool IrcConnection::secureSupported
+    This property holds whether SSL is supported.
+
+    The value may be \c false for the following reasons:
+    \li Qt was built without SSL support (\c QT_NO_SSL is defined), or
+    \li The platform does not support SSL (QSslSocket::supportsSsl() returns \c false).
+
+    \par Access function:
+    \li static bool <b>isSecureSupported</b>()
+
+    \sa secure, QSslSocket::supportsSsl()
+ */
+
+bool IrcConnection::isSecureSupported()
+{
+#ifdef QT_NO_OPENSSL
+    return false;
+#else
+    return QSslSocket::supportsSsl();
+#endif
 }
 
 /*!
