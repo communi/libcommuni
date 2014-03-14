@@ -68,7 +68,7 @@
 
     \sa Irc::version()
  */
-#define IRC_VERSION 0x030100
+#define IRC_VERSION 0x030200
 
 /*!
     \def IRC_VERSION_STR
@@ -78,7 +78,7 @@
 
     \sa Irc::version()
  */
-#define IRC_VERSION_STR "3.1.0"
+#define IRC_VERSION_STR "3.2.0"
 
 #ifdef IRC_NAMESPACE
 
