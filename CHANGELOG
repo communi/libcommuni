@@ -2,6 +2,8 @@
 -----
 - IrcCore
   - Added IrcConnection::secureSupported
+- IrcModel
+  - Added IrcBufferModel::receiveMessage()
 
 3.1.0
 -----

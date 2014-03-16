@@ -791,6 +791,15 @@ void IrcBufferModel::clear()
 }
 
 /*!
+    Makes the model receive and handle \a message.
+ */
+void IrcBufferModel::receiveMessage(IrcMessage* message)
+{
+    Q_D(IrcBufferModel);
+    d->messageFilter(message);
+}
+
+/*!
     Sorts the model using the given \a order.
  */
 void IrcBufferModel::sort(int column, Qt::SortOrder order)

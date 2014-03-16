@@ -99,6 +99,7 @@ public:
 
 public Q_SLOTS:
     void clear();
+    void receiveMessage(IrcMessage* message);
     void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
     void sort(Irc::SortMethod method, Qt::SortOrder order = Qt::AscendingOrder);
 
