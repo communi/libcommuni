@@ -252,6 +252,23 @@ IrcMessage::Type IrcMessage::type() const
 }
 
 /*!
+    \since 3.2
+    \property bool IrcMessage::own
+
+    This property holds whether the message is user's own.
+
+    This property is provided for convenience. It is equivalent
+    of testing for the IrcMessage::Own flag.
+
+    \par Access function:
+    \li \ref bool <b>isOwn</b>() const
+ */
+bool IrcMessage::isOwn() const
+{
+    return flags() & Own;
+}
+
+/*!
     This property holds the message flags.
 
     \par Access function:

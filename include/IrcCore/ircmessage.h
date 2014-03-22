@@ -36,6 +36,7 @@ class IRC_CORE_EXPORT IrcMessage : public QObject
     Q_PROPERTY(IrcConnection* connection READ connection)
     Q_PROPERTY(IrcNetwork* network READ network)
     Q_PROPERTY(Type type READ type)
+    Q_PROPERTY(bool own READ isOwn)
     Q_PROPERTY(Flags flags READ flags)
     Q_PROPERTY(bool valid READ isValid)
     Q_PROPERTY(QString command READ command)
@@ -87,6 +88,7 @@ public:
     IrcNetwork* network() const;
 
     Type type() const;
+    bool isOwn() const;
     Flags flags() const;
 
     QString command() const;

@@ -2,6 +2,7 @@
 -----
 - IrcCore
   - Added IrcConnection::secureSupported
+  - Restored IrcMessage::own for convenience
 - IrcModel
   - Added IrcBufferModel::receiveMessage()
 
