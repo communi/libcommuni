@@ -14,6 +14,7 @@
 
 #include "irccommandparser.h"
 #include "irccommandparser_p.h"
+#include "irctoken_p.h"
 #include <climits>
 
 IRC_BEGIN_NAMESPACE
@@ -227,39 +228,55 @@ IrcCommandInfo IrcCommandParserPrivate::parseSyntax(IrcCommand::Type type, const
     return cmd;
 }
 
-IrcCommand* IrcCommandParserPrivate::parseCommand(const IrcCommandInfo& command, QStringList* params) const
+IrcCommand* IrcCommandParserPrivate::parseCommand(const IrcCommandInfo& command, const QString& input) const
 {
     IrcCommand* cmd = 0;
-    if (processParameters(command, params)) {
-        const int count = params->count();
+    QStringList params;
+    if (processParameters(command, input, &params)) {
+        const int count = params.count();
         if (count >= command.min && count <= command.max) {
             cmd = new IrcCommand;
             cmd->setType(command.type);
             if (command.type == IrcCommand::Custom)
-                params->prepend(command.command);
-            cmd->setParameters(*params);
+                params.prepend(command.command);
+            cmd->setParameters(params);
         }
     }
     return cmd;
 }
 
-bool IrcCommandParserPrivate::processParameters(const IrcCommandInfo& command, QStringList* params) const
+bool IrcCommandParserPrivate::processParameters(const IrcCommandInfo& command, const QString& input, QStringList* params) const
 {
+    IrcTokenizer tokenizer(input);
     for (int i = 0; i < command.params.count(); ++i) {
         const IrcParameterInfo& info = command.params.at(i);
+        const IrcToken token = tokenizer.at(0);
         if (info.optional && info.channel) {
-            const QString param = params->value(i);
             if (onChannel()) {
-                if (param.isNull() || !channels.contains(param, Qt::CaseInsensitive))
-                    params->insert(i, target);
-            } else  if (!channels.contains(param)) {
+                if (!token.isValid() || !channels.contains(token.text(), Qt::CaseInsensitive)) {
+                    params->append(target);
+                } else if (token.isValid()) {
+                    tokenizer.takeFirst();
+                    params->append(token.text());
+                }
+            } else if (!channels.contains(token.text())) {
                 return false;
             }
         } else if (info.current) {
-            params->insert(i, target);
+            params->append(target);
+        } else if (info.multi) {
+            const QString multi = tokenizer.toString();
+            if (!multi.isEmpty()) {
+                params->append(multi);
+                tokenizer.clear();
+            }
+        } else {
+            tokenizer.takeFirst();
+            if (token.isValid())
+                params->append(token.text());
         }
     }
-    return true;
+    return tokenizer.isEmpty();
 }
 
 bool IrcCommandParserPrivate::processCommand(QString* input, int* removed) const
@@ -516,22 +533,21 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
     QString message = input;
     if (d->processMessage(&message)) {
         return IrcCommand::createMessage(d->target, message.trimmed());
-    } else {
-        QStringList params = message.split(QLatin1Char(' '), QString::SkipEmptyParts);
-        if (!params.isEmpty()) {
-            const QString command = params.takeFirst().toUpper();
-            const QList<IrcCommandInfo> commands = d->find(command);
-            if (!commands.isEmpty()) {
-                foreach (const IrcCommandInfo& c, commands) {
-                    IrcCommand* cmd = d->parseCommand(c, &params);
-                    if (cmd)
-                        return cmd;
-                }
-            } else if (d->tolerant) {
-                IrcCommandInfo custom = d->parseSyntax(IrcCommand::Quote, QString(QLatin1String("%1 (<parameters...>)")).arg(command));
-                params.prepend(custom.command);
-                return d->parseCommand(custom, &params);
+    } else if (!message.isEmpty()) {
+        const IrcTokenizer tokenizer(message);
+        const QString command = tokenizer.at(0).text().toUpper();
+        QString params = tokenizer.mid(1).toString();
+        const QList<IrcCommandInfo> commands = d->find(command);
+        if (!commands.isEmpty()) {
+            foreach (const IrcCommandInfo& c, commands) {
+                IrcCommand* cmd = d->parseCommand(c, params);
+                if (cmd)
+                    return cmd;
             }
+        } else if (d->tolerant) {
+            IrcCommandInfo custom = d->parseSyntax(IrcCommand::Quote, QString(QLatin1String("%1 (<parameters...>)")).arg(command));
+            params.prepend(custom.command + QLatin1Char(' '));
+            return d->parseCommand(custom, params);
         }
     }
     return 0;

@@ -28,6 +28,7 @@ private slots:
     void testSyntax();
     void testTolerancy();
     void testCustom();
+    void testWhitespace();
 };
 
 void tst_IrcCommandParser::testParse_data()
@@ -420,6 +421,19 @@ void tst_IrcCommandParser::testCustom()
     QVERIFY(cmd);
     QCOMPARE(cmd->type(), IrcCommand::Custom);
     QCOMPARE(cmd->parameters(), QStringList() << "HELLO" << "foo" << "bar" << "baz");
+    delete cmd;
+}
+
+void tst_IrcCommandParser::testWhitespace()
+{
+    IrcCommandParser parser;
+    parser.setTriggers(QStringList("/"));
+    parser.addCommand(IrcCommand::Custom, "TEST <arg...>");
+
+    IrcCommand* cmd = parser.parse("/test foo  bar  baz");
+    QVERIFY(cmd);
+    QCOMPARE(cmd->type(), IrcCommand::Custom);
+    QCOMPARE(cmd->parameters(), QStringList() << "TEST" << "foo  bar  baz");
     delete cmd;
 }
 

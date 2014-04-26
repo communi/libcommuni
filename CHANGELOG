@@ -5,6 +5,9 @@
   - Restored IrcMessage::own for convenience
 - IrcModel
   - Added IrcBufferModel::receiveMessage()
+- IrcUtil
+  - Made IrcCommandParser retain whitespace and compose a single
+    command parameter out of a multi-word input parameter
 
 3.1.0
 -----

@@ -59,8 +59,8 @@ public:
 
     QList<IrcCommandInfo> find(const QString& command) const;
     static IrcCommandInfo parseSyntax(IrcCommand::Type type, const QString& syntax);
-    IrcCommand* parseCommand(const IrcCommandInfo& command, QStringList* params) const;
-    bool processParameters(const IrcCommandInfo& command, QStringList* params) const;
+    IrcCommand* parseCommand(const IrcCommandInfo& command, const QString& input) const;
+    bool processParameters(const IrcCommandInfo& command, const QString& input, QStringList* params) const;
     bool processCommand(QString* input, int* removed = 0) const;
     bool processMessage(QString* input, int* removed = 0) const;
     bool onChannel() const;

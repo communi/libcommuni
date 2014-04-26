@@ -25,6 +25,7 @@ PUB_HEADERS += $$INCDIR/ircutil.h
 
 PRIV_HEADERS  = $$INCDIR/irccommandparser_p.h
 PRIV_HEADERS += $$INCDIR/irclagtimer_p.h
+PRIV_HEADERS += $$INCDIR/irctoken_p.h
 
 HEADERS += $$PUB_HEADERS
 HEADERS += $$PRIV_HEADERS
@@ -34,3 +35,4 @@ SOURCES += $$PWD/irccompleter.cpp
 SOURCES += $$PWD/irclagtimer.cpp
 SOURCES += $$PWD/ircpalette.cpp
 SOURCES += $$PWD/irctextformat.cpp
+SOURCES += $$PWD/irctoken.cpp
