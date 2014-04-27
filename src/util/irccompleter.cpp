@@ -19,6 +19,7 @@
 #include "ircusermodel.h"
 #include "ircnetwork.h"
 #include "ircchannel.h"
+#include "irctoken_p.h"
 #include "ircuser.h"
 
 #include <QTextBoundaryFinder>
@@ -80,11 +81,6 @@ IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
 
-#if QT_VERSION < 0x050000
-#define StartOfItem StartWord
-#define EndOfItem EndWord
-#endif // QT_VERSION
-
 static bool isPrefixed(const QString& text, int pos, const QStringList& prefixes, int* len)
 {
     foreach (const QString& prefix, prefixes) {
@@ -100,67 +96,6 @@ static bool isPrefixed(const QString& text, int pos, const QStringList& prefixes
         }
     }
     return false;
-}
-
-static QPair<int, int> findWordBoundaries(const QString& text, int pos, const QStringList& prefixes)
-{
-    QTextBoundaryFinder finder(QTextBoundaryFinder::Word, text);
-    finder.setPosition(pos);
-
-    int pfx = 0;
-    if (finder.boundaryReasons() & QTextBoundaryFinder::StartOfItem || (finder.isAtBoundary() && isPrefixed(text, pos, prefixes, &pfx))) {
-        int end = finder.toNextBoundary();
-        if (end == -1)
-            end = pos;
-        pos -= pfx;
-        return qMakePair(pos, end - pos);
-    } else if (finder.boundaryReasons() & QTextBoundaryFinder::EndOfItem) {
-        int begin = finder.toPreviousBoundary();
-        return qMakePair(begin, pos - begin);
-    } else {
-        int begin = finder.toPreviousBoundary();
-        if (finder.boundaryReasons() & QTextBoundaryFinder::StartOfItem || (finder.isAtBoundary() && isPrefixed(text, pos, prefixes, &pfx))) {
-            int end = finder.toNextBoundary();
-            if (end == -1)
-                end = begin;
-            begin -= pfx;
-            return qMakePair(begin, end - begin);
-        } else {
-            int end = finder.toPreviousBoundary();
-            return qMakePair(end, begin - end);
-        }
-    }
-    return qMakePair(-1, -1);
-}
-
-static int indexOfWord(const QString& text, int pos)
-{
-    return text.left(pos + 1).split(QLatin1Char(' '), QString::SkipEmptyParts).count() - 1;
-}
-
-static int indexOfNonSpace(const QString& text, int pos = 0)
-{
-    while (pos >= 0 && pos < text.length() && text.at(pos) == QLatin1Char(' '))
-        ++pos;
-    return pos;
-}
-
-static QString replaceWord(const QString& text, int index, const QString& word)
-{
-    if (index >= 0) {
-        int from = indexOfNonSpace(text);
-        while (index > 0 && from < text.length()) {
-            from = indexOfNonSpace(text, text.indexOf(QLatin1Char(' '), from));
-            --index;
-        }
-        if (from < text.length()) {
-            int to = text.indexOf(QLatin1Char(' '), from);
-            if (to == -1)
-                to = text.length();
-            return QString(text).replace(from, to - from, word);
-        }
-    }
-    return text;
 }
 
 struct IrcCompletion
@@ -214,7 +149,9 @@ void IrcCompleterPrivate::completeNext()
 
 static IrcCompletion completeCommand(const QString& text, const QString& command)
 {
-    QString completion = replaceWord(text, 0, command);
+    IrcTokenizer tokenizer(text);
+    tokenizer.replace(0, command);
+    QString completion = tokenizer.toString();
     int next = command.length();
     if (next >= completion.length() || completion.at(next) != QLatin1Char(' '))
         completion.insert(next, QLatin1Char(' '));
@@ -263,7 +200,8 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
 
     QList<IrcCompletion> completions;
 
-    const QPair<int, int> bounds = findWordBoundaries(text, pos, buffer->network()->channelTypes());
+    const IrcToken token = IrcTokenizer(text).find(pos);
+    const QPair<int, int> bounds = qMakePair(token.position(), token.length());
     if (bounds.first != -1 && bounds.second != -1) {
         const QString word = text.mid(bounds.first, bounds.second);
 
@@ -290,7 +228,7 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
             foreach (IrcUser* user, userModel.users()) {
                 if (user->name().startsWith(word, Qt::CaseInsensitive)) {
                     QString name = user->name();
-                    if (indexOfWord(text, pos) == 0)
+                    if (token.index() == 0)
                         name += suffix;
                     completions += completeWord(text, bounds.first, bounds.second, name);
                 }
@@ -410,7 +348,7 @@ void IrcCompleter::complete(const QString& text, int cursor)
     }
 
     QList<IrcCompletion> completions = d->completeCommands(text, cursor);
-    if (completions.isEmpty() || indexOfWord(text, cursor) > 0)
+    if (completions.isEmpty() || IrcTokenizer(text).find(cursor).index() > 0)
         completions = d->completeWords(text, cursor);
 
     if (d->completions != completions) {
