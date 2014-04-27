@@ -53,7 +53,6 @@ public:
     IrcTokenizer mid(int index) const;
 
     void clear();
-    IrcToken takeFirst();
     void replace(int index, const QString& text);
     IrcToken find(int pos) const;
     QString toString() const;

@@ -256,7 +256,7 @@ bool IrcCommandParserPrivate::processParameters(const IrcCommandInfo& command, c
                 if (!token.isValid() || !channels.contains(token.text(), Qt::CaseInsensitive)) {
                     params->append(target);
                 } else if (token.isValid()) {
-                    tokenizer.takeFirst();
+                    tokenizer = tokenizer.mid(1);
                     params->append(token.text());
                 }
             } else if (!channels.contains(token.text())) {
@@ -271,7 +271,7 @@ bool IrcCommandParserPrivate::processParameters(const IrcCommandInfo& command, c
                 tokenizer.clear();
             }
         } else {
-            tokenizer.takeFirst();
+            tokenizer = tokenizer.mid(1);
             if (token.isValid())
                 params->append(token.text());
         }
@@ -534,7 +534,7 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
     if (d->processMessage(&message)) {
         return IrcCommand::createMessage(d->target, message.trimmed());
     } else if (!message.isEmpty()) {
-        const IrcTokenizer tokenizer(message);
+        IrcTokenizer tokenizer(message);
         const QString command = tokenizer.at(0).text().toUpper();
         QString params = tokenizer.mid(1).toString();
         const QList<IrcCommandInfo> commands = d->find(command);

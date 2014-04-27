@@ -60,9 +60,11 @@ IrcTokenizer IrcTokenizer::mid(int index) const
     tt.t = t.mid(index);
     if (!tt.isEmpty()) {
         int d = tt.t.first().position();
-        tt.len -= d;
-        for (int i = 0; i < tt.t.length(); ++i)
+        tt.len = len - d;
+        for (int i = 0; i < tt.t.length(); ++i) {
+            tt.t[i].idx = i;
             tt.t[i].pos -= d;
+        }
     }
     return tt;
 }
@@ -70,13 +72,6 @@ IrcTokenizer IrcTokenizer::mid(int index) const
 void IrcTokenizer::clear()
 {
     t.clear();
-}
-
-IrcToken IrcTokenizer::takeFirst()
-{
-    IrcToken token = t.value(0);
-    t = mid(1).tokens();
-    return token;
 }
 
 void IrcTokenizer::replace(int index, const QString& text)
