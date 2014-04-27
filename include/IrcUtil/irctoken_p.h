@@ -44,8 +44,7 @@ private:
 class IrcTokenizer
 {
 public:
-    IrcTokenizer(const QString& str);
-    IrcTokenizer(const QList<IrcToken>& tokens);
+    IrcTokenizer(const QString& str = QString());
 
     int count() const;
     bool isEmpty() const;
@@ -60,6 +59,7 @@ public:
     QString toString() const;
 
 private:
+    int len;
     QList<IrcToken> t;
 };
 

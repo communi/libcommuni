@@ -30,11 +30,7 @@ static QList<IrcToken> tokenize(const QString& str)
     return tokens;
 }
 
-IrcTokenizer::IrcTokenizer(const QString& str) : t(tokenize(str))
-{
-}
-
-IrcTokenizer::IrcTokenizer(const QList<IrcToken>& tokens) : t(tokens)
+IrcTokenizer::IrcTokenizer(const QString& str) : len(str.length()), t(tokenize(str))
 {
 }
 
@@ -60,9 +56,11 @@ IrcToken IrcTokenizer::at(int index) const
 
 IrcTokenizer IrcTokenizer::mid(int index) const
 {
-    IrcTokenizer tt = t.mid(index);
+    IrcTokenizer tt;
+    tt.t = t.mid(index);
     if (!tt.isEmpty()) {
         int d = tt.t.first().position();
+        tt.len -= d;
         for (int i = 0; i < tt.t.length(); ++i)
             tt.t[i].pos -= d;
     }
@@ -88,28 +86,28 @@ void IrcTokenizer::replace(int index, const QString& text)
         int d = text.length() - token.length();
         token = IrcToken(index, token.position(), text);
         t.replace(index, token);
-        for (int i = index; i < t.length(); ++i)
+        len += d;
+        for (int i = index + 1; i < t.length(); ++i)
             t[i].pos += d;
     }
 }
 
 IrcToken IrcTokenizer::find(int pos) const
 {
-    foreach (const IrcToken& token, t) {
-        if (token.position() <= pos && pos < token.position() + token.length())
-            return token;
+    IrcToken token;
+    foreach (const IrcToken& tk, t) {
+        if (tk.position() > pos)
+            break;
+        token = tk;
     }
-    return IrcToken();
+    return token;
 }
 
 QString IrcTokenizer::toString() const
 {
-    QString str;
-    if (!t.isEmpty()) {
-        str = QString(t.last().position() + t.last().length(), QLatin1Char(' '));
-        foreach (const IrcToken& token, t)
-            str.replace(token.position(), token.length(), token.text());
-    }
+    QString str(len, QLatin1Char(' '));
+    foreach (const IrcToken& token, t)
+        str.replace(token.position(), token.length(), token.text());
     return str;
 }
 
