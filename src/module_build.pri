@@ -20,12 +20,14 @@ isEmpty(IRC_BUILDDIR):IRC_BUILDDIR = $$OUT_PWD/../..
 DESTDIR = $$IRC_BUILDDIR/lib
 DLLDESTDIR = $$IRC_BUILDDIR/bin
 
-CONFIG(debug, debug|release) {
-    OBJECTS_DIR = debug
-    MOC_DIR = debug
-} else {
-    OBJECTS_DIR = release
-    MOC_DIR = release
+!flat {
+    CONFIG(debug, debug|release) {
+        OBJECTS_DIR = debug
+        MOC_DIR = debug
+    } else {
+        OBJECTS_DIR = release
+        MOC_DIR = release
+    }
 }
 
 DISTFILES += $$CONV_HEADERS
