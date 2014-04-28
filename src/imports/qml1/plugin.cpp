@@ -90,6 +90,7 @@ public:
         // IrcCore
         Irc::registerMetaTypes();
         qmlRegisterType<Irc>(uri, 3, 0, "Irc");
+        qmlRegisterType<Irc>(uri, 3, 2, "Irc");
         qmlRegisterType<IrcCommand>(uri, 3, 0, "IrcCommand");
         qmlRegisterType<IrcConnection>(uri, 3, 0, "IrcConnection");
         qmlRegisterUncreatableType<IrcMessage>(uri, 3, 0, "IrcMessage", "Cannot create an instance of IrcMessage. Use IrcConnection::messageReceived() signal instead.");
