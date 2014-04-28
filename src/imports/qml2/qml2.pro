@@ -12,12 +12,14 @@ OTHER_FILES += qmldir plugins.qmltypes
 
 isEmpty(IRC_INSTALL_QML):IRC_INSTALL_QML = $$[QT_INSTALL_QML]
 
-target.path = $$IRC_INSTALL_QML/$$TARGETPATH
-INSTALLS += target
+!no_install_qml {
+    target.path = $$IRC_INSTALL_QML/$$TARGETPATH
+    INSTALLS += target
 
-other_files.files = $$OTHER_FILES
-other_files.path = $$IRC_INSTALL_QML/$$TARGETPATH
-INSTALLS += other_files
+    other_files.files = $$OTHER_FILES
+    other_files.path = $$IRC_INSTALL_QML/$$TARGETPATH
+    INSTALLS += other_files
+}
 
 for(other_file, OTHER_FILES) {
     ARGUMENTS = $${PWD}$${QMAKE_DIR_SEP}$$other_file $$DESTDIR

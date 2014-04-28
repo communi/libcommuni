@@ -8,11 +8,15 @@ isEmpty(IRC_INSTALL_LIBS):IRC_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
 isEmpty(IRC_INSTALL_BINS):IRC_INSTALL_BINS = $$[QT_INSTALL_BINS]
 isEmpty(IRC_INSTALL_HEADERS):IRC_INSTALL_HEADERS = $$[QT_INSTALL_HEADERS]/Communi
 
-target.path = $$IRC_INSTALL_LIBS
-INSTALLS += target
+!no_install_libs {
+    target.path = $$IRC_INSTALL_LIBS
+    INSTALLS += target
+}
 
-dlltarget.path = $$IRC_INSTALL_BINS
-INSTALLS += dlltarget
+!no_install_bins {
+    dlltarget.path = $$IRC_INSTALL_BINS
+    INSTALLS += dlltarget
+}
 
 macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
     CONFIG += lib_bundle debug_and_release
@@ -27,7 +31,7 @@ macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
         QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
     }
     QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$IRC_INSTALL_LIBS/
-} else {
+} else:!no_install_headers {
     headers.files = $$PUB_HEADERS $$CONV_HEADERS
     headers.path = $$IRC_INSTALL_HEADERS/$$IRC_MODULE
     INSTALLS += headers
