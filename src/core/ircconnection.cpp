@@ -254,6 +254,8 @@ void IrcConnectionPrivate::_irc_connected()
     Q_Q(IrcConnection);
     quit = false;
     emit q->connecting();
+    if (q->isSecure())
+        QMetaObject::invokeMethod(socket, "startClientEncryption");
     protocol->open();
 }
 

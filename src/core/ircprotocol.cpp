@@ -278,10 +278,6 @@ QAbstractSocket* IrcProtocol::socket() const
 void IrcProtocol::open()
 {
     Q_D(IrcProtocol);
-    const bool secure = d->connection->isSecure();
-    if (secure)
-        QMetaObject::invokeMethod(socket(), "startClientEncryption");
-
     d->_irc_pauseHandshake();
 
     if (d->connection->saslMechanism().isEmpty() && !d->connection->password().isEmpty())
