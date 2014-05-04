@@ -235,7 +235,8 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
     nickName(),
     realName(),
     enabled(true),
-    status(IrcConnection::Inactive)
+    status(IrcConnection::Inactive),
+    quit(false)
 {
 }
 
@@ -251,6 +252,7 @@ void IrcConnectionPrivate::init(IrcConnection* connection)
 void IrcConnectionPrivate::_irc_connected()
 {
     Q_Q(IrcConnection);
+    quit = false;
     emit q->connecting();
     protocol->open();
 }
@@ -260,7 +262,7 @@ void IrcConnectionPrivate::_irc_disconnected()
     Q_Q(IrcConnection);
     protocol->close();
     emit q->disconnected();
-    if (enabled && (status != IrcConnection::Closed || !protocol->hasQuit()) && !reconnecter.isActive() && reconnecter.interval() > 0) {
+    if (enabled && (status != IrcConnection::Closed || !quit) && !reconnecter.isActive() && reconnecter.interval() > 0) {
         reconnecter.start();
         setStatus(IrcConnection::Waiting);
     }
@@ -269,7 +271,7 @@ void IrcConnectionPrivate::_irc_disconnected()
 void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcConnection);
-    if (!protocol->hasQuit() || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
+    if (!quit || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
         irc_debug(q, "socket error:", error);
         emit q->socketError(error);
         setStatus(IrcConnection::Error);
@@ -281,7 +283,7 @@ void IrcConnectionPrivate::_irc_state(QAbstractSocket::SocketState state)
     Q_Q(IrcConnection);
     switch (state) {
     case QAbstractSocket::UnconnectedState:
-        if (protocol->hasQuit())
+        if (quit)
             setStatus(IrcConnection::Closed);
         break;
     case QAbstractSocket::ClosingState:
@@ -1200,6 +1202,11 @@ bool IrcConnection::sendData(const QByteArray& data)
     if (d->socket) {
         static bool dbg = qgetenv("IRC_DEBUG").toInt();
         if (dbg) qDebug() << "->" << data;
+        if (!d->quit && data.length() >= 4) {
+            const QByteArray cmd = data.left(5).toUpper();
+            if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
+                d->quit = true;
+        }
         return d->protocol->write(data);
     }
     return false;

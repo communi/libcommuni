@@ -47,8 +47,6 @@ public:
     virtual void read();
     virtual bool write(const QByteArray& data);
 
-    virtual bool hasQuit() const;
-
 protected Q_SLOTS:
     void setNick(const QString& nick);
     void setStatus(IrcConnection::Status status);

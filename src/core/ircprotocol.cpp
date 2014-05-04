@@ -49,10 +49,9 @@ public:
     QByteArray buffer;
     bool resumed;
     bool authed;
-    bool quit;
 };
 
-IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), builder(0), resumed(false), authed(false), quit(false)
+IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), builder(0), resumed(false), authed(false)
 {
 }
 
@@ -279,8 +278,6 @@ QAbstractSocket* IrcProtocol::socket() const
 void IrcProtocol::open()
 {
     Q_D(IrcProtocol);
-    d->quit = false;
-
     const bool secure = d->connection->isSecure();
     if (secure)
         QMetaObject::invokeMethod(socket(), "startClientEncryption");
@@ -325,19 +322,7 @@ void IrcProtocol::read()
 
 bool IrcProtocol::write(const QByteArray& data)
 {
-    Q_D(IrcProtocol);
-    if (!d->quit && data.length() >= 4) {
-        const QByteArray cmd = data.left(5).toUpper();
-        if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
-            d->quit = true;
-    }
     return socket()->write(data + QByteArray("\r\n")) != -1;
-}
-
-bool IrcProtocol::hasQuit() const
-{
-    Q_D(const IrcProtocol);
-    return d->quit;
 }
 
 void IrcProtocol::setNick(const QString& nick)
