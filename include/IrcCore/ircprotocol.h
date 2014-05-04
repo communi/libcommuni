@@ -42,6 +42,7 @@ public:
 
     virtual void open();
     virtual void authenticate(bool secure);
+    virtual void close();
 
     virtual void read();
     virtual bool write(const QByteArray& data);

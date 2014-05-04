@@ -309,6 +309,10 @@ void IrcProtocol::authenticate(bool secure)
     }
 }
 
+void IrcProtocol::close()
+{
+}
+
 void IrcProtocol::read()
 {
     Q_D(IrcProtocol);

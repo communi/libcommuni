@@ -258,6 +258,7 @@ void IrcConnectionPrivate::_irc_connected()
 void IrcConnectionPrivate::_irc_disconnected()
 {
     Q_Q(IrcConnection);
+    protocol->close();
     emit q->disconnected();
     if (enabled && (status != IrcConnection::Closed || !protocol->hasQuit()) && !reconnecter.isActive() && reconnecter.interval() > 0) {
         reconnecter.start();
