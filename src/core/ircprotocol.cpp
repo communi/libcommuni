@@ -105,10 +105,7 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
         default:
             break;
         }
-
         q->receiveMessage(msg);
-        if (msg->type() == IrcMessage::Numeric)
-            builder->processMessage(static_cast<IrcNumericMessage*>(msg));
     }
 }
 
@@ -363,6 +360,8 @@ void IrcProtocol::receiveMessage(IrcMessage* message)
     Q_D(IrcProtocol);
     IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->receiveMessage(message);
+    if (message->type() == IrcMessage::Numeric)
+        d->builder->processMessage(static_cast<IrcNumericMessage*>(message));
 }
 #endif // IRC_DOXYGEN
 
