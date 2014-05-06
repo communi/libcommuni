@@ -18,6 +18,8 @@
 #include <IrcModel>
 #include <IrcUtil>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcQmlFilter : public QObject,
                      public IrcCommandFilter,
                      public IrcMessageFilter
@@ -112,6 +114,8 @@ public:
         qmlRegisterUncreatableType<IrcPalette>(uri, 3, 0, "IrcPalette", "Cannot create an instance of IrcPalette. Use IrcTextFormat::palette property instead.");
     }
 };
+
+IRC_END_NAMESPACE
 
 #include "plugin.moc"
 
