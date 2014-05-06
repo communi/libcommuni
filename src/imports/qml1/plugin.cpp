@@ -18,6 +18,8 @@
 #include <IrcModel>
 #include <IrcUtil>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcQmlFilter : public QObject,
                      public IrcCommandFilter,
                      public IrcMessageFilter
@@ -113,6 +115,8 @@ public:
         qmlRegisterType<IrcCompleter>(uri, 3, 1, "IrcCompleter");
     }
 };
+
+IRC_END_NAMESPACE
 
 #include "plugin.moc"
 
