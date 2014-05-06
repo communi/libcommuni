@@ -127,6 +127,11 @@ QString Irc::hostFromPrefix(const QString& prefix)
  */
 void Irc::registerMetaTypes()
 {
+    qRegisterMetaType<Irc::Color>("Irc::Color");
+    qRegisterMetaType<Irc::DataRole>("Irc::DataRole");
+    qRegisterMetaType<Irc::SortMethod>("Irc::SortMethod");
+    qRegisterMetaType<Irc::Code>("Irc::Code");
+
     qRegisterMetaType<IrcConnection*>("IrcConnection*");
     qRegisterMetaType<IrcConnection::Status>("IrcConnection::Status");
 
