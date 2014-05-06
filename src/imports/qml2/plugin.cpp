@@ -32,6 +32,8 @@
 #include <IrcModel>
 #include <IrcUtil>
 
+IRC_BEGIN_NAMESPACE
+
 class IrcQmlFilter : public QObject,
                      public IrcCommandFilter,
                      public IrcMessageFilter
@@ -131,5 +133,7 @@ public:
 //! [qml-register-types]
     }
 };
+
+IRC_END_NAMESPACE
 
 #include "plugin.moc"
