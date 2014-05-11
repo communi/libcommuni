@@ -293,6 +293,7 @@ bool IrcMessage::isOwn() const
 
     \par Access function:
     \li \ref IrcMessage::Flag "IrcMessage::Flags" <b>flags</b>() const
+    \li void <b>setFlags</b>(\ref IrcMessage::Flag "IrcMessage::Flags" flags) (\b Since 3.2)
  */
 IrcMessage::Flags IrcMessage::flags() const
 {
@@ -314,6 +315,12 @@ IrcMessage::Flags IrcMessage::flags() const
         }
     }
     return IrcMessage::Flags(d->flags);
+}
+
+void IrcMessage::setFlags(IrcMessage::Flags flags)
+{
+    Q_D(IrcMessage);
+    d->flags = flags;
 }
 
 /*!

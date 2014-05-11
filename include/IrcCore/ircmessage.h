@@ -104,7 +104,9 @@ public:
 
     Type type() const;
     bool isOwn() const;
+
     Flags flags() const;
+    void setFlags(Flags flags);
 
     QString command() const;
     void setCommand(const QString& command);
