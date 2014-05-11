@@ -422,7 +422,7 @@ bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
         }
         return removeUser(message->nick());
     }
-    return userMap.contains(message->nick());
+    return true;
 }
 
 bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
