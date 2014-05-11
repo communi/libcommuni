@@ -340,7 +340,7 @@ void IrcBuffer::setPrefix(const QString& prefix)
  */
 bool IrcBuffer::isChannel() const
 {
-    return inherits("IrcChannel");
+    return qobject_cast<const IrcChannel*>(this);
 }
 
 /*!
