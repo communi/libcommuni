@@ -205,7 +205,7 @@ bool IrcBufferPrivate::processNamesMessage(IrcNamesMessage* message)
 
 bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
 {
-    if (!message->nick().compare(name, Qt::CaseInsensitive)) {
+    if (!(message->flags() & IrcMessage::Playback) && !message->nick().compare(name, Qt::CaseInsensitive)) {
         setName(message->newNick());
         return true;
     }

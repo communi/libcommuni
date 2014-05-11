@@ -349,39 +349,47 @@ void IrcChannelPrivate::setUserServOp(const QString& name, const bool &servOp)
 
 bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 {
-    if (message->flags() & IrcMessage::Own)
-        setActive(true);
-    else
-        addUser(message->nick());
+    if (!(message->flags() & IrcMessage::Playback)) {
+        if (message->flags() & IrcMessage::Own)
+            setActive(true);
+        else
+            addUser(message->nick());
+    }
     return true;
 }
 
 bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
 {
-    if (!message->user().compare(message->connection()->nickName(), Qt::CaseInsensitive)) {
-        setActive(false);
-        return true;
+    if (!(message->flags() & IrcMessage::Playback)) {
+        if (!message->user().compare(message->connection()->nickName(), Qt::CaseInsensitive)) {
+            setActive(false);
+            return true;
+        }
+        return removeUser(message->user());
     }
-    return removeUser(message->user());
+    return userMap.contains(message->user());
 }
 
 bool IrcChannelPrivate::processModeMessage(IrcModeMessage* message)
 {
-    if (message->kind() == IrcModeMessage::Channel) {
-        if (message->isReply())
-            setModes(message->mode(), message->arguments());
-        else
-            changeModes(message->mode(), message->arguments());
-        return true;
-    } else if (!message->argument().isEmpty()) {
-        setUserMode(message->argument(), message->mode());
+    if (!(message->flags() & IrcMessage::Playback)) {
+        if (message->kind() == IrcModeMessage::Channel) {
+            if (message->isReply())
+                setModes(message->mode(), message->arguments());
+            else
+                changeModes(message->mode(), message->arguments());
+            return true;
+        } else if (!message->argument().isEmpty()) {
+            setUserMode(message->argument(), message->mode());
+        }
     }
     return true;
 }
 
 bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
 {
-    setUsers(message->names());
+    if (!(message->flags() & IrcMessage::Playback))
+        setUsers(message->names());
     return true;
 }
 
@@ -407,11 +415,14 @@ bool IrcChannelPrivate::processNumericMessage(IrcNumericMessage* message)
 
 bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
 {
-    if (message->flags() & IrcMessage::Own) {
-        setActive(false);
-        return true;
+    if (!(message->flags() & IrcMessage::Playback)) {
+        if (message->flags() & IrcMessage::Own) {
+            setActive(false);
+            return true;
+        }
+        return removeUser(message->nick());
     }
-    return removeUser(message->nick());
+    return userMap.contains(message->nick());
 }
 
 bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
@@ -431,16 +442,20 @@ bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
 
 bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
 {
-    if (message->flags() & IrcMessage::Own) {
-        setActive(false);
-        return true;
+    if (!(message->flags() & IrcMessage::Playback)) {
+        if (message->flags() & IrcMessage::Own) {
+            setActive(false);
+            return true;
+        }
+        return removeUser(message->nick()) || IrcBufferPrivate::processQuitMessage(message);
     }
-    return removeUser(message->nick()) || IrcBufferPrivate::processQuitMessage(message);
+    return userMap.contains(message->nick()) || IrcBufferPrivate::processQuitMessage(message);
 }
 
 bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
 {
-    setTopic(message->topic());
+    if (!(message->flags() & IrcMessage::Playback))
+        setTopic(message->topic());
     return true;
 }
 

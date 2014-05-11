@@ -191,14 +191,15 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
     if (!processed)
         emit q->messageIgnored(msg);
 
-    if (msg->type() == IrcMessage::Part && msg->flags() & IrcMessage::Own) {
-        destroyBuffer(static_cast<IrcPartMessage*>(msg)->channel());
-    } else if (msg->type() == IrcMessage::Kick) {
-        const IrcKickMessage* kickMsg = static_cast<IrcKickMessage*>(msg);
-        if (!kickMsg->user().compare(msg->connection()->nickName(), Qt::CaseInsensitive))
-            destroyBuffer(kickMsg->channel());
+    if (!(msg->flags() & IrcMessage::Playback)) {
+        if (msg->type() == IrcMessage::Part && msg->flags() & IrcMessage::Own) {
+            destroyBuffer(static_cast<IrcPartMessage*>(msg)->channel());
+        } else if (msg->type() == IrcMessage::Kick) {
+            const IrcKickMessage* kickMsg = static_cast<IrcKickMessage*>(msg);
+            if (!kickMsg->user().compare(msg->connection()->nickName(), Qt::CaseInsensitive))
+                destroyBuffer(kickMsg->channel());
+        }
     }
-
     return false;
 }
 
