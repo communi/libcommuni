@@ -5,6 +5,7 @@
 - IrcCore
   - Added IrcConnection::secureSupported
   - Restored IrcMessage::own for convenience
+  - Added Playback to IrcMessage::Flags
 - IrcModel
   - Added IrcBufferModel::receiveMessage()
 - IrcUtil

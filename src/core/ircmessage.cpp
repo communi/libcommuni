@@ -181,6 +181,12 @@ IRC_BEGIN_NAMESPACE
     \brief The message is unidentified.
  */
 
+/*!
+    \since 3.2
+    \var IrcMessage::Playback
+    \brief The message is playback.
+ */
+
 static const QMetaObject* irc_command_meta_object(const QString& command)
 {
     static QHash<QString, const QMetaObject*> metaObjects;
