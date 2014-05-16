@@ -552,9 +552,9 @@ QString IrcConnection::host() const
 void IrcConnection::setHost(const QString& host)
 {
     Q_D(IrcConnection);
-    if (isActive())
-        qWarning("IrcConnection::setHost() has no effect until re-connect");
     if (d->host != host) {
+        if (isActive())
+            qWarning("IrcConnection::setHost() has no effect until re-connect");
         const QString oldName = displayName();
         d->host = host;
         emit hostChanged(host);
@@ -585,9 +585,9 @@ int IrcConnection::port() const
 void IrcConnection::setPort(int port)
 {
     Q_D(IrcConnection);
-    if (isActive())
-        qWarning("IrcConnection::setPort() has no effect until re-connect");
     if (d->port != port) {
+        if (isActive())
+            qWarning("IrcConnection::setPort() has no effect until re-connect");
         d->port = port;
         emit portChanged(port);
     }
@@ -614,10 +614,10 @@ QString IrcConnection::userName() const
 void IrcConnection::setUserName(const QString& name)
 {
     Q_D(IrcConnection);
-    if (isActive())
-        qWarning("IrcConnection::setUserName() has no effect until re-connect");
     QString user = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
     if (d->userName != user) {
+        if (isActive())
+            qWarning("IrcConnection::setUserName() has no effect until re-connect");
         d->userName = user;
         emit userNameChanged(user);
     }
@@ -672,9 +672,9 @@ QString IrcConnection::realName() const
 void IrcConnection::setRealName(const QString& name)
 {
     Q_D(IrcConnection);
-    if (isActive())
-        qWarning("IrcConnection::setRealName() has no effect until re-connect");
     if (d->realName != name) {
+        if (isActive())
+            qWarning("IrcConnection::setRealName() has no effect until re-connect");
         d->realName = name;
         emit realNameChanged(name);
     }
@@ -699,9 +699,9 @@ QString IrcConnection::password() const
 void IrcConnection::setPassword(const QString& password)
 {
     Q_D(IrcConnection);
-    if (isActive())
-        qWarning("IrcConnection::setPassword() has no effect until re-connect");
     if (d->password != password) {
+        if (isActive())
+            qWarning("IrcConnection::setPassword() has no effect until re-connect");
         d->password = password;
         emit passwordChanged(password);
     }
@@ -1042,9 +1042,9 @@ void IrcConnection::setSaslMechanism(const QString& mechanism)
         qWarning("IrcConnection::setSaslMechanism(): unsupported mechanism: '%s'", qPrintable(mechanism));
         return;
     }
-    if (isActive())
-        qWarning("IrcConnection::setSaslMechanism() has no effect until re-connect");
     if (d->saslMechanism != mechanism) {
+        if (isActive())
+            qWarning("IrcConnection::setSaslMechanism() has no effect until re-connect");
         d->saslMechanism = mechanism.toUpper();
         emit saslMechanismChanged(mechanism);
     }
