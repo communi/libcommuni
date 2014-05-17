@@ -13,6 +13,16 @@
   - Made IrcCommandParser retain whitespace and compose a single
     command parameter out of a multi-word input parameter
 
+3.1.1/3.0.3
+-----------
+- General
+  - Fixed configure script's default imports and qml directories
+  - Added missing namespace macros to the QML plugins
+- IrcCore
+  - Added missing enums to Irc::registerMetaTypes()
+- IrcModel
+  - Fixed IrcChannel::isChannel() for namespaced builds
+
 3.1.0
 -----
 - General
