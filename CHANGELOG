@@ -1,3 +1,13 @@
+3.0.3
+-----
+- General
+  - Fixed configure script's default imports and qml directories
+  - Added missing namespace macros to the QML plugins
+- IrcCore
+  - Added missing enums to Irc::registerMetaTypes()
+- IrcModel
+  - Fixed IrcChannel::isChannel() for namespaced builds
+
 3.0.2
 -----
 - General
