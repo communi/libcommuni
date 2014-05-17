@@ -33,13 +33,23 @@ lessThan(QT_MAJOR_VERSION, 5) {
     }
 }
 
+static:CONFIG_LINES += "DEFINES+=IRC_STATIC"
+else:CONFIG_LINES += "DEFINES+=IRC_SHARED"
+
+include(version.pri)
+IRC_VERSION_MAJOR = $$section(IRC_VERSION, ., 0, 0)
+IRC_VERSION_MINOR = $$section(IRC_VERSION, ., 1, 1)
+IRC_VERSION_PATCH = $$section(IRC_VERSION, ., 2, 2)
+
+CONFIG_LINES += "IRC_VERSION+=$$IRC_VERSION"
+CONFIG_LINES += "IRC_VERSION_MAJOR+=$$IRC_VERSION_MAJOR"
+CONFIG_LINES += "IRC_VERSION_MINOR+=$$IRC_VERSION_MINOR"
+CONFIG_LINES += "IRC_VERSION_PATCH+=$$IRC_VERSION_PATCH"
+
 isEmpty(IRC_INSTALL_LIBS):IRC_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
 isEmpty(IRC_INSTALL_BINS):IRC_INSTALL_BINS = $$[QT_INSTALL_BINS]
 isEmpty(IRC_INSTALL_HEADERS):IRC_INSTALL_HEADERS = $$[QT_INSTALL_HEADERS]/Communi
 isEmpty(IRC_INSTALL_FEATURES):IRC_INSTALL_FEATURES = $$[QT_INSTALL_DATA]/mkspecs/features
-
-static:CONFIG_LINES += "DEFINES+=IRC_STATIC"
-else:CONFIG_LINES += "DEFINES+=IRC_SHARED"
 
 # qt4/win: WARNING: Unescaped backslashes are deprecated
 !win32|greaterThan(QT_MAJOR_VERSION, 4) {
@@ -77,7 +87,6 @@ features.files += $$OUT_PWD/communi-config.prf
 features.path = $$IRC_INSTALL_FEATURES
 INSTALLS += features
 
-include(version.pri)
 !build_pass {
     macx {
         !qt_no_framework {
