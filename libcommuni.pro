@@ -22,22 +22,15 @@ lessThan(QT_MAJOR_VERSION, 5) {
     lessThan(QT_MAJOR_VERSION, 4) | lessThan(QT_MINOR_VERSION, 6) {
         error(Communi requires Qt 4.6 or newer but Qt $$[QT_VERSION] was detected.)
     }
-}
-
-CONFIG_VARS = $${OUT_PWD}$${QMAKE_DIR_SEP}.config.vars
-QMAKE_CACHE = $${OUT_PWD}$${QMAKE_DIR_SEP}.qmake.cache
-IRC_CONFIG = $${OUT_PWD}$${QMAKE_DIR_SEP}communi-config.prf
-
-static {
-    system(echo DEFINES+=IRC_STATIC > $$QMAKE_CACHE)
-    system(echo DEFINES+=IRC_STATIC > $$IRC_CONFIG)
-} else {
-    system(echo DEFINES+=IRC_SHARED > $$QMAKE_CACHE)
-    system(echo DEFINES+=IRC_SHARED > $$IRC_CONFIG)
-}
-
-exists($$CONFIG_VARS) {
-    system(echo include\\\($$CONFIG_VARS\\\) >> $$QMAKE_CACHE)
+    defineTest(write_file) {
+        first = true
+        for(line, $$2) {
+            !isEmpty(first):system(echo $$line > $$1)
+            else:system(echo $$line >> $$1)
+            first =
+        }
+        return(true)
+    }
 }
 
 isEmpty(IRC_INSTALL_LIBS):IRC_INSTALL_LIBS = $$[QT_INSTALL_LIBS]
@@ -45,17 +38,26 @@ isEmpty(IRC_INSTALL_BINS):IRC_INSTALL_BINS = $$[QT_INSTALL_BINS]
 isEmpty(IRC_INSTALL_HEADERS):IRC_INSTALL_HEADERS = $$[QT_INSTALL_HEADERS]/Communi
 isEmpty(IRC_INSTALL_FEATURES):IRC_INSTALL_FEATURES = $$[QT_INSTALL_DATA]/mkspecs/features
 
+static:CONFIG_LINES += "DEFINES+=IRC_STATIC"
+else:CONFIG_LINES += "DEFINES+=IRC_SHARED"
+
 # qt4/win: WARNING: Unescaped backslashes are deprecated
 !win32|greaterThan(QT_MAJOR_VERSION, 4) {
-    system(echo IRC_INSTALL_LIBS=$$IRC_INSTALL_LIBS >> $$QMAKE_CACHE)
-    system(echo IRC_INSTALL_LIBS=$$IRC_INSTALL_LIBS >> $$IRC_CONFIG)
-    system(echo IRC_INSTALL_BINS=$$IRC_INSTALL_BINS >> $$QMAKE_CACHE)
-    system(echo IRC_INSTALL_BINS=$$IRC_INSTALL_BINS >> $$IRC_CONFIG)
-    system(echo IRC_INSTALL_HEADERS=$$IRC_INSTALL_HEADERS >> $$QMAKE_CACHE)
-    system(echo IRC_INSTALL_HEADERS=$$IRC_INSTALL_HEADERS >> $$IRC_CONFIG)
-    system(echo IRC_INSTALL_FEATURES=$$IRC_INSTALL_FEATURES >> $$QMAKE_CACHE)
-    system(echo IRC_INSTALL_FEATURES=$$IRC_INSTALL_FEATURES >> $$IRC_CONFIG)
+    CONFIG_LINES += "IRC_INSTALL_LIBS=$$IRC_INSTALL_LIBS"
+    CONFIG_LINES += "IRC_INSTALL_BINS=$$IRC_INSTALL_BINS"
+    CONFIG_LINES += "IRC_INSTALL_HEADERS=$$IRC_INSTALL_HEADERS"
+    CONFIG_LINES += "IRC_INSTALL_FEATURES=$$IRC_INSTALL_FEATURES"
 }
+
+IRC_CONFIG = $${OUT_PWD}$${QMAKE_DIR_SEP}communi-config.prf
+write_file($$IRC_CONFIG, CONFIG_LINES)
+
+CONFIG_VARS = $${OUT_PWD}$${QMAKE_DIR_SEP}.config.vars
+exists($$CONFIG_VARS) {
+    CONFIG_LINES += "include\\\($$CONFIG_VARS\\\)"
+}
+QMAKE_CACHE = $${OUT_PWD}$${QMAKE_DIR_SEP}.qmake.cache
+write_file($$QMAKE_CACHE, CONFIG_LINES)
 
 OTHER_FILES += .gitignore
 OTHER_FILES += .travis.yml
