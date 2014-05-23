@@ -213,7 +213,7 @@ Installation options:
     -headerdir <dir> ......... Headers will be installed to <dir>
                                (default QT_INSTALL_HEADERS/Communi)
     -featuredir <dir> ........ Features will be installed to <dir>
-                               (default QT_INSTALL_DATA/mkspecs/features)
+                               (default QT_HOST_DATA/mkspecs/features)
     -importdir <dir> ......... Imports for QML1 will be installed to <dir>/Communi
                                (default QT_INSTALL_IMPORTS/Communi)
     -qmldir <dir> ............ Imports for QML2 will be installed to <dir>/Communi
@@ -268,7 +268,16 @@ fi
 [ "$INSTALL_LIBS" = "" ] && INSTALL_LIBS=`$QMAKE -query QT_INSTALL_LIBS`
 [ "$INSTALL_BINS" = "" ] && INSTALL_BINS=`$QMAKE -query QT_INSTALL_BINS`
 [ "$INSTALL_HEADERS" = "" ] && INSTALL_HEADERS=`$QMAKE -query QT_INSTALL_HEADERS`/Communi
-[ "$INSTALL_FEATURES" = "" ] && INSTALL_FEATURES=`$QMAKE -query QT_INSTALL_DATA`/mkspecs/features
+
+if [ "$INSTALL_FEATURES" = "" ]; then
+    $QMAKE -query QT_HOST_DATA > /dev/null 2>&1
+    if [ $? != 0 ]; then
+        INSTALL_FEATURES=`$QMAKE -query QMAKE_MKSPECS`/features
+    else
+        INSTALL_FEATURES=`$QMAKE -query QT_HOST_DATA`/mkspecs/features
+    fi
+fi
+
 [ "$INSTALL_IMPORTS" = "" ] && INSTALL_IMPORTS=`$QMAKE -query QT_INSTALL_IMPORTS`
 [ "$INSTALL_QML" = "" ] && INSTALL_QML=`$QMAKE -query QT_INSTALL_QML`
 
