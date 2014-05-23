@@ -25,7 +25,7 @@ QMAKE_DEBUG=
 QMAKE_SPEC=
 OPT_HELP=no
 
-QMAKE=`which qmake || which qmake-qt4` 2>/dev/null
+QMAKE=`which qmake || which qmake-qt5 || which qmake-qt4` 2>/dev/null
 
 if [ -f "$CONFIG_VARS" ]; then
     rm "$CONFIG_VARS"
