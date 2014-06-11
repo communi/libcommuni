@@ -165,7 +165,9 @@ static QString replaceWord(const QString& text, int index, const QString& word)
 
 struct IrcCompletion
 {
+    IrcCompletion() : text(), cursor(-1) { }
     IrcCompletion(const QString& txt, int pos) : text(txt), cursor(pos) { }
+    bool isValid() const { return !text.isNull() && cursor != -1; }
     bool operator ==(const IrcCompletion& other) const { return text == other.text && cursor == other.cursor; }
     bool operator !=(const IrcCompletion& other) const { return text != other.text || cursor != other.cursor; }
     QString text;
@@ -265,6 +267,7 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
 
     const QPair<int, int> bounds = findWordBoundaries(text, pos, buffer->network()->channelTypes());
     if (bounds.first != -1 && bounds.second != -1) {
+        const int index = indexOfWord(text, pos);
         const QString word = text.mid(bounds.first, bounds.second);
 
         int pfx = 0;
@@ -276,11 +279,16 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
         QList<IrcBuffer*> buffers = buffer->model()->buffers();
         buffers.move(buffers.indexOf(buffer), 0); // promote the current buffer
         foreach (IrcBuffer* buffer, buffers) {
-            const QString title = buffer->title();
+            QString title = buffer->title();
+            if (!isChannel && index == 0)
+                title += suffix;
+            IrcCompletion completion;
             if (title.startsWith(word, Qt::CaseInsensitive))
-                completions += completeWord(text, bounds.first, bounds.second, title);
+                completion = completeWord(text, bounds.first, bounds.second, title);
             else if (isChannel && !prefix.isEmpty() && title.startsWith(prefix + word, Qt::CaseInsensitive))
-                completions += completeWord(text, bounds.first - prefix.length(), bounds.second + prefix.length(), title);
+                completion = completeWord(text, bounds.first - prefix.length(), bounds.second + prefix.length(), title);
+            if (completion.isValid() && !completions.contains(completion))
+                completions += completion;
         }
 
         if (!isChannel) {
@@ -290,9 +298,11 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
             foreach (IrcUser* user, userModel.users()) {
                 if (user->name().startsWith(word, Qt::CaseInsensitive)) {
                     QString name = user->name();
-                    if (indexOfWord(text, pos) == 0)
+                    if (index == 0)
                         name += suffix;
-                    completions += completeWord(text, bounds.first, bounds.second, name);
+                    IrcCompletion completion = completeWord(text, bounds.first, bounds.second, name);
+                    if (completion.isValid() && !completions.contains(completion))
+                        completions += completion;
                 }
             }
         }
