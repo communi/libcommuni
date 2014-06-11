@@ -114,7 +114,9 @@ static bool isPrefixed(const QString& text, int pos, const QStringList& prefixes
 
 struct IrcCompletion
 {
+    IrcCompletion() : text(), cursor(-1) { }
     IrcCompletion(const QString& txt, int pos) : text(txt), cursor(pos) { }
+    bool isValid() const { return !text.isNull() && cursor != -1; }
     bool operator ==(const IrcCompletion& other) const { return text == other.text && cursor == other.cursor; }
     bool operator !=(const IrcCompletion& other) const { return text != other.text || cursor != other.cursor; }
     QString text;
@@ -228,11 +230,16 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
         QList<IrcBuffer*> buffers = buffer->model()->buffers();
         buffers.move(buffers.indexOf(buffer), 0); // promote the current buffer
         foreach (IrcBuffer* buffer, buffers) {
-            const QString title = buffer->title();
+            QString title = buffer->title();
+            if (!isChannel && token.index() == 0)
+                title += suffix;
+            IrcCompletion completion;
             if (title.startsWith(word, Qt::CaseInsensitive))
-                completions += completeWord(text, bounds.first, bounds.second, title);
+                completion = completeWord(text, bounds.first, bounds.second, title);
             else if (isChannel && !prefix.isEmpty() && title.startsWith(prefix + word, Qt::CaseInsensitive))
-                completions += completeWord(text, bounds.first - prefix.length(), bounds.second + prefix.length(), title);
+                completion = completeWord(text, bounds.first - prefix.length(), bounds.second + prefix.length(), title);
+            if (completion.isValid() && !completions.contains(completion))
+                completions += completion;
         }
 
         if (!isChannel) {
@@ -244,7 +251,9 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
                     QString name = user->name();
                     if (token.index() == 0)
                         name += suffix;
-                    completions += completeWord(text, bounds.first, bounds.second, name);
+                    IrcCompletion completion = completeWord(text, bounds.first, bounds.second, name);
+                    if (completion.isValid() && !completions.contains(completion))
+                        completions += completion;
                 }
             }
         }
