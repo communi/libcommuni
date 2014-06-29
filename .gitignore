@@ -11,6 +11,7 @@ doc/html
 /coverage
 *~
 *.o
+*.so
 *.moc
 *.app
 *.pdb
@@ -20,6 +21,7 @@ doc/html
 *.orig
 *.user
 *.user.*
+*.json
 *.sln
 *.suo
 *.sdf
