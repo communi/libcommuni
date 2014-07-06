@@ -59,14 +59,15 @@ public:
     virtual void read();
     virtual bool write(const QByteArray& data);
 
+public Q_SLOTS:
+    void receiveMessage(IrcMessage* message);
+
 protected Q_SLOTS:
     void setNick(const QString& nick);
     void setStatus(IrcConnection::Status status);
     void setInfo(const QHash<QString, QString>& info);
     void setAvailableCapabilities(const QSet<QString>& capabilities);
     void setActiveCapabilities(const QSet<QString>& capabilities);
-
-    void receiveMessage(IrcMessage* message);
 
 private:
     QScopedPointer<IrcProtocolPrivate> d_ptr;

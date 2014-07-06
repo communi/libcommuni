@@ -332,6 +332,15 @@ bool IrcProtocol::write(const QByteArray& data)
     return socket()->write(data + QByteArray("\r\n")) != -1;
 }
 
+void IrcProtocol::receiveMessage(IrcMessage* message)
+{
+    Q_D(IrcProtocol);
+    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
+    priv->receiveMessage(message);
+    if (message->type() == IrcMessage::Numeric)
+        d->builder->processMessage(static_cast<IrcNumericMessage*>(message));
+}
+
 void IrcProtocol::setNick(const QString& nick)
 {
     Q_D(IrcProtocol);
@@ -367,15 +376,6 @@ void IrcProtocol::setActiveCapabilities(const QSet<QString>& capabilities)
     Q_D(IrcProtocol);
     IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->connection->network());
     priv->setActiveCapabilities(capabilities);
-}
-
-void IrcProtocol::receiveMessage(IrcMessage* message)
-{
-    Q_D(IrcProtocol);
-    IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
-    priv->receiveMessage(message);
-    if (message->type() == IrcMessage::Numeric)
-        d->builder->processMessage(static_cast<IrcNumericMessage*>(message));
 }
 #endif // IRC_DOXYGEN
 
