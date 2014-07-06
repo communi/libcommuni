@@ -45,6 +45,8 @@ class IrcProtocolPrivate;
 class IRC_CORE_EXPORT IrcProtocol : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(IrcConnection* connection READ connection)
+    Q_PROPERTY(QAbstractSocket* socket READ socket)
 
 public:
     explicit IrcProtocol(IrcConnection* connection);
