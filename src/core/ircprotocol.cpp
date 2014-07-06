@@ -135,7 +135,7 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
             break;
         case IrcMessage::Nick:
             if (msg->flags() & IrcMessage::Own)
-                q->setNick(static_cast<IrcNickMessage*>(msg)->newNick());
+                q->setNickName(static_cast<IrcNickMessage*>(msg)->newNick());
             break;
         case IrcMessage::Numeric:
             handleNumericMessage(static_cast<IrcNumericMessage*>(msg));
@@ -158,7 +158,7 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
     Q_Q(IrcProtocol);
     switch (msg->code()) {
     case Irc::RPL_WELCOME:
-        q->setNick(msg->parameters().value(0));
+        q->setNickName(msg->parameters().value(0));
         q->setStatus(IrcConnection::Connected);
         break;
     case Irc::RPL_ISUPPORT: {
@@ -409,16 +409,16 @@ void IrcProtocol::receiveMessage(IrcMessage* message)
 }
 
 /*!
-    This method should be called by the protocol implementation
-    to notify the underlying IRC connection about a \a nick change.
+    This method should be called by the protocol implementation to
+    notify the underlying IRC connection about a nick \a name change.
 
     \sa IrcConnection::nickName
  */
-void IrcProtocol::setNick(const QString& nick)
+void IrcProtocol::setNickName(const QString& name)
 {
     Q_D(IrcProtocol);
     IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
-    priv->setNick(nick);
+    priv->setNick(name);
 }
 
 /*!

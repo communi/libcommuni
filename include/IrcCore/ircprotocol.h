@@ -65,7 +65,7 @@ public Q_SLOTS:
     void receiveMessage(IrcMessage* message);
 
 protected Q_SLOTS:
-    void setNick(const QString& nick);
+    void setNickName(const QString& name);
     void setStatus(IrcConnection::Status status);
     void setInfo(const QHash<QString, QString>& info);
     void setAvailableCapabilities(const QSet<QString>& capabilities);
