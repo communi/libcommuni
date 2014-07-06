@@ -40,7 +40,6 @@
 IRC_BEGIN_NAMESPACE
 
 class IrcMessage;
-class IrcConnection;
 class IrcProtocolPrivate;
 
 class IRC_CORE_EXPORT IrcProtocol : public QObject
@@ -55,7 +54,6 @@ public:
     QAbstractSocket* socket() const;
 
     virtual void open();
-    virtual void authenticate(bool secure);
     virtual void close();
 
     virtual void read();

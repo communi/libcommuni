@@ -46,6 +46,8 @@ class IrcProtocolPrivate
 public:
     IrcProtocolPrivate();
 
+    void authenticate(bool secure);
+
     void readLines(const QByteArray& delimiter);
     void processLine(const QByteArray& line);
 
@@ -69,6 +71,20 @@ IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), builder(0), 
 {
 }
 
+void IrcProtocolPrivate::authenticate(bool secure)
+{
+    const QString password = connection->password();
+    if (!password.isEmpty()) {
+        if (secure) {
+            const QByteArray userName = connection->userName().toUtf8();
+            const QByteArray data = userName + '\0' + userName + '\0' + password.toUtf8();
+            authed = connection->sendData("AUTHENTICATE " + data.toBase64());
+        } else {
+            authed = connection->sendRaw(QString("PASS %1").arg(password));
+        }
+    }
+}
+
 void IrcProtocolPrivate::readLines(const QByteArray& delimiter)
 {
     int i = -1;
@@ -89,7 +105,7 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
     if (line.startsWith("AUTHENTICATE") && !connection->saslMechanism().isEmpty()) {
         const QList<QByteArray> args = line.split(' ');
         if (args.count() == 2 && args.at(1) == "+")
-            q->authenticate(true);
+            authenticate(true);
         if (!connection->isConnected())
             QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
         return;
@@ -250,10 +266,9 @@ void IrcProtocolPrivate::_irc_pauseHandshake()
 
 void IrcProtocolPrivate::_irc_resumeHandshake()
 {
-    Q_Q(IrcProtocol);
     if (!resumed && !connection->isConnected()) {
         if (!authed && !connection->saslMechanism().isEmpty() && !connection->password().isEmpty())
-            q->authenticate(false);
+            authenticate(false);
         connection->sendData("CAP END");
     }
     resumed = true;
@@ -292,25 +307,10 @@ void IrcProtocol::open()
     d->_irc_pauseHandshake();
 
     if (d->connection->saslMechanism().isEmpty() && !d->connection->password().isEmpty())
-        authenticate(false);
+        d->authenticate(false);
 
     d->connection->sendRaw(QString("NICK %1").arg(d->connection->nickName()));
     d->connection->sendRaw(QString("USER %1 hostname servername :%2").arg(d->connection->userName(), d->connection->realName()));
-}
-
-void IrcProtocol::authenticate(bool secure)
-{
-    Q_D(IrcProtocol);
-    const QString password = d->connection->password();
-    if (!password.isEmpty()) {
-        if (secure) {
-            const QByteArray userName = d->connection->userName().toUtf8();
-            const QByteArray data = userName + '\0' + userName + '\0' + password.toUtf8();
-            d->authed = d->connection->sendData("AUTHENTICATE " + data.toBase64());
-        } else {
-            d->authed = d->connection->sendRaw(QString("PASS %1").arg(password));
-        }
-    }
 }
 
 void IrcProtocol::close()
