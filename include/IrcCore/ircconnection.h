@@ -68,6 +68,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(QString saslMechanism READ saslMechanism WRITE setSaslMechanism NOTIFY saslMechanismChanged)
     Q_PROPERTY(QStringList supportedSaslMechanisms READ supportedSaslMechanisms CONSTANT)
     Q_PROPERTY(IrcNetwork* network READ network CONSTANT)
+    Q_PROPERTY(IrcProtocol* protocol READ protocol WRITE setProtocol)
     Q_ENUMS(Status)
 
 public:
@@ -132,6 +133,9 @@ public:
     static QStringList supportedSaslMechanisms();
 
     IrcNetwork* network() const;
+
+    IrcProtocol* protocol() const;
+    void setProtocol(IrcProtocol* protocol);
 
     void installMessageFilter(QObject* filter);
     void removeMessageFilter(QObject* filter);
@@ -204,10 +208,6 @@ Q_SIGNALS:
 
 protected Q_SLOTS:
     virtual IrcCommand* createCtcpReply(IrcPrivateMessage* request) const;
-
-protected:
-    IrcProtocol* protocol() const;
-    void setProtocol(IrcProtocol* protocol);
 
 private:
     friend class IrcProtocol;

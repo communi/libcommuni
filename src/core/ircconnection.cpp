@@ -1416,7 +1416,15 @@ IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
 }
 
 /*!
-    \internal
+    \since 3.2
+
+    This property holds the protocol.
+
+    The previously set protocol is deleted if its parent is \c this.
+
+    \par Access functions:
+    \li \ref IrcProtocol* <b>protocol</b>() const
+    \li void <b>setProtocol</b>(\ref IrcProtocol* protocol)
  */
 IrcProtocol* IrcConnection::protocol() const
 {
@@ -1424,9 +1432,6 @@ IrcProtocol* IrcConnection::protocol() const
     return d->protocol;
 }
 
-/*!
-    \internal
- */
 void IrcConnection::setProtocol(IrcProtocol* proto)
 {
     Q_D(IrcConnection);
