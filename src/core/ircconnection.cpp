@@ -250,7 +250,7 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
     realName(),
     enabled(true),
     status(IrcConnection::Inactive),
-    quit(false)
+    closed(false)
 {
 }
 
@@ -266,7 +266,7 @@ void IrcConnectionPrivate::init(IrcConnection* connection)
 void IrcConnectionPrivate::_irc_connected()
 {
     Q_Q(IrcConnection);
-    quit = false;
+    closed = false;
     emit q->connecting();
     if (q->isSecure())
         QMetaObject::invokeMethod(socket, "startClientEncryption");
@@ -278,7 +278,7 @@ void IrcConnectionPrivate::_irc_disconnected()
     Q_Q(IrcConnection);
     protocol->close();
     emit q->disconnected();
-    if (enabled && (status != IrcConnection::Closed || !quit) && !reconnecter.isActive() && reconnecter.interval() > 0) {
+    if (enabled && (status != IrcConnection::Closed || !closed) && !reconnecter.isActive() && reconnecter.interval() > 0) {
         reconnecter.start();
         setStatus(IrcConnection::Waiting);
     }
@@ -287,7 +287,7 @@ void IrcConnectionPrivate::_irc_disconnected()
 void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcConnection);
-    if (!quit || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
+    if (!closed || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
         irc_debug(q, "socket error:", error);
         emit q->socketError(error);
         setStatus(IrcConnection::Error);
@@ -299,7 +299,7 @@ void IrcConnectionPrivate::_irc_state(QAbstractSocket::SocketState state)
     Q_Q(IrcConnection);
     switch (state) {
     case QAbstractSocket::UnconnectedState:
-        if (quit)
+        if (closed)
             setStatus(IrcConnection::Closed);
         break;
     case QAbstractSocket::ClosingState:
@@ -1135,6 +1135,7 @@ void IrcConnection::close()
 {
     Q_D(IrcConnection);
     if (d->socket) {
+        d->closed = true;
         d->socket->flush();
         d->socket->abort();
         d->socket->disconnectFromHost();
@@ -1218,10 +1219,10 @@ bool IrcConnection::sendData(const QByteArray& data)
     if (d->socket) {
         static bool dbg = qgetenv("IRC_DEBUG").toInt();
         if (dbg) qDebug() << "->" << data;
-        if (!d->quit && data.length() >= 4) {
+        if (!d->closed && data.length() >= 4) {
             const QByteArray cmd = data.left(5).toUpper();
             if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
-                d->quit = true;
+                d->closed = true;
         }
         return d->protocol->write(data);
     }

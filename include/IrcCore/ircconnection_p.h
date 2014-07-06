@@ -95,7 +95,7 @@ public:
     QList<QObject*> commandFilters;
     QList<QObject*> messageFilters;
     QStack<QObject*> activeCommandFilters;
-    bool quit;
+    bool closed;
 };
 
 IRC_END_NAMESPACE
