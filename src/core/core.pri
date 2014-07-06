@@ -18,6 +18,7 @@ CONV_HEADERS += $$INCDIR/IrcGlobal
 CONV_HEADERS += $$INCDIR/IrcMessage
 CONV_HEADERS += $$INCDIR/IrcMessageFilter
 CONV_HEADERS += $$INCDIR/IrcNetwork
+CONV_HEADERS += $$INCDIR/IrcProtocol
 
 PUB_HEADERS  = $$INCDIR/irc.h
 PUB_HEADERS += $$INCDIR/irccommand.h
