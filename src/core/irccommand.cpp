@@ -49,7 +49,7 @@ IRC_BEGIN_NAMESPACE
     the list of built-in command types. IRC commands, as in IrcCommand instances,
     are sent to the IRC server via IrcConnection::sendCommand().
 
-    \section create Creating commands
+    \section creating-commands Creating commands
 
     It is recommended to create IrcCommand instances via static
     IrcCommand::createXxx() methods.
@@ -58,7 +58,7 @@ IRC_BEGIN_NAMESPACE
     IrcConnection::sendCommand() takes ownership of the command and deletes
     it once it has been sent.
 
-    \section custom Custom commands
+    \section custom-commands Custom commands
 
     A "custom command" here refers to command types not listed in IrcCommand::Type,
     the list of built-in command types. There are two ways to send custom commands:

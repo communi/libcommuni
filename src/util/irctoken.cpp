@@ -31,6 +31,7 @@
 
 IRC_BEGIN_NAMESPACE
 
+#ifndef IRC_DOXYGEN
 static QList<IrcToken> tokenize(const QString& str)
 {
     int idx = -1;
@@ -119,5 +120,6 @@ QString IrcTokenizer::toString() const
         str.replace(token.position(), token.length(), token.text());
     return str;
 }
+#endif // IRC_DOXYGEN
 
 IRC_END_NAMESPACE

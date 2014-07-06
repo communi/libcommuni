@@ -61,7 +61,7 @@ IRC_BEGIN_NAMESPACE
     \ingroup core
     \brief Provides means to establish a connection to an IRC server.
 
-    \section connection Connection management
+    \section connection-management Connection management
 
     Before \ref open() "opening" a connection, it must be first initialized
     with \ref host, \ref userName, \ref nickName and \ref realName.
@@ -78,14 +78,14 @@ IRC_BEGIN_NAMESPACE
     \li disconnected() -
         The connection has been lost.
 
-    \section messages Receiving messages
+    \section receiving-messages Receiving messages
 
     Whenever a message is received from the server, the messageReceived()
     signal is emitted. Also message type specific signals are provided
     for convenience. See messageReceived() and IrcMessage and its
     subclasses for more details.
 
-    \section commands Sending commands
+    \section sending-commands Sending commands
 
     Sending commands to a server is most conveniently done by creating
     them via the various static \ref IrcCommand "IrcCommand::createXxx()"

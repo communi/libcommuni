@@ -91,7 +91,7 @@ IRC_BEGIN_NAMESPACE
     parser->setChannels(QStringList() << "#communi" << "#freenode");
     \endcode
 
-    \section triggers Command triggers
+    \section command-triggers Command triggers
 
     IrcCommandParser serves as a generic parser for typical IRC commands.
     It can be utilized for parsing commands from user input in GUI clients,
@@ -116,7 +116,7 @@ IRC_BEGIN_NAMESPACE
 
     See the \ref bot "bot example" to see how the parser can be effectively utilized for IRC bots.
 
-    \section custom Custom commands
+    \section parse-custom-commands Custom commands
 
     The parser also supports such custom client specific commands that
     are not sent to the server. Since IrcCommand does not know how to

@@ -40,7 +40,7 @@
     import Communi 3.0
     \endcode
 
-    \section register Type registration
+    \section qml-type-registration Type registration
 
     The following snippet illustrates how the Communi QML plugin does the type
     registration. The same can be done manually in application code to avoid
@@ -48,7 +48,7 @@
 
     \snippet src/imports/qml2/plugin.cpp qml-register-types
 
-    \section connect Connecting to IRC
+    \section qml-connecting-to-irc Connecting to IRC
 
     In order to connect to IRC in QML, declare an IrcConnection instance,
     set the desired properties, and call \ref IrcConnection::open()
@@ -64,7 +64,7 @@
     }
     \endcode
 
-    \section commands Sending commands
+    \section qml-sending-commands Sending commands
 
     Even though the IrcCommand::createXxx() methods are static, QML does not
     provide a way to call them without an IrcCommand instance. Thus, in order
@@ -83,7 +83,7 @@
     }
     \endcode
 
-    \section buffers Channels and queries
+    \section qml-channels-and-queries Channels and queries
 
     In order to keep track of channels and queries, declare an instance of
     IrcBufferModel. Notice that it can be used directly as a data model for
@@ -118,7 +118,7 @@
     }
     \endcode
 
-    \section users Channel users
+    \section qml-channel-users Channel users
 
     In order to keep track of channel users, create an instance of IrcUserModel.
     It can be also used directly as a data model for QML types such as ListView
@@ -131,7 +131,7 @@
     }
     \endcode
 
-    \section parser Parsing user commands
+    \section qml-parsing-user-commands Parsing user commands
 
     IrcCommandParser helps with parsing commands from user input. In order to
     take it in use, declare an instance of IrcCommandParser and introduce the

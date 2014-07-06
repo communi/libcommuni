@@ -281,7 +281,7 @@ IrcMessage::Type IrcMessage::type() const
     of testing for the IrcMessage::Own flag.
 
     \par Access function:
-    \li \ref bool <b>isOwn</b>() const
+    \li bool <b>isOwn</b>() const
  */
 bool IrcMessage::isOwn() const
 {
