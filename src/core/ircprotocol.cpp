@@ -38,6 +38,20 @@
 
 IRC_BEGIN_NAMESPACE
 
+/*!
+    \file ircprotocol.h
+    \brief \#include &lt;IrcProtocol&gt;
+ */
+
+/*!
+    \since 3.2
+    \class IrcProtocol ircprotocol.h IrcProtocol
+    \ingroup core
+    \brief Implements the IRC protocol and provides means for implementing support for custom protocols.
+
+    \sa IrcConnection::protocol
+ */
+
 #ifndef IRC_DOXYGEN
 class IrcProtocolPrivate
 {
@@ -273,7 +287,11 @@ void IrcProtocolPrivate::_irc_resumeHandshake()
     }
     resumed = true;
 }
+#endif // IRC_DOXYGEN
 
+/*!
+    Constructs a new IRC protocol for \a connection.
+ */
 IrcProtocol::IrcProtocol(IrcConnection* connection) : QObject(connection), d_ptr(new IrcProtocolPrivate)
 {
     Q_D(IrcProtocol);
@@ -283,24 +301,48 @@ IrcProtocol::IrcProtocol(IrcConnection* connection) : QObject(connection), d_ptr
     connect(d->builder, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveMessage(IrcMessage*)));
 }
 
+/*!
+    Destructs the IRC protocol.
+ */
 IrcProtocol::~IrcProtocol()
 {
     Q_D(IrcProtocol);
     delete d->builder;
 }
 
+/*!
+    This property holds the connection.
+
+    \par Access function:
+    \li \ref IrcConnection* <b>connection</b>() const
+ */
 IrcConnection* IrcProtocol::connection() const
 {
     Q_D(const IrcProtocol);
     return d->connection;
 }
 
+/*!
+    This property holds the socket.
+
+    \par Access functions:
+    \li \ref QAbstractSocket* <b>socket</b>() const
+ */
 QAbstractSocket* IrcProtocol::socket() const
 {
     Q_D(const IrcProtocol);
     return d->connection->socket();
 }
 
+/*!
+    This method is called when the connection has been established.
+
+    The default implementation sends the \c NICK, \c USER and \c PASSWORD commands as defined in
+    <a href="http://tools.ietf.org/html/rfc1459">RFC 1459</a>.
+
+    Furthermore, it sends a <tt>CAP LS</tt> command as specified in
+    <a href="http://tools.ietf.org/html/draft-mitchell-irc-capabilities-01">IRC Client Capabilities Extension</a>.
+ */
 void IrcProtocol::open()
 {
     Q_D(IrcProtocol);
@@ -313,10 +355,21 @@ void IrcProtocol::open()
     d->connection->sendRaw(QString("USER %1 hostname servername :%2").arg(d->connection->userName(), d->connection->realName()));
 }
 
+/*!
+    This method is called when the connection has been lost.
+ */
 void IrcProtocol::close()
 {
 }
 
+/*!
+    This method is called when the \ref socket has new data available for read.
+
+    The default implementation reads lines as specified in
+    <a href="http://tools.ietf.org/html/rfc1459">RFC 1459</a>.
+
+    \sa socket
+ */
 void IrcProtocol::read()
 {
     Q_D(IrcProtocol);
@@ -327,11 +380,25 @@ void IrcProtocol::read()
     d->readLines("\n");
 }
 
+/*!
+    This method is called when raw \a data should be written to the \ref socket.
+
+    The default implementation writes the data and appends \c "\r\n" as specified in
+    <a href="http://tools.ietf.org/html/rfc1459">RFC 1459</a>.
+
+    \sa socket
+ */
 bool IrcProtocol::write(const QByteArray& data)
 {
     return socket()->write(data + QByteArray("\r\n")) != -1;
 }
 
+/*!
+    This method should be called by the protocol implementation
+    to make the underlying IRC connection receive a \a message.
+
+    \sa IrcConnection::messageReceived()
+ */
 void IrcProtocol::receiveMessage(IrcMessage* message)
 {
     Q_D(IrcProtocol);
@@ -341,6 +408,12 @@ void IrcProtocol::receiveMessage(IrcMessage* message)
         d->builder->processMessage(static_cast<IrcNumericMessage*>(message));
 }
 
+/*!
+    This method should be called by the protocol implementation
+    to notify the underlying IRC connection about a \a nick change.
+
+    \sa IrcConnection::nickName
+ */
 void IrcProtocol::setNick(const QString& nick)
 {
     Q_D(IrcProtocol);
@@ -348,6 +421,12 @@ void IrcProtocol::setNick(const QString& nick)
     priv->setNick(nick);
 }
 
+/*!
+    This method should be called by the protocol implementation
+    to notify the underlying IRC connection about a \a status change.
+
+    \sa IrcConnection::status
+ */
 void IrcProtocol::setStatus(IrcConnection::Status status)
 {
     Q_D(IrcProtocol);
@@ -355,6 +434,12 @@ void IrcProtocol::setStatus(IrcConnection::Status status)
     priv->setStatus(status);
 }
 
+/*!
+    This method should be called by the protocol implementation
+    to initialize the underlying IRC network connection \a info.
+
+    \sa IrcNetwork::initialized
+ */
 void IrcProtocol::setInfo(const QHash<QString, QString>& info)
 {
     Q_D(IrcProtocol);
@@ -364,6 +449,12 @@ void IrcProtocol::setInfo(const QHash<QString, QString>& info)
     }
 }
 
+/*!
+    This method should be called by the protocol implementation to notify
+    the underlying IRC network about a change in available \a capabilities.
+
+    \sa IrcNetwork::availableCapabilities
+ */
 void IrcProtocol::setAvailableCapabilities(const QSet<QString>& capabilities)
 {
     Q_D(IrcProtocol);
@@ -371,13 +462,18 @@ void IrcProtocol::setAvailableCapabilities(const QSet<QString>& capabilities)
     priv->setAvailableCapabilities(capabilities);
 }
 
+/*!
+    This method should be called by the protocol implementation to notify
+    the underlying IRC network about a change in active \a capabilities.
+
+    \sa IrcNetwork::activeCapabilities
+ */
 void IrcProtocol::setActiveCapabilities(const QSet<QString>& capabilities)
 {
     Q_D(IrcProtocol);
     IrcNetworkPrivate* priv = IrcNetworkPrivate::get(d->connection->network());
     priv->setActiveCapabilities(capabilities);
 }
-#endif // IRC_DOXYGEN
 
 #include "moc_ircprotocol.cpp"
 
