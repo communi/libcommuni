@@ -3,6 +3,7 @@
 - General
   - Relicensed to BSD
 - IrcCore
+  - Introduced IrcProtocol
   - Added IrcConnection::secureSupported
   - Restored IrcMessage::own for convenience
   - Added Playback to IrcMessage::Flags
