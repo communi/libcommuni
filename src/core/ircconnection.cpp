@@ -1169,6 +1169,7 @@ void IrcConnection::close()
         d->socket->disconnectFromHost();
         if (d->socket->state() == QAbstractSocket::UnconnectedState)
             d->setStatus(Closed);
+        d->reconnecter.stop();
     }
 }
 
