@@ -57,6 +57,7 @@ public:
     void _irc_disconnected();
     void _irc_error(QAbstractSocket::SocketError error);
     void _irc_state(QAbstractSocket::SocketState state);
+    void _irc_sslErrors();
     void _irc_reconnect();
     void _irc_readData();
 
@@ -95,6 +96,7 @@ public:
     QList<QObject*> commandFilters;
     QList<QObject*> messageFilters;
     QStack<QObject*> activeCommandFilters;
+    bool sslErrors;
     bool closed;
 };
 

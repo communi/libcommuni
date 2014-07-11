@@ -5,6 +5,7 @@
 - IrcCore
   - Introduced IrcProtocol
   - Added IrcConnection::secureSupported
+  - Added IrcConnection::secureError() [signal]
   - Restored IrcMessage::own for convenience
   - Added Playback to IrcMessage::Flags
   - Added IrcMessage::setFlags()

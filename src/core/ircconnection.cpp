@@ -202,6 +202,17 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \since 3.2
+    \fn void IrcConnection::secureError()
+
+    This signal is emitted when SSL socket error occurs.
+
+    Either QSslSocket::sslErrors() was emitted, or the remote host closed
+    the connection without QSslSocket::sslErrors() being emitted meaning
+    that the server is not SSL-enabled.
+ */
+
+/*!
     \fn void IrcConnection::messageReceived(IrcMessage* message)
 
     This signal is emitted when a \a message is received.
@@ -250,6 +261,7 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
     realName(),
     enabled(true),
     status(IrcConnection::Inactive),
+    sslErrors(false),
     closed(false)
 {
 }
@@ -267,6 +279,7 @@ void IrcConnectionPrivate::_irc_connected()
 {
     Q_Q(IrcConnection);
     closed = false;
+    sslErrors = false;
     emit q->connecting();
     if (q->isSecure())
         QMetaObject::invokeMethod(socket, "startClientEncryption");
@@ -287,11 +300,23 @@ void IrcConnectionPrivate::_irc_disconnected()
 void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcConnection);
-    if (!closed || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
+    if (!closed && !sslErrors && error == QAbstractSocket::RemoteHostClosedError && q->isSecure()) {
+        irc_debug(q, "SSL error:", "no SSL available");
+        emit q->secureError();
+        setStatus(IrcConnection::Error);
+    } else if (!closed || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
         irc_debug(q, "socket error:", error);
         emit q->socketError(error);
         setStatus(IrcConnection::Error);
     }
+}
+
+void IrcConnectionPrivate::_irc_sslErrors()
+{
+    Q_Q(IrcConnection);
+    sslErrors = true;
+    irc_debug(q, "SSL error:", "handshake");
+    emit q->secureError();
 }
 
 void IrcConnectionPrivate::_irc_state(QAbstractSocket::SocketState state)
@@ -925,6 +950,8 @@ void IrcConnection::setSocket(QAbstractSocket* socket)
             connect(socket, SIGNAL(readyRead()), this, SLOT(_irc_readData()));
             connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_irc_error(QAbstractSocket::SocketError)));
             connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_irc_state(QAbstractSocket::SocketState)));
+            if (isSecure())
+                connect(socket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(_irc_sslErrors()));
         }
     }
 }

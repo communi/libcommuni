@@ -164,6 +164,7 @@ Q_SIGNALS:
     void statusChanged(IrcConnection::Status status);
     void socketError(QAbstractSocket::SocketError error);
     void socketStateChanged(QAbstractSocket::SocketState state);
+    void secureError();
 
     void nickNameReserved(QString* alternate); // deprecated
     void nickNameRequired(const QString& reserved, QString* alternate);
@@ -220,6 +221,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
     Q_PRIVATE_SLOT(d_func(), void _irc_error(QAbstractSocket::SocketError))
     Q_PRIVATE_SLOT(d_func(), void _irc_state(QAbstractSocket::SocketState))
+    Q_PRIVATE_SLOT(d_func(), void _irc_sslErrors())
     Q_PRIVATE_SLOT(d_func(), void _irc_reconnect())
     Q_PRIVATE_SLOT(d_func(), void _irc_readData())
     Q_PRIVATE_SLOT(d_func(), void _irc_filterDestroyed(QObject*))
