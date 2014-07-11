@@ -291,7 +291,7 @@ void IrcConnectionPrivate::_irc_disconnected()
     Q_Q(IrcConnection);
     protocol->close();
     emit q->disconnected();
-    if (enabled && (status != IrcConnection::Closed || !closed) && !reconnecter.isActive() && reconnecter.interval() > 0) {
+    if (enabled && !sslErrors && (status != IrcConnection::Closed || !closed) && !reconnecter.isActive() && reconnecter.interval() > 0) {
         reconnecter.start();
         setStatus(IrcConnection::Waiting);
     }
@@ -302,6 +302,7 @@ void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
     Q_Q(IrcConnection);
     if (!closed && !sslErrors && error == QAbstractSocket::RemoteHostClosedError && q->isSecure()) {
         irc_debug(q, "SSL error:", "no SSL available");
+        sslErrors = true;
         emit q->secureError();
         setStatus(IrcConnection::Error);
     } else if (!closed || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
