@@ -392,7 +392,7 @@ bool IrcBufferModelPrivate::renameBuffer(const QString& from, const QString& to)
 bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* message, bool create)
 {
     IrcBuffer* buffer = bufferMap.value(title.toLower());
-    if (!buffer && create)
+    if (!buffer && create && !title.contains(QLatin1Char('*')))
         buffer = createBuffer(title);
     if (buffer)
         return IrcBufferPrivate::get(buffer)->processMessage(message);
