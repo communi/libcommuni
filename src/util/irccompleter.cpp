@@ -130,7 +130,7 @@ class IrcCompleterPrivate
 public:
     IrcCompleterPrivate();
 
-    void completeNext();
+    void completeNext(IrcCompleter::Direction direction);
     QList<IrcCompletion> completeCommands(const QString& text, int pos) const;
     QList<IrcCompletion> completeWords(const QString& text, int pos) const;
 
@@ -150,12 +150,17 @@ IrcCompleterPrivate::IrcCompleterPrivate() : q_ptr(0), index(-1), cursor(-1), su
 {
 }
 
-void IrcCompleterPrivate::completeNext()
+void IrcCompleterPrivate::completeNext(IrcCompleter::Direction direction)
 {
     Q_Q(IrcCompleter);
     Q_ASSERT(!completions.isEmpty());
-    if (++index >= 0) {
-        index %= completions.length();
+    if (direction == IrcCompleter::Forward) {
+        index = (index + 1) % completions.length();
+    } else {
+        if (--index < 0)
+            index = completions.length() - 1;
+    }
+    if (index >= 0 && index < completions.length()) {
         const IrcCompletion completion = completions.at(index);
         text = completion.text;
         cursor = completion.cursor;
@@ -359,14 +364,15 @@ void IrcCompleter::setParser(IrcCommandParser* parser)
 }
 
 /*!
-    Completes \a text at \a cursor position and emits
-    completed() if a suitable completion is found.
+    Completes \a text at \a cursor position, iterating multiple
+    matches to the specified \a direction, and emits completed()
+    if a suitable completion is found.
  */
-void IrcCompleter::complete(const QString& text, int cursor)
+void IrcCompleter::complete(const QString& text, int cursor, Direction direction)
 {
     Q_D(IrcCompleter);
     if (!d->completions.isEmpty() && d->cursor == cursor && d->text == text) {
-        d->completeNext();
+        d->completeNext(direction);
         return;
     }
 
@@ -379,7 +385,7 @@ void IrcCompleter::complete(const QString& text, int cursor)
         d->completions = completions;
     }
     if (!d->completions.isEmpty())
-        d->completeNext();
+        d->completeNext(direction);
 }
 
 /*!

@@ -46,10 +46,16 @@ class IRC_UTIL_EXPORT IrcCompleter : public QObject
     Q_PROPERTY(QString suffix READ suffix WRITE setSuffix NOTIFY suffixChanged)
     Q_PROPERTY(IrcBuffer* buffer READ buffer WRITE setBuffer NOTIFY bufferChanged)
     Q_PROPERTY(IrcCommandParser* parser READ parser WRITE setParser NOTIFY parserChanged)
+    Q_ENUMS(Direction)
 
 public:
     explicit IrcCompleter(QObject* parent = 0);
     virtual ~IrcCompleter();
+
+    enum Direction {
+        Forward,
+        Backward
+    };
 
     QString suffix() const;
     IrcBuffer* buffer() const;
@@ -60,7 +66,7 @@ public Q_SLOTS:
     void setBuffer(IrcBuffer* buffer);
     void setParser(IrcCommandParser* parser);
 
-    void complete(const QString& text, int cursor);
+    void complete(const QString& text, int cursor, Direction direction = Forward);
     void reset();
 
 Q_SIGNALS:
@@ -79,5 +85,6 @@ private:
 IRC_END_NAMESPACE
 
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCompleter*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCompleter::Direction))
 
 #endif // IRCCOMPLETER_H
