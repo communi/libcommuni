@@ -227,21 +227,6 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
         if (isChannel && pfx > 0)
             prefix = text.mid(bounds.first - pfx, pfx);
 
-        QList<IrcBuffer*> buffers = buffer->model()->buffers();
-        buffers.move(buffers.indexOf(buffer), 0); // promote the current buffer
-        foreach (IrcBuffer* buffer, buffers) {
-            QString title = buffer->title();
-            if (!isChannel && token.index() == 0)
-                title += suffix;
-            IrcCompletion completion;
-            if (title.startsWith(word, Qt::CaseInsensitive))
-                completion = completeWord(text, bounds.first, bounds.second, title);
-            else if (isChannel && !prefix.isEmpty() && title.startsWith(prefix + word, Qt::CaseInsensitive))
-                completion = completeWord(text, bounds.first - prefix.length(), bounds.second + prefix.length(), title);
-            if (completion.isValid() && !completions.contains(completion))
-                completions += completion;
-        }
-
         if (!isChannel) {
             IrcUserModel userModel;
             userModel.setSortMethod(Irc::SortByActivity);
@@ -256,6 +241,21 @@ QList<IrcCompletion> IrcCompleterPrivate::completeWords(const QString& text, int
                         completions += completion;
                 }
             }
+        }
+
+        QList<IrcBuffer*> buffers = buffer->model()->buffers();
+        buffers.move(buffers.indexOf(buffer), 0); // promote the current buffer
+        foreach (IrcBuffer* buffer, buffers) {
+            QString title = buffer->title();
+            if (!isChannel && token.index() == 0)
+                title += suffix;
+            IrcCompletion completion;
+            if (title.startsWith(word, Qt::CaseInsensitive))
+                completion = completeWord(text, bounds.first, bounds.second, title);
+            else if (isChannel && !prefix.isEmpty() && title.startsWith(prefix + word, Qt::CaseInsensitive))
+                completion = completeWord(text, bounds.first - prefix.length(), bounds.second + prefix.length(), title);
+            if (completion.isValid() && !completions.contains(completion))
+                completions += completion;
         }
     }
     return completions;

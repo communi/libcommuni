@@ -114,12 +114,12 @@ void tst_IrcCompleter::testCompletion_data()
                        << (QList<int>() << QString("/QUERY ").length());
 
     QTest::newRow("/query q") << QString() << "/query q" << QString("/query q").length()
-                       << (QStringList() << "/query qout " << "/query qtassistant ")
-                       << (QList<int>() << QString("/query qout ").length() << QString("/query qtassistant ").length());
+                       << (QStringList() << "/query quackgyver " << "/query quelx ")
+                       << (QList<int>() << QString("/query quackgyver ").length() << QString("/query quelx ").length());
 
     QTest::newRow("buffers") << QString() << "q" << QString("q").length()
-                       << (QStringList() << "qout " << "qtassistant ")
-                       << (QList<int>() << QString("qout ").length() << QString("qtassistant ").length());
+                       << (QStringList() << "quackgyver " << "quelx ")
+                       << (QList<int>() << QString("quackgyver ").length() << QString("quelx ").length());
 
     QTest::newRow("repeat") << QString() << "qtassistant " << QString("qtassistant ").length()
                        << (QStringList() << "qtassistant " << "qtassistant ")
