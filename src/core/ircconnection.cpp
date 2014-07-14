@@ -303,9 +303,9 @@ void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
     Q_Q(IrcConnection);
     if (!closed && !sslErrors && error == QAbstractSocket::RemoteHostClosedError && q->isSecure()) {
         irc_debug(q, "SSL error:", "no SSL available");
+        setStatus(IrcConnection::Error);
         sslErrors = true;
         emit q->secureError();
-        setStatus(IrcConnection::Error);
     } else if (!closed || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
         irc_debug(q, "socket error:", error);
         emit q->socketError(error);
