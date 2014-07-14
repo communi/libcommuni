@@ -33,7 +33,6 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qmetatype.h>
-#include <QtCore/qsharedpointer.h>
 #include <QtCore/qscopedpointer.h>
 
 IRC_BEGIN_NAMESPACE
@@ -66,7 +65,7 @@ public:
     Q_INVOKABLE QString toHtml(const QString& text) const;
     Q_INVOKABLE QString toPlainText(const QString& text) const;
 
-    Q_INVOKABLE QSharedPointer<IrcContent> parse(const QString& text) const;
+    Q_INVOKABLE IrcContent* parse(const QString& text) const;
 
 private:
     QScopedPointer<IrcTextFormatPrivate> d_ptr;

@@ -487,17 +487,18 @@ QString IrcTextFormat::toPlainText(const QString& text) const
 
     \sa toHtml(), toPlainText(), urlPattern
  */
-QSharedPointer<IrcContent> IrcTextFormat::parse(const QString& text) const
+IrcContent* IrcTextFormat::parse(const QString& text) const
 {
     Q_D(const IrcTextFormat);
     QString plain, html;
     QList<QUrl> urls;
     d->parse(text, &plain, &html, &urls);
-    QSharedPointer<IrcContent> ptr(new IrcContent);
-    ptr->setText(plain);
-    ptr->setHtml(html);
-    ptr->setUrls(urls);
-    return ptr;
+    IrcContent* content = new IrcContent;
+    content->setText(plain);
+    content->setHtml(html);
+    content->setUrls(urls);
+    content->deleteLater();
+    return content;
 }
 
 #include "moc_irctextformat.cpp"

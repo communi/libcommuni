@@ -68,7 +68,7 @@ void tst_IrcTextFormat::testPlainText()
     IrcTextFormat format;
     QCOMPARE(format.toPlainText(input), output);
 
-    QSharedPointer<IrcContent> content = format.parse(input);
+    IrcContent* content = format.parse(input);
     QCOMPARE(content->text(), output);
 }
 
@@ -121,7 +121,7 @@ void tst_IrcTextFormat::testHtml()
     format.setSpanFormat(span);
     QCOMPARE(format.toHtml(input), output);
 
-    QSharedPointer<IrcContent> content = format.parse(input);
+    IrcContent* content = format.parse(input);
     QCOMPARE(content->html(), output);
 }
 
@@ -183,7 +183,7 @@ void tst_IrcTextFormat::testUrls()
     QCOMPARE(format.urlPattern(), pattern);
     QCOMPARE(format.toHtml(input), output);
 
-    QSharedPointer<IrcContent> content = format.parse(input);
+    IrcContent* content = format.parse(input);
     QCOMPARE(content->html(), output);
     QCOMPARE(content->urls(), urls);
 }
