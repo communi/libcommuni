@@ -69,8 +69,9 @@ IrcContent::~IrcContent()
 /*!
     This property holds the plain text.
 
-    \par Access function:
+    \par Access functions:
     \li QString <b>text</b>() const
+    \li void <b>setText</b>(const QString& text)
  */
 QString IrcContent::text() const
 {
@@ -87,8 +88,9 @@ void IrcContent::setText(const QString& text)
 /*!
     This property holds the HTML content.
 
-    \par Access function:
+    \par Access functions:
     \li QString <b>html</b>() const
+    \li void <b>setHtml</b>(const QString& html)
  */
 QString IrcContent::html() const
 {
@@ -105,8 +107,9 @@ void IrcContent::setHtml(const QString& html)
 /*!
     This property holds the list of URLs.
 
-    \par Access function:
+    \par Access functions:
     \li QList<QUrl> <b>urls</b>() const
+    \li void <b>setUrls</b>(const QList<QUrl>& urls)
  */
 QList<QUrl> IrcContent::urls() const
 {

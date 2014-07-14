@@ -44,23 +44,25 @@ class IrcContentPrivate;
 class IRC_UTIL_EXPORT IrcContent : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString text READ text CONSTANT)
-    Q_PROPERTY(QString html READ html CONSTANT)
-    Q_PROPERTY(QList<QUrl> urls READ urls CONSTANT)
+    Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(QString html READ html WRITE setHtml)
+    Q_PROPERTY(QList<QUrl> urls READ urls WRITE setUrls)
 
 public:
     ~IrcContent();
 
     QString text() const;
+    void setText(const QString& text);
+
     QString html() const;
+    void setHtml(const QString& html);
+
     QList<QUrl> urls() const;
+    void setUrls(const QList<QUrl>& urls);
 
 private:
     friend class IrcTextFormat;
     explicit IrcContent(QObject* parent = 0);
-    void setText(const QString& text);
-    void setHtml(const QString& html);
-    void setUrls(const QList<QUrl>& urls);
 
     QScopedPointer<IrcContentPrivate> d_ptr;
     Q_DECLARE_PRIVATE(IrcContent)
