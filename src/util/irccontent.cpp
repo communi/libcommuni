@@ -26,22 +26,100 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef IRCUTIL_H
-#define IRCUTIL_H
-
 #include "irccontent.h"
-#include "irccommandparser.h"
-#include "irccompleter.h"
-#include "irclagtimer.h"
-#include "ircpalette.h"
-#include "irctextformat.h"
 
 IRC_BEGIN_NAMESPACE
 
-namespace IrcUtil {
-    void registerMetaTypes();
+/*!
+    \file irccontent.h
+    \brief \#include &lt;IrcContent&gt;
+ */
+
+/*!
+    \since 3.2
+    \class IrcContent irccontent.h <IrcContent>
+    \ingroup util
+    \brief Provides IRC content in plain text, HTML and the detected URLs.
+
+    \sa IrcTextFormat::parse()
+ */
+
+class IrcContentPrivate
+{
+public:
+    QString text;
+    QString html;
+    QList<QUrl> urls;
+};
+
+/*!
+    \internal
+ */
+IrcContent::IrcContent(QObject* parent) : QObject(parent), d_ptr(new IrcContentPrivate)
+{
 }
 
-IRC_END_NAMESPACE
+/*!
+    \internal
+ */
+IrcContent::~IrcContent()
+{
+}
 
-#endif // IRCUTIL_H
+/*!
+    This property holds the plain text.
+
+    \par Access function:
+    \li QString <b>text</b>() const
+ */
+QString IrcContent::text() const
+{
+    Q_D(const IrcContent);
+    return d->text;
+}
+
+void IrcContent::setText(const QString& text)
+{
+    Q_D(IrcContent);
+    d->text = text;
+}
+
+/*!
+    This property holds the HTML content.
+
+    \par Access function:
+    \li QString <b>html</b>() const
+ */
+QString IrcContent::html() const
+{
+    Q_D(const IrcContent);
+    return d->html;
+}
+
+void IrcContent::setHtml(const QString& html)
+{
+    Q_D(IrcContent);
+    d->html = html;
+}
+
+/*!
+    This property holds the list of URLs.
+
+    \par Access function:
+    \li QList<QUrl> <b>urls</b>() const
+ */
+QList<QUrl> IrcContent::urls() const
+{
+    Q_D(const IrcContent);
+    return d->urls;
+}
+
+void IrcContent::setUrls(const QList<QUrl>& urls)
+{
+    Q_D(IrcContent);
+    d->urls = urls;
+}
+
+#include "moc_irccontent.cpp"
+
+IRC_END_NAMESPACE

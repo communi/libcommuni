@@ -8,6 +8,7 @@
  */
 
 #include "irc.h"
+#include "irccontent.h"
 #include "irctextformat.h"
 #include "ircpalette.h"
 #include <QtTest/QtTest>
@@ -66,6 +67,9 @@ void tst_IrcTextFormat::testPlainText()
 
     IrcTextFormat format;
     QCOMPARE(format.toPlainText(input), output);
+
+    QSharedPointer<IrcContent> content = format.parse(input);
+    QCOMPARE(content->text(), output);
 }
 
 void tst_IrcTextFormat::testHtml_data()
@@ -116,42 +120,55 @@ void tst_IrcTextFormat::testHtml()
     IrcTextFormat format;
     format.setSpanFormat(span);
     QCOMPARE(format.toHtml(input), output);
+
+    QSharedPointer<IrcContent> content = format.parse(input);
+    QCOMPARE(content->html(), output);
 }
 
+Q_DECLARE_METATYPE(QList<QUrl>)
 void tst_IrcTextFormat::testUrls_data()
 {
+    qRegisterMetaType<QList<QUrl> >();
+
     QTest::addColumn<QString>("pattern");
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("output");
+    QTest::addColumn<QList<QUrl> >("urls");
 
     QString defaultPattern = IrcTextFormat().urlPattern();
 
-    QTest::newRow("www.fi") << defaultPattern << "www.fi" << "<a href='http://www.fi'>www.fi</a>";
-    QTest::newRow("ftp.funet.fi") << defaultPattern << "ftp.funet.fi" << "<a href='ftp://ftp.funet.fi'>ftp.funet.fi</a>";
-    QTest::newRow("jpnurmi@gmail.com") << defaultPattern << "jpnurmi@gmail.com" << "<a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>";
-    QTest::newRow("quote") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing</a>";
-    QTest::newRow("percent") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing</a>";
-    QTest::newRow("parentheses") << defaultPattern << "http://en.wikipedia.org/wiki/Qt_(software)" << "<a href='http://en.wikipedia.org/wiki/Qt_%28software%29'>http://en.wikipedia.org/wiki/Qt_(software)</a>";
-    QTest::newRow("hash & comma") << defaultPattern << "https://codereview.qt-project.org/#change,1" << "<a href='https://codereview.qt-project.org/#change,1'>https://codereview.qt-project.org/#change,1</a>";
-    QTest::newRow("equal & question & ampersand") << defaultPattern << "https://www.google.no/imghp?hl=en&tab=wi" << "<a href='https://www.google.no/imghp?hl=en&tab=wi'>https://www.google.no/imghp?hl=en&tab=wi</a>";
-    QTest::newRow("github commits") << defaultPattern << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>";
-    QTest::newRow("empty pattern") << QString() << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "www.fi ftp.funet.fi jpnurmi@gmail.com";
+    QTest::newRow("www.fi") << defaultPattern << "www.fi" << "<a href='http://www.fi'>www.fi</a>" << (QList<QUrl>() << QUrl("http://www.fi"));
+    QTest::newRow("ftp.funet.fi") << defaultPattern << "ftp.funet.fi" << "<a href='ftp://ftp.funet.fi'>ftp.funet.fi</a>" << (QList<QUrl>() << QUrl("ftp://ftp.funet.fi"));
+    QTest::newRow("jpnurmi@gmail.com") << defaultPattern << "jpnurmi@gmail.com" << "<a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>" << (QList<QUrl>() << QUrl("mailto:jpnurmi@gmail.com"));
+    QTest::newRow("quote") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing</a>" << (QList<QUrl>() << QUrl("http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing"));
+    QTest::newRow("percent") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing</a>" << (QList<QUrl>() << QUrl("http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing"));
+    QTest::newRow("parentheses") << defaultPattern << "http://en.wikipedia.org/wiki/Qt_(software)" << "<a href='http://en.wikipedia.org/wiki/Qt_%28software%29'>http://en.wikipedia.org/wiki/Qt_(software)</a>" << (QList<QUrl>() << QUrl("http://en.wikipedia.org/wiki/Qt_(software)"));
+    QTest::newRow("hash & comma") << defaultPattern << "https://codereview.qt-project.org/#change,1" << "<a href='https://codereview.qt-project.org/#change,1'>https://codereview.qt-project.org/#change,1</a>" << (QList<QUrl>() << QUrl("https://codereview.qt-project.org/#change,1"));
+    QTest::newRow("equal & question & ampersand") << defaultPattern << "https://www.google.no/imghp?hl=en&tab=wi" << "<a href='https://www.google.no/imghp?hl=en&tab=wi'>https://www.google.no/imghp?hl=en&tab=wi</a>" << (QList<QUrl>() << QUrl("https://www.google.no/imghp?hl=en&tab=wi"));
+    QTest::newRow("github commits") << defaultPattern << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>" << (QList<QUrl>() << QUrl("https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122"));
+    QTest::newRow("multiple") << defaultPattern << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "<a href='http://www.fi'>www.fi</a> <a href='ftp://ftp.funet.fi'>ftp.funet.fi</a> <a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>" << (QList<QUrl>() << QUrl("http://www.fi") << QUrl("ftp://ftp.funet.fi") << QUrl("mailto:jpnurmi@gmail.com"));
+    QTest::newRow("empty pattern") << QString() << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "www.fi ftp.funet.fi jpnurmi@gmail.com" << QList<QUrl>();
 
     QTest::newRow("info") << defaultPattern
                           << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://freenode.net/faq.shtml#gettinghelp")
-                          << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: <a href='http://freenode.net/faq.shtml#gettinghelp'>http://freenode.net/faq.shtml#gettinghelp</a>");
+                          << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: <a href='http://freenode.net/faq.shtml#gettinghelp'>http://freenode.net/faq.shtml#gettinghelp</a>")
+                          << (QList<QUrl>() << QUrl("http://freenode.net/faq.shtml#gettinghelp"));
     QTest::newRow("topic") << defaultPattern
                            << QString("Communi 1.2.2 - IRC framework || Home: http://communi.github.com || Docs: http://communi.github.com/doc || MeeGo: http://store.ovi.com/content/219150")
-                           << QString("Communi 1.2.2 - IRC framework || Home: <a href='http://communi.github.com'>http://communi.github.com</a> || Docs: <a href='http://communi.github.com/doc'>http://communi.github.com/doc</a> || MeeGo: <a href='http://store.ovi.com/content/219150'>http://store.ovi.com/content/219150</a>");
+                           << QString("Communi 1.2.2 - IRC framework || Home: <a href='http://communi.github.com'>http://communi.github.com</a> || Docs: <a href='http://communi.github.com/doc'>http://communi.github.com/doc</a> || MeeGo: <a href='http://store.ovi.com/content/219150'>http://store.ovi.com/content/219150</a>")
+                           << (QList<QUrl>() << QUrl("http://communi.github.com") << QUrl("http://communi.github.com/doc") << QUrl("http://store.ovi.com/content/219150"));
     QTest::newRow("commit") << defaultPattern
                             << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8")
-                            << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: <a href='https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8'>https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8</a>");
+                            << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: <a href='https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8'>https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8</a>")
+                            << (QList<QUrl>() << QUrl("https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8"));
     QTest::newRow("with protocol") << defaultPattern
                                    << QString("aa http://www.fi bb ftp://ftp.funet.fi cc")
-                                   << QString("aa <a href='http://www.fi'>http://www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp://ftp.funet.fi</a> cc");
+                                   << QString("aa <a href='http://www.fi'>http://www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp://ftp.funet.fi</a> cc")
+                                   << (QList<QUrl>() << QUrl("http://www.fi") << QUrl("ftp://ftp.funet.fi"));
     QTest::newRow("without protocol") << defaultPattern
                                       << QString("aa www.fi bb ftp.funet.fi cc jpnurmi@gmail.com dd")
-                                      << QString("aa <a href='http://www.fi'>www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp.funet.fi</a> cc <a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a> dd");
+                                      << QString("aa <a href='http://www.fi'>www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp.funet.fi</a> cc <a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a> dd")
+                                      << (QList<QUrl>() << QUrl("http://www.fi") << QUrl("ftp://ftp.funet.fi") << QUrl("mailto:jpnurmi@gmail.com"));
 }
 
 void tst_IrcTextFormat::testUrls()
@@ -159,11 +176,16 @@ void tst_IrcTextFormat::testUrls()
     QFETCH(QString, pattern);
     QFETCH(QString, input);
     QFETCH(QString, output);
+    QFETCH(QList<QUrl>, urls);
 
     IrcTextFormat format;
     format.setUrlPattern(pattern);
     QCOMPARE(format.urlPattern(), pattern);
     QCOMPARE(format.toHtml(input), output);
+
+    QSharedPointer<IrcContent> content = format.parse(input);
+    QCOMPARE(content->html(), output);
+    QCOMPARE(content->urls(), urls);
 }
 
 QTEST_MAIN(tst_IrcTextFormat)

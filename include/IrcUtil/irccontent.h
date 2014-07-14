@@ -26,22 +26,49 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef IRCUTIL_H
-#define IRCUTIL_H
+#ifndef IRCCONTENT_H
+#define IRCCONTENT_H
 
-#include "irccontent.h"
-#include "irccommandparser.h"
-#include "irccompleter.h"
-#include "irclagtimer.h"
-#include "ircpalette.h"
-#include "irctextformat.h"
+#include <IrcGlobal>
+#include <QtCore/qurl.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qmetatype.h>
+#include <QtCore/qscopedpointer.h>
 
 IRC_BEGIN_NAMESPACE
 
-namespace IrcUtil {
-    void registerMetaTypes();
-}
+class IrcContentPrivate;
+
+class IRC_UTIL_EXPORT IrcContent : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString text READ text CONSTANT)
+    Q_PROPERTY(QString html READ html CONSTANT)
+    Q_PROPERTY(QList<QUrl> urls READ urls CONSTANT)
+
+public:
+    ~IrcContent();
+
+    QString text() const;
+    QString html() const;
+    QList<QUrl> urls() const;
+
+private:
+    friend class IrcTextFormat;
+    explicit IrcContent(QObject* parent = 0);
+    void setText(const QString& text);
+    void setHtml(const QString& html);
+    void setUrls(const QList<QUrl>& urls);
+
+    QScopedPointer<IrcContentPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcContent)
+    Q_DISABLE_COPY(IrcContent)
+};
 
 IRC_END_NAMESPACE
 
-#endif // IRCUTIL_H
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcContent*))
+
+#endif // IRCCONTENT_H

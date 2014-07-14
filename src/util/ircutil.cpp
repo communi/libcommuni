@@ -50,6 +50,7 @@ namespace IrcUtil {
      */
     void registerMetaTypes()
     {
+        qRegisterMetaType<IrcContent*>("IrcContent*");
         qRegisterMetaType<IrcCommandParser*>("IrcCommandParser*");
         qRegisterMetaType<IrcCompleter*>("IrcCompleter*");
         qRegisterMetaType<IrcLagTimer*>("IrcLagTimer*");

@@ -36,6 +36,7 @@
 
 #include "irctextformat.h"
 #include "ircpalette.h"
+#include "irccontent.h"
 #if QT_VERSION >= 0x050000
 #include <QRegularExpression>
 #endif
@@ -94,10 +95,265 @@ IRC_BEGIN_NAMESPACE
 class IrcTextFormatPrivate
 {
 public:
+    void parse(const QString& str, QString* text, QString* html, QList<QUrl>* urls) const;
+
     QString urlPattern;
     IrcPalette* palette;
     IrcTextFormat::SpanFormat spanFormat;
 };
+
+static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, int* bg = 0)
+{
+    // fg(,bg)
+    *len = 0;
+    if (fg)
+        *fg = -1;
+    if (bg)
+        *bg = -1;
+    QRegExp rx(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
+    int idx = rx.indexIn(message, pos);
+    if (idx == pos) {
+        *len = rx.matchedLength();
+        if (fg)
+            *fg = rx.cap(1).toInt();
+        if (bg) {
+            bool ok = false;
+            int tmp = rx.cap(2).toInt(&ok);
+            if (ok)
+                *bg = tmp;
+        }
+    }
+    return *len > 0;
+}
+
+static QString generateLink(const QString& protocol, const QString& href)
+{
+    const char* exclude = ":/?@%#=+&,";
+    const QByteArray url = QUrl::toPercentEncoding(href, exclude);
+    return QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, url, href);
+}
+
+static QString parseLinks(const QString& message, const QString& pattern, QList<QUrl>* urls)
+{
+    QString processed = message;
+#if QT_VERSION >= 0x050000
+    int offset = 0;
+    QRegularExpression rx(pattern);
+    QRegularExpressionMatchIterator it = rx.globalMatch(message);
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+        QString protocol;
+        if (match.capturedRef(2).isEmpty()) {
+            QStringRef link = match.capturedRef(1);
+            if (link.startsWith(QStringLiteral("ftp."), Qt::CaseInsensitive))
+                protocol = QStringLiteral("ftp://");
+            else if (link.contains(QStringLiteral("@")))
+                protocol = QStringLiteral("mailto:");
+            else
+                protocol = QStringLiteral("http://");
+        }
+
+        const int start = match.capturedStart();
+        const int len = match.capturedEnd() - start;
+        const QString href = match.captured();
+        const QString link = generateLink(protocol, href);
+        processed.replace(start + offset, len, link);
+        offset += link.length() - len;
+        if (urls)
+            urls->append(QUrl(protocol + href));
+    }
+#else
+    int pos = 0;
+    QRegExp rx(pattern);
+    while ((pos = rx.indexIn(processed, pos)) >= 0) {
+        int len = rx.matchedLength();
+        QString href = processed.mid(pos, len);
+
+        QString protocol;
+        if (rx.cap(2).isEmpty()) {
+            if (rx.cap(1).contains(QLatin1Char('@')))
+                protocol = QLatin1String("mailto:");
+            else if (rx.cap(1).startsWith(QLatin1String("ftp."), Qt::CaseInsensitive))
+                protocol = QLatin1String("ftp://");
+            else
+                protocol = QLatin1String("http://");
+        }
+
+        QString link = generateLink(protocol, href);
+        processed.replace(pos, len, link);
+        pos += link.length();
+        if (urls)
+            urls->append(QUrl(protocol + href));
+    }
+#endif
+    return processed;
+}
+
+void IrcTextFormatPrivate::parse(const QString& str, QString* text, QString* html, QList<QUrl>* urls) const
+{
+    QString processed = str;
+
+    // TODO:
+    //processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
+    processed.replace(QLatin1Char('<'), QLatin1String("&lt;"));
+    //processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
+    //processed.replace(QLatin1Char('"'), QLatin1String("&quot;"));
+    //processed.replace(QLatin1Char('\''), QLatin1String("&apos;"));
+    //processed.replace(QLatin1Char('\t'), QLatin1String("&nbsp;"));
+
+    enum {
+        None            = 0x0,
+        Bold            = 0x1,
+        Italic          = 0x4,
+        LineThrough     = 0x8,
+        Underline       = 0x10,
+        Inverse         = 0x20
+    };
+    int state = None;
+
+    int pos = 0;
+    int len = 0;
+    int fg = -1;
+    int bg = -1;
+    int depth = 0;
+    bool potentialUrl = false;
+    while (pos < processed.size()) {
+        QString replacement;
+        switch (processed.at(pos).unicode()) {
+            case '\x02': // bold
+                if (state & Bold) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    if (spanFormat == IrcTextFormat::SpanStyle)
+                        replacement = QLatin1String("<span style='font-weight: bold'>");
+                    else
+                        replacement = QLatin1String("<span class='bold'>");
+                }
+                state ^= Bold;
+                break;
+
+            case '\x03': // color
+                if (parseColors(processed, pos + 1, &len, &fg, &bg)) {
+                    depth++;
+                    if (spanFormat == IrcTextFormat::SpanStyle) {
+                        QStringList styles;
+                        styles += QString(QLatin1String("color: %1")).arg(palette->colorName(fg, QLatin1String("black")));
+                        if (bg != -1)
+                            styles += QString(QLatin1String("background-color: %1")).arg(palette->colorName(bg, QLatin1String("transparent")));
+                        replacement = QString(QLatin1String("<span style='%1'>")).arg(styles.join(QLatin1String("; ")));
+                    } else {
+                        QStringList classes;
+                        classes += palette->colorName(fg, QLatin1String("black"));
+                        if (bg != -1)
+                            classes += palette->colorName(bg, QLatin1String("transparent")) + QLatin1String("-background");
+                        replacement = QString(QLatin1String("<span class='%1'>")).arg(classes.join(QLatin1String(" ")));
+                    }
+                    // \x03FF(,BB)
+                    processed.replace(pos, len + 1, replacement);
+                    pos += replacement.length();
+                    continue;
+                } else {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                }
+                break;
+
+                //case '\x09': // italic
+            case '\x1d': // italic
+                if (state & Italic) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    if (spanFormat == IrcTextFormat::SpanStyle)
+                        replacement = QLatin1String("<span style='font-style: italic'>");
+                    else
+                        replacement = QLatin1String("<span class='italic'>");
+                }
+                state ^= Italic;
+                break;
+
+            case '\x13': // line-through
+                if (state & LineThrough) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    if (spanFormat == IrcTextFormat::SpanStyle)
+                        replacement = QLatin1String("<span style='text-decoration: line-through'>");
+                    else
+                        replacement = QLatin1String("<span class='line-through'>");
+                }
+                state ^= LineThrough;
+                break;
+
+            case '\x15': // underline
+            case '\x1f': // underline
+                if (state & Underline) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    if (spanFormat == IrcTextFormat::SpanStyle)
+                        replacement = QLatin1String("<span style='text-decoration: underline'>");
+                    else
+                        replacement = QLatin1String("<span class='underline'>");
+                }
+                state ^= Underline;
+                break;
+
+            case '\x16': // inverse
+                if (state & Inverse) {
+                    depth--;
+                    replacement = QLatin1String("</span>");
+                } else {
+                    depth++;
+                    if (spanFormat == IrcTextFormat::SpanStyle)
+                        replacement = QLatin1String("<span style='text-decoration: inverse'>");
+                    else
+                        replacement = QLatin1String("<span class='inverse'>");
+                }
+                state ^= Inverse;
+                break;
+
+            case '\x0f': // none
+                if (depth > 0)
+                    replacement = QString(QLatin1String("</span>")).repeated(depth);
+                else
+                    processed.remove(pos--, 1); // must rewind back for ++pos below...
+                state = None;
+                depth = 0;
+                break;
+
+            case '.':
+            case '/':
+            case ':':
+                // a dot, slash or colon NOT surrounded by a space indicates a potential URL
+                if (!potentialUrl && pos > 0 && !processed.at(pos - 1).isSpace()
+                        && pos < processed.length() - 1 && !processed.at(pos + 1).isSpace())
+                    potentialUrl = true;
+                // flow through
+            default:
+                if (text)
+                    *text += processed.at(pos);
+                break;
+        }
+
+        if (!replacement.isEmpty()) {
+            processed.replace(pos, 1, replacement);
+            pos += replacement.length();
+        } else {
+            ++pos;
+        }
+    }
+
+    if ((html || urls) && potentialUrl && !urlPattern.isEmpty())
+        processed = parseLinks(processed, urlPattern, urls);
+    if (html)
+        *html = processed;
+}
 
 /*!
     Constructs a new text format with \a parent.
@@ -189,87 +445,6 @@ void IrcTextFormat::setSpanFormat(IrcTextFormat::SpanFormat format)
     d->spanFormat = format;
 }
 
-static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, int* bg = 0)
-{
-    // fg(,bg)
-    *len = 0;
-    if (fg)
-        *fg = -1;
-    if (bg)
-        *bg = -1;
-    QRegExp rx(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
-    int idx = rx.indexIn(message, pos);
-    if (idx == pos) {
-        *len = rx.matchedLength();
-        if (fg)
-            *fg = rx.cap(1).toInt();
-        if (bg) {
-            bool ok = false;
-            int tmp = rx.cap(2).toInt(&ok);
-            if (ok)
-                *bg = tmp;
-        }
-    }
-    return *len > 0;
-}
-
-static QString generateLink(const QString& protocol, const QString& href)
-{
-    const char* exclude = ":/?@%#=+&,";
-    const QByteArray url = QUrl::toPercentEncoding(href, exclude);
-    return QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, url, href);
-}
-
-static QString parseLinks(const QString& message, const QString& pattern)
-{
-    QString processed = message;
-#if QT_VERSION >= 0x050000
-    int offset = 0;
-    QRegularExpression rx(pattern);
-    QRegularExpressionMatchIterator it = rx.globalMatch(message);
-    while (it.hasNext()) {
-        QRegularExpressionMatch match = it.next();
-        QString protocol;
-        if (match.capturedRef(2).isEmpty()) {
-            QStringRef link = match.capturedRef(1);
-            if (link.startsWith(QStringLiteral("ftp."), Qt::CaseInsensitive))
-                protocol = QStringLiteral("ftp://");
-            else if (link.contains(QStringLiteral("@")))
-                protocol = QStringLiteral("mailto:");
-            else
-                protocol = QStringLiteral("http://");
-        }
-
-        const int start = match.capturedStart();
-        const int len = match.capturedEnd() - start;
-        const QString link = generateLink(protocol, match.captured());
-        processed.replace(start + offset, len, link);
-        offset += link.length() - len;
-    }
-#else
-    int pos = 0;
-    QRegExp rx(pattern);
-    while ((pos = rx.indexIn(processed, pos)) >= 0) {
-        int len = rx.matchedLength();
-        QString href = processed.mid(pos, len);
-
-        QString protocol;
-        if (rx.cap(2).isEmpty()) {
-            if (rx.cap(1).contains(QLatin1Char('@')))
-                protocol = QLatin1String("mailto:");
-            else if (rx.cap(1).startsWith(QLatin1String("ftp."), Qt::CaseInsensitive))
-                protocol = QLatin1String("ftp://");
-            else
-                protocol = QLatin1String("http://");
-        }
-
-        QString link = generateLink(protocol, href);
-        processed.replace(pos, len, link);
-        pos += link.length();
-    }
-#endif
-    return processed;
-}
 
 /*!
     Converts \a text to HTML. This function parses the text and replaces
@@ -280,212 +455,47 @@ static QString parseLinks(const QString& message, const QString& pattern)
     \note URL detection can be disabled by setting an empty
           regular expression pattern used for matching URLs.
 
-    \sa palette, urlPattern, spanFormat, toPlainText()
+    \sa toPlainText(), parse(), palette, urlPattern, spanFormat
 */
-QString IrcTextFormat::toHtml(const QString& text) const
+QString IrcTextFormat::toHtml(const QString& str) const
 {
     Q_D(const IrcTextFormat);
-    QString processed = text;
-
-    // TODO:
-    //processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
-    processed.replace(QLatin1Char('<'), QLatin1String("&lt;"));
-    //processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
-    //processed.replace(QLatin1Char('"'), QLatin1String("&quot;"));
-    //processed.replace(QLatin1Char('\''), QLatin1String("&apos;"));
-    //processed.replace(QLatin1Char('\t'), QLatin1String("&nbsp;"));
-
-    enum {
-        None            = 0x0,
-        Bold            = 0x1,
-        Italic          = 0x4,
-        LineThrough     = 0x8,
-        Underline       = 0x10,
-        Inverse         = 0x20
-    };
-    int state = None;
-
-    int pos = 0;
-    int len = 0;
-    int fg = -1;
-    int bg = -1;
-    int depth = 0;
-    bool potentialUrl = false;
-    while (pos < processed.size()) {
-        QString replacement;
-        switch (processed.at(pos).unicode()) {
-            case '\x02': // bold
-                if (state & Bold) {
-                    depth--;
-                    replacement = QLatin1String("</span>");
-                } else {
-                    depth++;
-                    if (d->spanFormat == SpanStyle)
-                        replacement = QLatin1String("<span style='font-weight: bold'>");
-                    else
-                        replacement = QLatin1String("<span class='bold'>");
-                }
-                state ^= Bold;
-                break;
-
-            case '\x03': // color
-                if (parseColors(processed, pos + 1, &len, &fg, &bg)) {
-                    depth++;
-                    if (d->spanFormat == SpanStyle) {
-                        QStringList styles;
-                        styles += QString(QLatin1String("color: %1")).arg(d->palette->colorName(fg, QLatin1String("black")));
-                        if (bg != -1)
-                            styles += QString(QLatin1String("background-color: %1")).arg(d->palette->colorName(bg, QLatin1String("transparent")));
-                        replacement = QString(QLatin1String("<span style='%1'>")).arg(styles.join(QLatin1String("; ")));
-                    } else {
-                        QStringList classes;
-                        classes += d->palette->colorName(fg, QLatin1String("black"));
-                        if (bg != -1)
-                            classes += d->palette->colorName(bg, QLatin1String("transparent")) + QLatin1String("-background");
-                        replacement = QString(QLatin1String("<span class='%1'>")).arg(classes.join(QLatin1String(" ")));
-                    }
-                    // \x03FF(,BB)
-                    processed.replace(pos, len + 1, replacement);
-                    pos += replacement.length();
-                    continue;
-                } else {
-                    depth--;
-                    replacement = QLatin1String("</span>");
-                }
-                break;
-
-                //case '\x09': // italic
-            case '\x1d': // italic
-                if (state & Italic) {
-                    depth--;
-                    replacement = QLatin1String("</span>");
-                } else {
-                    depth++;
-                    if (d->spanFormat == SpanStyle)
-                        replacement = QLatin1String("<span style='font-style: italic'>");
-                    else
-                        replacement = QLatin1String("<span class='italic'>");
-                }
-                state ^= Italic;
-                break;
-
-            case '\x13': // line-through
-                if (state & LineThrough) {
-                    depth--;
-                    replacement = QLatin1String("</span>");
-                } else {
-                    depth++;
-                    if (d->spanFormat == SpanStyle)
-                        replacement = QLatin1String("<span style='text-decoration: line-through'>");
-                    else
-                        replacement = QLatin1String("<span class='line-through'>");
-                }
-                state ^= LineThrough;
-                break;
-
-            case '\x15': // underline
-            case '\x1f': // underline
-                if (state & Underline) {
-                    depth--;
-                    replacement = QLatin1String("</span>");
-                } else {
-                    depth++;
-                    if (d->spanFormat == SpanStyle)
-                        replacement = QLatin1String("<span style='text-decoration: underline'>");
-                    else
-                        replacement = QLatin1String("<span class='underline'>");
-                }
-                state ^= Underline;
-                break;
-
-            case '\x16': // inverse
-                if (state & Inverse) {
-                    depth--;
-                    replacement = QLatin1String("</span>");
-                } else {
-                    depth++;
-                    if (d->spanFormat == SpanStyle)
-                        replacement = QLatin1String("<span style='text-decoration: inverse'>");
-                    else
-                        replacement = QLatin1String("<span class='inverse'>");
-                }
-                state ^= Inverse;
-                break;
-
-            case '\x0f': // none
-                if (depth > 0)
-                    replacement = QString(QLatin1String("</span>")).repeated(depth);
-                else
-                    processed.remove(pos--, 1); // must rewind back for ++pos below...
-                state = None;
-                depth = 0;
-                break;
-
-            case '.':
-            case '/':
-            case ':':
-                // a dot, slash or colon NOT surrounded by a space indicates a potential URL
-                if (!potentialUrl && pos > 0 && !processed.at(pos - 1).isSpace()
-                        && pos < processed.length() - 1 && !processed.at(pos + 1).isSpace())
-                    potentialUrl = true;
-                break;
-
-            default:
-                break;
-        }
-
-        if (!replacement.isEmpty()) {
-            processed.replace(pos, 1, replacement);
-            pos += replacement.length();
-        } else {
-            ++pos;
-        }
-    }
-
-    if (potentialUrl && !d->urlPattern.isEmpty())
-        processed = parseLinks(processed, d->urlPattern);
-
-    return processed;
+    QString html;
+    d->parse(str, 0, &html, 0);
+    return html;
 }
 
 /*!
     Converts \a text to plain text. This function parses the text and
     strips away IRC-style formatting (colors, bold, underline etc.)
 
-    \sa toHtml()
+    \sa toHtml(), parse()
 */
-QString IrcTextFormat::toPlainText(const QString& text) const
+QString IrcTextFormat::toPlainText(const QString& str) const
 {
-    QString processed = text;
+    Q_D(const IrcTextFormat);
+    QString text;
+    d->parse(str, &text, 0, 0);
+    return text;
+}
 
-    int pos = 0;
-    int len = 0;
-    while (pos < processed.size()) {
-        switch (processed.at(pos).unicode()) {
-            case '\x02': // bold
-            case '\x0f': // none
-            case '\x13': // line-through
-            case '\x15': // underline
-            case '\x16': // inverse
-            case '\x1d': // italic
-            case '\x1f': // underline
-                processed.remove(pos, 1);
-                break;
+/*!
+    Parses \a text and returns IrcContent that provides the content
+    converted to plain text and HTML, and a list of detected urls.
 
-            case '\x03': // color
-                if (parseColors(processed, pos + 1, &len))
-                    processed.remove(pos, len + 1);
-                else
-                    processed.remove(pos, 1);
-                break;
-
-            default:
-                ++pos;
-                break;
-        }
-    }
-
-    return processed;
+    /sa toHtml(), toPlainText(), urlPattern
+ */
+QSharedPointer<IrcContent> IrcTextFormat::parse(const QString& str) const
+{
+    Q_D(const IrcTextFormat);
+    QString text, html;
+    QList<QUrl> urls;
+    d->parse(str, &text, &html, &urls);
+    QSharedPointer<IrcContent> ptr(new IrcContent);
+    ptr->setText(text);
+    ptr->setHtml(html);
+    ptr->setUrls(urls);
+    return ptr;
 }
 
 #include "moc_irctextformat.cpp"
