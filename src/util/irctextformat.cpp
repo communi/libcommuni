@@ -457,11 +457,11 @@ void IrcTextFormat::setSpanFormat(IrcTextFormat::SpanFormat format)
 
     \sa toPlainText(), parse(), palette, urlPattern, spanFormat
 */
-QString IrcTextFormat::toHtml(const QString& str) const
+QString IrcTextFormat::toHtml(const QString& text) const
 {
     Q_D(const IrcTextFormat);
     QString html;
-    d->parse(str, 0, &html, 0);
+    d->parse(text, 0, &html, 0);
     return html;
 }
 
@@ -471,28 +471,30 @@ QString IrcTextFormat::toHtml(const QString& str) const
 
     \sa toHtml(), parse()
 */
-QString IrcTextFormat::toPlainText(const QString& str) const
+QString IrcTextFormat::toPlainText(const QString& text) const
 {
     Q_D(const IrcTextFormat);
-    QString text;
-    d->parse(str, &text, 0, 0);
-    return text;
+    QString plain;
+    d->parse(text, &plain, 0, 0);
+    return plain;
 }
 
 /*!
+    \since 3.2
+
     Parses \a text and returns IrcContent that provides the content
     converted to plain text and HTML, and a list of detected urls.
 
-    /sa toHtml(), toPlainText(), urlPattern
+    \sa toHtml(), toPlainText(), urlPattern
  */
-QSharedPointer<IrcContent> IrcTextFormat::parse(const QString& str) const
+QSharedPointer<IrcContent> IrcTextFormat::parse(const QString& text) const
 {
     Q_D(const IrcTextFormat);
-    QString text, html;
+    QString plain, html;
     QList<QUrl> urls;
-    d->parse(str, &text, &html, &urls);
+    d->parse(text, &plain, &html, &urls);
     QSharedPointer<IrcContent> ptr(new IrcContent);
-    ptr->setText(text);
+    ptr->setText(plain);
     ptr->setHtml(html);
     ptr->setUrls(urls);
     return ptr;
