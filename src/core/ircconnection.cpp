@@ -45,6 +45,7 @@
 #include <QMetaEnum>
 #ifndef QT_NO_OPENSSL
 #include <QSslSocket>
+#include <QSslError>
 #endif // QT_NO_OPENSSL
 #include <QDataStream>
 #include <QVariantMap>
@@ -315,8 +316,16 @@ void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 void IrcConnectionPrivate::_irc_sslErrors()
 {
     Q_Q(IrcConnection);
+    QStringList errors;
+#ifndef QT_NO_OPENSSL
+    QSslSocket* ssl = qobject_cast<QSslSocket*>(socket);
+    if (ssl) {
+        foreach (const QSslError& error, ssl->sslErrors())
+            errors += error.errorString();
+    }
+#endif
+    irc_debug(q, "SSL handshake errors:", errors);
     sslErrors = true;
-    irc_debug(q, "SSL error:", "handshake");
     emit q->secureError();
 }
 
