@@ -36,3 +36,4 @@ SOURCES += $$PWD/irclagtimer.cpp
 SOURCES += $$PWD/ircpalette.cpp
 SOURCES += $$PWD/irctextformat.cpp
 SOURCES += $$PWD/irctoken.cpp
+SOURCES += $$PWD/ircutil.cpp

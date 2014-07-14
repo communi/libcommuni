@@ -26,21 +26,36 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef IRCMODEL_H
-#define IRCMODEL_H
-
-#include "ircbuffer.h"
-#include "ircbuffermodel.h"
-#include "ircchannel.h"
-#include "ircuser.h"
-#include "ircusermodel.h"
+#include "ircutil.h"
 
 IRC_BEGIN_NAMESPACE
 
-namespace IrcModel {
-    void registerMetaTypes();
+/*!
+    \file ircutil.h
+    \brief \#include &lt;IrcUtil&gt;
+ */
+
+/*!
+    \namespace IrcUtil
+    \ingroup util
+    \brief Module meta-type registration.
+ */
+
+namespace IrcUtil {
+
+    /*!
+        Registers IrcUtil types to the %Qt meta-system.
+
+        \sa IrcCore::registerMetaTypes(), IrcModel::registerMetaTypes(), qRegisterMetaType()
+     */
+    void registerMetaTypes()
+    {
+        qRegisterMetaType<IrcCommandParser*>("IrcCommandParser*");
+        qRegisterMetaType<IrcCompleter*>("IrcCompleter*");
+        qRegisterMetaType<IrcLagTimer*>("IrcLagTimer*");
+        qRegisterMetaType<IrcPalette*>("IrcPalette*");
+        qRegisterMetaType<IrcTextFormat*>("IrcTextFormat*");
+    }
 }
 
 IRC_END_NAMESPACE
-
-#endif // IRCMODEL_H

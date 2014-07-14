@@ -27,6 +27,7 @@
 */
 
 #include "irc.h"
+#include "irccore.h"
 #include "irccommand.h"
 #include "ircconnection.h"
 #include "ircmessage_p.h"
@@ -121,47 +122,11 @@ QString Irc::hostFromPrefix(const QString& prefix)
 }
 
 /*!
-    Registers IrcCore types to the %Qt meta-system.
-
-    \sa qRegisterMetaType()
+    \deprecated Use IrcCore::registerMetaTypes() instead.
  */
 void Irc::registerMetaTypes()
 {
-    qRegisterMetaType<Irc::Color>("Irc::Color");
-    qRegisterMetaType<Irc::DataRole>("Irc::DataRole");
-    qRegisterMetaType<Irc::SortMethod>("Irc::SortMethod");
-    qRegisterMetaType<Irc::Code>("Irc::Code");
-
-    qRegisterMetaType<IrcConnection*>("IrcConnection*");
-    qRegisterMetaType<IrcConnection::Status>("IrcConnection::Status");
-
-    qRegisterMetaType<IrcNetwork*>("IrcNetwork*");
-
-    qRegisterMetaType<IrcCommand*>("IrcCommand*");
-    qRegisterMetaType<IrcCommand::Type>("IrcCommand::Type");
-
-    qRegisterMetaType<IrcMessage*>("IrcMessage*");
-    qRegisterMetaType<IrcMessage::Type>("IrcMessage::Type");
-
-    qRegisterMetaType<IrcCapabilityMessage*>("IrcCapabilityMessage*");
-    qRegisterMetaType<IrcErrorMessage*>("IrcErrorMessage*");
-    qRegisterMetaType<IrcInviteMessage*>("IrcInviteMessage*");
-    qRegisterMetaType<IrcJoinMessage*>("IrcJoinMessage*");
-    qRegisterMetaType<IrcKickMessage*>("IrcKickMessage*");
-    qRegisterMetaType<IrcModeMessage*>("IrcModeMessage*");
-    qRegisterMetaType<IrcNamesMessage*>("IrcNamesMessage*");
-    qRegisterMetaType<IrcNickMessage*>("IrcNickMessage*");
-    qRegisterMetaType<IrcNoticeMessage*>("IrcNoticeMessage*");
-    qRegisterMetaType<IrcNumericMessage*>("IrcNumericMessage*");
-    qRegisterMetaType<IrcMotdMessage*>("IrcMotdMessage*");
-    qRegisterMetaType<IrcPartMessage*>("IrcPartMessage*");
-    qRegisterMetaType<IrcPingMessage*>("IrcPingMessage*");
-    qRegisterMetaType<IrcPongMessage*>("IrcPongMessage*");
-    qRegisterMetaType<IrcPrivateMessage*>("IrcPrivateMessage*");
-    qRegisterMetaType<IrcQuitMessage*>("IrcQuitMessage*");
-    qRegisterMetaType<IrcTopicMessage*>("IrcTopicMessage*");
-    qRegisterMetaType<IrcWhoReplyMessage*>("IrcWhoReplyMessage*");
-
+    IrcCore::registerMetaTypes();
 }
 
 #ifndef QT_NO_DEBUG_STREAM

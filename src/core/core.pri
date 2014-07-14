@@ -42,6 +42,7 @@ HEADERS += $$PRIV_HEADERS
 SOURCES += $$PWD/irc.cpp
 SOURCES += $$PWD/irccommand.cpp
 SOURCES += $$PWD/ircconnection.cpp
+SOURCES += $$PWD/irccore.cpp
 SOURCES += $$PWD/ircfilter.cpp
 SOURCES += $$PWD/ircmessage.cpp
 SOURCES += $$PWD/ircmessage_p.cpp

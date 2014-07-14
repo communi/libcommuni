@@ -35,5 +35,6 @@ HEADERS += $$PRIV_HEADERS
 SOURCES += $$PWD/ircbuffer.cpp
 SOURCES += $$PWD/ircbuffermodel.cpp
 SOURCES += $$PWD/ircchannel.cpp
+SOURCES += $$PWD/ircmodel.cpp
 SOURCES += $$PWD/ircuser.cpp
 SOURCES += $$PWD/ircusermodel.cpp
