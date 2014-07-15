@@ -128,7 +128,6 @@ public:
         qmlRegisterType<IrcTextFormat>(uri, 3, 0, "IrcTextFormat");
         qmlRegisterUncreatableType<IrcPalette>(uri, 3, 0, "IrcPalette", "Cannot create an instance of IrcPalette. Use IrcTextFormat::palette property instead.");
         qmlRegisterType<IrcCompleter>(uri, 3, 1, "IrcCompleter");
-        qmlRegisterUncreatableType<IrcContent>(uri, 3, 2, "IrcContent", "Cannot create an instance of IrcContent. Use IrcTextFormat::parse() method instead.");
     }
 };
 

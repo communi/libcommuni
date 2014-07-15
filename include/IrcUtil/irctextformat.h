@@ -30,6 +30,8 @@
 #define IRCTEXTFORMAT_H
 
 #include <IrcGlobal>
+#include <QtCore/qurl.h>
+#include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qmetatype.h>
@@ -37,7 +39,6 @@
 
 IRC_BEGIN_NAMESPACE
 
-class IrcContent;
 class IrcPalette;
 class IrcTextFormatPrivate;
 
@@ -46,6 +47,9 @@ class IRC_UTIL_EXPORT IrcTextFormat : public QObject
     Q_OBJECT
     Q_PROPERTY(IrcPalette* palette READ palette CONSTANT)
     Q_PROPERTY(QString urlPattern READ urlPattern WRITE setUrlPattern)
+    Q_PROPERTY(QString plainText READ plainText)
+    Q_PROPERTY(QString html READ html)
+    Q_PROPERTY(QList<QUrl> urls READ urls)
     Q_ENUMS(SpanFormat)
 
 public:
@@ -65,7 +69,12 @@ public:
     Q_INVOKABLE QString toHtml(const QString& text) const;
     Q_INVOKABLE QString toPlainText(const QString& text) const;
 
-    Q_INVOKABLE IrcContent* parse(const QString& text) const;
+    QString plainText() const;
+    QString html() const;
+    QList<QUrl> urls() const;
+
+public Q_SLOTS:
+    void parse(const QString& text);
 
 private:
     QScopedPointer<IrcTextFormatPrivate> d_ptr;

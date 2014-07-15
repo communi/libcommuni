@@ -29,7 +29,6 @@
 #ifndef IRCUTIL_H
 #define IRCUTIL_H
 
-#include "irccontent.h"
 #include "irccommandparser.h"
 #include "irccompleter.h"
 #include "irclagtimer.h"

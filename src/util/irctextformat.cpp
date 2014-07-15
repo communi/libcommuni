@@ -36,7 +36,6 @@
 
 #include "irctextformat.h"
 #include "ircpalette.h"
-#include "irccontent.h"
 #if QT_VERSION >= 0x050000
 #include <QRegularExpression>
 #endif
@@ -97,6 +96,9 @@ class IrcTextFormatPrivate
 public:
     void parse(const QString& str, QString* text, QString* html, QList<QUrl>* urls) const;
 
+    QString plainText;
+    QString html;
+    QList<QUrl> urls;
     QString urlPattern;
     IrcPalette* palette;
     IrcTextFormat::SpanFormat spanFormat;
@@ -482,23 +484,65 @@ QString IrcTextFormat::toPlainText(const QString& text) const
 /*!
     \since 3.2
 
-    Parses \a text and returns IrcContent that provides the content
-    converted to plain text and HTML, and a list of detected urls.
+    This property holds the current plain text content.
 
-    \sa toHtml(), toPlainText(), urlPattern
+    \par Access function:
+    \li QString <b>plainText</b>() const
+
+    \sa parse(), html, urls
  */
-IrcContent* IrcTextFormat::parse(const QString& text) const
+QString IrcTextFormat::plainText() const
 {
     Q_D(const IrcTextFormat);
-    QString plain, html;
-    QList<QUrl> urls;
-    d->parse(text, &plain, &html, &urls);
-    IrcContent* content = new IrcContent;
-    content->setText(plain);
-    content->setHtml(html);
-    content->setUrls(urls);
-    content->deleteLater();
-    return content;
+    return d->plainText;
+}
+
+/*!
+    \since 3.2
+
+    This property holds the current HTML content.
+
+    \par Access function:
+    \li QString <b>html</b>() const
+
+    \sa parse(), plainText, urls
+ */
+QString IrcTextFormat::html() const
+{
+    Q_D(const IrcTextFormat);
+    return d->html;
+}
+
+/*!
+    \since 3.2
+
+    This property holds the current list of URLs.
+
+    \par Access function:
+    \li QList<QUrl> <b>urls</b>() const
+
+    \sa parse(), plainText, html
+ */
+QList<QUrl> IrcTextFormat::urls() const
+{
+    Q_D(const IrcTextFormat);
+    return d->urls;
+}
+
+/*!
+    \since 3.2
+
+    Parses \a text converting it to plain text and HTML and detects URLs.
+
+    \sa plainText, html, urls
+ */
+void IrcTextFormat::parse(const QString& text)
+{
+    Q_D(IrcTextFormat);
+    d->plainText.clear();
+    d->html.clear();
+    d->urls.clear();
+    d->parse(text, &d->plainText, &d->html, &d->urls);
 }
 
 #include "moc_irctextformat.cpp"

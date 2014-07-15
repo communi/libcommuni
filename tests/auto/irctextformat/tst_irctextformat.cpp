@@ -8,7 +8,6 @@
  */
 
 #include "irc.h"
-#include "irccontent.h"
 #include "irctextformat.h"
 #include "ircpalette.h"
 #include <QtTest/QtTest>
@@ -68,8 +67,8 @@ void tst_IrcTextFormat::testPlainText()
     IrcTextFormat format;
     QCOMPARE(format.toPlainText(input), output);
 
-    IrcContent* content = format.parse(input);
-    QCOMPARE(content->text(), output);
+    format.parse(input);
+    QCOMPARE(format.plainText(), output);
 }
 
 void tst_IrcTextFormat::testHtml_data()
@@ -121,8 +120,8 @@ void tst_IrcTextFormat::testHtml()
     format.setSpanFormat(span);
     QCOMPARE(format.toHtml(input), output);
 
-    IrcContent* content = format.parse(input);
-    QCOMPARE(content->html(), output);
+    format.parse(input);
+    QCOMPARE(format.html(), output);
 }
 
 Q_DECLARE_METATYPE(QList<QUrl>)
@@ -183,9 +182,9 @@ void tst_IrcTextFormat::testUrls()
     QCOMPARE(format.urlPattern(), pattern);
     QCOMPARE(format.toHtml(input), output);
 
-    IrcContent* content = format.parse(input);
-    QCOMPARE(content->html(), output);
-    QCOMPARE(content->urls(), urls);
+    format.parse(input);
+    QCOMPARE(format.html(), output);
+    QCOMPARE(format.urls(), urls);
 }
 
 QTEST_MAIN(tst_IrcTextFormat)
