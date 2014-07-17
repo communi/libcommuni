@@ -18,7 +18,6 @@ RESOURCES += quick.qrc
 OTHER_FILES += qml/main.qml
 OTHER_FILES += qml/BufferListView.qml
 OTHER_FILES += qml/ChatPage.qml
-OTHER_FILES += qml/Connection.qml
 OTHER_FILES += qml/ConnectPage.qml
 OTHER_FILES += qml/MessageFormatter.qml
 OTHER_FILES += qml/TextBrowser.qml
