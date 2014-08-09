@@ -2,8 +2,12 @@
 -----
 - General
   - Relicensed to BSD
+- Build system
+  - Added support for no_install_xxx qmake configs
+  - Exported qmake variables IRC_VERSION(_MAJOR/MINOR/PATCH)
 - IrcCore
   - Introduced IrcProtocol
+  - Exposed IrcConnection::protocol
   - Added IrcConnection::secureSupported
   - Added IrcConnection::secureError() [signal]
   - Restored IrcMessage::own for convenience
@@ -13,6 +17,7 @@
 - IrcModel
   - Added IrcBufferModel::receiveMessage()
   - Added IrcModel::registerMetaTypes()
+  - Handle IrcMessage::Playback as appropriate
 - IrcUtil
   - Made IrcCommandParser retain whitespace and compose a single
     command parameter out of a multi-word input parameter
