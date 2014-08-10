@@ -7,10 +7,11 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq qt5-qmake qtbase5-dev
 script:
+  - nproc
   - qmake -qt=qt4 -v
   - qmake -qt=qt5 -v
   - ./configure -verbose -qmake `qmake -qt=qt4 -query QT_INSTALL_BINS`/qmake -var "QMAKE_CXX=${CXX}" -var "QMAKE_CC=${CC}"
-  - make
+  - make -j$(nproc)
   - make check
   - sudo make install
   - cd tests/build
@@ -18,7 +19,7 @@ script:
   - cd -
   - git clean -xdf
   - ./configure -verbose -qmake `qmake -qt=qt5 -query QT_INSTALL_BINS`/qmake -var "QMAKE_CXX=${CXX}" -var "QMAKE_CC=${CC}"
-  - make
+  - make -j$(nproc)
   - make check
   - sudo make install
   - cd tests/build
