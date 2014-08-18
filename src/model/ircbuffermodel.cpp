@@ -144,6 +144,7 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
 
         case IrcMessage::WhoReply:
             processed = processMessage(static_cast<IrcWhoReplyMessage*>(msg)->mask(), msg);
+            break;
 
         case IrcMessage::Private:
             if (IrcPrivateMessage* pm = static_cast<IrcPrivateMessage*>(msg))
