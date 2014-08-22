@@ -141,7 +141,7 @@ QByteArray IrcMessagePrivate::content() const
         for (QVariantMap::const_iterator it = t.begin(); it != t.end(); ++it)
             tt += it.key() + QLatin1Char('=') + it.value().toString();
         if (!tt.isEmpty())
-            data += '@' + tt.join(QLatin1Char(';')).toUtf8() + ' ';
+            data += '@' + tt.join(QLatin1String(";")).toUtf8() + ' ';
 
         // format <prefix>
         const QString p = prefix();
