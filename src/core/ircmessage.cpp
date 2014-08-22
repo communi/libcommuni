@@ -567,7 +567,7 @@ bool IrcMessage::isValid() const
 QByteArray IrcMessage::toData() const
 {
     Q_D(const IrcMessage);
-    return d->data.content;
+    return d->content();
 }
 
 /*!

@@ -130,6 +130,40 @@ void IrcMessagePrivate::setTags(const QVariantMap& tags)
     m_tags.setValue(tags);
 }
 
+QByteArray IrcMessagePrivate::content() const
+{
+    if (m_prefix.isExplicit() || m_command.isExplicit() || m_params.isExplicit() || m_tags.isExplicit()) {
+        QByteArray data;
+
+        // format <tags>
+        QStringList tt;
+        const QVariantMap t = tags();
+        for (QVariantMap::const_iterator it = t.begin(); it != t.end(); ++it)
+            tt += it.key() + QLatin1Char('=') + it.value().toString();
+        if (!tt.isEmpty())
+            data += '@' + tt.join(QLatin1Char(';')).toUtf8() + ' ';
+
+        // format <prefix>
+        const QString p = prefix();
+        if (!p.isEmpty())
+            data += ':' + p.toUtf8() + ' ';
+
+        // format <command>
+        data += command().toUtf8();
+
+        // format <params>
+        foreach (const QString& param, params()) {
+            data += ' ';
+            if (param.contains(QLatin1Char(' ')))
+                data += ':';
+            data += param.toUtf8();
+        }
+        return data;
+    }
+
+    return data.content;
+}
+
 void IrcMessagePrivate::invalidate()
 {
     m_nick.clear();

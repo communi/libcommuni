@@ -97,6 +97,8 @@ public:
     QVariantMap tags() const;
     void setTags(const QVariantMap& tags);
 
+    QByteArray content() const;
+
     void invalidate();
 
     static QString decode(const QByteArray& data, const QByteArray& encoding);
