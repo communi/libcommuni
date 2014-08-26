@@ -13,6 +13,7 @@
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QVBoxLayout>
+#include <QScrollBar>
 #include <QLineEdit>
 #include <QShortcut>
 #include <QListView>
@@ -152,6 +153,7 @@ void IrcClient::onBufferActivated(const QModelIndex& index)
 
     // document, user list and nick completion for the current buffer
     textEdit->setDocument(documents.value(buffer));
+    textEdit->verticalScrollBar()->triggerAction(QScrollBar::SliderToMaximum);
     userList->setModel(userModels.value(buffer));
     completer->setBuffer(buffer);
 
@@ -194,8 +196,12 @@ void IrcClient::receiveMessage(IrcMessage* message)
     QTextDocument* document = documents.value(buffer);
     if (document) {
         QString html = IrcMessageFormatter::formatMessage(message);
-        if (!html.isEmpty())
-            appendHtml(document, html);
+        if (!html.isEmpty()) {
+            if (document == textEdit->document())
+                textEdit->append(html);
+            else
+                appendHtml(document, html);
+        }
     }
 }
 
