@@ -1428,6 +1428,8 @@ QString IrcTopicMessage::channel() const
 QString IrcTopicMessage::topic() const
 {
     Q_D(const IrcMessage);
+    if (d->command().toInt() == Irc::RPL_NOTOPIC)
+        return QString();
     return d->param(1);
 }
 
