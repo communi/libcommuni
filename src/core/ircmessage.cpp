@@ -157,6 +157,11 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \var IrcMessage::WhoReply
+    \brief A who reply message (IrcWhoReplyMessage).
+ */
+
+/*!
     \enum IrcMessage::Flag
     This enum describes the supported message flags.
  */
