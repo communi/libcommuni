@@ -84,6 +84,17 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         d.message = 0;
         break;
 
+    case Irc::RPL_INVITING:
+    case Irc::RPL_INVITED:
+        d.message = new IrcInviteMessage(d.connection);
+        d.message->setPrefix(message->prefix());
+        d.message->setTimeStamp(message->timeStamp());
+        d.message->setCommand(QString::number(message->code()));
+        d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
+        emit messageReceived(d.message);
+        d.message = 0;
+        break;
+
     case Irc::RPL_WHOREPLY: {
         d.message = new IrcWhoReplyMessage(d.connection);
         d.message->setPrefix(message->parameters().value(5) // nick

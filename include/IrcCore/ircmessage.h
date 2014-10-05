@@ -183,12 +183,14 @@ class IRC_CORE_EXPORT IrcInviteMessage : public IrcMessage
     Q_OBJECT
     Q_PROPERTY(QString user READ user)
     Q_PROPERTY(QString channel READ channel)
+    Q_PROPERTY(bool reply READ isReply)
 
 public:
     Q_INVOKABLE explicit IrcInviteMessage(IrcConnection* connection);
 
     QString user() const;
     QString channel() const;
+    bool isReply() const;
 
     bool isValid() const;
 

@@ -700,6 +700,26 @@ QString IrcInviteMessage::channel() const
     return d->param(1);
 }
 
+/*!
+    \property bool IrcInviteMessage::reply
+    This property holds whether the message is a reply.
+
+    Invite messages are sent in two situations:
+    \li as a notification of a received invitation (\c false),
+    \li as a reply when sending an invitation (\c true).
+
+    \par Access function:
+    \li bool <b>isReply</b>() const
+
+    \sa Irc::RPL_INVITING, Irc::RPL_INVITED, IrcInviteCommand
+ */
+bool IrcInviteMessage::isReply() const
+{
+    Q_D(const IrcMessage);
+    int rpl = d->command().toInt();
+    return rpl == Irc::RPL_INVITING || rpl == Irc::RPL_INVITED;
+}
+
 bool IrcInviteMessage::isValid() const
 {
     return IrcMessage::isValid() && !user().isEmpty() && !channel().isEmpty();
