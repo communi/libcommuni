@@ -869,6 +869,7 @@ QStringList IrcModeMessage::arguments() const
 }
 
 /*!
+    \property bool IrcModeMessage::reply
     This property holds whether the message is a reply.
 
     Mode messages are sent when a mode changes (\c false)
@@ -1434,6 +1435,7 @@ QString IrcTopicMessage::topic() const
 }
 
 /*!
+    \property bool IrcTopicMessage::reply
     This property holds whether the message is a reply.
 
     Topic messages are sent in three situations:
