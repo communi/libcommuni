@@ -463,7 +463,7 @@ bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
 
 bool IrcChannelPrivate::processWhoReplyMessage(IrcWhoReplyMessage *message)
 {
-    if(message->isValid()) {
+    if (message->isValid()) {
         setUserAway(message->nick(), message->isAway());
         setUserServOp(message->nick(), message->isServOp());
         return true;
