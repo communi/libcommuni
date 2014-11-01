@@ -43,6 +43,8 @@ private slots:
     void testTags_data();
     void testTags();
 
+    void testAccountMessage_data();
+    void testAccountMessage();
     void testCapabilityMessage_data();
     void testCapabilityMessage();
     void testErrorMessage_data();
@@ -249,6 +251,38 @@ void tst_IrcMessage::testTags()
     QCOMPARE(message->command(), command);
     QCOMPARE(message->property("target").toString(), target);
     QCOMPARE(message->property("content").toString(), content);
+}
+
+void tst_IrcMessage::testAccountMessage_data()
+{
+    QTest::addColumn<bool>("valid");
+    QTest::addColumn<QByteArray>("data");
+    QTest::addColumn<QString>("account");
+
+    QTest::newRow("no prefix") << false << QByteArray("ACCOUNT") << QString();
+    QTest::newRow("empty prefix") << false << QByteArray(": ACCOUNT") << QString();
+    QTest::newRow("no params") << false << QByteArray(":nick!ident@host ACCOUNT") << QString();
+    QTest::newRow("identified") << true << QByteArray(":nick!ident@host ACCOUNT account") << QString("account");
+    QTest::newRow("unidentified") << true << QByteArray(":nick!ident@host ACCOUNT *") << QString();
+}
+
+void tst_IrcMessage::testAccountMessage()
+{
+    QFETCH(bool, valid);
+    QFETCH(QByteArray, data);
+    QFETCH(QString, account);
+
+    IrcConnection connection;
+    IrcMessage* message = IrcMessage::fromData(data, &connection);
+    QCOMPARE(message->type(), IrcMessage::Account);
+    QCOMPARE(message->command(), QString("ACCOUNT"));
+    QCOMPARE(message->property("valid").toBool(), valid);
+    QCOMPARE(message->property("account").toString(), account);
+
+    IrcAccountMessage* accountMessage = qobject_cast<IrcAccountMessage*>(message);
+    QVERIFY(accountMessage);
+    QCOMPARE(accountMessage->isValid(), valid);
+    QCOMPARE(accountMessage->account(), account);
 }
 
 void tst_IrcMessage::testCapabilityMessage_data()

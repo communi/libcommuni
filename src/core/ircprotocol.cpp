@@ -150,6 +150,8 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
             break;
         }
         q->receiveMessage(msg);
+    } else {
+        qDebug() << line;
     }
 }
 

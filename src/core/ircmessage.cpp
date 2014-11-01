@@ -67,6 +67,12 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \since 3.3
+    \var IrcMessage::Account
+    \brief An account notify message (IrcAccountMessage).
+ */
+
+/*!
     \var IrcMessage::Unknown
     \brief An unknown message (IrcMessage).
  */
@@ -196,6 +202,7 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
 {
     static QHash<QString, const QMetaObject*> metaObjects;
     if (metaObjects.isEmpty()) {
+        metaObjects.insert("ACCOUNT", &IrcAccountMessage::staticMetaObject);
         metaObjects.insert("CAP", &IrcCapabilityMessage::staticMetaObject);
         metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
         metaObjects.insert("INVITE", &IrcInviteMessage::staticMetaObject);
@@ -573,6 +580,45 @@ QByteArray IrcMessage::toData() const
 {
     Q_D(const IrcMessage);
     return d->content();
+}
+
+/*!
+    \since 3.3
+    \class IrcAccountMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents an account notify message.
+ */
+
+/*!
+    Constructs a new IrcAccountMessage with \a connection.
+ */
+IrcAccountMessage::IrcAccountMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Account;
+}
+
+/*!
+    This property holds the account name.
+
+    \note The account name is empty if the user has logged out.
+
+    \par Access function:
+    \li QString <b>account</b>() const
+ */
+QString IrcAccountMessage::account() const
+{
+    Q_D(const IrcMessage);
+    const QString p = d->param(0);
+    if (p != QLatin1String("*"))
+        return p;
+    return QString();
+}
+
+bool IrcAccountMessage::isValid() const
+{
+    Q_D(const IrcMessage);
+    return IrcMessage::isValid() && !d->param(0).isEmpty();
 }
 
 /*!
