@@ -752,6 +752,42 @@ QString IrcJoinMessage::channel() const
     return d->param(0);
 }
 
+/*!
+    \since 3.3
+
+    This property holds the account name of the user.
+
+    \note Only set if the extended-join capability is
+    enabled and the user has identified with services.
+
+    \par Access function:
+    \li QString <b>account</b>() const
+ */
+QString IrcJoinMessage::account() const
+{
+    Q_D(const IrcMessage);
+    const QString p = d->param(1);
+    if (p != QLatin1String("*"))
+        return p;
+    return QString();
+}
+
+/*!
+    \since 3.3
+
+    This property holds the real name of the user.
+
+    \note Only set if the extended-join capability is enabled.
+
+    \par Access function:
+    \li QString <b>realName</b>() const
+ */
+QString IrcJoinMessage::realName() const
+{
+    Q_D(const IrcMessage);
+    return d->param(2);
+}
+
 bool IrcJoinMessage::isValid() const
 {
     return IrcMessage::isValid() && !channel().isEmpty();

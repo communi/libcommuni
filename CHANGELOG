@@ -6,6 +6,8 @@
     - NOTE: Notice that there is no need to catch RPL_INVITING or
             RPL_INVITED anymore. These numeric replies are now
             composed to IrcInviteMessage.
+  - Added IrcJoinMessage::account and IrcJoinMessage::realName
+    - NOTE: Only set if the extended-join capability is enabled.
 
 3.2.0
 -----

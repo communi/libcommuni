@@ -361,11 +361,16 @@ void tst_IrcMessage::testJoinMessage_data()
     QTest::addColumn<bool>("valid");
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("channel");
+    QTest::addColumn<QString>("account");
+    QTest::addColumn<QString>("realName");
 
-    QTest::newRow("no prefix") << true << QByteArray("JOIN #Twilight_zone") << QString("#Twilight_zone");
-    QTest::newRow("empty prefix") << false << QByteArray(": JOIN #Twilight_zone") << QString("#Twilight_zone");
-    QTest::newRow("no params") << false << QByteArray(":WiZ JOIN") << QString();
-    QTest::newRow("all ok") << true << QByteArray(":WiZ JOIN #Twilight_zone") << QString("#Twilight_zone");
+    QTest::newRow("no prefix") << true << QByteArray("JOIN #Twilight_zone") << QString("#Twilight_zone") << QString() << QString();
+    QTest::newRow("empty prefix") << false << QByteArray(": JOIN #Twilight_zone") << QString("#Twilight_zone") << QString() << QString();
+    QTest::newRow("no params") << false << QByteArray(":WiZ JOIN") << QString() << QString() << QString();
+    QTest::newRow("all ok") << true << QByteArray(":WiZ JOIN #Twilight_zone") << QString("#Twilight_zone") << QString() << QString();
+
+    QTest::newRow("extended-join") << true << QByteArray(":nick!user@host JOIN #channelname accountname :Real Name") << QString("#channelname") << QString("accountname") << QString("Real Name");
+    QTest::newRow("unidentified") << true << QByteArray(":nick!user@host JOIN #channelname * :Real Name") << QString("#channelname") << QString() << QString("Real Name");
 }
 
 void tst_IrcMessage::testJoinMessage()
@@ -373,6 +378,8 @@ void tst_IrcMessage::testJoinMessage()
     QFETCH(bool, valid);
     QFETCH(QByteArray, data);
     QFETCH(QString, channel);
+    QFETCH(QString, account);
+    QFETCH(QString, realName);
 
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
@@ -380,11 +387,15 @@ void tst_IrcMessage::testJoinMessage()
     QCOMPARE(message->command(), QString("JOIN"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("channel").toString(), channel);
+    QCOMPARE(message->property("account").toString(), account);
+    QCOMPARE(message->property("realName").toString(), realName);
 
     IrcJoinMessage* joinMessage = qobject_cast<IrcJoinMessage*>(message);
     QVERIFY(joinMessage);
     QCOMPARE(joinMessage->isValid(), valid);
     QCOMPARE(joinMessage->channel(), channel);
+    QCOMPARE(joinMessage->account(), account);
+    QCOMPARE(joinMessage->realName(), realName);
 }
 
 void tst_IrcMessage::testKickMessage_data()

@@ -202,11 +202,15 @@ class IRC_CORE_EXPORT IrcJoinMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel)
+    Q_PROPERTY(QString account READ account)
+    Q_PROPERTY(QString realName READ realName)
 
 public:
     Q_INVOKABLE explicit IrcJoinMessage(IrcConnection* connection);
 
     QString channel() const;
+    QString account() const;
+    QString realName() const;
 
     bool isValid() const;
 
