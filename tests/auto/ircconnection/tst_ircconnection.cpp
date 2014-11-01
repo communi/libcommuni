@@ -1195,6 +1195,42 @@ void tst_IrcConnection::testMessageBuilder()
     filter.property = "realName";
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0"));
     QCOMPARE(filter.value.toString(), QString());
+
+    filter.property = "content";
+    filter.type = IrcMessage::Unknown;
+    QVERIFY(waitForWritten(":nick!ident@host 301 :gone far away"));
+    QCOMPARE(filter.value.toString(), QString("gone far away"));
+    QCOMPARE(filter.type, IrcMessage::Away);
+
+    filter.property = "content";
+    filter.type = IrcMessage::Unknown;
+    QVERIFY(waitForWritten(":nick!ident@host 301"));
+    QCOMPARE(filter.value.toString(), QString());
+    QCOMPARE(filter.type, IrcMessage::Away);
+
+    filter.property = "content";
+    filter.type = IrcMessage::Unknown;
+    QVERIFY(waitForWritten(":nick!ident@host 305 :gone far away"));
+    QCOMPARE(filter.value.toString(), QString("gone far away"));
+    QCOMPARE(filter.type, IrcMessage::Away);
+
+    filter.property = "content";
+    filter.type = IrcMessage::Unknown;
+    QVERIFY(waitForWritten(":nick!ident@host 305"));
+    QCOMPARE(filter.value.toString(), QString());
+    QCOMPARE(filter.type, IrcMessage::Away);
+
+    filter.property = "content";
+    filter.type = IrcMessage::Unknown;
+    QVERIFY(waitForWritten(":nick!ident@host 306 :gone far away"));
+    QCOMPARE(filter.value.toString(), QString("gone far away"));
+    QCOMPARE(filter.type, IrcMessage::Away);
+
+    filter.property = "content";
+    filter.type = IrcMessage::Unknown;
+    QVERIFY(waitForWritten(":nick!ident@host 306"));
+    QCOMPARE(filter.value.toString(), QString());
+    QCOMPARE(filter.type, IrcMessage::Away);
 }
 
 void tst_IrcConnection::testSendCommand()

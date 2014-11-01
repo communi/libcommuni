@@ -11,7 +11,10 @@
   - Added IrcAccountMessage
     - NOTE: Only received if the account-notify capability is enabled.
   - Added IrcAwayMessage
-    - NOTE: Only received if the away-notify capability is enabled.
+    - NOTE: Notice that there is no need to catch RPL_AWAY, RPL_UNAWAY,
+            or RPL_NOWAWAY anymore. These numeric replies are now
+            composed to IrcAwayMessage. For other users, only received
+            if the away-notify capability is enabled.
 
 3.2.0
 -----

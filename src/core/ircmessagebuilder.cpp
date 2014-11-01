@@ -123,6 +123,18 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         emit messageReceived(d.message);
         d.message = 0;
         break;
+
+    case Irc::RPL_AWAY:
+    case Irc::RPL_UNAWAY:
+    case Irc::RPL_NOWAWAY:
+        d.message = new IrcAwayMessage(d.connection);
+        d.message->setPrefix(message->prefix());
+        d.message->setTimeStamp(message->timeStamp());
+        d.message->setCommand(QString::number(message->code()));
+        d.message->setParameters(message->parameters());
+        emit messageReceived(d.message);
+        d.message = 0;
+        break;
     }
 }
 #endif // IRC_DOXYGEN
