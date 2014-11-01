@@ -27,6 +27,7 @@
 */
 
 #include "irccommand.h"
+#include "irccommand_p.h"
 #include "ircmessage.h"
 #include <QTextCodec>
 #include <QMetaEnum>
@@ -259,19 +260,9 @@ IRC_BEGIN_NAMESPACE
  */
 
 #ifndef IRC_DOXYGEN
-class IrcCommandPrivate
+IrcCommandPrivate::IrcCommandPrivate() : type(IrcCommand::Custom), encoding("UTF-8")
 {
-public:
-    IrcCommandPrivate() : encoding("UTF-8") { }
-
-    QString params(int index) const;
-
-    IrcCommand::Type type;
-    QStringList parameters;
-    QByteArray encoding;
-
-    static IrcCommand* createCommand(IrcCommand::Type type, const QStringList& parameters);
-};
+}
 
 QString IrcCommandPrivate::params(int index) const
 {
@@ -292,8 +283,6 @@ IrcCommand* IrcCommandPrivate::createCommand(IrcCommand::Type type, const QStrin
  */
 IrcCommand::IrcCommand(QObject* parent) : QObject(parent), d_ptr(new IrcCommandPrivate)
 {
-    Q_D(IrcCommand);
-    d->type = Custom;
 }
 
 /*!
