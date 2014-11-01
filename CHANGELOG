@@ -10,6 +10,8 @@
     - NOTE: Only set if the extended-join capability is enabled.
   - Added IrcAccountMessage
     - NOTE: Only received if the account-notify capability is enabled.
+  - Added IrcAwayMessage
+    - NOTE: Only received if the away-notify capability is enabled.
 
 3.2.0
 -----

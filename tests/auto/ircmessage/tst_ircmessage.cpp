@@ -45,6 +45,8 @@ private slots:
 
     void testAccountMessage_data();
     void testAccountMessage();
+    void testAwayMessage_data();
+    void testAwayMessage();
     void testCapabilityMessage_data();
     void testCapabilityMessage();
     void testErrorMessage_data();
@@ -283,6 +285,37 @@ void tst_IrcMessage::testAccountMessage()
     QVERIFY(accountMessage);
     QCOMPARE(accountMessage->isValid(), valid);
     QCOMPARE(accountMessage->account(), account);
+}
+
+void tst_IrcMessage::testAwayMessage_data()
+{
+    QTest::addColumn<bool>("valid");
+    QTest::addColumn<QByteArray>("data");
+    QTest::addColumn<QString>("content");
+
+    QTest::newRow("no prefix") << true << QByteArray("AWAY") << QString();
+    QTest::newRow("empty prefix") << false << QByteArray(": AWAY") << QString();
+    QTest::newRow("away") << true << QByteArray(":nick!ident@host AWAY :gone far away") << QString("gone far away");
+    QTest::newRow("back") << true << QByteArray(":nick!ident@host AWAY") << QString();
+}
+
+void tst_IrcMessage::testAwayMessage()
+{
+    QFETCH(bool, valid);
+    QFETCH(QByteArray, data);
+    QFETCH(QString, content);
+
+    IrcConnection connection;
+    IrcMessage* message = IrcMessage::fromData(data, &connection);
+    QCOMPARE(message->type(), IrcMessage::Away);
+    QCOMPARE(message->command(), QString("AWAY"));
+    QCOMPARE(message->property("valid").toBool(), valid);
+    QCOMPARE(message->property("content").toString(), content);
+
+    IrcAwayMessage* awayMessage = qobject_cast<IrcAwayMessage*>(message);
+    QVERIFY(awayMessage);
+    QCOMPARE(awayMessage->isValid(), valid);
+    QCOMPARE(awayMessage->content(), content);
 }
 
 void tst_IrcMessage::testCapabilityMessage_data()

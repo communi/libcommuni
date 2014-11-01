@@ -85,7 +85,8 @@ public:
         Quit,
         Topic,
         WhoReply,
-        Account
+        Account,
+        Away
     };
 
     enum Flag {
@@ -159,6 +160,22 @@ public:
 
 private:
     Q_DISABLE_COPY(IrcAccountMessage)
+};
+
+class IRC_CORE_EXPORT IrcAwayMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString content READ content)
+
+public:
+    Q_INVOKABLE explicit IrcAwayMessage(IrcConnection* connection);
+
+    QString content() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcAwayMessage)
 };
 
 class IRC_CORE_EXPORT IrcCapabilityMessage : public IrcMessage
@@ -521,6 +538,7 @@ IRC_END_NAMESPACE
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcMessage::Type))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcAccountMessage*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcAwayMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCapabilityMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcErrorMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcInviteMessage*))

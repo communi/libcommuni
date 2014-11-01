@@ -73,6 +73,12 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \since 3.3
+    \var IrcMessage::Away
+    \brief An away message (IrcAwayMessage).
+ */
+
+/*!
     \var IrcMessage::Unknown
     \brief An unknown message (IrcMessage).
  */
@@ -203,6 +209,7 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
     static QHash<QString, const QMetaObject*> metaObjects;
     if (metaObjects.isEmpty()) {
         metaObjects.insert("ACCOUNT", &IrcAccountMessage::staticMetaObject);
+        metaObjects.insert("AWAY", &IrcAwayMessage::staticMetaObject);
         metaObjects.insert("CAP", &IrcCapabilityMessage::staticMetaObject);
         metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
         metaObjects.insert("INVITE", &IrcInviteMessage::staticMetaObject);
@@ -580,6 +587,39 @@ QByteArray IrcMessage::toData() const
 {
     Q_D(const IrcMessage);
     return d->content();
+}
+
+/*!
+    \since 3.3
+    \class IrcAwayMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents an away message.
+ */
+
+/*!
+    Constructs a new IrcAwayMessage with \a connection.
+ */
+IrcAwayMessage::IrcAwayMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Away;
+}
+
+/*!
+    This property holds the message content.
+
+    \par Access function:
+    \li QString <b>content</b>() const
+ */
+QString IrcAwayMessage::content() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+bool IrcAwayMessage::isValid() const
+{
+    return IrcMessage::isValid();
 }
 
 /*!
