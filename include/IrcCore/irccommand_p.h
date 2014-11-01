@@ -44,6 +44,11 @@ public:
     QStringList parameters;
     QByteArray encoding;
 
+    static IrcCommandPrivate* get(const IrcCommand* command)
+    {
+        return command->d_ptr.data();
+    }
+
     static IrcCommand* createCommand(IrcCommand::Type type, const QStringList& parameters);
 };
 
