@@ -329,7 +329,7 @@ void IrcChannelPrivate::promoteUser(const QString& name)
     }
 }
 
-void IrcChannelPrivate::setUserAway(const QString& name, const bool &away)
+void IrcChannelPrivate::setUserAway(const QString& name, bool away)
 {
     if (IrcUser* user = userMap.value(name)) {
         IrcUserPrivate* priv = IrcUserPrivate::get(user);
@@ -338,7 +338,7 @@ void IrcChannelPrivate::setUserAway(const QString& name, const bool &away)
     }
 }
 
-void IrcChannelPrivate::setUserServOp(const QString& name, const bool &servOp)
+void IrcChannelPrivate::setUserServOp(const QString& name, bool servOp)
 {
     if (IrcUser* user = userMap.value(name)) {
         IrcUserPrivate* priv = IrcUserPrivate::get(user);
