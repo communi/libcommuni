@@ -50,6 +50,7 @@ public:
     void renameUser(IrcUser* user);
     void setUserMode(IrcUser* user);
     void promoteUser(IrcUser* user);
+    bool updateUser(IrcUser* user);
 
     static IrcUserModelPrivate* get(IrcUserModel* model)
     {

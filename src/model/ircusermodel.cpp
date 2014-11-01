@@ -194,36 +194,24 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users, bool reset)
 void IrcUserModelPrivate::renameUser(IrcUser* user)
 {
     Q_Q(IrcUserModel);
-    const int idx = userList.indexOf(user);
-    if (idx != -1) {
-        QModelIndex index = q->index(idx, 0);
-        emit q->dataChanged(index, index);
-
-        if (sortMethod != Irc::SortByHand) {
-            QList<IrcUser*> users = userList;
-            const bool notify = false;
-            removeUser(user, notify);
-            insertUser(-1, user, notify);
-            if (users != userList)
-                emit q->usersChanged(userList);
-        }
+    if (updateUser(user) && sortMethod != Irc::SortByHand) {
+        QList<IrcUser*> users = userList;
+        const bool notify = false;
+        removeUser(user, notify);
+        insertUser(-1, user, notify);
+        if (users != userList)
+            emit q->usersChanged(userList);
     }
 }
 
 void IrcUserModelPrivate::setUserMode(IrcUser* user)
 {
     Q_Q(IrcUserModel);
-    const int idx = userList.indexOf(user);
-    if (idx != -1) {
-        QModelIndex index = q->index(idx, 0);
-        emit q->dataChanged(index, index);
-
-        if (sortMethod == Irc::SortByTitle) {
-            const bool notify = false;
-            removeUser(user, notify);
-            insertUser(0, user, notify);
-            emit q->usersChanged(userList);
-        }
+    if (updateUser(user) && sortMethod == Irc::SortByTitle) {
+        const bool notify = false;
+        removeUser(user, notify);
+        insertUser(0, user, notify);
+        emit q->usersChanged(userList);
     }
 }
 
@@ -236,6 +224,18 @@ void IrcUserModelPrivate::promoteUser(IrcUser* user)
         insertUser(0, user, notify);
         emit q->usersChanged(userList);
     }
+}
+
+bool IrcUserModelPrivate::updateUser(IrcUser* user)
+{
+    Q_Q(IrcUserModel);
+    const int idx = userList.indexOf(user);
+    if (idx != -1) {
+        QModelIndex index = q->index(idx, 0);
+        emit q->dataChanged(index, index);
+        return true;
+    }
+    return false;
 }
 #endif // IRC_DOXYGEN
 
