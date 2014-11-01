@@ -333,8 +333,9 @@ void IrcChannelPrivate::setUserAway(const QString& name, bool away)
 {
     if (IrcUser* user = userMap.value(name)) {
         IrcUserPrivate* priv = IrcUserPrivate::get(user);
-
         priv->setAway(away);
+        foreach (IrcUserModel* model, userModels)
+            IrcUserModelPrivate::get(model)->updateUser(user);
     }
 }
 
@@ -342,8 +343,9 @@ void IrcChannelPrivate::setUserServOp(const QString& name, bool servOp)
 {
     if (IrcUser* user = userMap.value(name)) {
         IrcUserPrivate* priv = IrcUserPrivate::get(user);
-
         priv->setServOp(servOp);
+        foreach (IrcUserModel* model, userModels)
+            IrcUserModelPrivate::get(model)->updateUser(user);
     }
 }
 
