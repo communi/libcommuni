@@ -43,6 +43,7 @@ class IrcCommandPrivate;
 class IRC_CORE_EXPORT IrcCommand : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(IrcConnection* connection READ connection)
     Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
     Q_PROPERTY(Type type READ type WRITE setType)
@@ -87,6 +88,8 @@ public:
 
     explicit IrcCommand(QObject* parent = 0);
     virtual ~IrcCommand();
+
+    IrcConnection* connection() const;
 
     Type type() const;
     void setType(Type type);

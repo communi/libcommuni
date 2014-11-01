@@ -31,6 +31,8 @@
 
 #include "irccommand.h"
 
+#include <QPointer>
+
 IRC_BEGIN_NAMESPACE
 
 class IrcCommandPrivate
@@ -43,6 +45,7 @@ public:
     IrcCommand::Type type;
     QStringList parameters;
     QByteArray encoding;
+    QPointer<IrcConnection> connection;
 
     static IrcCommandPrivate* get(const IrcCommand* command)
     {

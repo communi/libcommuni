@@ -29,6 +29,7 @@
 #include "ircconnection.h"
 #include "ircconnection_p.h"
 #include "ircnetwork_p.h"
+#include "irccommand_p.h"
 #include "ircprotocol.h"
 #include "ircnetwork.h"
 #include "irccommand.h"
@@ -1220,6 +1221,7 @@ bool IrcConnection::sendCommand(IrcCommand* command)
     bool res = false;
     if (command) {
         bool filtered = false;
+        IrcCommandPrivate::get(command)->connection = this;
         for (int i = d->commandFilters.count() - 1; !filtered && i >= 0; --i) {
             QObject* filter = d->commandFilters.at(i);
             IrcCommandFilter* commandFilter = qobject_cast<IrcCommandFilter*>(filter);

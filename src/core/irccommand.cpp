@@ -28,6 +28,7 @@
 
 #include "irccommand.h"
 #include "irccommand_p.h"
+#include "ircconnection.h"
 #include "ircmessage.h"
 #include <QTextCodec>
 #include <QMetaEnum>
@@ -290,6 +291,23 @@ IrcCommand::IrcCommand(QObject* parent) : QObject(parent), d_ptr(new IrcCommandP
  */
 IrcCommand::~IrcCommand()
 {
+}
+
+/*!
+    \since 3.3
+
+    This property holds the connection that this command was sent to.
+
+    The connection is only set if the command has been passed to IrcConnection::sendCommand().
+    It is mostly usable to know the associated connection in IrcCommandFilter::commandFilter().
+
+    \par Access function:
+    \li \ref IrcConnection* <b>connection</b>() const
+ */
+IrcConnection* IrcCommand::connection() const
+{
+    Q_D(const IrcCommand);
+    return d->connection;
 }
 
 /*!
