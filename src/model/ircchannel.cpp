@@ -562,6 +562,24 @@ bool IrcChannel::isActive() const
 }
 
 /*!
+    \since 3.3
+
+    Sends a who command to the channel.
+
+    This method is provided for convenience. It is equal to:
+    \code
+    IrcCommand* command = IrcCommand::createWho(channel->title());
+    channel->sendCommand(command);
+    \endcode
+
+    \sa IrcBuffer::sendCommand(), IrcCommand::createWho()
+ */
+void IrcChannel::who()
+{
+    sendCommand(IrcCommand::createWho(title()));
+}
+
+/*!
     \since 3.1
 
     Joins the channel with an optional \a key.

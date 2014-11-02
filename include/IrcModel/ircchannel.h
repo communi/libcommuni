@@ -55,6 +55,7 @@ public:
     virtual bool isActive() const;
 
 public Q_SLOTS:
+    void who();
     void join(const QString& key = QString());
     void part(const QString& reason = QString());
     void close(const QString& reason = QString());
