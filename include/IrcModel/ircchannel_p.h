@@ -63,9 +63,10 @@ public:
     bool renameUser(const QString& from, const QString& to);
     void setUserMode(const QString& user, const QString& mode);
     void promoteUser(const QString& user);
-    void setUserAway(const QString &name, bool away);
+    bool setUserAway(const QString &name, bool away);
     void setUserServOp(const QString &name, bool servOp);
 
+    virtual bool processAwayMessage(IrcAwayMessage* message);
     virtual bool processJoinMessage(IrcJoinMessage* message);
     virtual bool processKickMessage(IrcKickMessage* message);
     virtual bool processModeMessage(IrcModeMessage* message);

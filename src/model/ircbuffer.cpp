@@ -54,6 +54,7 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when a buffer specific message is received.
 
     The message may one of the following types:
+    - IrcMessage::Away
     - IrcMessage::Join
     - IrcMessage::Kick
     - IrcMessage::Mode
@@ -135,6 +136,9 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
     Q_Q(IrcBuffer);
     bool processed = false;
     switch (message->type()) {
+    case IrcMessage::Away:
+        processed = processAwayMessage(static_cast<IrcAwayMessage*>(message));
+        break;
     case IrcMessage::Join:
         processed = processJoinMessage(static_cast<IrcJoinMessage*>(message));
         break;
@@ -177,6 +181,12 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
     if (processed)
         emit q->messageReceived(message);
     return processed;
+}
+
+bool IrcBufferPrivate::processAwayMessage(IrcAwayMessage* message)
+{
+    Q_UNUSED(message);
+    return false;
 }
 
 bool IrcBufferPrivate::processJoinMessage(IrcJoinMessage* message)

@@ -58,6 +58,7 @@ public:
 
     bool processMessage(IrcMessage* message);
 
+    virtual bool processAwayMessage(IrcAwayMessage* message);
     virtual bool processJoinMessage(IrcJoinMessage* message);
     virtual bool processKickMessage(IrcKickMessage* message);
     virtual bool processModeMessage(IrcModeMessage* message);

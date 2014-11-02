@@ -139,6 +139,7 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
 
     bool processed = false;
     switch (msg->type()) {
+        case IrcMessage::Away:
         case IrcMessage::Nick:
         case IrcMessage::Quit:
             foreach (IrcBuffer* buffer, bufferList) {
