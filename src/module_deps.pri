@@ -12,7 +12,13 @@ IRC_INCDIR = $$IRC_SOURCEDIR/include
 
 INCLUDEPATH += $$IRC_INCDIR
 
-for(IRC_MODULE, IRC_MODULES) {
+# order matters for static libs
+IRC_MODULES_ORDERED =
+for(IRC_MODULE, $$list(IrcUtil IrcModel IrcCore)) {
+   contains(IRC_MODULES, $$IRC_MODULE):IRC_MODULES_ORDERED += $$IRC_MODULE
+}
+
+for(IRC_MODULE, IRC_MODULES_ORDERED) {
     !contains(DEFINES, IRC_STATIC):macx:!qt_no_framework {
         INCLUDEPATH += $$IRC_LIBDIR/$${IRC_MODULE}.framework/Headers
         QMAKE_LFLAGS += -F$$IRC_LIBDIR # inject before system frameworks
