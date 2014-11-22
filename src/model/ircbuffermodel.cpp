@@ -417,6 +417,36 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
 {
     removeBuffer(buffer);
 }
+
+void IrcBufferModelPrivate::restoreBuffers()
+{
+    Q_Q(IrcBufferModel);
+    foreach (const QVariant& v, bufferStates) {
+        QVariantMap b = v.toMap();
+        IrcBuffer* buffer = q->find(b.value("title").toString());
+        if (!buffer) {
+            if (b.value("channel").toBool())
+                buffer = createChannelHelper(b.value("title").toString());
+            else
+                buffer = createBufferHelper(b.value("title").toString());
+            buffer->setName(b.value("name").toString());
+            buffer->setPrefix(b.value("prefix").toString());
+            buffer->setSticky(b.value("sticky").toBool());
+            buffer->setPersistent(b.value("persistent").toBool());
+            buffer->setUserData(b.value("userData").toMap());
+            q->add(buffer);
+        }
+        IrcChannel* channel = buffer->toChannel();
+        if (channel && !channel->isActive()) {
+            IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
+            const QStringList modes = b.value("modes").toStringList();
+            const QStringList args = b.value("args").toStringList();
+            for (int i = 0; i < modes.count(); ++i)
+                p->modes.insert(modes.at(i), args.value(i));
+            channel->join();
+        }
+    }
+}
 #endif // IRC_DOXYGEN
 
 /*!
@@ -1134,32 +1164,10 @@ bool IrcBufferModel::restoreState(const QByteArray& state, int version)
     setDisplayRole(static_cast<Irc::DataRole>(args.value("displayRole", displayRole()).toInt()));
     setPersistent(args.value("persistent", isPersistent()).toBool());
 
-    QVariantList buffers = args.value("buffers").toList();
-    foreach (const QVariant& v, buffers) {
-        QVariantMap b = v.toMap();
-        IrcBuffer* buffer = find(b.value("title").toString());
-        if (!buffer) {
-            if (b.value("channel").toBool())
-                buffer = d->createChannelHelper(b.value("title").toString());
-            else
-                buffer = d->createBufferHelper(b.value("title").toString());
-            buffer->setName(b.value("name").toString());
-            buffer->setPrefix(b.value("prefix").toString());
-            buffer->setSticky(b.value("sticky").toBool());
-            buffer->setPersistent(b.value("persistent").toBool());
-            buffer->setUserData(b.value("userData").toMap());
-            add(buffer);
-        }
-        IrcChannel* channel = buffer->toChannel();
-        if (channel && !channel->isActive()) {
-            IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
-            const QStringList modes = b.value("modes").toStringList();
-            const QStringList args = b.value("args").toStringList();
-            for (int i = 0; i < modes.count(); ++i)
-                p->modes.insert(modes.at(i), args.value(i));
-            channel->join();
-        }
-    }
+    d->bufferStates = args.value("buffers").toList();
+    if (d->connection && d->connection->isConnected())
+        d->restoreBuffers();
+
     return true;
 }
 

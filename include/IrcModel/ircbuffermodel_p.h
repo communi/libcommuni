@@ -65,6 +65,8 @@ public:
     void _irc_disconnected();
     void _irc_bufferDestroyed(IrcBuffer* buffer);
 
+    void restoreBuffers();
+
     static IrcBufferModelPrivate* get(IrcBufferModel* model)
     {
         return model->d_func();
@@ -76,6 +78,7 @@ public:
     QList<IrcBuffer*> bufferList;
     QMap<QString, IrcBuffer*> bufferMap;
     QHash<QString, QString> keys;
+    QVariantList bufferStates;
     QStringList channels;
     Irc::SortMethod sortMethod;
     Qt::SortOrder sortOrder;
