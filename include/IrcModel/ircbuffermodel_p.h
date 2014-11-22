@@ -65,7 +65,7 @@ public:
     void _irc_disconnected();
     void _irc_bufferDestroyed(IrcBuffer* buffer);
 
-    void restoreBuffers();
+    void _irc_restoreBuffers();
 
     static IrcBufferModelPrivate* get(IrcBufferModel* model)
     {
@@ -85,6 +85,7 @@ public:
     IrcBuffer* bufferProto;
     IrcChannel* channelProto;
     bool persistent;
+    int joinDelay;
 };
 
 IRC_END_NAMESPACE

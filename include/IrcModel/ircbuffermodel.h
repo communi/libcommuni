@@ -58,6 +58,7 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
     Q_PROPERTY(IrcNetwork* network READ network NOTIFY networkChanged)
     Q_PROPERTY(IrcBuffer* bufferPrototype READ bufferPrototype WRITE setBufferPrototype NOTIFY bufferPrototypeChanged)
     Q_PROPERTY(IrcChannel* channelPrototype READ channelPrototype WRITE setChannelPrototype NOTIFY channelPrototypeChanged)
+    Q_PROPERTY(int joinDelay READ joinDelay WRITE setJoinDelay NOTIFY joinDelayChanged)
 
 public:
     explicit IrcBufferModel(QObject* parent = 0);
@@ -108,6 +109,9 @@ public:
     IrcChannel* channelPrototype() const;
     void setChannelPrototype(IrcChannel* prototype);
 
+    int joinDelay() const;
+    void setJoinDelay(int delay);
+
     Q_INVOKABLE QByteArray saveState(int version = 0) const;
     Q_INVOKABLE bool restoreState(const QByteArray& state, int version = 0);
 
@@ -133,6 +137,7 @@ Q_SIGNALS:
     void bufferPrototypeChanged(IrcBuffer* prototype);
     void channelPrototypeChanged(IrcChannel* prototype);
     void destroyed(IrcBufferModel* model);
+    void joinDelayChanged(int delay);
 
 protected Q_SLOTS:
     virtual IrcBuffer* createBuffer(const QString& title);
@@ -151,6 +156,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _irc_connected())
     Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
     Q_PRIVATE_SLOT(d_func(), void _irc_bufferDestroyed(IrcBuffer*))
+    Q_PRIVATE_SLOT(d_func(), void _irc_restoreBuffers())
 };
 
 IRC_END_NAMESPACE

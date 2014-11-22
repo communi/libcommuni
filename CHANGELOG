@@ -17,6 +17,7 @@
             if the away-notify capability is enabled.
 - IrcModel
   - Added IrcChannel::who() slot for convenience
+  - Added IrcBufferModel::joinDelay
 
 3.2.0
 -----

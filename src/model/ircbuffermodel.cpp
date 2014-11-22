@@ -39,6 +39,7 @@
 #include <qmetaobject.h>
 #include <qdatastream.h>
 #include <qvariant.h>
+#include <qtimer.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -127,7 +128,7 @@ private:
 
 IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(0), role(Irc::TitleRole),
     sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder),
-    bufferProto(0), channelProto(0), persistent(false)
+    bufferProto(0), channelProto(0), persistent(false), joinDelay(0)
 {
 }
 
@@ -403,6 +404,12 @@ bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* mes
 
 void IrcBufferModelPrivate::_irc_connected()
 {
+    Q_Q(IrcBufferModel);
+    if (joinDelay == 0)
+        _irc_restoreBuffers();
+    else if (joinDelay > 0)
+        QTimer::singleShot(joinDelay * 1000, q, SLOT(_irc_restoreBuffers()));
+
     foreach (IrcBuffer* buffer, bufferList)
         IrcBufferPrivate::get(buffer)->connected();
 }
@@ -418,9 +425,12 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
     removeBuffer(buffer);
 }
 
-void IrcBufferModelPrivate::restoreBuffers()
+void IrcBufferModelPrivate::_irc_restoreBuffers()
 {
     Q_Q(IrcBufferModel);
+    if (!connection || !connection->isConnected())
+        return;
+
     foreach (const QVariant& v, bufferStates) {
         QVariantMap b = v.toMap();
         IrcBuffer* buffer = q->find(b.value("title").toString());
@@ -443,8 +453,14 @@ void IrcBufferModelPrivate::restoreBuffers()
             const QStringList args = b.value("args").toStringList();
             for (int i = 0; i < modes.count(); ++i)
                 p->modes.insert(modes.at(i), args.value(i));
-            channel->join();
         }
+    }
+    bufferStates.clear();
+
+    foreach (IrcBuffer* buffer, bufferList) {
+        IrcChannel* channel = buffer->toChannel();
+        if (channel && !channel->isActive())
+            channel->join();
     }
 }
 #endif // IRC_DOXYGEN
@@ -1099,6 +1115,37 @@ void IrcBufferModel::setChannelPrototype(IrcChannel* prototype)
 }
 
 /*!
+    \since 3.3
+
+    This property holds the join delay in seconds.
+
+    The default value is \c 0 - channels are joined immediately
+    after getting connected. A negative value disables automatic
+    joining of channels.
+
+    \par Access function:
+    \li int <b>joinDelay</b>() const
+    \li void <b>setJoinDelay</b>(int delay)
+
+    \par Notifier signal:
+    \li void <b>joinDelayChanged</b>(int delay)
+ */
+int IrcBufferModel::joinDelay() const
+{
+    Q_D(const IrcBufferModel);
+    return d->joinDelay;
+}
+
+void IrcBufferModel::setJoinDelay(int delay)
+{
+    Q_D(IrcBufferModel);
+    if (d->joinDelay != delay) {
+        d->joinDelay = delay;
+        emit joinDelayChanged(delay);
+    }
+}
+
+/*!
     \since 3.1
 
     Saves the state of the model. The \a version number is stored as part of the state data.
@@ -1114,6 +1161,7 @@ QByteArray IrcBufferModel::saveState(int version) const
     args.insert("sortMethod", d->sortMethod);
     args.insert("displayRole", d->role);
     args.insert("persistent", d->persistent);
+    args.insert("joinDelay", d->joinDelay);
 
     QVariantList bufs;
     foreach (IrcBuffer* buffer, d->bufferList) {
@@ -1163,10 +1211,13 @@ bool IrcBufferModel::restoreState(const QByteArray& state, int version)
     setSortMethod(static_cast<Irc::SortMethod>(args.value("sortMethod", sortMethod()).toInt()));
     setDisplayRole(static_cast<Irc::DataRole>(args.value("displayRole", displayRole()).toInt()));
     setPersistent(args.value("persistent", isPersistent()).toBool());
+    setJoinDelay(args.value("joinDelay", 0).toInt());
 
     d->bufferStates = args.value("buffers").toList();
-    if (d->connection && d->connection->isConnected())
-        d->restoreBuffers();
+    if (d->joinDelay == 0)
+        d->_irc_restoreBuffers();
+    else if (d->joinDelay > 0)
+        QTimer::singleShot(d->joinDelay * 1000, this, SLOT(_irc_restoreBuffers()));
 
     return true;
 }
