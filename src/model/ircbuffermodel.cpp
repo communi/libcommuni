@@ -1176,7 +1176,7 @@ QByteArray IrcBufferModel::saveState(int version) const
             b.insert("args", QStringList(p->modes.values()));
             b.insert("topic", channel->topic());
         }
-        b.insert("stick", buffer->isSticky());
+        b.insert("sticky", buffer->isSticky());
         b.insert("persistent", buffer->isPersistent());
         b.insert("userData", buffer->userData());
         bufs += b;
