@@ -618,6 +618,26 @@ QString IrcAwayMessage::content() const
     return d->param(0);
 }
 
+/*!
+    \property bool IrcAwayMessage::reply
+    This property holds whether the message is a reply.
+
+    Away messages are sent in three situations:
+    \li as a reply when sending a message (\c true),
+    \li as a reply when setting away status (\c true),
+    \li as an away notification when the away-notify capability is enabled (\c false).
+
+    \par Access function:
+    \li bool <b>isReply</b>() const
+
+    \sa Irc::RPL_AWAY, Irc::RPL_NOWAWAY, Irc::RPL_UNAWAY
+ */
+bool IrcAwayMessage::isReply() const
+{
+    Q_D(const IrcMessage);
+    return d->command().toInt() != 0;
+}
+
 bool IrcAwayMessage::isValid() const
 {
     return IrcMessage::isValid();

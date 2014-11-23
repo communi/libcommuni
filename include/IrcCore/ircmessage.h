@@ -166,11 +166,13 @@ class IRC_CORE_EXPORT IrcAwayMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content)
+    Q_PROPERTY(bool reply READ isReply)
 
 public:
     Q_INVOKABLE explicit IrcAwayMessage(IrcConnection* connection);
 
     QString content() const;
+    bool isReply() const;
 
     bool isValid() const;
 
