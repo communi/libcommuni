@@ -1198,8 +1198,14 @@ void tst_IrcConnection::testMessageComposer()
 
     filter.property = "content";
     filter.type = IrcMessage::Unknown;
-    QVERIFY(waitForWritten(":nick!ident@host 301 :gone far away"));
+    QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick :gone far away"));
     QCOMPARE(filter.value.toString(), QString("gone far away"));
+    QCOMPARE(filter.type, IrcMessage::Away);
+
+    filter.property = "nick";
+    filter.type = IrcMessage::Unknown;
+    QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick :gone far away"));
+    QCOMPARE(filter.value.toString(), QString("nick"));
     QCOMPARE(filter.type, IrcMessage::Away);
 
     filter.property = "content";
@@ -1210,26 +1216,14 @@ void tst_IrcConnection::testMessageComposer()
 
     filter.property = "content";
     filter.type = IrcMessage::Unknown;
-    QVERIFY(waitForWritten(":nick!ident@host 305 :gone far away"));
-    QCOMPARE(filter.value.toString(), QString("gone far away"));
+    QVERIFY(waitForWritten(":my.irc.ser.ver 305 communi :You are no longer marked as being away"));
+    QCOMPARE(filter.value.toString(), QString("You are no longer marked as being away"));
     QCOMPARE(filter.type, IrcMessage::Away);
 
     filter.property = "content";
     filter.type = IrcMessage::Unknown;
-    QVERIFY(waitForWritten(":nick!ident@host 305"));
-    QCOMPARE(filter.value.toString(), QString());
-    QCOMPARE(filter.type, IrcMessage::Away);
-
-    filter.property = "content";
-    filter.type = IrcMessage::Unknown;
-    QVERIFY(waitForWritten(":nick!ident@host 306 :gone far away"));
-    QCOMPARE(filter.value.toString(), QString("gone far away"));
-    QCOMPARE(filter.type, IrcMessage::Away);
-
-    filter.property = "content";
-    filter.type = IrcMessage::Unknown;
-    QVERIFY(waitForWritten(":nick!ident@host 306"));
-    QCOMPARE(filter.value.toString(), QString());
+    QVERIFY(waitForWritten(":my.irc.ser.ver 306 communi :You have been marked as being away"));
+    QCOMPARE(filter.value.toString(), QString("You have been marked as being away"));
     QCOMPARE(filter.type, IrcMessage::Away);
 }
 

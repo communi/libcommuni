@@ -151,10 +151,15 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
     case Irc::RPL_UNAWAY:
     case Irc::RPL_NOWAWAY:
         d.message = new IrcAwayMessage(d.connection);
-        d.message->setPrefix(message->prefix());
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
-        d.message->setParameters(message->parameters());
+        if (message->code() == Irc::RPL_AWAY) {
+            d.message->setPrefix(message->parameters().value(1));
+            d.message->setParameters(message->parameters().mid(2));
+        } else {
+            d.message->setPrefix(message->parameters().value(0));
+            d.message->setParameters(message->parameters().mid(1));
+        }
         emit messageComposed(d.message);
         d.message = 0;
         break;
