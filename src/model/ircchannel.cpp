@@ -353,7 +353,8 @@ void IrcChannelPrivate::setUserServOp(const QString& name, bool servOp)
 
 bool IrcChannelPrivate::processAwayMessage(IrcAwayMessage* message)
 {
-    return setUserAway(message->nick(), !message->content().isEmpty());
+    setUserAway(message->nick(), !message->content().isEmpty());
+    return false;
 }
 
 bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)

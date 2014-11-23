@@ -185,8 +185,7 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
 
 bool IrcBufferPrivate::processAwayMessage(IrcAwayMessage* message)
 {
-    Q_UNUSED(message);
-    return false;
+    return !message->nick().compare(name, Qt::CaseInsensitive);
 }
 
 bool IrcBufferPrivate::processJoinMessage(IrcJoinMessage* message)

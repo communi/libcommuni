@@ -147,7 +147,8 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
                 if (buffer->isActive())
                     IrcBufferPrivate::get(buffer)->processMessage(msg);
             }
-            processed = true;
+            if (msg->type() != IrcMessage::Away || !msg->isOwn())
+                processed = true;
             break;
 
         case IrcMessage::Join:
