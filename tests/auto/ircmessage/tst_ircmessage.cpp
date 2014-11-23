@@ -311,11 +311,15 @@ void tst_IrcMessage::testAwayMessage()
     QCOMPARE(message->command(), QString("AWAY"));
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("content").toString(), content);
+    QCOMPARE(message->property("away").toBool(), !content.isEmpty());
+    QVERIFY(!message->property("reply").toBool());
 
     IrcAwayMessage* awayMessage = qobject_cast<IrcAwayMessage*>(message);
     QVERIFY(awayMessage);
     QCOMPARE(awayMessage->isValid(), valid);
     QCOMPARE(awayMessage->content(), content);
+    QCOMPARE(awayMessage->isAway(), !content.isEmpty());
+    QVERIFY(!awayMessage->isReply());
 }
 
 void tst_IrcMessage::testCapabilityMessage_data()
