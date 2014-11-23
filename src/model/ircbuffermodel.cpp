@@ -406,9 +406,7 @@ bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* mes
 void IrcBufferModelPrivate::_irc_connected()
 {
     Q_Q(IrcBufferModel);
-    if (joinDelay == 0)
-        _irc_restoreBuffers();
-    else if (joinDelay > 0)
+    if (joinDelay >= 0)
         QTimer::singleShot(joinDelay * 1000, q, SLOT(_irc_restoreBuffers()));
 
     foreach (IrcBuffer* buffer, bufferList)
@@ -458,11 +456,22 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
     }
     bufferStates.clear();
 
+    QList<IrcChannel*> channels;
     foreach (IrcBuffer* buffer, bufferList) {
         IrcChannel* channel = buffer->toChannel();
-        if (channel && !channel->isActive())
-            channel->join();
+        if (channel) {
+            if (channel->isActive()) {
+                // this is probably a bouncer connection if there are already
+                // active channels. don't force re-join channels that were left
+                // in another client meanwhile this client was disconnected.
+                return;
+            }
+            channels += channel;
+        }
     }
+
+    foreach (IrcChannel* channel, channels)
+        channel->join();
 }
 #endif // IRC_DOXYGEN
 
@@ -1215,9 +1224,7 @@ bool IrcBufferModel::restoreState(const QByteArray& state, int version)
     setJoinDelay(args.value("joinDelay", 0).toInt());
 
     d->bufferStates = args.value("buffers").toList();
-    if (d->joinDelay == 0)
-        d->_irc_restoreBuffers();
-    else if (d->joinDelay > 0)
+    if (d->joinDelay >= 0)
         QTimer::singleShot(d->joinDelay * 1000, this, SLOT(_irc_restoreBuffers()));
 
     return true;
