@@ -90,11 +90,12 @@ public:
     };
 
     enum Flag {
-        None = 0x0,
-        Own = 0x1,
-        Identified = 0x2,
-        Unidentified = 0x4,
-        Playback = 0x8
+        None = 0x00,
+        Own = 0x01,
+        Identified = 0x02,
+        Unidentified = 0x04,
+        Playback = 0x08,
+        Implicit = 0x10
     };
     Q_DECLARE_FLAGS(Flags, Flag)
 

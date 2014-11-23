@@ -413,6 +413,20 @@ void IrcConnectionPrivate::setInfo(const QHash<QString, QString>& info)
 void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
 {
     Q_Q(IrcConnection);
+    if (msg->type() == IrcMessage::Join && msg->isOwn()) {
+        replies.clear();
+    } else if (msg->type() == IrcMessage::Numeric) {
+        int code = static_cast<IrcNumericMessage*>(msg)->code();
+        if (code == Irc::RPL_NAMREPLY || code == Irc::RPL_ENDOFNAMES) {
+            if (!replies.contains(Irc::RPL_ENDOFNAMES))
+                msg->setFlags(msg->flags() | IrcMessage::Implicit);
+        } else if (code == Irc::RPL_TOPIC || code == Irc::RPL_TOPICWHOTIME) {
+            if (!replies.contains(code))
+                msg->setFlags(msg->flags() | IrcMessage::Implicit);
+        }
+        replies.insert(code);
+    }
+
     bool filtered = false;
     for (int i = messageFilters.count() - 1; !filtered && i >= 0; --i) {
         IrcMessageFilter* filter = qobject_cast<IrcMessageFilter*>(messageFilters.at(i));

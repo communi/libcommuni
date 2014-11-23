@@ -31,6 +31,7 @@
 
 #include "ircconnection.h"
 
+#include <QSet>
 #include <QList>
 #include <QHash>
 #include <QStack>
@@ -96,6 +97,7 @@ public:
     QList<QObject*> commandFilters;
     QList<QObject*> messageFilters;
     QStack<QObject*> activeCommandFilters;
+    QSet<int> replies;
     bool sslErrors;
     bool closed;
 };

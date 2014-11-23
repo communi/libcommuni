@@ -205,6 +205,12 @@ IRC_BEGIN_NAMESPACE
     \brief The message is playback.
  */
 
+/*!
+    \since 3.3
+    \var IrcMessage::Implicit
+    \brief The message is an implicit "reply" after joining a channel.
+ */
+
 static const QMetaObject* irc_command_meta_object(const QString& command)
 {
     static QHash<QString, const QMetaObject*> metaObjects;
