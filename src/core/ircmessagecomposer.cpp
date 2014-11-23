@@ -26,20 +26,43 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ircmessagebuilder_p.h"
+#include "ircmessagecomposer_p.h"
 #include "ircmessage.h"
 #include "irc.h"
 
 IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
-IrcMessageBuilder::IrcMessageBuilder(IrcConnection* connection)
+IrcMessageComposer::IrcMessageComposer(IrcConnection* connection)
 {
     d.connection = connection;
     d.message = 0;
 }
 
-void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
+bool IrcMessageComposer::isComposed(int code)
+{
+    switch (code) {
+    case Irc::RPL_MOTDSTART:
+    case Irc::RPL_MOTD:
+    case Irc::RPL_ENDOFMOTD:
+    case Irc::RPL_NAMREPLY:
+    case Irc::RPL_ENDOFNAMES:
+    case Irc::RPL_TOPIC:
+    case Irc::RPL_NOTOPIC:
+    case Irc::RPL_INVITING:
+    case Irc::RPL_INVITED:
+    case Irc::RPL_WHOREPLY:
+    case Irc::RPL_CHANNELMODEIS:
+    case Irc::RPL_AWAY:
+    case Irc::RPL_UNAWAY:
+    case Irc::RPL_NOWAWAY:
+        return true;
+    default:
+        return false;
+    }
+}
+
+void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
 {
     switch (message->code()) {
     case Irc::RPL_MOTDSTART:
@@ -52,7 +75,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         break;
     case Irc::RPL_ENDOFMOTD:
         d.message->setTimeStamp(message->timeStamp());
-        emit messageReceived(d.message);
+        emit messageComposed(d.message);
         d.message = 0;
         break;
 
@@ -69,7 +92,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
     }
     case Irc::RPL_ENDOFNAMES:
         d.message->setTimeStamp(message->timeStamp());
-        emit messageReceived(d.message);
+        emit messageComposed(d.message);
         d.message = 0;
         break;
 
@@ -80,7 +103,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
-        emit messageReceived(d.message);
+        emit messageComposed(d.message);
         d.message = 0;
         break;
 
@@ -91,7 +114,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
-        emit messageReceived(d.message);
+        emit messageComposed(d.message);
         d.message = 0;
         break;
 
@@ -109,7 +132,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         int index = last.indexOf(QLatin1Char(' ')); // ignore hopcount
         if (index != -1)
             d.message->setParameters(d.message->parameters() << last.mid(index + 1)); // real name
-        emit messageReceived(d.message);
+        emit messageComposed(d.message);
         d.message = 0;
         break;
     }
@@ -120,7 +143,7 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         d.message->setParameters(message->parameters().mid(1));
-        emit messageReceived(d.message);
+        emit messageComposed(d.message);
         d.message = 0;
         break;
 
@@ -132,13 +155,13 @@ void IrcMessageBuilder::processMessage(IrcNumericMessage* message)
         d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         d.message->setParameters(message->parameters());
-        emit messageReceived(d.message);
+        emit messageComposed(d.message);
         d.message = 0;
         break;
     }
 }
 #endif // IRC_DOXYGEN
 
-#include "moc_ircmessagebuilder_p.cpp"
+#include "moc_ircmessagecomposer_p.cpp"
 
 IRC_END_NAMESPACE

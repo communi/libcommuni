@@ -33,7 +33,7 @@ PUB_HEADERS += $$INCDIR/ircprotocol.h
 PRIV_HEADERS  = $$INCDIR/irccommand_p.h
 PRIV_HEADERS  = $$INCDIR/ircconnection_p.h
 PRIV_HEADERS += $$INCDIR/ircmessage_p.h
-PRIV_HEADERS += $$INCDIR/ircmessagebuilder_p.h
+PRIV_HEADERS += $$INCDIR/ircmessagecomposer_p.h
 PRIV_HEADERS += $$INCDIR/ircmessagedecoder_p.h
 PRIV_HEADERS += $$INCDIR/ircnetwork_p.h
 
@@ -47,7 +47,7 @@ SOURCES += $$PWD/irccore.cpp
 SOURCES += $$PWD/ircfilter.cpp
 SOURCES += $$PWD/ircmessage.cpp
 SOURCES += $$PWD/ircmessage_p.cpp
-SOURCES += $$PWD/ircmessagebuilder.cpp
+SOURCES += $$PWD/ircmessagecomposer.cpp
 SOURCES += $$PWD/ircmessagedecoder.cpp
 SOURCES += $$PWD/ircnetwork.cpp
 SOURCES += $$PWD/ircprotocol.cpp

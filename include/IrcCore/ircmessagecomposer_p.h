@@ -26,8 +26,8 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef IRCMESSAGEBUILDER_P_H
-#define IRCMESSAGEBUILDER_P_H
+#ifndef IRCMESSAGECOMPOSER_P_H
+#define IRCMESSAGECOMPOSER_P_H
 
 #include <IrcGlobal>
 #include <QtCore/qobject.h>
@@ -35,29 +35,31 @@
 
 IRC_BEGIN_NAMESPACE
 
-class IrcConnection;
 class IrcMessage;
+class IrcConnection;
 class IrcNumericMessage;
 
-class IrcMessageBuilder : public QObject
+class IrcMessageComposer : public QObject
 {
     Q_OBJECT
 
 public:
-    IrcMessageBuilder(IrcConnection* connection);
+    IrcMessageComposer(IrcConnection* connection);
 
-    void processMessage(IrcNumericMessage* message);
+    static bool isComposed(int code);
+
+    void composeMessage(IrcNumericMessage* message);
 
 Q_SIGNALS:
-    void messageReceived(IrcMessage* message);
+    void messageComposed(IrcMessage* message);
 
 private:
     struct Data {
-        IrcConnection* connection;
         IrcMessage* message;
+        IrcConnection* connection;
     } d;
 };
 
 IRC_END_NAMESPACE
 
-#endif // IRCMESSAGEBUILDER_P_H
+#endif // IRCMESSAGECOMPOSER_P_H

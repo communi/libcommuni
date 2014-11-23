@@ -28,7 +28,7 @@
 
 #include "ircprotocol.h"
 #include "ircconnection_p.h"
-#include "ircmessagebuilder_p.h"
+#include "ircmessagecomposer_p.h"
 #include "ircnetwork_p.h"
 #include "ircconnection.h"
 #include "ircmessage.h"
@@ -74,14 +74,14 @@ public:
 
     IrcProtocol* q_ptr;
     IrcConnection* connection;
-    IrcMessageBuilder* builder;
+    IrcMessageComposer* composer;
     QHash<QString, QString> info;
     QByteArray buffer;
     bool resumed;
     bool authed;
 };
 
-IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), builder(0), resumed(false), authed(false)
+IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), composer(0), resumed(false), authed(false)
 {
 }
 
@@ -299,8 +299,8 @@ IrcProtocol::IrcProtocol(IrcConnection* connection) : QObject(connection), d_ptr
     Q_D(IrcProtocol);
     d->q_ptr = this;
     d->connection = connection;
-    d->builder = new IrcMessageBuilder(connection);
-    connect(d->builder, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(receiveMessage(IrcMessage*)));
+    d->composer = new IrcMessageComposer(connection);
+    connect(d->composer, SIGNAL(messageComposed(IrcMessage*)), this, SLOT(receiveMessage(IrcMessage*)));
 }
 
 /*!
@@ -309,7 +309,7 @@ IrcProtocol::IrcProtocol(IrcConnection* connection) : QObject(connection), d_ptr
 IrcProtocol::~IrcProtocol()
 {
     Q_D(IrcProtocol);
-    delete d->builder;
+    delete d->composer;
 }
 
 /*!
@@ -407,7 +407,7 @@ void IrcProtocol::receiveMessage(IrcMessage* message)
     IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->receiveMessage(message);
     if (message->type() == IrcMessage::Numeric)
-        d->builder->processMessage(static_cast<IrcNumericMessage*>(message));
+        d->composer->composeMessage(static_cast<IrcNumericMessage*>(message));
 }
 
 /*!

@@ -91,7 +91,7 @@ private slots:
     void testConnection();
     void testMessages();
     void testMessageFlags();
-    void testMessageBuilder();
+    void testMessageComposer();
 
     void testSendCommand();
     void testSendData();
@@ -1147,7 +1147,7 @@ void tst_IrcConnection::testMessageFlags()
     QCOMPARE(filter.value.toString(), QString("hi communi"));
 }
 
-void tst_IrcConnection::testMessageBuilder()
+void tst_IrcConnection::testMessageComposer()
 {
     connection->open();
     QVERIFY(waitForOpened());
