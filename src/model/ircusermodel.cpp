@@ -134,10 +134,12 @@ void IrcUserModelPrivate::insertUser(int index, IrcUser* user, bool notify)
         emit q->aboutToBeAdded(user);
     q->beginInsertRows(QModelIndex(), index, index);
     userList.insert(index, user);
+    updateTitles();
     q->endInsertRows();
     if (notify) {
         emit q->added(user);
         emit q->namesChanged(IrcChannelPrivate::get(channel)->names);
+        emit q->titlesChanged(titles);
         emit q->usersChanged(userList);
         emit q->countChanged(userList.count());
         if (userList.count() == 1)
@@ -154,10 +156,12 @@ void IrcUserModelPrivate::removeUser(IrcUser* user, bool notify)
             emit q->aboutToBeRemoved(user);
         q->beginRemoveRows(QModelIndex(), idx, idx);
         userList.removeAt(idx);
+        updateTitles();
         q->endRemoveRows();
         if (notify) {
             emit q->removed(user);
             emit q->namesChanged(IrcChannelPrivate::get(channel)->names);
+            emit q->titlesChanged(titles);
             emit q->usersChanged(userList);
             emit q->countChanged(userList.count());
             if (userList.isEmpty())
@@ -179,12 +183,14 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users, bool reset)
         else
             qSort(userList.begin(), userList.end(), IrcUserGreaterThan(q, sortMethod));
     }
+    updateTitles();
     if (reset)
         q->endResetModel();
     QStringList names;
     if (channel)
         names = IrcChannelPrivate::get(channel)->names;
     emit q->namesChanged(names);
+    emit q->titlesChanged(titles);
     emit q->usersChanged(userList);
     emit q->countChanged(userList.count());
     if (wasEmpty != userList.isEmpty())
@@ -199,6 +205,8 @@ void IrcUserModelPrivate::renameUser(IrcUser* user)
         const bool notify = false;
         removeUser(user, notify);
         insertUser(-1, user, notify);
+        if (updateTitles())
+            emit q->titlesChanged(titles);
         if (users != userList)
             emit q->usersChanged(userList);
     }
@@ -211,6 +219,8 @@ void IrcUserModelPrivate::setUserMode(IrcUser* user)
         const bool notify = false;
         removeUser(user, notify);
         insertUser(0, user, notify);
+        if (updateTitles())
+            emit q->titlesChanged(titles);
         emit q->usersChanged(userList);
     }
 }
@@ -222,6 +232,8 @@ void IrcUserModelPrivate::promoteUser(IrcUser* user)
         const bool notify = false;
         removeUser(user, notify);
         insertUser(0, user, notify);
+        if (updateTitles())
+            emit q->titlesChanged(titles);
         emit q->usersChanged(userList);
     }
 }
@@ -237,6 +249,16 @@ bool IrcUserModelPrivate::updateUser(IrcUser* user)
     }
     return false;
 }
+
+bool IrcUserModelPrivate::updateTitles()
+{
+    QStringList prev = titles;
+    titles.clear();
+    foreach (IrcUser* user, userList)
+        titles += user->title();
+    return titles != prev;
+}
+
 #endif // IRC_DOXYGEN
 
 /*!
@@ -357,6 +379,23 @@ QStringList IrcUserModel::names() const
 }
 
 /*!
+    \since 3.3
+
+    This property holds the list of titles.
+
+    \par Access function:
+    \li QStringList <b>titles</b>() const
+
+    \par Notifier signal:
+    \li void <b>titlesChanged</b>(const QStringList& titles)
+ */
+QStringList IrcUserModel::titles() const
+{
+    Q_D(const IrcUserModel);
+    return d->titles;
+}
+
+/*!
     This property holds the list of users.
 
     The order of users is kept as sent from the server.
@@ -447,8 +486,11 @@ void IrcUserModel::setSortMethod(Irc::SortMethod method)
     Q_D(IrcUserModel);
     if (d->sortMethod != method) {
         d->sortMethod = method;
-        if (method == Irc::SortByActivity && d->channel)
+        if (method == Irc::SortByActivity && d->channel) {
             d->userList = IrcChannelPrivate::get(d->channel)->activeUsers;
+            if (d->updateTitles())
+                emit titlesChanged(d->titles);
+        }
         if (d->sortMethod != Irc::SortByHand && !d->userList.isEmpty())
             sort(d->sortMethod, d->sortOrder);
     }
@@ -617,6 +659,7 @@ void IrcUserModel::clear()
         d->userList.clear();
         endResetModel();
         emit namesChanged(QStringList());
+        emit titlesChanged(QStringList());
         emit usersChanged(QList<IrcUser*>());
         emit countChanged(0);
         emit emptyChanged(true);
@@ -655,6 +698,9 @@ void IrcUserModel::sort(Irc::SortMethod method, Qt::SortOrder order)
         qSort(d->userList.begin(), d->userList.end(), IrcUserLessThan(this, method));
     else
         qSort(d->userList.begin(), d->userList.end(), IrcUserGreaterThan(this, method));
+
+    if (d->updateTitles())
+        emit titlesChanged(d->titles);
 
     QModelIndexList newPersistentIndexes;
     foreach (IrcUser* user, persistentUsers)

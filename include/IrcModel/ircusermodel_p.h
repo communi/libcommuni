@@ -51,6 +51,7 @@ public:
     void setUserMode(IrcUser* user);
     void promoteUser(IrcUser* user);
     bool updateUser(IrcUser* user);
+    bool updateTitles();
 
     static IrcUserModelPrivate* get(IrcUserModel* model)
     {
@@ -59,6 +60,7 @@ public:
 
     IrcUserModel* q_ptr;
     Irc::DataRole role;
+    QStringList titles;
     QList<IrcUser*> userList;
     QPointer<IrcChannel> channel;
     Irc::SortMethod sortMethod;

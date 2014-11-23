@@ -47,6 +47,7 @@ class IRC_MODEL_EXPORT IrcUserModel : public QAbstractListModel
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
     Q_PROPERTY(QStringList names READ names NOTIFY namesChanged)
+    Q_PROPERTY(QStringList titles READ titles NOTIFY titlesChanged)
     Q_PROPERTY(QList<IrcUser*> users READ users NOTIFY usersChanged)
     Q_PROPERTY(Irc::DataRole displayRole READ displayRole WRITE setDisplayRole)
     Q_PROPERTY(IrcChannel* channel READ channel WRITE setChannel NOTIFY channelChanged)
@@ -63,6 +64,7 @@ public:
     int count() const;
     bool isEmpty() const;
     QStringList names() const;
+    QStringList titles() const;
     QList<IrcUser*> users() const;
     Q_INVOKABLE IrcUser* get(int index) const;
     Q_INVOKABLE IrcUser* find(const QString& name) const;
@@ -99,6 +101,7 @@ Q_SIGNALS:
     void countChanged(int count);
     void emptyChanged(bool empty);
     void namesChanged(const QStringList& names);
+    void titlesChanged(const QStringList& titles);
     void usersChanged(const QList<IrcUser*>& users);
     void channelChanged(IrcChannel* channel);
 

@@ -20,6 +20,7 @@
 - IrcModel
   - Added IrcChannel::who() slot for convenience
   - Added IrcBufferModel::joinDelay
+  - Added IrcUserModel::titles
 
 3.2.0
 -----
