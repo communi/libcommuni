@@ -220,17 +220,19 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when a \a message is received.
 
     In addition, message type specific signals are provided for convenience:
+    \li void <b>accountMessageReceived</b>(\ref IrcAccountMessage* message)
+    \li void <b>awayMessageReceived</b>(\ref IrcAwayMessage* message)
     \li void <b>capabilityMessageReceived</b>(\ref IrcCapabilityMessage* message)
     \li void <b>errorMessageReceived</b>(\ref IrcErrorMessage* message)
     \li void <b>inviteMessageReceived</b>(\ref IrcInviteMessage* message)
     \li void <b>joinMessageReceived</b>(\ref IrcJoinMessage* message)
     \li void <b>kickMessageReceived</b>(\ref IrcKickMessage* message)
     \li void <b>modeMessageReceived</b>(\ref IrcModeMessage* message)
+    \li void <b>motdMessageReceived</b>(\ref IrcMotdMessage* message)
     \li void <b>namesMessageReceived</b>(\ref IrcNamesMessage* message)
     \li void <b>nickMessageReceived</b>(\ref IrcNickMessage* message)
     \li void <b>noticeMessageReceived</b>(\ref IrcNoticeMessage* message)
     \li void <b>numericMessageReceived</b>(\ref IrcNumericMessage* message)
-    \li void <b>motdMessageReceived</b>(\ref IrcMotdMessage* message)
     \li void <b>partMessageReceived</b>(\ref IrcPartMessage* message)
     \li void <b>pingMessageReceived</b>(\ref IrcPingMessage* message)
     \li void <b>pongMessageReceived</b>(\ref IrcPongMessage* message)
@@ -438,26 +440,23 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
         emit q->messageReceived(msg);
 
         switch (msg->type()) {
-        case IrcMessage::Nick:
-            emit q->nickMessageReceived(static_cast<IrcNickMessage*>(msg));
+        case IrcMessage::Account:
+            emit q->accountMessageReceived(static_cast<IrcAccountMessage*>(msg));
             break;
-        case IrcMessage::Quit:
-            emit q->quitMessageReceived(static_cast<IrcQuitMessage*>(msg));
+        case IrcMessage::Away:
+            emit q->awayMessageReceived(static_cast<IrcAwayMessage*>(msg));
             break;
-        case IrcMessage::Join:
-            emit q->joinMessageReceived(static_cast<IrcJoinMessage*>(msg));
+        case IrcMessage::Capability:
+            emit q->capabilityMessageReceived(static_cast<IrcCapabilityMessage*>(msg));
             break;
-        case IrcMessage::Part:
-            emit q->partMessageReceived(static_cast<IrcPartMessage*>(msg));
-            break;
-        case IrcMessage::Topic:
-            emit q->topicMessageReceived(static_cast<IrcTopicMessage*>(msg));
-            break;
-        case IrcMessage::WhoReply:
-            emit q->whoReplyMessageReceived(static_cast<IrcWhoReplyMessage*>(msg));
+        case IrcMessage::Error:
+            emit q->errorMessageReceived(static_cast<IrcErrorMessage*>(msg));
             break;
         case IrcMessage::Invite:
             emit q->inviteMessageReceived(static_cast<IrcInviteMessage*>(msg));
+            break;
+        case IrcMessage::Join:
+            emit q->joinMessageReceived(static_cast<IrcJoinMessage*>(msg));
             break;
         case IrcMessage::Kick:
             emit q->kickMessageReceived(static_cast<IrcKickMessage*>(msg));
@@ -465,11 +464,23 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
         case IrcMessage::Mode:
             emit q->modeMessageReceived(static_cast<IrcModeMessage*>(msg));
             break;
-        case IrcMessage::Private:
-            emit q->privateMessageReceived(static_cast<IrcPrivateMessage*>(msg));
+        case IrcMessage::Motd:
+            emit q->motdMessageReceived(static_cast<IrcMotdMessage*>(msg));
+            break;
+        case IrcMessage::Names:
+            emit q->namesMessageReceived(static_cast<IrcNamesMessage*>(msg));
+            break;
+        case IrcMessage::Nick:
+            emit q->nickMessageReceived(static_cast<IrcNickMessage*>(msg));
             break;
         case IrcMessage::Notice:
             emit q->noticeMessageReceived(static_cast<IrcNoticeMessage*>(msg));
+            break;
+        case IrcMessage::Numeric:
+            emit q->numericMessageReceived(static_cast<IrcNumericMessage*>(msg));
+            break;
+        case IrcMessage::Part:
+            emit q->partMessageReceived(static_cast<IrcPartMessage*>(msg));
             break;
         case IrcMessage::Ping:
             emit q->pingMessageReceived(static_cast<IrcPingMessage*>(msg));
@@ -477,20 +488,17 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
         case IrcMessage::Pong:
             emit q->pongMessageReceived(static_cast<IrcPongMessage*>(msg));
             break;
-        case IrcMessage::Error:
-            emit q->errorMessageReceived(static_cast<IrcErrorMessage*>(msg));
+        case IrcMessage::Private:
+            emit q->privateMessageReceived(static_cast<IrcPrivateMessage*>(msg));
             break;
-        case IrcMessage::Numeric:
-            emit q->numericMessageReceived(static_cast<IrcNumericMessage*>(msg));
+        case IrcMessage::Quit:
+            emit q->quitMessageReceived(static_cast<IrcQuitMessage*>(msg));
             break;
-        case IrcMessage::Capability:
-            emit q->capabilityMessageReceived(static_cast<IrcCapabilityMessage*>(msg));
+        case IrcMessage::Topic:
+            emit q->topicMessageReceived(static_cast<IrcTopicMessage*>(msg));
             break;
-        case IrcMessage::Motd:
-            emit q->motdMessageReceived(static_cast<IrcMotdMessage*>(msg));
-            break;
-        case IrcMessage::Names:
-            emit q->namesMessageReceived(static_cast<IrcNamesMessage*>(msg));
+        case IrcMessage::WhoReply:
+            emit q->whoReplyMessageReceived(static_cast<IrcWhoReplyMessage*>(msg));
             break;
         case IrcMessage::Unknown:
         default:

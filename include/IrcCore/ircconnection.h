@@ -172,17 +172,19 @@ Q_SIGNALS:
 
     void messageReceived(IrcMessage* message);
 
+    void accountMessageReceived(IrcAccountMessage* message);
+    void awayMessageReceived(IrcAwayMessage* message);
     void capabilityMessageReceived(IrcCapabilityMessage* message);
     void errorMessageReceived(IrcErrorMessage* message);
     void inviteMessageReceived(IrcInviteMessage* message);
     void joinMessageReceived(IrcJoinMessage* message);
     void kickMessageReceived(IrcKickMessage* message);
     void modeMessageReceived(IrcModeMessage* message);
+    void motdMessageReceived(IrcMotdMessage* message);
     void namesMessageReceived(IrcNamesMessage* message);
     void nickMessageReceived(IrcNickMessage* message);
     void noticeMessageReceived(IrcNoticeMessage* message);
     void numericMessageReceived(IrcNumericMessage* message);
-    void motdMessageReceived(IrcMotdMessage* message);
     void partMessageReceived(IrcPartMessage* message);
     void pingMessageReceived(IrcPingMessage* message);
     void pongMessageReceived(IrcPongMessage* message);
