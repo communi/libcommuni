@@ -30,6 +30,7 @@
 #include "ircmessage_p.h"
 #include "ircconnection.h"
 #include "ircconnection_p.h"
+#include "ircmessagecomposer_p.h"
 #include "ircnetwork.h"
 #include "irccommand.h"
 #include "irc.h"
@@ -1293,6 +1294,28 @@ int IrcNumericMessage::code() const
     bool ok = false;
     int number = d->command().toInt(&ok);
     return ok ? number : -1;
+}
+
+/*!
+    \since 3.3
+    \property bool IrcNumericMessage::composed
+
+    This property holds whether the message is composed.
+
+    \li \c RPL_MOTDSTART, \c RPL_MOTD, and \c RPL_ENDOFMOTD are composed as IrcMotdMessage
+    \li \c RPL_NAMREPLY and \c RPL_ENDOFNAMES are composed as IrcNamesMessage
+    \li \c RPL_TOPIC and \c RPL_NOTOPIC are composed as IrcTopicMessage
+    \li \c RPL_INVITING and \c RPL_INVITED are composed as IrcInviteMessage
+    \li \c RPL_WHOREPLY is composed as IrcWhoReplyMessage
+    \li \c RPL_CHANNELMODEIS is composed as IrcModeMessage
+    \li \c RPL_AWAY, \c RPL_UNAWAY, \c RPL_NOWAWAY are composed as as IrcAwayMessage
+
+    \par Access function:
+    \li bool <b>isComposed</b>() const
+ */
+bool IrcNumericMessage::isComposed() const
+{
+    return IrcMessageComposer::isComposed(code());
 }
 
 bool IrcNumericMessage::isValid() const

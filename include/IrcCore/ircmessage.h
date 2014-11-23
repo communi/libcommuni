@@ -379,11 +379,13 @@ class IRC_CORE_EXPORT IrcNumericMessage : public IrcMessage
 {
     Q_OBJECT
     Q_PROPERTY(int code READ code)
+    Q_PROPERTY(bool composed READ isComposed)
 
 public:
     Q_INVOKABLE explicit IrcNumericMessage(IrcConnection* connection);
 
     int code() const;
+    bool isComposed() const;
 
     bool isValid() const;
 

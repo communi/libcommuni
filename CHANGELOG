@@ -15,6 +15,7 @@
             or RPL_NOWAWAY anymore. These numeric replies are now
             composed to IrcAwayMessage. For other users, only received
             if the away-notify capability is enabled.
+  - Added IrcNumericMessage::composed
 - IrcModel
   - Added IrcChannel::who() slot for convenience
   - Added IrcBufferModel::joinDelay
