@@ -638,6 +638,21 @@ bool IrcAwayMessage::isReply() const
     return d->command().toInt() != 0;
 }
 
+/*!
+    \property bool IrcAwayMessage::away
+    This property holds whether the user is away or back.
+
+    \par Access function:
+    \li bool <b>isAway</b>() const
+ */
+bool IrcAwayMessage::isAway() const
+{
+    Q_D(const IrcMessage);
+    int rpl = d->command().toInt();
+    return rpl == Irc::RPL_AWAY || rpl == Irc::RPL_NOWAWAY
+            || (d->command() == "AWAY" && !d->param(0).isEmpty());
+}
+
 bool IrcAwayMessage::isValid() const
 {
     return IrcMessage::isValid();
