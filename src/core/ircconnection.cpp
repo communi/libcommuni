@@ -422,7 +422,7 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
         if (code == Irc::RPL_NAMREPLY || code == Irc::RPL_ENDOFNAMES) {
             if (!replies.contains(Irc::RPL_ENDOFNAMES))
                 msg->setFlags(msg->flags() | IrcMessage::Implicit);
-        } else if (code == Irc::RPL_TOPIC || code == Irc::RPL_TOPICWHOTIME || Irc::RPL_CHANNEL_URL || Irc::RPL_CREATIONTIME) {
+        } else if (code == Irc::RPL_TOPIC || code == Irc::RPL_TOPICWHOTIME || code == Irc::RPL_CHANNEL_URL || code == Irc::RPL_CREATIONTIME) {
             if (!replies.contains(code))
                 msg->setFlags(msg->flags() | IrcMessage::Implicit);
         }
