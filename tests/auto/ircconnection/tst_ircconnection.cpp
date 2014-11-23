@@ -1186,32 +1186,40 @@ void tst_IrcConnection::testMessageComposer()
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0"));
     QCOMPARE(filter.values.value("realName").toString(), QString());
 
-    filter.reset("content,nick");
+    filter.reset("content,nick,reply,away");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick :gone far away"));
     QCOMPARE(filter.values.value("content").toString(), QString("gone far away"));
     QCOMPARE(filter.values.value("nick").toString(), QString("nick"));
+    QVERIFY(filter.values.value("reply").toBool());
+    QVERIFY(filter.values.value("away").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.reset("content,nick");
+    filter.reset("content,nick,reply,away");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick"));
     QCOMPARE(filter.values.value("nick").toString(), QString("nick"));
     QCOMPARE(filter.values.value("content").toString(), QString());
+    QVERIFY(filter.values.value("reply").toBool());
+    QVERIFY(filter.values.value("away").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.reset("content,nick");
+    filter.reset("content,nick,reply,away");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 305 communi :You are no longer marked as being away"));
     QCOMPARE(filter.values.value("nick").toString(), QString("communi"));
     QCOMPARE(filter.values.value("content").toString(), QString("You are no longer marked as being away"));
+    QVERIFY(filter.values.value("reply").toBool());
+    QVERIFY(!filter.values.value("away").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.reset("content,nick");
+    filter.reset("content,nick,reply,away");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 306 communi :You have been marked as being away"));
     QCOMPARE(filter.values.value("nick").toString(), QString("communi"));
     QCOMPARE(filter.values.value("content").toString(), QString("You have been marked as being away"));
+    QVERIFY(filter.values.value("reply").toBool());
+    QVERIFY(filter.values.value("away").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
 }
 
