@@ -86,7 +86,9 @@ public:
         Topic,
         WhoReply,
         Account,
-        Away
+        Away,
+        Whois,
+        Whowas
     };
 
     enum Flag {
@@ -508,6 +510,61 @@ private:
     Q_DISABLE_COPY(IrcTopicMessage)
 };
 
+class IRC_CORE_EXPORT IrcWhoisMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString realName READ realName)
+    Q_PROPERTY(QString server READ server)
+    Q_PROPERTY(QString info READ info)
+    Q_PROPERTY(QString account READ account)
+    Q_PROPERTY(QString address READ address)
+    Q_PROPERTY(QDateTime since READ since)
+    Q_PROPERTY(int idle READ idle)
+    Q_PROPERTY(bool secure READ isSecure)
+    Q_PROPERTY(QStringList channels READ channels)
+
+public:
+    Q_INVOKABLE explicit IrcWhoisMessage(IrcConnection* connection);
+
+    QString realName() const;
+    QString server() const;
+    QString info() const;
+    QString account() const;
+    QString address() const;
+    QDateTime since() const;
+    int idle() const;
+    bool isSecure() const;
+    QString from() const;
+    QStringList channels() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcWhoisMessage)
+};
+
+class IRC_CORE_EXPORT IrcWhowasMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString realName READ realName)
+    Q_PROPERTY(QString server READ server)
+    Q_PROPERTY(QString info READ info)
+    Q_PROPERTY(QString account READ account)
+
+public:
+    Q_INVOKABLE explicit IrcWhowasMessage(IrcConnection* connection);
+
+    QString realName() const;
+    QString server() const;
+    QString info() const;
+    QString account() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcWhowasMessage)
+};
+
 class IRC_CORE_EXPORT IrcWhoReplyMessage : public IrcMessage
 {
     Q_OBJECT
@@ -563,6 +620,8 @@ Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcPongMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcPrivateMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcQuitMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcTopicMessage*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcWhoisMessage*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcWhowasMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcWhoReplyMessage*))
 
 #endif // IRCMESSAGE_H

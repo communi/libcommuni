@@ -170,6 +170,18 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \since 3.3
+    \var IrcMessage::Whois
+    \brief A whois reply message (IrcWhoisMessage).
+ */
+
+/*!
+    \since 3.3
+    \var IrcMessage::Whowas
+    \brief A whowas reply message (IrcWhowasMessage).
+ */
+
+/*!
     \var IrcMessage::WhoReply
     \brief A who reply message (IrcWhoReplyMessage).
  */
@@ -1669,6 +1681,209 @@ bool IrcTopicMessage::isReply() const
 bool IrcTopicMessage::isValid() const
 {
     return IrcMessage::isValid() && !channel().isEmpty();
+}
+
+/*!
+    \since 3.3
+    \class IrcWhoisMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a reply message to a WHOIS command.
+ */
+
+/*!
+    Constructs a new IrcWhoisMessage with \a connection.
+ */
+IrcWhoisMessage::IrcWhoisMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Whois;
+    setCommand(QLatin1String("WHOIS"));
+}
+
+/*!
+    This property holds the real name of the user.
+
+    \par Access function:
+    \li QString <b>realName</b>() const
+ */
+QString IrcWhoisMessage::realName() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+/*!
+    This property holds the server address user is on.
+
+    \par Access function:
+    \li QString <b>server</b>() const
+ */
+QString IrcWhoisMessage::server() const
+{
+    Q_D(const IrcMessage);
+    return d->param(1);
+}
+
+/*!
+    This property holds info of the server the user is on.
+
+    \par Access function:
+    \li QString <b>info</b>() const
+ */
+QString IrcWhoisMessage::info() const
+{
+    Q_D(const IrcMessage);
+    return d->param(2);
+}
+
+/*!
+    This property holds the account name of the user.
+
+    \par Access function:
+    \li QString <b>account</b>() const
+ */
+QString IrcWhoisMessage::account() const
+{
+    Q_D(const IrcMessage);
+    return d->param(3);
+}
+
+/*!
+    This property holds the address the user is connecting from.
+
+    \par Access function:
+    \li QString <b>address</b>() const
+ */
+QString IrcWhoisMessage::address() const
+{
+    Q_D(const IrcMessage);
+    return d->param(4);
+}
+
+/*!
+    This property holds the time since user has been online.
+
+    \par Access function:
+    \li QDateTime <b>since</b>() const
+ */
+QDateTime IrcWhoisMessage::since() const
+{
+    Q_D(const IrcMessage);
+    return QDateTime::fromTime_t(d->param(5).toInt());
+}
+
+/*!
+    This property holds the number of seconds the user has been idle.
+
+    \par Access function:
+    \li int <b>idle</b>() const
+ */
+int IrcWhoisMessage::idle() const
+{
+    Q_D(const IrcMessage);
+    return d->param(6).toInt();
+}
+
+/*!
+    \property bool IrcWhoisMessage::secure
+    This property holds whether the user is using a secure connection.
+
+    \par Access function:
+    \li bool <b>isSecure</b>() const
+ */
+bool IrcWhoisMessage::isSecure() const
+{
+    Q_D(const IrcMessage);
+    return !d->param(7).isEmpty();
+}
+
+/*!
+    This property holds the visible list of channels of the user.
+
+    \par Access function:
+    \li QStringList <b>channels</b>() const
+ */
+QStringList IrcWhoisMessage::channels() const
+{
+    Q_D(const IrcMessage);
+    return d->params().value(8).split(QLatin1Char(' '), QString::SkipEmptyParts);
+}
+
+bool IrcWhoisMessage::isValid() const
+{
+    Q_D(const IrcMessage);
+    return IrcMessage::isValid() && d->params().count() == 9;
+}
+
+/*!
+    \since 3.3
+    \class IrcWhoisMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a reply message to a WHOIS command.
+ */
+
+/*!
+    Constructs a new IrcWhowasMessage with \a connection.
+ */
+IrcWhowasMessage::IrcWhowasMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Whowas;
+    setCommand(QLatin1String("WHOWAS"));
+}
+
+/*!
+    This property holds the real name of the user.
+
+    \par Access function:
+    \li QString <b>realName</b>() const
+ */
+QString IrcWhowasMessage::realName() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+/*!
+    This property holds the server address user was on.
+
+    \par Access function:
+    \li QString <b>server</b>() const
+ */
+QString IrcWhowasMessage::server() const
+{
+    Q_D(const IrcMessage);
+    return d->param(1);
+}
+
+/*!
+    This property holds info of the server the user was on.
+
+    \par Access function:
+    \li QString <b>info</b>() const
+ */
+QString IrcWhowasMessage::info() const
+{
+    Q_D(const IrcMessage);
+    return d->param(2);
+}
+
+/*!
+    This property holds the account of the user.
+
+    \par Access function:
+    \li QString <b>account</b>() const
+ */
+QString IrcWhowasMessage::account() const
+{
+    Q_D(const IrcMessage);
+    return d->param(3);
+}
+
+bool IrcWhowasMessage::isValid() const
+{
+    Q_D(const IrcMessage);
+    return IrcMessage::isValid() && d->params().count() == 9;
 }
 
 /*!

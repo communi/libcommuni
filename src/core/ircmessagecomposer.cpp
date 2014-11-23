@@ -57,6 +57,16 @@ bool IrcMessageComposer::isComposed(int code)
     case Irc::RPL_AWAY:
     case Irc::RPL_UNAWAY:
     case Irc::RPL_NOWAWAY:
+    case Irc::RPL_WHOISUSER:
+    case Irc::RPL_WHOWASUSER:
+    case Irc::RPL_WHOISSERVER:
+    case Irc::RPL_WHOISACCOUNT:
+    case Irc::RPL_WHOISHOST:
+    case Irc::RPL_WHOISIDLE:
+    case Irc::RPL_WHOISSECURE:
+    case Irc::RPL_WHOISCHANNELS:
+    case Irc::RPL_ENDOFWHOIS:
+    case Irc::RPL_ENDOFWHOWAS:
         return true;
     default:
         return false;
@@ -150,16 +160,89 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
         }
         finishCompose(message);
         break;
+
+    case Irc::RPL_WHOISUSER:
+        d.message = new IrcWhoisMessage(d.connection);
+        d.message->setPrefix(message->parameters().value(1)
+                             + "!" + message->parameters().value(2)
+                             + "@" + message->parameters().value(3));
+        d.message->setParameters(QStringList() << message->parameters().value(5)
+                                               << QString()   // server
+                                               << QString()   // info
+                                               << QString()   // account
+                                               << QString()   // address
+                                               << QString()   // since
+                                               << QString()   // idle
+                                               << QString()   // secure
+                                               << QString()); // channels
+        break;
+
+    case Irc::RPL_WHOWASUSER:
+        d.message = new IrcWhowasMessage(d.connection);
+        d.message->setPrefix(message->parameters().value(1)
+                             + "!" + message->parameters().value(2)
+                             + "@" + message->parameters().value(3));
+        d.message->setParameters(QStringList() << message->parameters().value(5)
+                                               << QString()   // server
+                                               << QString()   // info
+                                               << QString()   // account
+                                               << QString()   // address
+                                               << QString()   // since
+                                               << QString()   // idle
+                                               << QString()   // secure
+                                               << QString()); // channels
+        break;
+
+    case Irc::RPL_WHOISSERVER:
+        replaceParam(1, message->parameters().value(2)); // server
+        replaceParam(2, message->parameters().value(3)); // info
+        break;
+
+    case Irc::RPL_WHOISACCOUNT:
+        replaceParam(3, message->parameters().value(2));
+        break;
+
+    case Irc::RPL_WHOISHOST:
+        replaceParam(4, QStringList(message->parameters().mid(2)).join(QLatin1String(" ")));
+        break;
+
+    case Irc::RPL_WHOISIDLE:
+        replaceParam(5, message->parameters().value(3)); // since
+        replaceParam(6, message->parameters().value(2)); // idle
+        break;
+
+    case Irc::RPL_WHOISSECURE:
+        replaceParam(7, "using a secure connection");
+        break;
+
+    case Irc::RPL_WHOISCHANNELS:
+        replaceParam(8, message->parameters().value(2)); // channels
+        break;
+
+    case Irc::RPL_ENDOFWHOIS:
+    case Irc::RPL_ENDOFWHOWAS:
+        finishCompose(message);
+        break;
     }
 }
 
 void IrcMessageComposer::finishCompose(IrcMessage* message)
 {
-    d.message->setTimeStamp(message->timeStamp());
-    if (message->flags() & IrcMessage::Implicit)
-        d.message->setFlags(IrcMessage::Implicit);
-    emit messageComposed(d.message);
+    if (d.message) {
+        d.message->setTimeStamp(message->timeStamp());
+        if (message->flags() & IrcMessage::Implicit)
+            d.message->setFlags(IrcMessage::Implicit);
+        emit messageComposed(d.message);
+    }
     d.message = 0;
+}
+
+void IrcMessageComposer::replaceParam(int index, const QString& param)
+{
+    QStringList params = d.message->parameters();
+    if (index < params.count())
+        params.replace(index, param);
+    d.message->setParameters(params);
 }
 #endif // IRC_DOXYGEN
 
