@@ -52,6 +52,7 @@ bool IrcMessageComposer::isComposed(int code)
     case Irc::RPL_INVITING:
     case Irc::RPL_INVITED:
     case Irc::RPL_WHOREPLY:
+    case Irc::RPL_ENDOFWHO:
     case Irc::RPL_CHANNELMODEIS:
     case Irc::RPL_AWAY:
     case Irc::RPL_UNAWAY:
