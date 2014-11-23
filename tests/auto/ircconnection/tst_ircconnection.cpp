@@ -1048,19 +1048,29 @@ public:
     {
     }
 
+    void reset(const QByteArray& p = "", int c = 0)
+    {
+        count = c;
+        properties = p;
+        flags = IrcMessage::None;
+        type = IrcMessage::Unknown;
+        values.clear();
+    }
+
     bool messageFilter(IrcMessage* message)
     {
         ++count;
         type = message->type();
         flags = message->flags();
-        value = message->property(property);
+        foreach (const QByteArray& property, properties.split(','))
+            values[property] = message->property(property);
         return false;
     }
 
 public:
     int count;
-    QVariant value;
-    QByteArray property;
+    QVariantMap values;
+    QByteArray properties;
     IrcMessage::Type type;
     IrcMessage::Flags flags;
 };
@@ -1104,47 +1114,47 @@ void tst_IrcConnection::testMessageFlags()
     QCOMPARE(filter.type, IrcMessage::Numeric);
     QCOMPARE(filter.flags, IrcMessage::None);
 
-    filter.property = "content";
+    filter.reset("content", count);
     QVERIFY(waitForWritten(":communi!ident@host PRIVMSG #communi :hi all"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
     QCOMPARE(filter.flags, IrcMessage::Own);
-    QCOMPARE(filter.value.toString(), QString("hi all"));
+    QCOMPARE(filter.values.value("content").toString(), QString("hi all"));
 
-    filter.property = "content";
+    filter.reset("content", count);
     QVERIFY(waitForWritten(":jpnurmi!ident@host PRIVMSG #communi :+hello there, communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
     QCOMPARE(filter.flags, IrcMessage::Identified);
-    QCOMPARE(filter.value.toString(), QString("hello there, communi"));
+    QCOMPARE(filter.values.value("content").toString(), QString("hello there, communi"));
 
-    filter.property = "content";
+    filter.reset("content", count);
     QVERIFY(waitForWritten(":Guest1234!ident@host PRIVMSG #communi :-hi communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
     QCOMPARE(filter.flags, IrcMessage::Unidentified);
-    QCOMPARE(filter.value.toString(), QString("hi communi"));
+    QCOMPARE(filter.values.value("content").toString(), QString("hi communi"));
 
-    filter.property = "content";
+    filter.reset("content", count);
     QVERIFY(waitForWritten(":communi!ident@host NOTICE #communi :hi all"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
     QCOMPARE(filter.flags, IrcMessage::Own);
-    QCOMPARE(filter.value.toString(), QString("hi all"));
+    QCOMPARE(filter.values.value("content").toString(), QString("hi all"));
 
-    filter.property = "content";
+    filter.reset("content", count);
     QVERIFY(waitForWritten(":jpnurmi!ident@host NOTICE #communi :+hello there, communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
     QCOMPARE(filter.flags, IrcMessage::Identified);
-    QCOMPARE(filter.value.toString(), QString("hello there, communi"));
+    QCOMPARE(filter.values.value("content").toString(), QString("hello there, communi"));
 
-    filter.property = "content";
+    filter.reset("content", count);
     QVERIFY(waitForWritten(":Guest1234!ident@host NOTICE #communi :-hi communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
     QCOMPARE(filter.flags, IrcMessage::Unidentified);
-    QCOMPARE(filter.value.toString(), QString("hi communi"));
+    QCOMPARE(filter.values.value("content").toString(), QString("hi communi"));
 }
 
 void tst_IrcConnection::testMessageComposer()
@@ -1160,70 +1170,48 @@ void tst_IrcConnection::testMessageComposer()
     QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
     QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
 
-    filter.property = "mask";
+    filter.reset("mask,ident,host,server,nick,away,servOp,realName");
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
-    QCOMPARE(filter.value.toString(), QString("#communi"));
+    QCOMPARE(filter.count, 2); // RPL_WHOREPLY + IrcWhoReply
+    QCOMPARE(filter.values.value("mask").toString(), QString("#communi"));
+    QCOMPARE(filter.values.value("ident").toString(), QString("~jpnurmi"));
+    QCOMPARE(filter.values.value("host").toString(), QString("qt/jpnurmi"));
+    QCOMPARE(filter.values.value("server").toString(), QString("his.irc.ser.ver"));
+    QCOMPARE(filter.values.value("nick").toString(), QString("jpnurmi"));
+    QCOMPARE(filter.values.value("away").toBool(), true);
+    QCOMPARE(filter.values.value("servOp").toBool(), true);
+    QCOMPARE(filter.values.value("realName").toString(), QString("J-P Nurmi"));
 
-    filter.property = "ident";
-    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
-    QCOMPARE(filter.value.toString(), QString("~jpnurmi"));
-
-    filter.property = "host";
-    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
-    QCOMPARE(filter.value.toString(), QString("qt/jpnurmi"));
-
-    filter.property = "server";
-    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
-    QCOMPARE(filter.value.toString(), QString("his.irc.ser.ver"));
-
-    filter.property = "nick";
-    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
-    QCOMPARE(filter.value.toString(), QString("jpnurmi"));
-
-    filter.property = "away";
-    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
-    QCOMPARE(filter.value.toBool(), true);
-
-    filter.property = "servOp";
-    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
-    QCOMPARE(filter.value.toBool(), true);
-
-    filter.property = "realName";
-    QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
-    QCOMPARE(filter.value.toString(), QString("J-P Nurmi"));
-
-    filter.property = "realName";
+    filter.reset("realName");
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0"));
-    QCOMPARE(filter.value.toString(), QString());
+    QCOMPARE(filter.values.value("realName").toString(), QString());
 
-    filter.property = "content";
+    filter.reset("content,nick");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick :gone far away"));
-    QCOMPARE(filter.value.toString(), QString("gone far away"));
+    QCOMPARE(filter.values.value("content").toString(), QString("gone far away"));
+    QCOMPARE(filter.values.value("nick").toString(), QString("nick"));
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.property = "nick";
+    filter.reset("content,nick");
     filter.type = IrcMessage::Unknown;
-    QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick :gone far away"));
-    QCOMPARE(filter.value.toString(), QString("nick"));
+    QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick"));
+    QCOMPARE(filter.values.value("nick").toString(), QString("nick"));
+    QCOMPARE(filter.values.value("content").toString(), QString());
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.property = "content";
-    filter.type = IrcMessage::Unknown;
-    QVERIFY(waitForWritten(":nick!ident@host 301"));
-    QCOMPARE(filter.value.toString(), QString());
-    QCOMPARE(filter.type, IrcMessage::Away);
-
-    filter.property = "content";
+    filter.reset("content,nick");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 305 communi :You are no longer marked as being away"));
-    QCOMPARE(filter.value.toString(), QString("You are no longer marked as being away"));
+    QCOMPARE(filter.values.value("nick").toString(), QString("communi"));
+    QCOMPARE(filter.values.value("content").toString(), QString("You are no longer marked as being away"));
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.property = "content";
+    filter.reset("content,nick");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 306 communi :You have been marked as being away"));
-    QCOMPARE(filter.value.toString(), QString("You have been marked as being away"));
+    QCOMPARE(filter.values.value("nick").toString(), QString("communi"));
+    QCOMPARE(filter.values.value("content").toString(), QString("You have been marked as being away"));
     QCOMPARE(filter.type, IrcMessage::Away);
 }
 
