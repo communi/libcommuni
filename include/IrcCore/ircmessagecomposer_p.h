@@ -54,6 +54,8 @@ Q_SIGNALS:
     void messageComposed(IrcMessage* message);
 
 private:
+    void finishCompose(IrcMessage* message);
+
     struct Data {
         IrcMessage* message;
         IrcConnection* connection;

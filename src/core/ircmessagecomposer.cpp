@@ -74,9 +74,7 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
         d.message->setParameters(d.message->parameters() << message->parameters().value(1));
         break;
     case Irc::RPL_ENDOFMOTD:
-        d.message->setTimeStamp(message->timeStamp());
-        emit messageComposed(d.message);
-        d.message = 0;
+        finishCompose(message);
         break;
 
     case Irc::RPL_NAMREPLY: {
@@ -91,31 +89,25 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
         break;
     }
     case Irc::RPL_ENDOFNAMES:
-        d.message->setTimeStamp(message->timeStamp());
-        emit messageComposed(d.message);
-        d.message = 0;
+        finishCompose(message);
         break;
 
     case Irc::RPL_TOPIC:
     case Irc::RPL_NOTOPIC:
         d.message = new IrcTopicMessage(d.connection);
         d.message->setPrefix(message->prefix());
-        d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
-        emit messageComposed(d.message);
-        d.message = 0;
+        finishCompose(message);
         break;
 
     case Irc::RPL_INVITING:
     case Irc::RPL_INVITED:
         d.message = new IrcInviteMessage(d.connection);
         d.message->setPrefix(message->prefix());
-        d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
-        emit messageComposed(d.message);
-        d.message = 0;
+        finishCompose(message);
         break;
 
     case Irc::RPL_WHOREPLY: {
@@ -123,7 +115,6 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
         d.message->setPrefix(message->parameters().value(5) // nick
                              + QLatin1Char('!') + message->parameters().value(2) // ident
                              + QLatin1Char('@') + message->parameters().value(3)); // host
-        d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         d.message->setParameters(QStringList() << message->parameters().value(1) // mask
                                                << message->parameters().value(4) // server
@@ -132,26 +123,22 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
         int index = last.indexOf(QLatin1Char(' ')); // ignore hopcount
         if (index != -1)
             d.message->setParameters(d.message->parameters() << last.mid(index + 1)); // real name
-        emit messageComposed(d.message);
-        d.message = 0;
+        finishCompose(message);
         break;
     }
 
     case Irc::RPL_CHANNELMODEIS:
         d.message = new IrcModeMessage(d.connection);
         d.message->setPrefix(message->prefix());
-        d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         d.message->setParameters(message->parameters().mid(1));
-        emit messageComposed(d.message);
-        d.message = 0;
+        finishCompose(message);
         break;
 
     case Irc::RPL_AWAY:
     case Irc::RPL_UNAWAY:
     case Irc::RPL_NOWAWAY:
         d.message = new IrcAwayMessage(d.connection);
-        d.message->setTimeStamp(message->timeStamp());
         d.message->setCommand(QString::number(message->code()));
         if (message->code() == Irc::RPL_AWAY) {
             d.message->setPrefix(message->parameters().value(1));
@@ -160,10 +147,18 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
             d.message->setPrefix(message->parameters().value(0));
             d.message->setParameters(message->parameters().mid(1));
         }
-        emit messageComposed(d.message);
-        d.message = 0;
+        finishCompose(message);
         break;
     }
+}
+
+void IrcMessageComposer::finishCompose(IrcMessage* message)
+{
+    d.message->setTimeStamp(message->timeStamp());
+    if (message->flags() & IrcMessage::Implicit)
+        d.message->setFlags(IrcMessage::Implicit);
+    emit messageComposed(d.message);
+    d.message = 0;
 }
 #endif // IRC_DOXYGEN
 
