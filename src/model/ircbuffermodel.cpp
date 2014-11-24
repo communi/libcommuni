@@ -430,6 +430,14 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
     if (!connection || !connection->isConnected())
         return;
 
+    foreach (IrcBuffer* buffer, bufferList) {
+        // this is probably a bouncer connection if there are already
+        // active channels. don't restore and re-join channels that were
+        // left in another client meanwhile this client was disconnected.
+        if (buffer->isChannel() && buffer->isActive())
+            return;
+    }
+
     foreach (const QVariant& v, bufferStates) {
         QVariantMap b = v.toMap();
         IrcBuffer* buffer = q->find(b.value("title").toString());
@@ -456,22 +464,11 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
     }
     bufferStates.clear();
 
-    QList<IrcChannel*> channels;
     foreach (IrcBuffer* buffer, bufferList) {
         IrcChannel* channel = buffer->toChannel();
-        if (channel) {
-            if (channel->isActive()) {
-                // this is probably a bouncer connection if there are already
-                // active channels. don't force re-join channels that were left
-                // in another client meanwhile this client was disconnected.
-                return;
-            }
-            channels += channel;
-        }
+        if (channel && !channel->isActive())
+            channel->join();
     }
-
-    foreach (IrcChannel* channel, channels)
-        channel->join();
 }
 #endif // IRC_DOXYGEN
 
