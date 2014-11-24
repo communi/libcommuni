@@ -554,7 +554,7 @@ void tst_IrcConnection::testOpen()
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
     connection.setUserName("user");
-    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::open(): nickName is empty!");
+    QTest::ignoreMessage(QtWarningMsg, "IrcConnection::open(): nickNames is empty!");
     connection.open();
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
