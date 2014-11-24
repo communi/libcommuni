@@ -35,6 +35,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qvariant.h>
 #include <QtCore/qmetatype.h>
+#include <QtCore/qstringlist.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtNetwork/qabstractsocket.h>
 
@@ -50,6 +51,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
 
     Q_PROPERTY(QString host READ host WRITE setHost NOTIFY hostChanged)
     Q_PROPERTY(int port READ port WRITE setPort NOTIFY portChanged)
+    Q_PROPERTY(QStringList servers READ servers WRITE setServers NOTIFY serversChanged)
     Q_PROPERTY(QString userName READ userName WRITE setUserName NOTIFY userNameChanged)
     Q_PROPERTY(QString nickName READ nickName WRITE setNickName NOTIFY nickNameChanged)
     Q_PROPERTY(QString realName READ realName WRITE setRealName NOTIFY realNameChanged)
@@ -82,6 +84,11 @@ public:
 
     int port() const;
     void setPort(int port);
+
+    QStringList servers() const;
+    void setServers(const QStringList& servers);
+
+    Q_INVOKABLE static bool isValidServer(const QString& server);
 
     QString userName() const;
     void setUserName(const QString& name);
@@ -199,6 +206,7 @@ Q_SIGNALS:
 
     void hostChanged(const QString& host);
     void portChanged(int port);
+    void serversChanged(const QStringList& servers);
     void userNameChanged(const QString& name);
     void nickNameChanged(const QString& name);
     void realNameChanged(const QString& name);

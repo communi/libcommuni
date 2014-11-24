@@ -64,6 +64,7 @@ public:
 
     void _irc_filterDestroyed(QObject* filter);
 
+    void open();
     void setNick(const QString& nick);
     void setStatus(IrcConnection::Status status);
     void setInfo(const QHash<QString, QString>& info);
@@ -83,6 +84,8 @@ public:
     QAbstractSocket* socket;
     QString host;
     int port;
+    int currentServer;
+    QStringList servers;
     QString userName;
     QString nickName;
     QString realName;

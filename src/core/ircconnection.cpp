@@ -37,10 +37,10 @@
 #include "ircfilter.h"
 #include "irc.h"
 #include <QLocale>
+#include <QRegExp>
 #include <QDateTime>
 #include <QTcpSocket>
 #include <QTextCodec>
-#include <QStringList>
 #include <QMetaObject>
 #include <QMetaMethod>
 #include <QMetaEnum>
@@ -260,6 +260,7 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
     socket(0),
     host(),
     port(6667),
+    currentServer(-1),
     userName(),
     nickName(),
     realName(),
@@ -372,6 +373,34 @@ void IrcConnectionPrivate::_irc_filterDestroyed(QObject* filter)
 {
     messageFilters.removeAll(filter);
     commandFilters.removeAll(filter);
+}
+
+static bool parseServer(const QString& server, QString* host, int* port, bool* ssl)
+{
+    QStringList p = server.split(QRegExp("[: ]"), QString::SkipEmptyParts);
+    *host = p.value(0);
+    *ssl = p.value(1).startsWith(QLatin1Char('+'));
+    bool ok = false;
+    *port = p.value(1).toInt(&ok);
+    if (*port == 0)
+        *port = 6667;
+    return !host->isEmpty() && (p.value(1).isEmpty() || ok) && (p.count() == 1 || p.count() == 2);
+}
+
+void IrcConnectionPrivate::open()
+{
+    Q_Q(IrcConnection);
+    if (!servers.isEmpty()) {
+        QString h; int p; bool s;
+        QString server = servers.value((++currentServer) % servers.count());
+        if (!parseServer(server, &h, &p, &s)) {
+            qWarning() << "IrcConnection::servers: malformed line" << server;
+            q->setHost(h);
+            q->setPort(p);
+            q->setSecure(s);
+        }
+    }
+    socket->connectToHost(host, port);
 }
 
 void IrcConnectionPrivate::setNick(const QString& nick)
@@ -649,6 +678,56 @@ void IrcConnection::setPort(int port)
         d->port = port;
         emit portChanged(port);
     }
+}
+
+/*!
+    \since 3.3
+
+    This property holds the list of servers.
+
+    The list of servers is automatically cycled through when reconnecting.
+
+    \par Access functions:
+    \li QStringList <b>servers</b>() const
+    \li void <b>setServers</b>(const QStringList& servers)
+
+    \par Notifier signal:
+    \li void <b>serversChanged</b>(const QStringList& servers)
+
+    \sa isValidServer()
+ */
+QStringList IrcConnection::servers() const
+{
+    Q_D(const IrcConnection);
+    return d->servers;
+}
+
+void IrcConnection::setServers(const QStringList& servers)
+{
+    Q_D(IrcConnection);
+    if (d->servers != servers) {
+        d->servers = servers;
+        emit serversChanged(servers);
+    }
+}
+
+/*!
+    \since 3.3
+
+    Returns \c true if the server line syntax is valid.
+
+    The syntax is:
+    \code
+    host <[+]port>
+    \endcode
+    where port is optional (defaults to \c 6667) and \c + prefix denotes SSL.
+
+    \sa servers
+ */
+bool IrcConnection::isValidServer(const QString& server)
+{
+    QString h; int p; bool s;
+    return parseServer(server, &h, &p, &s);
 }
 
 /*!
@@ -1182,7 +1261,7 @@ IrcNetwork* IrcConnection::network() const
 void IrcConnection::open()
 {
     Q_D(IrcConnection);
-    if (d->host.isEmpty()) {
+    if (d->host.isEmpty() && d->servers.isEmpty()) {
         qWarning("IrcConnection::open(): host is empty!");
         return;
     }
@@ -1199,7 +1278,7 @@ void IrcConnection::open()
         return;
     }
     if (d->enabled && d->socket && !isActive())
-        d->socket->connectToHost(d->host, d->port);
+        d->open();
 }
 
 /*!
@@ -1433,6 +1512,7 @@ QByteArray IrcConnection::saveState(int version) const
     args.insert("version", version);
     args.insert("host", host());
     args.insert("port", port());
+    args.insert("servers", servers());
     args.insert("userName", userName());
     args.insert("nickName", nickName());
     args.insert("realName", realName());
@@ -1474,6 +1554,7 @@ bool IrcConnection::restoreState(const QByteArray& state, int version)
 
     setHost(args.value("host", host()).toString());
     setPort(args.value("port", port()).toInt());
+    setServers(args.value("servers", servers()).toStringList());
     setUserName(args.value("userName", userName()).toString());
     setNickName(args.value("nickName", nickName()).toString());
     setRealName(args.value("realName", realName()).toString());
