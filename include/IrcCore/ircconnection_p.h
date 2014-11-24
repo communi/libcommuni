@@ -87,6 +87,7 @@ public:
     QString nickName;
     QString realName;
     QString password;
+    QStringList nickNames;
     QString displayName;
     QVariantMap userData;
     QTimer reconnecter;

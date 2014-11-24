@@ -1,6 +1,7 @@
 3.3.0
 -----
 - IrcCore
+  - Added IrcConnection::nickNames
   - Added IrcCommand::connection
   - Added IrcMessage::Implicit
   - Added IrcInviteMessage::isReply()

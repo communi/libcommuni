@@ -168,7 +168,7 @@ IRC_BEGIN_NAMESPACE
     An alternate nick name may be set via the provided argument, by changing
     the \ref nickName property, or by sending a nick command directly.
 
-    \sa IrcCommand::createNick(), Irc::ERR_NICKNAMEINUSE, Irc::ERR_NICKCOLLISION
+    \sa nickNames, IrcCommand::createNick(), Irc::ERR_NICKNAMEINUSE, Irc::ERR_NICKCOLLISION
  */
 
 /*!
@@ -682,7 +682,7 @@ void IrcConnection::setUserName(const QString& name)
 }
 
 /*!
-    This property holds the nick name.
+    This property holds the current nick name.
 
     \par Access functions:
     \li QString <b>nickName</b>() const
@@ -690,6 +690,8 @@ void IrcConnection::setUserName(const QString& name)
 
     \par Notifier signal:
     \li void <b>nickNameChanged</b>(const QString& name)
+
+    \sa nickNames
  */
 QString IrcConnection::nickName() const
 {
@@ -762,6 +764,39 @@ void IrcConnection::setPassword(const QString& password)
             qWarning("IrcConnection::setPassword() has no effect until re-connect");
         d->password = password;
         emit passwordChanged(password);
+    }
+}
+
+/*!
+    \since 3.3
+
+    This property holds the nick names.
+
+    The list of nick names is automatically cycled through when the
+    current nick name is reserved. If all provided nick names are
+    reserved, the nickNameRequired() signal is emitted.
+
+    \par Access functions:
+    \li QStringList <b>nickNames</b>() const
+    \li void <b>setNickNames</b>(const QStringList& names)
+
+    \par Notifier signal:
+    \li void <b>nickNamesChanged</b>(const QStringList& names)
+
+    \sa nickName, nickNameRequired()
+ */
+QStringList IrcConnection::nickNames() const
+{
+    Q_D(const IrcConnection);
+    return d->nickNames;
+}
+
+void IrcConnection::setNickNames(const QStringList& names)
+{
+    Q_D(IrcConnection);
+    if (d->nickNames != names) {
+        d->nickNames = names;
+        emit nickNamesChanged(names);
     }
 }
 
@@ -1155,8 +1190,8 @@ void IrcConnection::open()
         qWarning("IrcConnection::open(): userName is empty!");
         return;
     }
-    if (d->nickName.isEmpty()) {
-        qWarning("IrcConnection::open(): nickName is empty!");
+    if (d->nickName.isEmpty() && d->nickNames.isEmpty()) {
+        qWarning("IrcConnection::open(): nickNames is empty!");
         return;
     }
     if (d->realName.isEmpty()) {
@@ -1402,6 +1437,7 @@ QByteArray IrcConnection::saveState(int version) const
     args.insert("nickName", nickName());
     args.insert("realName", realName());
     args.insert("password", password());
+    args.insert("nickNames", nickNames());
     args.insert("displayName", displayName());
     args.insert("userData", userData());
     args.insert("encoding", encoding());
@@ -1442,6 +1478,9 @@ bool IrcConnection::restoreState(const QByteArray& state, int version)
     setNickName(args.value("nickName", nickName()).toString());
     setRealName(args.value("realName", realName()).toString());
     setPassword(args.value("password", password()).toString());
+    setNickNames(args.value("nickNames", nickNames()).toStringList());
+    if (nickNames().indexOf(nickName()) > 0)
+        setNickName(nickNames().first());
     setDisplayName(args.value("displayName").toString());
     setUserData(args.value("userData", userData()).toMap());
     setEncoding(args.value("encoding", encoding()).toByteArray());

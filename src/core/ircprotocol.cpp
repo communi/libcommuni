@@ -77,11 +77,12 @@ public:
     IrcMessageComposer* composer;
     QHash<QString, QString> info;
     QByteArray buffer;
+    int currentNick;
     bool resumed;
     bool authed;
 };
 
-IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), composer(0), resumed(false), authed(false)
+IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), composer(0), currentNick(-1), resumed(false), authed(false)
 {
 }
 
@@ -176,12 +177,20 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
         break;
     case Irc::ERR_NICKNAMEINUSE:
     case Irc::ERR_NICKCOLLISION: {
+        QString reserved = msg->parameters().value(1);
+        while (currentNick + 1 < connection->nickNames().count()) {
+            QString alternate = connection->nickNames().value(++currentNick);
+            if (!alternate.isEmpty() && alternate != reserved) {
+                connection->setNickName(alternate);
+                return;
+            }
+        }
         QString alternate = connection->nickName();
         emit connection->nickNameReserved(&alternate);
         if (!alternate.isEmpty() && alternate != connection->nickName()) {
             connection->setNickName(alternate);
         } else {
-            emit connection->nickNameRequired(msg->parameters().value(1), &alternate);
+            emit connection->nickNameRequired(reserved, &alternate);
             if (!alternate.isEmpty() && alternate != connection->nickName())
                 connection->setNickName(alternate);
         }
@@ -353,7 +362,11 @@ void IrcProtocol::open()
     if (d->connection->saslMechanism().isEmpty() && !d->connection->password().isEmpty())
         d->authenticate(false);
 
-    d->connection->sendRaw(QString("NICK %1").arg(d->connection->nickName()));
+    QString nick = d->connection->nickName();
+    if (nick.isEmpty())
+        nick = d->connection->nickNames().value(0);
+
+    d->connection->sendRaw(QString("NICK %1").arg(nick));
     d->connection->sendRaw(QString("USER %1 hostname servername :%2").arg(d->connection->userName(), d->connection->realName()));
 }
 
@@ -419,6 +432,7 @@ void IrcProtocol::receiveMessage(IrcMessage* message)
 void IrcProtocol::setNickName(const QString& name)
 {
     Q_D(IrcProtocol);
+    d->currentNick = d->connection->nickNames().indexOf(name);
     IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
     priv->setNick(name);
 }
