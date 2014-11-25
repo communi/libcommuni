@@ -430,6 +430,9 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
     if (!connection || !connection->isConnected())
         return;
 
+    QVariantList bufs = bufferStates;
+    bufferStates.clear();
+
     foreach (IrcBuffer* buffer, bufferList) {
         // this is probably a bouncer connection if there are already
         // active channels. don't restore and re-join channels that were
@@ -438,7 +441,7 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
             return;
     }
 
-    foreach (const QVariant& v, bufferStates) {
+    foreach (const QVariant& v, bufs) {
         QVariantMap b = v.toMap();
         IrcBuffer* buffer = q->find(b.value("title").toString());
         if (!buffer) {
@@ -462,7 +465,6 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
                 p->modes.insert(modes.at(i), args.value(i));
         }
     }
-    bufferStates.clear();
 
     foreach (IrcBuffer* buffer, bufferList) {
         IrcChannel* channel = buffer->toChannel();
@@ -1170,23 +1172,25 @@ QByteArray IrcBufferModel::saveState(int version) const
     args.insert("persistent", d->persistent);
     args.insert("joinDelay", d->joinDelay);
 
-    QVariantList bufs;
-    foreach (IrcBuffer* buffer, d->bufferList) {
-        QVariantMap b;
-        b.insert("channel", buffer->isChannel());
-        b.insert("name", buffer->name());
-        b.insert("prefix", buffer->prefix());
-        b.insert("title", buffer->title());
-        if (IrcChannel* channel = buffer->toChannel()) {
-            IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
-            b.insert("modes", QStringList(p->modes.keys()));
-            b.insert("args", QStringList(p->modes.values()));
-            b.insert("topic", channel->topic());
+    QVariantList bufs = d->bufferStates;
+    if (bufs.isEmpty()) {
+        foreach (IrcBuffer* buffer, d->bufferList) {
+            QVariantMap b;
+            b.insert("channel", buffer->isChannel());
+            b.insert("name", buffer->name());
+            b.insert("prefix", buffer->prefix());
+            b.insert("title", buffer->title());
+            if (IrcChannel* channel = buffer->toChannel()) {
+                IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
+                b.insert("modes", QStringList(p->modes.keys()));
+                b.insert("args", QStringList(p->modes.values()));
+                b.insert("topic", channel->topic());
+            }
+            b.insert("sticky", buffer->isSticky());
+            b.insert("persistent", buffer->isPersistent());
+            b.insert("userData", buffer->userData());
+            bufs += b;
         }
-        b.insert("sticky", buffer->isSticky());
-        b.insert("persistent", buffer->isPersistent());
-        b.insert("userData", buffer->userData());
-        bufs += b;
     }
     args.insert("buffers", bufs);
 
