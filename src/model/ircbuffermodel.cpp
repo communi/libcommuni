@@ -1218,7 +1218,7 @@ bool IrcBufferModel::restoreState(const QByteArray& state, int version)
     setSortMethod(static_cast<Irc::SortMethod>(args.value("sortMethod", sortMethod()).toInt()));
     setDisplayRole(static_cast<Irc::DataRole>(args.value("displayRole", displayRole()).toInt()));
     setPersistent(args.value("persistent", isPersistent()).toBool());
-    setJoinDelay(args.value("joinDelay", 0).toInt());
+    setJoinDelay(args.value("joinDelay", joinDelay()).toInt());
 
     d->bufferStates = args.value("buffers").toList();
     if (d->joinDelay >= 0)
