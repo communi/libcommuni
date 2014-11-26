@@ -34,6 +34,7 @@
 #include "ircnetwork.h"
 #include "irccommand.h"
 #include "ircmessage.h"
+#include "ircdebug_p.h"
 #include "ircfilter.h"
 #include "irc.h"
 #include <QLocale>
@@ -242,16 +243,6 @@ IRC_BEGIN_NAMESPACE
  */
 
 #ifndef IRC_DOXYGEN
-template<typename T>
-static void irc_debug(IrcConnection* connection, const char* msg, const T& arg)
-{
-    static bool dbg = qgetenv("IRC_DEBUG").toInt();
-    if (dbg) {
-        const QString desc = QString::fromLatin1("IrcConnection(%1)").arg(connection->displayName());
-        qDebug() << qPrintable(desc) << msg << arg;
-    }
-}
-
 IrcConnectionPrivate::IrcConnectionPrivate() :
     q_ptr(0),
     encoding("ISO-8859-15"),
@@ -1393,8 +1384,7 @@ bool IrcConnection::sendData(const QByteArray& data)
 {
     Q_D(IrcConnection);
     if (d->socket) {
-        static bool dbg = qgetenv("IRC_DEBUG").toInt();
-        if (dbg) qDebug() << "->" << data;
+        irc_debug(this, "->", data);
         if (!d->closed && data.length() >= 4) {
             const QByteArray cmd = data.left(5).toUpper();
             if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))

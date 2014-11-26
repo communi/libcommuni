@@ -33,6 +33,7 @@
 #include "ircconnection.h"
 #include "ircmessage.h"
 #include "irccommand.h"
+#include "ircdebug_p.h"
 #include "irc.h"
 #include <QDebug>
 
@@ -114,8 +115,7 @@ void IrcProtocolPrivate::readLines(const QByteArray& delimiter)
 void IrcProtocolPrivate::processLine(const QByteArray& line)
 {
     Q_Q(IrcProtocol);
-    static bool dbg = qgetenv("IRC_DEBUG").toInt();
-    if (dbg) qDebug() << line;
+    irc_debug(connection, line);
 
     if (line.startsWith("AUTHENTICATE") && !connection->saslMechanism().isEmpty()) {
         const QList<QByteArray> args = line.split(' ');
@@ -152,7 +152,7 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
         }
         q->receiveMessage(msg);
     } else {
-        qDebug() << line;
+        qWarning() << "IrcProtocolPrivate::processLine(): unknown message:" << line;
     }
 }
 
