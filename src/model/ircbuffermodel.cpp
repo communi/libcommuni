@@ -1225,7 +1225,7 @@ bool IrcBufferModel::restoreState(const QByteArray& state, int version)
     setJoinDelay(args.value("joinDelay", joinDelay()).toInt());
 
     d->bufferStates = args.value("buffers").toList();
-    if (d->joinDelay >= 0)
+    if (d->joinDelay >= 0 && d->connection && d->connection->isConnected())
         QTimer::singleShot(d->joinDelay * 1000, this, SLOT(_irc_restoreBuffers()));
 
     return true;
