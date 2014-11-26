@@ -417,7 +417,10 @@ void IrcConnectionPrivate::setStatus(IrcConnection::Status value)
                 q->sendCommand(cmd);
             pendingCommands.clear();
         }
-        irc_debug(q, "status:", status);
+        if (status == IrcConnection::Connecting)
+            irc_debug(q, "status:", status, qPrintable(host), port);
+        else
+            irc_debug(q, "status:", status);
     }
 }
 
