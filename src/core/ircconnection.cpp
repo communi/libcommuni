@@ -384,12 +384,11 @@ void IrcConnectionPrivate::open()
     if (!servers.isEmpty()) {
         QString h; int p; bool s;
         QString server = servers.value((++currentServer) % servers.count());
-        if (!parseServer(server, &h, &p, &s)) {
+        if (!parseServer(server, &h, &p, &s))
             qWarning() << "IrcConnection::servers: malformed line" << server;
-            q->setHost(h);
-            q->setPort(p);
-            q->setSecure(s);
-        }
+        q->setHost(h);
+        q->setPort(p);
+        q->setSecure(s);
     }
     socket->connectToHost(host, port);
 }
