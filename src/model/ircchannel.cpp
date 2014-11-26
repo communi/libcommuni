@@ -78,7 +78,7 @@ static QString userName(const QString& name, const QStringList& prefixes)
     return Irc::nickFromPrefix(copy);
 }
 
-IrcChannelPrivate::IrcChannelPrivate() : active(false)
+IrcChannelPrivate::IrcChannelPrivate() : active(false), enabled(true)
 {
     qRegisterMetaType<IrcChannel*>();
     qRegisterMetaType<QList<IrcChannel*> >();
@@ -360,10 +360,12 @@ bool IrcChannelPrivate::processAwayMessage(IrcAwayMessage* message)
 bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 {
     if (!(message->flags() & IrcMessage::Playback)) {
-        if (message->flags() & IrcMessage::Own)
+        if (message->flags() & IrcMessage::Own) {
             setActive(true);
-        else
+            enabled = true;
+        } else {
             addUser(message->nick());
+        }
     }
     return true;
 }
@@ -373,6 +375,7 @@ bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
     if (!(message->flags() & IrcMessage::Playback)) {
         if (!message->user().compare(message->connection()->nickName(), Qt::CaseInsensitive)) {
             setActive(false);
+            enabled = false;
             return true;
         }
         return removeUser(message->user());
@@ -428,6 +431,7 @@ bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
     if (!(message->flags() & IrcMessage::Playback)) {
         if (message->flags() & IrcMessage::Own) {
             setActive(false);
+            enabled = false;
             return true;
         }
         return removeUser(message->nick());
@@ -598,6 +602,7 @@ void IrcChannel::join(const QString& key)
     Q_D(IrcChannel);
     if (!key.isEmpty())
         d->setKey(key);
+    d->enabled = true;
     sendCommand(IrcCommand::createJoin(title(), IrcChannel::key()));
 }
 
@@ -614,6 +619,8 @@ void IrcChannel::join(const QString& key)
  */
 void IrcChannel::part(const QString& reason)
 {
+    Q_D(IrcChannel);
+    d->enabled = false;
     sendCommand(IrcCommand::createPart(title(), reason));
 }
 

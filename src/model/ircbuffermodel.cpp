@@ -463,13 +463,17 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
             const QStringList args = b.value("args").toStringList();
             for (int i = 0; i < modes.count(); ++i)
                 p->modes.insert(modes.at(i), args.value(i));
+            p->enabled = b.value("enabled", true).toBool();
         }
     }
 
     foreach (IrcBuffer* buffer, bufferList) {
         IrcChannel* channel = buffer->toChannel();
-        if (channel && !channel->isActive())
-            channel->join();
+        if (channel && !channel->isActive()) {
+            IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
+            if (p->enabled)
+                channel->join();
+        }
     }
 }
 #endif // IRC_DOXYGEN
@@ -1185,6 +1189,7 @@ QByteArray IrcBufferModel::saveState(int version) const
                 b.insert("modes", QStringList(p->modes.keys()));
                 b.insert("args", QStringList(p->modes.values()));
                 b.insert("topic", channel->topic());
+                b.insert("enabled", p->enabled);
             }
             b.insert("sticky", buffer->isSticky());
             b.insert("persistent", buffer->isPersistent());
