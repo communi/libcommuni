@@ -381,6 +381,8 @@ static bool parseServer(const QString& server, QString* host, int* port, bool* s
 void IrcConnectionPrivate::open()
 {
     Q_Q(IrcConnection);
+    closed = false;
+    sslErrors = false;
     if (!servers.isEmpty()) {
         QString h; int p; bool s;
         QString server = servers.value((++currentServer) % servers.count());
