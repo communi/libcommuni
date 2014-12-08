@@ -32,6 +32,7 @@
 #include <IrcGlobal>
 #include <QtCore/qdebug.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qdatetime.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -41,8 +42,9 @@ static const bool irc_dbg_enabled = qgetenv("IRC_DEBUG").toInt();
 static void irc_debug(IrcConnection* connection, const char* msg)
 {
     if (irc_dbg_enabled) {
-        const QString desc = QString::fromLatin1("IrcConnection(%1)").arg(connection->displayName());
-        qDebug() << qPrintable(desc) << msg;
+        const QString desc = connection->displayName();
+        const QString stamp = QDateTime::currentDateTime().toString(Qt::ISODate);
+        qDebug() << qPrintable("[" + stamp + " " + desc + "]") << msg;
     }
 }
 

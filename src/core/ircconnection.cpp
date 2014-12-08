@@ -297,12 +297,12 @@ void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcConnection);
     if (!closed && !sslErrors && error == QAbstractSocket::RemoteHostClosedError && q->isSecure()) {
-        irc_debug(q, "SSL error:", "no SSL available");
+        irc_debug(q, "ERROR:", "no SSL available");
         setStatus(IrcConnection::Error);
         sslErrors = true;
         emit q->secureError();
     } else if (!closed || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
-        irc_debug(q, "socket error:", error);
+        irc_debug(q, "ERROR:", error);
         emit q->socketError(error);
         setStatus(IrcConnection::Error);
     }
@@ -319,7 +319,7 @@ void IrcConnectionPrivate::_irc_sslErrors()
             errors += error.errorString();
     }
 #endif
-    irc_debug(q, "SSL handshake errors:", errors);
+    irc_debug(q, "ERROR:", errors);
     sslErrors = true;
     emit q->secureError();
 }
@@ -419,9 +419,9 @@ void IrcConnectionPrivate::setStatus(IrcConnection::Status value)
             pendingCommands.clear();
         }
         if (status == IrcConnection::Connecting)
-            irc_debug(q, "status:", status, qPrintable(host), port);
+            irc_debug(q, "STATUS:", status, qPrintable(host), port);
         else
-            irc_debug(q, "status:", status);
+            irc_debug(q, "STATUS:", status);
     }
 }
 
