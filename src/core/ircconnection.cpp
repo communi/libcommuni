@@ -1362,12 +1362,13 @@ bool IrcConnection::sendCommand(IrcCommand* command)
                 d->activeCommandFilters.pop();
             }
         }
-        if (filtered)
-            return false;
-
-        QTextCodec* codec = QTextCodec::codecForName(command->encoding());
-        Q_ASSERT(codec);
-        res = sendData(codec->fromUnicode(command->toString()));
+        if (filtered) {
+            res = false;
+        } else {
+            QTextCodec* codec = QTextCodec::codecForName(command->encoding());
+            Q_ASSERT(codec);
+            res = sendData(codec->fromUnicode(command->toString()));
+        }
         if (!command->parent())
             command->deleteLater();
     }
