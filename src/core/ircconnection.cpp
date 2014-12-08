@@ -414,9 +414,9 @@ void IrcConnectionPrivate::setStatus(IrcConnection::Status value)
 
         if (!wasConnected && q->isConnected()) {
             emit q->connected();
-            foreach (IrcCommand* cmd, pendingCommands)
-                q->sendCommand(cmd);
-            pendingCommands.clear();
+            foreach (const QByteArray& data, pendingData)
+                q->sendRaw(data);
+            pendingData.clear();
         }
         if (status == IrcConnection::Connecting)
             irc_debug(q, "STATUS:", status, qPrintable(host), port);
@@ -1365,16 +1365,11 @@ bool IrcConnection::sendCommand(IrcCommand* command)
         if (filtered)
             return false;
 
-        if (isActive()) {
-            QTextCodec* codec = QTextCodec::codecForName(command->encoding());
-            Q_ASSERT(codec);
-            res = sendData(codec->fromUnicode(command->toString()));
-            if (!command->parent())
-                command->deleteLater();
-        } else {
-            Q_D(IrcConnection);
-            d->pendingCommands += command;
-        }
+        QTextCodec* codec = QTextCodec::codecForName(command->encoding());
+        Q_ASSERT(codec);
+        res = sendData(codec->fromUnicode(command->toString()));
+        if (!command->parent())
+            command->deleteLater();
     }
     return res;
 }
@@ -1388,13 +1383,17 @@ bool IrcConnection::sendData(const QByteArray& data)
 {
     Q_D(IrcConnection);
     if (d->socket) {
-        irc_debug(this, "->", data);
-        if (!d->closed && data.length() >= 4) {
-            const QByteArray cmd = data.left(5).toUpper();
-            if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
-                d->closed = true;
+        if (isActive()) {
+            irc_debug(this, "->", data);
+            if (!d->closed && data.length() >= 4) {
+                const QByteArray cmd = data.left(5).toUpper();
+                if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
+                    d->closed = true;
+            }
+            return d->protocol->write(data);
+        } else {
+            d->pendingData += data;
         }
-        return d->protocol->write(data);
     }
     return false;
 }

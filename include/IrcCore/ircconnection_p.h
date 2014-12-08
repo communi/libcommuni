@@ -97,7 +97,7 @@ public:
     QString saslMechanism;
     bool enabled;
     IrcConnection::Status status;
-    QList<IrcCommand*> pendingCommands;
+    QList<QByteArray> pendingData;
     QList<QObject*> commandFilters;
     QList<QObject*> messageFilters;
     QStack<QObject*> activeCommandFilters;
