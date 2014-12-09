@@ -38,10 +38,16 @@
 IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
+static bool irc_debug_enabled()
+{
+    static bool enabled = qgetenv("IRC_DEBUG").toInt();
+    return enabled;
+}
+
 class IrcDebug
 {
 public:
-    IrcDebug(IrcConnection* c) : enabled(qgetenv("IRC_DEBUG").toInt())
+    IrcDebug(IrcConnection* c) : enabled(irc_debug_enabled())
 #ifndef QT_NO_DEBUG_STREAM
       , debug(&str)
 #endif // QT_NO_DEBUG_STREAM
