@@ -30,6 +30,7 @@
 #define IRCDEBUG_P_H
 
 #include <IrcGlobal>
+#include <IrcConnection>
 #include <QtCore/qdebug.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qdatetime.h>
@@ -37,43 +38,52 @@
 IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
-static const bool irc_dbg_enabled = qgetenv("IRC_DEBUG").toInt();
-
-static void irc_debug(IrcConnection* connection, const char* msg)
+class IrcDebug
 {
-    if (irc_dbg_enabled) {
-        const QString desc = connection->displayName();
-        const QString stamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-        qDebug() << qPrintable("[" + stamp + " " + desc + "]") << msg;
+public:
+    IrcDebug(IrcConnection* c) : enabled(qgetenv("IRC_DEBUG").toInt())
+#ifndef QT_NO_DEBUG_STREAM
+      , debug(&str)
+#endif // QT_NO_DEBUG_STREAM
+    {
+#ifndef QT_NO_DEBUG_STREAM
+        if (enabled) {
+            const QString desc = c->displayName();
+            const QString stamp = QDateTime::currentDateTime().toString(Qt::ISODate);
+            debug << qPrintable("[" + stamp + " " + desc + "]");
+        }
+#endif // QT_NO_DEBUG_STREAM
     }
-}
 
-template<typename T>
-static void irc_debug(IrcConnection* connection, const char* msg, const T& arg1)
-{
-    if (irc_dbg_enabled) {
-        QString str; QDebug(&str) << msg << arg1;
-        irc_debug(connection, qPrintable(str));
+    ~IrcDebug() {
+#ifndef QT_NO_DEBUG_STREAM
+        if (enabled)
+            qDebug() << str;
+#endif // QT_NO_DEBUG_STREAM
     }
-}
 
-template<typename T1, typename T2>
-static void irc_debug(IrcConnection* connection, const char* msg, const T1& arg1, const T2& arg2)
-{
-    if (irc_dbg_enabled) {
-        QString str; QDebug(&str) << msg << arg1 << arg2;
-        irc_debug(connection, qPrintable(str));
+    template<typename T>
+    inline IrcDebug &operator<<(const T& t)
+    {
+#ifdef QT_NO_DEBUG_STREAM
+        Q_UNUSED(t);
+#else
+        if (enabled) {
+            debug << t;
+        }
+#endif // QT_NO_DEBUG_STREAM
+        return *this;
     }
-}
 
-template<typename T1, typename T2, typename T3>
-static void irc_debug(IrcConnection* connection, const char* msg, const T1& arg1, const T2& arg2, const T3& arg3)
-{
-    if (irc_dbg_enabled) {
-        QString str; QDebug(&str) << msg << arg1 << arg2 << arg3;
-        irc_debug(connection, qPrintable(str));
-    }
-}
+private:
+    bool enabled;
+    QString str;
+#ifndef QT_NO_DEBUG_STREAM
+    QDebug debug;
+#endif // QT_NO_DEBUG_STREAM
+};
+
+#define ircDebug(Connection) IrcDebug(Connection)
 #endif // IRC_DOXYGEN
 
 IRC_END_NAMESPACE
