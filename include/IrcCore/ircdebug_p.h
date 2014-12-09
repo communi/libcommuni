@@ -64,7 +64,7 @@ public:
     ~IrcDebug() {
 #ifndef QT_NO_DEBUG_STREAM
         if (enabled)
-            qDebug() << str;
+            qDebug() << qPrintable(str);
 #endif // QT_NO_DEBUG_STREAM
     }
 
