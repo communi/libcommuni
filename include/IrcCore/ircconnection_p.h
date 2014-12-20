@@ -65,6 +65,7 @@ public:
     void _irc_filterDestroyed(QObject* filter);
 
     void open();
+    void reconnect();
     void setNick(const QString& nick);
     void setStatus(IrcConnection::Status status);
     void setInfo(const QHash<QString, QString>& info);

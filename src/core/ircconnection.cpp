@@ -287,10 +287,7 @@ void IrcConnectionPrivate::_irc_disconnected()
     Q_Q(IrcConnection);
     protocol->close();
     emit q->disconnected();
-    if (enabled && !sslErrors && (status != IrcConnection::Closed || !closed) && !reconnecter.isActive() && reconnecter.interval() > 0) {
-        reconnecter.start();
-        setStatus(IrcConnection::Waiting);
-    }
+    reconnect();
 }
 
 void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
@@ -305,6 +302,7 @@ void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
         ircDebug(q) << "ERROR:" << error;
         emit q->socketError(error);
         setStatus(IrcConnection::Error);
+        reconnect();
     }
 }
 
@@ -393,6 +391,14 @@ void IrcConnectionPrivate::open()
         q->setSecure(s);
     }
     socket->connectToHost(host, port);
+}
+
+void IrcConnectionPrivate::reconnect()
+{
+    if (enabled && !sslErrors && (status != IrcConnection::Closed || !closed) && !reconnecter.isActive() && reconnecter.interval() > 0) {
+        reconnecter.start();
+        setStatus(IrcConnection::Waiting);
+    }
 }
 
 void IrcConnectionPrivate::setNick(const QString& nick)
