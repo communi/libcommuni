@@ -1818,9 +1818,9 @@ bool IrcWhoisMessage::isValid() const
 
 /*!
     \since 3.3
-    \class IrcWhoisMessage ircmessage.h <IrcMessage>
+    \class IrcWhowasMessage ircmessage.h <IrcMessage>
     \ingroup message
-    \brief Represents a reply message to a WHOIS command.
+    \brief Represents a reply message to a WHOWAS command.
  */
 
 /*!
