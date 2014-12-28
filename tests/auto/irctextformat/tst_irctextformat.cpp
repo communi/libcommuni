@@ -153,9 +153,9 @@ void tst_IrcTextFormat::testUrls_data()
                           << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: <a href='http://freenode.net/faq.shtml#gettinghelp'>http://freenode.net/faq.shtml#gettinghelp</a>")
                           << (QList<QUrl>() << QUrl("http://freenode.net/faq.shtml#gettinghelp"));
     QTest::newRow("topic") << defaultPattern
-                           << QString("Communi 1.2.2 - IRC framework || Home: http://communi.github.com || Docs: http://communi.github.com/doc || MeeGo: http://store.ovi.com/content/219150")
-                           << QString("Communi 1.2.2 - IRC framework || Home: <a href='http://communi.github.com'>http://communi.github.com</a> || Docs: <a href='http://communi.github.com/doc'>http://communi.github.com/doc</a> || MeeGo: <a href='http://store.ovi.com/content/219150'>http://store.ovi.com/content/219150</a>")
-                           << (QList<QUrl>() << QUrl("http://communi.github.com") << QUrl("http://communi.github.com/doc") << QUrl("http://store.ovi.com/content/219150"));
+                           << QString("Communi 1.2.2 - IRC framework || Home: http://communi.github.io || Docs: http://communi.github.io/doc || MeeGo: http://store.ovi.com/content/219150")
+                           << QString("Communi 1.2.2 - IRC framework || Home: <a href='http://communi.github.io'>http://communi.github.io</a> || Docs: <a href='http://communi.github.io/doc'>http://communi.github.io/doc</a> || MeeGo: <a href='http://store.ovi.com/content/219150'>http://store.ovi.com/content/219150</a>")
+                           << (QList<QUrl>() << QUrl("http://communi.github.io") << QUrl("http://communi.github.io/doc") << QUrl("http://store.ovi.com/content/219150"));
     QTest::newRow("commit") << defaultPattern
                             << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8")
                             << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: <a href='https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8'>https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8</a>")

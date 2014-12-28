@@ -24,7 +24,7 @@ void tst_IrcTextFormat::testToHtml_data()
     QTest::addColumn<QString>("text");
 
     QTest::newRow("info") << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://freenode.net/faq.shtml#gettinghelp");
-    QTest::newRow("topic") << QString("Communi 1.2.2 - IRC framework || Home: http://communi.github.com || Docs: http://communi.github.com/doc || MeeGo: http://store.ovi.com/content/219150");
+    QTest::newRow("topic") << QString("Communi 1.2.2 - IRC framework || Home: http://communi.github.io || Docs: http://communi.github.io/doc || MeeGo: http://store.ovi.com/content/219150");
     QTest::newRow("commit") << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8");
     QTest::newRow("welcome") << QString("Welcome to the Communi development lounge. Communi for MeeGo/Symbian users are kindly asked to submit a review in Nokia Store.");
 }
