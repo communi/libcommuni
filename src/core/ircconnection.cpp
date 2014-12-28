@@ -1605,7 +1605,7 @@ IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
     else if (type == "TIME")
         reply = QLatin1String("TIME ") + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat);
     else if (type == "VERSION")
-        reply = QLatin1String("VERSION Using libcommuni ") + Irc::version() + QLatin1String(" - http://communi.github.com");
+        reply = QLatin1String("VERSION libcommuni ") + Irc::version() + QLatin1String(" - http://communi.github.com");
     else if (type == "SOURCE")
         reply = QLatin1String("SOURCE http://communi.github.com");
     else if (type == "CLIENTINFO")
