@@ -257,6 +257,7 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
     realName(),
     enabled(true),
     status(IrcConnection::Inactive),
+    pendingOpen(false),
     sslErrors(false),
     closed(false)
 {
@@ -276,6 +277,7 @@ void IrcConnectionPrivate::_irc_connected()
     Q_Q(IrcConnection);
     closed = false;
     sslErrors = false;
+    pendingOpen = false;
     emit q->connecting();
     if (q->isSecure())
         QMetaObject::invokeMethod(socket, "startClientEncryption");
@@ -379,23 +381,28 @@ static bool parseServer(const QString& server, QString* host, int* port, bool* s
 void IrcConnectionPrivate::open()
 {
     Q_Q(IrcConnection);
-    closed = false;
-    sslErrors = false;
-    if (!servers.isEmpty()) {
-        QString h; int p; bool s;
-        QString server = servers.value((++currentServer) % servers.count());
-        if (!parseServer(server, &h, &p, &s))
-            qWarning() << "IrcConnection::servers: malformed line" << server;
-        q->setHost(h);
-        q->setPort(p);
-        q->setSecure(s);
+    if (q->isActive()) {
+        pendingOpen = true;
+    } else {
+        closed = false;
+        sslErrors = false;
+        if (!servers.isEmpty()) {
+            QString h; int p; bool s;
+            QString server = servers.value((++currentServer) % servers.count());
+            if (!parseServer(server, &h, &p, &s))
+                qWarning() << "IrcConnection::servers: malformed line" << server;
+            q->setHost(h);
+            q->setPort(p);
+            q->setSecure(s);
+        }
+        socket->connectToHost(host, port);
     }
-    socket->connectToHost(host, port);
 }
 
 void IrcConnectionPrivate::reconnect()
 {
-    if (enabled && !sslErrors && (status != IrcConnection::Closed || !closed) && !reconnecter.isActive() && reconnecter.interval() > 0) {
+    if (enabled && !sslErrors && (status != IrcConnection::Closed || !closed || pendingOpen) && !reconnecter.isActive() && reconnecter.interval() > 0) {
+        pendingOpen = false;
         reconnecter.start();
         setStatus(IrcConnection::Waiting);
     }
@@ -1278,7 +1285,7 @@ void IrcConnection::open()
         qWarning("IrcConnection::open(): realName is empty!");
         return;
     }
-    if (d->enabled && d->socket && !isActive())
+    if (d->enabled && d->socket)
         d->open();
 }
 
@@ -1311,6 +1318,7 @@ void IrcConnection::close()
     Q_D(IrcConnection);
     if (d->socket) {
         d->closed = true;
+        d->pendingOpen = false;
         d->socket->flush();
         d->socket->abort();
         d->socket->disconnectFromHost();

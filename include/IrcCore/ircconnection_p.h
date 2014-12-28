@@ -103,6 +103,7 @@ public:
     QList<QObject*> messageFilters;
     QStack<QObject*> activeCommandFilters;
     QSet<int> replies;
+    bool pendingOpen;
     bool sslErrors;
     bool closed;
 };
