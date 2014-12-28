@@ -633,6 +633,8 @@ void IrcChannel::part(const QString& reason)
  */
 void IrcChannel::close(const QString& reason)
 {
+    Q_D(IrcChannel);
+    d->enabled = false;
     if (isActive())
         part(reason);
     IrcBuffer::close(reason);
