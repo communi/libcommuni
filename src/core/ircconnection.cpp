@@ -221,8 +221,8 @@ IRC_BEGIN_NAMESPACE
     This signal is emitted when a \a message is received.
 
     In addition, message type specific signals are provided for convenience:
-    \li void <b>accountMessageReceived</b>(\ref IrcAccountMessage* message)
-    \li void <b>awayMessageReceived</b>(\ref IrcAwayMessage* message)
+    \li void <b>accountMessageReceived</b>(\ref IrcAccountMessage* message) (\b since 3.3)
+    \li void <b>awayMessageReceived</b>(\ref IrcAwayMessage* message) (\b since 3.3)
     \li void <b>capabilityMessageReceived</b>(\ref IrcCapabilityMessage* message)
     \li void <b>errorMessageReceived</b>(\ref IrcErrorMessage* message)
     \li void <b>inviteMessageReceived</b>(\ref IrcInviteMessage* message)
@@ -240,9 +240,9 @@ IRC_BEGIN_NAMESPACE
     \li void <b>privateMessageReceived</b>(\ref IrcPrivateMessage* message)
     \li void <b>quitMessageReceived</b>(\ref IrcQuitMessage* message)
     \li void <b>topicMessageReceived</b>(\ref IrcTopicMessage* message)
-    \li void <b>whoisMessageReceived</b>(\ref IrcWhoisMessage* message)
-    \li void <b>whowasMessageReceived</b>(\ref IrcWhowasMessage* message)
-    \li void <b>whoReplyMessageReceived</b>(\ref IrcWhoReplyMessage* message)
+    \li void <b>whoisMessageReceived</b>(\ref IrcWhoisMessage* message) (\b since 3.3)
+    \li void <b>whowasMessageReceived</b>(\ref IrcWhowasMessage* message) (\b since 3.3)
+    \li void <b>whoReplyMessageReceived</b>(\ref IrcWhoReplyMessage* message) (\b since 3.1)
  */
 
 #ifndef IRC_DOXYGEN

@@ -182,6 +182,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \since 3.1
     \var IrcMessage::WhoReply
     \brief A who reply message (IrcWhoReplyMessage).
  */
