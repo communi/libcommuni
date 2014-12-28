@@ -240,6 +240,9 @@ IRC_BEGIN_NAMESPACE
     \li void <b>privateMessageReceived</b>(\ref IrcPrivateMessage* message)
     \li void <b>quitMessageReceived</b>(\ref IrcQuitMessage* message)
     \li void <b>topicMessageReceived</b>(\ref IrcTopicMessage* message)
+    \li void <b>whoisMessageReceived</b>(\ref IrcWhoisMessage* message)
+    \li void <b>whowasMessageReceived</b>(\ref IrcWhowasMessage* message)
+    \li void <b>whoReplyMessageReceived</b>(\ref IrcWhoReplyMessage* message)
  */
 
 #ifndef IRC_DOXYGEN
@@ -533,6 +536,12 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
             break;
         case IrcMessage::Topic:
             emit q->topicMessageReceived(static_cast<IrcTopicMessage*>(msg));
+            break;
+        case IrcMessage::Whois:
+            emit q->whoisMessageReceived(static_cast<IrcWhoisMessage*>(msg));
+            break;
+        case IrcMessage::Whowas:
+            emit q->whowasMessageReceived(static_cast<IrcWhowasMessage*>(msg));
             break;
         case IrcMessage::WhoReply:
             emit q->whoReplyMessageReceived(static_cast<IrcWhoReplyMessage*>(msg));

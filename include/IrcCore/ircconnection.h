@@ -202,6 +202,8 @@ Q_SIGNALS:
     void privateMessageReceived(IrcPrivateMessage* message);
     void quitMessageReceived(IrcQuitMessage* message);
     void topicMessageReceived(IrcTopicMessage* message);
+    void whoisMessageReceived(IrcWhoisMessage* message);
+    void whowasMessageReceived(IrcWhowasMessage* message);
     void whoReplyMessageReceived(IrcWhoReplyMessage* message);
 
     void hostChanged(const QString& host);
