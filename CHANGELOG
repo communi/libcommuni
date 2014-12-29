@@ -2,6 +2,7 @@
 -----
 - IrcCore
   - Added IrcConnection::nickNames
+  - Added IrcConnection::servers
   - Added IrcCommand::connection
   - Added IrcMessage::Implicit
   - Added IrcInviteMessage::isReply()
