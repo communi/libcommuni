@@ -1408,9 +1408,12 @@ bool IrcConnection::sendData(const QByteArray& data)
     Q_D(IrcConnection);
     if (d->socket) {
         if (isActive()) {
-            ircDebug(this) << "->" << data;
+            const QByteArray cmd = data.left(5).toUpper();
+            if (cmd.startsWith("PASS "))
+                ircDebug(this) << "->" << data.left(5) + QByteArray(data.mid(5).length(), 'x');
+            else
+                ircDebug(this) << "->" << data;
             if (!d->closed && data.length() >= 4) {
-                const QByteArray cmd = data.left(5).toUpper();
                 if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
                     d->closed = true;
             }
