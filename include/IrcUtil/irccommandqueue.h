@@ -26,22 +26,61 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef IRCUTIL_H
-#define IRCUTIL_H
+#ifndef IRCCOMMANDQUEUE_H
+#define IRCCOMMANDQUEUE_H
 
-#include "irccommandparser.h"
-#include "irccommandqueue.h"
-#include "irccompleter.h"
-#include "irclagtimer.h"
-#include "ircpalette.h"
-#include "irctextformat.h"
+#include <IrcGlobal>
+#include <QtCore/qobject.h>
+#include <QtCore/qmetatype.h>
+#include <QtCore/qscopedpointer.h>
 
 IRC_BEGIN_NAMESPACE
 
-namespace IrcUtil {
-    void registerMetaTypes();
-}
+class IrcConnection;
+class IrcCommandQueuePrivate;
+
+class IRC_UTIL_EXPORT IrcCommandQueue : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(int batch READ batch WRITE setBatch)
+    Q_PROPERTY(int interval READ interval WRITE setInterval)
+    Q_PROPERTY(int size READ size NOTIFY sizeChanged)
+    Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection)
+
+public:
+    explicit IrcCommandQueue(QObject* parent = 0);
+    virtual ~IrcCommandQueue();
+
+    int batch() const;
+    void setBatch(int batch);
+
+    int interval() const;
+    void setInterval(int seconds);
+
+    int size() const;
+
+    IrcConnection* connection() const;
+    void setConnection(IrcConnection* connection);
+
+public Q_SLOTS:
+    void clear();
+    void flush();
+
+Q_SIGNALS:
+    void sizeChanged(int size);
+
+private:
+    QScopedPointer<IrcCommandQueuePrivate> d_ptr;
+    Q_DECLARE_PRIVATE(IrcCommandQueue)
+    Q_DISABLE_COPY(IrcCommandQueue)
+
+    Q_PRIVATE_SLOT(d_func(), void _irc_connected())
+    Q_PRIVATE_SLOT(d_func(), void _irc_updateTimer())
+    Q_PRIVATE_SLOT(d_func(), void _irc_sendBatch())
+};
 
 IRC_END_NAMESPACE
 
-#endif // IRCUTIL_H
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCommandQueue*))
+
+#endif // IRCCOMMANDQUEUE_H

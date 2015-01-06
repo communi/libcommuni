@@ -26,22 +26,40 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef IRCUTIL_H
-#define IRCUTIL_H
+#ifndef IRCCOMMANDQUEUE_P_H
+#define IRCCOMMANDQUEUE_P_H
 
-#include "irccommandparser.h"
 #include "irccommandqueue.h"
-#include "irccompleter.h"
-#include "irclagtimer.h"
-#include "ircpalette.h"
-#include "irctextformat.h"
+#include "ircfilter.h"
+#include <QQueue>
+#include <QTimer>
 
 IRC_BEGIN_NAMESPACE
 
-namespace IrcUtil {
-    void registerMetaTypes();
-}
+class IrcCommandQueuePrivate : public QObject,  public IrcCommandFilter
+{
+    Q_OBJECT
+    Q_INTERFACES(IrcCommandFilter)
+    Q_DECLARE_PUBLIC(IrcCommandQueue)
+
+public:
+    IrcCommandQueuePrivate();
+
+    bool commandFilter(IrcCommand* cmd);
+
+    void _irc_connected();
+    void _irc_updateTimer();
+    void _irc_sendBatch(bool force = false);
+
+    IrcCommandQueue* q_ptr;
+    IrcConnection* connection;
+    QTimer timer;
+    int batch;
+    int interval;
+    bool sending;
+    QQueue<IrcCommand*> commands;
+};
 
 IRC_END_NAMESPACE
 
-#endif // IRCUTIL_H
+#endif // IRCCOMMANDQUEUE_P_H
