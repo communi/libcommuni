@@ -210,9 +210,8 @@ IRC_BEGIN_NAMESPACE
 
     This signal is emitted when SSL socket error occurs.
 
-    Either QSslSocket::sslErrors() was emitted, or the remote host closed
-    the connection without QSslSocket::sslErrors() being emitted meaning
-    that the server is not SSL-enabled.
+    Either QSslSocket::sslErrors() was emitted, or the handshake failed
+    meaning that the server is not SSL-enabled.
  */
 
 /*!
@@ -261,7 +260,6 @@ IrcConnectionPrivate::IrcConnectionPrivate() :
     enabled(true),
     status(IrcConnection::Inactive),
     pendingOpen(false),
-    sslErrors(false),
     closed(false)
 {
 }
@@ -279,7 +277,6 @@ void IrcConnectionPrivate::_irc_connected()
 {
     Q_Q(IrcConnection);
     closed = false;
-    sslErrors = false;
     pendingOpen = false;
     emit q->connecting();
     if (q->isSecure())
@@ -298,13 +295,12 @@ void IrcConnectionPrivate::_irc_disconnected()
 void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcConnection);
-    if (!closed && !sslErrors && error == QAbstractSocket::RemoteHostClosedError && q->isSecure()) {
-        ircDebug(q) << "ERROR:" << "no SSL available";
+    if (error == QAbstractSocket::SslHandshakeFailedError) {
+        ircDebug(q) << "SSL HANDSHAKE ERROR";
         setStatus(IrcConnection::Error);
-        sslErrors = true;
         emit q->secureError();
     } else if (!closed || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
-        ircDebug(q) << "ERROR:" << error;
+        ircDebug(q) << "SOCKET ERROR:" << error;
         emit q->socketError(error);
         setStatus(IrcConnection::Error);
         reconnect();
@@ -322,8 +318,7 @@ void IrcConnectionPrivate::_irc_sslErrors()
             errors += error.errorString();
     }
 #endif
-    ircDebug(q) << "ERROR:" << errors;
-    sslErrors = true;
+    ircDebug(q) << "SSL ERRORS:" << errors;
     emit q->secureError();
 }
 
@@ -388,7 +383,6 @@ void IrcConnectionPrivate::open()
         pendingOpen = true;
     } else {
         closed = false;
-        sslErrors = false;
         if (!servers.isEmpty()) {
             QString h; int p; bool s;
             QString server = servers.value((++currentServer) % servers.count());
@@ -404,7 +398,7 @@ void IrcConnectionPrivate::open()
 
 void IrcConnectionPrivate::reconnect()
 {
-    if (enabled && !sslErrors && (status != IrcConnection::Closed || !closed || pendingOpen) && !reconnecter.isActive() && reconnecter.interval() > 0) {
+    if (enabled && (status != IrcConnection::Closed || !closed || pendingOpen) && !reconnecter.isActive() && reconnecter.interval() > 0) {
         pendingOpen = false;
         reconnecter.start();
         setStatus(IrcConnection::Waiting);

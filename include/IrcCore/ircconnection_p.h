@@ -104,7 +104,6 @@ public:
     QStack<QObject*> activeCommandFilters;
     QSet<int> replies;
     bool pendingOpen;
-    bool sslErrors;
     bool closed;
 };
 
