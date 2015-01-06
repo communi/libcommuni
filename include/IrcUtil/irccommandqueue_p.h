@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2008-2014 The Communi Project
+  Copyright (C) 2008-2015 The Communi Project
 
   You may use this file under the terms of BSD license as follows:
 
