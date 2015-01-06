@@ -31,6 +31,7 @@
 
 #include "irccommandqueue.h"
 #include "ircfilter.h"
+#include <QPointer>
 #include <QQueue>
 #include <QTimer>
 
@@ -47,7 +48,6 @@ public:
 
     bool commandFilter(IrcCommand* cmd);
 
-    void _irc_connected();
     void _irc_updateTimer();
     void _irc_sendBatch(bool force = false);
 
@@ -56,8 +56,7 @@ public:
     QTimer timer;
     int batch;
     int interval;
-    bool sending;
-    QQueue<IrcCommand*> commands;
+    QQueue<QPointer<IrcCommand> > commands;
 };
 
 IRC_END_NAMESPACE

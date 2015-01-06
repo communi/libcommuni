@@ -74,7 +74,6 @@ private:
     Q_DECLARE_PRIVATE(IrcCommandQueue)
     Q_DISABLE_COPY(IrcCommandQueue)
 
-    Q_PRIVATE_SLOT(d_func(), void _irc_connected())
     Q_PRIVATE_SLOT(d_func(), void _irc_updateTimer())
     Q_PRIVATE_SLOT(d_func(), void _irc_sendBatch())
 };
