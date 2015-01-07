@@ -467,14 +467,25 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
         }
     }
 
+    QStringList chans, keys;
     foreach (IrcBuffer* buffer, bufferList) {
         IrcChannel* channel = buffer->toChannel();
         if (channel && !channel->isActive()) {
             IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
-            if (p->enabled)
-                channel->join();
+            if (p->enabled) {
+                chans += channel->title();
+                keys += channel->key();
+                p->enabled = true;
+            }
+        }
+        if (chans.length() == 3) {
+            connection->sendCommand(IrcCommand::createJoin(chans, keys));
+            chans.clear();
+            keys.clear();
         }
     }
+    if (!chans.isEmpty())
+        connection->sendCommand(IrcCommand::createJoin(chans, keys));
 }
 #endif // IRC_DOXYGEN
 
