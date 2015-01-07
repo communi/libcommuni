@@ -63,7 +63,9 @@ IrcCommandQueuePrivate::IrcCommandQueuePrivate() : q_ptr(0),
 bool IrcCommandQueuePrivate::commandFilter(IrcCommand* cmd)
 {
     Q_Q(IrcCommandQueue);
-    if (interval > 0 && !cmd->parent() && connection->isConnected()) {
+    if (cmd->type() == IrcCommand::Quit) {
+        _irc_sendBatch(true);
+    } else if (interval > 0 && !cmd->parent() && connection->isConnected()) {
         cmd->setParent(q);
         commands.enqueue(cmd);
         emit q->sizeChanged(commands.size());
