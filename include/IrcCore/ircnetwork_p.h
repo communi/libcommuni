@@ -53,6 +53,7 @@ public:
     void setModes(const QStringList& modes);
     void setPrefixes(const QStringList& prefixes);
     void setChannelTypes(const QStringList& types);
+    void setStatusPrefixes(const QStringList& prefixes);
 
     static IrcNetwork* create(IrcConnection* connection)
     {
@@ -68,7 +69,7 @@ public:
     QPointer<IrcConnection> connection;
     bool initialized;
     QString name;
-    QStringList modes, prefixes, channelTypes, channelModes;
+    QStringList modes, prefixes, channelTypes, channelModes, statusPrefixes;
     QHash<QString, int> numericLimits, modeLimits, channelLimits, targetLimits;
     QSet<QString> availableCaps, requestedCaps, activeCaps;
 };

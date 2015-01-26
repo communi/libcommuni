@@ -52,9 +52,10 @@ IRC_BEGIN_NAMESPACE
     IrcNetwork provides various information about the IRC network of a
     \ref IrcConnection::network "connection". This includes the \ref name
     "network name", supported \ref channelTypes "channel types", channel
-    user \ref modes "mode characters" and \ref prefixes "prefix letters",
-    and various \ref numericLimit "numeric limitations", such as the maximum
-    nick, channel, topic and message lengths.
+    user \ref modes "mode characters" and \ref prefixes "prefix letters"
+    and \ref statusPrefixes "status prefixes", and various \ref numericLimit
+    "numeric limitations", such as the maximum nick, channel, topic and
+    message lengths.
 
     Furthermore, IrcNetwork provides convenient methods for converting channel user
     \ref modeToPrefix() "modes to prefixes" and \ref prefixToMode() "vice versa" and
@@ -200,6 +201,8 @@ void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& info)
     }
     if (info.contains("CHANTYPES"))
         setChannelTypes(info.value("CHANTYPES").split("", QString::SkipEmptyParts));
+    if (info.contains("STATUSMSG"))
+        setStatusPrefixes(info.value("STATUSMSG").split("", QString::SkipEmptyParts));
 
     // TODO:
     if (info.contains("NICKLEN"))
@@ -280,6 +283,15 @@ void IrcNetworkPrivate::setChannelTypes(const QStringList& value)
     if (channelTypes != value) {
         channelTypes = value;
         emit q->channelTypesChanged(value);
+    }
+}
+
+void IrcNetworkPrivate::setStatusPrefixes(const QStringList& value)
+{
+    Q_Q(IrcNetwork);
+    if (statusPrefixes != value) {
+        statusPrefixes = value;
+        emit q->statusPrefixesChanged(value);
     }
 }
 #endif // IRC_DOXYGEN
@@ -375,7 +387,7 @@ QStringList IrcNetwork::modes() const
     \par Notifier signal:
     \li void <b>prefixesChanged</b>(const QStringList& prefixes)
 
-    \sa modes, prefixToMode()
+    \sa modes, prefixToMode(), statusPrefixes
  */
 QStringList IrcNetwork::prefixes() const
 {
@@ -424,6 +436,27 @@ QStringList IrcNetwork::channelTypes() const
 {
     Q_D(const IrcNetwork);
     return d->channelTypes;
+}
+
+/*!
+    \since 3.4
+
+    This property holds the supported message status prefixes.
+
+    The server supports messaging channel members who have a certain status or higher.
+
+    \par Access function:
+    \li QStringList <b>statusPrefixes</b>() const
+
+    \par Notifier signal:
+    \li void <b>statusPrefixesChanged</b>(const QStringList& prefixes)
+
+    \sa prefixes
+ */
+QStringList IrcNetwork::statusPrefixes() const
+{
+    Q_D(const IrcNetwork);
+    return d->statusPrefixes;
 }
 
 /*!

@@ -1264,7 +1264,14 @@ IrcNoticeMessage::IrcNoticeMessage(IrcConnection* connection) : IrcMessage(conne
 QString IrcNoticeMessage::target() const
 {
     Q_D(const IrcMessage);
-    return d->param(0);
+    QString t = d->param(0);
+    if (d->connection) {
+        const IrcNetwork* network = d->connection->network();
+        const QStringList prefixes = network->statusPrefixes();
+        while (!t.isEmpty() && prefixes.contains(t.at(0)))
+            t.remove(0, 1);
+    }
+    return t;
 }
 
 /*!
@@ -1509,7 +1516,14 @@ IrcPrivateMessage::IrcPrivateMessage(IrcConnection* connection) : IrcMessage(con
 QString IrcPrivateMessage::target() const
 {
     Q_D(const IrcMessage);
-    return d->param(0);
+    QString t = d->param(0);
+    if (d->connection) {
+        const IrcNetwork* network = d->connection->network();
+        const QStringList prefixes = network->statusPrefixes();
+        while (!t.isEmpty() && prefixes.contains(t.at(0)))
+            t.remove(0, 1);
+    }
+    return t;
 }
 
 /*!

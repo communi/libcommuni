@@ -48,6 +48,7 @@ class IRC_CORE_EXPORT IrcNetwork : public QObject
     Q_PROPERTY(QStringList modes READ modes NOTIFY modesChanged)
     Q_PROPERTY(QStringList prefixes READ prefixes NOTIFY prefixesChanged)
     Q_PROPERTY(QStringList channelTypes READ channelTypes NOTIFY channelTypesChanged)
+    Q_PROPERTY(QStringList statusPrefixes READ statusPrefixes NOTIFY statusPrefixesChanged)
     Q_PROPERTY(QStringList availableCapabilities READ availableCapabilities NOTIFY availableCapabilitiesChanged)
     Q_PROPERTY(QStringList requestedCapabilities READ requestedCapabilities WRITE setRequestedCapabilities NOTIFY requestedCapabilitiesChanged)
     Q_PROPERTY(QStringList activeCapabilities READ activeCapabilities NOTIFY activeCapabilitiesChanged)
@@ -68,6 +69,7 @@ public:
     Q_INVOKABLE QString prefixToMode(const QString& prefix) const;
 
     QStringList channelTypes() const;
+    QStringList statusPrefixes() const;
 
     Q_INVOKABLE bool isChannel(const QString& name) const;
 
@@ -116,6 +118,7 @@ Q_SIGNALS:
     void modesChanged(const QStringList& modes);
     void prefixesChanged(const QStringList& prefixes);
     void channelTypesChanged(const QStringList& types);
+    void statusPrefixesChanged(const QStringList& prefixes);
     void availableCapabilitiesChanged(const QStringList& capabilities);
     void requestedCapabilitiesChanged(const QStringList& capabilities);
     void activeCapabilitiesChanged(const QStringList& capabilities);
