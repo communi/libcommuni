@@ -1,5 +1,7 @@
 3.4.0
 -----
+- IrcCore
+  - Added IrcConnection::clone()
 - IrcModel
   - Added Irc::SortByActivity support to IrcBufferModel
 - IrcUtil

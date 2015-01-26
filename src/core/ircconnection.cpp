@@ -599,6 +599,32 @@ IrcConnection::~IrcConnection()
 }
 
 /*!
+    \since 3.4
+
+    Clones the IRC connection.
+ */
+IrcConnection* IrcConnection::clone(QObject *parent) const
+{
+    IrcConnection* connection = new IrcConnection(parent);
+    connection->setHost(host());
+    connection->setPort(port());
+    connection->setServers(servers());
+    connection->setUserName(userName());
+    connection->setNickName(nickName());
+    connection->setRealName(realName());
+    connection->setPassword(password());
+    connection->setNickNames(nickNames());
+    connection->setDisplayName(displayName());
+    connection->setUserData(userData());
+    connection->setEncoding(encoding());
+    connection->setEnabled(isEnabled());
+    connection->setReconnectDelay(reconnectDelay());
+    connection->setSecure(isSecure());
+    connection->setSaslMechanism(saslMechanism());
+    return connection;
+}
+
+/*!
     This property holds the FALLBACK encoding for received messages.
 
     The fallback encoding is used when the message is detected not

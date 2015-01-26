@@ -79,6 +79,8 @@ public:
     explicit IrcConnection(const QString& host, QObject* parent = 0);
     virtual ~IrcConnection();
 
+    Q_INVOKABLE IrcConnection* clone(QObject *parent = 0) const;
+
     QString host() const;
     void setHost(const QString& host);
 
