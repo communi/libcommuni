@@ -2,6 +2,9 @@
 -----
 - IrcCore
   - Added IrcConnection::clone()
+  - Added IrcNetwork::statusPrefixes
+  - Added IrcPrivateMessage::statusPrefix
+  - Added IrcNoticeMessage::statusPrefix
 - IrcModel
   - Added Irc::SortByActivity support to IrcBufferModel
 - IrcUtil

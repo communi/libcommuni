@@ -365,6 +365,7 @@ class IRC_CORE_EXPORT IrcNoticeMessage : public IrcMessage
     Q_OBJECT
     Q_PROPERTY(QString target READ target)
     Q_PROPERTY(QString content READ content)
+    Q_PROPERTY(QString statusPrefix READ statusPrefix)
     Q_PROPERTY(bool private READ isPrivate)
     Q_PROPERTY(bool reply READ isReply)
 
@@ -373,6 +374,7 @@ public:
 
     QString target() const;
     QString content() const;
+    QString statusPrefix() const;
     bool isPrivate() const;
     bool isReply() const;
 
@@ -455,6 +457,7 @@ class IRC_CORE_EXPORT IrcPrivateMessage : public IrcMessage
     Q_OBJECT
     Q_PROPERTY(QString target READ target)
     Q_PROPERTY(QString content READ content)
+    Q_PROPERTY(QString statusPrefix READ statusPrefix)
     Q_PROPERTY(bool private READ isPrivate)
     Q_PROPERTY(bool action READ isAction)
     Q_PROPERTY(bool request READ isRequest)
@@ -464,6 +467,7 @@ public:
 
     QString target() const;
     QString content() const;
+    QString statusPrefix() const;
     bool isPrivate() const;
     bool isAction() const;
     bool isRequest() const;

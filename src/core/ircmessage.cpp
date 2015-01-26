@@ -31,7 +31,7 @@
 #include "ircconnection.h"
 #include "ircconnection_p.h"
 #include "ircmessagecomposer_p.h"
-#include "ircnetwork.h"
+#include "ircnetwork_p.h"
 #include "irccommand.h"
 #include "irc.h"
 #include <QMetaEnum>
@@ -1264,14 +1264,11 @@ IrcNoticeMessage::IrcNoticeMessage(IrcConnection* connection) : IrcMessage(conne
 QString IrcNoticeMessage::target() const
 {
     Q_D(const IrcMessage);
-    QString t = d->param(0);
     if (d->connection) {
         const IrcNetwork* network = d->connection->network();
-        const QStringList prefixes = network->statusPrefixes();
-        while (!t.isEmpty() && prefixes.contains(t.at(0)))
-            t.remove(0, 1);
+        return IrcNetworkPrivate::removePrefix(d->param(0), network->statusPrefixes());
     }
-    return t;
+    return d->param(0);
 }
 
 /*!
@@ -1291,6 +1288,24 @@ QString IrcNoticeMessage::content() const
         msg.chop(1);
     }
     return msg;
+}
+
+/*!
+    \since 3.4
+
+    This property holds the status prefix of the message.
+
+    \par Access function:
+    \li QString <b>statusPrefix</b>() const
+ */
+QString IrcNoticeMessage::statusPrefix() const
+{
+    Q_D(const IrcMessage);
+    if (d->connection) {
+        const IrcNetwork* network = d->connection->network();
+        return IrcNetworkPrivate::getPrefix(d->param(0), network->statusPrefixes());
+    }
+    return QString();
 }
 
 /*!
@@ -1516,14 +1531,11 @@ IrcPrivateMessage::IrcPrivateMessage(IrcConnection* connection) : IrcMessage(con
 QString IrcPrivateMessage::target() const
 {
     Q_D(const IrcMessage);
-    QString t = d->param(0);
     if (d->connection) {
         const IrcNetwork* network = d->connection->network();
-        const QStringList prefixes = network->statusPrefixes();
-        while (!t.isEmpty() && prefixes.contains(t.at(0)))
-            t.remove(0, 1);
+        return IrcNetworkPrivate::removePrefix(d->param(0), network->statusPrefixes());
     }
-    return t;
+    return d->param(0);
 }
 
 /*!
@@ -1544,6 +1556,24 @@ QString IrcPrivateMessage::content() const
     if (req) msg.remove(0, 1);
     if (act || req) msg.chop(1);
     return msg;
+}
+
+/*!
+    \since 3.4
+
+    This property holds the status prefix of the message.
+
+    \par Access function:
+    \li QString <b>statusPrefix</b>() const
+ */
+QString IrcPrivateMessage::statusPrefix() const
+{
+    Q_D(const IrcMessage);
+    if (d->connection) {
+        const IrcNetwork* network = d->connection->network();
+        return IrcNetworkPrivate::getPrefix(d->param(0), network->statusPrefixes());
+    }
+    return QString();
 }
 
 /*!

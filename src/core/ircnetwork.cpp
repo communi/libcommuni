@@ -294,6 +294,22 @@ void IrcNetworkPrivate::setStatusPrefixes(const QStringList& value)
         emit q->statusPrefixesChanged(value);
     }
 }
+
+QString IrcNetworkPrivate::getPrefix(const QString& str, const QStringList& prefixes)
+{
+    int i = 0;
+    while (i < str.length() && prefixes.contains(str.at(i)))
+        ++i;
+    return str.left(i);
+}
+
+QString IrcNetworkPrivate::removePrefix(const QString& str, const QStringList& prefixes)
+{
+    int i = 0;
+    while (i < str.length() && prefixes.contains(str.at(i)))
+        ++i;
+    return str.mid(i);
+}
 #endif // IRC_DOXYGEN
 
 /*!

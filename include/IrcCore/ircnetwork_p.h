@@ -55,6 +55,9 @@ public:
     void setChannelTypes(const QStringList& types);
     void setStatusPrefixes(const QStringList& prefixes);
 
+    static QString getPrefix(const QString& str, const QStringList& prefixes);
+    static QString removePrefix(const QString& str, const QStringList& prefixes);
+
     static IrcNetwork* create(IrcConnection* connection)
     {
         return new IrcNetwork(connection);
