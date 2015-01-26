@@ -155,7 +155,10 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
         processed = processNickMessage(static_cast<IrcNickMessage*>(message));
         break;
     case IrcMessage::Notice:
-        processed = processNoticeMessage(static_cast<IrcNoticeMessage*>(message));
+        if (processed = processNoticeMessage(static_cast<IrcNoticeMessage*>(message))) {
+            activity = message->timeStamp();
+            IrcBufferModelPrivate::get(model)->promoteBuffer(q);
+        }
         break;
     case IrcMessage::Numeric:
         processed = processNumericMessage(static_cast<IrcNumericMessage*>(message));
@@ -164,7 +167,10 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
         processed = processPartMessage(static_cast<IrcPartMessage*>(message));
         break;
     case IrcMessage::Private:
-        processed = processPrivateMessage(static_cast<IrcPrivateMessage*>(message));
+        if (processed = processPrivateMessage(static_cast<IrcPrivateMessage*>(message))) {
+            activity = message->timeStamp();
+            IrcBufferModelPrivate::get(model)->promoteBuffer(q);
+        }
         break;
     case IrcMessage::Quit:
         processed = processQuitMessage(static_cast<IrcQuitMessage*>(message));

@@ -32,6 +32,7 @@
 #include "ircbuffer.h"
 #include "ircmessage.h"
 #include <qstringlist.h>
+#include <qdatetime.h>
 #include <qlist.h>
 #include <qmap.h>
 
@@ -84,6 +85,7 @@ public:
     bool persistent;
     bool sticky;
     QVariantMap userData;
+    QDateTime activity;
 };
 
 IRC_END_NAMESPACE

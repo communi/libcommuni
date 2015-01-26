@@ -1,5 +1,7 @@
 3.4.0
 -----
+- IrcModel
+  - Added Irc::SortByActivity support to IrcBufferModel
 - IrcUtil
   - Added IrcCommandQueue
 

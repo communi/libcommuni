@@ -393,6 +393,17 @@ bool IrcBufferModelPrivate::renameBuffer(const QString& from, const QString& to)
     return false;
 }
 
+void IrcBufferModelPrivate::promoteBuffer(IrcBuffer* buffer)
+{
+    Q_Q(IrcBufferModel);
+    if (sortMethod == Irc::SortByActivity) {
+        const bool notify = false;
+        removeBuffer(buffer, notify);
+        insertBuffer(0, buffer, notify);
+        emit q->buffersChanged(bufferList);
+    }
+}
+
 bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* message, bool create)
 {
     IrcBuffer* buffer = bufferMap.value(title.toLower());
@@ -810,11 +821,14 @@ void IrcBufferModel::setSortOrder(Qt::SortOrder order)
 
     The default value is \c Irc::SortByHand.
 
-    Method           | Description                                                       | Example
-    -----------------|-------------------------------------------------------------------|-------------------------------------------------
-    Irc::SortByHand  | Buffers are not sorted automatically, but only by calling sort(). | -
-    Irc::SortByName  | Buffers are sorted alphabetically, ignoring any channel prefix.   | "bot", "#communi", "#freenode", "jpnurmi", "#qt"
-    Irc::SortByTitle | Buffers are sorted alphabetically, and channels before queries.   | "#communi", "#freenode", "#qt", "bot", "jpnurmi"
+    Method              | Description                                                                      | Example
+    --------------------|----------------------------------------------------------------------------------|-------------------------------------------------
+    Irc::SortByHand     | Buffers are not sorted automatically, but only by calling sort().                | -
+    Irc::SortByName     | Buffers are sorted alphabetically, ignoring any channel prefix.                  | "bot", "#communi", "#freenode", "jpnurmi", "#qt"
+    Irc::SortByTitle    | Buffers are sorted alphabetically, and channels before queries.                  | "#communi", "#freenode", "#qt", "bot", "jpnurmi"
+    Irc::SortByActivity | Buffers are sorted based on their messaging activity, last active buffers first. | -
+
+    \note Irc::SortByActivity support was added in version \b 3.4.
 
     \par Access functions:
     \li Irc::SortMethod <b>sortMethod</b>() const
@@ -978,6 +992,13 @@ bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another, Irc::SortMetho
 {
     if (one->isSticky() != another->isSticky())
         return one->isSticky();
+
+    if (method == Irc::SortByActivity) {
+        QDateTime ts1 = IrcBufferPrivate::get(one)->activity;
+        QDateTime ts2 = IrcBufferPrivate::get(another)->activity;
+        if (ts1.isValid() || ts2.isValid())
+            return ts1.isValid() && ts1 > ts2;
+    }
 
     if (method == Irc::SortByTitle) {
         const QStringList prefixes = one->network()->channelTypes();

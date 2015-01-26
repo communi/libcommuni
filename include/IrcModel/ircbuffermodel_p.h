@@ -58,6 +58,7 @@ public:
     void insertBuffer(int index, IrcBuffer* buffer, bool notify = true);
     void removeBuffer(IrcBuffer* buffer, bool notify = true);
     bool renameBuffer(const QString& from, const QString& to);
+    void promoteBuffer(IrcBuffer* buffer);
 
     bool processMessage(const QString& title, IrcMessage* message, bool create = false);
 
