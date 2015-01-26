@@ -489,7 +489,8 @@ QStringList IrcNetwork::statusPrefixes() const
 bool IrcNetwork::isChannel(const QString& name) const
 {
     Q_D(const IrcNetwork);
-    return !name.isEmpty() && d->channelTypes.contains(name.at(0));
+    QString unprefixed = d->removePrefix(name, d->statusPrefixes);
+    return !unprefixed.isEmpty() && d->channelTypes.contains(unprefixed.at(0));
 }
 
 /*!
