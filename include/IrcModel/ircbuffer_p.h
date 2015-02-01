@@ -57,6 +57,10 @@ public:
     void setPrefix(const QString& prefix);
     void setModel(IrcBufferModel* model);
 
+    enum MonitorStatus { MonitorUnknown, MonitorOffline, MonitorOnline };
+    void setMonitorStatus(MonitorStatus status);
+    bool isMonitorable() const;
+
     bool processMessage(IrcMessage* message);
 
     virtual bool processAwayMessage(IrcAwayMessage* message);
@@ -86,6 +90,7 @@ public:
     bool sticky;
     QVariantMap userData;
     QDateTime activity;
+    MonitorStatus monitorStatus;
 };
 
 IRC_END_NAMESPACE

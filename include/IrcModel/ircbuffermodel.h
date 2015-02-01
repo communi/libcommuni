@@ -59,6 +59,7 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
     Q_PROPERTY(IrcBuffer* bufferPrototype READ bufferPrototype WRITE setBufferPrototype NOTIFY bufferPrototypeChanged)
     Q_PROPERTY(IrcChannel* channelPrototype READ channelPrototype WRITE setChannelPrototype NOTIFY channelPrototypeChanged)
     Q_PROPERTY(int joinDelay READ joinDelay WRITE setJoinDelay NOTIFY joinDelayChanged)
+    Q_PROPERTY(bool monitorEnabled READ isMonitorEnabled WRITE setMonitorEnabled NOTIFY monitorEnabledChanged)
 
 public:
     explicit IrcBufferModel(QObject* parent = 0);
@@ -112,6 +113,9 @@ public:
     int joinDelay() const;
     void setJoinDelay(int delay);
 
+    bool isMonitorEnabled() const;
+    void setMonitorEnabled(bool enabled);
+
     Q_INVOKABLE QByteArray saveState(int version = 0) const;
     Q_INVOKABLE bool restoreState(const QByteArray& state, int version = 0);
 
@@ -138,6 +142,7 @@ Q_SIGNALS:
     void channelPrototypeChanged(IrcChannel* prototype);
     void destroyed(IrcBufferModel* model);
     void joinDelayChanged(int delay);
+    void monitorEnabledChanged(bool enabled);
 
 protected Q_SLOTS:
     virtual IrcBuffer* createBuffer(const QString& title);
@@ -157,6 +162,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
     Q_PRIVATE_SLOT(d_func(), void _irc_bufferDestroyed(IrcBuffer*))
     Q_PRIVATE_SLOT(d_func(), void _irc_restoreBuffers())
+    Q_PRIVATE_SLOT(d_func(), void _irc_monitorStatus())
 };
 
 IRC_END_NAMESPACE

@@ -91,7 +91,8 @@ public:
         MessageLength,
         KickReasonLength,
         AwayReasonLength,
-        ModeCount
+        ModeCount,
+        MonitorCount
     };
 
     Q_INVOKABLE int numericLimit(IrcNetwork::Limit limit) const;

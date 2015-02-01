@@ -88,7 +88,8 @@ public:
         Account,
         Away,
         Whois,
-        Whowas
+        Whowas,
+        Monitor
     };
 
     enum Flag {

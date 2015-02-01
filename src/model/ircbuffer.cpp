@@ -31,6 +31,7 @@
 #include "ircbuffermodel.h"
 #include "ircbuffermodel_p.h"
 #include "ircconnection.h"
+#include "ircnetwork.h"
 #include "ircchannel.h"
 
 IRC_BEGIN_NAMESPACE
@@ -72,7 +73,7 @@ IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
 IrcBufferPrivate::IrcBufferPrivate()
-    : q_ptr(0), model(0), persistent(false), sticky(false)
+    : q_ptr(0), model(0), persistent(false), sticky(false), monitorStatus(MonitorUnknown)
 {
     qRegisterMetaType<IrcBuffer*>();
     qRegisterMetaType<QList<IrcBuffer*> >();
@@ -129,6 +130,28 @@ void IrcBufferPrivate::setPrefix(const QString& value)
 void IrcBufferPrivate::setModel(IrcBufferModel* value)
 {
     model = value;
+}
+
+void IrcBufferPrivate::setMonitorStatus(MonitorStatus status)
+{
+    Q_Q(IrcBuffer);
+    if (monitorStatus != status) {
+        bool wasActive = q->isActive();
+        monitorStatus = status;
+        bool isActive = q->isActive();
+        if (wasActive != isActive)
+            emit q->activeChanged(isActive);
+    }
+}
+
+bool IrcBufferPrivate::isMonitorable() const
+{
+    Q_Q(const IrcBuffer);
+    IrcNetwork* n = q->network();
+    IrcConnection* c = q->connection();
+    if (!sticky && !q->isChannel() && c && c->isConnected() && n && n->numericLimit(IrcNetwork::MonitorCount) >= 0)
+        return true;
+    return false;
 }
 
 bool IrcBufferPrivate::processMessage(IrcMessage* message)
@@ -237,7 +260,10 @@ bool IrcBufferPrivate::processNoticeMessage(IrcNoticeMessage* message)
 
 bool IrcBufferPrivate::processNumericMessage(IrcNumericMessage* message)
 {
-    Q_UNUSED(message);
+    if (message->code() == Irc::RPL_MONONLINE)
+        setMonitorStatus(MonitorOnline);
+    else if (message->code() == Irc::RPL_MONOFFLINE)
+        setMonitorStatus(MonitorOffline);
     return true;
 }
 
@@ -438,9 +464,11 @@ IrcBufferModel* IrcBuffer::model() const
  */
 bool IrcBuffer::isActive() const
 {
+    Q_D(const IrcBuffer);
+    bool connected = false;
     if (IrcConnection* c = connection())
-        return c->isConnected();
-    return false;
+        connected = c->isConnected();
+    return connected && (!d->isMonitorable() || d->monitorStatus == IrcBufferPrivate::MonitorOnline);
 }
 
 /*!

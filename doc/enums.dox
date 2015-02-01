@@ -1853,6 +1853,26 @@
     \var Irc::RPL_NOTESTLINE
     \brief 726
  */
+ /*!
+     \since 3.4
+     \var Irc::RPL_MONONLINE
+     \brief 730
+ */
+ /*!
+     \since 3.4
+     \var Irc::RPL_MONOFFLINE
+     \brief 731
+ */
+ /*!
+     \since 3.4
+     \var Irc::RPL_MONLIST
+     \brief 732
+ */
+ /*!
+     \since 3.4
+     \var Irc::RPL_ENDOFMONLIST
+     \brief 733
+ */
 /*!
     \var Irc::RPL_XINFO
     \brief 771

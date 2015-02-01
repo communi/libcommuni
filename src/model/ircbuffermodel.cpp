@@ -128,7 +128,8 @@ private:
 
 IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(0), role(Irc::TitleRole),
     sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder),
-    bufferProto(0), channelProto(0), persistent(false), joinDelay(0)
+    bufferProto(0), channelProto(0), persistent(false), joinDelay(0),
+    monitorEnabled(false), monitorPending(false)
 {
 }
 
@@ -183,6 +184,11 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
                 const int count = msg->parameters().count();
                 const QString channel = msg->parameters().value(count - 2);
                 processed = processMessage(channel, msg);
+            } else if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_MONONLINE ||
+                       static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_MONONLINE) {
+                msg->setFlags(msg->flags() | IrcMessage::Implicit);
+                foreach (const QString& target, msg->parameters().value(1).split(QLatin1String(",")))
+                    processed |= processMessage(Irc::nickFromPrefix(target), msg);
             } else {
                 processed = processMessage(msg->parameters().value(1), msg);
             }
@@ -290,7 +296,15 @@ void IrcBufferModelPrivate::destroyBuffer(const QString& title, bool force)
 
 void IrcBufferModelPrivate::addBuffer(IrcBuffer* buffer, bool notify)
 {
+    Q_Q(IrcBufferModel);
     insertBuffer(-1, buffer, notify);
+    if (monitorEnabled && IrcBufferPrivate::get(buffer)->isMonitorable()) {
+        connection->sendCommand(IrcCommand::createMonitor("+", buffer->title()));
+        if (!monitorPending) {
+            monitorPending = true;
+            QTimer::singleShot(1000, q, SLOT(_irc_monitorStatus()));
+        }
+    }
 }
 
 void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool notify)
@@ -420,8 +434,18 @@ void IrcBufferModelPrivate::_irc_connected()
     if (joinDelay >= 0)
         QTimer::singleShot(joinDelay * 1000, q, SLOT(_irc_restoreBuffers()));
 
-    foreach (IrcBuffer* buffer, bufferList)
+    bool monitored = false;
+    foreach (IrcBuffer* buffer, bufferList) {
         IrcBufferPrivate::get(buffer)->connected();
+        if (monitorEnabled && IrcBufferPrivate::get(buffer)->isMonitorable()) {
+            connection->sendCommand(IrcCommand::createMonitor("+", buffer->title()));
+            monitored = true;
+        }
+    }
+    if (monitored && !monitorPending) {
+        monitorPending = true;
+        QTimer::singleShot(1000, q, SLOT(_irc_monitorStatus()));
+    }
 }
 
 void IrcBufferModelPrivate::_irc_disconnected()
@@ -444,37 +468,41 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
     QVariantList bufs = bufferStates;
     bufferStates.clear();
 
+    bool hasActiveChannels = false;
     foreach (IrcBuffer* buffer, bufferList) {
-        // this is probably a bouncer connection if there are already
-        // active channels. don't restore and re-join channels that were
-        // left in another client meanwhile this client was disconnected.
-        if (buffer->isChannel() && buffer->isActive())
-            return;
+        if (buffer->isChannel() && buffer->isActive()) {
+            // this is probably a bouncer connection if there are already
+            // active channels. don't restore and re-join channels that were
+            // left in another client meanwhile this client was disconnected.
+            hasActiveChannels = true;
+        }
     }
 
-    foreach (const QVariant& v, bufs) {
-        QVariantMap b = v.toMap();
-        IrcBuffer* buffer = q->find(b.value("title").toString());
-        if (!buffer) {
-            if (b.value("channel").toBool())
-                buffer = createChannelHelper(b.value("title").toString());
-            else
-                buffer = createBufferHelper(b.value("title").toString());
-            buffer->setName(b.value("name").toString());
-            buffer->setPrefix(b.value("prefix").toString());
-            buffer->setSticky(b.value("sticky").toBool());
-            buffer->setPersistent(b.value("persistent").toBool());
-            buffer->setUserData(b.value("userData").toMap());
-            q->add(buffer);
-        }
-        IrcChannel* channel = buffer->toChannel();
-        if (channel && !channel->isActive()) {
-            IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
-            const QStringList modes = b.value("modes").toStringList();
-            const QStringList args = b.value("args").toStringList();
-            for (int i = 0; i < modes.count(); ++i)
-                p->modes.insert(modes.at(i), args.value(i));
-            p->enabled = b.value("enabled", true).toBool();
+    if (!hasActiveChannels) {
+        foreach (const QVariant& v, bufs) {
+            QVariantMap b = v.toMap();
+            IrcBuffer* buffer = q->find(b.value("title").toString());
+            if (!buffer) {
+                if (b.value("channel").toBool())
+                    buffer = createChannelHelper(b.value("title").toString());
+                else
+                    buffer = createBufferHelper(b.value("title").toString());
+                buffer->setName(b.value("name").toString());
+                buffer->setPrefix(b.value("prefix").toString());
+                buffer->setSticky(b.value("sticky").toBool());
+                buffer->setPersistent(b.value("persistent").toBool());
+                buffer->setUserData(b.value("userData").toMap());
+                q->add(buffer);
+            }
+            IrcChannel* channel = buffer->toChannel();
+            if (channel && !channel->isActive()) {
+                IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
+                const QStringList modes = b.value("modes").toStringList();
+                const QStringList args = b.value("args").toStringList();
+                for (int i = 0; i < modes.count(); ++i)
+                    p->modes.insert(modes.at(i), args.value(i));
+                p->enabled = b.value("enabled", true).toBool();
+            }
         }
     }
 
@@ -497,6 +525,13 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
     }
     if (!chans.isEmpty())
         connection->sendCommand(IrcCommand::createJoin(chans, keys));
+}
+
+void IrcBufferModelPrivate::_irc_monitorStatus()
+{
+    if (monitorEnabled && connection)
+        connection->sendCommand(IrcCommand::createMonitor("S"));
+    monitorPending = false;
 }
 #endif // IRC_DOXYGEN
 
@@ -1187,6 +1222,35 @@ void IrcBufferModel::setJoinDelay(int delay)
     if (d->joinDelay != delay) {
         d->joinDelay = delay;
         emit joinDelayChanged(delay);
+    }
+}
+
+/*!
+    \since 3.4
+
+    This property holds whether automatic monitor is enabled.
+
+    The default value is \c false.
+
+    \par Access function:
+    \li bool <b>isMonitorEnabled</b>() const
+    \li void <b>setMonitorEnabled</b>(bool enabled)
+
+    \par Notifier signal:
+    \li void <b>monitorEnabledChanged</b>(bool enabled)
+ */
+bool IrcBufferModel::isMonitorEnabled() const
+{
+    Q_D(const IrcBufferModel);
+    return d->monitorEnabled;
+}
+
+void IrcBufferModel::setMonitorEnabled(bool enabled)
+{
+    Q_D(IrcBufferModel);
+    if (d->monitorEnabled != enabled) {
+        d->monitorEnabled = enabled;
+        emit monitorEnabledChanged(enabled);
     }
 }
 

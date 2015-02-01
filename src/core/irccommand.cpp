@@ -406,6 +406,7 @@ QString IrcCommand::toString() const
         case List:          return p1.isNull() ? QString("LIST %1").arg(p0) : QString("LIST %1 %2").arg(p0, p1); // chan, server
         case Message:       return QString("PRIVMSG %1 :%2").arg(p0, d->params(1)); // target, msg
         case Mode:          return QString("MODE ") + d->parameters.join(" "); // target, mode, arg
+        case Monitor:       return QString("MONITOR %1 %2").arg(p0, p1); // cmd, target
         case Motd:          return QString("MOTD %1").arg(p0); // server
         case Names:         return QString("NAMES %1").arg(p0); // chan
         case Nick:          return QString("NICK %1").arg(p0); // nick
@@ -613,6 +614,50 @@ IrcCommand* IrcCommand::createMessage(const QString& target, const QString& mess
 IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, const QString& arg)
 {
     return IrcCommandPrivate::createCommand(Mode, QStringList() << target << mode << arg);
+}
+
+/*!
+    \since 3.4
+
+    Creates a new MONITOR command with type IrcCommand::Monitor and parameters \a command and and optional \a target.
+
+    Available commands are:
+    \list
+    \li \c + - Adds the given list of targets to the list of targets being monitored.
+    \li \c + - Removes the given list of targets from the list of targets being monitored.
+               No output will be returned for use of this command.
+    \li \c C - Clears the list of targets being monitored. No output will be returned for use of this command.
+    \li \c L - Outputs the current list of targets being monitored. All output will use RPL_MONLIST,
+               and the output will be terminated with RPL_ENDOFMONLIST.
+    \li \c S - Outputs for each target in the list being monitored, whether the client is online or offline.
+               All targets that are online will be sent using RPL_MONONLINE, all targets that are offline will
+               be sent using RPL_MONOFFLINE.
+ */
+IrcCommand* IrcCommand::createMonitor(const QString& command, const QString& target)
+{
+    return IrcCommandPrivate::createCommand(Monitor, QStringList() << command << target);
+}
+
+/*!
+    \since 3.4
+
+    Creates a new MONITOR command with type IrcCommand::Monitor and parameters \a command and \a targets.
+
+    Available commands are:
+    \list
+    \li \c + - Adds the given list of targets to the list of targets being monitored.
+    \li \c + - Removes the given list of targets from the list of targets being monitored.
+               No output will be returned for use of this command.
+    \li \c C - Clears the list of targets being monitored. No output will be returned for use of this command.
+    \li \c L - Outputs the current list of targets being monitored. All output will use RPL_MONLIST,
+               and the output will be terminated with RPL_ENDOFMONLIST.
+    \li \c S - Outputs for each target in the list being monitored, whether the client is online or offline.
+               All targets that are online will be sent using RPL_MONONLINE, all targets that are offline will
+               be sent using RPL_MONOFFLINE.
+ */
+IrcCommand* IrcCommand::createMonitor(const QString& command, const QStringList& targets)
+{
+    return IrcCommandPrivate::createCommand(Monitor, QStringList() << command << targets.join(","));
 }
 
 /*!

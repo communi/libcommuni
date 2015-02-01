@@ -175,6 +175,12 @@ IRC_BEGIN_NAMESPACE
     \brief The maximum number of channel modes allowed per mode command
  */
 
+/*!
+    \since 3.4
+    \var IrcNetwork::MonitorCount
+    \brief The maximum amount of targets a client may have in their monitor list
+ */
+
 #ifndef IRC_DOXYGEN
 IrcNetworkPrivate::IrcNetworkPrivate() : q_ptr(0), initialized(false)
 {
@@ -217,6 +223,8 @@ void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& info)
         numericLimits.insert("AWAYLEN", info.value("AWAYLEN").toInt());
     if (info.contains("MODES"))
         numericLimits.insert("MODES", info.value("MODES").toInt());
+    if (info.contains("MONITOR"))
+        numericLimits.insert("MONITOR", info.value("MONITOR").toInt());
     if (info.contains("CHANMODES"))
         channelModes = info.value("CHANMODES").split(",", QString::SkipEmptyParts);
     if (info.contains("MAXLIST"))
@@ -530,6 +538,7 @@ int IrcNetwork::numericLimit(Limit limit) const
         case KickReasonLength:  key = QLatin1String("KICKLEN"); break;
         case AwayReasonLength:  key = QLatin1String("AWAYLEN"); break;
         case ModeCount:         key = QLatin1String("MODES"); break;
+        case MonitorCount:      key = QLatin1String("MONITOR"); break;
     }
     return d->numericLimits.value(key, -1);
 }
