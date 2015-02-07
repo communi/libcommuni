@@ -375,6 +375,8 @@ void IrcBufferModelPrivate::removeBuffer(IrcBuffer* buffer, bool notify)
             if (bufferList.isEmpty())
                 emit q->emptyChanged(true);
         }
+        if (monitorEnabled && IrcBufferPrivate::get(buffer)->isMonitorable())
+            connection->sendCommand(IrcCommand::createMonitor("-", buffer->title()));
     }
 }
 
