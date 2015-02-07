@@ -468,7 +468,10 @@ bool IrcBuffer::isActive() const
     bool connected = false;
     if (IrcConnection* c = connection())
         connected = c->isConnected();
-    return connected && (!d->isMonitorable() || d->monitorStatus == IrcBufferPrivate::MonitorOnline);
+    bool monitor = false;
+    if (d->model)
+        monitor = d->model->isMonitorEnabled();
+    return connected && (!monitor || !d->isMonitorable() || d->monitorStatus == IrcBufferPrivate::MonitorOnline);
 }
 
 /*!
