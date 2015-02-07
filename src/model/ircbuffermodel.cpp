@@ -296,15 +296,7 @@ void IrcBufferModelPrivate::destroyBuffer(const QString& title, bool force)
 
 void IrcBufferModelPrivate::addBuffer(IrcBuffer* buffer, bool notify)
 {
-    Q_Q(IrcBufferModel);
     insertBuffer(-1, buffer, notify);
-    if (monitorEnabled && IrcBufferPrivate::get(buffer)->isMonitorable()) {
-        connection->sendCommand(IrcCommand::createMonitor("+", buffer->title()));
-        if (!monitorPending) {
-            monitorPending = true;
-            QTimer::singleShot(1000, q, SLOT(_irc_monitorStatus()));
-        }
-    }
 }
 
 void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool notify)
@@ -349,6 +341,13 @@ void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool noti
             emit q->countChanged(bufferList.count());
             if (bufferList.count() == 1)
                 emit q->emptyChanged(false);
+        }
+        if (monitorEnabled && IrcBufferPrivate::get(buffer)->isMonitorable()) {
+            connection->sendCommand(IrcCommand::createMonitor("+", buffer->title()));
+            if (!monitorPending) {
+                monitorPending = true;
+                QTimer::singleShot(1000, q, SLOT(_irc_monitorStatus()));
+            }
         }
     }
 }
