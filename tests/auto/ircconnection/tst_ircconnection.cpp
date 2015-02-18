@@ -1654,7 +1654,7 @@ void tst_IrcConnection::testCtcp()
     QVERIFY(sourceReply.data());
     QCOMPARE(sourceReply->type(), IrcCommand::CtcpReply);
     QVERIFY(sourceReply->toString().startsWith("NOTICE nick :\1SOURCE "));
-    QVERIFY(sourceReply->toString().contains("http://"));
+    QVERIFY(sourceReply->toString().contains("https://"));
     QVERIFY(sourceReply->toString().endsWith("\1"));
 
     // CLIENTINFO
@@ -1728,7 +1728,7 @@ void tst_IrcConnection::testCtcp()
     protocol->written.clear();
     QVERIFY(waitForWritten(":nick!user@host PRIVMSG communi :\1SOURCE\1\r\n"));
     QVERIFY(protocol->written.startsWith("NOTICE nick :\1SOURCE "));
-    QVERIFY(protocol->written.contains("http://"));
+    QVERIFY(protocol->written.contains("https://"));
     QVERIFY(protocol->written.endsWith("\1"));
 
     // CLIENTINFO
