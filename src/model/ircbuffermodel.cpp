@@ -185,7 +185,7 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
                 const QString channel = msg->parameters().value(count - 2);
                 processed = processMessage(channel, msg);
             } else if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_MONONLINE ||
-                       static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_MONONLINE) {
+                       static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_MONOFFLINE) {
                 msg->setFlags(msg->flags() | IrcMessage::Implicit);
                 foreach (const QString& target, msg->parameters().value(1).split(QLatin1String(",")))
                     processed |= processMessage(Irc::nickFromPrefix(target), msg);
