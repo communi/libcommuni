@@ -36,7 +36,6 @@ IRC_BEGIN_NAMESPACE
 IrcMessageComposer::IrcMessageComposer(IrcConnection* connection)
 {
     d.connection = connection;
-    d.message = 0;
 }
 
 bool IrcMessageComposer::isComposed(int code)
@@ -77,26 +76,26 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
 {
     switch (message->code()) {
     case Irc::RPL_MOTDSTART:
-        d.message = new IrcMotdMessage(d.connection);
-        d.message->setPrefix(message->prefix());
-        d.message->setParameters(QStringList(message->parameters().value(0)));
+        d.messages.push(new IrcMotdMessage(d.connection));
+        d.messages.top()->setPrefix(message->prefix());
+        d.messages.top()->setParameters(QStringList(message->parameters().value(0)));
         break;
     case Irc::RPL_MOTD:
-        d.message->setParameters(d.message->parameters() << message->parameters().value(1));
+        d.messages.top()->setParameters(d.messages.top()->parameters() << message->parameters().value(1));
         break;
     case Irc::RPL_ENDOFMOTD:
         finishCompose(message);
         break;
 
     case Irc::RPL_NAMREPLY: {
-        if (!d.message)
-            d.message = new IrcNamesMessage(d.connection);
-        d.message->setPrefix(message->prefix());
+        if (d.messages.empty() || d.messages.top()->type() != IrcMessage::Names)
+            d.messages.push(new IrcNamesMessage(d.connection));
+        d.messages.top()->setPrefix(message->prefix());
         int count = message->parameters().count();
         QString channel = message->parameters().value(count - 2);
-        QStringList names = d.message->parameters().mid(1);
+        QStringList names = d.messages.top()->parameters().mid(1);
         names += message->parameters().value(count - 1).split(QLatin1Char(' '), QString::SkipEmptyParts);
-        d.message->setParameters(QStringList() << channel << names);
+        d.messages.top()->setParameters(QStringList() << channel << names);
         break;
     }
     case Irc::RPL_ENDOFNAMES:
@@ -105,92 +104,92 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
 
     case Irc::RPL_TOPIC:
     case Irc::RPL_NOTOPIC:
-        d.message = new IrcTopicMessage(d.connection);
-        d.message->setPrefix(message->prefix());
-        d.message->setCommand(QString::number(message->code()));
-        d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
+        d.messages.push(new IrcTopicMessage(d.connection));
+        d.messages.top()->setPrefix(message->prefix());
+        d.messages.top()->setCommand(QString::number(message->code()));
+        d.messages.top()->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
         finishCompose(message);
         break;
 
     case Irc::RPL_INVITING:
     case Irc::RPL_INVITED:
-        d.message = new IrcInviteMessage(d.connection);
-        d.message->setPrefix(message->prefix());
-        d.message->setCommand(QString::number(message->code()));
-        d.message->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
+        d.messages.push(new IrcInviteMessage(d.connection));
+        d.messages.top()->setPrefix(message->prefix());
+        d.messages.top()->setCommand(QString::number(message->code()));
+        d.messages.top()->setParameters(QStringList() << message->parameters().value(1) << message->parameters().value(2));
         finishCompose(message);
         break;
 
     case Irc::RPL_WHOREPLY: {
-        d.message = new IrcWhoReplyMessage(d.connection);
-        d.message->setPrefix(message->parameters().value(5) // nick
-                             + QLatin1Char('!') + message->parameters().value(2) // ident
-                             + QLatin1Char('@') + message->parameters().value(3)); // host
-        d.message->setCommand(QString::number(message->code()));
-        d.message->setParameters(QStringList() << message->parameters().value(1) // mask
-                                               << message->parameters().value(4) // server
-                                               << message->parameters().value(6)); // status
+        d.messages.push(new IrcWhoReplyMessage(d.connection));
+        d.messages.top()->setPrefix(message->parameters().value(5) // nick
+                                    + QLatin1Char('!') + message->parameters().value(2) // ident
+                                    + QLatin1Char('@') + message->parameters().value(3)); // host
+        d.messages.top()->setCommand(QString::number(message->code()));
+        d.messages.top()->setParameters(QStringList() << message->parameters().value(1) // mask
+                                                      << message->parameters().value(4) // server
+                                                      << message->parameters().value(6)); // status
         QString last = message->parameters().value(7);
         int index = last.indexOf(QLatin1Char(' ')); // ignore hopcount
         if (index != -1)
-            d.message->setParameters(d.message->parameters() << last.mid(index + 1)); // real name
+            d.messages.top()->setParameters(d.messages.top()->parameters() << last.mid(index + 1)); // real name
         finishCompose(message);
         break;
     }
 
     case Irc::RPL_CHANNELMODEIS:
-        d.message = new IrcModeMessage(d.connection);
-        d.message->setPrefix(message->prefix());
-        d.message->setCommand(QString::number(message->code()));
-        d.message->setParameters(message->parameters().mid(1));
+        d.messages.push(new IrcModeMessage(d.connection));
+        d.messages.top()->setPrefix(message->prefix());
+        d.messages.top()->setCommand(QString::number(message->code()));
+        d.messages.top()->setParameters(message->parameters().mid(1));
         finishCompose(message);
         break;
 
     case Irc::RPL_AWAY:
     case Irc::RPL_UNAWAY:
     case Irc::RPL_NOWAWAY:
-        d.message = new IrcAwayMessage(d.connection);
-        d.message->setCommand(QString::number(message->code()));
+        d.messages.push(new IrcAwayMessage(d.connection));
+        d.messages.top()->setCommand(QString::number(message->code()));
         if (message->code() == Irc::RPL_AWAY) {
-            d.message->setPrefix(message->parameters().value(1));
-            d.message->setParameters(message->parameters().mid(2));
+            d.messages.top()->setPrefix(message->parameters().value(1));
+            d.messages.top()->setParameters(message->parameters().mid(2));
         } else {
-            d.message->setPrefix(message->parameters().value(0));
-            d.message->setParameters(message->parameters().mid(1));
+            d.messages.top()->setPrefix(message->parameters().value(0));
+            d.messages.top()->setParameters(message->parameters().mid(1));
         }
         finishCompose(message);
         break;
 
     case Irc::RPL_WHOISUSER:
-        d.message = new IrcWhoisMessage(d.connection);
-        d.message->setPrefix(message->parameters().value(1)
-                             + "!" + message->parameters().value(2)
-                             + "@" + message->parameters().value(3));
-        d.message->setParameters(QStringList() << message->parameters().value(5)
-                                               << QString()   // server
-                                               << QString()   // info
-                                               << QString()   // account
-                                               << QString()   // address
-                                               << QString()   // since
-                                               << QString()   // idle
-                                               << QString()   // secure
-                                               << QString()); // channels
+        d.messages.push(new IrcWhoisMessage(d.connection));
+        d.messages.top()->setPrefix(message->parameters().value(1)
+                                    + "!" + message->parameters().value(2)
+                                    + "@" + message->parameters().value(3));
+        d.messages.top()->setParameters(QStringList() << message->parameters().value(5)
+                                                      << QString()   // server
+                                                      << QString()   // info
+                                                      << QString()   // account
+                                                      << QString()   // address
+                                                      << QString()   // since
+                                                      << QString()   // idle
+                                                      << QString()   // secure
+                                                      << QString()); // channels
         break;
 
     case Irc::RPL_WHOWASUSER:
-        d.message = new IrcWhowasMessage(d.connection);
-        d.message->setPrefix(message->parameters().value(1)
-                             + "!" + message->parameters().value(2)
-                             + "@" + message->parameters().value(3));
-        d.message->setParameters(QStringList() << message->parameters().value(5)
-                                               << QString()   // server
-                                               << QString()   // info
-                                               << QString()   // account
-                                               << QString()   // address
-                                               << QString()   // since
-                                               << QString()   // idle
-                                               << QString()   // secure
-                                               << QString()); // channels
+        d.messages.push(new IrcWhowasMessage(d.connection));
+        d.messages.top()->setPrefix(message->parameters().value(1)
+                                    + "!" + message->parameters().value(2)
+                                    + "@" + message->parameters().value(3));
+        d.messages.top()->setParameters(QStringList() << message->parameters().value(5)
+                                                      << QString()   // server
+                                                      << QString()   // info
+                                                      << QString()   // account
+                                                      << QString()   // address
+                                                      << QString()   // since
+                                                      << QString()   // idle
+                                                      << QString()   // secure
+                                                      << QString()); // channels
         break;
 
     case Irc::RPL_WHOISSERVER:
@@ -228,21 +227,21 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
 
 void IrcMessageComposer::finishCompose(IrcMessage* message)
 {
-    if (d.message) {
-        d.message->setTimeStamp(message->timeStamp());
+    if (!d.messages.isEmpty()) {
+        IrcMessage* composed = d.messages.pop();
+        composed->setTimeStamp(message->timeStamp());
         if (message->flags() & IrcMessage::Implicit)
-            d.message->setFlags(IrcMessage::Implicit);
-        emit messageComposed(d.message);
+            composed->setFlags(IrcMessage::Implicit);
+        emit messageComposed(composed);
     }
-    d.message = 0;
 }
 
 void IrcMessageComposer::replaceParam(int index, const QString& param)
 {
-    QStringList params = d.message->parameters();
+    QStringList params = d.messages.top()->parameters();
     if (index < params.count())
         params.replace(index, param);
-    d.message->setParameters(params);
+    d.messages.top()->setParameters(params);
 }
 #endif // IRC_DOXYGEN
 

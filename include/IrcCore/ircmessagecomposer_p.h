@@ -30,6 +30,7 @@
 #define IRCMESSAGECOMPOSER_P_H
 
 #include <IrcGlobal>
+#include <QtCore/qstack.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 
@@ -58,8 +59,8 @@ private:
     void replaceParam(int index, const QString& param);
 
     struct Data {
-        IrcMessage* message;
         IrcConnection* connection;
+        QStack<IrcMessage*> messages;
     } d;
 };
 
