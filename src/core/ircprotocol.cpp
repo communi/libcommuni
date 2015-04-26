@@ -284,7 +284,7 @@ void IrcProtocolPrivate::_irc_pauseHandshake()
     // Send CAP LS first; if the server understands it this will
     // temporarily pause the handshake until CAP END is sent, so we
     // know whether the server supports the CAP extension.
-    connection->sendData("CAP LS");
+    connection->sendData("CAP LS 302");
     resumed = false;
     authed = false;
 }
