@@ -251,7 +251,11 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
 
         if (!connected) {
             QMetaObject::invokeMethod(connection->network(), "requestingCapabilities");
-            QStringList requestedCaps = connection->network()->requestedCapabilities();
+            QStringList requestedCaps;
+            foreach (const QString& cap, connection->network()->requestedCapabilities()) {
+                if (availableCaps.contains(cap))
+                    requestedCaps += cap;
+            }
             const QStringList params = msg->parameters();
             if (params.value(params.count() - 1) != QLatin1String("*")) {
                 if (!connection->saslMechanism().isEmpty() && availableCaps.contains(QLatin1String("sasl")))
