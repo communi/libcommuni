@@ -281,10 +281,19 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
         if (!connected && !auth)
             QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
     } else if (subCommand == "NEW") {
+        QStringList requestedCaps;
         QSet<QString> availableCaps = connection->network()->availableCapabilities().toSet();
-        foreach (const QString& cap, msg->capabilities())
+        foreach (const QString& cap, msg->capabilities()) {
+            if (connection->network()->requestedCapabilities().contains(cap))
+                requestedCaps += cap;
             availableCaps.insert(cap);
+        }
         q->setAvailableCapabilities(availableCaps);
+
+        if (!requestedCaps.empty()) {
+            QMetaObject::invokeMethod(connection->network(), "requestingCapabilities");
+            connection->sendRaw("CAP REQ :" + requestedCaps.join(" "));
+        }
     } else if (subCommand == "DEL") {
         QSet<QString> activeCaps =  connection->network()->activeCapabilities().toSet();
         QSet<QString> availableCaps = connection->network()->availableCapabilities().toSet();
