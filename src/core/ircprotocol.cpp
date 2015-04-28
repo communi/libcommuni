@@ -286,9 +286,13 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             availableCaps.insert(cap);
         q->setAvailableCapabilities(availableCaps);
     } else if (subCommand == "DEL") {
+        QSet<QString> activeCaps =  connection->network()->activeCapabilities().toSet();
         QSet<QString> availableCaps = connection->network()->availableCapabilities().toSet();
-        foreach (const QString& cap, msg->capabilities())
+        foreach (const QString& cap, msg->capabilities()) {
+            activeCaps.remove(cap);
             availableCaps.remove(cap);
+        }
+        q->setActiveCapabilities(activeCaps);
         q->setAvailableCapabilities(availableCaps);
     }
 }
