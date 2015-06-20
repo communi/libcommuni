@@ -1240,6 +1240,8 @@ void IrcBufferModel::setJoinDelay(int delay)
 
     \par Notifier signal:
     \li void <b>monitorEnabledChanged</b>(bool enabled)
+
+    \sa \ref ircv3
  */
 bool IrcBufferModel::isMonitorEnabled() const
 {

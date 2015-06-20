@@ -71,6 +71,7 @@ IRC_BEGIN_NAMESPACE
     \since 3.3
     \var IrcMessage::Account
     \brief An account notify message (IrcAccountMessage).
+    \sa \ref ircv3
  */
 
 /*!
@@ -87,6 +88,7 @@ IRC_BEGIN_NAMESPACE
 /*!
     \var IrcMessage::Capability
     \brief A capability message (IrcCapabilityMessage).
+    \sa \ref ircv3
  */
 
 /*!
@@ -478,9 +480,14 @@ void IrcMessage::setParameters(const QStringList& parameters)
 /*!
     This property holds the message time stamp.
 
+    \note When the \c server-time capability is enabled, the time
+          stamp is automatically set from the \c time message tag.
+
     \par Access functions:
     \li QDateTime <b>timeStamp</b>() const
     \li void <b>setTimeStamp</b>(const QDateTime& timeStamp)
+
+    \sa \ref ircv3
  */
 QDateTime IrcMessage::timeStamp() const
 {
@@ -537,7 +544,7 @@ void IrcMessage::setEncoding(const QByteArray& encoding)
     \li QVariantMap <b>tags</b>() const
     \li void <b>setTags</b>(const QVariantMap& tags)
 
-    \sa <a href="http://ircv3.org/specification/message-tags-3.2">IRCv3.2 Message Tags</a>
+    \sa \ref ircv3
  */
 QVariantMap IrcMessage::tags() const
 {
@@ -644,12 +651,12 @@ QString IrcAwayMessage::content() const
     Away messages are sent in three situations:
     \li as a reply when sending a message (\c true),
     \li as a reply when setting away status (\c true),
-    \li as an away notification when the away-notify capability is enabled (\c false).
+    \li as an away notification when the \c away-notify capability is enabled (\c false).
 
     \par Access function:
     \li bool <b>isReply</b>() const
 
-    \sa Irc::RPL_AWAY, Irc::RPL_NOWAWAY, Irc::RPL_UNAWAY
+    \sa Irc::RPL_AWAY, Irc::RPL_NOWAWAY, Irc::RPL_UNAWAY, \ref ircv3
  */
 bool IrcAwayMessage::isReply() const
 {
@@ -682,6 +689,7 @@ bool IrcAwayMessage::isValid() const
     \class IrcAccountMessage ircmessage.h <IrcMessage>
     \ingroup message
     \brief Represents an account notify message.
+    \sa \ref ircv3
  */
 
 /*!
@@ -720,6 +728,7 @@ bool IrcAccountMessage::isValid() const
     \class IrcCapabilityMessage ircmessage.h <IrcMessage>
     \ingroup message
     \brief Represents a capability message.
+    \sa \ref ircv3
  */
 
 /*!
@@ -822,6 +831,8 @@ IrcInviteMessage::IrcInviteMessage(IrcConnection* connection) : IrcMessage(conne
 
     \par Access function:
     \li QString <b>user</b>() const
+
+    \sa \ref ircv3
  */
 QString IrcInviteMessage::user() const
 {
@@ -845,14 +856,15 @@ QString IrcInviteMessage::channel() const
     \property bool IrcInviteMessage::reply
     This property holds whether the message is a reply.
 
-    Invite messages are sent in two situations:
+    Invite messages are sent in three situations:
     \li as a notification of a received invitation (\c false),
-    \li as a reply when sending an invitation (\c true).
+    \li as a reply when sending an invitation (\c true), or
+    \li as an invite notification when the \c invite-notify capability is enabled (\c false).
 
     \par Access function:
     \li bool <b>isReply</b>() const
 
-    \sa Irc::RPL_INVITING, Irc::RPL_INVITED, IrcInviteCommand
+    \sa Irc::RPL_INVITING, Irc::RPL_INVITED, IrcInviteCommand, \ref ircv3
  */
 bool IrcInviteMessage::isReply() const
 {
@@ -898,11 +910,13 @@ QString IrcJoinMessage::channel() const
 
     This property holds the account name of the user.
 
-    \note Only set if the extended-join capability is
+    \note Only set if the \c extended-join capability is
     enabled and the user has identified with services.
 
     \par Access function:
     \li QString <b>account</b>() const
+
+    \sa \ref ircv3
  */
 QString IrcJoinMessage::account() const
 {
@@ -918,10 +932,12 @@ QString IrcJoinMessage::account() const
 
     This property holds the real name of the user.
 
-    \note Only set if the extended-join capability is enabled.
+    \note Only set if the \c extended-join capability is enabled.
 
     \par Access function:
     \li QString <b>realName</b>() const
+
+    \sa \ref ircv3
  */
 QString IrcJoinMessage::realName() const
 {

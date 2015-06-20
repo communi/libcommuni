@@ -477,6 +477,8 @@ IrcCommand* IrcCommand::createAway(const QString& reason)
     Creates a new capability command with type IrcCommand::Capability and parameters \a subCommand and a \a capability.
 
     Available subcommands are: LS, LIST, REQ, ACK, NAK, CLEAR and END.
+
+    \sa \ref ircv3
  */
 IrcCommand* IrcCommand::createCapability(const QString& subCommand, const QString& capability)
 {
@@ -487,6 +489,8 @@ IrcCommand* IrcCommand::createCapability(const QString& subCommand, const QStrin
     Creates a new capability command with type IrcCommand::Capability and parameters \a subCommand and optional \a capabilities.
 
     Available subcommands are: LS, LIST, REQ, ACK, NAK, CLEAR and END.
+
+    \sa \ref ircv3
  */
 IrcCommand* IrcCommand::createCapability(const QString& subCommand, const QStringList& capabilities)
 {
@@ -631,6 +635,8 @@ IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, c
     \li \c S - Outputs for each target in the list being monitored, whether the client is online or offline.
                All targets that are online will be sent using RPL_MONONLINE, all targets that are offline will
                be sent using RPL_MONOFFLINE.
+
+    \sa \ref ircv3
  */
 IrcCommand* IrcCommand::createMonitor(const QString& command, const QString& target)
 {
@@ -652,6 +658,8 @@ IrcCommand* IrcCommand::createMonitor(const QString& command, const QString& tar
     \li \c S - Outputs for each target in the list being monitored, whether the client is online or offline.
                All targets that are online will be sent using RPL_MONONLINE, all targets that are offline will
                be sent using RPL_MONOFFLINE.
+
+    \sa \ref ircv3
  */
 IrcCommand* IrcCommand::createMonitor(const QString& command, const QStringList& targets)
 {

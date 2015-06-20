@@ -1238,7 +1238,7 @@ bool IrcConnection::isSecureSupported()
     \par Notifier signal:
     \li void <b>saslMechanismChanged</b>(const QString& mechanism)
 
-    \sa supportedSaslMechanisms
+    \sa supportedSaslMechanisms, \ref ircv3
  */
 QString IrcConnection::saslMechanism() const
 {
@@ -1267,7 +1267,7 @@ void IrcConnection::setSaslMechanism(const QString& mechanism)
     \par Access function:
     \li static QStringList <b>supportedSaslMechanisms</b>()
 
-    \sa saslMechanism
+    \sa saslMechanism, \ref ircv3
  */
 QStringList IrcConnection::supportedSaslMechanisms()
 {

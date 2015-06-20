@@ -151,11 +151,16 @@ QString IrcUser::name() const
 
     Typical prefix characters are \c @ (op) and \c + (voice).
 
+    \note The prefix may be multiple characters if the \c multi-prefix
+          capability is enabled.
+
     \par Access function:
     \li QString <b>prefix</b>() const
 
     \par Notifier signal:
     \li void <b>prefixChanged</b>(const QString& prefix)
+
+    \sa mode, \ref ircv3
  */
 QString IrcUser::prefix() const
 {
@@ -168,11 +173,16 @@ QString IrcUser::prefix() const
 
     Typical mode letters are \c o (op) and \c v (voice).
 
+    \note The mode may be multiple characters if the \c multi-prefix
+          capability is enabled.
+
     \par Access function:
     \li QString <b>mode</b>() const
 
     \par Notifier signal:
     \li void <b>modeChanged</b>(const QString& mode)
+
+    \sa prefix, \ref ircv3
  */
 QString IrcUser::mode() const
 {
