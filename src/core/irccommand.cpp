@@ -622,7 +622,6 @@ IrcCommand* IrcCommand::createMode(const QString& target, const QString& mode, c
     Creates a new MONITOR command with type IrcCommand::Monitor and parameters \a command and and optional \a target.
 
     Available commands are:
-    \list
     \li \c + - Adds the given list of targets to the list of targets being monitored.
     \li \c + - Removes the given list of targets from the list of targets being monitored.
                No output will be returned for use of this command.
@@ -644,7 +643,6 @@ IrcCommand* IrcCommand::createMonitor(const QString& command, const QString& tar
     Creates a new MONITOR command with type IrcCommand::Monitor and parameters \a command and \a targets.
 
     Available commands are:
-    \list
     \li \c + - Adds the given list of targets to the list of targets being monitored.
     \li \c + - Removes the given list of targets from the list of targets being monitored.
                No output will be returned for use of this command.
