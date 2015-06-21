@@ -62,6 +62,14 @@ static QString getPrefix(const QString& name, const QStringList& prefixes)
     return name.left(i);
 }
 
+static QString getMode(IrcNetwork *network, const QString& prefix)
+{
+    QString mode;
+    foreach (const QString& p, prefix)
+        mode += network->prefixToMode(p);
+    return mode;
+}
+
 static QString channelName(const QString& title, const QStringList& prefixes)
 {
     int i = 0;
@@ -204,7 +212,7 @@ void IrcChannelPrivate::addUser(const QString& name)
     priv->channel = q;
     priv->setName(userName(name, prefixes));
     priv->setPrefix(getPrefix(name, prefixes));
-    priv->setMode(q->network()->prefixToMode(user->prefix()));
+    priv->setMode(getMode(q->network(), user->prefix()));
     activeUsers.prepend(user);
     userList.append(user);
     userMap.insert(user->name(), user);
@@ -245,7 +253,7 @@ void IrcChannelPrivate::setUsers(const QStringList& users)
         priv->channel = q;
         priv->setName(userName(name, prefixes));
         priv->setPrefix(getPrefix(name, prefixes));
-        priv->setMode(q->network()->prefixToMode(user->prefix()));
+        priv->setMode(getMode(q->network(), user->prefix()));
         activeUsers.append(user);
         userList.append(user);
         userMap.insert(user->name(), user);
