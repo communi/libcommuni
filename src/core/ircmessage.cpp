@@ -735,7 +735,7 @@ IrcCapabilityMessage::IrcCapabilityMessage(IrcConnection* connection) : IrcMessa
     This property holds the subcommand.
 
     The following capability subcommands are defined:
-    LS, LIST, REQ, ACK, NAK, CLEAR, END
+    LS, LIST, REQ, ACK, NAK, CLEAR, END, NEW, DEL.
 
     \par Access function:
     \li QString <b>subCommand</b>() const
@@ -750,7 +750,7 @@ QString IrcCapabilityMessage::subCommand() const
     This property holds the capabilities.
 
     A list of capabilities may exist for the following
-    subcommands: LS, LIST, REQ, ACK and NAK.
+    subcommands: LS, LIST, REQ, ACK, NAK, NEW, DEL.
 
     \par Access function:
     \li QStringList <b>capabilities</b>() const
