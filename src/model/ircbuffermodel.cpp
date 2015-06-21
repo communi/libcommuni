@@ -1228,6 +1228,7 @@ void IrcBufferModel::setJoinDelay(int delay)
 
 /*!
     \since 3.4
+    \property bool IrcBufferModel::monitorEnabled
 
     This property holds whether automatic monitor is enabled.
 
