@@ -207,11 +207,13 @@ IRC_BEGIN_NAMESPACE
 /*!
     \var IrcMessage::Identified
     \brief The message is identified.
+    \deprecated Use IrcMessage::account instead.
  */
 
 /*!
     \var IrcMessage::Unidentified
     \brief The message is unidentified.
+    \deprecated Use IrcMessage::account instead.
  */
 
 /*!
@@ -341,19 +343,8 @@ IrcMessage::Flags IrcMessage::flags() const
     Q_D(const IrcMessage);
     if (d->flags == -1) {
         d->flags = IrcMessage::None;
-        if (d->connection) {
-            if (!d->prefix().isEmpty() && d->nick() == d->connection->nickName())
-                d->flags |= IrcMessage::Own;
-
-            if ((d->type == IrcMessage::Private || d->type == IrcMessage::Notice) &&
-                    network()->activeCapabilities().contains("identify-msg")) {
-                QString msg = property("content").toString();
-                if (msg.startsWith("+"))
-                    d->flags |= IrcMessage::Identified;
-                else if (msg.startsWith("-"))
-                    d->flags |= IrcMessage::Unidentified;
-            }
-        }
+        if (d->connection && !d->prefix().isEmpty() && d->nick() == d->connection->nickName())
+            d->flags |= IrcMessage::Own;
     }
     return IrcMessage::Flags(d->flags);
 }
@@ -1316,8 +1307,6 @@ QString IrcNoticeMessage::content() const
 {
     Q_D(const IrcMessage);
     QString msg = d->param(1);
-    if (flags() & (Identified | Unidentified))
-        msg.remove(0, 1);
     if (isReply()) {
         msg.remove(0, 1);
         msg.chop(1);
@@ -1583,8 +1572,6 @@ QString IrcPrivateMessage::content() const
 {
     Q_D(const IrcMessage);
     QString msg = d->param(1);
-    if (flags() & (Identified | Unidentified))
-        msg.remove(0, 1);
     const bool act = isAction();
     const bool req = isRequest();
     if (act) msg.remove(0, 8);
@@ -1638,8 +1625,6 @@ bool IrcPrivateMessage::isAction() const
 {
     Q_D(const IrcMessage);
     QString msg = d->param(1);
-    if (flags() & (Identified | Unidentified))
-        msg.remove(0, 1);
     return msg.startsWith("\1ACTION ") && msg.endsWith('\1');
 }
 
@@ -1654,8 +1639,6 @@ bool IrcPrivateMessage::isRequest() const
 {
     Q_D(const IrcMessage);
     QString msg = d->param(1);
-    if (flags() & (Identified | Unidentified))
-        msg.remove(0, 1);
     return msg.startsWith('\1') && msg.endsWith('\1') && !isAction();
 }
 
@@ -2075,10 +2058,6 @@ QDebug operator<<(QDebug debug, IrcMessage::Flags flags)
         lst << "None";
     if (flags & IrcMessage::Own)
         lst << "Own";
-    if (flags & IrcMessage::Identified)
-        lst << "Identified";
-    if (flags & IrcMessage::Unidentified)
-        lst << "Unidentified";
     debug.nospace() << '(' << qPrintable(lst.join("|")) << ')';
     return debug;
 }

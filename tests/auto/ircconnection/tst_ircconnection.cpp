@@ -1122,17 +1122,15 @@ void tst_IrcConnection::testMessageFlags()
     QCOMPARE(filter.values.value("content").toString(), QString("hi all"));
 
     filter.reset("content", count);
-    QVERIFY(waitForWritten(":jpnurmi!ident@host PRIVMSG #communi :+hello there, communi"));
+    QVERIFY(waitForWritten(":jpnurmi!ident@host PRIVMSG #communi :hello there, communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
-    QCOMPARE(filter.flags, IrcMessage::Identified);
     QCOMPARE(filter.values.value("content").toString(), QString("hello there, communi"));
 
     filter.reset("content", count);
-    QVERIFY(waitForWritten(":Guest1234!ident@host PRIVMSG #communi :-hi communi"));
+    QVERIFY(waitForWritten(":Guest1234!ident@host PRIVMSG #communi :hi communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Private);
-    QCOMPARE(filter.flags, IrcMessage::Unidentified);
     QCOMPARE(filter.values.value("content").toString(), QString("hi communi"));
 
     filter.reset("content", count);
@@ -1143,17 +1141,15 @@ void tst_IrcConnection::testMessageFlags()
     QCOMPARE(filter.values.value("content").toString(), QString("hi all"));
 
     filter.reset("content", count);
-    QVERIFY(waitForWritten(":jpnurmi!ident@host NOTICE #communi :+hello there, communi"));
+    QVERIFY(waitForWritten(":jpnurmi!ident@host NOTICE #communi :hello there, communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
-    QCOMPARE(filter.flags, IrcMessage::Identified);
     QCOMPARE(filter.values.value("content").toString(), QString("hello there, communi"));
 
     filter.reset("content", count);
-    QVERIFY(waitForWritten(":Guest1234!ident@host NOTICE #communi :-hi communi"));
+    QVERIFY(waitForWritten(":Guest1234!ident@host NOTICE #communi :hi communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
-    QCOMPARE(filter.flags, IrcMessage::Unidentified);
     QCOMPARE(filter.values.value("content").toString(), QString("hi communi"));
 }
 

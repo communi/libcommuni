@@ -801,19 +801,6 @@ void tst_IrcMessage::testPrivateMessage_data()
     QTest::newRow("private") << true << QString() << QByteArray(":Angel PRIVMSG communi :Hello are you receiving this message ?") << QString("communi") << QString("Hello are you receiving this message ?") << true << false << false << static_cast<uint>(IrcMessage::None);
     QTest::newRow("action") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true << false << static_cast<uint>(IrcMessage::None);
     QTest::newRow("request") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << true << static_cast<uint>(IrcMessage::None);
-
-    QTest::newRow("identified") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :+Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::Identified);
-    QTest::newRow("identified private") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG communi :+Hello are you receiving this message ?") << QString("communi") << QString("Hello are you receiving this message ?") << true << false << false << static_cast<uint>(IrcMessage::Identified);
-    QTest::newRow("identified action") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :+\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true << false << static_cast<uint>(IrcMessage::Identified);
-    QTest::newRow("identified request") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :+\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << true << static_cast<uint>(IrcMessage::Identified);
-
-    QTest::newRow("unidentified") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :-Hello are you receiving this message ?") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::Unidentified);
-    QTest::newRow("unidentified private") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG communi :-Hello are you receiving this message ?") << QString("communi") << QString("Hello are you receiving this message ?") << true << false << false << static_cast<uint>(IrcMessage::Unidentified);
-    QTest::newRow("unidentified action") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :-\1ACTION Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << true << false << static_cast<uint>(IrcMessage::Unidentified);
-    QTest::newRow("unidentified request") << true << QString("identify-msg") << QByteArray(":Angel PRIVMSG Wiz :-\1Hello are you receiving this message ?\1") << QString("Wiz") << QString("Hello are you receiving this message ?") << false << false << true << static_cast<uint>(IrcMessage::Unidentified);
-
-    QTest::newRow("no-caps identified") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :+Hello are you receiving this message ?") << QString("Wiz") << QString("+Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::None);
-    QTest::newRow("no-caps unidentified") << true << QString() << QByteArray(":Angel PRIVMSG Wiz :-Hello are you receiving this message ?") << QString("Wiz") << QString("-Hello are you receiving this message ?") << false << false << false << static_cast<uint>(IrcMessage::None);
 }
 
 class TestProtocol : public IrcProtocol
@@ -1035,14 +1022,6 @@ void tst_IrcMessage::testDebug()
 
     dbg << IrcMessage::Join;
     QCOMPARE(str.trimmed(), QString::fromLatin1("Join"));
-    str.clear();
-
-    dbg << IrcMessage::Unidentified;
-    QCOMPARE(str.trimmed(), QString::fromLatin1("Unidentified"));
-    str.clear();
-
-    dbg << (IrcMessage::Own | IrcMessage::Identified | IrcMessage::Unidentified);
-    QCOMPARE(str.trimmed(), QString::fromLatin1("(Own|Identified|Unidentified)"));
     str.clear();
 
     dbg << IrcModeMessage::Channel;
