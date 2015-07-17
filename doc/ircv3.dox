@@ -116,8 +116,10 @@
         <tr><th colspan=3>Optional extensions</th></tr>
         <tr>
             <td><a href="http://ircv3.net/specs/extensions/account-tag-3.2.html">account-tag</a></td>
-            <td>\ballotx</td>
-            <td></td>
+            <td>\checkmark Since 3.4</td>
+            <td>
+                \li \ref IrcMessage::account
+            </td>
         </tr>
         <tr>
             <td><a href="http://ircv3.net/specs/extensions/batch-3.2.html">batch</a></td>

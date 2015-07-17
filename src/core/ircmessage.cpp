@@ -459,6 +459,25 @@ QString IrcMessage::host() const
 }
 
 /*!
+    \since 3.4
+
+    This property holds the services account of the message sender.
+
+    \note Only set if the \c account-tag capability is
+    enabled and the user has identified with services.
+
+    \par Access function:
+    \li QString <b>account</b>() const
+
+    \sa \ref ircv3
+ */
+QString IrcMessage::account() const
+{
+    Q_D(const IrcMessage);
+    return d->tags().value(QLatin1String("account")).toString();
+}
+
+/*!
     This property holds the message parameters.
 
     \par Access functions:

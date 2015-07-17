@@ -58,6 +58,7 @@ class IRC_CORE_EXPORT IrcMessage : public QObject
     Q_PROPERTY(QString nick READ nick)
     Q_PROPERTY(QString ident READ ident)
     Q_PROPERTY(QString host READ host)
+    Q_PROPERTY(QString account READ account)
     Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
     Q_PROPERTY(QDateTime timeStamp READ timeStamp WRITE setTimeStamp)
     Q_PROPERTY(QVariantMap tags READ tags WRITE setTags)
@@ -123,6 +124,7 @@ public:
     QString nick() const;
     QString ident() const;
     QString host() const;
+    QString account() const;
 
     QStringList parameters() const;
     void setParameters(const QStringList& parameters);
