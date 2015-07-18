@@ -5,10 +5,14 @@
   - Added IrcCommand::createMonitor()
   - Added IrcNetwork::statusPrefixes
   - Added IrcNetwork::MonitorCount enum value
+  - Added IrcMessage::account
   - Added IrcPrivateMessage::statusPrefix
   - Added IrcNoticeMessage::statusPrefix
+  - Added IrcHostChangeMessage
   - Added Irc::RPL_MONONLINE, RPL_MONOFFLINE, RPL_MONLIST, and
     RPL_ENDOFMONLIST enum values
+  - Added support for the following IRCv3.2 extensions: account-tag,
+    cap-notify, chghost, monitor, and server-time
 - IrcModel
   - Added Irc::SortByActivity support to IrcBufferModel
   - Added IrcBufferModel::monitorEnabled
