@@ -97,6 +97,12 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \since 3.4
+    \var IrcMessage::HostChange
+    \brief A host change message (IrcHostChangeMessage).
+ */
+
+/*!
     \var IrcMessage::Invite
     \brief An invite message (IrcInviteMessage).
  */
@@ -236,6 +242,7 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
         metaObjects.insert("AWAY", &IrcAwayMessage::staticMetaObject);
         metaObjects.insert("CAP", &IrcCapabilityMessage::staticMetaObject);
         metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
+        metaObjects.insert("CHGHOST", &IrcHostChangeMessage::staticMetaObject);
         metaObjects.insert("INVITE", &IrcInviteMessage::staticMetaObject);
         metaObjects.insert("JOIN", &IrcJoinMessage::staticMetaObject);
         metaObjects.insert("KICK", &IrcKickMessage::staticMetaObject);
@@ -819,6 +826,53 @@ QString IrcErrorMessage::error() const
 bool IrcErrorMessage::isValid() const
 {
     return IrcMessage::isValid() && !error().isEmpty();
+}
+
+/*!
+    \since 3.4
+    \class IrcHostChangeMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a host change message.
+
+    \sa \ref ircv3
+ */
+
+/*!
+    Constructs a new IrcHostChangeMessage with \a connection.
+ */
+IrcHostChangeMessage::IrcHostChangeMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = HostChange;
+}
+
+/*!
+    This property holds the user name.
+
+    \par Access function:
+    \li QString <b>user</b>() const
+ */
+QString IrcHostChangeMessage::user() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0);
+}
+
+/*!
+    This property holds the new host.
+
+    \par Access function:
+    \li QString <b>host</b>() const
+ */
+QString IrcHostChangeMessage::host() const
+{
+    Q_D(const IrcMessage);
+    return d->param(1);
+}
+
+bool IrcHostChangeMessage::isValid() const
+{
+    return IrcMessage::isValid() && !user().isEmpty() && !host().isEmpty();
 }
 
 /*!

@@ -89,7 +89,8 @@ public:
         Account,
         Away,
         Whois,
-        Whowas
+        Whowas,
+        HostChange
     };
 
     enum Flag {
@@ -219,6 +220,24 @@ public:
 
 private:
     Q_DISABLE_COPY(IrcErrorMessage)
+};
+
+class IRC_CORE_EXPORT IrcHostChangeMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString user READ user)
+    Q_PROPERTY(QString host READ host)
+
+public:
+    Q_INVOKABLE explicit IrcHostChangeMessage(IrcConnection* connection);
+
+    QString user() const;
+    QString host() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcHostChangeMessage)
 };
 
 class IRC_CORE_EXPORT IrcInviteMessage : public IrcMessage
@@ -611,6 +630,7 @@ Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcAccountMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcAwayMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCapabilityMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcErrorMessage*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcHostChangeMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcInviteMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcJoinMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcKickMessage*))

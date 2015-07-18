@@ -189,6 +189,7 @@ Q_SIGNALS:
     void awayMessageReceived(IrcAwayMessage* message);
     void capabilityMessageReceived(IrcCapabilityMessage* message);
     void errorMessageReceived(IrcErrorMessage* message);
+    void hostChangeMessageReceived(IrcHostChangeMessage* message);
     void inviteMessageReceived(IrcInviteMessage* message);
     void joinMessageReceived(IrcJoinMessage* message);
     void kickMessageReceived(IrcKickMessage* message);

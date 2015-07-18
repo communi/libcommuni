@@ -224,6 +224,7 @@ IRC_BEGIN_NAMESPACE
     \li void <b>awayMessageReceived</b>(\ref IrcAwayMessage* message) (\b since 3.3)
     \li void <b>capabilityMessageReceived</b>(\ref IrcCapabilityMessage* message)
     \li void <b>errorMessageReceived</b>(\ref IrcErrorMessage* message)
+    \li void <b>hostChangeMessageReceived</b>(\ref IrcHostChangeMessage* message) (\b since 3.4)
     \li void <b>inviteMessageReceived</b>(\ref IrcInviteMessage* message)
     \li void <b>joinMessageReceived</b>(\ref IrcJoinMessage* message)
     \li void <b>kickMessageReceived</b>(\ref IrcKickMessage* message)
@@ -485,6 +486,9 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
             break;
         case IrcMessage::Error:
             emit q->errorMessageReceived(static_cast<IrcErrorMessage*>(msg));
+            break;
+        case IrcMessage::HostChange:
+            emit q->hostChangeMessageReceived(static_cast<IrcHostChangeMessage*>(msg));
             break;
         case IrcMessage::Invite:
             emit q->inviteMessageReceived(static_cast<IrcInviteMessage*>(msg));

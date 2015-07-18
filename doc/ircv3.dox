@@ -136,8 +136,10 @@
         </tr>
         <tr>
             <td><a href="http://ircv3.net/specs/extensions/chghost-3.2.html">chghost</a></td>
-            <td>\ballotx</td>
-            <td></td>
+            <td>\checkmark Since 3.4</td>
+            <td>
+                \li \ref IrcHostChangeMessage
+            </td>
         </tr>
         <tr>
             <td><a href="http://ircv3.net/specs/extensions/echo-message-3.2.html">echo-message</a></td>
