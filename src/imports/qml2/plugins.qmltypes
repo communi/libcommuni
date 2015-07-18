@@ -10,8 +10,13 @@ Module {
     Component {
         name: "Irc"
         prototype: "QObject"
-        exports: ["Communi/Irc 3.0"]
-        exportMetaObjectRevisions: [0]
+        exports: [
+            "Communi/Irc 3.0",
+            "Communi/Irc 3.2",
+            "Communi/Irc 3.3",
+            "Communi/Irc 3.4"
+        ]
+        exportMetaObjectRevisions: [0, 0, 0, 0]
         Enum {
             name: "Color"
             values: {
@@ -482,6 +487,11 @@ Module {
                 "RPL_TESTMARK": 724,
                 "RPL_TESTLINE": 725,
                 "RPL_NOTESTLINE": 726,
+                "RPL_MONONLINE": 730,
+                "RPL_MONOFFLINE": 731,
+                "RPL_MONLIST": 732,
+                "RPL_ENDOFMONLIST": 733,
+                "ERR_MONLISTFULL": 734,
                 "RPL_XINFO": 771,
                 "RPL_XINFOSTART": 773,
                 "RPL_XINFOEND": 774,
@@ -537,6 +547,7 @@ Module {
         Property { name: "channel"; type: "bool"; isReadonly: true }
         Property { name: "sticky"; type: "bool" }
         Property { name: "persistent"; type: "bool" }
+        Property { name: "userData"; type: "QVariantMap" }
         Signal {
             name: "titleChanged"
             Parameter { name: "title"; type: "string" }
@@ -569,6 +580,10 @@ Module {
             name: "persistentChanged"
             Parameter { name: "persistent"; type: "bool" }
         }
+        Signal {
+            name: "userDataChanged"
+            Parameter { name: "data"; type: "QVariantMap" }
+        }
         Method {
             name: "setName"
             Parameter { name: "name"; type: "string" }
@@ -581,6 +596,11 @@ Module {
             name: "receiveMessage"
             Parameter { name: "message"; type: "IrcMessage"; isPointer: true }
         }
+        Method {
+            name: "close"
+            Parameter { name: "reason"; type: "string" }
+        }
+        Method { name: "close" }
         Method { name: "toChannel"; type: "IrcChannel*" }
         Method {
             name: "sendCommand"
@@ -594,18 +614,26 @@ Module {
         exports: ["Communi/IrcBufferModel 3.0"]
         exportMetaObjectRevisions: [0]
         Property { name: "count"; type: "int"; isReadonly: true }
+        Property { name: "empty"; type: "bool"; isReadonly: true }
         Property { name: "sortOrder"; type: "Qt::SortOrder" }
         Property { name: "sortMethod"; type: "Irc::SortMethod" }
         Property { name: "channels"; type: "QStringList"; isReadonly: true }
         Property { name: "displayRole"; type: "Irc::DataRole" }
+        Property { name: "persistent"; type: "bool" }
         Property { name: "buffers"; type: "QList<IrcBuffer*>"; isReadonly: true }
         Property { name: "connection"; type: "IrcConnection"; isPointer: true }
         Property { name: "network"; type: "IrcNetwork"; isReadonly: true; isPointer: true }
         Property { name: "bufferPrototype"; type: "IrcBuffer"; isPointer: true }
         Property { name: "channelPrototype"; type: "IrcChannel"; isPointer: true }
+        Property { name: "joinDelay"; type: "int" }
+        Property { name: "monitorEnabled"; type: "bool" }
         Signal {
             name: "countChanged"
             Parameter { name: "count"; type: "int" }
+        }
+        Signal {
+            name: "emptyChanged"
+            Parameter { name: "empty"; type: "bool" }
         }
         Signal {
             name: "added"
@@ -622,6 +650,10 @@ Module {
         Signal {
             name: "aboutToBeRemoved"
             Parameter { name: "buffer"; type: "IrcBuffer"; isPointer: true }
+        }
+        Signal {
+            name: "persistentChanged"
+            Parameter { name: "persistent"; type: "bool" }
         }
         Signal {
             name: "buffersChanged"
@@ -651,7 +683,23 @@ Module {
             name: "channelPrototypeChanged"
             Parameter { name: "prototype"; type: "IrcChannel"; isPointer: true }
         }
+        Signal {
+            name: "destroyed"
+            Parameter { name: "model"; type: "IrcBufferModel"; isPointer: true }
+        }
+        Signal {
+            name: "joinDelayChanged"
+            Parameter { name: "delay"; type: "int" }
+        }
+        Signal {
+            name: "monitorEnabledChanged"
+            Parameter { name: "enabled"; type: "bool" }
+        }
         Method { name: "clear" }
+        Method {
+            name: "receiveMessage"
+            Parameter { name: "message"; type: "IrcMessage"; isPointer: true }
+        }
         Method {
             name: "sort"
             Parameter { name: "column"; type: "int" }
@@ -708,14 +756,36 @@ Module {
             name: "remove"
             Parameter { name: "buffer"; type: "IrcBuffer"; isPointer: true }
         }
+        Method {
+            name: "saveState"
+            type: "QByteArray"
+            Parameter { name: "version"; type: "int" }
+        }
+        Method { name: "saveState"; type: "QByteArray" }
+        Method {
+            name: "restoreState"
+            type: "bool"
+            Parameter { name: "state"; type: "QByteArray" }
+            Parameter { name: "version"; type: "int" }
+        }
+        Method {
+            name: "restoreState"
+            type: "bool"
+            Parameter { name: "state"; type: "QByteArray" }
+        }
     }
     Component {
         name: "IrcChannel"
         prototype: "IrcBuffer"
         exports: ["Communi/IrcChannel 3.0"]
         exportMetaObjectRevisions: [0]
+        Property { name: "key"; type: "string"; isReadonly: true }
         Property { name: "mode"; type: "string"; isReadonly: true }
         Property { name: "topic"; type: "string"; isReadonly: true }
+        Signal {
+            name: "keyChanged"
+            Parameter { name: "key"; type: "string" }
+        }
         Signal {
             name: "modeChanged"
             Parameter { name: "mode"; type: "string" }
@@ -724,11 +794,26 @@ Module {
             name: "topicChanged"
             Parameter { name: "topic"; type: "string" }
         }
+        Signal {
+            name: "destroyed"
+            Parameter { name: "channel"; type: "IrcChannel"; isPointer: true }
+        }
+        Method { name: "who" }
+        Method {
+            name: "join"
+            Parameter { name: "key"; type: "string" }
+        }
+        Method { name: "join" }
         Method {
             name: "part"
             Parameter { name: "reason"; type: "string" }
         }
         Method { name: "part" }
+        Method {
+            name: "close"
+            Parameter { name: "reason"; type: "string" }
+        }
+        Method { name: "close" }
     }
     Component {
         name: "IrcCommand"
@@ -770,9 +855,11 @@ Module {
                 "Version": 29,
                 "Who": 30,
                 "Whois": 31,
-                "Whowas": 32
+                "Whowas": 32,
+                "Monitor": 33
             }
         }
+        Property { name: "connection"; type: "IrcConnection"; isReadonly: true; isPointer: true }
         Property { name: "parameters"; type: "QStringList" }
         Property { name: "encoding"; type: "QByteArray" }
         Property { name: "type"; type: "Type" }
@@ -922,6 +1009,23 @@ Module {
             name: "createMode"
             type: "IrcCommand*"
             Parameter { name: "target"; type: "string" }
+        }
+        Method {
+            name: "createMonitor"
+            type: "IrcCommand*"
+            Parameter { name: "command"; type: "string" }
+            Parameter { name: "target"; type: "string" }
+        }
+        Method {
+            name: "createMonitor"
+            type: "IrcCommand*"
+            Parameter { name: "command"; type: "string" }
+        }
+        Method {
+            name: "createMonitor"
+            type: "IrcCommand*"
+            Parameter { name: "command"; type: "string" }
+            Parameter { name: "targets"; type: "QStringList" }
         }
         Method {
             name: "createMotd"
@@ -1174,6 +1278,63 @@ Module {
         }
     }
     Component {
+        name: "IrcCompleter"
+        prototype: "QObject"
+        exports: ["Communi/IrcCompleter 3.1"]
+        exportMetaObjectRevisions: [0]
+        Enum {
+            name: "Direction"
+            values: {
+                "Forward": 0,
+                "Backward": 1
+            }
+        }
+        Property { name: "suffix"; type: "string" }
+        Property { name: "buffer"; type: "IrcBuffer"; isPointer: true }
+        Property { name: "parser"; type: "IrcCommandParser"; isPointer: true }
+        Signal {
+            name: "suffixChanged"
+            Parameter { name: "suffix"; type: "string" }
+        }
+        Signal {
+            name: "bufferChanged"
+            Parameter { name: "buffer"; type: "IrcBuffer"; isPointer: true }
+        }
+        Signal {
+            name: "parserChanged"
+            Parameter { name: "parser"; type: "IrcCommandParser"; isPointer: true }
+        }
+        Signal {
+            name: "completed"
+            Parameter { name: "text"; type: "string" }
+            Parameter { name: "cursor"; type: "int" }
+        }
+        Method {
+            name: "setSuffix"
+            Parameter { name: "suffix"; type: "string" }
+        }
+        Method {
+            name: "setBuffer"
+            Parameter { name: "buffer"; type: "IrcBuffer"; isPointer: true }
+        }
+        Method {
+            name: "setParser"
+            Parameter { name: "parser"; type: "IrcCommandParser"; isPointer: true }
+        }
+        Method {
+            name: "complete"
+            Parameter { name: "text"; type: "string" }
+            Parameter { name: "cursor"; type: "int" }
+            Parameter { name: "direction"; type: "Direction" }
+        }
+        Method {
+            name: "complete"
+            Parameter { name: "text"; type: "string" }
+            Parameter { name: "cursor"; type: "int" }
+        }
+        Method { name: "reset" }
+    }
+    Component {
         name: "IrcConnection"
         prototype: "QObject"
         exports: ["Communi/IrcConnection 3.0"]
@@ -1192,11 +1353,14 @@ Module {
         }
         Property { name: "host"; type: "string" }
         Property { name: "port"; type: "int" }
+        Property { name: "servers"; type: "QStringList" }
         Property { name: "userName"; type: "string" }
         Property { name: "nickName"; type: "string" }
         Property { name: "realName"; type: "string" }
         Property { name: "password"; type: "string" }
+        Property { name: "nickNames"; type: "QStringList" }
         Property { name: "displayName"; type: "string" }
+        Property { name: "userData"; type: "QVariantMap" }
         Property { name: "encoding"; type: "QByteArray" }
         Property { name: "status"; type: "Status"; isReadonly: true }
         Property { name: "active"; type: "bool"; isReadonly: true }
@@ -1205,14 +1369,12 @@ Module {
         Property { name: "reconnectDelay"; type: "int" }
         Property { name: "socket"; type: "QAbstractSocket"; isPointer: true }
         Property { name: "secure"; type: "bool" }
+        Property { name: "secureSupported"; type: "bool"; isReadonly: true }
         Property { name: "saslMechanism"; type: "string" }
         Property { name: "supportedSaslMechanisms"; type: "QStringList"; isReadonly: true }
         Property { name: "network"; type: "IrcNetwork"; isReadonly: true; isPointer: true }
+        Property { name: "protocol"; type: "IrcProtocol"; isPointer: true }
         Signal { name: "connecting" }
-        Signal {
-            name: "nickNameReserved"
-            Parameter { name: "alternate"; type: "string"; isPointer: true }
-        }
         Signal { name: "connected" }
         Signal { name: "disconnected" }
         Signal {
@@ -1227,9 +1389,32 @@ Module {
             name: "socketStateChanged"
             Parameter { name: "state"; type: "QAbstractSocket::SocketState" }
         }
+        Signal { name: "secureError" }
+        Signal {
+            name: "nickNameReserved"
+            Parameter { name: "alternate"; type: "string"; isPointer: true }
+        }
+        Signal {
+            name: "nickNameRequired"
+            Parameter { name: "reserved"; type: "string" }
+            Parameter { name: "alternate"; type: "string"; isPointer: true }
+        }
+        Signal {
+            name: "channelKeyRequired"
+            Parameter { name: "channel"; type: "string" }
+            Parameter { name: "key"; type: "string"; isPointer: true }
+        }
         Signal {
             name: "messageReceived"
             Parameter { name: "message"; type: "IrcMessage"; isPointer: true }
+        }
+        Signal {
+            name: "accountMessageReceived"
+            Parameter { name: "message"; type: "IrcAccountMessage"; isPointer: true }
+        }
+        Signal {
+            name: "awayMessageReceived"
+            Parameter { name: "message"; type: "IrcAwayMessage"; isPointer: true }
         }
         Signal {
             name: "capabilityMessageReceived"
@@ -1238,6 +1423,10 @@ Module {
         Signal {
             name: "errorMessageReceived"
             Parameter { name: "message"; type: "IrcErrorMessage"; isPointer: true }
+        }
+        Signal {
+            name: "hostChangeMessageReceived"
+            Parameter { name: "message"; type: "IrcHostChangeMessage"; isPointer: true }
         }
         Signal {
             name: "inviteMessageReceived"
@@ -1256,6 +1445,10 @@ Module {
             Parameter { name: "message"; type: "IrcModeMessage"; isPointer: true }
         }
         Signal {
+            name: "motdMessageReceived"
+            Parameter { name: "message"; type: "IrcMotdMessage"; isPointer: true }
+        }
+        Signal {
             name: "namesMessageReceived"
             Parameter { name: "message"; type: "IrcNamesMessage"; isPointer: true }
         }
@@ -1270,10 +1463,6 @@ Module {
         Signal {
             name: "numericMessageReceived"
             Parameter { name: "message"; type: "IrcNumericMessage"; isPointer: true }
-        }
-        Signal {
-            name: "motdMessageReceived"
-            Parameter { name: "message"; type: "IrcMotdMessage"; isPointer: true }
         }
         Signal {
             name: "partMessageReceived"
@@ -1300,12 +1489,28 @@ Module {
             Parameter { name: "message"; type: "IrcTopicMessage"; isPointer: true }
         }
         Signal {
+            name: "whoisMessageReceived"
+            Parameter { name: "message"; type: "IrcWhoisMessage"; isPointer: true }
+        }
+        Signal {
+            name: "whowasMessageReceived"
+            Parameter { name: "message"; type: "IrcWhowasMessage"; isPointer: true }
+        }
+        Signal {
+            name: "whoReplyMessageReceived"
+            Parameter { name: "message"; type: "IrcWhoReplyMessage"; isPointer: true }
+        }
+        Signal {
             name: "hostChanged"
             Parameter { name: "host"; type: "string" }
         }
         Signal {
             name: "portChanged"
             Parameter { name: "port"; type: "int" }
+        }
+        Signal {
+            name: "serversChanged"
+            Parameter { name: "servers"; type: "QStringList" }
         }
         Signal {
             name: "userNameChanged"
@@ -1324,8 +1529,16 @@ Module {
             Parameter { name: "password"; type: "string" }
         }
         Signal {
+            name: "nickNamesChanged"
+            Parameter { name: "names"; type: "QStringList" }
+        }
+        Signal {
             name: "displayNameChanged"
             Parameter { name: "name"; type: "string" }
+        }
+        Signal {
+            name: "userDataChanged"
+            Parameter { name: "data"; type: "QVariantMap" }
         }
         Signal {
             name: "reconnectDelayChanged"
@@ -1342,6 +1555,10 @@ Module {
         Signal {
             name: "saslMechanismChanged"
             Parameter { name: "mechanism"; type: "string" }
+        }
+        Signal {
+            name: "destroyed"
+            Parameter { name: "connection"; type: "IrcConnection"; isPointer: true }
         }
         Method { name: "open" }
         Method { name: "close" }
@@ -1375,6 +1592,34 @@ Module {
             type: "bool"
             Parameter { name: "message"; type: "string" }
         }
+        Method {
+            name: "clone"
+            type: "IrcConnection*"
+            Parameter { name: "parent"; type: "QObject"; isPointer: true }
+        }
+        Method { name: "clone"; type: "IrcConnection*" }
+        Method {
+            name: "isValidServer"
+            type: "bool"
+            Parameter { name: "server"; type: "string" }
+        }
+        Method {
+            name: "saveState"
+            type: "QByteArray"
+            Parameter { name: "version"; type: "int" }
+        }
+        Method { name: "saveState"; type: "QByteArray" }
+        Method {
+            name: "restoreState"
+            type: "bool"
+            Parameter { name: "state"; type: "QByteArray" }
+            Parameter { name: "version"; type: "int" }
+        }
+        Method {
+            name: "restoreState"
+            type: "bool"
+            Parameter { name: "state"; type: "QByteArray" }
+        }
     }
     Component {
         name: "IrcLagTimer"
@@ -1393,6 +1638,7 @@ Module {
         name: "IrcMessage"
         prototype: "QObject"
         exports: ["Communi/IrcMessage 3.0"]
+        isCreatable: false
         exportMetaObjectRevisions: [0]
         Enum {
             name: "Type"
@@ -1414,7 +1660,13 @@ Module {
                 "Pong": 14,
                 "Private": 15,
                 "Quit": 16,
-                "Topic": 17
+                "Topic": 17,
+                "WhoReply": 18,
+                "Account": 19,
+                "Away": 20,
+                "Whois": 21,
+                "Whowas": 22,
+                "HostChange": 23
             }
         }
         Enum {
@@ -1423,7 +1675,9 @@ Module {
                 "None": 0,
                 "Own": 1,
                 "Identified": 2,
-                "Unidentified": 4
+                "Unidentified": 4,
+                "Playback": 8,
+                "Implicit": 16
             }
         }
         Enum {
@@ -1432,12 +1686,15 @@ Module {
                 "None": 0,
                 "Own": 1,
                 "Identified": 2,
-                "Unidentified": 4
+                "Unidentified": 4,
+                "Playback": 8,
+                "Implicit": 16
             }
         }
         Property { name: "connection"; type: "IrcConnection"; isReadonly: true; isPointer: true }
         Property { name: "network"; type: "IrcNetwork"; isReadonly: true; isPointer: true }
         Property { name: "type"; type: "Type"; isReadonly: true }
+        Property { name: "own"; type: "bool"; isReadonly: true }
         Property { name: "flags"; type: "Flags"; isReadonly: true }
         Property { name: "valid"; type: "bool"; isReadonly: true }
         Property { name: "command"; type: "string"; isReadonly: true }
@@ -1445,8 +1702,10 @@ Module {
         Property { name: "nick"; type: "string"; isReadonly: true }
         Property { name: "ident"; type: "string"; isReadonly: true }
         Property { name: "host"; type: "string"; isReadonly: true }
+        Property { name: "account"; type: "string"; isReadonly: true }
         Property { name: "parameters"; type: "QStringList" }
         Property { name: "timeStamp"; type: "QDateTime" }
+        Property { name: "tags"; type: "QVariantMap" }
         Method { name: "toData"; type: "QByteArray" }
         Method {
             name: "fromData"
@@ -1467,6 +1726,7 @@ Module {
         name: "IrcNetwork"
         prototype: "QObject"
         exports: ["Communi/IrcNetwork 3.0"]
+        isCreatable: false
         exportMetaObjectRevisions: [0]
         Enum {
             name: "ModeType"
@@ -1497,7 +1757,8 @@ Module {
                 "MessageLength": 3,
                 "KickReasonLength": 4,
                 "AwayReasonLength": 5,
-                "ModeCount": 6
+                "ModeCount": 6,
+                "MonitorCount": 7
             }
         }
         Property { name: "initialized"; type: "bool"; isReadonly: true }
@@ -1505,6 +1766,7 @@ Module {
         Property { name: "modes"; type: "QStringList"; isReadonly: true }
         Property { name: "prefixes"; type: "QStringList"; isReadonly: true }
         Property { name: "channelTypes"; type: "QStringList"; isReadonly: true }
+        Property { name: "statusPrefixes"; type: "QStringList"; isReadonly: true }
         Property { name: "availableCapabilities"; type: "QStringList"; isReadonly: true }
         Property { name: "requestedCapabilities"; type: "QStringList" }
         Property { name: "activeCapabilities"; type: "QStringList"; isReadonly: true }
@@ -1524,6 +1786,10 @@ Module {
         Signal {
             name: "channelTypesChanged"
             Parameter { name: "types"; type: "QStringList" }
+        }
+        Signal {
+            name: "statusPrefixesChanged"
+            Parameter { name: "prefixes"; type: "QStringList" }
         }
         Signal {
             name: "availableCapabilitiesChanged"
@@ -1607,6 +1873,7 @@ Module {
         name: "IrcPalette"
         prototype: "QObject"
         exports: ["Communi/IrcPalette 3.0"]
+        isCreatable: false
         exportMetaObjectRevisions: [0]
         Property { name: "white"; type: "string" }
         Property { name: "black"; type: "string" }
@@ -1641,8 +1908,22 @@ Module {
         prototype: "QObject"
         exports: ["Communi/IrcTextFormat 3.0"]
         exportMetaObjectRevisions: [0]
+        Enum {
+            name: "SpanFormat"
+            values: {
+                "SpanStyle": 0,
+                "SpanClass": 1
+            }
+        }
         Property { name: "palette"; type: "IrcPalette"; isReadonly: true; isPointer: true }
         Property { name: "urlPattern"; type: "string" }
+        Property { name: "plainText"; type: "string"; isReadonly: true }
+        Property { name: "html"; type: "string"; isReadonly: true }
+        Property { name: "urls"; type: "QList<QUrl>"; isReadonly: true }
+        Method {
+            name: "parse"
+            Parameter { name: "text"; type: "string" }
+        }
         Method {
             name: "toHtml"
             type: "string"
@@ -1663,6 +1944,8 @@ Module {
         Property { name: "name"; type: "string"; isReadonly: true }
         Property { name: "prefix"; type: "string"; isReadonly: true }
         Property { name: "mode"; type: "string"; isReadonly: true }
+        Property { name: "servOp"; type: "bool"; isReadonly: true }
+        Property { name: "away"; type: "bool"; isReadonly: true }
         Property { name: "channel"; type: "IrcChannel"; isReadonly: true; isPointer: true }
         Signal {
             name: "titleChanged"
@@ -1680,6 +1963,14 @@ Module {
             name: "modeChanged"
             Parameter { name: "mode"; type: "string" }
         }
+        Signal {
+            name: "servOpChanged"
+            Parameter { name: "servOp"; type: "bool" }
+        }
+        Signal {
+            name: "awayChanged"
+            Parameter { name: "away"; type: "bool" }
+        }
     }
     Component {
         name: "IrcUserModel"
@@ -1687,7 +1978,9 @@ Module {
         exports: ["Communi/IrcUserModel 3.0"]
         exportMetaObjectRevisions: [0]
         Property { name: "count"; type: "int"; isReadonly: true }
+        Property { name: "empty"; type: "bool"; isReadonly: true }
         Property { name: "names"; type: "QStringList"; isReadonly: true }
+        Property { name: "titles"; type: "QStringList"; isReadonly: true }
         Property { name: "users"; type: "QList<IrcUser*>"; isReadonly: true }
         Property { name: "displayRole"; type: "Irc::DataRole" }
         Property { name: "channel"; type: "IrcChannel"; isPointer: true }
@@ -1714,8 +2007,16 @@ Module {
             Parameter { name: "count"; type: "int" }
         }
         Signal {
+            name: "emptyChanged"
+            Parameter { name: "empty"; type: "bool" }
+        }
+        Signal {
             name: "namesChanged"
             Parameter { name: "names"; type: "QStringList" }
+        }
+        Signal {
+            name: "titlesChanged"
+            Parameter { name: "titles"; type: "QStringList" }
         }
         Signal {
             name: "usersChanged"
