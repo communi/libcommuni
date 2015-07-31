@@ -111,6 +111,7 @@ public:
         qmlRegisterType<Irc>(uri, 3, 2, "Irc");
         qmlRegisterType<Irc>(uri, 3, 3, "Irc");
         qmlRegisterType<Irc>(uri, 3, 4, "Irc");
+        qmlRegisterType<Irc>(uri, 3, 5, "Irc");
         qmlRegisterType<IrcCommand>(uri, 3, 0, "IrcCommand");
         qmlRegisterType<IrcConnection>(uri, 3, 0, "IrcConnection");
         qmlRegisterUncreatableType<IrcMessage>(uri, 3, 0, "IrcMessage", "Cannot create an instance of IrcMessage. Use IrcConnection::messageReceived() signal instead.");
