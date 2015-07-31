@@ -1177,13 +1177,17 @@ bool IrcModeMessage::isReply() const
  */
 IrcModeMessage::Kind IrcModeMessage::kind() const
 {
-    Q_D(const IrcMessage);
-    const IrcNetwork* network = d->connection->network();
-    const QStringList channelModes = network->channelModes(IrcNetwork::AllTypes);
     const QString m = mode().remove(QLatin1Char('+')).remove(QLatin1Char('-'));
-    for (int i = 0; i < m.length(); ++i) {
-        if (!channelModes.contains(m.at(i)))
-            return User;
+    if (!m.isEmpty()) {
+        QStringList channelModes;
+        if (const IrcNetwork* net = network())
+            channelModes = net->channelModes(IrcNetwork::AllTypes);
+        if (!channelModes.isEmpty()) {
+            for (int i = 0; i < m.length(); ++i) {
+                if (!channelModes.contains(m.at(i)))
+                    return User;
+            }
+        }
     }
     return Channel;
 }
