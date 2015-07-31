@@ -311,6 +311,22 @@ IrcConnection* IrcCommand::connection() const
 }
 
 /*!
+    \since 3.5
+
+    This property holds the network that this command was sent to.
+
+    The network is only set if the command has been passed to IrcConnection::sendCommand().
+
+    \par Access function:
+    \li \ref IrcNetwork* <b>network</b>() const
+ */
+IrcNetwork* IrcCommand::network() const
+{
+    Q_D(const IrcCommand);
+    return d->connection ? d->connection->network() : 0;
+}
+
+/*!
     This property holds the command type.
 
     \par Access functions:

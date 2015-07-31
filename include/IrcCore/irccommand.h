@@ -37,6 +37,7 @@
 IRC_BEGIN_NAMESPACE
 
 class IrcMessage;
+class IrcNetwork;
 class IrcConnection;
 class IrcCommandPrivate;
 
@@ -44,6 +45,7 @@ class IRC_CORE_EXPORT IrcCommand : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(IrcConnection* connection READ connection)
+    Q_PROPERTY(IrcNetwork* network READ network)
     Q_PROPERTY(QStringList parameters READ parameters WRITE setParameters)
     Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
     Q_PROPERTY(Type type READ type WRITE setType)
@@ -91,6 +93,7 @@ public:
     virtual ~IrcCommand();
 
     IrcConnection* connection() const;
+    IrcNetwork* network() const;
 
     Type type() const;
     void setType(Type type);

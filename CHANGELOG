@@ -1,3 +1,8 @@
+3.5.0
+-----
+- IrcCore
+  - Added IrcCommand::network
+
 3.4.0
 -----
 - IrcCore
