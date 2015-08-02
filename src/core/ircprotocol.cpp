@@ -81,9 +81,11 @@ public:
     int currentNick;
     bool resumed;
     bool authed;
+    bool motd;
 };
 
-IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), composer(0), currentNick(-1), resumed(false), authed(false)
+IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), composer(0),
+    currentNick(-1), resumed(false), authed(false), motd(false)
 {
 }
 
@@ -165,6 +167,7 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
     Q_Q(IrcProtocol);
     switch (msg->code()) {
     case Irc::RPL_WELCOME:
+        motd = false;
         q->setNickName(msg->parameters().value(0));
         q->setStatus(IrcConnection::Connected);
         break;
@@ -173,10 +176,13 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
             QStringList keyValue = param.split("=", QString::SkipEmptyParts);
             info.insert(keyValue.value(0), keyValue.value(1));
         }
+        if (motd)
+            q->setInfo(info);
         break;
     }
     case Irc::ERR_NOMOTD:
     case Irc::RPL_MOTDSTART:
+        motd = true;
         q->setInfo(info);
         break;
     case Irc::ERR_NICKNAMEINUSE:
@@ -493,6 +499,7 @@ void IrcProtocol::setInfo(const QHash<QString, QString>& info)
     if (!info.isEmpty()) {
         IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
         priv->setInfo(info);
+        d->info.clear();
     }
 }
 
