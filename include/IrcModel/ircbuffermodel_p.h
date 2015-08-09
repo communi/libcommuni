@@ -63,6 +63,7 @@ public:
     bool processMessage(const QString& title, IrcMessage* message, bool create = false);
 
     void _irc_connected();
+    void _irc_initialized();
     void _irc_disconnected();
     void _irc_bufferDestroyed(IrcBuffer* buffer);
 
