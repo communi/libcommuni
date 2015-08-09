@@ -159,6 +159,7 @@ private:
     Q_DISABLE_COPY(IrcBufferModel)
 
     Q_PRIVATE_SLOT(d_func(), void _irc_connected())
+    Q_PRIVATE_SLOT(d_func(), void _irc_initialized())
     Q_PRIVATE_SLOT(d_func(), void _irc_disconnected())
     Q_PRIVATE_SLOT(d_func(), void _irc_bufferDestroyed(IrcBuffer*))
     Q_PRIVATE_SLOT(d_func(), void _irc_restoreBuffers())
