@@ -431,18 +431,24 @@ bool IrcBufferModelPrivate::processMessage(const QString& title, IrcMessage* mes
 
 void IrcBufferModelPrivate::_irc_connected()
 {
+    foreach (IrcBuffer* buffer, bufferList)
+        IrcBufferPrivate::get(buffer)->connected();
+}
+
+void IrcBufferModelPrivate::_irc_initialized()
+{
     Q_Q(IrcBufferModel);
     if (joinDelay >= 0)
         QTimer::singleShot(joinDelay * 1000, q, SLOT(_irc_restoreBuffers()));
 
     bool monitored = false;
     foreach (IrcBuffer* buffer, bufferList) {
-        IrcBufferPrivate::get(buffer)->connected();
         if (monitorEnabled && IrcBufferPrivate::get(buffer)->isMonitorable()) {
             connection->sendCommand(IrcCommand::createMonitor("+", buffer->title()));
             monitored = true;
         }
     }
+
     if (monitored && !monitorPending) {
         monitorPending = true;
         QTimer::singleShot(1000, q, SLOT(_irc_monitorStatus()));
@@ -596,6 +602,7 @@ void IrcBufferModel::setConnection(IrcConnection* connection)
         d->connection->installCommandFilter(d);
         connect(d->connection, SIGNAL(connected()), this, SLOT(_irc_connected()));
         connect(d->connection, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
+        connect(d->connection->network(), SIGNAL(initialized()), this, SLOT(_irc_initialized()));
         emit connectionChanged(connection);
         emit networkChanged(network());
     }
