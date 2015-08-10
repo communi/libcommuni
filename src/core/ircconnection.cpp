@@ -1605,7 +1605,7 @@ bool IrcConnection::restoreState(const QByteArray& state, int version)
     setRealName(args.value("realName", realName()).toString());
     setPassword(args.value("password", password()).toString());
     setNickNames(args.value("nickNames", nickNames()).toStringList());
-    if (nickNames().indexOf(nickName()) > 0)
+    if (!nickNames().isEmpty() && nickNames().indexOf(nickName()) != 0)
         setNickName(nickNames().first());
     setDisplayName(args.value("displayName").toString());
     setUserData(args.value("userData", userData()).toMap());
