@@ -1553,23 +1553,24 @@ void IrcConnection::removeCommandFilter(QObject* filter)
  */
 QByteArray IrcConnection::saveState(int version) const
 {
+    Q_D(const IrcConnection);
     QVariantMap args;
     args.insert("version", version);
-    args.insert("host", host());
-    args.insert("port", port());
-    args.insert("servers", servers());
-    args.insert("userName", userName());
-    args.insert("nickName", nickName());
-    args.insert("realName", realName());
-    args.insert("password", password());
-    args.insert("nickNames", nickNames());
+    args.insert("host", d->host);
+    args.insert("port", d->port);
+    args.insert("servers", d->servers);
+    args.insert("userName", d->userName);
+    args.insert("nickName", d->nickName);
+    args.insert("realName", d->realName);
+    args.insert("password", d->password);
+    args.insert("nickNames", d->nickNames);
     args.insert("displayName", displayName());
-    args.insert("userData", userData());
-    args.insert("encoding", encoding());
-    args.insert("enabled", isEnabled());
+    args.insert("userData", d->userData);
+    args.insert("encoding", d->encoding);
+    args.insert("enabled", d->enabled);
     args.insert("reconnectDelay", reconnectDelay());
     args.insert("secure", isSecure());
-    args.insert("saslMechanism", saslMechanism());
+    args.insert("saslMechanism", d->saslMechanism);
 
     QByteArray state;
     QDataStream out(&state, QIODevice::WriteOnly);
@@ -1588,6 +1589,7 @@ QByteArray IrcConnection::saveState(int version) const
  */
 bool IrcConnection::restoreState(const QByteArray& state, int version)
 {
+    Q_D(IrcConnection);
     if (isActive())
         return false;
 
@@ -1597,23 +1599,23 @@ bool IrcConnection::restoreState(const QByteArray& state, int version)
     if (in.status() != QDataStream::Ok || args.value("version", -1).toInt() != version)
         return false;
 
-    setHost(args.value("host", host()).toString());
-    setPort(args.value("port", port()).toInt());
-    setServers(args.value("servers", servers()).toStringList());
-    setUserName(args.value("userName", userName()).toString());
-    setNickName(args.value("nickName", nickName()).toString());
-    setRealName(args.value("realName", realName()).toString());
-    setPassword(args.value("password", password()).toString());
-    setNickNames(args.value("nickNames", nickNames()).toStringList());
-    if (!nickNames().isEmpty() && nickNames().indexOf(nickName()) != 0)
-        setNickName(nickNames().first());
+    setHost(args.value("host", d->host).toString());
+    setPort(args.value("port", d->port).toInt());
+    setServers(args.value("servers", d->servers).toStringList());
+    setUserName(args.value("userName", d->userName).toString());
+    setNickName(args.value("nickName", d->nickName).toString());
+    setRealName(args.value("realName", d->realName).toString());
+    setPassword(args.value("password", d->password).toString());
+    setNickNames(args.value("nickNames", d->nickNames).toStringList());
+    if (!d->nickNames.isEmpty() && d->nickNames.indexOf(d->nickName) != 0)
+        setNickName(d->nickNames.first());
     setDisplayName(args.value("displayName").toString());
-    setUserData(args.value("userData", userData()).toMap());
-    setEncoding(args.value("encoding", encoding()).toByteArray());
-    setEnabled(args.value("enabled", isEnabled()).toBool());
+    setUserData(args.value("userData", d->userData).toMap());
+    setEncoding(args.value("encoding", d->encoding).toByteArray());
+    setEnabled(args.value("enabled", d->enabled).toBool());
     setReconnectDelay(args.value("reconnectDelay", reconnectDelay()).toInt());
     setSecure(args.value("secure", isSecure()).toBool());
-    setSaslMechanism(args.value("saslMechanism", saslMechanism()).toString());
+    setSaslMechanism(args.value("saslMechanism", d->saslMechanism).toString());
     return true;
 }
 
