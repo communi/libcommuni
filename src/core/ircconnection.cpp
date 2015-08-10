@@ -1366,15 +1366,16 @@ void IrcConnection::close()
 
     This method is provided for convenience. It is equal to:
     \code
-    IrcCommand* command = IrcCommand::createQuit(reason);
-    connection->sendCommand(command);
+    if (connection->isActive())
+        connection->sendCommand(IrcCommand::createQuit(reason));
     \endcode
 
     \sa IrcCommand::createQuit()
  */
 void IrcConnection::quit(const QString& reason)
 {
-    sendCommand(IrcCommand::createQuit(reason));
+    if (isActive())
+        sendCommand(IrcCommand::createQuit(reason));
 }
 
 /*!
