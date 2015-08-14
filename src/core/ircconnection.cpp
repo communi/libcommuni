@@ -1374,8 +1374,10 @@ void IrcConnection::close()
  */
 void IrcConnection::quit(const QString& reason)
 {
-    if (isActive())
+    if (isConnected())
         sendCommand(IrcCommand::createQuit(reason));
+    else
+        close();
 }
 
 /*!
