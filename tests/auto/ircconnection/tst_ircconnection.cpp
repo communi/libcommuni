@@ -732,10 +732,8 @@ void tst_IrcConnection::testStatus()
     // trigger an error _after_ quit -> no automatic reconnect
     connection->quit();
     serverSocket->close();
-    QVERIFY(clientSocket->waitForDisconnected(100));
     QVERIFY(!connection->isConnected());
     QVERIFY(!connection->isActive());
-    QCOMPARE(statusSpy.at(statusCount++).at(0).value<IrcConnection::Status>(), IrcConnection::Closing);
     QCOMPARE(statusSpy.at(statusCount++).at(0).value<IrcConnection::Status>(), IrcConnection::Closed);
     QCOMPARE(statusSpy.count(), statusCount);
 }
