@@ -10,6 +10,11 @@
 #include <QCoreApplication>
 #include <QQmlApplicationEngine>
 
+#ifdef QT_STATIC
+#include <QtPlugin>
+Q_IMPORT_PLUGIN(CommuniPlugin)
+#endif // QT_STATIC
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);

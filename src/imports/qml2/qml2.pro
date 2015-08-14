@@ -10,6 +10,10 @@ DESTDIR = ../../../qml/$$TARGETPATH
 SOURCES += plugin.cpp
 OTHER_FILES += qmldir plugins.qmltypes
 
+# qml_plugin.prf: insert the plugins URI into its meta data
+# to enable usage of static plugins in QtDeclarative:
+QMAKE_MOC_OPTIONS += -Muri=$$TARGETPATH
+
 isEmpty(IRC_INSTALL_QML):IRC_INSTALL_QML = $$[QT_INSTALL_QML]
 
 !no_install_qml {
