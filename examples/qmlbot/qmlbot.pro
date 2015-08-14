@@ -7,7 +7,7 @@ TARGET = qmlbot
 DEPENDPATH += .
 INCLUDEPATH += .
 CONFIG += console
-CONFIG -= app_bundle
+!static:CONFIG -= app_bundle
 QT = core network qml
 
 lessThan(QT_MAJOR_VERSION, 5)|lessThan(QT_MINOR_VERSION, 1) {
