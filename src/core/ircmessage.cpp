@@ -576,6 +576,34 @@ void IrcMessage::setTags(const QVariantMap& tags)
 }
 
 /*!
+    \since 3.5
+
+    Returns the value of the specified tag.
+
+    \sa \ref ircv3
+ */
+QVariant IrcMessage::tag(const QString& name) const
+{
+    Q_D(const IrcMessage);
+    return d->tags().value(name);
+}
+
+/*!
+    \since 3.5
+
+    Sets the value of the specified tag.
+
+    \sa \ref ircv3
+ */
+void IrcMessage::setTag(const QString& name, const QVariant& value)
+{
+    Q_D(IrcMessage);
+    QVariantMap tags = d->tags();
+    tags.insert(name, value);
+    d->setTags(tags);
+}
+
+/*!
     Creates a new message from \a data and \a connection.
  */
 IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connection)

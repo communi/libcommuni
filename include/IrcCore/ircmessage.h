@@ -140,6 +140,9 @@ public:
     QVariantMap tags() const;
     void setTags(const QVariantMap& tags);
 
+    QVariant tag(const QString& name) const;
+    void setTag(const QString& name, const QVariant& tag);
+
     Q_INVOKABLE QByteArray toData() const;
     Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, IrcConnection* connection);
     Q_INVOKABLE static IrcMessage* fromParameters(const QString& prefix, const QString& command, const QStringList& parameters, IrcConnection* connection);
