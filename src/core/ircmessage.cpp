@@ -495,6 +495,31 @@ void IrcMessage::setParameters(const QStringList& parameters)
 }
 
 /*!
+    \since 3.5
+
+    Returns the parameter at the specified \a index.
+ */
+QString IrcMessage::parameter(int index) const
+{
+    Q_D(const IrcMessage);
+    return d->param(index);
+}
+
+/*!
+    \since 3.5
+
+    Sets the \a parameter at the specified \a index.
+ */
+void IrcMessage::setParameter(int index, const QString& parameter)
+{
+    Q_D(IrcMessage);
+    QStringList params = d->params();
+    while (index >= params.count())
+        params.append(QString());
+    params[index] = parameter;
+}
+
+/*!
     This property holds the message time stamp.
 
     \note When the \c server-time capability is enabled, the time

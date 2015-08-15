@@ -129,6 +129,9 @@ public:
     QStringList parameters() const;
     void setParameters(const QStringList& parameters);
 
+    QString parameter(int index) const;
+    void setParameter(int index, const QString& parameter);
+
     virtual bool isValid() const;
 
     QDateTime timeStamp() const;
