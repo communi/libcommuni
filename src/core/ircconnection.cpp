@@ -549,7 +549,8 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
             break;
         }
     }
-    msg->deleteLater();
+    if (!msg->parent() || msg->parent() == q)
+        msg->deleteLater();
 }
 
 IrcCommand* IrcConnectionPrivate::createCtcpReply(IrcPrivateMessage* request)
