@@ -90,7 +90,8 @@ public:
         Away,
         Whois,
         Whowas,
-        HostChange
+        HostChange,
+        Batch
     };
 
     enum Flag {
@@ -192,6 +193,27 @@ public:
 
 private:
     Q_DISABLE_COPY(IrcAwayMessage)
+};
+
+class IRC_CORE_EXPORT IrcBatchMessage : public IrcMessage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString tag READ tag)
+    Q_PROPERTY(QString batch READ batch)
+    Q_PROPERTY(QList<IrcMessage*> messages READ messages)
+
+public:
+    Q_INVOKABLE explicit IrcBatchMessage(IrcConnection* connection);
+
+    QString tag() const;
+    QString batch() const;
+
+    QList<IrcMessage*> messages() const;
+
+    bool isValid() const;
+
+private:
+    Q_DISABLE_COPY(IrcBatchMessage)
 };
 
 class IRC_CORE_EXPORT IrcCapabilityMessage : public IrcMessage
@@ -634,6 +656,7 @@ Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcMessage::Type))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcAccountMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcAwayMessage*))
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcBatchMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcCapabilityMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcErrorMessage*))
 Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcHostChangeMessage*))

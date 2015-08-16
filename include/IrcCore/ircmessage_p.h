@@ -80,6 +80,11 @@ class IrcMessagePrivate
 public:
     IrcMessagePrivate();
 
+    static IrcMessagePrivate* get(IrcMessage* msg)
+    {
+        return msg->d_func();
+    }
+
     QString prefix() const;
     void setPrefix(const QString& prefix);
 
@@ -110,6 +115,7 @@ public:
     QByteArray encoding;
     mutable int flags;
     IrcMessageData data;
+    QList<IrcMessage*> batch;
 
 private:
     mutable QString m_nick, m_ident, m_host;

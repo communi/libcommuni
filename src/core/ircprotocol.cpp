@@ -31,7 +31,7 @@
 #include "ircmessagecomposer_p.h"
 #include "ircnetwork_p.h"
 #include "ircconnection.h"
-#include "ircmessage.h"
+#include "ircmessage_p.h"
 #include "irccommand.h"
 #include "ircdebug_p.h"
 #include "irc.h"
@@ -66,6 +66,9 @@ public:
     void readLines(const QByteArray& delimiter);
     void processLine(const QByteArray& line);
 
+    bool batchMessage(IrcMessage* msg);
+    bool handleBatchMessage(IrcBatchMessage* msg);
+
     void handleNumericMessage(IrcNumericMessage* msg);
     void handlePrivateMessage(IrcPrivateMessage* msg);
     void handleCapabilityMessage(IrcCapabilityMessage* msg);
@@ -76,6 +79,7 @@ public:
     IrcProtocol* q_ptr;
     IrcConnection* connection;
     IrcMessageComposer* composer;
+    QHash<QString, IrcBatchMessage*> batches;
     QHash<QString, QString> info;
     QByteArray buffer;
     int currentNick;
@@ -136,7 +140,13 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
         if (timestamp.isValid())
             msg->setTimeStamp(timestamp.toTimeSpec(Qt::LocalTime));
 
+        if (!msg->tag("batch").isNull() && batchMessage(msg))
+            return;
+
         switch (msg->type()) {
+        case IrcMessage::Batch:
+            if (handleBatchMessage(static_cast<IrcBatchMessage*>(msg)))
+                return;
         case IrcMessage::Capability:
             handleCapabilityMessage(static_cast<IrcCapabilityMessage*>(msg));
             break;
@@ -160,6 +170,38 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
     } else {
         qWarning() << "IrcProtocolPrivate::processLine(): unknown message:" << line;
     }
+}
+
+bool IrcProtocolPrivate::batchMessage(IrcMessage* msg)
+{
+    QString tag = msg->tags().value("batch").toString();
+    IrcBatchMessage* batch = batches.value(tag);
+    if (batch) {
+        msg->setParent(batch);
+        IrcMessagePrivate::get(batch)->batch += msg;
+        return true;
+    }
+    return false;
+}
+
+bool IrcProtocolPrivate::handleBatchMessage(IrcBatchMessage* msg)
+{
+    Q_Q(IrcProtocol);
+    QString tag = msg->parameters().value(0);
+    if (tag.startsWith("+")) {
+        msg->setParent(q);
+        batches.insert(msg->tag(), msg);
+        return true;
+    } else if (tag.startsWith("-")) {
+        IrcBatchMessage* batch = batches.take(msg->tag());
+        if (batch) {
+            q->receiveMessage(batch);
+            batch->deleteLater();
+            msg->deleteLater();
+            return true;
+        }
+    }
+    return false;
 }
 
 void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)

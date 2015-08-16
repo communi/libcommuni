@@ -123,8 +123,10 @@
         </tr>
         <tr>
             <td><a href="http://ircv3.net/specs/extensions/batch-3.2.html">batch</a></td>
-            <td>\ballotx</td>
-            <td></td>
+            <td>\checkmark Since 3.5</td>
+            <td>
+                \li \ref IrcBatchMessage
+            </td>
         </tr>
         <tr>
             <td><a href="http://ircv3.net/specs/extensions/cap-notify-3.2.html">cap-notify</a></td>

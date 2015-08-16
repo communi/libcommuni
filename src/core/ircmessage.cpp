@@ -81,8 +81,10 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \var IrcMessage::Unknown
-    \brief An unknown message (IrcMessage).
+    \since 3.5
+    \var IrcMessage::Batch
+    \brief A batch message (IrcBatchMessage).
+    \sa \ref ircv3
  */
 
 /*!
@@ -178,6 +180,11 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
+    \var IrcMessage::Unknown
+    \brief An unknown message (IrcMessage).
+ */
+
+/*!
     \since 3.3
     \var IrcMessage::Whois
     \brief A whois reply message (IrcWhoisMessage).
@@ -240,6 +247,7 @@ static const QMetaObject* irc_command_meta_object(const QString& command)
     if (metaObjects.isEmpty()) {
         metaObjects.insert("ACCOUNT", &IrcAccountMessage::staticMetaObject);
         metaObjects.insert("AWAY", &IrcAwayMessage::staticMetaObject);
+        metaObjects.insert("BATCH", &IrcBatchMessage::staticMetaObject);
         metaObjects.insert("CAP", &IrcCapabilityMessage::staticMetaObject);
         metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
         metaObjects.insert("CHGHOST", &IrcHostChangeMessage::staticMetaObject);
@@ -792,6 +800,64 @@ bool IrcAccountMessage::isValid() const
 {
     Q_D(const IrcMessage);
     return IrcMessage::isValid() && !d->param(0).isEmpty();
+}
+
+/*!
+    \since 3.5
+    \class IrcBatchMessage ircmessage.h <IrcMessage>
+    \ingroup message
+    \brief Represents a batch message.
+    \sa \ref ircv3
+ */
+
+/*!
+    Constructs a new IrcBatchMessage with \a connection.
+ */
+IrcBatchMessage::IrcBatchMessage(IrcConnection* connection) : IrcMessage(connection)
+{
+    Q_D(IrcMessage);
+    d->type = Batch;
+}
+
+/*!
+    This property holds the batch tag.
+
+    \par Access function:
+    \li QString <b>tag</b>() const
+ */
+QString IrcBatchMessage::tag() const
+{
+    Q_D(const IrcMessage);
+    return d->param(0).mid(1);
+}
+
+/*!
+    This property holds the batch type.
+
+    \par Access function:
+    \li QString <b>type</b>() const
+ */
+QString IrcBatchMessage::batch() const
+{
+    Q_D(const IrcMessage);
+    return d->param(1);
+}
+
+/*!
+    This property holds the list of batched messages.
+
+    \par Access function:
+    \li QList<IrcMessage*> <b>messages</b>() const
+ */
+QList<IrcMessage*> IrcBatchMessage::messages() const
+{
+    Q_D(const IrcMessage);
+    return d->batch;
+}
+
+bool IrcBatchMessage::isValid() const
+{
+    return IrcMessage::isValid() && !batch().isEmpty();
 }
 
 /*!

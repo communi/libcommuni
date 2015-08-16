@@ -2,6 +2,7 @@
 -----
 - IrcCore
   - Added IrcCommand::network
+  - Added IrcBatchMessage
 
 3.4.0
 -----
