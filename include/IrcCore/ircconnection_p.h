@@ -96,6 +96,7 @@ public:
     QVariantMap userData;
     QTimer reconnecter;
     QString saslMechanism;
+    QVariantMap ctcpReplies;
     bool enabled;
     IrcConnection::Status status;
     QList<QByteArray> pendingData;

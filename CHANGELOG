@@ -3,6 +3,7 @@
 - IrcCore
   - Added IrcCommand::network
   - Added IrcBatchMessage
+  - Added IrcConnection::ctcpReplies
 
 3.4.0
 -----

@@ -1280,6 +1280,41 @@ QStringList IrcConnection::supportedSaslMechanisms()
 }
 
 /*!
+    \since 3.5
+
+    This property holds CTCP (client to client protocol) replies.
+
+    This is a convenient request-reply map for customized static
+    CTCP replies. For dynamic replies, override createCtcpReply()
+    instead.
+
+    \note Set an empty reply to omit the automatic reply.
+
+    \par Access functions:
+    \li QVariantMap <b>ctcpReplies</b>() const
+    \li void <b>setCtcpReplies</b>(const QVariantMap& replies)
+
+    \par Notifier signal:
+    \li void <b>ctcpRepliesChanged</b>(const QVariantMap& replies)
+
+    \sa createCtcpReply()
+ */
+QVariantMap IrcConnection::ctcpReplies() const
+{
+    Q_D(const IrcConnection);
+    return d->userData;
+}
+
+void IrcConnection::setCtcpReplies(const QVariantMap& replies)
+{
+    Q_D(IrcConnection);
+    if (d->ctcpReplies != replies) {
+        d->ctcpReplies = replies;
+        emit ctcpRepliesChanged(replies);
+    }
+}
+
+/*!
     This property holds the network information.
 
     \par Access function:
@@ -1625,20 +1660,29 @@ bool IrcConnection::restoreState(const QByteArray& state, int version)
 /*!
     Creates a reply command for the CTCP \a request.
 
-    The default implementation handles the following CTCP requests: CLIENTINFO, PING, SOURCE, TIME and VERSION.
+    The default implementation first checks whether the \ref ctcpReplies
+    property contains a user-supplied reply for the request. In case it
+    does, the reply is sent automatically. In case there is no user-supplied
+    reply, the default implementation handles the following CTCP requests:
+    CLIENTINFO, PING, SOURCE, TIME and VERSION.
 
     Reimplement this function in order to alter or omit the default replies.
+
+    \sa ctcpReplies
  */
 IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
 {
+    Q_D(const IrcConnection);
     QString reply;
     QString type = request->content().split(" ", QString::SkipEmptyParts).value(0).toUpper();
-    if (type == "PING")
+    if (d->ctcpReplies.contains(type))
+        reply = d->ctcpReplies.value(type).toString();
+    else if (type == "PING")
         reply = request->content();
     else if (type == "TIME")
         reply = QLatin1String("TIME ") + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat);
     else if (type == "VERSION")
-        reply = QLatin1String("VERSION libcommuni ") + Irc::version() + QLatin1String(" - https://communi.github.io");
+        reply = QLatin1String("VERSION Communi ") + Irc::version() + QLatin1String(" - https://communi.github.io");
     else if (type == "SOURCE")
         reply = QLatin1String("SOURCE https://communi.github.io");
     else if (type == "CLIENTINFO")
