@@ -222,6 +222,7 @@ IRC_BEGIN_NAMESPACE
     In addition, message type specific signals are provided for convenience:
     \li void <b>accountMessageReceived</b>(\ref IrcAccountMessage* message) (\b since 3.3)
     \li void <b>awayMessageReceived</b>(\ref IrcAwayMessage* message) (\b since 3.3)
+    \li void <b>batchMessageReceived</b>(\ref IrcBatchMessage* message) (\b since 3.5)
     \li void <b>capabilityMessageReceived</b>(\ref IrcCapabilityMessage* message)
     \li void <b>errorMessageReceived</b>(\ref IrcErrorMessage* message)
     \li void <b>hostChangeMessageReceived</b>(\ref IrcHostChangeMessage* message) (\b since 3.4)
@@ -480,6 +481,9 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
             break;
         case IrcMessage::Away:
             emit q->awayMessageReceived(static_cast<IrcAwayMessage*>(msg));
+            break;
+        case IrcMessage::Batch:
+            emit q->batchMessageReceived(static_cast<IrcBatchMessage*>(msg));
             break;
         case IrcMessage::Capability:
             emit q->capabilityMessageReceived(static_cast<IrcCapabilityMessage*>(msg));

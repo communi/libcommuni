@@ -191,6 +191,7 @@ Q_SIGNALS:
 
     void accountMessageReceived(IrcAccountMessage* message);
     void awayMessageReceived(IrcAwayMessage* message);
+    void batchMessageReceived(IrcBatchMessage* message);
     void capabilityMessageReceived(IrcCapabilityMessage* message);
     void errorMessageReceived(IrcErrorMessage* message);
     void hostChangeMessageReceived(IrcHostChangeMessage* message);
