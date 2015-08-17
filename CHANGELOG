@@ -4,6 +4,10 @@
   - Added IrcCommand::network
   - Added IrcBatchMessage
   - Added IrcConnection::ctcpReplies
+  - Added IrcMessage::tag(name)
+  - Added IrcMessage::setTag(name, value)
+  - Added IrcMessage::parameter(index)
+  - Added IrcMessage::setParameter(index, parameter)
 
 3.4.0
 -----
