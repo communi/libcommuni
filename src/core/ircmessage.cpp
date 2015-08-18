@@ -347,6 +347,24 @@ bool IrcMessage::isOwn() const
 }
 
 /*!
+    \since 3.5
+    \property bool IrcMessage::implicit
+
+    This property holds whether the message is an implicit "reply"
+    after joining a channel.
+
+    This property is provided for convenience. It is equivalent
+    of testing for the IrcMessage::Implicit flag.
+
+    \par Access function:
+    \li bool <b>isImplicit</b>() const
+ */
+bool IrcMessage::isImplicit() const
+{
+    return flags() & Implicit;
+}
+
+/*!
     This property holds the message flags.
 
     \par Access function:

@@ -8,6 +8,7 @@
   - Added IrcMessage::setTag(name, value)
   - Added IrcMessage::parameter(index)
   - Added IrcMessage::setParameter(index, parameter)
+  - Added IrcMessage::implicit
 
 3.4.0
 -----
