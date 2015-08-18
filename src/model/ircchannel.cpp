@@ -425,13 +425,13 @@ bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
 bool IrcChannelPrivate::processNoticeMessage(IrcNoticeMessage* message)
 {
     promoteUser(message->nick());
-    return true;
+    return false;
 }
 
 bool IrcChannelPrivate::processNumericMessage(IrcNumericMessage* message)
 {
     promoteUser(message->nick());
-    return true;
+    return message->isImplicit();
 }
 
 bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
@@ -478,7 +478,7 @@ bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
 {
     if (!(message->flags() & IrcMessage::Playback))
         setTopic(message->topic());
-    return true;
+    return message->isImplicit();
 }
 
 bool IrcChannelPrivate::processWhoReplyMessage(IrcWhoReplyMessage *message)
@@ -486,9 +486,8 @@ bool IrcChannelPrivate::processWhoReplyMessage(IrcWhoReplyMessage *message)
     if (message->isValid()) {
         setUserAway(message->nick(), message->isAway());
         setUserServOp(message->nick(), message->isServOp());
-        return true;
     }
-    return false;
+    return message->isImplicit();
 }
 #endif // IRC_DOXYGEN
 

@@ -779,8 +779,9 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
+    // note: notices are not targeted since 3.5
     QVERIFY(waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :fake..."));
-    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
+    QCOMPARE(messageIgnoredSpy.count(), ++messageIgnoredCount);
 
     QCOMPARE(bufferModel.count(), buffers.count());
     QCOMPARE(bufferModel.buffers(), buffers);
@@ -1104,8 +1105,9 @@ void tst_IrcBufferModel::testChanges()
 
     QCOMPARE(rowsInsertedSpy.count(), rowsInsertedCount);
 
+    // note: implicit replies are not targeted since 3.5
     waitForWritten(":moorcock.freenode.net 324 communi #freenode +s");
-    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
+    QCOMPARE(messageIgnoredSpy.count(), ++messageIgnoredCount);
     QCOMPARE(freenode->mode(), QString("+s"));
 
     QVERIFY(waitForWritten(":jpnurmi!jpnurmi@qt/jpnurmi KICK #freenode communi"));

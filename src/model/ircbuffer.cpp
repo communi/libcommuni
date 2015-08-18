@@ -179,10 +179,6 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
         break;
     case IrcMessage::Notice:
         processed = processNoticeMessage(static_cast<IrcNoticeMessage*>(message));
-        if (processed) {
-            activity = message->timeStamp();
-            IrcBufferModelPrivate::get(model)->promoteBuffer(q);
-        }
         break;
     case IrcMessage::Numeric:
         processed = processNumericMessage(static_cast<IrcNumericMessage*>(message));
@@ -255,7 +251,7 @@ bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
 bool IrcBufferPrivate::processNoticeMessage(IrcNoticeMessage* message)
 {
     Q_UNUSED(message);
-    return true;
+    return false;
 }
 
 bool IrcBufferPrivate::processNumericMessage(IrcNumericMessage* message)
@@ -264,7 +260,7 @@ bool IrcBufferPrivate::processNumericMessage(IrcNumericMessage* message)
         setMonitorStatus(MonitorOnline);
     else if (message->code() == Irc::RPL_MONOFFLINE)
         setMonitorStatus(MonitorOffline);
-    return true;
+    return message->isImplicit();
 }
 
 bool IrcBufferPrivate::processPartMessage(IrcPartMessage* message)
@@ -293,7 +289,7 @@ bool IrcBufferPrivate::processTopicMessage(IrcTopicMessage* message)
 bool IrcBufferPrivate::processWhoReplyMessage(IrcWhoReplyMessage *message)
 {
     Q_UNUSED(message);
-    return true;
+    return false;
 }
 #endif // IRC_DOXYGEN
 
