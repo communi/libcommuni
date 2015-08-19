@@ -60,6 +60,9 @@ public:
     bool renameBuffer(const QString& from, const QString& to);
     void promoteBuffer(IrcBuffer* buffer);
 
+    void restoreBuffer(IrcBuffer* buffer);
+    QVariantMap saveBuffer(IrcBuffer* buffer) const;
+
     bool processMessage(const QString& title, IrcMessage* message, bool create = false);
 
     void _irc_connected();
@@ -81,7 +84,7 @@ public:
     QList<IrcBuffer*> bufferList;
     QMap<QString, IrcBuffer*> bufferMap;
     QHash<QString, QString> keys;
-    QVariantList bufferStates;
+    QVariantMap bufferStates;
     QStringList channels;
     Irc::SortMethod sortMethod;
     Qt::SortOrder sortOrder;
