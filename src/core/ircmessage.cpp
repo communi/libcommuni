@@ -666,6 +666,12 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connecti
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcConnection*, connection)));
         Q_ASSERT(message);
         message->d_ptr->data = md;
+        QByteArray tag = md.tags.value("time");
+        if (!tag.isEmpty()) {
+            QDateTime ts = QDateTime::fromString(QString::fromUtf8(tag), Qt::ISODate);
+            if (ts.isValid())
+                message->d_ptr->timeStamp = ts.toTimeSpec(Qt::LocalTime);
+        }
     }
     return message;
 }
