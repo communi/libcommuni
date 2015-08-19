@@ -147,6 +147,7 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
         case IrcMessage::Batch:
             if (handleBatchMessage(static_cast<IrcBatchMessage*>(msg)))
                 return;
+            break;
         case IrcMessage::Capability:
             handleCapabilityMessage(static_cast<IrcCapabilityMessage*>(msg));
             break;
@@ -189,14 +190,12 @@ bool IrcProtocolPrivate::handleBatchMessage(IrcBatchMessage* msg)
     Q_Q(IrcProtocol);
     QString tag = msg->parameters().value(0);
     if (tag.startsWith("+")) {
-        msg->setParent(q);
         batches.insert(msg->tag(), msg);
         return true;
     } else if (tag.startsWith("-")) {
         IrcBatchMessage* batch = batches.take(msg->tag());
         if (batch) {
             q->receiveMessage(batch);
-            batch->deleteLater();
             msg->deleteLater();
             return true;
         }
