@@ -42,6 +42,9 @@ private slots:
 
     void testTags();
 
+    void testAccount_data();
+    void testAccount();
+
     void testAccountMessage_data();
     void testAccountMessage();
     void testAwayMessage_data();
@@ -254,6 +257,25 @@ void tst_IrcMessage::testTags()
     message->setTags(tags);
     QCOMPARE(message->tags(), tags);
     QCOMPARE(message->toData(), QByteArray("@foo=bar :nick!ident@host.com PRIVMSG me Hello"));
+}
+
+void tst_IrcMessage::testAccount_data()
+{
+    QTest::addColumn<QByteArray>("data");
+    QTest::addColumn<QString>("account");
+
+    QTest::newRow("no account") << QByteArray(":nick!ident@host.com PRIVMSG me :Hello") << QString();
+    QTest::newRow("has account") << QByteArray("@account=jpnurmi :nick!ident@host.com PRIVMSG me :Hello") << QString("jpnurmi");
+}
+
+void tst_IrcMessage::testAccount()
+{
+    QFETCH(QByteArray, data);
+    QFETCH(QString, account);
+
+    IrcConnection connection;
+    IrcMessage* message = IrcMessage::fromData(data, &connection);
+    QCOMPARE(message->account(), account);
 }
 
 void tst_IrcMessage::testAccountMessage_data()
