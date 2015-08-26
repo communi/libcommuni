@@ -28,5 +28,5 @@ Communi is free software; you can redistribute and/or modify it under the terms 
 [Logo]:      https://raw.githubusercontent.com/communi/libcommuni/master/doc/communi.png
 [Status]:    https://travis-ci.org/communi/libcommuni.svg?branch=master
 [CI]:        https://travis-ci.org/communi/libcommuni
-[Coverage]:  https://coveralls.io/repos/communi/libcommuni/badge.svg?branch=master%0A
-[Coveralls]: https://coveralls.io/r/communi/libcommuni?branch=master%0A
+[Coverage]:  https://coveralls.io/repos/communi/libcommuni/badge.svg?branch=master
+[Coveralls]: https://coveralls.io/r/communi/libcommuni?branch=master
