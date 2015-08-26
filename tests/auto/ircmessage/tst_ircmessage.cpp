@@ -51,6 +51,8 @@ private slots:
     void testCapabilityMessage();
     void testErrorMessage_data();
     void testErrorMessage();
+    void testHostChangeMessage_data();
+    void testHostChangeMessage();
     void testInviteMessage_data();
     void testInviteMessage();
     void testJoinMessage_data();
@@ -389,6 +391,41 @@ void tst_IrcMessage::testErrorMessage()
     QVERIFY(errorMessage);
     QCOMPARE(errorMessage->isValid(), valid);
     QCOMPARE(errorMessage->error(), error);
+}
+
+void tst_IrcMessage::testHostChangeMessage_data()
+{
+    QTest::addColumn<bool>("valid");
+    QTest::addColumn<QByteArray>("data");
+    QTest::addColumn<QString>("user");
+    QTest::addColumn<QString>("host");
+
+    QTest::newRow("no prefix") << true << QByteArray("CHGHOST newuser newhost") << QString("newuser") << QString("newhost");
+    QTest::newRow("empty prefix") << false << QByteArray(": CHGHOST newuser newhost") << QString("newuser") << QString("newhost");
+    QTest::newRow("no params") << false << QByteArray(":nick!user@host CHGHOST") << QString() << QString();
+    QTest::newRow("all ok") << true << QByteArray(":nick!user@host CHGHOST newuser newhost") << QString("newuser") << QString("newhost");
+}
+
+void tst_IrcMessage::testHostChangeMessage()
+{
+    QFETCH(bool, valid);
+    QFETCH(QByteArray, data);
+    QFETCH(QString, user);
+    QFETCH(QString, host);
+
+    IrcConnection connection;
+    IrcMessage* message = IrcMessage::fromData(data, &connection);
+    QCOMPARE(message->type(), IrcMessage::HostChange);
+    QCOMPARE(message->command(), QString("CHGHOST"));
+    QCOMPARE(message->property("valid").toBool(), valid);
+    QCOMPARE(message->property("user").toString(), user);
+    QCOMPARE(message->property("host").toString(), host);
+
+    IrcHostChangeMessage* chghostMessage = qobject_cast<IrcHostChangeMessage*>(message);
+    QVERIFY(chghostMessage);
+    QCOMPARE(chghostMessage->isValid(), valid);
+    QCOMPARE(chghostMessage->user(), user);
+    QCOMPARE(chghostMessage->host(), host);
 }
 
 void tst_IrcMessage::testInviteMessage_data()

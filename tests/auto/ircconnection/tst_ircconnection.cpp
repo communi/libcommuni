@@ -843,6 +843,7 @@ void tst_IrcConnection::testMessages()
     QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
     QSignalSpy capabilityMessageSpy(connection, SIGNAL(capabilityMessageReceived(IrcCapabilityMessage*)));
     QSignalSpy errorMessageSpy(connection, SIGNAL(errorMessageReceived(IrcErrorMessage*)));
+    QSignalSpy hostChangeMessageSpy(connection, SIGNAL(hostChangeMessageReceived(IrcHostChangeMessage*)));
     QSignalSpy inviteMessageSpy(connection, SIGNAL(inviteMessageReceived(IrcInviteMessage*)));
     QSignalSpy joinMessageSpy(connection, SIGNAL(joinMessageReceived(IrcJoinMessage*)));
     QSignalSpy kickMessageSpy(connection, SIGNAL(kickMessageReceived(IrcKickMessage*)));
@@ -863,6 +864,7 @@ void tst_IrcConnection::testMessages()
     QVERIFY(messageSpy.isValid());
     QVERIFY(capabilityMessageSpy.isValid());
     QVERIFY(errorMessageSpy.isValid());
+    QVERIFY(hostChangeMessageSpy.isValid());
     QVERIFY(inviteMessageSpy.isValid());
     QVERIFY(joinMessageSpy.isValid());
     QVERIFY(kickMessageSpy.isValid());
@@ -1034,6 +1036,10 @@ void tst_IrcConnection::testMessages()
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
     QCOMPARE(whoReplyMessageSpy.count(), 1);
+
+    QVERIFY(waitForWritten(":nick!user@host CHGHOST newuser newhost"));
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(hostChangeMessageSpy.count(), 1);
 }
 
 class MsgFilter : public QObject, public IrcMessageFilter
