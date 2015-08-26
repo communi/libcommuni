@@ -40,7 +40,6 @@ private slots:
     void testDecoder_data();
     void testDecoder();
 
-    void testTags_data();
     void testTags();
 
     void testAccountMessage_data();
@@ -221,40 +220,33 @@ void tst_IrcMessage::testDecoder()
 #endif // Q_OS_LINUX
 }
 
-void tst_IrcMessage::testTags_data()
+void tst_IrcMessage::testTags()
 {
-    QTest::addColumn<QByteArray>("data");
-    QTest::addColumn<QVariantMap>("tags");
-    QTest::addColumn<QString>("prefix");
-    QTest::addColumn<QString>("command");
-    QTest::addColumn<QString>("target");
-    QTest::addColumn<QString>("content");
-
     QVariantMap tags;
     tags.insert("aaa", "bbb");
     tags.insert("ccc", "");
     tags.insert("example.com/ddd", "eee");
 
-    QTest::newRow("example") << QByteArray("@aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello")
-                             << tags << "nick!ident@host.com" << "PRIVMSG" << "me" << "Hello";
-}
-
-void tst_IrcMessage::testTags()
-{
-    QFETCH(QByteArray, data);
-    QFETCH(QVariantMap, tags);
-    QFETCH(QString, prefix);
-    QFETCH(QString, command);
-    QFETCH(QString, target);
-    QFETCH(QString, content);
-
     IrcConnection connection;
-    IrcMessage* message = IrcMessage::fromData(data, &connection);
+    IrcMessage* message = IrcMessage::fromData("@aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello", &connection);
     QCOMPARE(message->tags(), tags);
-    QCOMPARE(message->prefix(), prefix);
-    QCOMPARE(message->command(), command);
-    QCOMPARE(message->property("target").toString(), target);
-    QCOMPARE(message->property("content").toString(), content);
+
+    tags.insert("ccc", "xyz");
+    message->setTag("ccc", "xyz");
+
+    QCOMPARE(message->tags(), tags);
+    QCOMPARE(message->toData(), QByteArray("@aaa=bbb;ccc=xyz;example.com/ddd=eee :nick!ident@host.com PRIVMSG me Hello"));
+
+    tags.insert("fff", "ggg");
+    message->setTag("fff", "ggg");
+    QCOMPARE(message->tags(), tags);
+    QCOMPARE(message->toData(), QByteArray("@aaa=bbb;ccc=xyz;example.com/ddd=eee;fff=ggg :nick!ident@host.com PRIVMSG me Hello"));
+
+    tags.clear();
+    tags.insert("foo", "bar");
+    message->setTags(tags);
+    QCOMPARE(message->tags(), tags);
+    QCOMPARE(message->toData(), QByteArray("@foo=bar :nick!ident@host.com PRIVMSG me Hello"));
 }
 
 void tst_IrcMessage::testAccountMessage_data()
