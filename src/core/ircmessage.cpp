@@ -543,6 +543,7 @@ void IrcMessage::setParameter(int index, const QString& parameter)
     while (index >= params.count())
         params.append(QString());
     params[index] = parameter;
+    d->setParams(params);
 }
 
 /*!

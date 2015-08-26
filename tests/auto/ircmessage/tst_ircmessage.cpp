@@ -158,6 +158,13 @@ void tst_IrcMessage::testParameters()
     QCOMPARE(message->prefix(), prefix);
     QCOMPARE(message->command(), command);
     QCOMPARE(message->parameters(), params);
+
+    for (int i = 0; i < params.count(); ++i)
+        QCOMPARE(message->parameter(i), params.at(i));
+
+    message->setParameter(5, "foo");
+    QCOMPARE(message->parameter(4), QString());
+    QCOMPARE(message->parameter(5), QString("foo"));
 }
 
 void tst_IrcMessage::testFlags()
