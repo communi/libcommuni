@@ -1306,7 +1306,7 @@ QStringList IrcConnection::supportedSaslMechanisms()
 QVariantMap IrcConnection::ctcpReplies() const
 {
     Q_D(const IrcConnection);
-    return d->userData;
+    return d->ctcpReplies;
 }
 
 void IrcConnection::setCtcpReplies(const QVariantMap& replies)
@@ -1680,7 +1680,7 @@ IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
     QString reply;
     QString type = request->content().split(" ", QString::SkipEmptyParts).value(0).toUpper();
     if (d->ctcpReplies.contains(type))
-        reply = d->ctcpReplies.value(type).toString();
+        reply = type + QLatin1String(" ") + d->ctcpReplies.value(type).toString();
     else if (type == "PING")
         reply = request->content();
     else if (type == "TIME")

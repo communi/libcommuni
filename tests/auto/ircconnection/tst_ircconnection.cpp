@@ -1803,6 +1803,11 @@ void tst_IrcConnection::testCtcp()
 {
     FriendlyConnection* friendly = static_cast<FriendlyConnection*>(connection.data());
 
+    QVariantMap replies;
+    replies.insert("FOO", "bar");
+    connection->setCtcpReplies(replies);
+    QCOMPARE(connection->ctcpReplies(), replies);
+
     // PING
     IrcMessage* msg = IrcMessage::fromData(":nick!user@host PRIVMSG communi :\1PING timestamp\1", connection);
     QScopedPointer<IrcPrivateMessage> pingRequest(qobject_cast<IrcPrivateMessage*>(msg));
@@ -1861,6 +1866,32 @@ void tst_IrcConnection::testCtcp()
     QVERIFY(infoReply->toString().contains("VERSION"));
     QVERIFY(infoReply->toString().contains("SOURCE"));
     QVERIFY(infoReply->toString().endsWith("\1"));
+
+    // FOO
+    msg = IrcMessage::fromData(":nick!user@host PRIVMSG communi :\1FOO\1", connection);
+    QScopedPointer<IrcPrivateMessage> fooRequest(qobject_cast<IrcPrivateMessage*>(msg));
+    QVERIFY(fooRequest.data());
+
+    QScopedPointer<IrcCommand> fooReply(friendly->createCtcpReply(fooRequest.data()));
+    QVERIFY(fooReply.data());
+    QCOMPARE(fooReply->type(), IrcCommand::CtcpReply);
+    QCOMPARE(fooReply->toString(), QString("NOTICE nick :\1FOO bar\1"));
+
+    // override
+    replies.insert("VERSION", "none");
+    connection->setCtcpReplies(replies);
+    QCOMPARE(connection->ctcpReplies(), replies);
+
+    msg = IrcMessage::fromData(":nick!user@host PRIVMSG communi :\1VERSION\1", connection);
+    QScopedPointer<IrcPrivateMessage> overrideRequest(qobject_cast<IrcPrivateMessage*>(msg));
+    QVERIFY(overrideRequest.data());
+
+    QScopedPointer<IrcCommand> overrideReply(friendly->createCtcpReply(overrideRequest.data()));
+    QVERIFY(overrideReply.data());
+    QCOMPARE(overrideReply->type(), IrcCommand::CtcpReply);
+    QCOMPARE(overrideReply->toString(), QString("NOTICE nick :\1VERSION none\1"));
+
+    connection->setCtcpReplies(QVariantMap());
 
     // QML compatibility
     FakeQmlConnection qmlConnection;
