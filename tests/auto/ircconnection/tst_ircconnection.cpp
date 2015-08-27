@@ -1332,6 +1332,18 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.values.value("channels").toStringList(), QStringList() << "+#jpnurmi");
     QVERIFY(filter.values.value("valid").toBool());
     QCOMPARE(filter.type, IrcMessage::Whois);
+
+    filter.reset("realName,server,info,account,valid");
+    QVERIFY(waitForWritten(":asimov.freenode.net 314 jipsu jirssi ~jpnurmi 88.95.51.136 * :J-P Nurmi"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 312 jipsu jirssi wolfe.freenode.net :Wed Aug 26 22:11:42 2015"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 330 jipsu jirssi jaccount :is logged in as"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 369 jipsu jirssi :End of WHOWAS"));
+    QCOMPARE(filter.values.value("realName").toString(), QString("J-P Nurmi"));
+    QCOMPARE(filter.values.value("server").toString(), QString("wolfe.freenode.net"));
+    QCOMPARE(filter.values.value("info").toString(), QString("Wed Aug 26 22:11:42 2015"));
+    QCOMPARE(filter.values.value("account").toString(), QString("jaccount"));
+    QVERIFY(filter.values.value("valid").toBool());
+    QCOMPARE(filter.type, IrcMessage::Whowas);
 }
 
 void tst_IrcConnection::testSendCommand()
