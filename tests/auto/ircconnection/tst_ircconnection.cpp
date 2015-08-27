@@ -1108,8 +1108,11 @@ public:
         ++count;
         type = message->type();
         flags = message->flags();
-        foreach (const QByteArray& property, properties.split(','))
-            values[property] = message->property(property);
+        foreach (const QByteArray& property, properties.split(',')) {
+            QVariant value = message->property(property);
+            if (!value.isNull())
+                values[property] = value;
+        }
         return false;
     }
 
@@ -1255,7 +1258,7 @@ void tst_IrcConnection::testMessageComposer()
     QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
     QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
 
-    filter.reset("mask,ident,host,server,nick,away,servOp,realName");
+    filter.reset("mask,ident,host,server,nick,away,servOp,realName,composed");
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0 J-P Nurmi"));
     QCOMPARE(filter.count, 2); // RPL_WHOREPLY + IrcWhoReply
     QCOMPARE(filter.values.value("mask").toString(), QString("#communi"));
@@ -1266,45 +1269,50 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.values.value("away").toBool(), true);
     QCOMPARE(filter.values.value("servOp").toBool(), true);
     QCOMPARE(filter.values.value("realName").toString(), QString("J-P Nurmi"));
+    QCOMPARE(filter.values.value("composed").toBool(), true);
 
     filter.reset("realName");
     QVERIFY(waitForWritten(":my.irc.ser.ver 352 communi #communi ~jpnurmi qt/jpnurmi his.irc.ser.ver jpnurmi G*@ :0"));
     QCOMPARE(filter.values.value("realName").toString(), QString());
 
-    filter.reset("content,nick,reply,away");
+    filter.reset("content,nick,reply,away,composed");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick :gone far away"));
     QCOMPARE(filter.values.value("content").toString(), QString("gone far away"));
     QCOMPARE(filter.values.value("nick").toString(), QString("nick"));
     QVERIFY(filter.values.value("reply").toBool());
     QVERIFY(filter.values.value("away").toBool());
+    QVERIFY(filter.values.value("composed").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.reset("content,nick,reply,away");
+    filter.reset("content,nick,reply,away,composed");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick"));
     QCOMPARE(filter.values.value("nick").toString(), QString("nick"));
     QCOMPARE(filter.values.value("content").toString(), QString());
     QVERIFY(filter.values.value("reply").toBool());
     QVERIFY(filter.values.value("away").toBool());
+    QVERIFY(filter.values.value("composed").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.reset("content,nick,reply,away");
+    filter.reset("content,nick,reply,away,composed");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 305 communi :You are no longer marked as being away"));
     QCOMPARE(filter.values.value("nick").toString(), QString("communi"));
     QCOMPARE(filter.values.value("content").toString(), QString("You are no longer marked as being away"));
     QVERIFY(filter.values.value("reply").toBool());
     QVERIFY(!filter.values.value("away").toBool());
+    QVERIFY(filter.values.value("composed").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.reset("content,nick,reply,away");
+    filter.reset("content,nick,reply,away,composed");
     filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 306 communi :You have been marked as being away"));
     QCOMPARE(filter.values.value("nick").toString(), QString("communi"));
     QCOMPARE(filter.values.value("content").toString(), QString("You have been marked as being away"));
     QVERIFY(filter.values.value("reply").toBool());
     QVERIFY(filter.values.value("away").toBool());
+    QVERIFY(filter.values.value("composed").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
 }
 
