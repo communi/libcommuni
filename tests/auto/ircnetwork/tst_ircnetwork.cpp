@@ -31,6 +31,8 @@ private slots:
     void testCapabilities_data();
     void testCapabilities();
 
+    void testCapNotify();
+
     void testDebug();
 };
 
@@ -353,6 +355,38 @@ void tst_IrcNetwork::testCapabilities()
     if (!activeCaps.isEmpty())
         ++activeCount;
     QCOMPARE(activeSpy.count(), activeCount);
+}
+
+void tst_IrcNetwork::testCapNotify()
+{
+    connection->open();
+    QVERIFY(waitForOpened());
+
+    IrcNetwork* network = connection->network();
+    network->setRequestedCapabilities(QStringList() << "cap-notify" << "away-notify");
+
+    QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi LS :cap-notify"));
+
+    QSignalSpy availableSpy(network, SIGNAL(availableCapabilitiesChanged(QStringList)));
+    QSignalSpy activeSpy(network, SIGNAL(activeCapabilitiesChanged(QStringList)));
+
+    QVERIFY(availableSpy.isValid());
+    QVERIFY(activeSpy.isValid());
+
+    QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi NEW :away-notify foo-bar"));
+    QCOMPARE(availableSpy.count(), 1);
+    QVERIFY(network->hasCapability("away-notify"));
+    QVERIFY(network->hasCapability("foo-bar"));
+    QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi ACK :away-notify"));
+    QCOMPARE(activeSpy.count(), 1);
+    QVERIFY(network->isCapable("away-notify"));
+
+    QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi DEL :away-notify"));
+    QCOMPARE(availableSpy.count(), 2);
+    QCOMPARE(activeSpy.count(), 2);
+    QVERIFY(!network->isCapable("away-notify"));
+    QVERIFY(!network->hasCapability("away-notify"));
+    QVERIFY(network->hasCapability("foo-bar"));
 }
 
 void tst_IrcNetwork::testDebug()
