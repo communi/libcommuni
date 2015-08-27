@@ -986,7 +986,7 @@ void tst_IrcConnection::testMessages()
     QCOMPARE(messageSpy.count(), messageCount);
     QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
     QCOMPARE(inviteMessageSpy.count(), 2);
-    QVERIFY(inviteMessageSpy.last().last().value<QObject*>()->property("reply").toBool());
+    QVERIFY(inviteMessageSpy.last().last().value<IrcInviteMessage*>()->property("reply").toBool());
 
     QVERIFY(waitForWritten(":Communi84194!ident@host NICK :communi"));
     QCOMPARE(messageSpy.count(), ++messageCount);
