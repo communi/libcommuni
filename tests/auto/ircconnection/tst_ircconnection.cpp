@@ -106,6 +106,7 @@ private slots:
     void testWarnings();
 
     void testCtcp();
+    void testSaveRestore();
 };
 
 void tst_IrcConnection::testDefaults()
@@ -1961,6 +1962,49 @@ void tst_IrcConnection::testCtcp()
     QVERIFY(protocol->written.contains("VERSION"));
     QVERIFY(protocol->written.contains("SOURCE"));
     QVERIFY(protocol->written.endsWith("\1"));
+}
+
+void tst_IrcConnection::testSaveRestore()
+{
+    QVariantMap ud;
+    ud.insert("foo", "bar");
+
+    IrcConnection c1;
+    c1.setHost("host");
+    c1.setPort(123);
+    c1.setServers(QStringList() << "s1" << "s2" << "s3");
+    c1.setUserName("user");
+    c1.setNickName("nick");
+    c1.setRealName("real");
+    c1.setPassword("pass");
+    c1.setNickNames(QStringList() << "n1" << "n2" << "n3");
+    c1.setDisplayName("display");
+    c1.setUserData(ud);
+    c1.setEncoding("UTF-8");
+    c1.setEnabled(false);
+    c1.setReconnectDelay(10);
+    c1.setSecure(true);
+    c1.setSaslMechanism("PLAIN");
+
+    IrcConnection c2;
+    c2.restoreState(c1.saveState());
+
+    QCOMPARE(c2.host(), QString("host"));
+    QCOMPARE(c2.port(), 123);
+    QCOMPARE(c2.servers(), QStringList() << "s1" << "s2" << "s3");
+    QCOMPARE(c2.userName(), QString("user"));
+    QEXPECT_FAIL("", "TODO", Continue);
+    QCOMPARE(c2.nickName(), QString("nick"));
+    QCOMPARE(c2.realName(), QString("real"));
+    QCOMPARE(c2.password(), QString("pass"));
+    QCOMPARE(c2.nickNames(), QStringList() << "n1" << "n2" << "n3");
+    QCOMPARE(c2.displayName(), QString("display"));
+    QCOMPARE(c2.userData(), ud);
+    QCOMPARE(c2.encoding(), QByteArray("UTF-8"));
+    QVERIFY(!c2.isEnabled());
+    QCOMPARE(c2.reconnectDelay(), 10);
+    QVERIFY(c2.isSecure());
+    QCOMPARE(c2.saslMechanism(), QString("PLAIN"));
 }
 
 QTEST_MAIN(tst_IrcConnection)
