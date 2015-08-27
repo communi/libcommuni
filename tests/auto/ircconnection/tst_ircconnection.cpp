@@ -841,6 +841,9 @@ void tst_IrcConnection::testMessages()
     qRegisterMetaType<QString*>();
 
     QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
+    QSignalSpy accountMessageSpy(connection, SIGNAL(accountMessageReceived(IrcAccountMessage*)));
+    QSignalSpy awayMessageSpy(connection, SIGNAL(awayMessageReceived(IrcAwayMessage*)));
+    QSignalSpy batchMessageSpy(connection, SIGNAL(batchMessageReceived(IrcBatchMessage*)));
     QSignalSpy capabilityMessageSpy(connection, SIGNAL(capabilityMessageReceived(IrcCapabilityMessage*)));
     QSignalSpy errorMessageSpy(connection, SIGNAL(errorMessageReceived(IrcErrorMessage*)));
     QSignalSpy hostChangeMessageSpy(connection, SIGNAL(hostChangeMessageReceived(IrcHostChangeMessage*)));
@@ -859,9 +862,14 @@ void tst_IrcConnection::testMessages()
     QSignalSpy privateMessageSpy(connection, SIGNAL(privateMessageReceived(IrcPrivateMessage*)));
     QSignalSpy quitMessageSpy(connection, SIGNAL(quitMessageReceived(IrcQuitMessage*)));
     QSignalSpy topicMessageSpy(connection, SIGNAL(topicMessageReceived(IrcTopicMessage*)));
+    QSignalSpy whoisMessageSpy(connection, SIGNAL(whoisMessageReceived(IrcWhoisMessage*)));
+    QSignalSpy whowasMessageSpy(connection, SIGNAL(whowasMessageReceived(IrcWhowasMessage*)));
     QSignalSpy whoReplyMessageSpy(connection, SIGNAL(whoReplyMessageReceived(IrcWhoReplyMessage*)));
 
     QVERIFY(messageSpy.isValid());
+    QVERIFY(accountMessageSpy.isValid());
+    QVERIFY(awayMessageSpy.isValid());
+    QVERIFY(batchMessageSpy.isValid());
     QVERIFY(capabilityMessageSpy.isValid());
     QVERIFY(errorMessageSpy.isValid());
     QVERIFY(hostChangeMessageSpy.isValid());
@@ -880,6 +888,8 @@ void tst_IrcConnection::testMessages()
     QVERIFY(privateMessageSpy.isValid());
     QVERIFY(quitMessageSpy.isValid());
     QVERIFY(topicMessageSpy.isValid());
+    QVERIFY(whoisMessageSpy.isValid());
+    QVERIFY(whowasMessageSpy.isValid());
     QVERIFY(whoReplyMessageSpy.isValid());
 
     int messageCount = 0;
@@ -1040,6 +1050,30 @@ void tst_IrcConnection::testMessages()
     QVERIFY(waitForWritten(":nick!user@host CHGHOST newuser newhost"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(hostChangeMessageSpy.count(), 1);
+
+    QVERIFY(waitForWritten(":nick!user@host AWAY :reason"));
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(awayMessageSpy.count(), 1);
+
+    QVERIFY(waitForWritten(":nick!user@host ACCOUNT account"));
+    QCOMPARE(messageSpy.count(), ++messageCount);
+    QCOMPARE(accountMessageSpy.count(), 1);
+
+    QVERIFY(waitForWritten(":asimov.freenode.net 311 jpnurmi qtassistant jpnurmi qt/jpnurmi/bot/qtassistant * :http://doc.qt.io/qt-5"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 318 jpnurmi qtassistant :End of /WHOIS list."));
+    messageCount += 3; // RPL_WHOISUSER + RPL_ENDOFWHOIS + IrcWhoisMessage
+    numericMessageCount += 2; // RPL_WHOISUSER + RPL_ENDOFWHOIS
+    QCOMPARE(messageSpy.count(), messageCount);
+    QCOMPARE(numericMessageSpy.count(), numericMessageCount);
+    QCOMPARE(whoisMessageSpy.count(), 1);
+
+    QVERIFY(waitForWritten(":asimov.freenode.net 314 jpnurmi jirssi ~jpnurmi 88.95.51.136 * :J-P Nurmi"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 369 jpnurmi jirssi :End of WHOWAS"));
+    messageCount += 3; // RPL_WHOWASUSER + RPL_ENDOFWHOWAS + IrcWhowasMessage
+    numericMessageCount += 2; // RPL_WHOWASUSER + RPL_ENDOFWHOWAS
+    QCOMPARE(messageSpy.count(), messageCount);
+    QCOMPARE(numericMessageSpy.count(), numericMessageCount);
+    QCOMPARE(whowasMessageSpy.count(), 1);
 }
 
 class MsgFilter : public QObject, public IrcMessageFilter
