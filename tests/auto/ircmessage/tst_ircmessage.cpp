@@ -1107,6 +1107,15 @@ void tst_IrcMessage::testDebug()
     QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\), prefix=nick!ident@host, command=COMMAND\\) ").exactMatch(str));
     str.clear();
 
+    message.setFlags(IrcMessage::Own | IrcMessage::Playback | IrcMessage::Implicit);
+    dbg << &message;
+    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(Own\\|Playback\\|Implicit\\), prefix=nick!ident@host, command=COMMAND\\) ").exactMatch(str));
+    str.clear();
+
+    dbg << IrcMessage::None;
+    QCOMPARE(str.trimmed(), QString::fromLatin1("None"));
+    str.clear();
+
     dbg << IrcMessage::Join;
     QCOMPARE(str.trimmed(), QString::fromLatin1("Join"));
     str.clear();

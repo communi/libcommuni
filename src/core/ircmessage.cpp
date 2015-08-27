@@ -2260,6 +2260,10 @@ QDebug operator<<(QDebug debug, IrcMessage::Flags flags)
         lst << "None";
     if (flags & IrcMessage::Own)
         lst << "Own";
+    if (flags & IrcMessage::Playback)
+        lst << "Playback";
+    if (flags & IrcMessage::Implicit)
+        lst << "Implicit";
     debug.nospace() << '(' << qPrintable(lst.join("|")) << ')';
     return debug;
 }
