@@ -41,6 +41,7 @@ private slots:
     void testDecoder();
 
     void testTags();
+    void testServerTime();
 
     void testAccount_data();
     void testAccount();
@@ -257,6 +258,13 @@ void tst_IrcMessage::testTags()
     message->setTags(tags);
     QCOMPARE(message->tags(), tags);
     QCOMPARE(message->toData(), QByteArray("@foo=bar :nick!ident@host.com PRIVMSG me Hello"));
+}
+
+void tst_IrcMessage::testServerTime()
+{
+    IrcConnection connection;
+    IrcMessage* message = IrcMessage::fromData("@time=2011-10-19T16:40:51.620Z :Angel!angel@example.org PRIVMSG Wiz :Hello", &connection);
+    QCOMPARE(message->timeStamp(), QDateTime(QDate(2011, 10, 19), QTime(16, 40, 51, 620), Qt::UTC));
 }
 
 void tst_IrcMessage::testAccount_data()
