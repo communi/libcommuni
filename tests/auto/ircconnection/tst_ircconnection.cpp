@@ -93,6 +93,7 @@ private slots:
     void testMessageFlags();
     void testStatusPrefixes();
     void testMessageComposer();
+    void testBatch();
 
     void testSendCommand();
     void testSendData();
@@ -1344,6 +1345,54 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.values.value("account").toString(), QString("jaccount"));
     QVERIFY(filter.values.value("valid").toBool());
     QCOMPARE(filter.type, IrcMessage::Whowas);
+}
+
+void tst_IrcConnection::testBatch()
+{
+    connection->open();
+    QVERIFY(waitForOpened());
+
+    QVERIFY(waitForWritten(":my.irc.ser.ver 001 communi :Welcome..."));
+    QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi CHANTYPES=# EXCEPTS INVEX CHANMODES=eIbq,k,flj,CFLMPQScgimnprstz CHANLIMIT=#:120 PREFIX=(ov)@+ MAXLIST=bqeI:100 MODES=4 NETWORK=fake KNOCK STATUSMSG=@+ CALLERID=g :are supported by this server"));
+    QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi CASEMAPPING=rfc1459 CHARSET=ascii NICKLEN=16 CHANNELLEN=50 TOPICLEN=390 ETRACE CPRIVMSG CNOTICE DEAF=D MONITOR=100 FNC TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:4,NOTICE:4,ACCEPT:,MONITOR: :are supported by this server"));
+    QVERIFY(waitForWritten(":my.irc.ser.ver 005 communi EXTBAN=$,arxz WHOX CLIENTVER=3.0 SAFELIST ELIST=CTU :are supported by this server"));
+
+    QSignalSpy messageSpy(connection, SIGNAL(messageReceived(IrcMessage*)));
+    QSignalSpy batchMessageSpy(connection, SIGNAL(batchMessageReceived(IrcBatchMessage*)));
+    QVERIFY(messageSpy.isValid());
+    QVERIFY(batchMessageSpy.isValid());
+
+    QVERIFY(waitForWritten(":irc.host BATCH +yXNAbvnRHTRBv netsplit irc.hub other.host"));
+    QVERIFY(waitForWritten("@batch=yXNAbvnRHTRBv :aji!a@a QUIT :irc.hub other.host"));
+    QVERIFY(waitForWritten("@batch=yXNAbvnRHTRBv :nenolod!a@a QUIT :irc.hub other.host"));
+    QVERIFY(waitForWritten(":nick!user@host PRIVMSG #channel :This is not in batch, so processed immediately"));
+    QVERIFY(waitForWritten("@batch=yXNAbvnRHTRBv :jilles!a@a QUIT :irc.hub other.host"));
+    QVERIFY(waitForWritten(":irc.host BATCH -yXNAbvnRHTRBv"));
+
+    QCOMPARE(messageSpy.count(), 2); // BATCH + NICK
+    QCOMPARE(batchMessageSpy.count(), 1);
+
+    IrcBatchMessage* batch = batchMessageSpy.last().last().value<IrcBatchMessage*>();
+    QVERIFY(batch);
+    QVERIFY(batch->isValid());
+    QCOMPARE(batch->tag(), QString("yXNAbvnRHTRBv"));
+    QCOMPARE(batch->batch(), QString("netsplit"));
+    QCOMPARE(batch->messages().count(), 3);
+
+    IrcQuitMessage* q1 = qobject_cast<IrcQuitMessage*>(batch->messages().at(0));
+    QVERIFY(q1);
+    QCOMPARE(q1->nick(), QString("aji"));
+    QCOMPARE(q1->reason(), QString("irc.hub other.host"));
+
+    IrcQuitMessage* q2 = qobject_cast<IrcQuitMessage*>(batch->messages().at(1));
+    QVERIFY(q2);
+    QCOMPARE(q2->nick(), QString("nenolod"));
+    QCOMPARE(q2->reason(), QString("irc.hub other.host"));
+
+    IrcQuitMessage* q3 = qobject_cast<IrcQuitMessage*>(batch->messages().at(2));
+    QVERIFY(q3);
+    QCOMPARE(q3->nick(), QString("jilles"));
+    QCOMPARE(q3->reason(), QString("irc.hub other.host"));
 }
 
 void tst_IrcConnection::testSendCommand()
