@@ -1276,7 +1276,6 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.values.value("realName").toString(), QString());
 
     filter.reset("content,nick,reply,away,composed");
-    filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick :gone far away"));
     QCOMPARE(filter.values.value("content").toString(), QString("gone far away"));
     QCOMPARE(filter.values.value("nick").toString(), QString("nick"));
@@ -1286,7 +1285,6 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.type, IrcMessage::Away);
 
     filter.reset("content,nick,reply,away,composed");
-    filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 301 communi nick"));
     QCOMPARE(filter.values.value("nick").toString(), QString("nick"));
     QCOMPARE(filter.values.value("content").toString(), QString());
@@ -1296,7 +1294,6 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.type, IrcMessage::Away);
 
     filter.reset("content,nick,reply,away,composed");
-    filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 305 communi :You are no longer marked as being away"));
     QCOMPARE(filter.values.value("nick").toString(), QString("communi"));
     QCOMPARE(filter.values.value("content").toString(), QString("You are no longer marked as being away"));
@@ -1306,7 +1303,6 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.type, IrcMessage::Away);
 
     filter.reset("content,nick,reply,away,composed");
-    filter.type = IrcMessage::Unknown;
     QVERIFY(waitForWritten(":my.irc.ser.ver 306 communi :You have been marked as being away"));
     QCOMPARE(filter.values.value("nick").toString(), QString("communi"));
     QCOMPARE(filter.values.value("content").toString(), QString("You have been marked as being away"));
@@ -1314,6 +1310,28 @@ void tst_IrcConnection::testMessageComposer()
     QVERIFY(filter.values.value("away").toBool());
     QVERIFY(filter.values.value("composed").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
+
+    filter.reset("realName,server,info,account,address,since,idle,secure,from,channels,valid");
+    QVERIFY(waitForWritten(":asimov.freenode.net 311 jipsu qtassistant jpnurmi qt/jpnurmi/bot/qtassistant * :http://doc.qt.io/qt-5"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 319 jipsu qtassistant :+#jpnurmi"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 312 jipsu qtassistant leguin.freenode.net :Umeå, SE, EU"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 671 jipsu qtassistant :is using a secure connection"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 330 jipsu qtassistant qtaccountant :is logged in as"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 378 jipsu qtassistant :is connecting from *@88.95.51.136 88.95.51.136"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 317 jipsu qtassistant 15 1440706032 :seconds idle, signon time"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 318 jipsu qtassistant :End of /WHOIS list."));
+    QCOMPARE(filter.values.value("realName").toString(), QString("http://doc.qt.io/qt-5"));
+    QCOMPARE(filter.values.value("server").toString(), QString("leguin.freenode.net"));
+    QCOMPARE(filter.values.value("info").toString(), QString::fromUtf8("Umeå, SE, EU"));
+    QCOMPARE(filter.values.value("account").toString(), QString("qtaccountant"));
+    QEXPECT_FAIL("", "RPL_WHOISHOST :is connecting from *@88.95.51.136 88.95.51.136", Continue);
+    QCOMPARE(filter.values.value("address").toString(), QString("88.95.51.136"));
+    QCOMPARE(filter.values.value("since").toDateTime(), QDateTime::fromTime_t(1440706032));
+    QCOMPARE(filter.values.value("idle").toInt(), 15);
+    QCOMPARE(filter.values.value("secure").toBool(), true);
+    QCOMPARE(filter.values.value("channels").toStringList(), QStringList() << "+#jpnurmi");
+    QVERIFY(filter.values.value("valid").toBool());
+    QCOMPARE(filter.type, IrcMessage::Whois);
 }
 
 void tst_IrcConnection::testSendCommand()

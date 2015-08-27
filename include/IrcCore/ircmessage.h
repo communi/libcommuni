@@ -590,7 +590,6 @@ public:
     QDateTime since() const;
     int idle() const;
     bool isSecure() const;
-    QString from() const;
     QStringList channels() const;
 
     bool isValid() const;
