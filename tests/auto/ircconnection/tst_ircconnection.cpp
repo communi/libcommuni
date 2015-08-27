@@ -91,6 +91,7 @@ private slots:
     void testConnection();
     void testMessages();
     void testMessageFlags();
+    void testStatusPrefixes();
     void testMessageComposer();
 
     void testSendCommand();
@@ -1195,6 +1196,49 @@ void tst_IrcConnection::testMessageFlags()
     QVERIFY(waitForWritten(":Guest1234!ident@host NOTICE #communi :hi communi"));
     QCOMPARE(filter.count, ++count);
     QCOMPARE(filter.type, IrcMessage::Notice);
+    QCOMPARE(filter.values.value("content").toString(), QString("hi communi"));
+}
+
+void tst_IrcConnection::testStatusPrefixes()
+{
+    connection->open();
+    QVERIFY(waitForOpened());
+
+    int count = 0;
+    MsgFilter filter;
+    connection->installMessageFilter(&filter);
+
+    QVERIFY(waitForWritten(":server 001 communi :Welcome..."));
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Numeric);
+    QCOMPARE(filter.flags, IrcMessage::None);
+
+    QVERIFY(waitForWritten(":server 005 communi STATUSMSG=@+"));
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Numeric);
+    QCOMPARE(filter.flags, IrcMessage::None);
+
+    QVERIFY(waitForWritten(":server 375 communi :MOTD"));
+    QVERIFY(waitForWritten(":server 376 communi :End of /MOTD command."));
+    count += 3; // RPL_MOTDSTART, RPL_ENDOFMOTD, IrcMotdMessage
+    QCOMPARE(filter.count, count);
+    QCOMPARE(filter.type, IrcMessage::Motd);
+    QCOMPARE(filter.flags, IrcMessage::None);
+
+    filter.reset("target,statusPrefix,content", count);
+    QVERIFY(waitForWritten(":Guest1234!ident@host PRIVMSG +#communi :hi communi"));
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Private);
+    QCOMPARE(filter.values.value("target").toString(), QString("#communi"));
+    QCOMPARE(filter.values.value("statusPrefix").toString(), QString("+"));
+    QCOMPARE(filter.values.value("content").toString(), QString("hi communi"));
+
+    filter.reset("target,statusPrefix,content", count);
+    QVERIFY(waitForWritten(":Guest1234!ident@host NOTICE +#communi :hi communi"));
+    QCOMPARE(filter.count, ++count);
+    QCOMPARE(filter.type, IrcMessage::Notice);
+    QCOMPARE(filter.values.value("target").toString(), QString("#communi"));
+    QCOMPARE(filter.values.value("statusPrefix").toString(), QString("+"));
     QCOMPARE(filter.values.value("content").toString(), QString("hi communi"));
 }
 
