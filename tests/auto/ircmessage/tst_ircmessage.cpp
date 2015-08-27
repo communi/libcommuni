@@ -85,6 +85,8 @@ private slots:
     void testWhoReplyMessage_data();
     void testWhoReplyMessage();
 
+    void testNullConnection();
+
     void testDebug();
 };
 
@@ -1055,6 +1057,25 @@ void tst_IrcMessage::testWhoReplyMessage()
     QCOMPARE(message.property("away").toBool(), away);
     QCOMPARE(message.property("servOp").toBool(), servOp);
     QCOMPARE(message.property("realName").toString(), realName);
+}
+
+void tst_IrcMessage::testNullConnection()
+{
+    IrcMessage* pm = IrcMessage::fromData(":nick!ident@host PRIVMSG me :hello", 0);
+    QCOMPARE(pm->type(), IrcMessage::Private);
+    QCOMPARE(pm->property("target").toString(), QString("me"));
+    QVERIFY(pm->property("statusPrefix").toString().isEmpty());
+    QVERIFY(!pm->property("private").toBool());
+    QCOMPARE(pm->flags(), IrcMessage::None);
+    delete pm;
+
+    IrcMessage* nm = IrcMessage::fromData(":nick!ident@host NOTICE me :hello", 0);
+    QCOMPARE(nm->type(), IrcMessage::Notice);
+    QCOMPARE(nm->property("target").toString(), QString("me"));
+    QVERIFY(nm->property("statusPrefix").toString().isEmpty());
+    QVERIFY(!nm->property("private").toBool());
+    QCOMPARE(nm->flags(), IrcMessage::None);
+    delete nm;
 }
 
 void tst_IrcMessage::testDebug()
