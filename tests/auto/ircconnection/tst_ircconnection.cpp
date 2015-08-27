@@ -980,6 +980,13 @@ void tst_IrcConnection::testMessages()
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(inviteMessageSpy.count(), 1);
 
+    QVERIFY(waitForWritten(":moorcock.freenode.net 341 jpnurmi Communi84194 #communi"));
+    messageCount += 2; // RPL_INVITING + IrcInviteMessage
+    QCOMPARE(messageSpy.count(), messageCount);
+    QCOMPARE(numericMessageSpy.count(), ++numericMessageCount);
+    QCOMPARE(inviteMessageSpy.count(), 2);
+    QVERIFY(inviteMessageSpy.last().last().value<QObject*>()->property("reply").toBool());
+
     QVERIFY(waitForWritten(":Communi84194!ident@host NICK :communi"));
     QCOMPARE(messageSpy.count(), ++messageCount);
     QCOMPARE(nickMessageSpy.count(), 1);
