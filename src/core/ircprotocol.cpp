@@ -136,10 +136,6 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
     if (msg) {
         msg->setEncoding(connection->encoding());
 
-        QDateTime timestamp = msg->tags().value("time").toDateTime();
-        if (timestamp.isValid())
-            msg->setTimeStamp(timestamp.toTimeSpec(Qt::LocalTime));
-
         if (!msg->tag("batch").isNull() && batchMessage(msg))
             return;
 
