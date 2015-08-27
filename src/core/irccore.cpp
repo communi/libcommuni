@@ -66,8 +66,12 @@ namespace IrcCore {
         qRegisterMetaType<IrcMessage*>("IrcMessage*");
         qRegisterMetaType<IrcMessage::Type>("IrcMessage::Type");
 
+        qRegisterMetaType<IrcCapabilityMessage*>("IrcAccountMessage*");
+        qRegisterMetaType<IrcCapabilityMessage*>("IrcAwayMessage*");
+        qRegisterMetaType<IrcCapabilityMessage*>("IrcBatchMessage*");
         qRegisterMetaType<IrcCapabilityMessage*>("IrcCapabilityMessage*");
         qRegisterMetaType<IrcErrorMessage*>("IrcErrorMessage*");
+        qRegisterMetaType<IrcInviteMessage*>("IrcHostChangeMessage*");
         qRegisterMetaType<IrcInviteMessage*>("IrcInviteMessage*");
         qRegisterMetaType<IrcJoinMessage*>("IrcJoinMessage*");
         qRegisterMetaType<IrcKickMessage*>("IrcKickMessage*");
@@ -83,6 +87,8 @@ namespace IrcCore {
         qRegisterMetaType<IrcPrivateMessage*>("IrcPrivateMessage*");
         qRegisterMetaType<IrcQuitMessage*>("IrcQuitMessage*");
         qRegisterMetaType<IrcTopicMessage*>("IrcTopicMessage*");
+        qRegisterMetaType<IrcWhoReplyMessage*>("IrcWhoisMessage*");
+        qRegisterMetaType<IrcWhoReplyMessage*>("IrcWhowasMessage*");
         qRegisterMetaType<IrcWhoReplyMessage*>("IrcWhoReplyMessage*");
     }
 }
