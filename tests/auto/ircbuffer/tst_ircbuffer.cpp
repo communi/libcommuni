@@ -9,7 +9,10 @@
 
 #include "ircbuffer.h"
 #include "ircbuffermodel.h"
+#include "ircconnection.h"
+#include "irccommand.h"
 #include "ircmessage.h"
+#include "ircfilter.h"
 #include <QtTest/QtTest>
 #include <QtCore/QRegExp>
 
@@ -26,6 +29,7 @@ private slots:
     void testDebug();
     void testUserData();
     void testClose();
+    void testSendCommand();
 };
 
 void tst_IrcBuffer::testDefaults()
@@ -178,6 +182,33 @@ void tst_IrcBuffer::testClose()
     buffer->close();
     QVERIFY(!model.contains("foo"));
     QVERIFY(!buffer);
+}
+
+class TestCommandFilter : public QObject, public IrcCommandFilter
+{
+    Q_OBJECT
+    Q_INTERFACES(IrcCommandFilter)
+
+public:
+    TestCommandFilter(IrcConnection* connection) : lastCommand(0) { connection->installCommandFilter(this); }
+    bool commandFilter(IrcCommand *command) { lastCommand = command; return true; }
+    IrcCommand* lastCommand;
+};
+
+void tst_IrcBuffer::testSendCommand()
+{
+    IrcConnection connection;
+    TestCommandFilter filter(&connection);
+
+    IrcBufferModel model(&connection);
+    QCOMPARE(model.connection(), &connection);
+
+    IrcBuffer* buffer = model.add("foo");
+    QCOMPARE(buffer->connection(), &connection);
+
+    IrcCommand* cmd = IrcCommand::createAway();
+    QVERIFY(!buffer->sendCommand(cmd));
+    QCOMPARE(filter.lastCommand, cmd);
 }
 
 QTEST_MAIN(tst_IrcBuffer)
