@@ -8,6 +8,9 @@
  */
 
 #include "irc.h"
+#include "irccore.h"
+#include "ircmodel.h"
+#include "ircutil.h"
 #include <QtTest/QtTest>
 #include <QtCore/QRegExp>
 
@@ -23,6 +26,7 @@ private slots:
     void testCodeToString();
 
     void testMetaObject();
+    void testMetaTypes();
 
     void testPrefix_data();
     void testPrefix();
@@ -84,6 +88,31 @@ void tst_Irc::testMetaObject()
     QString str;
     QVERIFY(QMetaObject::invokeMethod(&irc, "codeToString", Q_RETURN_ARG(QString, str), Q_ARG(int, Irc::RPL_ISUPPORT)));
     QCOMPARE(str, Irc::codeToString(Irc::RPL_ISUPPORT));
+}
+
+void tst_Irc::testMetaTypes()
+{
+    IrcCore::registerMetaTypes();
+    QVERIFY(qMetaTypeId<Irc*>());
+    QVERIFY(qMetaTypeId<IrcConnection*>());
+    QVERIFY(qMetaTypeId<IrcCommand*>());
+    QVERIFY(qMetaTypeId<IrcMessage*>());
+    QVERIFY(qMetaTypeId<IrcNetwork*>());
+
+    IrcModel::registerMetaTypes();
+    QVERIFY(qMetaTypeId<IrcBuffer*>());
+    QVERIFY(qMetaTypeId<IrcBufferModel*>());
+    QVERIFY(qMetaTypeId<IrcChannel*>());
+    QVERIFY(qMetaTypeId<IrcUser*>());
+    QVERIFY(qMetaTypeId<IrcUserModel*>());
+
+    IrcUtil::registerMetaTypes();
+    QVERIFY(qMetaTypeId<IrcCommandParser*>());
+    QVERIFY(qMetaTypeId<IrcCommandQueue*>());
+    QVERIFY(qMetaTypeId<IrcCompleter*>());
+    QVERIFY(qMetaTypeId<IrcLagTimer*>());
+    QVERIFY(qMetaTypeId<IrcPalette*>());
+    QVERIFY(qMetaTypeId<IrcTextFormat*>());
 }
 
 void tst_Irc::testPrefix_data()
