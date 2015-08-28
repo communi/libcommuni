@@ -36,6 +36,7 @@ private slots:
     void testAIM();
     void testQML();
     void testWarnings();
+    void testMonitor();
 };
 
 Q_DECLARE_METATYPE(QModelIndex)
@@ -65,6 +66,7 @@ void tst_IrcBufferModel::testDefaults()
     QVERIFY(!model.network());
     QVERIFY(model.bufferPrototype());
     QVERIFY(model.channelPrototype());
+    QVERIFY(!model.isMonitorEnabled());
 }
 
 void tst_IrcBufferModel::testBufferInit()
@@ -1456,6 +1458,27 @@ void tst_IrcBufferModel::testWarnings()
 
     IrcConnection another;
     model.setConnection(&another);
+}
+
+void tst_IrcBufferModel::testMonitor()
+{
+    IrcBufferModel model(connection);
+    model.setMonitorEnabled(true);
+    QVERIFY(model.isMonitorEnabled());
+
+    connection->open();
+    QVERIFY(waitForOpened());
+    QVERIFY(waitForWritten(tst_IrcData::welcome("freenode")));
+    QVERIFY(connection->network()->numericLimit(IrcNetwork::MonitorCount) > 0);
+
+    IrcBuffer* buffer = model.add("jirssi");
+    QVERIFY(!buffer->isActive());
+
+    QVERIFY(waitForWritten(":card.freenode.net 730 * :jirssi!~jpnurmi@88.95.51.136"));
+    QVERIFY(buffer->isActive());
+
+    QVERIFY(waitForWritten(":card.freenode.net 731 jipsu :jirssi"));
+    QVERIFY(!buffer->isActive());
 }
 
 QTEST_MAIN(tst_IrcBufferModel)
