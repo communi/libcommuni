@@ -677,11 +677,13 @@ void tst_IrcMessage::testNumericMessage_data()
     QTest::addColumn<bool>("valid");
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<int>("code");
+    QTest::addColumn<bool>("composed");
 
-    QTest::newRow("no prefix") << true << QByteArray("123 Kilroy") << 123;
-    QTest::newRow("empty prefix") << false << QByteArray(": 123 Kilroy") << 123;
-    QTest::newRow("no params") << true << QByteArray(":WiZ 456") << 456;
-    QTest::newRow("all ok") << true << QByteArray(":WiZ 789 Kilroy") << 789;
+    QTest::newRow("no prefix") << true << QByteArray("123 Kilroy") << 123 << false;
+    QTest::newRow("empty prefix") << false << QByteArray(": 123 Kilroy") << 123 << false;
+    QTest::newRow("no params") << true << QByteArray(":WiZ 456") << 456 << false;
+    QTest::newRow("all ok") << true << QByteArray(":WiZ 789 Kilroy") << 789 << false;
+    QTest::newRow("composed") << true << QByteArray(":server 352 me someone ...") << 352 << true;
 }
 
 void tst_IrcMessage::testNumericMessage()
@@ -689,6 +691,7 @@ void tst_IrcMessage::testNumericMessage()
     QFETCH(bool, valid);
     QFETCH(QByteArray, data);
     QFETCH(int, code);
+    QFETCH(bool, composed);
 
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);
@@ -696,11 +699,13 @@ void tst_IrcMessage::testNumericMessage()
     QVERIFY(message->command().toInt() > 0);
     QCOMPARE(message->property("valid").toBool(), valid);
     QCOMPARE(message->property("code").toInt(), code);
+    QCOMPARE(message->property("composed").toBool(), composed);
 
     IrcNumericMessage* numericMessage = qobject_cast<IrcNumericMessage*>(message);
     QVERIFY(numericMessage);
     QCOMPARE(numericMessage->isValid(), valid);
     QCOMPARE(numericMessage->code(), code);
+    QCOMPARE(numericMessage->isComposed(), composed);
 }
 
 void tst_IrcMessage::testModeMessage_data()
