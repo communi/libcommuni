@@ -149,7 +149,7 @@ bool IrcBufferPrivate::isMonitorable() const
     Q_Q(const IrcBuffer);
     IrcNetwork* n = q->network();
     IrcConnection* c = q->connection();
-    if (!sticky && !name.startsWith(QLatin1String("*")) && !q->isChannel() && c && c->isConnected() && n && n->numericLimit(IrcNetwork::MonitorCount) >= 0)
+    if (!sticky && !name.startsWith(QLatin1String("*")) && c && c->isConnected() && n && n->numericLimit(IrcNetwork::MonitorCount) >= 0 && !n->isChannel(q->title()))
         return true;
     return false;
 }

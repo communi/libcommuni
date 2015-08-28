@@ -10,7 +10,9 @@
 #include "ircbuffermodel.h"
 #include "ircconnection.h"
 #include "ircchannel.h"
+#include "irccommand.h"
 #include "ircbuffer.h"
+#include "ircfilter.h"
 #include <QtTest/QtTest>
 #include "tst_ircclientserver.h"
 #include "tst_ircdata.h"
@@ -1460,8 +1462,21 @@ void tst_IrcBufferModel::testWarnings()
     model.setConnection(&another);
 }
 
+class TestCommandFilter : public QObject, public IrcCommandFilter
+{
+    Q_OBJECT
+    Q_INTERFACES(IrcCommandFilter)
+
+public:
+    TestCommandFilter(IrcConnection* connection) { connection->installCommandFilter(this); }
+    bool commandFilter(IrcCommand* command) { commands += command->toString(); return false; }
+    QStringList commands;
+};
+
 void tst_IrcBufferModel::testMonitor()
 {
+    TestCommandFilter filter(connection);
+
     IrcBufferModel model(connection);
     model.setMonitorEnabled(true);
     QVERIFY(model.isMonitorEnabled());
@@ -1471,14 +1486,31 @@ void tst_IrcBufferModel::testMonitor()
     QVERIFY(waitForWritten(tst_IrcData::welcome("freenode")));
     QVERIFY(connection->network()->numericLimit(IrcNetwork::MonitorCount) > 0);
 
+    filter.commands.clear();
+
     IrcBuffer* buffer = model.add("jirssi");
     QVERIFY(!buffer->isActive());
+    QCOMPARE(filter.commands.count(), 1);
+    QCOMPARE(filter.commands.last(), QString("MONITOR + jirssi"));
 
     QVERIFY(waitForWritten(":card.freenode.net 730 * :jirssi!~jpnurmi@88.95.51.136"));
     QVERIFY(buffer->isActive());
 
     QVERIFY(waitForWritten(":card.freenode.net 731 jipsu :jirssi"));
     QVERIFY(!buffer->isActive());
+
+    model.remove("jirssi");
+    QCOMPARE(filter.commands.count(), 2);
+    QCOMPARE(filter.commands.last(), QString("MONITOR - jirssi"));
+
+    filter.commands.clear();
+
+    // don't monitor channels
+    buffer = model.add("#channel");
+    QCOMPARE(model.channels(), QStringList() << "#channel");
+    QVERIFY(filter.commands.isEmpty());
+    delete buffer;
+    QVERIFY(filter.commands.isEmpty());
 }
 
 QTEST_MAIN(tst_IrcBufferModel)
