@@ -85,6 +85,7 @@ private slots:
     void testWhoReplyMessage_data();
     void testWhoReplyMessage();
 
+    void testClone();
     void testNullConnection();
 
     void testDebug();
@@ -1062,6 +1063,29 @@ void tst_IrcMessage::testWhoReplyMessage()
     QCOMPARE(message.property("away").toBool(), away);
     QCOMPARE(message.property("servOp").toBool(), servOp);
     QCOMPARE(message.property("realName").toString(), realName);
+}
+
+void tst_IrcMessage::testClone()
+{
+    IrcConnection connection;
+    IrcMessage* pm = IrcMessage::fromData("@a=b;c=d :nick!ident@host PRIVMSG me :hello", &connection);
+    QVERIFY(pm);
+    IrcMessage* clone = pm->clone(this);
+    QVERIFY(clone);
+    QVERIFY(clone->isValid());
+    QCOMPARE(clone->parent(), this);
+    QCOMPARE(clone->connection(), &connection);
+    QCOMPARE(clone->type(), pm->type());
+    QCOMPARE(clone->flags(), pm->flags());
+    QCOMPARE(clone->tags(), pm->tags());
+    QCOMPARE(clone->prefix(), pm->prefix());
+    QCOMPARE(clone->nick(), pm->nick());
+    QCOMPARE(clone->ident(), pm->ident());
+    QCOMPARE(clone->host(), pm->host());
+    QCOMPARE(clone->command(), pm->command());
+    QCOMPARE(clone->parameters(), pm->parameters());
+    QCOMPARE(clone->timeStamp(), pm->timeStamp());
+    QCOMPARE(clone->account(), pm->account());
 }
 
 void tst_IrcMessage::testNullConnection()

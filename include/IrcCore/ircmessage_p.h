@@ -117,7 +117,6 @@ public:
     IrcMessageData data;
     QList<IrcMessage*> batch;
 
-private:
     mutable QString m_nick, m_ident, m_host;
     mutable IrcExplicitValue<QString> m_prefix;
     mutable IrcExplicitValue<QString> m_command;

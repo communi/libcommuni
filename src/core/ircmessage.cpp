@@ -695,6 +695,35 @@ IrcMessage* IrcMessage::fromParameters(const QString& prefix, const QString& com
 }
 
 /*!
+    \since 3.5
+
+    Clones the message.
+ */
+IrcMessage* IrcMessage::clone(QObject* parent) const
+{
+    Q_D(const IrcMessage);
+    IrcMessage* msg = qobject_cast<IrcMessage*>(metaObject()->newInstance(Q_ARG(IrcConnection*, d->connection)));
+    if (msg) {
+        msg->setParent(parent);
+        IrcMessagePrivate* p = IrcMessagePrivate::get(msg);
+        p->timeStamp = d->timeStamp;
+        p->encoding = d->encoding;
+        p->flags = d->flags;
+        p->data = d->data;
+        foreach (IrcMessage* bm, d->batch)
+            p->batch += bm->clone(msg);
+        p->m_nick = d->m_nick;
+        p->m_ident = d->m_ident;
+        p->m_host = d->m_host;
+        p->m_prefix = d->m_prefix;
+        p->m_command = d->m_command;
+        p->m_params = d->m_params;
+        p->m_tags = d->m_tags;
+    }
+    return msg;
+}
+
+/*!
     \property bool IrcMessage::valid
     This property is \c true if the message is valid; otherwise \c false.
 

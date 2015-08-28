@@ -153,6 +153,7 @@ public:
     Q_INVOKABLE QByteArray toData() const;
     Q_INVOKABLE static IrcMessage* fromData(const QByteArray& data, IrcConnection* connection);
     Q_INVOKABLE static IrcMessage* fromParameters(const QString& prefix, const QString& command, const QStringList& parameters, IrcConnection* connection);
+    Q_INVOKABLE IrcMessage* clone(QObject *parent = 0) const;
 
 protected:
     QScopedPointer<IrcMessagePrivate> d_ptr;
