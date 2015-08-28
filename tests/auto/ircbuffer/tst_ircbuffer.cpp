@@ -8,6 +8,7 @@
  */
 
 #include "ircbuffer.h"
+#include "ircbuffermodel.h"
 #include "ircmessage.h"
 #include <QtTest/QtTest>
 #include <QtCore/QRegExp>
@@ -24,6 +25,7 @@ private slots:
     void testReceive();
     void testDebug();
     void testUserData();
+    void testClose();
 };
 
 void tst_IrcBuffer::testDefaults()
@@ -167,6 +169,15 @@ void tst_IrcBuffer::testUserData()
 
     buffer.setUserData(QVariantMap());
     QVERIFY(buffer.userData().isEmpty());
+}
+
+void tst_IrcBuffer::testClose()
+{
+    IrcBufferModel model;
+    QPointer<IrcBuffer> buffer = model.add("foo");
+    buffer->close();
+    QVERIFY(!model.contains("foo"));
+    QVERIFY(!buffer);
 }
 
 QTEST_MAIN(tst_IrcBuffer)
