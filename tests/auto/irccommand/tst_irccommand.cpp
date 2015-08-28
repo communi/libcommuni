@@ -254,6 +254,14 @@ void tst_IrcCommand::testJoin()
     QVERIFY(cmd2->toString().contains(QRegExp("\\bJOIN\\b")));
     QVERIFY(cmd2->toString().contains(QRegExp("\\bchan1\\b")));
     QVERIFY(cmd2->toString().contains(QRegExp("\\bchan2\\b")));
+
+    QScopedPointer<IrcCommand> cmd3(IrcCommand::createJoin(QStringList() << "chan1" << "chan2", QStringList() << "key1" << "key2"));
+    QVERIFY(cmd3.data());
+
+    QCOMPARE(cmd3->type(), IrcCommand::Join);
+    QVERIFY(cmd3->toString().contains(QRegExp("\\bJOIN\\b")));
+    QVERIFY(cmd3->toString().contains(QRegExp("\\bchan1,chan2\\b")));
+    QVERIFY(cmd3->toString().contains(QRegExp("\\bkey1,key2\\b")));
 }
 
 void tst_IrcCommand::testKick()
