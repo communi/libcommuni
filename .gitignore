@@ -58,6 +58,7 @@ qt.conf
 /tests/auto/ircchannel/tst_ircchannel
 /tests/auto/irccommand/tst_irccommand
 /tests/auto/irccommandparser/tst_irccommandparser
+/tests/auto/irccommandqueue/tst_irccommandqueue
 /tests/auto/irccompleter/tst_irccompleter
 /tests/auto/ircconnection/tst_ircconnection
 /tests/auto/irclagtimer/tst_irclagtimer

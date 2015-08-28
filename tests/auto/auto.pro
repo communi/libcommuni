@@ -20,6 +20,7 @@ SUBDIRS += ircusermodel
 
 # IrcUtil
 SUBDIRS += irccommandparser
+SUBDIRS += irccommandqueue
 SUBDIRS += irccompleter
 SUBDIRS += irclagtimer
 SUBDIRS += ircpalette
