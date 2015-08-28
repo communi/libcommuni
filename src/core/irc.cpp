@@ -42,7 +42,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 /*!
-    \namespace Irc
+    \class Irc
     \ingroup core
     \brief Miscellaneous identifiers used throughout the library.
  */
