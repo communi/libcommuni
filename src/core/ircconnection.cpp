@@ -1214,27 +1214,11 @@ void IrcConnection::setSecure(bool secure)
 }
 
 /*!
-    \since 3.2
-    \property bool IrcConnection::secureSupported
-    This property holds whether SSL is supported.
-
-    The value may be \c false for the following reasons:
-    \li Qt was built without SSL support (\c QT_NO_SSL is defined), or
-    \li The platform does not support SSL (QSslSocket::supportsSsl() returns \c false).
-
-    \par Access function:
-    \li static bool <b>isSecureSupported</b>()
-
-    \sa secure, QSslSocket::supportsSsl()
+    \deprecated Use Irc::isSecureSupported() instead.
  */
-
 bool IrcConnection::isSecureSupported()
 {
-#ifdef QT_NO_OPENSSL
-    return false;
-#else
-    return QSslSocket::supportsSsl();
-#endif
+    return Irc::isSecureSupported();
 }
 
 /*!
@@ -1271,16 +1255,11 @@ void IrcConnection::setSaslMechanism(const QString& mechanism)
 }
 
 /*!
-    This property holds the list of supported SASL (Simple Authentication and Security Layer) mechanisms.
-
-    \par Access function:
-    \li static QStringList <b>supportedSaslMechanisms</b>()
-
-    \sa saslMechanism, \ref ircv3
+    \deprecated Use Irc::supportedSaslMechanisms() instead.
  */
 QStringList IrcConnection::supportedSaslMechanisms()
 {
-    return QStringList() << QLatin1String("PLAIN");
+    return Irc::supportedSaslMechanisms();
 }
 
 /*!

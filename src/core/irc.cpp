@@ -33,6 +33,9 @@
 #include "ircmessage_p.h"
 #include <QMetaEnum>
 #include <QDebug>
+#ifndef QT_NO_OPENSSL
+#include <QSslSocket>
+#endif // QT_NO_OPENSSL
 
 IRC_BEGIN_NAMESPACE
 
@@ -46,6 +49,44 @@ IRC_BEGIN_NAMESPACE
     \ingroup core
     \brief Miscellaneous identifiers used throughout the library.
  */
+
+/*!
+    \since 3.5
+    \property bool Irc::secureSupported
+    This property holds whether SSL is supported.
+
+    The value may be \c false for the following reasons:
+    \li Qt was built without SSL support (\c QT_NO_SSL is defined), or
+    \li The platform does not support SSL (QSslSocket::supportsSsl() returns \c false).
+
+    \par Access function:
+    \li static bool <b>isSecureSupported</b>()
+
+    \sa IrcConnection::secure, QSslSocket::supportsSsl()
+ */
+bool Irc::isSecureSupported()
+{
+#ifdef QT_NO_OPENSSL
+    return false;
+#else
+    return QSslSocket::supportsSsl();
+#endif
+}
+
+/*!
+    \since 3.5
+
+    This property holds the list of supported SASL (Simple Authentication and Security Layer) mechanisms.
+
+    \par Access function:
+    \li static QStringList <b>supportedSaslMechanisms</b>()
+
+    \sa IrcConnection::saslMechanism, \ref ircv3
+ */
+QStringList Irc::supportedSaslMechanisms()
+{
+    return QStringList() << QLatin1String("PLAIN");
+}
 
 /*!
     Returns the version number of Communi at run-time as a string (for example, "1.2.3").

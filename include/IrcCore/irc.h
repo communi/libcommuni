@@ -39,6 +39,8 @@ IRC_BEGIN_NAMESPACE
 class IRC_CORE_EXPORT Irc : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool secureSupported READ isSecureSupported CONSTANT)
+    Q_PROPERTY(QStringList supportedSaslMechanisms READ supportedSaslMechanisms CONSTANT)
     Q_ENUMS(Color DataRole SortMethod Code)
 
 public:
@@ -48,6 +50,9 @@ public:
     Q_INVOKABLE static QString identFromPrefix(const QString& prefix);
     Q_INVOKABLE static QString hostFromPrefix(const QString& prefix);
     Q_INVOKABLE static void registerMetaTypes();
+
+    static bool isSecureSupported();
+    static QStringList supportedSaslMechanisms();
 
     enum Color {
         White = 0,
