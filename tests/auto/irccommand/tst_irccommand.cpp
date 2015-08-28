@@ -43,6 +43,7 @@ private slots:
     void testList();
     void testMessage();
     void testMode();
+    void testMonitor();
     void testMotd();
     void testNames();
     void testNick();
@@ -308,6 +309,24 @@ void tst_IrcCommand::testMode()
     QVERIFY(cmd->toString().contains(QRegExp("\\bMODE\\b")));
     QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
     QVERIFY(cmd->toString().contains(QRegExp("\\bmode\\b")));
+}
+
+void tst_IrcCommand::testMonitor()
+{
+    QScopedPointer<IrcCommand> cmd1(IrcCommand::createMonitor("+", "foo"));
+    QVERIFY(cmd1.data());
+
+    QCOMPARE(cmd1->type(), IrcCommand::Monitor);
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bMONITOR\\b")));
+    QVERIFY(cmd1->toString().contains(QRegExp("\\bfoo\\b")));
+
+    QScopedPointer<IrcCommand> cmd2(IrcCommand::createMonitor("+", QStringList() << "foo" << "bar"));
+    QVERIFY(cmd2.data());
+
+    QCOMPARE(cmd2->type(), IrcCommand::Monitor);
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bMONITOR\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bfoo\\b")));
+    QVERIFY(cmd2->toString().contains(QRegExp("\\bbar\\b")));
 }
 
 void tst_IrcCommand::testMotd()
