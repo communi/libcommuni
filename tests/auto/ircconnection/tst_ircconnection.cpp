@@ -93,6 +93,8 @@ private slots:
     void testMessageFlags();
     void testStatusPrefixes();
     void testMessageComposer();
+    void testMessageComposerCrash_data();
+    void testMessageComposerCrash();
     void testBatch();
     void testServerTime();
 
@@ -1350,6 +1352,26 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.values.value("account").toString(), QString("jaccount"));
     QVERIFY(filter.values.value("valid").toBool());
     QCOMPARE(filter.type, IrcMessage::Whowas);
+}
+
+void tst_IrcConnection::testMessageComposerCrash_data()
+{
+    QTest::addColumn<QByteArray>("data");
+
+    // unexpected replies - don't crash
+    QList<Irc::Code> codes;
+    codes << Irc::RPL_WHOISSERVER << Irc::RPL_WHOISACCOUNT << Irc::RPL_WHOISHOST << Irc::RPL_WHOISIDLE << Irc::RPL_WHOISSECURE << Irc::RPL_WHOISCHANNELS;
+    foreach (Irc::Code code, codes)
+        QTest::newRow(qPrintable(Irc::codeToString(code))) << QByteArray(":server ") + QByteArray::number(code);
+}
+
+void tst_IrcConnection::testMessageComposerCrash()
+{
+    QFETCH(QByteArray, data);
+
+    connection->open();
+    QVERIFY(waitForOpened());
+    QVERIFY(waitForWritten(data));
 }
 
 void tst_IrcConnection::testBatch()

@@ -238,10 +238,12 @@ void IrcMessageComposer::finishCompose(IrcMessage* message)
 
 void IrcMessageComposer::replaceParam(int index, const QString& param)
 {
-    QStringList params = d.messages.top()->parameters();
-    if (index < params.count())
-        params.replace(index, param);
-    d.messages.top()->setParameters(params);
+    if (!d.messages.isEmpty()) {
+        QStringList params = d.messages.top()->parameters();
+        if (index < params.count())
+            params.replace(index, param);
+        d.messages.top()->setParameters(params);
+    }
 }
 #endif // IRC_DOXYGEN
 
