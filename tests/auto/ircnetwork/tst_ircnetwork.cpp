@@ -137,6 +137,10 @@ void tst_IrcNetwork::testInfo()
         QVERIFY(network->numericLimit(IrcNetwork::ModeCount) != -1);
     else
         QCOMPARE(network->numericLimit(IrcNetwork::ModeCount), -1);
+    if (welcome.contains("MONITOR="))
+        QVERIFY(network->numericLimit(IrcNetwork::MonitorCount) != -1);
+    else
+        QCOMPARE(network->numericLimit(IrcNetwork::MonitorCount), -1);
 
     QCOMPARE(network->numericLimit(IrcNetwork::MessageLength), 512); // hard-coded :/
 
