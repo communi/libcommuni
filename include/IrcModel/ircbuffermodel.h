@@ -31,6 +31,7 @@
 
 #include <Irc>
 #include <IrcGlobal>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qabstractitemmodel.h>
 
@@ -167,5 +168,7 @@ private:
 };
 
 IRC_END_NAMESPACE
+
+Q_DECLARE_METATYPE(IRC_PREPEND_NAMESPACE(IrcBufferModel*))
 
 #endif // IRCBUFFERMODEL_H
