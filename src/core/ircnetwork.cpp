@@ -72,7 +72,7 @@ IRC_BEGIN_NAMESPACE
     desired capabilities, and provides convenient methods for \ref requestCapability()
     "manual capability requests".
 
-    \sa IrcConnection::network, \ref ircv3
+    \sa IrcConnection::network, Irc::supportedCapabilities, \ref ircv3
  */
 
 /*!

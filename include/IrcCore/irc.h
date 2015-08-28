@@ -41,6 +41,7 @@ class IRC_CORE_EXPORT Irc : public QObject
     Q_OBJECT
     Q_PROPERTY(bool secureSupported READ isSecureSupported CONSTANT)
     Q_PROPERTY(QStringList supportedSaslMechanisms READ supportedSaslMechanisms CONSTANT)
+    Q_PROPERTY(QStringList supportedCapabilities READ supportedCapabilities CONSTANT)
     Q_ENUMS(Color DataRole SortMethod Code)
 
 public:
@@ -53,6 +54,7 @@ public:
 
     static bool isSecureSupported();
     static QStringList supportedSaslMechanisms();
+    static QStringList supportedCapabilities();
 
     enum Color {
         White = 0,

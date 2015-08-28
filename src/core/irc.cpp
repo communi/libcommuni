@@ -89,6 +89,37 @@ QStringList Irc::supportedSaslMechanisms()
 }
 
 /*!
+    \since 3.5
+
+    This property holds the list of supported capabilities.
+
+    These capabilities are guaranteed to be compatible with the framework. In order to
+    easily enable all possible supported capabilities, assign Irc::supportedCapabilities
+    to IrcNetwork::requestedCapabilities.
+
+    \par Access function:
+    \li static QStringList <b>supportedCapabilities</b>()
+
+    \sa \ref capabilities, \ref ircv3
+ */
+QStringList Irc::supportedCapabilities()
+{
+    return QStringList() << QLatin1String("account-notify")
+                         << QLatin1String("account-tag")
+                         << QLatin1String("away-notify")
+                         << QLatin1String("batch")
+                         << QLatin1String("cap-notify")
+                         << QLatin1String("chghost")
+                         << QLatin1String("echo-message")
+                         << QLatin1String("extended-join")
+                         << QLatin1String("invite-notify")
+                         << QLatin1String("multi-prefix")
+                         << QLatin1String("sasl")
+                         << QLatin1String("server-time")
+                         << QLatin1String("userhost-in-names");
+}
+
+/*!
     Returns the version number of Communi at run-time as a string (for example, "1.2.3").
     This may be a different version than the version the application was compiled against.
 

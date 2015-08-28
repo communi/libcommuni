@@ -31,14 +31,17 @@
 
     The IRCv3 specifications are available at <a href="http://ircv3.net">ircv3.net</a>.
 
+    Get started:
+    \li \ref capabilities "Capability management"
+    \li \ref Irc::supportedCapabilities
+
+    \note Communi does not automatically request any IRCv3 capabilities. It is left
+          up to client implementations to choose which capabilities are requested.
+
     \section ircv31 IRCv3.1
 
     <a href="http://ircv3.net/specs/core/capability-negotiation-3.1.html">Capability negotiation</a>
     (as specified by IRCv3.1) is supported since Communi version 3.0.
-
-    \li \ref capabilities "Capability management"
-    \li \ref IrcCapabilityMessage
-    \li \ref IrcCommand::createCapability()
 
     <table>
         <tr><th colspan=3>Base extensions</th></tr>
@@ -87,9 +90,6 @@
             <td></td>
         </tr>
     </table>
-
-    \note Communi does not automatically request any IRCv3 capabilities. It is left
-          up to client implementations to choose which capabilities are requested.
 
     \section ircv32 IRCv3.2
 
@@ -175,7 +175,4 @@
             </td>
         </tr>
     </table>
-
-    \note Communi does not automatically request any IRCv3 capabilities. It is left
-          up to client implementations to choose which capabilities are requested.
  */

@@ -13,6 +13,7 @@
   - Added Irc::supportedSaslMechanisms
   - Deprecated IrcConnection::secureSupported
   - Deprecated IrcConnection::supportedSaslMechanisms
+  - Added Irc::supportedCapabilities
 
 3.4.0
 -----
