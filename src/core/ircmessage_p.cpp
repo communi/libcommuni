@@ -154,7 +154,7 @@ QByteArray IrcMessagePrivate::content() const
         // format <params>
         foreach (const QString& param, params()) {
             data += ' ';
-            if (param.contains(QLatin1Char(' ')))
+            if (param.isEmpty() || param.startsWith(QLatin1Char(':')) || param.contains(QLatin1Char(' ')))
                 data += ':';
             data += param.toUtf8();
         }

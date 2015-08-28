@@ -26,6 +26,8 @@ class tst_IrcMessage : public QObject
 private slots:
     void testDefaults();
 
+    void testToData();
+
     void testPrefix_data();
     void testPrefix();
 
@@ -106,6 +108,28 @@ void tst_IrcMessage::testDefaults()
     QVERIFY(msg.command().isNull());
     QVERIFY(msg.parameters().isEmpty());
     QVERIFY(msg.toData().isEmpty());
+}
+
+void tst_IrcMessage::testToData()
+{
+    IrcConnection connection;
+    IrcMessage* msg = IrcMessage::fromData(":nick!ident@host PRIVMSG user :hello there", &connection);
+    QCOMPARE(msg->toData(), QByteArray(":nick!ident@host PRIVMSG user :hello there"));
+
+    msg = IrcMessage::fromData(":nick!ident@host PRIVMSG user ::)", &connection);
+    QCOMPARE(msg->toData(), QByteArray(":nick!ident@host PRIVMSG user ::)"));
+
+    msg = IrcMessage::fromData(":nick!ident@host TOPIC #channel :", &connection);
+    QCOMPARE(msg->toData(), QByteArray(":nick!ident@host TOPIC #channel :"));
+
+    msg = IrcMessage::fromParameters("nick!ident@host", "PRIVMSG", QStringList() << "user" << "hello there", &connection);
+    QCOMPARE(msg->toData(), QByteArray(":nick!ident@host PRIVMSG user :hello there"));
+
+    msg = IrcMessage::fromParameters("nick!ident@host", "PRIVMSG", QStringList() << "user" << ":)", &connection);
+    QCOMPARE(msg->toData(), QByteArray(":nick!ident@host PRIVMSG user ::)"));
+
+    msg = IrcMessage::fromParameters("nick!ident@host", "TOPIC", QStringList() << "#channel" << "", &connection);
+    QCOMPARE(msg->toData(), QByteArray(":nick!ident@host TOPIC #channel :"));
 }
 
 void tst_IrcMessage::testPrefix_data()
