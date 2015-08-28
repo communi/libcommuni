@@ -107,6 +107,7 @@ private slots:
 
     void testCtcp();
     void testSaveRestore();
+    void testSignals();
 };
 
 void tst_IrcConnection::testDefaults()
@@ -2005,6 +2006,26 @@ void tst_IrcConnection::testSaveRestore()
     QCOMPARE(c2.reconnectDelay(), 10);
     QVERIFY(c2.isSecure());
     QCOMPARE(c2.saslMechanism(), QString("PLAIN"));
+}
+
+void tst_IrcConnection::testSignals()
+{
+    connection->open();
+    QVERIFY(waitForOpened());
+
+    QSignalSpy channelKeyRequiredSpy(connection, SIGNAL(channelKeyRequired(QString,QString*)));
+    QVERIFY(channelKeyRequiredSpy.isValid());
+
+    QVERIFY(waitForWritten(":hobana.freenode.net 475 jpnurmi #communi :Cannot join channel (+k) - bad key"));
+    QCOMPARE(channelKeyRequiredSpy.count(), 1);
+    QCOMPARE(channelKeyRequiredSpy.last().first().toString(), QString("#communi"));
+
+    QSignalSpy nickNameRequiredSpy(connection, SIGNAL(nickNameRequired(QString,QString*)));
+    QVERIFY(nickNameRequiredSpy.isValid());
+
+    QVERIFY(waitForWritten(":sinisalo.freenode.net 433 * jpnurmi :Nickname is already in use."));
+    QCOMPARE(nickNameRequiredSpy.count(), 1);
+    QCOMPARE(nickNameRequiredSpy.last().first().toString(), QString("jpnurmi"));
 }
 
 QTEST_MAIN(tst_IrcConnection)
