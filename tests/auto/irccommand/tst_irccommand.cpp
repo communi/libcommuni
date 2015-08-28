@@ -27,6 +27,8 @@ private slots:
 
     void testConversion();
 
+    void testConnection();
+
     void testAdmin();
     void testAway();
     void testCapability();
@@ -69,6 +71,8 @@ void tst_IrcCommand::testDefaults()
     QVERIFY(cmd.parameters().isEmpty());
     QCOMPARE(cmd.type(), IrcCommand::Custom);
     QCOMPARE(cmd.encoding(), QByteArray("UTF-8"));
+    QVERIFY(!cmd.connection());
+    QVERIFY(!cmd.network());
 
     QTest::ignoreMessage(QtWarningMsg, "Reimplement IrcCommand::toString() for IrcCommand::Custom");
     QVERIFY(cmd.toString().isEmpty());
@@ -117,6 +121,23 @@ void tst_IrcCommand::testConversion()
     QCOMPARE(msg->prefix(), QString("prefix"));
     QCOMPARE(msg->property("target").toString(), QString("target"));
     QCOMPARE(msg->property("content").toString(), QString("foo bar"));
+}
+
+void tst_IrcCommand::testConnection()
+{
+    IrcConnection* connection = new IrcConnection(this);
+    IrcCommand command(connection);
+    QVERIFY(!command.connection());
+    QVERIFY(!command.network());
+
+    connection->sendCommand(&command);
+    QCOMPARE(command.connection(), connection);
+    QCOMPARE(command.network(), connection->network());
+
+    command.setParent(0);
+    delete connection;
+    QVERIFY(!command.connection());
+    QVERIFY(!command.network());
 }
 
 void tst_IrcCommand::testAdmin()
