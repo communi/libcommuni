@@ -109,6 +109,7 @@ private slots:
     void testClone();
     void testSaveRestore();
     void testSignals();
+    void testServers();
 };
 
 void tst_IrcConnection::testDefaults()
@@ -2069,6 +2070,17 @@ void tst_IrcConnection::testSignals()
     QVERIFY(waitForWritten(":sinisalo.freenode.net 433 * jpnurmi :Nickname is already in use."));
     QCOMPARE(nickNameRequiredSpy.count(), 1);
     QCOMPARE(nickNameRequiredSpy.last().first().toString(), QString("jpnurmi"));
+}
+
+void tst_IrcConnection::testServers()
+{
+    QVERIFY(IrcConnection::isValidServer("irc.freenode.net"));
+    QVERIFY(IrcConnection::isValidServer("irc.freenode.net 6667"));
+    QVERIFY(IrcConnection::isValidServer("irc.freenode.net +6697"));
+
+    QVERIFY(!IrcConnection::isValidServer(""));
+    QVERIFY(!IrcConnection::isValidServer("irc.freenode.net foobar"));
+    QVERIFY(!IrcConnection::isValidServer("irc.freenode.net 6667 foobar"));
 }
 
 QTEST_MAIN(tst_IrcConnection)
