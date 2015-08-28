@@ -23,6 +23,7 @@ private slots:
     void testPersistent();
     void testReceive();
     void testDebug();
+    void testUserData();
 };
 
 void tst_IrcBuffer::testDefaults()
@@ -39,6 +40,7 @@ void tst_IrcBuffer::testDefaults()
     QVERIFY(!buffer.isActive());
     QVERIFY(!buffer.isSticky());
     QVERIFY(!buffer.isPersistent());
+    QVERIFY(buffer.userData().isEmpty());
 }
 
 void tst_IrcBuffer::testTitleNamePrefix()
@@ -152,6 +154,19 @@ void tst_IrcBuffer::testDebug()
     dbg << &buffer;
     QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj, title=buf\\) ").exactMatch(str));
     str.clear();
+}
+
+void tst_IrcBuffer::testUserData()
+{
+    QVariantMap ud;
+    ud.insert("foo", "bar");
+
+    IrcBuffer buffer;
+    buffer.setUserData(ud);
+    QCOMPARE(buffer.userData(), ud);
+
+    buffer.setUserData(QVariantMap());
+    QVERIFY(buffer.userData().isEmpty());
 }
 
 QTEST_MAIN(tst_IrcBuffer)
