@@ -411,11 +411,10 @@ bool IrcMessage::testFlag(Flag flag) const
  */
 void IrcMessage::setFlag(Flag flag, bool on)
 {
-    Q_D(IrcMessage);
     if (on)
-        d->flags |= flag;
+        setFlags(flags() | flag);
     else
-        d->flags &= ~flag;
+        setFlags(flags() & ~flag);
 }
 
 /*!
