@@ -33,21 +33,20 @@
 #include <IrcConnection>
 #include <QtCore/qdebug.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qregexp.h>
 #include <QtCore/qdatetime.h>
 
 IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
-static bool irc_debug_enabled()
-{
-    static bool enabled = qgetenv("IRC_DEBUG").toInt();
-    return enabled;
-}
+static bool irc_debug_enabled(IrcConnection* c, uint l);
 
 class IrcDebug
 {
 public:
-    IrcDebug(IrcConnection* c) : enabled(irc_debug_enabled())
+    enum Level { None, Error, Status, Write, Read };
+
+    IrcDebug(IrcConnection* c, Level l) : enabled(irc_debug_enabled(c, l))
 #ifndef QT_NO_DEBUG_STREAM
       , debug(&str)
 #endif // QT_NO_DEBUG_STREAM
@@ -57,6 +56,13 @@ public:
             const QString desc = c->displayName();
             const QString stamp = QDateTime::currentDateTime().toString(Qt::ISODate);
             debug << qPrintable("[" + stamp + " " + desc + "]");
+            switch (l) {
+                case Error: debug << "!!"; break;
+                case Status: debug << "??"; break;
+                case Write: debug << "->"; break;
+                case Read: debug << "<-"; break;
+                default: break;
+            }
         }
 #endif // QT_NO_DEBUG_STREAM
     }
@@ -89,7 +95,58 @@ private:
 #endif // QT_NO_DEBUG_STREAM
 };
 
-#define ircDebug(Connection) IrcDebug(Connection)
+static bool irc_debug_enabled(IrcConnection* c, uint l)
+{
+    static QString dbg_name;
+    static uint dbg_level = IrcDebug::None;
+
+    static bool dbg_init = false;
+    if (!dbg_init) {
+        QByteArray lenv = qgetenv("IRC_DEBUG_LEVEL").toLower();
+        if (!lenv.isEmpty()) {
+            bool ok = false;
+            int number = lenv.toInt(&ok);
+            if (ok) {
+                dbg_level = number;
+            } else if (lenv == "none") {
+                dbg_level = IrcDebug::None;
+            } else if (lenv == "error") {
+                dbg_level = IrcDebug::Error;
+            } else if (lenv == "status") {
+                dbg_level = IrcDebug::Status;
+            } else if (lenv == "write") {
+                dbg_level = IrcDebug::Write;
+            } else if (lenv == "read") {
+                dbg_level = IrcDebug::Read;
+            } else {
+                qWarning("Unknown IRC_DEBUG_LEVEL value '%s'", lenv.data());
+                qWarning("Available values: 0-4, none, error, status, write, read.");
+            }
+        }
+
+        QByteArray denv = qgetenv("IRC_DEBUG");
+        if (!denv.isEmpty()) {
+            bool ok = false;
+            int number = denv.toInt(&ok);
+            if (ok) {
+                if (number == 0)
+                    dbg_level = IrcDebug::None;
+                else if (lenv.isEmpty())
+                    dbg_level = IrcDebug::Read;
+            }
+        }
+
+        dbg_name = QString::fromUtf8(qgetenv("IRC_DEBUG_NAME"));
+        if (!dbg_name.isEmpty() && lenv.isEmpty() && denv.isEmpty())
+            dbg_level = IrcDebug::Read;
+
+        dbg_init = true;
+    }
+
+    return l <= dbg_level && (dbg_name.isEmpty() || QRegExp(dbg_name, Qt::CaseInsensitive, QRegExp::Wildcard).exactMatch(c->displayName()));
+}
+
+#define ircDebug(Connection, Flag) IrcDebug(Connection, Flag)
 #endif // IRC_DOXYGEN
 
 IRC_END_NAMESPACE

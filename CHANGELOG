@@ -1,5 +1,7 @@
 3.5.0
 -----
+- General
+  - Added support for debug levels and filters
 - IrcCore
   - Added IrcCommand::network
   - Added IrcBatchMessage

@@ -298,11 +298,11 @@ void IrcConnectionPrivate::_irc_error(QAbstractSocket::SocketError error)
 {
     Q_Q(IrcConnection);
     if (error == QAbstractSocket::SslHandshakeFailedError) {
-        ircDebug(q) << "SSL HANDSHAKE ERROR";
+        ircDebug(q, IrcDebug::Error) << error;
         setStatus(IrcConnection::Error);
         emit q->secureError();
     } else if (!closed || (error != QAbstractSocket::RemoteHostClosedError && error != QAbstractSocket::UnknownSocketError)) {
-        ircDebug(q) << "SOCKET ERROR:" << error;
+        ircDebug(q, IrcDebug::Error) << error;
         emit q->socketError(error);
         setStatus(IrcConnection::Error);
         reconnect();
@@ -320,7 +320,7 @@ void IrcConnectionPrivate::_irc_sslErrors()
             errors += error.errorString();
     }
 #endif
-    ircDebug(q) << "SSL ERRORS:" << errors;
+    ircDebug(q, IrcDebug::Error) << errors;
     emit q->secureError();
 }
 
@@ -430,10 +430,7 @@ void IrcConnectionPrivate::setStatus(IrcConnection::Status value)
                 q->sendRaw(data);
             pendingData.clear();
         }
-        if (status == IrcConnection::Connecting)
-            ircDebug(q) << "STATUS:" << status << qPrintable(host) << port;
-        else
-            ircDebug(q) << "STATUS:" << status;
+        ircDebug(q, IrcDebug::Status) << status << qPrintable(host) << port;
     }
 }
 
@@ -1456,9 +1453,9 @@ bool IrcConnection::sendData(const QByteArray& data)
         if (isActive()) {
             const QByteArray cmd = data.left(5).toUpper();
             if (cmd.startsWith("PASS "))
-                ircDebug(this) << "->" << data.left(5) + QByteArray(data.mid(5).length(), 'x');
+                ircDebug(this, IrcDebug::Write) << data.left(5) + QByteArray(data.mid(5).length(), 'x');
             else
-                ircDebug(this) << "->" << data;
+                ircDebug(this, IrcDebug::Write) << data;
             if (!d->closed && data.length() >= 4) {
                 if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
                     d->closed = true;

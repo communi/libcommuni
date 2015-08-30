@@ -121,7 +121,7 @@ void IrcProtocolPrivate::readLines(const QByteArray& delimiter)
 void IrcProtocolPrivate::processLine(const QByteArray& line)
 {
     Q_Q(IrcProtocol);
-    ircDebug(connection) << "<-" << line;
+    ircDebug(connection, IrcDebug::Read) << line;
 
     if (line.startsWith("AUTHENTICATE") && !connection->saslMechanism().isEmpty()) {
         const QList<QByteArray> args = line.split(' ');
