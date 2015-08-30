@@ -148,7 +148,7 @@ void IrcProtocolPrivate::processLine(const QByteArray& line)
             handleCapabilityMessage(static_cast<IrcCapabilityMessage*>(msg));
             break;
         case IrcMessage::Nick:
-            if (msg->flags() & IrcMessage::Own)
+            if (msg->isOwn())
                 q->setNickName(static_cast<IrcNickMessage*>(msg)->newNick());
             break;
         case IrcMessage::Numeric:

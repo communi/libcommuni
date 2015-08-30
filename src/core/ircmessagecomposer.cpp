@@ -230,8 +230,8 @@ void IrcMessageComposer::finishCompose(IrcMessage* message)
     if (!d.messages.isEmpty()) {
         IrcMessage* composed = d.messages.pop();
         composed->setTimeStamp(message->timeStamp());
-        if (message->flags() & IrcMessage::Implicit)
-            composed->setFlags(IrcMessage::Implicit);
+        if (message->testFlag(IrcMessage::Implicit))
+            composed->setFlag(IrcMessage::Implicit);
         emit messageComposed(composed);
     }
 }

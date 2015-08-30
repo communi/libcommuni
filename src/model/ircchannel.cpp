@@ -367,8 +367,8 @@ bool IrcChannelPrivate::processAwayMessage(IrcAwayMessage* message)
 
 bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 {
-    if (!(message->flags() & IrcMessage::Playback)) {
-        if (message->flags() & IrcMessage::Own) {
+    if (!message->testFlag(IrcMessage::Playback)) {
+        if (message->isOwn()) {
             setActive(true);
             enabled = true;
         } else {
@@ -380,7 +380,7 @@ bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
 
 bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
 {
-    if (!(message->flags() & IrcMessage::Playback)) {
+    if (!message->testFlag(IrcMessage::Playback)) {
         if (!message->user().compare(message->connection()->nickName(), Qt::CaseInsensitive)) {
             setActive(false);
             enabled = false;
@@ -393,7 +393,7 @@ bool IrcChannelPrivate::processKickMessage(IrcKickMessage* message)
 
 bool IrcChannelPrivate::processModeMessage(IrcModeMessage* message)
 {
-    if (!(message->flags() & IrcMessage::Playback)) {
+    if (!message->testFlag(IrcMessage::Playback)) {
         if (message->kind() == IrcModeMessage::Channel) {
             if (message->isReply())
                 setModes(message->mode(), message->arguments());
@@ -409,7 +409,7 @@ bool IrcChannelPrivate::processModeMessage(IrcModeMessage* message)
 
 bool IrcChannelPrivate::processNamesMessage(IrcNamesMessage* message)
 {
-    if (!(message->flags() & IrcMessage::Playback))
+    if (!message->testFlag(IrcMessage::Playback))
         setUsers(message->names());
     return true;
 }
@@ -436,8 +436,8 @@ bool IrcChannelPrivate::processNumericMessage(IrcNumericMessage* message)
 
 bool IrcChannelPrivate::processPartMessage(IrcPartMessage* message)
 {
-    if (!(message->flags() & IrcMessage::Playback)) {
-        if (message->flags() & IrcMessage::Own) {
+    if (!message->testFlag(IrcMessage::Playback)) {
+        if (message->isOwn()) {
             setActive(false);
             enabled = false;
             return true;
@@ -464,8 +464,8 @@ bool IrcChannelPrivate::processPrivateMessage(IrcPrivateMessage* message)
 
 bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
 {
-    if (!(message->flags() & IrcMessage::Playback)) {
-        if (message->flags() & IrcMessage::Own) {
+    if (!message->testFlag(IrcMessage::Playback)) {
+        if (message->isOwn()) {
             setActive(false);
             return true;
         }
@@ -476,7 +476,7 @@ bool IrcChannelPrivate::processQuitMessage(IrcQuitMessage* message)
 
 bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
 {
-    if (!(message->flags() & IrcMessage::Playback))
+    if (!message->testFlag(IrcMessage::Playback))
         setTopic(message->topic());
     return message->isImplicit();
 }

@@ -457,10 +457,10 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
         int code = static_cast<IrcNumericMessage*>(msg)->code();
         if (code == Irc::RPL_NAMREPLY || code == Irc::RPL_ENDOFNAMES) {
             if (!replies.contains(Irc::RPL_ENDOFNAMES))
-                msg->setFlags(msg->flags() | IrcMessage::Implicit);
+                msg->setFlag(IrcMessage::Implicit);
         } else if (code == Irc::RPL_TOPIC || code == Irc::RPL_TOPICWHOTIME || code == Irc::RPL_CHANNEL_URL || code == Irc::RPL_CREATIONTIME) {
             if (!replies.contains(code))
-                msg->setFlags(msg->flags() | IrcMessage::Implicit);
+                msg->setFlag(IrcMessage::Implicit);
         }
         replies.insert(code);
     }

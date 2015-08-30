@@ -136,7 +136,7 @@ IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(0), role(Irc::TitleRole),
 bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
 {
     Q_Q(IrcBufferModel);
-    if (msg->type() == IrcMessage::Join && msg->flags() & IrcMessage::Own)
+    if (msg->type() == IrcMessage::Join && msg->isOwn())
         createBuffer(static_cast<IrcJoinMessage*>(msg)->channel());
 
     bool processed = false;
@@ -186,7 +186,7 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
                 processed = processMessage(channel, msg);
             } else if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_MONONLINE ||
                        static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_MONOFFLINE) {
-                msg->setFlags(msg->flags() | IrcMessage::Implicit);
+                msg->setFlag(IrcMessage::Implicit);
                 foreach (const QString& target, msg->parameters().value(1).split(QLatin1String(",")))
                     processed |= processMessage(Irc::nickFromPrefix(target), msg);
             } else {
@@ -201,8 +201,8 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
     if (!processed)
         emit q->messageIgnored(msg);
 
-    if (!(msg->flags() & IrcMessage::Playback)) {
-        if (msg->type() == IrcMessage::Part && msg->flags() & IrcMessage::Own) {
+    if (!msg->testFlag(IrcMessage::Playback)) {
+        if (msg->type() == IrcMessage::Part && msg->isOwn()) {
             destroyBuffer(static_cast<IrcPartMessage*>(msg)->channel());
         } else if (msg->type() == IrcMessage::Kick) {
             const IrcKickMessage* kickMsg = static_cast<IrcKickMessage*>(msg);
