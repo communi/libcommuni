@@ -203,6 +203,25 @@ void tst_IrcMessage::testFlags()
     IrcMessage msg(0);
     msg.setPrefix("a!b@c");
     QCOMPARE(msg.flags(), IrcMessage::None);
+
+    QVERIFY(!msg.testFlag(IrcMessage::Playback));
+    msg.setFlag(IrcMessage::Playback);
+    QVERIFY(msg.testFlag(IrcMessage::Playback));
+    QCOMPARE(msg.flags(), IrcMessage::Playback);
+
+    QVERIFY(!msg.testFlag(IrcMessage::Implicit));
+    msg.setFlag(IrcMessage::Implicit);
+    QVERIFY(msg.testFlag(IrcMessage::Implicit));
+    QCOMPARE(msg.flags(), IrcMessage::Playback | IrcMessage::Implicit);
+
+    msg.setFlag(IrcMessage::Playback, false);
+    QVERIFY(!msg.testFlag(IrcMessage::Playback));
+    QCOMPARE(msg.flags(), IrcMessage::Implicit);
+
+    msg.setFlags(IrcMessage::None);
+    QVERIFY(!msg.testFlag(IrcMessage::Implicit));
+    QVERIFY(!msg.testFlag(IrcMessage::Playback));
+    QCOMPARE(msg.flags(), IrcMessage::None);
 }
 
 void tst_IrcMessage::testEncoding_data()

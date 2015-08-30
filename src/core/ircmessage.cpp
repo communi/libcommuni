@@ -370,6 +370,8 @@ bool IrcMessage::isImplicit() const
     \par Access function:
     \li \ref IrcMessage::Flag "IrcMessage::Flags" <b>flags</b>() const
     \li void <b>setFlags</b>(\ref IrcMessage::Flag "IrcMessage::Flags" flags) (\b Since 3.2)
+
+    \sa testFlag(), setFlag()
  */
 IrcMessage::Flags IrcMessage::flags() const
 {
@@ -386,6 +388,34 @@ void IrcMessage::setFlags(IrcMessage::Flags flags)
 {
     Q_D(IrcMessage);
     d->flags = flags;
+}
+
+/*!
+    \since 3.5
+
+    Returns \c true if the \a flag is on; otherwise \c false.
+
+    \sa IrcMessage::flags
+ */
+bool IrcMessage::testFlag(Flag flag) const
+{
+    return flags().testFlag(flag);
+}
+
+/*!
+    \since 3.5
+
+    Sets whether the \a flag is \a on.
+
+    \sa IrcMessage::flags
+ */
+void IrcMessage::setFlag(Flag flag, bool on)
+{
+    Q_D(IrcMessage);
+    if (on)
+        d->flags |= flag;
+    else
+        d->flags &= ~flag;
 }
 
 /*!

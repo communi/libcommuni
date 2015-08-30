@@ -119,6 +119,9 @@ public:
     Flags flags() const;
     void setFlags(Flags flags);
 
+    Q_INVOKABLE bool testFlag(Flag flag) const;
+    Q_INVOKABLE void setFlag(Flag flag, bool on = true);
+
     QString command() const;
     void setCommand(const QString& command);
 

@@ -15,6 +15,8 @@
   - Deprecated IrcConnection::supportedSaslMechanisms
   - Added Irc::supportedCapabilities
   - Added IrcMessage::clone()
+  - Added IrcMessage::testFlag()
+  - Added IrcMessage::setFlag()
 
 3.4.0
 -----
