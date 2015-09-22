@@ -478,7 +478,7 @@ bool IrcChannelPrivate::processTopicMessage(IrcTopicMessage* message)
 {
     if (!message->testFlag(IrcMessage::Playback))
         setTopic(message->topic());
-    return message->isImplicit();
+    return true;
 }
 
 bool IrcChannelPrivate::processWhoReplyMessage(IrcWhoReplyMessage *message)
