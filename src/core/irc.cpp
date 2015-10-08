@@ -33,9 +33,9 @@
 #include "ircmessage_p.h"
 #include <QMetaEnum>
 #include <QDebug>
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
 #include <QSslSocket>
-#endif // QT_NO_OPENSSL
+#endif // QT_NO_SSL
 
 IRC_BEGIN_NAMESPACE
 
@@ -66,7 +66,7 @@ IRC_BEGIN_NAMESPACE
  */
 bool Irc::isSecureSupported()
 {
-#ifdef QT_NO_OPENSSL
+#ifdef QT_NO_SSL
     return false;
 #else
     return QSslSocket::supportsSsl();

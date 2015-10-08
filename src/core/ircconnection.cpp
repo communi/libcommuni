@@ -45,10 +45,10 @@
 #include <QMetaObject>
 #include <QMetaMethod>
 #include <QMetaEnum>
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
 #include <QSslSocket>
 #include <QSslError>
-#endif // QT_NO_OPENSSL
+#endif // QT_NO_SSL
 #include <QDataStream>
 #include <QVariantMap>
 
@@ -313,7 +313,7 @@ void IrcConnectionPrivate::_irc_sslErrors()
 {
     Q_Q(IrcConnection);
     QStringList errors;
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
     QSslSocket* ssl = qobject_cast<QSslSocket*>(socket);
     if (ssl) {
         foreach (const QSslError& error, ssl->sslErrors())
@@ -1177,16 +1177,16 @@ void IrcConnection::setSocket(QAbstractSocket* socket)
  */
 bool IrcConnection::isSecure() const
 {
-#ifdef QT_NO_OPENSSL
+#ifdef QT_NO_SSL
     return false;
 #else
     return qobject_cast<QSslSocket*>(socket());
-#endif // QT_NO_OPENSSL
+#endif // QT_NO_SSL
 }
 
 void IrcConnection::setSecure(bool secure)
 {
-#ifdef QT_NO_OPENSSL
+#ifdef QT_NO_SSL
     if (secure) {
         qWarning("IrcConnection::setSecure(): the Qt build does not support SSL");
         return;
@@ -1207,7 +1207,7 @@ void IrcConnection::setSecure(bool secure)
         setSocket(new QTcpSocket(this));
         emit secureChanged(false);
     }
-#endif // !QT_NO_OPENSSL
+#endif // !QT_NO_SSL
 }
 
 /*!
