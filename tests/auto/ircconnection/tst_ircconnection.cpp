@@ -17,7 +17,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QTextCodec>
 #include <QtCore/QScopedPointer>
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
 #include <QtNetwork/QSslSocket>
 #endif
 
@@ -356,7 +356,7 @@ void tst_IrcConnection::testSocket_data()
 
     QTest::newRow("null") << static_cast<QAbstractSocket*>(0);
     QTest::newRow("tcp") << static_cast<QAbstractSocket*>(new QTcpSocket(this));
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
     QTest::newRow("ssl") << static_cast<QAbstractSocket*>(new QSslSocket(this));
 #endif
 }
@@ -378,13 +378,13 @@ void tst_IrcConnection::testSecure()
     QVERIFY(spy.isValid());
     QVERIFY(!connection.isSecure());
 
-#ifdef QT_NO_OPENSSL
+#ifdef QT_NO_SSL
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSecure(): the Qt build does not support SSL");
 #endif
 
     connection.setSecure(true);
 
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
     QVERIFY(connection.isSecure());
     QVERIFY(connection.socket()->inherits("QSslSocket"));
     QCOMPARE(spy.count(), 1);
@@ -398,7 +398,7 @@ void tst_IrcConnection::testSecure()
     connection.setSecure(false);
     QVERIFY(!connection.isSecure());
     QVERIFY(!connection.socket()->inherits("QSslSocket"));
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
     QCOMPARE(spy.count(), 2);
     QVERIFY(!spy.last().last().toBool());
 #else
@@ -518,7 +518,7 @@ void tst_IrcConnection::testNoSasl()
     QVERIFY(written.contains("CAP END"));
 }
 
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
 class SslSocket : public QSslSocket
 {
     Q_OBJECT
@@ -534,11 +534,11 @@ public slots:
         QSslSocket::startClientEncryption();
     }
 };
-#endif // !QT_NO_OPENSSL
+#endif // !QT_NO_SSL
 
 void tst_IrcConnection::testSsl()
 {
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
     SslSocket* socket = new SslSocket(connection);
     connection->setSocket(socket);
     QCOMPARE(connection->socket(), socket);
@@ -547,7 +547,7 @@ void tst_IrcConnection::testSsl()
     QVERIFY(waitForOpened());
 
     QVERIFY(socket->clientEncryptionStarted);
-#endif // !QT_NO_OPENSSL
+#endif // !QT_NO_SSL
 }
 
 void tst_IrcConnection::testOpen()
