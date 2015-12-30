@@ -450,6 +450,7 @@ void IrcProtocol::open()
 void IrcProtocol::close()
 {
     setActiveCapabilities(QSet<QString>());
+    setAvailableCapabilities(QSet<QString>());
 }
 
 /*!
