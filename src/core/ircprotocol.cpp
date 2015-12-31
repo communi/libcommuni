@@ -310,7 +310,7 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
                     requestedCaps += QLatin1String("sasl");
             }
             if (!requestedCaps.isEmpty())
-                connection->sendRaw("CAP REQ :" + requestedCaps.toList().join(" "));
+                connection->sendRaw("CAP REQ :" + QStringList(requestedCaps.toList()).join(" "));
             else
                 QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
         }
