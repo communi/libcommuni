@@ -455,7 +455,7 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
         if (code == Irc::RPL_NAMREPLY || code == Irc::RPL_ENDOFNAMES) {
             if (!replies.contains(Irc::RPL_ENDOFNAMES))
                 msg->setFlag(IrcMessage::Implicit);
-        } else if (code == Irc::RPL_TOPIC || code == Irc::RPL_TOPICWHOTIME || code == Irc::RPL_CHANNEL_URL || code == Irc::RPL_CREATIONTIME) {
+        } else if (code == Irc::RPL_TOPIC || code == Irc::RPL_NOTOPIC || code == Irc::RPL_TOPICWHOTIME || code == Irc::RPL_CHANNEL_URL || code == Irc::RPL_CREATIONTIME) {
             if (!replies.contains(code))
                 msg->setFlag(IrcMessage::Implicit);
         }
