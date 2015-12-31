@@ -296,7 +296,7 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             handleCapability(&availableCaps, cap);
         q->setAvailableCapabilities(availableCaps);
 
-        if (!connected) {
+        if (!connected && msg->parameter(2) != "*") {
             QMetaObject::invokeMethod(connection->network(), "requestingCapabilities");
             QStringList requestedCaps;
             QSet<QString> activeCaps = connection->network()->activeCapabilities().toSet();
