@@ -70,7 +70,7 @@ public:
     void setStatus(IrcConnection::Status status);
     void setInfo(const QHash<QString, QString>& info);
 
-    void receiveMessage(IrcMessage* msg);
+    bool receiveMessage(IrcMessage* msg);
     IrcCommand* createCtcpReply(IrcPrivateMessage* request);
 
     static IrcConnectionPrivate* get(const IrcConnection* connection)

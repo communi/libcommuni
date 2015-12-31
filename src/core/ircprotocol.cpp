@@ -494,8 +494,7 @@ void IrcProtocol::receiveMessage(IrcMessage* message)
 {
     Q_D(IrcProtocol);
     IrcConnectionPrivate* priv = IrcConnectionPrivate::get(d->connection);
-    priv->receiveMessage(message);
-    if (message->type() == IrcMessage::Numeric)
+    if (priv->receiveMessage(message) && message->type() == IrcMessage::Numeric)
         d->composer->composeMessage(static_cast<IrcNumericMessage*>(message));
 }
 

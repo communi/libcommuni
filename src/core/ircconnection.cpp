@@ -445,7 +445,7 @@ void IrcConnectionPrivate::setInfo(const QHash<QString, QString>& info)
         emit q->displayNameChanged(newName);
 }
 
-void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
+bool IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
 {
     Q_Q(IrcConnection);
     if (msg->type() == IrcMessage::Join && msg->isOwn()) {
@@ -550,8 +550,11 @@ void IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
             break;
         }
     }
+
     if (!msg->parent() || msg->parent() == q)
         msg->deleteLater();
+
+    return !filtered;
 }
 
 IrcCommand* IrcConnectionPrivate::createCtcpReply(IrcPrivateMessage* request)
