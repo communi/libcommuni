@@ -1783,7 +1783,8 @@ IrcPongMessage::IrcPongMessage(IrcConnection* connection) : IrcMessage(connectio
 QString IrcPongMessage::argument() const
 {
     Q_D(const IrcMessage);
-    return d->param(1);
+    QStringList params = d->params();
+    return params.value(params.count() - 1);
 }
 
 bool IrcPongMessage::isValid() const
