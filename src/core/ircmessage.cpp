@@ -2150,7 +2150,7 @@ QString IrcWhoisMessage::awayReason() const
 bool IrcWhoisMessage::isValid() const
 {
     Q_D(const IrcMessage);
-    return IrcMessage::isValid() && d->params().count() == 9;
+    return IrcMessage::isValid() && d->params().count() == 10;
 }
 
 /*!

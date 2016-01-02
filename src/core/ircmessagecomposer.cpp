@@ -195,8 +195,7 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
                                                       << QString()   // since
                                                       << QString()   // idle
                                                       << QString()   // secure
-                                                      << QString()   // channels
-                                                      << QString()); // away reason
+                                                      << QString()); // channels
         break;
 
     case Irc::RPL_WHOISSERVER:

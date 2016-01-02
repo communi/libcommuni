@@ -1319,11 +1319,12 @@ void tst_IrcConnection::testMessageComposer()
     QVERIFY(filter.values.value("composed").toBool());
     QCOMPARE(filter.type, IrcMessage::Away);
 
-    filter.reset("realName,server,info,account,address,since,idle,secure,from,channels,valid");
+    filter.reset("realName,server,info,account,address,since,idle,secure,from,channels,awayReason,valid");
     QVERIFY(waitForWritten(":asimov.freenode.net 311 jipsu qtassistant jpnurmi qt/jpnurmi/bot/qtassistant * :http://doc.qt.io/qt-5"));
     QVERIFY(waitForWritten(":asimov.freenode.net 319 jipsu qtassistant :+#jpnurmi"));
     QVERIFY(waitForWritten(":asimov.freenode.net 312 jipsu qtassistant leguin.freenode.net :Umeå, SE, EU"));
     QVERIFY(waitForWritten(":asimov.freenode.net 671 jipsu qtassistant :is using a secure connection"));
+    QVERIFY(waitForWritten(":asimov.freenode.net 301 jipsu qtassistant :gone fishing"));
     QVERIFY(waitForWritten(":asimov.freenode.net 330 jipsu qtassistant qtaccountant :is logged in as"));
     QVERIFY(waitForWritten(":asimov.freenode.net 378 jipsu qtassistant :is connecting from *@88.95.51.136 88.95.51.136"));
     QVERIFY(waitForWritten(":asimov.freenode.net 317 jipsu qtassistant 15 1440706032 :seconds idle, signon time"));
@@ -1338,6 +1339,7 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.values.value("idle").toInt(), 15);
     QCOMPARE(filter.values.value("secure").toBool(), true);
     QCOMPARE(filter.values.value("channels").toStringList(), QStringList() << "+#jpnurmi");
+    QCOMPARE(filter.values.value("awayReason").toString(), QString("gone fishing"));
     QVERIFY(filter.values.value("valid").toBool());
     QCOMPARE(filter.type, IrcMessage::Whois);
 
