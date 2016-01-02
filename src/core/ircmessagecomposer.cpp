@@ -146,6 +146,11 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
         break;
 
     case Irc::RPL_AWAY:
+        if (!d.messages.isEmpty() && d.messages.top()->type() == IrcMessage::Whois) {
+            replaceParam(9, message->parameters().value(2)); // away reason
+            break;
+        }
+        // flow through
     case Irc::RPL_UNAWAY:
     case Irc::RPL_NOWAWAY:
         d.messages.push(new IrcAwayMessage(d.connection));
@@ -173,7 +178,8 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
                                                       << QString()   // since
                                                       << QString()   // idle
                                                       << QString()   // secure
-                                                      << QString()); // channels
+                                                      << QString()   // channels
+                                                      << QString()); // away reason
         break;
 
     case Irc::RPL_WHOWASUSER:
@@ -189,7 +195,8 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
                                                       << QString()   // since
                                                       << QString()   // idle
                                                       << QString()   // secure
-                                                      << QString()); // channels
+                                                      << QString()   // channels
+                                                      << QString()); // away reason
         break;
 
     case Irc::RPL_WHOISSERVER:

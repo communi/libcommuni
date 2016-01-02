@@ -2133,6 +2133,20 @@ QStringList IrcWhoisMessage::channels() const
     return d->params().value(8).split(QLatin1Char(' '), QString::SkipEmptyParts);
 }
 
+/*!
+    \since 3.5
+
+    This property holds the away reason of the user.
+
+    \par Access function:
+    \li QString <b>awayReason</b>() const
+ */
+QString IrcWhoisMessage::awayReason() const
+{
+    Q_D(const IrcMessage);
+    return d->param(9);
+}
+
 bool IrcWhoisMessage::isValid() const
 {
     Q_D(const IrcMessage);

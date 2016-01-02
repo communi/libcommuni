@@ -582,6 +582,7 @@ class IRC_CORE_EXPORT IrcWhoisMessage : public IrcMessage
     Q_PROPERTY(int idle READ idle)
     Q_PROPERTY(bool secure READ isSecure)
     Q_PROPERTY(QStringList channels READ channels)
+    Q_PROPERTY(QString awayReason READ awayReason)
 
 public:
     Q_INVOKABLE explicit IrcWhoisMessage(IrcConnection* connection);
@@ -595,6 +596,7 @@ public:
     int idle() const;
     bool isSecure() const;
     QStringList channels() const;
+    QString awayReason() const;
 
     bool isValid() const;
 

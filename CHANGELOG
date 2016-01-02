@@ -19,6 +19,7 @@
   - Added IrcMessage::clone()
   - Added IrcMessage::testFlag()
   - Added IrcMessage::setFlag()
+  - Added IrcWhoisMessage::awayReason
 
 3.4.0
 -----
