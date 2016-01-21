@@ -182,7 +182,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 #ifndef IRC_DOXYGEN
-IrcNetworkPrivate::IrcNetworkPrivate() : q_ptr(0), initialized(false)
+IrcNetworkPrivate::IrcNetworkPrivate() : q_ptr(0), initialized(false), modes("ov"), prefixes("@+"), channelTypes("#")
 {
 }
 
