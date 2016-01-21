@@ -42,9 +42,9 @@ void tst_IrcNetwork::testDefaults()
     IrcNetwork* network = connection.network();
     QVERIFY(!network->isInitialized());
     QVERIFY(network->name().isNull());
-    QVERIFY(network->modes().isEmpty());
-    QVERIFY(network->prefixes().isEmpty());
-    QVERIFY(network->channelTypes().isEmpty());
+    QCOMPARE(network->modes(), QStringList() << "o" << "v");
+    QCOMPARE(network->prefixes(), QStringList() << "@" << "+");
+    QCOMPARE(network->channelTypes(), QStringList() << "#");
     QVERIFY(network->availableCapabilities().isEmpty());
     QVERIFY(network->requestedCapabilities().isEmpty());
     QVERIFY(network->activeCapabilities().isEmpty());
@@ -176,14 +176,22 @@ void tst_IrcNetwork::testInfo()
 
     QCOMPARE(initSpy.count(), 1);
     QCOMPARE(nameSpy.count(), 1);
-    QCOMPARE(modesSpy.count(), 1);
-    QCOMPARE(prefixesSpy.count(), 1);
-    QCOMPARE(channelTypesSpy.count(), 1);
-
     QCOMPARE(nameSpy.first().first().toString(), name);
-    QCOMPARE(modesSpy.first().first().toStringList(), modes.split("", QString::SkipEmptyParts));
-    QCOMPARE(prefixesSpy.first().first().toStringList(), prefixes.split("", QString::SkipEmptyParts));
-    QCOMPARE(channelTypesSpy.first().first().toStringList(), channelTypes.split("", QString::SkipEmptyParts));
+
+    bool defaultModes = network->modes() == IrcConnection().network()->modes();
+    QCOMPARE(modesSpy.count(), defaultModes ? 0 : 1);
+    if (!defaultModes)
+        QCOMPARE(modesSpy.first().first().toStringList(), modes.split("", QString::SkipEmptyParts));
+
+    bool defaultPrefixes = network->prefixes() == IrcConnection().network()->prefixes();
+    QCOMPARE(prefixesSpy.count(), defaultPrefixes ? 0 : 1);
+    if (!defaultPrefixes)
+        QCOMPARE(prefixesSpy.first().first().toStringList(), prefixes.split("", QString::SkipEmptyParts));
+
+    bool defaultTypes = network->channelTypes() == IrcConnection().network()->channelTypes();
+    QCOMPARE(channelTypesSpy.count(), defaultTypes ? 0 : 1);
+    if (!defaultTypes)
+        QCOMPARE(channelTypesSpy.first().first().toStringList(), channelTypes.split("", QString::SkipEmptyParts));
 }
 
 void tst_IrcNetwork::testCapabilities_data()
