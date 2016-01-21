@@ -1411,8 +1411,8 @@ void tst_IrcBufferModel::testAIM()
     QCOMPARE(aim->data(ci, Irc::NameRole).toString(), c->name());
     QVERIFY(aim->data(oi, Irc::NameRole).toString().isEmpty());
 
-    QVERIFY(aim->data(ai, Irc::PrefixRole).toString().isEmpty());
-    QVERIFY(aim->data(bi, Irc::PrefixRole).toString().isEmpty());
+    QCOMPARE(aim->data(ai, Irc::PrefixRole).toString(), QString("#"));
+    QCOMPARE(aim->data(bi, Irc::PrefixRole).toString(), QString("#"));
     QVERIFY(aim->data(ci, Irc::PrefixRole).toString().isEmpty());
     QVERIFY(aim->data(oi, Irc::PrefixRole).toString().isEmpty());
 }
