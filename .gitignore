@@ -40,6 +40,8 @@ communi-config.prf
 .qmake.stash
 .config.vars
 .tmp
+*_wrapper.sh
+*_wrapper.bat
 *.Debug
 *.Release
 moc_*.cpp
