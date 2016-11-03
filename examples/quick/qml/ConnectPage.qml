@@ -115,7 +115,7 @@ Item {
         TextField {
             id: channelField
             Layout.fillWidth: true
-            placeholderText: "#communi"
+            placeholderText: "#freenode"
         }
     }
 

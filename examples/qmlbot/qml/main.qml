@@ -13,7 +13,7 @@ import Communi 3.0
 QtObject {
     id: bot
 
-    property string channel: "#communi"
+    property string channel: "#botwar"
 
     property Irc irc: Irc { id: irc }
     property IrcCommand command: IrcCommand { id: command }

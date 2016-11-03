@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
         }
     }
     if (!joined)
-        bot.join("#communi");
+        bot.join("#botwar");
 
     bot.open();
     return app.exec();

@@ -26,8 +26,8 @@ int main(int argc, char* argv[])
     connection.setUserName("communi");
     connection.setNickName(QString("Minimal%1").arg(qrand() % 9999));
     connection.setRealName(QString("Communi %1 minimal example").arg(Irc::version()));
-    connection.sendCommand(IrcCommand::createJoin("#communi"));
-    connection.sendCommand(IrcCommand::createMessage("#communi", "Hi, kthxbye!"));
+    connection.sendCommand(IrcCommand::createJoin("#botwar"));
+    connection.sendCommand(IrcCommand::createMessage("#botwar", "Hi, kthxbye!"));
     connection.sendCommand(IrcCommand::createQuit());
     connection.open();
 //! [minimal]
