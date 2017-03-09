@@ -251,7 +251,7 @@ bool IrcBufferPrivate::processNickMessage(IrcNickMessage* message)
 bool IrcBufferPrivate::processNoticeMessage(IrcNoticeMessage* message)
 {
     Q_UNUSED(message);
-    return false;
+    return true;
 }
 
 bool IrcBufferPrivate::processNumericMessage(IrcNumericMessage* message)

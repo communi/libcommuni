@@ -783,9 +783,8 @@ void tst_IrcBufferModel::testChanges()
     QCOMPARE(rowsInsertedSpy.last().at(1).toInt(), nextIndex);
     QCOMPARE(rowsInsertedSpy.last().at(2).toInt(), nextIndex);
 
-    // note: notices are not targeted since 3.5
     QVERIFY(waitForWritten(":ChanServ!ChanServ@services. NOTICE communi :fake..."));
-    QCOMPARE(messageIgnoredSpy.count(), ++messageIgnoredCount);
+    QCOMPARE(messageIgnoredSpy.count(), messageIgnoredCount);
 
     QCOMPARE(bufferModel.count(), buffers.count());
     QCOMPARE(bufferModel.buffers(), buffers);

@@ -425,7 +425,7 @@ bool IrcChannelPrivate::processNickMessage(IrcNickMessage* message)
 bool IrcChannelPrivate::processNoticeMessage(IrcNoticeMessage* message)
 {
     promoteUser(message->nick());
-    return false;
+    return true;
 }
 
 bool IrcChannelPrivate::processNumericMessage(IrcNumericMessage* message)

@@ -171,7 +171,7 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
 
         case IrcMessage::Notice:
             if (IrcNoticeMessage* no = static_cast<IrcNoticeMessage*>(msg))
-                processed = !no->isReply() && processMessage(no->isPrivate() ? no->nick() : no->target(), no);
+                processed = !no->isReply() && processMessage(no->isPrivate() ? no->nick() : no->target(), no, no->host() != QLatin1String("services."));
             break;
 
         case IrcMessage::Mode:
