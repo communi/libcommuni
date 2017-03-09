@@ -45,6 +45,7 @@ communi-config.prf
 *.Debug
 *.Release
 moc_*.cpp
+moc_predefs.h
 qrc_*.cpp
 qt.conf
 *_plugin_import.cpp
