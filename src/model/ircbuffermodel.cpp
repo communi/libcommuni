@@ -40,6 +40,7 @@
 #include <qdatastream.h>
 #include <qvariant.h>
 #include <qtimer.h>
+#include <algorithm>
 
 IRC_BEGIN_NAMESPACE
 
@@ -541,25 +542,83 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
             }
         }
 
-        QStringList chans, keys;
-        foreach (IrcBuffer* buffer, bufferList) {
-            IrcChannel* channel = buffer->toChannel();
-            if (channel && !channel->isActive()) {
-                IrcChannelPrivate* p = IrcChannelPrivate::get(channel);
-                if (p->enabled) {
-                    chans += channel->title();
-                    keys += channel->key();
-                    p->enabled = true;
+        // Join multiple channels:
+        //
+        // * A single IRC command may be 512 bytes long, including the <CR><LF> at the end.
+        //   Therefore, we must collect as many channels as many channels as possible into
+        //   a single command, but without exceeding the 512 bytes.
+        //   NOTES:
+        //       - Previously, communi tried to join all channels in a single command,
+        //         which didn't work because it exceeded the 512 bytes
+        //       - Then, it joined 3 channels at a time
+        //
+        // * We should also group channels with keys separately from channels without keys,
+        //   because the JOIN command doesn't work when channels without keys preceed the
+        //   channels with keys.
+        //   Works:
+        //       JOIN #ch1,#ch2             --- neither #ch1 nor #ch2 have keys
+        //       JOIN #ch1,#ch2 key1,key2   --- both #ch1 and #ch2 have keys
+        //       JOIN #ch1,#ch2 key1        --- #ch1 has key, #ch2 doesn't
+        //   Doesn't work:
+        //       JOIN #ch1,#ch2 ,key2       --- #ch1 doesn't have a key, #ch2 does
+        //                                      (NOTE: this is what communi used to do)
+        //
+
+        // Get channels from buffers
+        QList<IrcChannel*> channels;
+        std::transform(bufferList.begin(), bufferList.end(), std::back_inserter(channels), [](IrcBuffer *buf) { return buf->toChannel(); });
+
+        // Filter channels that we actually want to join
+        QList<IrcChannel*> filteredChannels;
+        std::copy_if(channels.begin(), channels.end(), std::back_inserter(filteredChannels), [](IrcChannel *channel) {
+            return (channel && !channel->isActive()) ? IrcChannelPrivate::get(channel)->enabled : false;
+        });
+
+        // Sort channels with keys first
+        std::sort(filteredChannels.begin(), filteredChannels.end(), [](IrcChannel *ch1, IrcChannel *ch2) { return ch1->key().length() > ch2->key().length(); });
+
+        if (filteredChannels.size()) {
+
+            // Length of "JOIN  \r\n"
+            constexpr int joinCommandMinLength = 8;
+            constexpr int maxIrcCommandBytes = 512;
+            int joinCommandLength = joinCommandMinLength;
+
+            QStringList chans, keys;
+            for (IrcChannel *channel : filteredChannels) {
+                int additonalLength = channel->title().length() + channel->key().length();
+                // Command needs a comma between channels
+                if (chans.length())
+                    additonalLength++;
+                // Command needs a comma between keys
+                if (keys.length() && channel->key().length())
+                    additonalLength++;
+
+                if ((joinCommandLength + additonalLength) > maxIrcCommandBytes) {
+                    // If the command size would exceed the maximum, send a command with the channels collected so far
+                    connection->sendCommand(IrcCommand::createJoin(chans, keys));
+
+                    chans.clear();
+                    keys.clear();
+                    joinCommandLength = joinCommandMinLength;
                 }
+
+                // Add channel to list
+                chans += channel->title();
+
+                // Only add key to list if there is a key,
+                // otherwise not needed, because channels with keys are sorted before channels without keys
+                if (channel->key().length())
+                    keys += channel->key();
+
+                joinCommandLength = additonalLength;
             }
-            if (chans.length() == 3) {
+
+            if (!chans.isEmpty()) {
                 connection->sendCommand(IrcCommand::createJoin(chans, keys));
-                chans.clear();
-                keys.clear();
             }
+
         }
-        if (!chans.isEmpty())
-            connection->sendCommand(IrcCommand::createJoin(chans, keys));
     }
 }
 

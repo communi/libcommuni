@@ -576,7 +576,7 @@ IrcCommand* IrcCommand::createJoin(const QString& channel, const QString& key)
  */
 IrcCommand* IrcCommand::createJoin(const QStringList& channels, const QStringList& keys)
 {
-    if (keys.join("").isEmpty())
+    if (keys.isEmpty() || keys.join("").isEmpty())
         return IrcCommandPrivate::createCommand(Join, QStringList() << channels.join(","));
     return IrcCommandPrivate::createCommand(Join, QStringList() << channels.join(",") << keys.join(","));
 }
