@@ -511,6 +511,10 @@ void IrcBufferModelPrivate::_irc_bufferDestroyed(IrcBuffer* buffer)
     removeBuffer(buffer);
 }
 
+static bool sortIrcChannels_withKeysFirst(IrcChannel *ch1, IrcChannel *ch2) {
+    return ch1->key().length() > ch2->key().length();
+}
+
 void IrcBufferModelPrivate::_irc_restoreBuffers()
 {
     Q_Q(IrcBufferModel);
@@ -565,23 +569,23 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
         //
 
         // Get channels from buffers
-        QList<IrcChannel*> channels;
-        std::transform(bufferList.begin(), bufferList.end(), std::back_inserter(channels), [](IrcBuffer *buf) { return buf->toChannel(); });
-
-        // Filter channels that we actually want to join
         QList<IrcChannel*> filteredChannels;
-        std::copy_if(channels.begin(), channels.end(), std::back_inserter(filteredChannels), [](IrcChannel *channel) {
-            return (channel && !channel->isActive()) ? IrcChannelPrivate::get(channel)->enabled : false;
-        });
+
+        foreach (IrcBuffer* buf, bufferList) {
+            IrcChannel *channel = buf->toChannel();
+            if (channel && !channel->isActive() && IrcChannelPrivate::get(channel)->enabled) {
+                filteredChannels.append(channel);
+            }
+        }
 
         // Sort channels with keys first
-        std::sort(filteredChannels.begin(), filteredChannels.end(), [](IrcChannel *ch1, IrcChannel *ch2) { return ch1->key().length() > ch2->key().length(); });
+        std::sort(filteredChannels.begin(), filteredChannels.end(), sortIrcChannels_withKeysFirst);
 
         if (filteredChannels.size()) {
 
             // Length of "JOIN  \r\n"
-            constexpr int joinCommandMinLength = 8;
-            constexpr int maxIrcCommandBytes = 512;
+            const int joinCommandMinLength = 8;
+            const int maxIrcCommandBytes = 512;
             int joinCommandLength = joinCommandMinLength;
 
             QStringList chans, keys;
