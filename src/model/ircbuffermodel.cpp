@@ -589,7 +589,7 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
             int joinCommandLength = joinCommandMinLength;
 
             QStringList chans, keys;
-            for (IrcChannel *channel : filteredChannels) {
+            foreach (IrcChannel *channel, filteredChannels) {
                 int additonalLength = channel->title().length() + channel->key().length();
                 // Command needs a comma between channels
                 if (chans.length())
