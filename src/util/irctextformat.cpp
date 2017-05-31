@@ -130,7 +130,7 @@ static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, 
 
 static QString generateLink(const QString& protocol, const QString& href)
 {
-    const char* exclude = ":/?@%#=+&,";
+    const char* exclude = ":/?@%#=+&,;";
     const QByteArray url = QUrl::toPercentEncoding(href, exclude);
     return QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, url, href);
 }
