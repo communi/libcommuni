@@ -7,6 +7,7 @@ include(pkg.pri)
 pkgExists(uchardet) {
     CONFIG += link_pkgconfig
     PKGCONFIG += uchardet
+    !build_pass:message("Using uchardet via pkg-config")
 }
 
 isEmpty(PKGCONFIG) {

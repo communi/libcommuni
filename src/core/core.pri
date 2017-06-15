@@ -53,14 +53,24 @@ SOURCES += $$PWD/ircmessagedecoder.cpp
 SOURCES += $$PWD/ircnetwork.cpp
 SOURCES += $$PWD/ircprotocol.cpp
 
-CONFIG(icu, icu|no_icu) {
+include(pkg.pri)
+
+!icu:!uchardet {
+    !no_uchardet {
+        pkgExists(uchardet): CONFIG += uchardet
+    } else:!no_icu {
+        pkgExists(icu)|pkgExists(icu-i18n): CONFIG += icu
+    }
+}
+
+CONFIG(icu, icu|no_icu|uchardet) {
+    include(icu.pri)
     DEFINES += HAVE_ICU
     SOURCES += $$PWD/ircmessagedecoder_icu.cpp
-    include(../3rdparty/icu.pri)
-} else:CONFIG(uchardet, uchardet|no_uchardet) {
+} else:CONFIG(uchardet, uchardet|no_uchardet|icu) {
+    include(uchardet.pri)
     DEFINES += HAVE_UCHARDET
     SOURCES += $$PWD/ircmessagedecoder_uchardet.cpp
-    include(../3rdparty/uchardet.pri)
 } else {
     SOURCES += $$PWD/ircmessagedecoder_none.cpp
 }

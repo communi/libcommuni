@@ -7,9 +7,11 @@ include(pkg.pri)
 pkgExists(icu) {
     CONFIG += link_pkgconfig
     PKGCONFIG += icu
+    !build_pass:message("Using ICU via pkg-config")
 } else:pkgExists(icu-i18n) {
     CONFIG += link_pkgconfig
     PKGCONFIG += icu-i18n
+    !build_pass:message("Using ICU-i18n via pkg-config")
 }
 
 isEmpty(PKGCONFIG) {
