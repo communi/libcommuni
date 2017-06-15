@@ -2,7 +2,7 @@
 # Communi
 ######################################################################
 
-include(../pkg.pri)
+include(pkg.pri)
 
 pkgExists(icu) {
     CONFIG += link_pkgconfig

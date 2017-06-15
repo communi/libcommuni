@@ -27,7 +27,7 @@
 */
 
 #include "ircmessagedecoder_p.h"
-#include "uchardet.h"
+#include <uchardet/uchardet.h>
 
 IRC_BEGIN_NAMESPACE
 

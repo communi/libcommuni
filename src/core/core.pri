@@ -58,11 +58,11 @@ include(../3rdparty/mozilla/mozilla.pri)
 CONFIG(icu, icu|no_icu) {
     DEFINES += HAVE_ICU
     SOURCES += $$PWD/ircmessagedecoder_icu.cpp
-    include(../3rdparty/icu/icu.pri)
+    include(../3rdparty/icu.pri)
 } else:CONFIG(uchardet, uchardet|no_uchardet) {
     DEFINES += HAVE_UCHARDET
     SOURCES += $$PWD/ircmessagedecoder_uchardet.cpp
-    include(../3rdparty/uchardet-0.0.1/uchardet.pri)
+    include(../3rdparty/uchardet.pri)
 } else {
     SOURCES += $$PWD/ircmessagedecoder_none.cpp
 }
