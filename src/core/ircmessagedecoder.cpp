@@ -52,6 +52,17 @@ IrcMessageDecoder::~IrcMessageDecoder()
 
 QString IrcMessageDecoder::decode(const QByteArray& data, const QByteArray& encoding) const
 {
+    if (data.isEmpty())
+        return QString();
+
+    static const QTextCodec *utf8Codec = QTextCodec::codecForName("UTF-8");
+    if (utf8Codec) {
+        QTextCodec::ConverterState state;
+        QString utf8 = utf8Codec->toUnicode(data, data.length(), &state);
+        if (state.invalidChars == 0)
+            return utf8;
+    }
+
     QTextCodec *defaultCodec = QTextCodec::codecForName(encoding);
     if (!defaultCodec)
         defaultCodec = QTextCodec::codecForName("UTF-8");
