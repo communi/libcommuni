@@ -31,9 +31,6 @@
 #include <QSet>
 
 #ifndef IRC_DOXYGEN
-extern "C" {
-    int IsUTF8Text(const char* utf8, int len);
-}
 
 IRC_BEGIN_NAMESPACE
 
@@ -55,16 +52,11 @@ IrcMessageDecoder::~IrcMessageDecoder()
 
 QString IrcMessageDecoder::decode(const QByteArray& data, const QByteArray& encoding) const
 {
-    QTextCodec* codec = 0;
-    if (IsUTF8Text(data, data.length())) {
-        codec = QTextCodec::codecForName("UTF-8");
-    } else {
-        QByteArray name = codecForData(data);
-        codec = QTextCodec::codecForName(name);
-    }
+    QTextCodec *defaultCodec = QTextCodec::codecForName(encoding);
+    if (!defaultCodec)
+        defaultCodec = QTextCodec::codecForName("UTF-8");
 
-    if (!codec)
-        codec = QTextCodec::codecForName(encoding);
+    QTextCodec* codec = QTextCodec::codecForUtfText(data, defaultCodec);
     Q_ASSERT(codec);
     return codec->toUnicode(data);
 }

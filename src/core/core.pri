@@ -53,8 +53,6 @@ SOURCES += $$PWD/ircmessagedecoder.cpp
 SOURCES += $$PWD/ircnetwork.cpp
 SOURCES += $$PWD/ircprotocol.cpp
 
-include(../3rdparty/mozilla/mozilla.pri)
-
 CONFIG(icu, icu|no_icu) {
     DEFINES += HAVE_ICU
     SOURCES += $$PWD/ircmessagedecoder_icu.cpp
