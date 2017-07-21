@@ -125,9 +125,9 @@ void IrcUserModelPrivate::insertUser(int index, IrcUser* user, bool notify)
     if (sortMethod != Irc::SortByHand) {
         QList<IrcUser*>::iterator it;
         if (sortOrder == Qt::AscendingOrder)
-            it = qUpperBound(userList.begin(), userList.end(), user, IrcUserLessThan(q, sortMethod));
+            it = std::upper_bound(userList.begin(), userList.end(), user, IrcUserLessThan(q, sortMethod));
         else
-            it = qUpperBound(userList.begin(), userList.end(), user, IrcUserGreaterThan(q, sortMethod));
+            it = std::upper_bound(userList.begin(), userList.end(), user, IrcUserGreaterThan(q, sortMethod));
         index = it - userList.begin();
     }
     if (notify)
@@ -179,9 +179,9 @@ void IrcUserModelPrivate::setUsers(const QList<IrcUser*>& users, bool reset)
     userList = users;
     if (sortMethod != Irc::SortByHand) {
         if (sortOrder == Qt::AscendingOrder)
-            qSort(userList.begin(), userList.end(), IrcUserLessThan(q, sortMethod));
+            std::sort(userList.begin(), userList.end(), IrcUserLessThan(q, sortMethod));
         else
-            qSort(userList.begin(), userList.end(), IrcUserGreaterThan(q, sortMethod));
+            std::sort(userList.begin(), userList.end(), IrcUserGreaterThan(q, sortMethod));
     }
     updateTitles();
     if (reset)
@@ -695,9 +695,9 @@ void IrcUserModel::sort(Irc::SortMethod method, Qt::SortOrder order)
         persistentUsers += static_cast<IrcUser*>(index.internalPointer());
 
     if (order == Qt::AscendingOrder)
-        qSort(d->userList.begin(), d->userList.end(), IrcUserLessThan(this, method));
+        std::sort(d->userList.begin(), d->userList.end(), IrcUserLessThan(this, method));
     else
-        qSort(d->userList.begin(), d->userList.end(), IrcUserGreaterThan(this, method));
+        std::sort(d->userList.begin(), d->userList.end(), IrcUserGreaterThan(this, method));
 
     if (d->updateTitles())
         emit titlesChanged(d->titles);
