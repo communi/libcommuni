@@ -316,9 +316,9 @@ void IrcBufferModelPrivate::insertBuffer(int index, IrcBuffer* buffer, bool noti
         if (sortMethod != Irc::SortByHand) {
             QList<IrcBuffer*>::iterator it;
             if (sortOrder == Qt::AscendingOrder)
-                it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, IrcBufferLessThan(q, sortMethod));
+                it = std::upper_bound(bufferList.begin(), bufferList.end(), buffer, IrcBufferLessThan(q, sortMethod));
             else
-                it = qUpperBound(bufferList.begin(), bufferList.end(), buffer, IrcBufferGreaterThan(q, sortMethod));
+                it = std::upper_bound(bufferList.begin(), bufferList.end(), buffer, IrcBufferGreaterThan(q, sortMethod));
             index = it - bufferList.begin();
         } else if (index == -1) {
             index = bufferList.count();
@@ -1064,9 +1064,9 @@ void IrcBufferModel::sort(Irc::SortMethod method, Qt::SortOrder order)
         persistentBuffers += static_cast<IrcBuffer*>(index.internalPointer());
 
     if (order == Qt::AscendingOrder)
-        qSort(d->bufferList.begin(), d->bufferList.end(), IrcBufferLessThan(this, method));
+        std::sort(d->bufferList.begin(), d->bufferList.end(), IrcBufferLessThan(this, method));
     else
-        qSort(d->bufferList.begin(), d->bufferList.end(), IrcBufferGreaterThan(this, method));
+        std::sort(d->bufferList.begin(), d->bufferList.end(), IrcBufferGreaterThan(this, method));
 
     QModelIndexList newPersistentIndexes;
     foreach (IrcBuffer* buffer, persistentBuffers)
