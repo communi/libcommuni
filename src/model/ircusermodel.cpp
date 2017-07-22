@@ -33,6 +33,7 @@
 #include "ircchannel_p.h"
 #include "ircuser.h"
 #include <qpointer.h>
+#include <algorithm>
 
 IRC_BEGIN_NAMESPACE
 
