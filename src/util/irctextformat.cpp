@@ -128,14 +128,14 @@ static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, 
     return *len > 0;
 }
 
-static QString generateLink(const QString& protocol, const QString& href)
+static QString generateLink(const QString& protocol, const QString &raw, const QString &href)
 {
     const char* exclude = ":/?@%#=+&,;";
-    const QByteArray url = QUrl::toPercentEncoding(href, exclude);
+    const QByteArray url = QUrl::toPercentEncoding(raw, exclude);
     return QString(QLatin1String("<a href='%1%2'>%3</a>")).arg(protocol, url, href);
 }
 
-static QString parseLinks(const QString& message, const QString& pattern, QList<QUrl>* urls)
+static QString parseUrls(const QString& message, const QString& pattern, QList<QUrl>* urls)
 {
     QString processed = message;
 #if QT_VERSION >= 0x050000
@@ -157,12 +157,14 @@ static QString parseLinks(const QString& message, const QString& pattern, QList<
 
         const int start = match.capturedStart();
         const int len = match.capturedEnd() - start;
-        const QString href = match.captured();
-        const QString link = generateLink(protocol, href);
+        QString href = match.captured();
+        QString raw = href;
+        raw.replace("&amp;", "&");
+        const QString link = generateLink(protocol, raw, href);
         processed.replace(start + offset, len, link);
         offset += link.length() - len;
         if (urls)
-            urls->append(QUrl(protocol + href));
+            urls->append(QUrl(protocol + raw));
     }
 #else
     int pos = 0;
@@ -170,6 +172,8 @@ static QString parseLinks(const QString& message, const QString& pattern, QList<
     while ((pos = rx.indexIn(processed, pos)) >= 0) {
         int len = rx.matchedLength();
         QString href = processed.mid(pos, len);
+        QString raw = href;
+        raw.replace("&amp;", "&");
 
         QString protocol;
         if (rx.cap(2).isEmpty()) {
@@ -181,11 +185,11 @@ static QString parseLinks(const QString& message, const QString& pattern, QList<
                 protocol = QLatin1String("http://");
         }
 
-        QString link = generateLink(protocol, href);
+        QString link = generateLink(protocol, raw, href);
         processed.replace(pos, len, link);
         pos += link.length();
         if (urls)
-            urls->append(QUrl(protocol + href));
+            urls->append(QUrl(protocol + raw));
     }
 #endif
     return processed;
@@ -196,7 +200,7 @@ void IrcTextFormatPrivate::parse(const QString& str, QString* text, QString* htm
     QString processed = str;
 
     // TODO:
-    //processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
+    processed.replace(QLatin1Char('&'), QLatin1String("&amp;"));
     processed.replace(QLatin1Char('<'), QLatin1String("&lt;"));
     //processed.replace(QLatin1Char('>'), QLatin1String("&gt;"));
     //processed.replace(QLatin1Char('"'), QLatin1String("&quot;"));
@@ -352,7 +356,7 @@ void IrcTextFormatPrivate::parse(const QString& str, QString* text, QString* htm
     }
 
     if ((html || urls) && potentialUrl && !urlPattern.isEmpty())
-        processed = parseLinks(processed, urlPattern, urls);
+        processed = parseUrls(processed, urlPattern, urls);
     if (html)
         *html = processed;
 }
