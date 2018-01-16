@@ -58,7 +58,7 @@ static const int DEFAULT_INTERVAL = 60;
  */
 
 #ifndef IRC_DOXYGEN
-IrcLagTimerPrivate::IrcLagTimerPrivate() : q_ptr(0), connection(0), interval(DEFAULT_INTERVAL), lag(-1)
+IrcLagTimerPrivate::IrcLagTimerPrivate() : q_ptr(0), connection(0), interval(DEFAULT_INTERVAL), pendingPings(0), lag(-1)
 {
 }
 
@@ -77,6 +77,7 @@ bool IrcLagTimerPrivate::processPongReply(IrcPongMessage* msg)
         bool ok = false;
         qint64 timestamp = msg->argument().mid(8).toLongLong(&ok);
         if (ok) {
+            pendingPings--;
             updateLag(QDateTime::currentMSecsSinceEpoch() - timestamp);
             return true;
         }
@@ -88,6 +89,7 @@ bool IrcLagTimerPrivate::processPongReply(IrcPongMessage* msg)
 void IrcLagTimerPrivate::_irc_connected()
 {
 #if QT_VERSION >= 0x040700
+    pendingPings = 0;
     if (interval > 0)
         timer.start();
 #endif // QT_VERSION
@@ -99,6 +101,11 @@ void IrcLagTimerPrivate::_irc_pingServer()
     // TODO: configurable format?
     QString cmd = QString("PING communi/%1").arg(QDateTime::currentMSecsSinceEpoch());
     connection->sendData(cmd.toUtf8());
+    qint64 pingLag = pendingPings * interval * 1000;
+    if (pingLag > lag) {
+        updateLag(pingLag);
+    }
+    pendingPings++;
 #endif // QT_VERSION
 }
 
@@ -106,6 +113,7 @@ void IrcLagTimerPrivate::_irc_disconnected()
 {
 #if QT_VERSION >= 0x040700
     updateLag(-1);
+    pendingPings = 0;
     if (timer.isActive())
         timer.stop();
 #endif // QT_VERSION
