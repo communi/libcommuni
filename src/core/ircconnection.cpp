@@ -1393,6 +1393,7 @@ void IrcConnection::close()
         if (d->socket->state() == QAbstractSocket::UnconnectedState)
             d->setStatus(Closed);
         d->reconnecter.stop();
+        d->connectionCounter = 0;
     }
 }
 
@@ -1477,7 +1478,10 @@ bool IrcConnection::sendData(const QByteArray& data)
                 ircDebug(this, IrcDebug::Write) << data;
             if (!d->closed && data.length() >= 4) {
                 if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
+                {
                     d->closed = true;
+                    d->connectionCounter = 0;
+                }
             }
             return d->protocol->write(data);
         } else {
