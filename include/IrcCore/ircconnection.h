@@ -65,6 +65,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(bool connected READ isConnected NOTIFY statusChanged)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(int reconnectDelay READ reconnectDelay WRITE setReconnectDelay NOTIFY reconnectDelayChanged)
+    Q_PROPERTY(int connectionCount READ connectionCount NOTIFY connectionCountChanged)
     Q_PROPERTY(QAbstractSocket* socket READ socket WRITE setSocket)
     Q_PROPERTY(bool secure READ isSecure WRITE setSecure NOTIFY secureChanged)
     Q_PROPERTY(bool secureSupported READ isSecureSupported)
@@ -133,6 +134,8 @@ public:
 
     int reconnectDelay() const;
     void setReconnectDelay(int seconds);
+
+    int connectionCount() const;
 
     QAbstractSocket* socket() const;
     void setSocket(QAbstractSocket* socket);
@@ -225,6 +228,7 @@ Q_SIGNALS:
     void displayNameChanged(const QString& name);
     void userDataChanged(const QVariantMap& data);
     void reconnectDelayChanged(int seconds);
+    void connectionCountChanged(int count);
     void enabledChanged(bool enabled);
     void secureChanged(bool secure);
     void saslMechanismChanged(const QString& mechanism);
