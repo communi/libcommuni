@@ -395,6 +395,7 @@ void IrcConnectionPrivate::open()
             q->setSecure(s);
         }
         socket->connectToHost(host, port);
+        connectionCounter++;
     }
 }
 
@@ -1105,6 +1106,21 @@ void IrcConnection::setReconnectDelay(int seconds)
         emit reconnectDelayChanged(interval);
     }
 }
+/*!
+    \property int IrcConnection::connectionCount
+    This property holds the amount of times a connection was established.
+
+    The default value is \c 0 (no connections where established).
+
+    \par Access functions:
+    \li int <b>connectionCount</b>() const
+ */
+int IrcConnection::connectionCount() const
+{
+    Q_D(const IrcConnection);
+    return d->connectionCounter;
+}
+
 
 /*!
     This property holds the socket. The default value is an instance of QTcpSocket.
