@@ -76,20 +76,19 @@ public:
     void _irc_pauseHandshake();
     void _irc_resumeHandshake();
 
-    IrcProtocol* q_ptr;
-    IrcConnection* connection;
-    IrcMessageComposer* composer;
+    IrcProtocol* q_ptr = nullptr;
+    IrcConnection* connection = nullptr;
+    IrcMessageComposer* composer = nullptr;
     QHash<QString, IrcBatchMessage*> batches;
     QHash<QString, QString> info;
     QByteArray buffer;
-    int currentNick;
-    bool resumed;
-    bool authed;
-    bool motd;
+    int currentNick = -1;
+    bool resumed = false;
+    bool authed = false;
+    bool motd = false;
 };
 
-IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(nullptr), connection(nullptr), composer(nullptr),
-    currentNick(-1), resumed(false), authed(false), motd(false)
+IrcProtocolPrivate::IrcProtocolPrivate()
 {
 }
 

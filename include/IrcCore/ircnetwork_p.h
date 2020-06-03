@@ -68,9 +68,9 @@ public:
         return network->d_ptr.data();
     }
 
-    IrcNetwork* q_ptr;
+    IrcNetwork* q_ptr = nullptr;
     QPointer<IrcConnection> connection;
-    bool initialized;
+    bool initialized = false;
     QString name;
     QStringList modes, prefixes, channelTypes, channelModes, statusPrefixes;
     QHash<QString, int> numericLimits, modeLimits, channelLimits, targetLimits;

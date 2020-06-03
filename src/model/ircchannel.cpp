@@ -86,7 +86,7 @@ static QString userName(const QString& name, const QStringList& prefixes)
     return Irc::nickFromPrefix(copy);
 }
 
-IrcChannelPrivate::IrcChannelPrivate() : active(false), enabled(true)
+IrcChannelPrivate::IrcChannelPrivate()
 {
     qRegisterMetaType<IrcChannel*>();
     qRegisterMetaType<QList<IrcChannel*> >();

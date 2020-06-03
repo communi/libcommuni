@@ -78,14 +78,14 @@ public:
         return connection->d_ptr.data();
     }
 
-    IrcConnection* q_ptr;
+    IrcConnection* q_ptr = nullptr;
     QByteArray encoding;
-    IrcNetwork* network;
-    IrcProtocol* protocol;
-    QAbstractSocket* socket;
+    IrcNetwork* network = nullptr;
+    IrcProtocol* protocol = nullptr;
+    QAbstractSocket* socket = nullptr;
     QString host;
-    int port;
-    int currentServer;
+    int port = 6667;
+    int currentServer = -1;
     QStringList servers;
     QString userName;
     QString nickName;
@@ -98,15 +98,15 @@ public:
     unsigned int connectionCounter = 0;
     QString saslMechanism;
     QVariantMap ctcpReplies;
-    bool enabled;
-    IrcConnection::Status status;
+    bool enabled = true;
+    IrcConnection::Status status = IrcConnection::Inactive;
     QList<QByteArray> pendingData;
     QList<QObject*> commandFilters;
     QList<QObject*> messageFilters;
     QStack<QObject*> activeCommandFilters;
     QSet<int> replies;
-    bool pendingOpen;
-    bool closed;
+    bool pendingOpen = false;
+    bool closed = false;
 };
 
 IRC_END_NAMESPACE

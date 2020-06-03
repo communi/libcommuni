@@ -127,10 +127,7 @@ private:
     Irc::SortMethod method;
 };
 
-IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(nullptr), role(Irc::TitleRole),
-    sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder),
-    bufferProto(nullptr), channelProto(nullptr), persistent(false), joinDelay(0),
-    monitorEnabled(false), monitorPending(false)
+IrcBufferModelPrivate::IrcBufferModelPrivate()
 {
 }
 

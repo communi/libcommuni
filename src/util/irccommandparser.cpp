@@ -178,7 +178,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 #ifndef IRC_DOXYGEN
-IrcCommandParserPrivate::IrcCommandParserPrivate() : tolerant(false)
+IrcCommandParserPrivate::IrcCommandParserPrivate()
 {
 }
 

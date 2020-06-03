@@ -41,28 +41,28 @@ IRC_BEGIN_NAMESPACE
 
 struct IrcParameterInfo
 {
-    IrcParameterInfo() : optional(false), channel(false), current(false), multi(false) { }
-    bool optional;
-    bool channel;
-    bool current;
-    bool multi;
+    IrcParameterInfo()  { }
+    bool optional = false;
+    bool channel = false;
+    bool current = false;
+    bool multi = false;
     QString value;
     QString syntax;
 };
 
 struct IrcCommandInfo
 {
-    IrcCommandInfo() : type(IrcCommand::Custom), min(0), max(0) { }
+    IrcCommandInfo()  { }
 
     QString fullSyntax()
     {
         return command + QLatin1Char(' ') + syntax;
     }
 
-    IrcCommand::Type type;
+    IrcCommand::Type type = IrcCommand::Custom;
     QString command;
     QString syntax;
-    int min, max;
+    int min = 0, max = 0;
     QList<IrcParameterInfo> params;
 };
 
@@ -84,7 +84,7 @@ public:
         return parser->d_func();
     }
 
-    bool tolerant;
+    bool tolerant = false;
     QString target;
     QStringList triggers;
     QStringList channels;

@@ -108,8 +108,7 @@ private:
     Irc::SortMethod method;
 };
 
-IrcUserModelPrivate::IrcUserModelPrivate() : q_ptr(nullptr), role(Irc::TitleRole),
-    sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder)
+IrcUserModelPrivate::IrcUserModelPrivate()
 {
 }
 

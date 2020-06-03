@@ -51,8 +51,8 @@ public:
     void _irc_updateTimer();
     void _irc_sendBatch(bool force = false);
 
-    IrcCommandQueue* q_ptr;
-    IrcConnection* connection;
+    IrcCommandQueue* q_ptr = nullptr;
+    IrcConnection* connection = nullptr;
     QTimer timer;
     int batch;
     int interval;

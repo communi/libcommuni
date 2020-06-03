@@ -1098,7 +1098,7 @@ class MsgFilter : public QObject, public IrcMessageFilter
     Q_INTERFACES(IrcMessageFilter)
 
 public:
-    MsgFilter() : count(0), type(IrcMessage::Unknown), flags(IrcMessage::None)
+    MsgFilter() :  flags(IrcMessage::None)
     {
     }
 
@@ -1125,10 +1125,10 @@ public:
     }
 
 public:
-    int count;
+    int count = 0;
     QVariantMap values;
     QByteArray properties;
-    IrcMessage::Type type;
+    IrcMessage::Type type = IrcMessage::Unknown;
     IrcMessage::Flags flags;
 };
 

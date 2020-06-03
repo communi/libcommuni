@@ -73,7 +73,6 @@ IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
 IrcBufferPrivate::IrcBufferPrivate()
-    : q_ptr(nullptr), model(nullptr), persistent(false), sticky(false), monitorStatus(MonitorUnknown)
 {
     qRegisterMetaType<IrcBuffer*>();
     qRegisterMetaType<QList<IrcBuffer*> >();

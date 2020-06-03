@@ -114,13 +114,13 @@ static bool isPrefixed(const QString& text, int pos, const QStringList& prefixes
 
 struct IrcCompletion
 {
-    IrcCompletion() : text(), cursor(-1) { }
+    IrcCompletion() : text() { }
     IrcCompletion(const QString& txt, int pos) : text(txt), cursor(pos) { }
     bool isValid() const { return !text.isNull() && cursor != -1; }
     bool operator ==(const IrcCompletion& other) const { return text == other.text && cursor == other.cursor; }
     bool operator !=(const IrcCompletion& other) const { return text != other.text || cursor != other.cursor; }
     QString text;
-    int cursor;
+    int cursor = -1;
 };
 
 class IrcCompleterPrivate
@@ -134,10 +134,10 @@ public:
     QList<IrcCompletion> completeCommands(const QString& text, int pos) const;
     QList<IrcCompletion> completeWords(const QString& text, int pos) const;
 
-    IrcCompleter* q_ptr;
+    IrcCompleter* q_ptr = nullptr;
 
-    int index;
-    int cursor;
+    int index = -1;
+    int cursor = -1;
     QString text;
     QList<IrcCompletion> completions;
 
@@ -146,7 +146,7 @@ public:
     QPointer<IrcCommandParser> parser;
 };
 
-IrcCompleterPrivate::IrcCompleterPrivate() : q_ptr(nullptr), index(-1), cursor(-1), suffix(":"), buffer(nullptr), parser(nullptr)
+IrcCompleterPrivate::IrcCompleterPrivate() :  suffix(":"), buffer(nullptr), parser(nullptr)
 {
 }
 

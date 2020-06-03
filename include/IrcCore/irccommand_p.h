@@ -42,7 +42,7 @@ public:
 
     QString params(int index) const;
 
-    IrcCommand::Type type;
+    IrcCommand::Type type = IrcCommand::Custom;
     QStringList parameters;
     QByteArray encoding;
     QPointer<IrcConnection> connection;
