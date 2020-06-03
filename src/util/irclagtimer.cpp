@@ -77,7 +77,7 @@ bool IrcLagTimerPrivate::processPongReply(IrcPongMessage* msg)
         bool ok = false;
         qint64 timestamp = msg->argument().mid(8).toLongLong(&ok);
         if (ok) {
-            pendingPings--;
+            --pendingPings;
             updateLag(QDateTime::currentMSecsSinceEpoch() - timestamp);
             return true;
         }
@@ -102,10 +102,9 @@ void IrcLagTimerPrivate::_irc_pingServer()
     QString cmd = QString("PING communi/%1").arg(QDateTime::currentMSecsSinceEpoch());
     connection->sendData(cmd.toUtf8());
     qint64 pingLag = pendingPings * interval * 1000;
-    if (pingLag > lag) {
+    if (lag > -1 && pingLag > lag)
         updateLag(pingLag);
-    }
-    pendingPings++;
+    ++pendingPings;
 #endif // QT_VERSION
 }
 
@@ -137,8 +136,9 @@ void IrcLagTimerPrivate::updateTimer()
 void IrcLagTimerPrivate::updateLag(qint64 value)
 {
     Q_Q(IrcLagTimer);
+    value = qMax(-1ll, value);
     if (lag != value) {
-        lag = qMax(-1ll, value);
+        lag = value;
         emit q->lagChanged(lag);
     }
 }
