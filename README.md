@@ -1,4 +1,8 @@
-# [![Logo]][Home] IRC framework [![Status]][CI] [![Coverage]][Codecov]
+# [![Logo]][Home] IRC framework 
+
+[![Status]][CI]
+[![Coverage]][Codecov]
+[![BSD]][BSD-3-Clause]
 
 A cross-platform IRC framework written with Qt.
 
@@ -13,10 +17,6 @@ Communi uses semantic versioning. Given the version number **MAJOR**.**MINOR**.*
 - **MINOR** version when adding functionality in a backwards-compatible manner, and
 - **PATCH** version when making backwards-compatible bug fixes.
 
-## License
-
-Communi is free software; you can redistribute and/or modify it under the terms of the [BSD](http://opensource.org/licenses/BSD-3-Clause) license.
-
 ## Contact
 
 - Website: [communi.github.io](https://communi.github.io)
@@ -24,9 +24,11 @@ Communi is free software; you can redistribute and/or modify it under the terms 
 - Issue tracker: [communi.github.io/issues](https://communi.github.io/issues)
 - IRC channel: `#communi` on irc.freenode.net
 
-[Home]:      https://communi.github.io
-[Logo]:      https://raw.githubusercontent.com/communi/libcommuni/master/doc/communi.png
-[Status]:    https://github.com/communi/libcommuni/workflows/CI/badge.svg
-[CI]:        https://github.com/communi/libcommuni/actions
-[Coverage]:  https://codecov.io/gh/communi/libcommuni/branch/master/graph/badge.svg
-[Codecov]:   https://codecov.io/gh/communi/libcommuni
+[Home]:         https://communi.github.io
+[Logo]:         https://raw.githubusercontent.com/communi/libcommuni/master/doc/communi.png
+[Status]:       https://github.com/communi/libcommuni/workflows/CI/badge.svg
+[CI]:           https://github.com/communi/libcommuni/actions
+[Coverage]:     https://codecov.io/gh/communi/libcommuni/branch/master/graph/badge.svg
+[Codecov]:      https://codecov.io/gh/communi/libcommuni
+[BSD]:          https://img.shields.io/badge/license-BSD-yellow.svg
+[BSD-3-Clause]: https://opensource.org/licenses/BSD-3-Clause
