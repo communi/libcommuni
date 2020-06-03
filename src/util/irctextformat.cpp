@@ -340,7 +340,7 @@ void IrcTextFormatPrivate::parse(const QString& str, QString* text, QString* htm
                 if (!potentialUrl && pos > 0 && !processed.at(pos - 1).isSpace()
                         && pos < processed.length() - 1 && !processed.at(pos + 1).isSpace())
                     potentialUrl = true;
-                // flow through
+                Q_FALLTHROUGH();
             default:
                 if (text)
                     *text += processed.at(pos);
