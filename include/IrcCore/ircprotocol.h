@@ -50,7 +50,7 @@ class IRC_CORE_EXPORT IrcProtocol : public QObject
 
 public:
     explicit IrcProtocol(IrcConnection* connection);
-    virtual ~IrcProtocol();
+    ~IrcProtocol() override;
 
     IrcConnection* connection() const;
     QAbstractSocket* socket() const;

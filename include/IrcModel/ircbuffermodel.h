@@ -64,7 +64,7 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
 
 public:
     explicit IrcBufferModel(QObject* parent = nullptr);
-    virtual ~IrcBufferModel();
+    ~IrcBufferModel() override;
 
     IrcConnection* connection() const;
     void setConnection(IrcConnection* connection);
@@ -100,10 +100,10 @@ public:
     QModelIndex index(IrcBuffer* buffer) const;
     IrcBuffer* buffer(const QModelIndex& index) const;
 
-    QHash<int, QByteArray> roleNames() const;
-    int rowCount(const QModelIndex& parent = QModelIndex()) const;
-    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-    QModelIndex index(int row, int column = 0, const QModelIndex& parent = QModelIndex()) const;
+    QHash<int, QByteArray> roleNames() const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    QModelIndex index(int row, int column = 0, const QModelIndex& parent = QModelIndex()) const override;
 
     IrcBuffer* bufferPrototype() const;
     void setBufferPrototype(IrcBuffer* prototype);
@@ -123,7 +123,7 @@ public:
 public Q_SLOTS:
     void clear();
     void receiveMessage(IrcMessage* message);
-    void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder);
+    void sort(int column = 0, Qt::SortOrder order = Qt::AscendingOrder) override;
     void sort(Irc::SortMethod method, Qt::SortOrder order = Qt::AscendingOrder);
 
 Q_SIGNALS:

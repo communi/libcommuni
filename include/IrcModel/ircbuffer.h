@@ -63,7 +63,7 @@ class IRC_MODEL_EXPORT IrcBuffer : public QObject
 
 public:
     Q_INVOKABLE explicit IrcBuffer(QObject* parent = nullptr);
-    virtual ~IrcBuffer();
+    ~IrcBuffer() override;
 
     QString title() const;
     QString name() const;

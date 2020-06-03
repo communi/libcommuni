@@ -56,7 +56,7 @@ class IRC_CORE_EXPORT IrcNetwork : public QObject
     Q_FLAGS(ModeTypes)
 
 public:
-    virtual ~IrcNetwork();
+    ~IrcNetwork() override;
 
     bool isInitialized();
 

@@ -49,7 +49,7 @@ class IRC_UTIL_EXPORT IrcCommandQueue : public QObject
 
 public:
     explicit IrcCommandQueue(QObject* parent = nullptr);
-    virtual ~IrcCommandQueue();
+    ~IrcCommandQueue() override;
 
     int batch() const;
     void setBatch(int batch);

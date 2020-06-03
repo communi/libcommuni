@@ -191,7 +191,7 @@ class TestCommandFilter : public QObject, public IrcCommandFilter
 
 public:
     TestCommandFilter(IrcConnection* connection) : lastCommand(nullptr) { connection->installCommandFilter(this); }
-    bool commandFilter(IrcCommand *command) { lastCommand = command; return true; }
+    bool commandFilter(IrcCommand *command) override { lastCommand = command; return true; }
     IrcCommand* lastCommand;
 };
 

@@ -1468,7 +1468,7 @@ class TestCommandFilter : public QObject, public IrcCommandFilter
 
 public:
     TestCommandFilter(IrcConnection* connection) { connection->installCommandFilter(this); }
-    bool commandFilter(IrcCommand* command) { commands += command->toString(); return false; }
+    bool commandFilter(IrcCommand* command) override { commands += command->toString(); return false; }
     QStringList commands;
 };
 

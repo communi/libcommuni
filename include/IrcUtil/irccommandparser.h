@@ -51,7 +51,7 @@ class IRC_UTIL_EXPORT IrcCommandParser : public QObject
 
 public:
     explicit IrcCommandParser(QObject* parent = nullptr);
-    virtual ~IrcCommandParser();
+    ~IrcCommandParser() override;
 
     QStringList commands() const;
 

@@ -46,19 +46,19 @@ class IRC_MODEL_EXPORT IrcChannel : public IrcBuffer
 
 public:
     Q_INVOKABLE explicit IrcChannel(QObject* parent = nullptr);
-    virtual ~IrcChannel();
+    ~IrcChannel() override;
 
     QString key() const;
     QString mode() const;
     QString topic() const;
 
-    virtual bool isActive() const;
+    bool isActive() const override;
 
 public Q_SLOTS:
     void who();
     void join(const QString& key = QString());
     void part(const QString& reason = QString());
-    void close(const QString& reason = QString());
+    void close(const QString& reason = QString()) override;
 
 Q_SIGNALS:
     void keyChanged(const QString& key);

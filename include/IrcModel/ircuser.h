@@ -52,7 +52,7 @@ class IRC_MODEL_EXPORT IrcUser : public QObject
 
 public:
     explicit IrcUser(QObject* parent = nullptr);
-    virtual ~IrcUser();
+    ~IrcUser() override;
 
     QString title() const;
     QString name() const;

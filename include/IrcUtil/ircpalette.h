@@ -61,7 +61,7 @@ class IRC_UTIL_EXPORT IrcPalette : public QObject
     Q_PROPERTY(QString lightGray READ lightGray WRITE setLightGray)
 
 public:
-    ~IrcPalette();
+    ~IrcPalette() override;
 
     QMap<int, QString> colorNames() const;
     void setColorNames(const QMap<int, QString>& names);

@@ -90,7 +90,7 @@ public:
     };
 
     explicit IrcCommand(QObject* parent = nullptr);
-    virtual ~IrcCommand();
+    ~IrcCommand() override;
 
     IrcConnection* connection() const;
     IrcNetwork* network() const;

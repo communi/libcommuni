@@ -45,8 +45,8 @@ class IrcBufferModelPrivate : public QObject, public IrcMessageFilter, public Ir
 public:
     IrcBufferModelPrivate();
 
-    bool messageFilter(IrcMessage* message);
-    bool commandFilter(IrcCommand* command);
+    bool messageFilter(IrcMessage* message) override;
+    bool commandFilter(IrcCommand* command) override;
 
     IrcBuffer* createBufferHelper(const QString& title);
     IrcChannel* createChannelHelper(const QString& title);
