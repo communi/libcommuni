@@ -82,15 +82,15 @@ public:
         return buffer->d_func();
     }
 
-    IrcBuffer* q_ptr;
-    IrcBufferModel* model;
+    IrcBuffer* q_ptr = nullptr;
+    IrcBufferModel* model = nullptr;
     QString name;
     QString prefix;
-    bool persistent;
-    bool sticky;
+    bool persistent = false;
+    bool sticky = false;
     QVariantMap userData;
     QDateTime activity;
-    MonitorStatus monitorStatus;
+    MonitorStatus monitorStatus = MonitorUnknown;
 };
 
 IRC_END_NAMESPACE

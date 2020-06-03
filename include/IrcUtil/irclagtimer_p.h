@@ -56,12 +56,12 @@ public:
     void updateTimer();
     void updateLag(qint64 value);
 
-    IrcLagTimer* q_ptr;
-    IrcConnection* connection;
+    IrcLagTimer* q_ptr = nullptr;
+    IrcConnection* connection = nullptr;
     QTimer timer;
     int interval;
-    int pendingPings;
-    qint64 lag;
+    int pendingPings = 0;
+    qint64 lag = -1;
 };
 
 IRC_END_NAMESPACE

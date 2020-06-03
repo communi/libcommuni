@@ -55,8 +55,7 @@ static const int DEFAULT_INTERVAL = 2;
  */
 
 #ifndef IRC_DOXYGEN
-IrcCommandQueuePrivate::IrcCommandQueuePrivate() : q_ptr(nullptr),
-    connection(nullptr), batch(DEFAULT_BATCH), interval(DEFAULT_INTERVAL)
+IrcCommandQueuePrivate::IrcCommandQueuePrivate() :  batch(DEFAULT_BATCH), interval(DEFAULT_INTERVAL)
 {
 }
 

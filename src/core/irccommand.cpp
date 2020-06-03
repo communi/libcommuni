@@ -261,7 +261,7 @@ IRC_BEGIN_NAMESPACE
  */
 
 #ifndef IRC_DOXYGEN
-IrcCommandPrivate::IrcCommandPrivate() : type(IrcCommand::Custom), encoding("UTF-8")
+IrcCommandPrivate::IrcCommandPrivate() :  encoding("UTF-8")
 {
 }
 

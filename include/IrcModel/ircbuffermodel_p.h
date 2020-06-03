@@ -78,22 +78,22 @@ public:
         return model->d_func();
     }
 
-    IrcBufferModel* q_ptr;
-    Irc::DataRole role;
+    IrcBufferModel* q_ptr = nullptr;
+    Irc::DataRole role = Irc::TitleRole;
     QPointer<IrcConnection> connection;
     QList<IrcBuffer*> bufferList;
     QMap<QString, IrcBuffer*> bufferMap;
     QHash<QString, QString> keys;
     QVariantMap bufferStates;
     QStringList channels;
-    Irc::SortMethod sortMethod;
-    Qt::SortOrder sortOrder;
-    IrcBuffer* bufferProto;
-    IrcChannel* channelProto;
-    bool persistent;
-    int joinDelay;
-    bool monitorEnabled;
-    bool monitorPending;
+    Irc::SortMethod sortMethod = Irc::SortByHand;
+    Qt::SortOrder sortOrder = Qt::AscendingOrder;
+    IrcBuffer* bufferProto = nullptr;
+    IrcChannel* channelProto = nullptr;
+    bool persistent = false;
+    int joinDelay = 0;
+    bool monitorEnabled = false;
+    bool monitorPending = false;
 };
 
 IRC_END_NAMESPACE

@@ -33,7 +33,7 @@ IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
 IrcMessagePrivate::IrcMessagePrivate() :
-    connection(nullptr), type(IrcMessage::Unknown), timeStamp(QDateTime::currentDateTime()), encoding("ISO-8859-15"), flags(-1)
+     timeStamp(QDateTime::currentDateTime()), encoding("ISO-8859-15")
 {
 }
 

@@ -58,7 +58,7 @@ static const int DEFAULT_INTERVAL = 60;
  */
 
 #ifndef IRC_DOXYGEN
-IrcLagTimerPrivate::IrcLagTimerPrivate() : q_ptr(nullptr), connection(nullptr), interval(DEFAULT_INTERVAL), pendingPings(0), lag(-1)
+IrcLagTimerPrivate::IrcLagTimerPrivate() :  interval(DEFAULT_INTERVAL)
 {
 }
 

@@ -87,8 +87,8 @@ public:
 
     QMap<QString, QString> modes;
     QString topic;
-    bool active;
-    bool enabled;
+    bool active = false;
+    bool enabled = true;
     QStringList names;
     QList<IrcUser*> userList;
     QList<IrcUser*> activeUsers;

@@ -248,21 +248,11 @@ IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
 IrcConnectionPrivate::IrcConnectionPrivate() :
-    q_ptr(nullptr),
     encoding("ISO-8859-15"),
-    network(nullptr),
-    protocol(nullptr),
-    socket(nullptr),
     host(),
-    port(6667),
-    currentServer(-1),
     userName(),
     nickName(),
-    realName(),
-    enabled(true),
-    status(IrcConnection::Inactive),
-    pendingOpen(false),
-    closed(false)
+    realName()
 {
 }
 

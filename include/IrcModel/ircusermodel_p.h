@@ -58,13 +58,13 @@ public:
         return model->d_func();
     }
 
-    IrcUserModel* q_ptr;
-    Irc::DataRole role;
+    IrcUserModel* q_ptr = nullptr;
+    Irc::DataRole role = Irc::TitleRole;
     QStringList titles;
     QList<IrcUser*> userList;
     QPointer<IrcChannel> channel;
-    Irc::SortMethod sortMethod;
-    Qt::SortOrder sortOrder;
+    Irc::SortMethod sortMethod = Irc::SortByHand;
+    Qt::SortOrder sortOrder = Qt::AscendingOrder;
 };
 
 IRC_END_NAMESPACE
