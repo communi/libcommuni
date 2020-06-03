@@ -227,7 +227,7 @@ void tst_IrcUserModel::testSorting()
     }
 
     QStringList sorted = names;
-    std::sort(sorted);
+    std::sort(sorted.begin(), sorted.end());
     QCOMPARE(staticModel.names(), sorted);
 
     // IGNORE INVALID COLUMNS
