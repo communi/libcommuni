@@ -1,4 +1,4 @@
-# [![Logo]][Home] IRC framework [![Status]][CI] [![Coverage]][Coveralls]
+# [![Logo]][Home] IRC framework [![Status]][CI] [![Coverage]][Codecov]
 
 A cross-platform IRC framework written with Qt.
 
@@ -26,7 +26,7 @@ Communi is free software; you can redistribute and/or modify it under the terms 
 
 [Home]:      https://communi.github.io
 [Logo]:      https://raw.githubusercontent.com/communi/libcommuni/master/doc/communi.png
-[Status]:    https://travis-ci.org/communi/libcommuni.svg?branch=master
-[CI]:        https://travis-ci.org/communi/libcommuni
-[Coverage]:  https://coveralls.io/repos/communi/libcommuni/badge.svg?branch=master
-[Coveralls]: https://coveralls.io/r/communi/libcommuni?branch=master
+[Status]:    https://github.com/communi/libcommuni/workflows/ci/badge.svg
+[CI]:        https://github.com/communi/libcommuni/actions
+[Coverage]:  https://codecov.io/gh/communi/libcommuni/branch/master/graph/badge.svg
+[Codecov]:   https://codecov.io/gh/communi/libcommuni
