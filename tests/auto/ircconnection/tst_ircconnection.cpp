@@ -354,7 +354,7 @@ void tst_IrcConnection::testSocket_data()
 {
     QTest::addColumn<QAbstractSocket*>("socket");
 
-    QTest::newRow("null") << static_cast<QAbstractSocket*>(0);
+    QTest::newRow("null") << static_cast<QAbstractSocket*>(nullptr);
     QTest::newRow("tcp") << static_cast<QAbstractSocket*>(new QTcpSocket(this));
 #ifndef QT_NO_SSL
     QTest::newRow("ssl") << static_cast<QAbstractSocket*>(new QSslSocket(this));
@@ -1444,7 +1444,7 @@ void tst_IrcConnection::testServerTime()
 void tst_IrcConnection::testSendCommand()
 {
     IrcConnection conn;
-    QVERIFY(!conn.sendCommand(0));
+    QVERIFY(!conn.sendCommand(nullptr));
     QVERIFY(!conn.sendCommand(IrcCommand::createQuit()));
 
     TestProtocol* protocol = new TestProtocol(connection);
@@ -1457,7 +1457,7 @@ void tst_IrcConnection::testSendCommand()
     QVERIFY(waitForOpened());
 
     QVERIFY(connection->sendCommand(IrcCommand::createQuit()));
-    QVERIFY(!connection->sendCommand(0));
+    QVERIFY(!connection->sendCommand(nullptr));
     QVERIFY(protocol->written.contains("QUIT"));
 }
 
@@ -1764,7 +1764,7 @@ void tst_IrcConnection::testDebug()
     QString str;
     QDebug dbg(&str);
 
-    dbg << static_cast<IrcConnection*>(0);
+    dbg << static_cast<IrcConnection*>(nullptr);
     QCOMPARE(str.trimmed(), QString::fromLatin1("IrcConnection(0x0)"));
     str.clear();
 

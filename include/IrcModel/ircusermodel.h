@@ -56,7 +56,7 @@ class IRC_MODEL_EXPORT IrcUserModel : public QAbstractListModel
     Q_PROPERTY(Qt::SortOrder sortOrder READ sortOrder WRITE setSortOrder)
 
 public:
-    explicit IrcUserModel(QObject* parent = 0);
+    explicit IrcUserModel(QObject* parent = nullptr);
     virtual ~IrcUserModel();
 
     IrcChannel* channel() const;

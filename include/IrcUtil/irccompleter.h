@@ -49,7 +49,7 @@ class IRC_UTIL_EXPORT IrcCompleter : public QObject
     Q_ENUMS(Direction)
 
 public:
-    explicit IrcCompleter(QObject* parent = 0);
+    explicit IrcCompleter(QObject* parent = nullptr);
     virtual ~IrcCompleter();
 
     enum Direction {

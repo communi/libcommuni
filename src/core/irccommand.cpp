@@ -323,7 +323,7 @@ IrcConnection* IrcCommand::connection() const
 IrcNetwork* IrcCommand::network() const
 {
     Q_D(const IrcCommand);
-    return d->connection ? d->connection->network() : 0;
+    return d->connection ? d->connection->network() : nullptr;
 }
 
 /*!

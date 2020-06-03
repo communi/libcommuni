@@ -75,8 +75,8 @@ public:
     static IrcCommandInfo parseSyntax(IrcCommand::Type type, const QString& syntax);
     IrcCommand* parseCommand(const IrcCommandInfo& command, const QString& input) const;
     bool processParameters(const IrcCommandInfo& command, const QString& input, QStringList* params) const;
-    bool processCommand(QString* input, int* removed = 0) const;
-    bool processMessage(QString* input, int* removed = 0) const;
+    bool processCommand(QString* input, int* removed = nullptr) const;
+    bool processMessage(QString* input, int* removed = nullptr) const;
     bool onChannel() const;
 
     static IrcCommandParserPrivate* get(IrcCommandParser* parser)

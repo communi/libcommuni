@@ -63,7 +63,7 @@ class IRC_MODEL_EXPORT IrcBufferModel : public QAbstractListModel
     Q_PROPERTY(bool monitorEnabled READ isMonitorEnabled WRITE setMonitorEnabled NOTIFY monitorEnabledChanged)
 
 public:
-    explicit IrcBufferModel(QObject* parent = 0);
+    explicit IrcBufferModel(QObject* parent = nullptr);
     virtual ~IrcBufferModel();
 
     IrcConnection* connection() const;

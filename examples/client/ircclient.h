@@ -32,7 +32,7 @@ class IrcClient : public QSplitter
     Q_OBJECT
 
 public:
-    IrcClient(QWidget* parent = 0);
+    IrcClient(QWidget* parent = nullptr);
     ~IrcClient();
 
 private slots:

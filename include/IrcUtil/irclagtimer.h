@@ -47,7 +47,7 @@ class IRC_UTIL_EXPORT IrcLagTimer : public QObject
     Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection)
 
 public:
-    explicit IrcLagTimer(QObject* parent = 0);
+    explicit IrcLagTimer(QObject* parent = nullptr);
     virtual ~IrcLagTimer();
 
     IrcConnection* connection() const;

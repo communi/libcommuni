@@ -128,10 +128,10 @@ void tst_IrcBuffer::testReceive()
     QSignalSpy spy(&buffer, SIGNAL(messageReceived(IrcMessage*)));
     QVERIFY(spy.isValid());
 
-    buffer.receiveMessage(0);
+    buffer.receiveMessage(nullptr);
     QCOMPARE(spy.count(), 0);
 
-    IrcMessage msg(0);
+    IrcMessage msg(nullptr);
     buffer.receiveMessage(&msg);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.last().at(0).value<IrcMessage*>(), &msg);
@@ -142,7 +142,7 @@ void tst_IrcBuffer::testDebug()
     QString str;
     QDebug dbg(&str);
 
-    dbg << static_cast<IrcBuffer*>(0);
+    dbg << static_cast<IrcBuffer*>(nullptr);
     QCOMPARE(str.trimmed(), QString::fromLatin1("IrcBuffer(0x0)"));
     str.clear();
 
@@ -190,7 +190,7 @@ class TestCommandFilter : public QObject, public IrcCommandFilter
     Q_INTERFACES(IrcCommandFilter)
 
 public:
-    TestCommandFilter(IrcConnection* connection) : lastCommand(0) { connection->installCommandFilter(this); }
+    TestCommandFilter(IrcConnection* connection) : lastCommand(nullptr) { connection->installCommandFilter(this); }
     bool commandFilter(IrcCommand *command) { lastCommand = command; return true; }
     IrcCommand* lastCommand;
 };

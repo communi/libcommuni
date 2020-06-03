@@ -135,7 +135,7 @@ void tst_IrcCommand::testConnection()
     QCOMPARE(command.connection(), connection);
     QCOMPARE(command.network(), connection->network());
 
-    command.setParent(0);
+    command.setParent(nullptr);
     delete connection;
     QVERIFY(!command.connection());
     QVERIFY(!command.network());
@@ -547,7 +547,7 @@ void tst_IrcCommand::testDebug()
     QString str;
     QDebug dbg(&str);
 
-    dbg << static_cast<IrcCommand*>(0);
+    dbg << static_cast<IrcCommand*>(nullptr);
     QCOMPARE(str.trimmed(), QString::fromLatin1("IrcCommand(0x0)"));
     str.clear();
 

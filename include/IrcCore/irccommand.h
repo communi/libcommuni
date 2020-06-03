@@ -89,7 +89,7 @@ public:
         Monitor
     };
 
-    explicit IrcCommand(QObject* parent = 0);
+    explicit IrcCommand(QObject* parent = nullptr);
     virtual ~IrcCommand();
 
     IrcConnection* connection() const;

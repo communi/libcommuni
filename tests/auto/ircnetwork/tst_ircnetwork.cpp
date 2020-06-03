@@ -406,7 +406,7 @@ void tst_IrcNetwork::testDebug()
     QString str;
     QDebug dbg(&str);
 
-    dbg << static_cast<IrcNetwork*>(0);
+    dbg << static_cast<IrcNetwork*>(nullptr);
     QCOMPARE(str.trimmed(), QString::fromLatin1("IrcNetwork(0x0)"));
     str.clear();
 

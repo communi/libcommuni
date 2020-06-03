@@ -51,7 +51,7 @@ class IRC_MODEL_EXPORT IrcUser : public QObject
     Q_PROPERTY(IrcChannel* channel READ channel CONSTANT)
 
 public:
-    explicit IrcUser(QObject* parent = 0);
+    explicit IrcUser(QObject* parent = nullptr);
     virtual ~IrcUser();
 
     QString title() const;

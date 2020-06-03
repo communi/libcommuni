@@ -48,7 +48,7 @@ class IRC_UTIL_EXPORT IrcCommandQueue : public QObject
     Q_PROPERTY(IrcConnection* connection READ connection WRITE setConnection)
 
 public:
-    explicit IrcCommandQueue(QObject* parent = 0);
+    explicit IrcCommandQueue(QObject* parent = nullptr);
     virtual ~IrcCommandQueue();
 
     int batch() const;

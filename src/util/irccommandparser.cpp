@@ -244,7 +244,7 @@ IrcCommandInfo IrcCommandParserPrivate::parseSyntax(IrcCommand::Type type, const
 
 IrcCommand* IrcCommandParserPrivate::parseCommand(const IrcCommandInfo& command, const QString& input) const
 {
-    IrcCommand* cmd = 0;
+    IrcCommand* cmd = nullptr;
     QStringList params;
     if (processParameters(command, input, &params)) {
         const int count = params.count();
@@ -564,7 +564,7 @@ IrcCommand* IrcCommandParser::parse(const QString& input) const
             return d->parseCommand(custom, params);
         }
     }
-    return 0;
+    return nullptr;
 }
 
 /*!

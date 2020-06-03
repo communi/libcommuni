@@ -47,7 +47,7 @@ void tst_IrcLagTimer::testConnection()
 {
     IrcLagTimer timer(connection);
     QCOMPARE(timer.connection(), connection.data());
-    timer.setConnection(0);
+    timer.setConnection(nullptr);
     QVERIFY(!timer.connection());
     timer.setConnection(connection);
     QCOMPARE(timer.connection(), connection.data());
@@ -83,7 +83,7 @@ void tst_IrcLagTimer::testLag()
     QCOMPARE(lagSpy.count(), ++lagCount);
     QVERIFY(lagSpy.last().at(0).toLongLong() >= 1234ll);
 
-    timer.setConnection(0);
+    timer.setConnection(nullptr);
     QCOMPARE(timer.lag(), -1ll);
     QCOMPARE(lagSpy.count(), ++lagCount);
     QCOMPARE(lagSpy.last().at(0).toLongLong(), -1ll);

@@ -19,7 +19,7 @@ class IrcBot : public IrcConnection
     Q_OBJECT
 
 public:
-    IrcBot(QObject* parent = 0);
+    IrcBot(QObject* parent = nullptr);
 
 public slots:
     void join(QString channel);

@@ -314,7 +314,7 @@ IrcConnection* IrcMessage::connection() const
 IrcNetwork* IrcMessage::network() const
 {
     Q_D(const IrcMessage);
-    return d->connection ? d->connection->network() : 0;
+    return d->connection ? d->connection->network() : nullptr;
 }
 
 /*!
@@ -689,7 +689,7 @@ void IrcMessage::setTag(const QString& name, const QVariant& value)
  */
 IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connection)
 {
-    IrcMessage* message = 0;
+    IrcMessage* message = nullptr;
     IrcMessageData md = IrcMessageData::fromData(data);
     const QMetaObject* metaObject = irc_command_meta_object(md.command);
     if (metaObject) {
@@ -711,7 +711,7 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connecti
  */
 IrcMessage* IrcMessage::fromParameters(const QString& prefix, const QString& command, const QStringList& parameters, IrcConnection* connection)
 {
-    IrcMessage* message = 0;
+    IrcMessage* message = nullptr;
     const QMetaObject* metaObject = irc_command_meta_object(command);
     if (metaObject) {
         message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcConnection*, connection)));
