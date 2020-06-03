@@ -352,19 +352,19 @@ void tst_IrcUserModel::testSorting()
     // RESTORE USERS IN ASCENDING ORDER
     dynamicModel.setSortOrder(Qt::AscendingOrder);
 
-    dynamicModel.setChannel(0);
+    dynamicModel.setChannel(nullptr);
     dynamicModel.setSortMethod(Irc::SortByName);
     dynamicModel.setChannel(channel);
     for (int i = 0; i < dynamicModel.count(); ++i)
         QCOMPARE(dynamicModel.get(i)->name(), nasc.at(i));
 
-    dynamicModel.setChannel(0);
+    dynamicModel.setChannel(nullptr);
     dynamicModel.setSortMethod(Irc::SortByTitle);
     dynamicModel.setChannel(channel);
     for (int i = 0; i < dynamicModel.count(); ++i)
         QCOMPARE(dynamicModel.get(i)->name(), tasc.at(i));
 
-    dynamicModel.setChannel(0);
+    dynamicModel.setChannel(nullptr);
     dynamicModel.setSortMethod(Irc::SortByActivity);
     dynamicModel.setChannel(channel);
     for (int i = 0; i < dynamicModel.count(); ++i)
@@ -373,19 +373,19 @@ void tst_IrcUserModel::testSorting()
     // RESTORE USERS IN DESCENDING ORDER
     dynamicModel.setSortOrder(Qt::DescendingOrder);
 
-    dynamicModel.setChannel(0);
+    dynamicModel.setChannel(nullptr);
     dynamicModel.setSortMethod(Irc::SortByName);
     dynamicModel.setChannel(channel);
     for (int i = 0; i < dynamicModel.count(); ++i)
         QCOMPARE(dynamicModel.get(i)->name(), ndesc.at(i));
 
-    dynamicModel.setChannel(0);
+    dynamicModel.setChannel(nullptr);
     dynamicModel.setSortMethod(Irc::SortByTitle);
     dynamicModel.setChannel(channel);
     for (int i = 0; i < dynamicModel.count(); ++i)
         QCOMPARE(dynamicModel.get(i)->name(), tdesc.at(i));
 
-    dynamicModel.setChannel(0);
+    dynamicModel.setChannel(nullptr);
     dynamicModel.setSortMethod(Irc::SortByActivity);
     dynamicModel.setChannel(channel);
     for (int i = 0; i < dynamicModel.count(); ++i)
@@ -802,9 +802,9 @@ void tst_IrcUserModel::testChanges()
     }
 
     // ### trigger model reset
-    userModel.setChannel(0);
+    userModel.setChannel(nullptr);
     QCOMPARE(channelChangedSpy.count(), ++channelChangedCount);
-    QCOMPARE(channelChangedSpy.last().at(0).value<IrcChannel*>(), static_cast<IrcChannel*>(0));
+    QCOMPARE(channelChangedSpy.last().at(0).value<IrcChannel*>(), static_cast<IrcChannel*>(nullptr));
     QCOMPARE(modelAboutToBeResetSpy.count(), ++modelAboutToBeResetCount);
     QCOMPARE(modelResetSpy.count(), ++modelResetCount);
 
@@ -1470,7 +1470,7 @@ void tst_IrcUserModel::testAIM()
     IrcUser* a = userModel.find("a");
     IrcUser* b = userModel.find("b");
     IrcUser* c = userModel.find("c");
-    IrcUser* o = 0;
+    IrcUser* o = nullptr;
 
     QVERIFY(a);
     QVERIFY(b);

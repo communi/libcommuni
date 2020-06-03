@@ -248,11 +248,11 @@ IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
 IrcConnectionPrivate::IrcConnectionPrivate() :
-    q_ptr(0),
+    q_ptr(nullptr),
     encoding("ISO-8859-15"),
-    network(0),
-    protocol(0),
-    socket(0),
+    network(nullptr),
+    protocol(nullptr),
+    socket(nullptr),
     host(),
     port(6667),
     currentServer(-1),
@@ -561,7 +561,7 @@ bool IrcConnectionPrivate::receiveMessage(IrcMessage* msg)
 IrcCommand* IrcConnectionPrivate::createCtcpReply(IrcPrivateMessage* request)
 {
     Q_Q(IrcConnection);
-    IrcCommand* reply = 0;
+    IrcCommand* reply = nullptr;
     const QMetaObject* metaObject = q->metaObject();
     int idx = metaObject->indexOfMethod("createCtcpReply(QVariant)");
     if (idx != -1) {
@@ -1692,7 +1692,7 @@ IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
         reply = QLatin1String("CLIENTINFO PING SOURCE TIME VERSION");
     if (!reply.isEmpty())
         return IrcCommand::createCtcpReply(request->nick(), reply);
-    return 0;
+    return nullptr;
 }
 
 /*!

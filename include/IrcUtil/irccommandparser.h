@@ -50,7 +50,7 @@ class IRC_UTIL_EXPORT IrcCommandParser : public QObject
     Q_FLAGS(Details)
 
 public:
-    explicit IrcCommandParser(QObject* parent = 0);
+    explicit IrcCommandParser(QObject* parent = nullptr);
     virtual ~IrcCommandParser();
 
     QStringList commands() const;

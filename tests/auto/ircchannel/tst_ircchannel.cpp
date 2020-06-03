@@ -53,7 +53,7 @@ void tst_IrcChannel::testDebug()
     QString str;
     QDebug dbg(&str);
 
-    dbg << static_cast<IrcChannel*>(0);
+    dbg << static_cast<IrcChannel*>(nullptr);
     QCOMPARE(str.trimmed(), QString::fromLatin1("IrcChannel(0x0)"));
     str.clear();
 

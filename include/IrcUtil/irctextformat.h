@@ -53,7 +53,7 @@ class IRC_UTIL_EXPORT IrcTextFormat : public QObject
     Q_ENUMS(SpanFormat)
 
 public:
-    explicit IrcTextFormat(QObject* parent = 0);
+    explicit IrcTextFormat(QObject* parent = nullptr);
     virtual ~IrcTextFormat();
 
     IrcPalette* palette() const;

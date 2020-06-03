@@ -73,7 +73,7 @@ IRC_BEGIN_NAMESPACE
 
 #ifndef IRC_DOXYGEN
 IrcBufferPrivate::IrcBufferPrivate()
-    : q_ptr(0), model(0), persistent(false), sticky(false), monitorStatus(MonitorUnknown)
+    : q_ptr(nullptr), model(nullptr), persistent(false), sticky(false), monitorStatus(MonitorUnknown)
 {
     qRegisterMetaType<IrcBuffer*>();
     qRegisterMetaType<QList<IrcBuffer*> >();
@@ -416,7 +416,7 @@ IrcChannel* IrcBuffer::toChannel()
 IrcConnection* IrcBuffer::connection() const
 {
     Q_D(const IrcBuffer);
-    return d->model ? d->model->connection() : 0;
+    return d->model ? d->model->connection() : nullptr;
 }
 
 /*!
@@ -428,7 +428,7 @@ IrcConnection* IrcBuffer::connection() const
 IrcNetwork* IrcBuffer::network() const
 {
     Q_D(const IrcBuffer);
-    return d->model ? d->model->network() : 0;
+    return d->model ? d->model->network() : nullptr;
 }
 
 /*!

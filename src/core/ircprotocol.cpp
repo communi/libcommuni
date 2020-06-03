@@ -88,7 +88,7 @@ public:
     bool motd;
 };
 
-IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(0), connection(0), composer(0),
+IrcProtocolPrivate::IrcProtocolPrivate() : q_ptr(nullptr), connection(nullptr), composer(nullptr),
     currentNick(-1), resumed(false), authed(false), motd(false)
 {
 }

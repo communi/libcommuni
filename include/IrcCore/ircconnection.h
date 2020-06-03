@@ -77,11 +77,11 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_ENUMS(Status)
 
 public:
-    explicit IrcConnection(QObject* parent = 0);
-    explicit IrcConnection(const QString& host, QObject* parent = 0);
+    explicit IrcConnection(QObject* parent = nullptr);
+    explicit IrcConnection(const QString& host, QObject* parent = nullptr);
     virtual ~IrcConnection();
 
-    Q_INVOKABLE IrcConnection* clone(QObject *parent = 0) const;
+    Q_INVOKABLE IrcConnection* clone(QObject *parent = nullptr) const;
 
     QString host() const;
     void setHost(const QString& host);

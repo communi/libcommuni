@@ -62,7 +62,7 @@ class IRC_MODEL_EXPORT IrcBuffer : public QObject
     Q_PROPERTY(QVariantMap userData READ userData WRITE setUserData NOTIFY userDataChanged)
 
 public:
-    Q_INVOKABLE explicit IrcBuffer(QObject* parent = 0);
+    Q_INVOKABLE explicit IrcBuffer(QObject* parent = nullptr);
     virtual ~IrcBuffer();
 
     QString title() const;

@@ -108,7 +108,7 @@ private:
     Irc::SortMethod method;
 };
 
-IrcUserModelPrivate::IrcUserModelPrivate() : q_ptr(0), role(Irc::TitleRole),
+IrcUserModelPrivate::IrcUserModelPrivate() : q_ptr(nullptr), role(Irc::TitleRole),
     sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder)
 {
 }
@@ -430,7 +430,7 @@ IrcUser* IrcUserModel::find(const QString& name) const
     Q_D(const IrcUserModel);
     if (d->channel && !d->userList.isEmpty())
         return IrcChannelPrivate::get(d->channel)->userMap.value(name);
-    return 0;
+    return nullptr;
 }
 
 /*!
@@ -562,7 +562,7 @@ QModelIndex IrcUserModel::index(IrcUser* user) const
 IrcUser* IrcUserModel::user(const QModelIndex& index) const
 {
     if (!hasIndex(index.row(), index.column()))
-        return 0;
+        return nullptr;
 
     return static_cast<IrcUser*>(index.internalPointer());
 }

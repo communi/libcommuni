@@ -104,7 +104,7 @@ public:
     IrcTextFormat::SpanFormat spanFormat;
 };
 
-static bool parseColors(const QString& message, int pos, int* len, int* fg = 0, int* bg = 0)
+static bool parseColors(const QString& message, int pos, int* len, int* fg = nullptr, int* bg = nullptr)
 {
     // fg(,bg)
     *len = 0;
@@ -467,7 +467,7 @@ QString IrcTextFormat::toHtml(const QString& text) const
 {
     Q_D(const IrcTextFormat);
     QString html;
-    d->parse(text, 0, &html, 0);
+    d->parse(text, nullptr, &html, nullptr);
     return html;
 }
 
@@ -481,7 +481,7 @@ QString IrcTextFormat::toPlainText(const QString& text) const
 {
     Q_D(const IrcTextFormat);
     QString plain;
-    d->parse(text, &plain, 0, 0);
+    d->parse(text, &plain, nullptr, nullptr);
     return plain;
 }
 

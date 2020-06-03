@@ -146,7 +146,7 @@ public:
     QPointer<IrcCommandParser> parser;
 };
 
-IrcCompleterPrivate::IrcCompleterPrivate() : q_ptr(0), index(-1), cursor(-1), suffix(":"), buffer(0), parser(0)
+IrcCompleterPrivate::IrcCompleterPrivate() : q_ptr(nullptr), index(-1), cursor(-1), suffix(":"), buffer(nullptr), parser(nullptr)
 {
 }
 

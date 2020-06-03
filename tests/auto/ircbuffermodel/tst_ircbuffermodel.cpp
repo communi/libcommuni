@@ -563,11 +563,11 @@ void tst_IrcBufferModel::testPrototypes()
     QVERIFY(bufferProtoSpy.isValid());
     QVERIFY(channelProtoSpy.isValid());
 
-    model.setBufferPrototype(0);
+    model.setBufferPrototype(nullptr);
     QVERIFY(model.bufferPrototype());
     QCOMPARE(bufferProtoSpy.count(), 1);
 
-    model.setChannelPrototype(0);
+    model.setChannelPrototype(nullptr);
     QVERIFY(model.channelPrototype());
     QCOMPARE(channelProtoSpy.count(), 1);
 
@@ -1349,7 +1349,7 @@ void tst_IrcBufferModel::testAIM()
     IrcBuffer* a = bufferModel.add("#a");
     IrcBuffer* b = bufferModel.add("#b");
     IrcBuffer* c = bufferModel.add("c");
-    IrcBuffer* o = 0;
+    IrcBuffer* o = nullptr;
 
     QAbstractItemModel* aim = &bufferModel;
     QModelIndex ai = aim->index(0, 0);

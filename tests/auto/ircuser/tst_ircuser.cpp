@@ -58,7 +58,7 @@ void tst_IrcUser::testDebug()
     QString str;
     QDebug dbg(&str);
 
-    dbg << static_cast<IrcUser*>(0);
+    dbg << static_cast<IrcUser*>(nullptr);
     QCOMPARE(str.trimmed(), QString::fromLatin1("IrcUser(0x0)"));
     str.clear();
 

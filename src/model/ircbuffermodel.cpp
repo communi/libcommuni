@@ -127,9 +127,9 @@ private:
     Irc::SortMethod method;
 };
 
-IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(0), role(Irc::TitleRole),
+IrcBufferModelPrivate::IrcBufferModelPrivate() : q_ptr(nullptr), role(Irc::TitleRole),
     sortMethod(Irc::SortByHand), sortOrder(Qt::AscendingOrder),
-    bufferProto(0), channelProto(0), persistent(false), joinDelay(0),
+    bufferProto(nullptr), channelProto(nullptr), persistent(false), joinDelay(0),
     monitorEnabled(false), monitorPending(false)
 {
 }
@@ -230,7 +230,7 @@ bool IrcBufferModelPrivate::commandFilter(IrcCommand* cmd)
 IrcBuffer* IrcBufferModelPrivate::createBufferHelper(const QString& title)
 {
     Q_Q(IrcBufferModel);
-    IrcBuffer* buffer = 0;
+    IrcBuffer* buffer = nullptr;
     const QMetaObject* metaObject = q->metaObject();
     int idx = metaObject->indexOfMethod("createBuffer(QVariant)");
     if (idx != -1) {
@@ -251,7 +251,7 @@ IrcBuffer* IrcBufferModelPrivate::createBufferHelper(const QString& title)
 IrcChannel* IrcBufferModelPrivate::createChannelHelper(const QString& title)
 {
     Q_Q(IrcBufferModel);
-    IrcChannel* channel = 0;
+    IrcChannel* channel = nullptr;
     const QMetaObject* metaObject = q->metaObject();
     int idx = metaObject->indexOfMethod("createChannel(QVariant)");
     if (idx != -1) {
@@ -709,7 +709,7 @@ void IrcBufferModel::setConnection(IrcConnection* connection)
 IrcNetwork* IrcBufferModel::network() const
 {
     Q_D(const IrcBufferModel);
-    return d->connection ? d->connection->network() : 0;
+    return d->connection ? d->connection->network() : nullptr;
 }
 
 /*!
@@ -919,7 +919,7 @@ QModelIndex IrcBufferModel::index(IrcBuffer* buffer) const
 IrcBuffer* IrcBufferModel::buffer(const QModelIndex& index) const
 {
     if (!hasIndex(index.row(), index.column()))
-        return 0;
+        return nullptr;
 
     return static_cast<IrcBuffer*>(index.internalPointer());
 }
