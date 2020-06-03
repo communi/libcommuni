@@ -42,7 +42,7 @@ jobs:
 
     - name: Run Tests
       run: make check
-      if: runner.os == 'linux-latest'
+      if: matrix.os == 'ubuntu-latest'
 
   coverage:
     name: Coverage
