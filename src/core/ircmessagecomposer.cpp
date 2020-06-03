@@ -150,8 +150,9 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
             replaceParam(9, message->parameters().value(2)); // away reason
             break;
         }
-        // flow through
+        Q_FALLTHROUGH();
     case Irc::RPL_UNAWAY:
+        Q_FALLTHROUGH();
     case Irc::RPL_NOWAWAY:
         d.messages.push(new IrcAwayMessage(d.connection));
         d.messages.top()->setCommand(QString::number(message->code()));
