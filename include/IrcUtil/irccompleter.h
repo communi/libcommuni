@@ -50,7 +50,7 @@ class IRC_UTIL_EXPORT IrcCompleter : public QObject
 
 public:
     explicit IrcCompleter(QObject* parent = nullptr);
-    virtual ~IrcCompleter();
+    ~IrcCompleter() override;
 
     enum Direction {
         Forward,

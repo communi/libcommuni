@@ -46,7 +46,7 @@ class IrcCommandQueuePrivate : public QObject,  public IrcCommandFilter
 public:
     IrcCommandQueuePrivate();
 
-    bool commandFilter(IrcCommand* cmd);
+    bool commandFilter(IrcCommand* cmd) override;
 
     void _irc_updateTimer();
     void _irc_sendBatch(bool force = false);

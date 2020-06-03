@@ -36,7 +36,7 @@ public:
     {
     }
 
-    virtual bool write(const QByteArray& data)
+    bool write(const QByteArray& data) override
     {
         written = data;
         return IrcProtocol::write(data);
@@ -1111,7 +1111,7 @@ public:
         values.clear();
     }
 
-    bool messageFilter(IrcMessage* message)
+    bool messageFilter(IrcMessage* message) override
     {
         ++count;
         type = message->type();
@@ -1494,7 +1494,7 @@ public:
         commandFilterEnabled = false;
     }
 
-    bool messageFilter(IrcMessage*)
+    bool messageFilter(IrcMessage*) override
     {
         ++messageFiltered;
         if (commitSuicide)
@@ -1502,7 +1502,7 @@ public:
         return messageFilterEnabled;
     }
 
-    bool commandFilter(IrcCommand*)
+    bool commandFilter(IrcCommand*) override
     {
         ++commandFiltered;
         if (commitSuicide)

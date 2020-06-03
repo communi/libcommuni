@@ -46,7 +46,7 @@ class IrcLagTimerPrivate : public QObject,  public IrcMessageFilter
 public:
     IrcLagTimerPrivate();
 
-    bool messageFilter(IrcMessage* msg);
+    bool messageFilter(IrcMessage* msg) override;
     bool processPongReply(IrcPongMessage* msg);
 
     void _irc_connected();

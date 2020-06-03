@@ -54,7 +54,7 @@ class IRC_UTIL_EXPORT IrcTextFormat : public QObject
 
 public:
     explicit IrcTextFormat(QObject* parent = nullptr);
-    virtual ~IrcTextFormat();
+    ~IrcTextFormat() override;
 
     IrcPalette* palette() const;
 

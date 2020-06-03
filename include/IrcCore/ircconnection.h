@@ -79,7 +79,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
 public:
     explicit IrcConnection(QObject* parent = nullptr);
     explicit IrcConnection(const QString& host, QObject* parent = nullptr);
-    virtual ~IrcConnection();
+    ~IrcConnection() override;
 
     Q_INVOKABLE IrcConnection* clone(QObject *parent = nullptr) const;
 
