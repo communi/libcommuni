@@ -60,6 +60,7 @@ public:
     IrcConnection* connection;
     QTimer timer;
     int interval;
+    int pendingPings;
     qint64 lag;
 };
 

@@ -95,6 +95,7 @@ public:
     QString displayName;
     QVariantMap userData;
     QTimer reconnecter;
+    unsigned int connectionCounter = 0;
     QString saslMechanism;
     QVariantMap ctcpReplies;
     bool enabled;

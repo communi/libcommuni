@@ -17,6 +17,7 @@
 #include "tst_ircdata.h"
 #include "tst_ircclientserver.h"
 
+#include <algorithm>
 #include <QtTest/QtTest>
 
 static bool caseInsensitiveLessThan(const QString& s1, const QString& s2)
@@ -226,7 +227,7 @@ void tst_IrcUserModel::testSorting()
     }
 
     QStringList sorted = names;
-    qSort(sorted);
+    std::sort(sorted.begin(), sorted.end());
     QCOMPARE(staticModel.names(), sorted);
 
     // IGNORE INVALID COLUMNS
@@ -243,7 +244,7 @@ void tst_IrcUserModel::testSorting()
     staticModel.sort(0, Qt::AscendingOrder);
 
     QStringList nasc = names;
-    qSort(nasc.begin(), nasc.end(), caseInsensitiveLessThan);
+    std::sort(nasc.begin(), nasc.end(), caseInsensitiveLessThan);
 
     for (int i = 0; i < staticModel.count(); ++i)
         QCOMPARE(staticModel.get(i)->name(), nasc.at(i));
@@ -253,7 +254,7 @@ void tst_IrcUserModel::testSorting()
     staticModel.sort(0, Qt::DescendingOrder);
 
     QStringList ndesc = names;
-    qSort(ndesc.begin(), ndesc.end(), caseInsensitiveGreaterThan);
+    std::sort(ndesc.begin(), ndesc.end(), caseInsensitiveGreaterThan);
 
     for (int i = 0; i < staticModel.count(); ++i)
         QCOMPARE(staticModel.get(i)->name(), ndesc.at(i));
@@ -263,16 +264,16 @@ void tst_IrcUserModel::testSorting()
     staticModel.sort(0, Qt::AscendingOrder);
 
     QStringList aasc = admins;
-    qSort(aasc.begin(), aasc.end(), caseInsensitiveLessThan);
+    std::sort(aasc.begin(), aasc.end(), caseInsensitiveLessThan);
 
     QStringList oasc = ops;
-    qSort(oasc.begin(), oasc.end(), caseInsensitiveLessThan);
+    std::sort(oasc.begin(), oasc.end(), caseInsensitiveLessThan);
 
     QStringList hasc = halfops;
-    qSort(hasc.begin(), hasc.end(), caseInsensitiveLessThan);
+    std::sort(hasc.begin(), hasc.end(), caseInsensitiveLessThan);
 
     QStringList vasc = voices;
-    qSort(vasc.begin(), vasc.end(), caseInsensitiveLessThan);
+    std::sort(vasc.begin(), vasc.end(), caseInsensitiveLessThan);
 
     QStringList tasc = aasc + oasc + hasc + vasc + nasc;
     // remove duplicates
@@ -293,16 +294,16 @@ void tst_IrcUserModel::testSorting()
     staticModel.sort(0, Qt::DescendingOrder);
 
     QStringList adesc = admins;
-    qSort(adesc.begin(), adesc.end(), caseInsensitiveGreaterThan);
+    std::sort(adesc.begin(), adesc.end(), caseInsensitiveGreaterThan);
 
     QStringList odesc = ops;
-    qSort(odesc.begin(), odesc.end(), caseInsensitiveGreaterThan);
+    std::sort(odesc.begin(), odesc.end(), caseInsensitiveGreaterThan);
 
     QStringList hdesc = halfops;
-    qSort(hdesc.begin(), hdesc.end(), caseInsensitiveGreaterThan);
+    std::sort(hdesc.begin(), hdesc.end(), caseInsensitiveGreaterThan);
 
     QStringList vdesc = voices;
-    qSort(vdesc.begin(), vdesc.end(), caseInsensitiveGreaterThan);
+    std::sort(vdesc.begin(), vdesc.end(), caseInsensitiveGreaterThan);
 
     QStringList tdesc = ndesc + vdesc + hdesc + odesc + adesc;
     // remove duplicates

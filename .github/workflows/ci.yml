@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      matrix:
+        config: [shared, static]
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{runner.os}}-QtCache
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        cached: ${{steps.cache-qt.outputs.cache-hit}}
+
+    - name: Git Checkout
+      uses: actions/checkout@v1
+
+    - name: Configure
+      run: |
+        qmake -v
+        ./configure -verbose -config ${{matrix.config}}
+
+    - name: Build
+      run: make -j2
+
+    - name: Run Tests
+      run: make check
+      if: runner.os == 'linux-latest'
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{runner.os}}-QtCache
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        cached: ${{steps.cache-qt.outputs.cache-hit}}
+
+    - name: Install LCOV
+      run: sudo apt install lcov
+
+    - name: Git Checkout
+      uses: actions/checkout@v1
+
+    - name: Configure
+      run: |
+        qmake -v
+        ./configure -verbose -config coverage -config no_examples
+
+    - name: Build
+      run: make -j2
+
+    - name: Measure Coverage
+      run: |
+        make coverage
+        cat coverage/Irc*.cov > coverage/lcov.info
+
+    - name: Upload Coverage
+      uses: codecov/codecov-action@v1.0.6
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+        file: coverage/lcov.info

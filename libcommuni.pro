@@ -73,7 +73,7 @@ QMAKE_CACHE = $${OUT_PWD}$${QMAKE_DIR_SEP}.qmake.cache
 write_file($$QMAKE_CACHE, CONFIG_LINES)
 
 OTHER_FILES += .gitignore
-OTHER_FILES += .travis.yml
+OTHER_FILES += .github/workflows/ci.yml
 OTHER_FILES += AUTHORS
 OTHER_FILES += CHANGELOG
 OTHER_FILES += configure
