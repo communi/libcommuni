@@ -1,0 +1,33 @@
+name: IRC
+
+on:
+  push:
+    branches: [master,notify]
+  pull_request:
+    branches: [master,notify]
+  create:
+    branches: [master,notify]
+
+jobs:
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Push
+      uses: rectalogic/notify-irc@v1
+      if: github.event_name == 'push'
+      with:
+        nickname: communi
+        channel: '#communi-test'
+        password: ${{secrets.FREENODE_PASSWD}}
+        message: ${{github.actor}} pushed ${{github.event.ref}} ${{github.event.compare}}
+
+    - name: PR
+      uses: rectalogic/notify-irc@v1
+      if: github.event_name == 'pull_request'
+      with:
+        nickname: communi
+        channel: '#communi-test'
+        password: ${{secrets.FREENODE_PASSWD}}
+        message: ${{github.actor}} ${{github.event.action}} ${{github.event.url}}
