@@ -514,7 +514,7 @@ void tst_IrcConnection::testNoSasl()
     QVERIFY(clientSocket->waitForBytesWritten(1000));
     QVERIFY(serverSocket->waitForReadyRead(1000));
     written = serverSocket->readAll();
-    QVERIFY(written.contains("PASS secret"));
+    QVERIFY(written.contains("PASS :secret"));
     QVERIFY(written.contains("CAP END"));
 }
 
