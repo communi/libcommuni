@@ -34,6 +34,7 @@
 #include "ircmessage_p.h"
 #include "irccommand.h"
 #include "ircdebug_p.h"
+#include "irccore_p.h"
 #include "irc.h"
 #include <QDebug>
 
@@ -290,7 +291,7 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
     const bool connected = connection->isConnected();
     const QString subCommand = msg->subCommand();
     if (subCommand == "LS") {
-        QSet<QString> availableCaps = connection->network()->availableCapabilities().toSet();
+        QSet<QString> availableCaps = IrcPrivate::listToSet(connection->network()->availableCapabilities());
         foreach (const QString& cap, msg->capabilities())
             handleCapability(&availableCaps, cap);
         q->setAvailableCapabilities(availableCaps);
@@ -298,7 +299,7 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
         if (!connected && msg->parameter(2) != "*") {
             QMetaObject::invokeMethod(connection->network(), "requestingCapabilities");
             QSet<QString> requestedCaps;
-            QSet<QString> activeCaps = connection->network()->activeCapabilities().toSet();
+            QSet<QString> activeCaps = IrcPrivate::listToSet(connection->network()->activeCapabilities());
             foreach (const QString& cap, connection->network()->requestedCapabilities()) {
                 if (availableCaps.contains(cap) && !activeCaps.contains(cap))
                     requestedCaps += cap;
@@ -309,14 +310,14 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
                     requestedCaps += QLatin1String("sasl");
             }
             if (!requestedCaps.isEmpty())
-                connection->sendRaw("CAP REQ :" + QStringList(requestedCaps.toList()).join(" "));
+                connection->sendRaw("CAP REQ :" + QStringList(IrcPrivate::setToList(requestedCaps)).join(" "));
             else
                 QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
         }
     } else if (subCommand == "ACK" || subCommand == "NAK") {
         bool auth = false;
         if (subCommand == "ACK") {
-            QSet<QString> activeCaps = connection->network()->activeCapabilities().toSet();
+            QSet<QString> activeCaps = IrcPrivate::listToSet(connection->network()->activeCapabilities());
             foreach (const QString& cap, msg->capabilities()) {
                 handleCapability(&activeCaps, cap);
                 if (cap == "sasl" && !connection->saslMechanism().isEmpty() && !connection->password().isEmpty())
@@ -329,7 +330,7 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             QMetaObject::invokeMethod(q, "_irc_resumeHandshake", Qt::QueuedConnection);
     } else if (subCommand == "NEW") {
         QStringList requestedCaps;
-        QSet<QString> availableCaps = connection->network()->availableCapabilities().toSet();
+        QSet<QString> availableCaps = IrcPrivate::listToSet(connection->network()->availableCapabilities());
         foreach (const QString& cap, msg->capabilities()) {
             if (connection->network()->requestedCapabilities().contains(cap))
                 requestedCaps += cap;
@@ -342,8 +343,8 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
             connection->sendRaw("CAP REQ :" + requestedCaps.join(" "));
         }
     } else if (subCommand == "DEL") {
-        QSet<QString> activeCaps =  connection->network()->activeCapabilities().toSet();
-        QSet<QString> availableCaps = connection->network()->availableCapabilities().toSet();
+        QSet<QString> activeCaps =  IrcPrivate::listToSet(connection->network()->activeCapabilities());
+        QSet<QString> availableCaps = IrcPrivate::listToSet(connection->network()->availableCapabilities());
         foreach (const QString& cap, msg->capabilities()) {
             activeCaps.remove(cap);
             availableCaps.remove(cap);
