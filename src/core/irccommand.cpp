@@ -443,6 +443,7 @@ QString IrcCommand::toString() const
         case Whowas:        return QString("WHOWAS %1 %1").arg(p0); // user
 
         case Custom:        qWarning("Reimplement IrcCommand::toString() for IrcCommand::Custom");
+        Q_FALLTHROUGH();
         default:            return QString();
     }
 }
