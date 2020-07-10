@@ -26,52 +26,30 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ircmessagedecoder_p.h"
-#include "irccore_p.h"
-#include <IrcGlobal>
-#include <QSet>
+#ifndef IRCCORE_P_H
+#define IRCCORE_P_H
 
-#ifndef IRC_DOXYGEN
+#include "ircglobal.h"
+
+#include <QtCore/qset.h>
+#include <QtCore/qlist.h>
 
 IRC_BEGIN_NAMESPACE
 
-IRC_CORE_EXPORT bool irc_is_supported_encoding(const QByteArray& encoding)
-{
-    static QSet<QByteArray> codecs = IrcPrivate::listToSet(QTextCodec::availableCodecs());
-    return codecs.contains(encoding);
+namespace IrcPrivate {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    template <typename T>
+    QSet<T> listToSet(const QList<T> &list) { return QSet<T>(list.cbegin(), list.cend()); }
+    template <typename T>
+    static inline QList<T> setToList(const QSet<T> &set) { return QList<T>(set.cbegin(), set.cend()); }
+#else
+    template <typename T>
+    static inline QSet<T> listToSet(const QList<T> &list) { return list.toSet(); }
+    template <typename T>
+    static inline QList<T> setToList(const QSet<T> &set) { return set.toList(); }
+#endif
 }
-
-IrcMessageDecoder::IrcMessageDecoder()
-{
-    initialize();
-}
-
-IrcMessageDecoder::~IrcMessageDecoder()
-{
-    uninitialize();
-}
-
-QString IrcMessageDecoder::decode(const QByteArray& data, const QByteArray& encoding) const
-{
-    if (data.isEmpty())
-        return QString();
-
-    static const QTextCodec *utf8Codec = QTextCodec::codecForName("UTF-8");
-    if (utf8Codec) {
-        QTextCodec::ConverterState state;
-        QString utf8 = utf8Codec->toUnicode(data, data.length(), &state);
-        if (state.invalidChars == 0)
-            return utf8;
-    }
-
-    QTextCodec *defaultCodec = QTextCodec::codecForName(encoding);
-    if (!defaultCodec)
-        defaultCodec = QTextCodec::codecForName("UTF-8");
-
-    QTextCodec* codec = QTextCodec::codecForUtfText(data, defaultCodec);
-    Q_ASSERT(codec);
-    return codec->toUnicode(data);
-}
-#endif // IRC_DOXYGEN
 
 IRC_END_NAMESPACE
+
+#endif // IRCCORE_P_H

@@ -32,6 +32,7 @@
 #include "ircprotocol.h"
 #include "ircconnection.h"
 #include "irccommand.h"
+#include "irccore_p.h"
 #include <QMetaEnum>
 #include <QPointer>
 
@@ -246,7 +247,7 @@ void IrcNetworkPrivate::setAvailableCapabilities(const QSet<QString>& capabiliti
     Q_Q(IrcNetwork);
     if (availableCaps != capabilities) {
         availableCaps = capabilities;
-        emit q->availableCapabilitiesChanged(availableCaps.toList());
+        emit q->availableCapabilitiesChanged(IrcPrivate::setToList(availableCaps));
     }
 }
 
@@ -255,7 +256,7 @@ void IrcNetworkPrivate::setActiveCapabilities(const QSet<QString>& capabilities)
     Q_Q(IrcNetwork);
     if (activeCaps != capabilities) {
         activeCaps = capabilities;
-        emit q->activeCapabilitiesChanged(activeCaps.toList());
+        emit q->activeCapabilitiesChanged(IrcPrivate::setToList(activeCaps));
     }
 }
 
@@ -589,7 +590,7 @@ int IrcNetwork::targetLimit(const QString& command) const
 QStringList IrcNetwork::availableCapabilities() const
 {
     Q_D(const IrcNetwork);
-    return d->availableCaps.toList();
+    return IrcPrivate::setToList(d->availableCaps);
 }
 
 /*!
@@ -606,7 +607,7 @@ QStringList IrcNetwork::availableCapabilities() const
 QStringList IrcNetwork::activeCapabilities() const
 {
     Q_D(const IrcNetwork);
-    return d->activeCaps.toList();
+    return IrcPrivate::setToList(d->activeCaps);
 }
 
 /*!
@@ -677,16 +678,16 @@ bool IrcNetwork::requestCapabilities(const QStringList& capabilities)
 QStringList IrcNetwork::requestedCapabilities() const
 {
     Q_D(const IrcNetwork);
-    return d->requestedCaps.toList();
+    return IrcPrivate::setToList(d->requestedCaps);
 }
 
 void IrcNetwork::setRequestedCapabilities(const QStringList& capabilities)
 {
     Q_D(IrcNetwork);
-    const QSet<QString> caps = capabilities.toSet();
+    const QSet<QString> caps = IrcPrivate::listToSet(capabilities);
     if (d->requestedCaps != caps) {
         d->requestedCaps = caps;
-        emit requestedCapabilitiesChanged(caps.toList());
+        emit requestedCapabilitiesChanged(IrcPrivate::setToList(caps));
     }
 }
 

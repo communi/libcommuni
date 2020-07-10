@@ -261,9 +261,15 @@ void tst_IrcNetwork::testCapabilities_data()
                                << QString("acksticky"); // active
 }
 
+static QStringList sorted(QStringList lst)
+{
+    std::sort(lst.begin(), lst.end());
+    return lst;
+}
+
 static bool equalCaps(const QString& left, const QString& right)
 {
-    return left.split(" ", QString::SkipEmptyParts).toSet() == right.split(" ", QString::SkipEmptyParts).toSet();
+    return sorted(left.split(" ", QString::SkipEmptyParts)) == sorted(right.split(" ", QString::SkipEmptyParts));
 }
 
 void tst_IrcNetwork::testCapabilities()
