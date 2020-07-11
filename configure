@@ -14,6 +14,7 @@ INSTALL_IMPORTS=
 INSTALL_QML=
 
 BUILD_EXAMPLES=yes
+BUILD_QML=yes
 BUILD_TESTS=yes
 
 BUILD_UCHARDET=auto
@@ -127,6 +128,9 @@ while [ "$#" -gt 0 ]; do
         examples)
             BUILD_EXAMPLES=no
             ;;
+        qml)
+            BUILD_QML=no
+            ;;
         tests)
             BUILD_TESTS=no
             ;;
@@ -140,6 +144,9 @@ while [ "$#" -gt 0 ]; do
         case "$VAL" in
         examples)
             BUILD_EXAMPLES=yes
+            ;;
+        qml)
+            BUILD_QML=yes
             ;;
         tests)
             BUILD_TESTS=yes
@@ -229,7 +236,7 @@ Configure options:
     -var (value) ............. Additional variables recognized by qmake
                                (eg. -var "QMAKE_LFLAGS += -L/path/to/icu")
     -make (part) ............. Add part to the list of parts to be built at
-                               make time (available parts: examples tests)
+                               make time (available parts: examples qml tests)
     -nomake (part) ........... Exclude part from the list of parts to be built
 
 Additional options:
@@ -282,6 +289,7 @@ fi
 [ "$INSTALL_QML" = "" ] && INSTALL_QML=`$QMAKE -query QT_INSTALL_QML`
 
 [ "$BUILD_EXAMPLES" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_examples"
+[ "$BUILD_QML" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_qml"
 [ "$BUILD_TESTS" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_tests"
 
 [ "$BUILD_UCHARDET" = "no" ] && QMAKE_PARAMS="$QMAKE_PARAMS -config no_uchardet"
@@ -306,14 +314,17 @@ fi
 echo "uchardet support ................ $BUILD_UCHARDET"
 echo "ICU support ..................... $BUILD_ICU"
 echo "Examples ........................ $BUILD_EXAMPLES"
+echo "QML ............................. $BUILD_QML"
 echo "Tests ........................... $BUILD_TESTS"
 echo
 echo "Install libs .................... $INSTALL_LIBS"
 #echo "Install binaries ................ $INSTALL_BINS"
 echo "Install headers ................. $INSTALL_HEADERS"
 echo "Install features ................ $INSTALL_FEATURES"
-echo "Install QML1 imports ............ $INSTALL_IMPORTS"
-echo "Install QML2 imports ............ $INSTALL_QML"
+if [ "$BUILD_QML" = "yes" ]; then
+    echo "Install QML1 imports ............ $INSTALL_IMPORTS"
+    echo "Install QML2 imports ............ $INSTALL_QML"
+fi
 echo
 echo Communi is now configured for building. Just run \'make\'.
 echo
