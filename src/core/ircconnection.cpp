@@ -385,7 +385,7 @@ void IrcConnectionPrivate::open()
             q->setSecure(s);
         }
         socket->connectToHost(host, port);
-        connectionCounter++;
+        setConnectionCount(connectionCount + 1);
     }
 }
 
@@ -395,6 +395,15 @@ void IrcConnectionPrivate::reconnect()
         pendingOpen = false;
         reconnecter.start();
         setStatus(IrcConnection::Waiting);
+    }
+}
+
+void IrcConnectionPrivate::setConnectionCount(int count)
+{
+    Q_Q(IrcConnection);
+    if (connectionCount != count) {
+        connectionCount = count;
+        emit q->connectionCountChanged(count);
     }
 }
 
@@ -1096,6 +1105,7 @@ void IrcConnection::setReconnectDelay(int seconds)
         emit reconnectDelayChanged(interval);
     }
 }
+
 /*!
     \property int IrcConnection::connectionCount
     This property holds the amount of times a connection was established.
@@ -1108,9 +1118,8 @@ void IrcConnection::setReconnectDelay(int seconds)
 int IrcConnection::connectionCount() const
 {
     Q_D(const IrcConnection);
-    return d->connectionCounter;
+    return d->connectionCount;
 }
-
 
 /*!
     This property holds the socket. The default value is an instance of QTcpSocket.
@@ -1383,7 +1392,7 @@ void IrcConnection::close()
         if (d->socket->state() == QAbstractSocket::UnconnectedState)
             d->setStatus(Closed);
         d->reconnecter.stop();
-        d->connectionCounter = 0;
+        d->setConnectionCount(0);
     }
 }
 
@@ -1467,10 +1476,9 @@ bool IrcConnection::sendData(const QByteArray& data)
             else
                 ircDebug(this, IrcDebug::Write) << data;
             if (!d->closed && data.length() >= 4) {
-                if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace()))
-                {
+                if (cmd.startsWith("QUIT") && (data.length() == 4 || QChar(data.at(4)).isSpace())) {
                     d->closed = true;
-                    d->connectionCounter = 0;
+                    d->setConnectionCount(0);
                 }
             }
             return d->protocol->write(data);

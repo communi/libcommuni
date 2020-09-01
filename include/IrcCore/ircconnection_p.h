@@ -66,6 +66,7 @@ public:
 
     void open();
     void reconnect();
+    void setConnectionCount(int count);
     void setNick(const QString& nick);
     void setStatus(IrcConnection::Status status);
     void setInfo(const QHash<QString, QString>& info);
@@ -95,7 +96,7 @@ public:
     QString displayName;
     QVariantMap userData;
     QTimer reconnecter;
-    unsigned int connectionCounter = 0;
+    int connectionCount = 0;
     QString saslMechanism;
     QVariantMap ctcpReplies;
     bool enabled = true;
