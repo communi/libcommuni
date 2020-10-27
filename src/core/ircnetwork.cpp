@@ -191,7 +191,11 @@ IrcNetworkPrivate::IrcNetworkPrivate() :
 static QHash<QString, int> numericValues(const QString& parameter)
 {
     QHash<QString, int> values;
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 14, 0))
+    const QStringList keyValues = parameter.split(",", Qt::SkipEmptyParts);
+#else
     const QStringList keyValues = parameter.split(",", QString::SkipEmptyParts);
+#endif
     foreach (const QString& keyValue, keyValues)
         values.insert(keyValue.section(":", 0, 0), keyValue.section(":", 1, 1).toInt());
     return values;
@@ -204,13 +208,26 @@ void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& info)
         setName(info.value("NETWORK"));
     if (info.contains("PREFIX")) {
         const QString pfx = info.value("PREFIX");
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 14, 0))
+        setModes(pfx.mid(1, pfx.indexOf(')') - 1).split("", Qt::SkipEmptyParts));
+        setPrefixes(pfx.mid(pfx.indexOf(')') + 1).split("", Qt::SkipEmptyParts));
+#else
         setModes(pfx.mid(1, pfx.indexOf(')') - 1).split("", QString::SkipEmptyParts));
         setPrefixes(pfx.mid(pfx.indexOf(')') + 1).split("", QString::SkipEmptyParts));
+#endif
     }
     if (info.contains("CHANTYPES"))
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 14, 0))
+        setChannelTypes(info.value("CHANTYPES").split("", Qt::SkipEmptyParts));
+#else
         setChannelTypes(info.value("CHANTYPES").split("", QString::SkipEmptyParts));
+#endif
     if (info.contains("STATUSMSG"))
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 14, 0))
+        setStatusPrefixes(info.value("STATUSMSG").split("", Qt::SkipEmptyParts));
+#else
         setStatusPrefixes(info.value("STATUSMSG").split("", QString::SkipEmptyParts));
+#endif
 
     // TODO:
     if (info.contains("NICKLEN"))
@@ -228,7 +245,11 @@ void IrcNetworkPrivate::setInfo(const QHash<QString, QString>& info)
     if (info.contains("MONITOR"))
         numericLimits.insert("MONITOR", info.value("MONITOR").toInt());
     if (info.contains("CHANMODES"))
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 14, 0))
+        channelModes = info.value("CHANMODES").split(",", Qt::SkipEmptyParts);
+#else
         channelModes = info.value("CHANMODES").split(",", QString::SkipEmptyParts);
+#endif
     if (info.contains("MAXLIST"))
         modeLimits = numericValues(info.value("MAXLIST"));
     if (info.contains("CHANLIMIT"))
@@ -512,6 +533,16 @@ QStringList IrcNetwork::channelModes(IrcNetwork::ModeTypes types) const
 {
     Q_D(const IrcNetwork);
     QStringList modes;
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 14, 0))
+    if (types & TypeA)
+        modes += d->channelModes.value(0).split("", Qt::SkipEmptyParts);
+    if (types & TypeB)
+        modes += d->channelModes.value(1).split("", Qt::SkipEmptyParts);
+    if (types & TypeC)
+        modes += d->channelModes.value(2).split("", Qt::SkipEmptyParts);
+    if (types & TypeD)
+        modes += d->channelModes.value(3).split("", Qt::SkipEmptyParts);
+#else
     if (types & TypeA)
         modes += d->channelModes.value(0).split("", QString::SkipEmptyParts);
     if (types & TypeB)
@@ -520,6 +551,7 @@ QStringList IrcNetwork::channelModes(IrcNetwork::ModeTypes types) const
         modes += d->channelModes.value(2).split("", QString::SkipEmptyParts);
     if (types & TypeD)
         modes += d->channelModes.value(3).split("", QString::SkipEmptyParts);
+#endif
     return modes;
 }
 

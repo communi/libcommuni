@@ -10,15 +10,18 @@
 #include "ircclient.h"
 #include "ircmessageformatter.h"
 
-#include <QTextDocument>
-#include <QTextCursor>
-#include <QVBoxLayout>
-#include <QScrollBar>
 #include <QLineEdit>
-#include <QShortcut>
 #include <QListView>
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 10, 0))
+#include <QRandomGenerator>
+#endif
+#include <QScrollBar>
+#include <QShortcut>
+#include <QTextCursor>
+#include <QTextDocument>
 #include <QTextEdit>
 #include <QTime>
+#include <QVBoxLayout>
 
 #include <Irc>
 #include <IrcUser>
@@ -99,7 +102,11 @@ void IrcClient::onTextEntered()
         lineEdit->clear();
     } else if (input.length() > 1) {
         QString error;
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 14, 0))
+        QString command = lineEdit->text().mid(1).split(" ", Qt::SkipEmptyParts).value(0).toUpper();
+#else
         QString command = lineEdit->text().mid(1).split(" ", QString::SkipEmptyParts).value(0).toUpper();
+#endif
         if (parser->commands().contains(command))
             error = tr("[ERROR] Syntax: %1").arg(parser->syntax(command).replace("<", "&lt;").replace(">", "&gt;"));
         else
@@ -312,10 +319,14 @@ void IrcClient::createConnection()
     connect(connection, SIGNAL(connecting()), this, SLOT(onConnecting()));
     connect(connection, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 
-    qsrand(QTime::currentTime().msec());
 
     connection->setHost(SERVER);
     connection->setUserName("communi");
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 10, 0))
+    connection->setNickName(tr("Client%1").arg(QRandomGenerator::global()->bounded(1, 10000)));
+#else
+    qsrand(QTime::currentTime().msec());
     connection->setNickName(tr("Client%1").arg(qrand() % 9999));
+#endif
     connection->setRealName(tr("Communi %1 example client").arg(IRC_VERSION_STR));
 }

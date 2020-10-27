@@ -8,6 +8,9 @@
  */
 
 #include <QtCore>
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 10, 0))
+#include <QRandomGenerator>
+#endif
 #include <IrcConnection>
 #include <IrcCommand>
 #include <Irc>
@@ -19,12 +22,16 @@ int main(int argc, char* argv[])
 
     // enable debug output
     qputenv("IRC_DEBUG", "1");
-    qsrand(QTime::currentTime().msec());
 
 //! [minimal]
     IrcConnection connection("irc.freenode.net");
     connection.setUserName("communi");
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 10, 0))
+    connection.setNickName(QString("Minimal%1").arg(QRandomGenerator::global()->bounded(1, 10000)));
+#else
+    qsrand(QTime::currentTime().msec());
     connection.setNickName(QString("Minimal%1").arg(qrand() % 9999));
+#endif
     connection.setRealName(QString("Communi %1 minimal example").arg(Irc::version()));
     connection.sendCommand(IrcCommand::createJoin("#botwar"));
     connection.sendCommand(IrcCommand::createMessage("#botwar", "Hi, kthxbye!"));
