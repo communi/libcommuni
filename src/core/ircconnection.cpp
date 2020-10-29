@@ -306,7 +306,11 @@ void IrcConnectionPrivate::_irc_sslErrors()
 #ifndef QT_NO_SSL
     QSslSocket* ssl = qobject_cast<QSslSocket*>(socket);
     if (ssl) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        foreach (const QSslError& error, ssl->sslHandshakeErrors())
+#else
         foreach (const QSslError& error, ssl->sslErrors())
+#endif
             errors += error.errorString();
     }
 #endif
