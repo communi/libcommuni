@@ -31,8 +31,9 @@
 
 #include "ircglobal.h"
 
-#include <QtCore/qset.h>
 #include <QtCore/qlist.h>
+#include <QtCore/qset.h>
+#include <QtCore/qstring.h>
 
 IRC_BEGIN_NAMESPACE
 
@@ -49,6 +50,12 @@ namespace IrcPrivate {
     static inline QList<T> setToList(const QSet<T> &set) { return set.toList(); }
 #endif
 }
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+namespace Qt {
+    const QString::SplitBehavior SkipEmptyParts = QString::SkipEmptyParts;
+}
+#endif
 
 IRC_END_NAMESPACE
 

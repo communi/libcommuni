@@ -792,8 +792,13 @@ void tst_IrcMessage::testModeMessage()
     QFETCH(QString, mode);
     QFETCH(QString, argument);
 
+#if (QT_VERSION) >= (QT_VERSION_CHECK(5, 14, 0))
+    const QString arg = argument.split(" ", Qt::SkipEmptyParts).value(0);
+    const QStringList args = argument.split(" ", Qt::SkipEmptyParts);
+#else
     const QString arg = argument.split(" ", QString::SkipEmptyParts).value(0);
     const QStringList args = argument.split(" ", QString::SkipEmptyParts);
+#endif
 
     IrcConnection connection;
     IrcMessage* message = IrcMessage::fromData(data, &connection);

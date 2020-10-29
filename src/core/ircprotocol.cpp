@@ -210,7 +210,7 @@ void IrcProtocolPrivate::handleNumericMessage(IrcNumericMessage* msg)
         break;
     case Irc::RPL_ISUPPORT: {
         foreach (const QString& param, msg->parameters().mid(1)) {
-            QStringList keyValue = param.split("=", QString::SkipEmptyParts);
+            QStringList keyValue = param.split("=", Qt::SkipEmptyParts);
             info.insert(keyValue.value(0), keyValue.value(1));
         }
         if (motd)
