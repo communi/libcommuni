@@ -30,8 +30,6 @@ for(IRC_MODULE, IRC_MODULES_ORDERED) {
                 "$$IRC_LIBDIR/$${IRC_MODULE}.framework/Versions/3/$${IRC_MODULE}" $$TARGET
         }
     } else {
-        INCLUDEPATH += $$IRC_INCDIR/$$IRC_MODULE
-        DEPENDPATH += $$IRC_INCDIR/$$IRC_MODULE
         QMAKE_LIBDIR += $$IRC_LIBDIR # injects before system libdirs
         REAL_TEMPLATE = $$TEMPLATE
         TEMPLATE = fakelib
@@ -39,4 +37,6 @@ for(IRC_MODULE, IRC_MODULES_ORDERED) {
         TEMPLATE = $$REAL_TEMPLATE
         !no_rpath:QMAKE_RPATHDIR += $$IRC_LIBDIR
     }
+    INCLUDEPATH += $$IRC_INCDIR/$$IRC_MODULE
+    DEPENDPATH += $$IRC_INCDIR/$$IRC_MODULE
 }
