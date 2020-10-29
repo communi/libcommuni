@@ -57,6 +57,26 @@ namespace Qt {
 }
 #endif
 
+#ifndef Q_FALLTHROUGH
+#   if defined(__cplusplus)
+#       if __has_cpp_attribute(clang::fallthrough)
+#           define Q_FALLTHROUGH() [[clang::fallthrough]]
+#       elif __has_cpp_attribute(gnu::fallthrough)
+#           define Q_FALLTHROUGH() [[gnu::fallthrough]]
+#       elif __has_cpp_attribute(fallthrough)
+#           define Q_FALLTHROUGH() [[fallthrough]]
+#       endif
+#   endif
+#endif
+
+#ifndef Q_FALLTHROUGH
+#   if (defined(Q_CC_GNU) && Q_CC_GNU >= 700) && !defined(Q_CC_INTEL)
+#       define Q_FALLTHROUGH() __attribute__((fallthrough))
+#   else
+#       define Q_FALLTHROUGH() (void)0
+#   endif
+#endif
+
 IRC_END_NAMESPACE
 
 #endif // IRCCORE_P_H

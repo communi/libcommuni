@@ -100,7 +100,9 @@ public:
     QModelIndex index(IrcBuffer* buffer) const;
     IrcBuffer* buffer(const QModelIndex& index) const;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QHash<int, QByteArray> roleNames() const override;
+#endif
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QModelIndex index(int row, int column = 0, const QModelIndex& parent = QModelIndex()) const override;

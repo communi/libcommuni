@@ -127,6 +127,18 @@ private:
     Irc::SortMethod method;
 };
 
+static QHash<int, QByteArray> irc_buffer_model_roles()
+{
+    QHash<int, QByteArray> roles;
+    roles[Qt::DisplayRole] = "display";
+    roles[Irc::BufferRole] = "buffer";
+    roles[Irc::ChannelRole] = "channel";
+    roles[Irc::NameRole] = "name";
+    roles[Irc::PrefixRole] = "prefix";
+    roles[Irc::TitleRole] = "title";
+    return roles;
+}
+
 IrcBufferModelPrivate::IrcBufferModelPrivate()
 {
 }
@@ -645,6 +657,10 @@ IrcBufferModel::IrcBufferModel(QObject* parent)
     setBufferPrototype(new IrcBuffer(this));
     setChannelPrototype(new IrcChannel(this));
     setConnection(qobject_cast<IrcConnection*>(parent));
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    setRoleNames(irc_buffer_model_roles());
+#endif
 }
 
 /*!
@@ -1169,17 +1185,12 @@ bool IrcBufferModel::lessThan(IrcBuffer* one, IrcBuffer* another, Irc::SortMetho
 
     1) The type depends on \ref displayRole.
  */
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 QHash<int, QByteArray> IrcBufferModel::roleNames() const
 {
-    QHash<int, QByteArray> roles;
-    roles[Qt::DisplayRole] = "display";
-    roles[Irc::BufferRole] = "buffer";
-    roles[Irc::ChannelRole] = "channel";
-    roles[Irc::NameRole] = "name";
-    roles[Irc::PrefixRole] = "prefix";
-    roles[Irc::TitleRole] = "title";
-    return roles;
+    return irc_buffer_model_roles();
 }
+#endif
 
 /*!
     Returns the number of buffers.
