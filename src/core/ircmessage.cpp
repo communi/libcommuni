@@ -33,6 +33,7 @@
 #include "ircmessagecomposer_p.h"
 #include "ircnetwork_p.h"
 #include "irccommand.h"
+#include "irccore_p.h"
 #include "irc.h"
 #include <QMetaEnum>
 #include <QVariant>
@@ -989,7 +990,7 @@ QStringList IrcCapabilityMessage::capabilities() const
     QStringList caps;
     QStringList params = d->params();
     if (params.count() > 2)
-        caps = params.last().split(QLatin1Char(' '), QString::SkipEmptyParts);
+        caps = params.last().split(QLatin1Char(' '), Qt::SkipEmptyParts);
     return caps;
 }
 
@@ -2130,7 +2131,7 @@ bool IrcWhoisMessage::isSecure() const
 QStringList IrcWhoisMessage::channels() const
 {
     Q_D(const IrcMessage);
-    return d->params().value(8).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    return d->params().value(8).split(QLatin1Char(' '), Qt::SkipEmptyParts);
 }
 
 /*!

@@ -34,6 +34,7 @@
 #include "ircnetwork.h"
 #include "ircchannel.h"
 #include "irctoken_p.h"
+#include "irccore_p.h"
 #include "ircuser.h"
 
 #include <QTextBoundaryFinder>
@@ -190,7 +191,7 @@ QList<IrcCompletion> IrcCompleterPrivate::completeCommands(const QString& text, 
     QString input = text;
     IrcCommandParserPrivate* pp = IrcCommandParserPrivate::get(parser);
     if (pp->processCommand(&input, &removed)) {
-        const QString command = input.split(QLatin1Char(' '), QString::SkipEmptyParts).value(0).toUpper();
+        const QString command = input.split(QLatin1Char(' '), Qt::SkipEmptyParts).value(0).toUpper();
         if (!command.isEmpty()) {
             foreach (const IrcCommandInfo& cmd, pp->commands) {
                 if (cmd.command == command)

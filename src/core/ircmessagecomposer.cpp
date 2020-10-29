@@ -28,6 +28,7 @@
 
 #include "ircmessagecomposer_p.h"
 #include "ircmessage.h"
+#include "irccore_p.h"
 #include "irc.h"
 
 IRC_BEGIN_NAMESPACE
@@ -94,7 +95,7 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
         int count = message->parameters().count();
         QString channel = message->parameters().value(count - 2);
         QStringList names = d.messages.top()->parameters().mid(1);
-        names += message->parameters().value(count - 1).split(QLatin1Char(' '), QString::SkipEmptyParts);
+        names += message->parameters().value(count - 1).split(QLatin1Char(' '), Qt::SkipEmptyParts);
         d.messages.top()->setParameters(QStringList() << channel << names);
         break;
     }

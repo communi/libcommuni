@@ -29,6 +29,7 @@
 #include "irccommandparser.h"
 #include "irccommandparser_p.h"
 #include "irctoken_p.h"
+#include "irccore_p.h"
 #include <climits>
 
 IRC_BEGIN_NAMESPACE
@@ -215,7 +216,7 @@ static inline bool isCurrent(const QString& token)
 IrcCommandInfo IrcCommandParserPrivate::parseSyntax(IrcCommand::Type type, const QString& syntax)
 {
     IrcCommandInfo cmd;
-    QStringList tokens = syntax.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    QStringList tokens = syntax.split(QLatin1Char(' '), Qt::SkipEmptyParts);
     if (!tokens.isEmpty()) {
         cmd.type = type;
         cmd.command = tokens.takeFirst().toUpper();

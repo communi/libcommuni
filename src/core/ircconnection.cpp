@@ -36,6 +36,7 @@
 #include "ircmessage.h"
 #include "ircdebug_p.h"
 #include "ircfilter.h"
+#include "irccore_p.h"
 #include "irc.h"
 #include <QLocale>
 #include <QRegExp>
@@ -362,7 +363,7 @@ void IrcConnectionPrivate::_irc_filterDestroyed(QObject* filter)
 
 static bool parseServer(const QString& server, QString* host, int* port, bool* ssl)
 {
-    QStringList p = server.split(QRegExp("[: ]"), QString::SkipEmptyParts);
+    QStringList p = server.split(QRegExp("[: ]"), Qt::SkipEmptyParts);
     *host = p.value(0);
     *ssl = p.value(1).startsWith(QLatin1Char('+'));
     bool ok = false;
@@ -801,7 +802,7 @@ QString IrcConnection::userName() const
 void IrcConnection::setUserName(const QString& name)
 {
     Q_D(IrcConnection);
-    QString user = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
+    QString user = name.split(" ", Qt::SkipEmptyParts).value(0).trimmed();
     if (d->userName != user) {
         if (isActive())
             qWarning("IrcConnection::setUserName() has no effect until re-connect");
@@ -831,7 +832,7 @@ QString IrcConnection::nickName() const
 void IrcConnection::setNickName(const QString& name)
 {
     Q_D(IrcConnection);
-    QString nick = name.split(" ", QString::SkipEmptyParts).value(0).trimmed();
+    QString nick = name.split(" ", Qt::SkipEmptyParts).value(0).trimmed();
     if (d->nickName != nick) {
         if (isActive())
             sendCommand(IrcCommand::createNick(nick));
@@ -1679,7 +1680,7 @@ IrcCommand* IrcConnection::createCtcpReply(IrcPrivateMessage* request) const
 {
     Q_D(const IrcConnection);
     QString reply;
-    QString type = request->content().split(" ", QString::SkipEmptyParts).value(0).toUpper();
+    QString type = request->content().split(" ", Qt::SkipEmptyParts).value(0).toUpper();
     if (d->ctcpReplies.contains(type))
         reply = type + QLatin1String(" ") + d->ctcpReplies.value(type).toString();
     else if (type == "PING")
