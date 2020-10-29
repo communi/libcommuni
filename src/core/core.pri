@@ -32,7 +32,7 @@ PUB_HEADERS += $$INCDIR/ircprotocol.h
 
 PRIV_HEADERS  = $$INCDIR/irccommand_p.h
 PRIV_HEADERS += $$INCDIR/ircconnection_p.h
-PRIV_HEADERS  = $$INCDIR/irccore_p.h
+PRIV_HEADERS += $$INCDIR/irccore_p.h
 PRIV_HEADERS += $$INCDIR/ircdebug_p.h
 PRIV_HEADERS += $$INCDIR/ircmessage_p.h
 PRIV_HEADERS += $$INCDIR/ircmessagecomposer_p.h
