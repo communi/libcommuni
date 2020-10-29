@@ -108,6 +108,18 @@ private:
     Irc::SortMethod method;
 };
 
+static QHash<int, QByteArray> irc_user_model_roles()
+{
+    QHash<int, QByteArray> roles;
+    roles[Qt::DisplayRole] = "display";
+    roles[Irc::UserRole] = "user";
+    roles[Irc::NameRole] = "name";
+    roles[Irc::PrefixRole] = "prefix";
+    roles[Irc::ModeRole] = "mode";
+    roles[Irc::TitleRole] = "title";
+    return roles;
+}
+
 IrcUserModelPrivate::IrcUserModelPrivate()
 {
 }
@@ -272,6 +284,10 @@ IrcUserModel::IrcUserModel(QObject* parent) : QAbstractListModel(parent), d_ptr(
     Q_D(IrcUserModel);
     d->q_ptr = this;
     setChannel(qobject_cast<IrcChannel*>(parent));
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    setRoleNames(irc_user_model_roles());
+#endif
 
     qRegisterMetaType<IrcUser*>();
     qRegisterMetaType<QList<IrcUser*> >();
@@ -580,17 +596,12 @@ IrcUser* IrcUserModel::user(const QModelIndex& index) const
 
     1) The type depends on \ref displayRole.
  */
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 QHash<int, QByteArray> IrcUserModel::roleNames() const
 {
-    QHash<int, QByteArray> roles;
-    roles[Qt::DisplayRole] = "display";
-    roles[Irc::UserRole] = "user";
-    roles[Irc::NameRole] = "name";
-    roles[Irc::PrefixRole] = "prefix";
-    roles[Irc::ModeRole] = "mode";
-    roles[Irc::TitleRole] = "title";
-    return roles;
+    return irc_user_model_roles();
 }
+#endif
 
 /*!
     Returns the number of users on the channel.

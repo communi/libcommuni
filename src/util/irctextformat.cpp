@@ -36,6 +36,7 @@
 
 #include "irctextformat.h"
 #include "ircpalette.h"
+#include "irccore_p.h"
 #if QT_VERSION >= 0x050000
 #include <QRegularExpression>
 #endif
