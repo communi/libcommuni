@@ -1,7 +1,28 @@
-## [M.N.P] - YYYY-MM-DD
-- Important behavior changes
-  - IrcBufferModel has been changed to deliver notice messages to
-    the target buffer, and create the buffer if it does not exist.
+## [3.6.0] - YYYY-MM-DD
+- General
+  - Fixed deprecation warnings up until Qt 5.15
+  - Removed MPL-licensed (BSD-incompatible) code
+    - A copy of uchardet-0.0.1, since MPL is not BSD-compatible.
+      The system libuchardet is used via pkg-config (configure -uchardet).
+    - Mozilla's MPL-rdf_utils.c - QTextCodec is used instead.
+  - Improved uchardet & ICU selection and auto-detection.
+  - Modernized the codebase to use nullptr, override, and default member init
+  - Minor build system fixes
+  - Added -(no)make qml configure option
+- IrcCore
+  - Added IrcConnection::connectionCount to count established connections
+  - Fixed UTF-8 handling in IrcMessageDecoder::decode()
+  - Fixed IrcProtocol to allow spaces in the PASS command
+- IrcModel
+  - IMPORTANT BEHAVIOR CHANGES
+    - IrcBufferModel has been changed to deliver notice messages to
+      the target buffer, and create the buffer if it does not exist.
+  - Fixed IrcBufferModel to sort channels with keys before channels without
+    keys, and group as many channels into a single join command as possible.
+- IrcUtil
+  - Fixed IrcTextFormat to exclude semi-colons while percent encoding URLs
+  - Fixed IrcTextFormat to retain HTML entities
+  - Fixed IrcLagTimer to count unanswered pings towards the lag
 
 ## [3.5.0] - 2016-11-18
 - General
