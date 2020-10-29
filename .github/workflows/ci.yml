@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         config: [shared, static]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
     - name: Cache Qt
@@ -32,13 +32,22 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v1
 
-    - name: Configure
+    - name: Build
       run: |
         qmake -v
         ./configure -verbose -config ${{matrix.config}}
+        make -j2
+      if: matrix.os != 'windows-latest'
 
     - name: Build
-      run: make -j2
+      run: |
+        call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        qmake -v
+        qmake -config verbose -config ${{matrix.config}}
+        set CL=/MP
+        nmake
+      shell: cmd
+      if: matrix.os == 'windows-latest'
 
     - name: Run Tests
       run: make check
