@@ -1,4 +1,4 @@
-## [3.6.0] - YYYY-MM-DD
+## [3.6.0] - 2020-10-29
 - General
   - Fixed deprecation warnings up until Qt 5.15
   - Removed MPL-licensed (BSD-incompatible) code
