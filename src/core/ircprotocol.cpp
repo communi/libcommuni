@@ -318,10 +318,8 @@ void IrcProtocolPrivate::handleCapabilityMessage(IrcCapabilityMessage* msg)
                                     requestedCaps += QLatin1String("sasl");
                                 }
                             }
-                        } else {
-                            if (cap.compare(QLatin1String("sasl"), Qt::CaseInsensitive) == 0) {
-                                requestedCaps += QLatin1String("sasl");
-                            }
+                        } else if (cap.compare(QLatin1String("sasl"), Qt::CaseInsensitive) == 0) {
+                            requestedCaps += QLatin1String("sasl");
                         }
                     }
                 }
