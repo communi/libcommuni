@@ -226,6 +226,22 @@ void tst_IrcNetwork::testCapabilities_data()
                                << QString("sasl identify-msg multi-prefix") // available
                                << QString("sasl"); // active
 
+    QTest::newRow("sasl mech") << QString("multi-prefix sasl=PLAIN,EXTERNAL identify-msg") // initial
+                               << QString("sasl") // requested
+                               << QString("sasl") // acked
+                               << QString() // naked
+                               << QString("sasl=PLAIN,EXTERNAL identify-msg multi-prefix") // listed
+                               << QString("sasl=PLAIN,EXTERNAL identify-msg multi-prefix") // available
+                               << QString("sasl"); // active
+
+    QTest::newRow("saslnmech") << QString("multi-prefix sasl=EXTERNAL identify-msg") // initial
+                               << QString("") // requested
+                               << QString("") // acked
+                               << QString() // naked
+                               << QString("sasl=EXTERNAL identify-msg multi-prefix") // listed
+                               << QString("sasl=EXTERNAL identify-msg multi-prefix") // available
+                               << QString(""); // active
+
     QTest::newRow("unk")       << QString("multi-prefix sasl identify-msg") // initial
                                << QString("unk") // requested
                                << QString() // acked
