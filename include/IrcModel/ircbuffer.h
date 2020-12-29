@@ -89,6 +89,8 @@ public:
 
     Q_INVOKABLE bool sendCommand(IrcCommand* command);
 
+    virtual IrcBuffer *clone(QObject* parent = nullptr);
+
 public Q_SLOTS:
     void setName(const QString& name);
     void setPrefix(const QString& prefix);

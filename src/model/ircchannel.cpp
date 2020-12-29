@@ -573,6 +573,11 @@ bool IrcChannel::isActive() const
     return IrcBuffer::isActive() && d->active;
 }
 
+IrcBuffer *IrcChannel::clone(QObject *parent)
+{
+    return new IrcChannel(parent);
+}
+
 /*!
     \since 3.3
 

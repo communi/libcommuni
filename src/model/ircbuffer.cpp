@@ -582,6 +582,16 @@ bool IrcBuffer::sendCommand(IrcCommand* command)
 }
 
 /*!
+    \since 3.7
+
+    Clones the buffer with an optional \a parent.
+ */
+IrcBuffer *IrcBuffer::clone(QObject *parent)
+{
+    return new IrcBuffer(parent);
+}
+
+/*!
     Emits messageReceived() with \a message.
 
     IrcBufferModel handles only buffer specific messages and delivers them
