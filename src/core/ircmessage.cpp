@@ -242,40 +242,41 @@ IRC_BEGIN_NAMESPACE
     \brief The message is an implicit "reply" after joining a channel.
  */
 
-static const QMetaObject* irc_command_meta_object(const QString& command)
+static IrcMessage* irc_create_message(const QString& command, IrcConnection* connection)
 {
-    static QHash<QString, const QMetaObject*> metaObjects;
-    if (metaObjects.isEmpty()) {
-        metaObjects.insert("ACCOUNT", &IrcAccountMessage::staticMetaObject);
-        metaObjects.insert("AWAY", &IrcAwayMessage::staticMetaObject);
-        metaObjects.insert("BATCH", &IrcBatchMessage::staticMetaObject);
-        metaObjects.insert("CAP", &IrcCapabilityMessage::staticMetaObject);
-        metaObjects.insert("ERROR", &IrcErrorMessage::staticMetaObject);
-        metaObjects.insert("CHGHOST", &IrcHostChangeMessage::staticMetaObject);
-        metaObjects.insert("INVITE", &IrcInviteMessage::staticMetaObject);
-        metaObjects.insert("JOIN", &IrcJoinMessage::staticMetaObject);
-        metaObjects.insert("KICK", &IrcKickMessage::staticMetaObject);
-        metaObjects.insert("MODE", &IrcModeMessage::staticMetaObject);
-        metaObjects.insert("NICK", &IrcNickMessage::staticMetaObject);
-        metaObjects.insert("NOTICE", &IrcNoticeMessage::staticMetaObject);
-        metaObjects.insert("PART", &IrcPartMessage::staticMetaObject);
-        metaObjects.insert("PING", &IrcPingMessage::staticMetaObject);
-        metaObjects.insert("PONG", &IrcPongMessage::staticMetaObject);
-        metaObjects.insert("PRIVMSG", &IrcPrivateMessage::staticMetaObject);
-        metaObjects.insert("QUIT", &IrcQuitMessage::staticMetaObject);
-        metaObjects.insert("TOPIC", &IrcTopicMessage::staticMetaObject);
-    }
+    typedef std::function<IrcMessage *(IrcConnection *)> IrcMessageFactory;
 
-    const QMetaObject* metaObject = metaObjects.value(command.toUpper());
-    if (!metaObject) {
-        bool ok = false;
-        command.toInt(&ok);
-        if (ok)
-            metaObject = &IrcNumericMessage::staticMetaObject;
-    }
-    if (!metaObject)
-        metaObject = &IrcMessage::staticMetaObject;
-    return metaObject;
+    static const QHash<QString, IrcMessageFactory> factories = {
+        {"ACCOUNT", [](IrcConnection* c) { return new IrcAccountMessage(c); }},
+        {"AWAY", [](IrcConnection* c) { return new IrcAwayMessage(c); }},
+        {"BATCH", [](IrcConnection* c) { return new IrcBatchMessage(c); }},
+        {"CAP", [](IrcConnection* c) { return new IrcCapabilityMessage(c); }},
+        {"ERROR", [](IrcConnection* c) { return new IrcErrorMessage(c); }},
+        {"CHGHOST", [](IrcConnection* c) { return new IrcHostChangeMessage(c); }},
+        {"INVITE", [](IrcConnection* c) { return new IrcInviteMessage(c); }},
+        {"JOIN", [](IrcConnection* c) { return new IrcJoinMessage(c); }},
+        {"KICK", [](IrcConnection* c) { return new IrcKickMessage(c); }},
+        {"MODE", [](IrcConnection* c) { return new IrcModeMessage(c); }},
+        {"NICK", [](IrcConnection* c) { return new IrcNickMessage(c); }},
+        {"NOTICE", [](IrcConnection* c) { return new IrcNoticeMessage(c); }},
+        {"PART", [](IrcConnection* c) { return new IrcPartMessage(c); }},
+        {"PING", [](IrcConnection* c) { return new IrcPingMessage(c); }},
+        {"PONG", [](IrcConnection* c) { return new IrcPongMessage(c); }},
+        {"PRIVMSG", [](IrcConnection* c) { return new IrcPrivateMessage(c); }},
+        {"QUIT", [](IrcConnection* c) { return new IrcQuitMessage(c); }},
+        {"TOPIC", [](IrcConnection* c) { return new IrcTopicMessage(c); }},
+    };
+
+    IrcMessageFactory factory = factories.value(command);
+    if (factory)
+        return factory(connection);
+
+    bool isNumeric = false;
+    int number = command.toInt(&isNumeric);
+    if (isNumeric && number > 0)
+        return new IrcNumericMessage(connection);
+
+    return new IrcMessage(connection);
 }
 
 /*!
@@ -690,19 +691,15 @@ void IrcMessage::setTag(const QString& name, const QVariant& value)
  */
 IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connection)
 {
-    IrcMessage* message = nullptr;
     IrcMessageData md = IrcMessageData::fromData(data);
-    const QMetaObject* metaObject = irc_command_meta_object(md.command);
-    if (metaObject) {
-        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcConnection*, connection)));
-        Q_ASSERT(message);
-        message->d_ptr->data = md;
-        QByteArray tag = md.tags.value("time");
-        if (!tag.isEmpty()) {
-            QDateTime ts = QDateTime::fromString(QString::fromUtf8(tag), Qt::ISODate);
-            if (ts.isValid())
-                message->d_ptr->timeStamp = ts.toTimeSpec(Qt::LocalTime);
-        }
+    IrcMessage* message = irc_create_message(md.command, connection);
+    Q_ASSERT(message);
+    message->d_ptr->data = md;
+    QByteArray tag = md.tags.value("time");
+    if (!tag.isEmpty()) {
+        QDateTime ts = QDateTime::fromString(QString::fromUtf8(tag), Qt::ISODate);
+        if (ts.isValid())
+            message->d_ptr->timeStamp = ts.toTimeSpec(Qt::LocalTime);
     }
     return message;
 }
@@ -712,15 +709,11 @@ IrcMessage* IrcMessage::fromData(const QByteArray& data, IrcConnection* connecti
  */
 IrcMessage* IrcMessage::fromParameters(const QString& prefix, const QString& command, const QStringList& parameters, IrcConnection* connection)
 {
-    IrcMessage* message = nullptr;
-    const QMetaObject* metaObject = irc_command_meta_object(command);
-    if (metaObject) {
-        message = qobject_cast<IrcMessage*>(metaObject->newInstance(Q_ARG(IrcConnection*, connection)));
-        Q_ASSERT(message);
-        message->setPrefix(prefix);
-        message->setCommand(command);
-        message->setParameters(parameters);
-    }
+    IrcMessage* message = irc_create_message(command, connection);
+    Q_ASSERT(message);
+    message->setPrefix(prefix);
+    message->setCommand(command);
+    message->setParameters(parameters);
     return message;
 }
 
@@ -732,7 +725,7 @@ IrcMessage* IrcMessage::fromParameters(const QString& prefix, const QString& com
 IrcMessage* IrcMessage::clone(QObject* parent) const
 {
     Q_D(const IrcMessage);
-    IrcMessage* msg = qobject_cast<IrcMessage*>(metaObject()->newInstance(Q_ARG(IrcConnection*, d->connection)));
+    IrcMessage* msg = irc_create_message(d->command(), d->connection);
     if (msg) {
         msg->setParent(parent);
         IrcMessagePrivate* p = IrcMessagePrivate::get(msg);
