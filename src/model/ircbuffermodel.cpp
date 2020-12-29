@@ -1104,8 +1104,7 @@ IrcBuffer* IrcBufferModel::createBuffer(const QString& title)
 {
     Q_D(IrcBufferModel);
     Q_UNUSED(title);
-    QObject* instance = d->bufferProto->metaObject()->newInstance(Q_ARG(QObject*, this));
-    return qobject_cast<IrcBuffer*>(instance);
+    return d->bufferProto->clone(this);
 }
 
 /*!
@@ -1123,8 +1122,7 @@ IrcChannel* IrcBufferModel::createChannel(const QString& title)
 {
     Q_D(IrcBufferModel);
     Q_UNUSED(title);
-    QObject* instance = d->channelProto->metaObject()->newInstance(Q_ARG(QObject*, this));
-    return qobject_cast<IrcChannel*>(instance);
+    return qobject_cast<IrcChannel*>(d->channelProto->clone(this));
 }
 
 /*!
@@ -1251,7 +1249,7 @@ QModelIndex IrcBufferModel::index(int row, int column, const QModelIndex& parent
 
     The prototype is used by the default implementation of createBuffer().
 
-    \note The prototype must have an invokable constructor.
+    \note A custom buffer prototype must reimplement \ref IrcBuffer::clone().
 
     \par Access functions:
     \li \ref IrcBuffer* <b>bufferPrototype</b>() const
@@ -1279,7 +1277,7 @@ void IrcBufferModel::setBufferPrototype(IrcBuffer* prototype)
 
     The prototype is used by the default implementation of createChannel().
 
-    \note The prototype must have an invokable constructor.
+    \note A custom channel prototype must reimplement \ref IrcChannel::clone().
 
     \par Access functions:
     \li \ref IrcChannel* <b>channelPrototype</b>() const
