@@ -242,6 +242,8 @@ IRC_BEGIN_NAMESPACE
     \brief The message is an implicit "reply" after joining a channel.
  */
 
+extern bool irc_is_supported_encoding(const QByteArray& encoding); // ircmessagedecoder.cpp
+
 static IrcMessage* irc_create_message(const QString& command, IrcConnection* connection)
 {
     typedef std::function<IrcMessage *(IrcConnection *)> IrcMessageFactory;
@@ -626,7 +628,6 @@ QByteArray IrcMessage::encoding() const
 void IrcMessage::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcMessage);
-    extern bool irc_is_supported_encoding(const QByteArray& encoding); // ircmessagedecoder.cpp
     if (!irc_is_supported_encoding(encoding)) {
         qWarning() << "IrcMessage::setEncoding(): unsupported encoding" << encoding;
         return;
