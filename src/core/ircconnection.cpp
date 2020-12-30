@@ -247,6 +247,8 @@ IRC_BEGIN_NAMESPACE
     \li void <b>whoReplyMessageReceived</b>(\ref IrcWhoReplyMessage* message) (\b since 3.1)
  */
 
+extern bool irc_is_supported_encoding(const QByteArray& encoding); // ircmessagedecoder.cpp
+
 #ifndef IRC_DOXYGEN
 IrcConnectionPrivate::IrcConnectionPrivate() :
     encoding("ISO-8859-15"),
@@ -663,7 +665,6 @@ QByteArray IrcConnection::encoding() const
 void IrcConnection::setEncoding(const QByteArray& encoding)
 {
     Q_D(IrcConnection);
-    extern bool irc_is_supported_encoding(const QByteArray& encoding); // ircmessagedecoder.cpp
     if (!irc_is_supported_encoding(encoding)) {
         qWarning() << "IrcConnection::setEncoding(): unsupported encoding" << encoding;
         return;

@@ -101,7 +101,7 @@ void IrcLagTimerPrivate::_irc_pingServer()
     // TODO: configurable format?
     QString cmd = QString("PING communi/%1").arg(QDateTime::currentMSecsSinceEpoch());
     connection->sendData(cmd.toUtf8());
-    qint64 pingLag = pendingPings * interval * 1000;
+    qint64 pingLag = pendingPings * interval * 1000ll;
     if (lag > -1 && pingLag > lag)
         updateLag(pingLag);
     ++pendingPings;
