@@ -392,7 +392,8 @@ void IrcBuffer::setPrefix(const QString& prefix)
  */
 bool IrcBuffer::isChannel() const
 {
-    return qobject_cast<const IrcChannel*>(this);
+    Q_D(const IrcBuffer);
+    return (d->type == IrcBuffer::Channel);
 }
 
 /*!
