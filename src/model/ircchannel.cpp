@@ -497,6 +497,8 @@ bool IrcChannelPrivate::processWhoReplyMessage(IrcWhoReplyMessage *message)
 IrcChannel::IrcChannel(QObject* parent)
     : IrcBuffer(*new IrcChannelPrivate, parent)
 {
+    Q_D(IrcChannel);
+    d->type = IrcBuffer::Channel;
 }
 
 /*!
