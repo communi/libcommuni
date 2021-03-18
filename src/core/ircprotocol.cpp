@@ -103,7 +103,7 @@ void IrcProtocolPrivate::authenticate(bool secure)
             const QByteArray data = userName + '\0' + userName + '\0' + password.toUtf8();
             authed = connection->sendData("AUTHENTICATE " + data.toBase64());
         } else {
-            if (!preAuthMessage.isEmpty()){
+            if (!preAuthMessage.isEmpty()) {
                 connection->sendRaw(preAuthMessage);
             }
             authed = connection->sendRaw(QString("PASS :%1").arg(password));
