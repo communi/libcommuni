@@ -96,7 +96,7 @@ IrcProtocolPrivate::IrcProtocolPrivate()
 void IrcProtocolPrivate::authenticate(bool secure)
 {
     const QString password = connection->password();
-    const QByteArray preAuthMessage = connection->preAuthMessage();
+    const QString preAuthMessage = connection->preAuthMessage();
     if (!password.isEmpty()) {
         if (secure) {
             const QByteArray userName = connection->userName().toUtf8();

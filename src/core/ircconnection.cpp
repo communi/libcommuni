@@ -881,7 +881,7 @@ QByteArray IrcConnection::preAuthMessage() const
     return d->preAuthMessage;
 }
 
-void IrcConnection::setPreAuthMessage(const QByteArray &preAuthMessage)
+void IrcConnection::setPreAuthMessage(const QString& preAuthMessage)
 {
     Q_D(IrcConnection);
     if (d->preAuthMessage != preAuthMessage){
