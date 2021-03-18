@@ -875,7 +875,7 @@ void IrcConnection::setRealName(const QString& name)
   This property holds message which will be sent to server before passing password while authenticating.
  */
 
-QByteArray IrcConnection::preAuthMessage() const
+QString IrcConnection::preAuthMessage() const
 {
     Q_D(const IrcConnection);
     return d->preAuthMessage;
