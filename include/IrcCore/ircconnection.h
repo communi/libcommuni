@@ -55,6 +55,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(QString userName READ userName WRITE setUserName NOTIFY userNameChanged)
     Q_PROPERTY(QString nickName READ nickName WRITE setNickName NOTIFY nickNameChanged)
     Q_PROPERTY(QString realName READ realName WRITE setRealName NOTIFY realNameChanged)
+    Q_PROPERTY(QByteArray preAuthMessage READ preAuthMessage WRITE setPreAuthMessage NOTIFY preAuthMessageChanged)
     Q_PROPERTY(QString password READ password WRITE setPassword NOTIFY passwordChanged)
     Q_PROPERTY(QStringList nickNames READ nickNames WRITE setNickNames NOTIFY nickNamesChanged)
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName NOTIFY displayNameChanged)
@@ -102,6 +103,9 @@ public:
 
     QString realName() const;
     void setRealName(const QString& name);
+
+    QByteArray preAuthMessage() const;
+    void setPreAuthMessage(const QByteArray& preAuthMessage);
 
     QString password() const;
     void setPassword(const QString& password);
@@ -223,6 +227,7 @@ Q_SIGNALS:
     void userNameChanged(const QString& name);
     void nickNameChanged(const QString& name);
     void realNameChanged(const QString& name);
+    void preAuthMessageChanged(const QByteArray& preAuthMessage);
     void passwordChanged(const QString& password);
     void nickNamesChanged(const QStringList& names);
     void displayNameChanged(const QString& name);

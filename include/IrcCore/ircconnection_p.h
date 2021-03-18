@@ -91,6 +91,7 @@ public:
     QString userName;
     QString nickName;
     QString realName;
+    QByteArray preAuthMessage = "";
     QString password;
     QStringList nickNames;
     QString displayName;
