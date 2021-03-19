@@ -872,7 +872,14 @@ void IrcConnection::setRealName(const QString& name)
 }
 
 /*!
-  This property holds message which will be sent to server before passing password while authenticating.
+    This property holds a message which will be sent to server before password while authenticating.
+
+    \par Access functions:
+    \li QString <b>preAuthMessage</b>() const
+    \li void <b>setPreAuthMessage</b>(const QString& preAuthMessage)
+
+    \par Notifier signal:
+    \li void <b>preAuthMessageChanged</b>(const QString& preAuthMessage)
  */
 
 QString IrcConnection::preAuthMessage() const
