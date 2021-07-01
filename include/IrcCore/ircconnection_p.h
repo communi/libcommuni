@@ -91,7 +91,7 @@ public:
     QString userName;
     QString nickName;
     QString realName;
-    QString preAuthMessage;
+    QStringList authMessages;
     QString password;
     QStringList nickNames;
     QString displayName;

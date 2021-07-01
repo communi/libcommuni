@@ -55,7 +55,7 @@ class IRC_CORE_EXPORT IrcConnection : public QObject
     Q_PROPERTY(QString userName READ userName WRITE setUserName NOTIFY userNameChanged)
     Q_PROPERTY(QString nickName READ nickName WRITE setNickName NOTIFY nickNameChanged)
     Q_PROPERTY(QString realName READ realName WRITE setRealName NOTIFY realNameChanged)
-    Q_PROPERTY(QString preAuthMessage READ preAuthMessage WRITE setPreAuthMessage NOTIFY preAuthMessageChanged)
+    Q_PROPERTY(QStringList authMessages READ authMessages WRITE setAuthMessages NOTIFY authMessagesChanged)
     Q_PROPERTY(QString password READ password WRITE setPassword NOTIFY passwordChanged)
     Q_PROPERTY(QStringList nickNames READ nickNames WRITE setNickNames NOTIFY nickNamesChanged)
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName NOTIFY displayNameChanged)
@@ -104,8 +104,8 @@ public:
     QString realName() const;
     void setRealName(const QString& name);
 
-    QString preAuthMessage() const;
-    void setPreAuthMessage(const QString& preAuthMessage);
+    QStringList authMessages() const;
+    void setAuthMessages(const QStringList& authMessages);
 
     QString password() const;
     void setPassword(const QString& password);
@@ -227,7 +227,7 @@ Q_SIGNALS:
     void userNameChanged(const QString& name);
     void nickNameChanged(const QString& name);
     void realNameChanged(const QString& name);
-    void preAuthMessageChanged(const QString& preAuthMessage);
+    void authMessagesChanged(const QStringList& authMessages);
     void passwordChanged(const QString& password);
     void nickNamesChanged(const QStringList& names);
     void displayNameChanged(const QString& name);
