@@ -67,6 +67,9 @@ private slots:
     void testRealName_data();
     void testRealName();
 
+    void testAuthMessage_data();
+    void testAuthMessage();
+
     void testPassword_data();
     void testPassword();
 
@@ -122,6 +125,7 @@ void tst_IrcConnection::testDefaults()
     QVERIFY(connection.userName().isNull());
     QVERIFY(connection.nickName().isNull());
     QVERIFY(connection.realName().isNull());
+    QVERIFY(connection.authMessages().isEmpty());
     QVERIFY(connection.password().isNull());
     QVERIFY(connection.displayName().isNull());
     QCOMPARE(connection.encoding(), QByteArray("ISO-8859-15"));
@@ -266,6 +270,42 @@ void tst_IrcConnection::testRealName()
     QCOMPARE(spy.count(), !result.isEmpty() ? 1 : 0);
     if (!spy.isEmpty())
         QCOMPARE(spy.first().first().toString(), result);
+}
+
+void tst_IrcConnection::testAuthMessage_data()
+{
+    QTest::addColumn<QStringList>("authmsgs");
+    QTest::addColumn<QStringList>("result");
+
+    QTest::newRow("null") << QStringList() << QStringList();
+    QTest::newRow("empty") << QStringList({}) << QStringList();
+    QTest::newRow("emptystr") << QStringList({QString()}) << QStringList({""});
+    QTest::newRow("qstring") << QStringList({QString("foo")}) << QStringList({"foo"});
+    QTest::newRow("qbytearray") << QStringList({QByteArray("foo")}) << QStringList({"foo"});
+    QTest::newRow("multiple") << QStringList({"foo", "bar", "baz"}) << QStringList({"foo", "bar", "baz"});
+}
+
+void tst_IrcConnection::testAuthMessage()
+{
+    QFETCH(QStringList, authmsgs);
+    QFETCH(QStringList, result);
+
+    IrcConnection connection;
+    QSignalSpy spy(&connection, SIGNAL(authMessagesChanged(QStringList)));
+    QVERIFY(spy.isValid());
+    connection.setAuthMessages(authmsgs);
+    QCOMPARE(connection.authMessages(), result);
+    QCOMPARE(spy.size(), result.isEmpty() ? 0 : 1);
+
+    if (result.isEmpty())
+        return;
+
+    auto spyList = spy.first().first().toStringList();
+    QCOMPARE(spyList.size(), result.size());
+    for (int i = 0; i < spyList.size(); i++)
+    {
+        QCOMPARE(spyList.at(i), result.at(i));
+    }
 }
 
 void tst_IrcConnection::testPassword_data()
