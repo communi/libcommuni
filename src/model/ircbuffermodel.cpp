@@ -614,6 +614,7 @@ void IrcBufferModelPrivate::_irc_restoreBuffers()
                     chans.clear();
                     keys.clear();
                     joinCommandLength = joinCommandMinLength;
+                    (void)joinCommandLength; // Fix a Static Analyzer warning that the variable is never read
                 }
 
                 // Add channel to list
