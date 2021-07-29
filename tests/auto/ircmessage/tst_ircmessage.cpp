@@ -11,7 +11,6 @@
 #include "ircconnection.h"
 #include "ircprotocol.h"
 #include <QtTest/QtTest>
-#include <QtCore/QRegExp>
 #include <QTextCodec>
 #include <QtCore/QScopedPointer>
 
@@ -1166,27 +1165,27 @@ void tst_IrcMessage::testDebug()
 
     IrcMessage message(nullptr);
     dbg << &message;
-    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, flags=\\(None\\)\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcMessage\\(0x[0-9A-Fa-f]+, flags=\\(None\\)\\) ").match(str).hasMatch());
     str.clear();
 
     message.setObjectName("foo");
     dbg << &message;
-    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\)\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\)\\) ").match(str).hasMatch());
     str.clear();
 
     message.setPrefix("nick!ident@host");
     dbg << &message;
-    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\), prefix=nick!ident@host\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\), prefix=nick!ident@host\\) ").match(str).hasMatch());
     str.clear();
 
     message.setCommand("COMMAND");
     dbg << &message;
-    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\), prefix=nick!ident@host, command=COMMAND\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(None\\), prefix=nick!ident@host, command=COMMAND\\) ").match(str).hasMatch());
     str.clear();
 
     message.setFlags(IrcMessage::Own | IrcMessage::Playback | IrcMessage::Implicit);
     dbg << &message;
-    QVERIFY(QRegExp("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(Own\\|Playback\\|Implicit\\), prefix=nick!ident@host, command=COMMAND\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcMessage\\(0x[0-9A-Fa-f]+, name=foo, flags=\\(Own\\|Playback\\|Implicit\\), prefix=nick!ident@host, command=COMMAND\\) ").match(str).hasMatch());
     str.clear();
 
     dbg << IrcMessage::None;

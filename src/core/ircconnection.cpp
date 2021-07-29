@@ -39,7 +39,7 @@
 #include "irccore_p.h"
 #include "irc.h"
 #include <QLocale>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QDateTime>
 #include <QTcpSocket>
 #include <QTextCodec>
@@ -365,7 +365,7 @@ void IrcConnectionPrivate::_irc_filterDestroyed(QObject* filter)
 
 static bool parseServer(const QString& server, QString* host, int* port, bool* ssl)
 {
-    QStringList p = server.split(QRegExp("[: ]"), Qt::SkipEmptyParts);
+    QStringList p = server.split(QRegularExpression("[: ]"), Qt::SkipEmptyParts);
     *host = p.value(0);
     *ssl = p.value(1).startsWith(QLatin1Char('+'));
     bool ok = false;

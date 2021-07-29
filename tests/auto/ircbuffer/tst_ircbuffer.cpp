@@ -14,7 +14,6 @@
 #include "ircmessage.h"
 #include "ircfilter.h"
 #include <QtTest/QtTest>
-#include <QtCore/QRegExp>
 
 class tst_IrcBuffer : public QObject
 {
@@ -148,17 +147,17 @@ void tst_IrcBuffer::testDebug()
 
     IrcBuffer buffer;
     dbg << &buffer;
-    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcBuffer\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
     buffer.setObjectName("obj");
     dbg << &buffer;
-    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj\\) ").match(str).hasMatch());
     str.clear();
 
     buffer.setName("buf");
     dbg << &buffer;
-    QVERIFY(QRegExp("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj, title=buf\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj, title=buf\\) ").match(str).hasMatch());
     str.clear();
 }
 

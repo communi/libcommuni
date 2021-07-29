@@ -12,7 +12,6 @@
 #include "ircmodel.h"
 #include "ircutil.h"
 #include <QtTest/QtTest>
-#include <QtCore/QRegExp>
 
 class tst_Irc : public QObject
 {

@@ -11,7 +11,6 @@
 #include "irccommand.h"
 #include "ircconnection.h"
 #include <QtTest/QtTest>
-#include <QtCore/QRegExp>
 #include "tst_ircclientserver.h"
 #include "tst_ircdata.h"
 #ifdef Q_OS_LINUX
@@ -440,19 +439,19 @@ void tst_IrcNetwork::testDebug()
 
     IrcConnection connection;
     dbg << connection.network();
-    QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcNetwork\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
     connection.network()->setObjectName("obj");
     dbg << connection.network();
-    QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj\\) ").match(str).hasMatch());
     str.clear();
 
 #ifdef Q_OS_LINUX
     // others have problems with symbols (win) or private headers (osx frameworks)
     IrcNetworkPrivate::get(connection.network())->name = "net";
     dbg << connection.network();
-    QVERIFY(QRegExp("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj, network=net\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj, network=net\\) ").match(str).hasMatch());
     str.clear();
 #endif // Q_OS_LINUX
 

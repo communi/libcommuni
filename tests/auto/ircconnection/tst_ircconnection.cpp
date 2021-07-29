@@ -14,7 +14,6 @@
 #include "ircmessage.h"
 #include "ircfilter.h"
 #include <QtTest/QtTest>
-#include <QtCore/QRegExp>
 #include <QTextCodec>
 #include <QtCore/QScopedPointer>
 #ifndef QT_NO_SSL
@@ -1770,17 +1769,17 @@ void tst_IrcConnection::testDebug()
 
     IrcConnection connection;
     dbg << &connection;
-    QVERIFY(QRegExp("IrcConnection\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcConnection\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
     connection.setHost("irc.freenode.net");
     dbg << &connection;
-    QVERIFY(QRegExp("IrcConnection\\(0x[0-9A-Fa-f]+, irc.freenode.net\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcConnection\\(0x[0-9A-Fa-f]+, irc.freenode.net\\) ").match(str).hasMatch());
     str.clear();
 
     connection.setDisplayName("Freenode");
     dbg << &connection;
-    QVERIFY(QRegExp("IrcConnection\\(0x[0-9A-Fa-f]+, Freenode\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcConnection\\(0x[0-9A-Fa-f]+, Freenode\\) ").match(str).hasMatch());
     str.clear();
 
     dbg << IrcConnection::Connected;

@@ -33,8 +33,8 @@
 #include <IrcConnection>
 #include <QtCore/qdebug.h>
 #include <QtCore/qstring.h>
-#include <QtCore/qregexp.h>
 #include <QtCore/qdatetime.h>
+#include <QRegularExpression>
 
 IRC_BEGIN_NAMESPACE
 
@@ -143,7 +143,7 @@ static bool irc_debug_enabled(IrcConnection* c, uint l)
         dbg_init = true;
     }
 
-    return l <= dbg_level && (dbg_name.isEmpty() || QRegExp(dbg_name, Qt::CaseInsensitive, QRegExp::Wildcard).exactMatch(c->displayName()));
+    return l <= dbg_level && (dbg_name.isEmpty() || QRegularExpression(QRegularExpression::wildcardToRegularExpression(dbg_name), QRegularExpression::CaseInsensitiveOption).match(c->displayName()).hasMatch());
 }
 
 #define ircDebug(Connection, Flag) IrcDebug(Connection, Flag)
