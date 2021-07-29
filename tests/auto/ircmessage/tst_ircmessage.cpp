@@ -12,7 +12,7 @@
 #include "ircprotocol.h"
 #include <QtTest/QtTest>
 #include <QtCore/QRegExp>
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 #include <QtCore/QScopedPointer>
 
 #ifdef Q_OS_LINUX
