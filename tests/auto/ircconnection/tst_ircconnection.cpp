@@ -14,7 +14,7 @@
 #include "ircmessage.h"
 #include "ircfilter.h"
 #include <QtTest/QtTest>
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 #include <QtCore/QScopedPointer>
 #ifndef QT_NO_SSL
 #include <QtNetwork/QSslSocket>

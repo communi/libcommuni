@@ -11,7 +11,7 @@
 #include "ircconnection.h"
 #include "ircprotocol.h"
 #include <QtTest/QtTest>
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 #include <QtCore/QScopedPointer>
 
 #ifdef Q_OS_LINUX

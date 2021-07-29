@@ -11,7 +11,7 @@
 #include "ircmessage.h"
 #include "ircconnection.h"
 #include <QtTest/QtTest>
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 #include <QtCore/QScopedPointer>
 
 class tst_IrcCommand : public QObject
