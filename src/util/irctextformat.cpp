@@ -37,12 +37,10 @@
 #include "irctextformat.h"
 #include "ircpalette.h"
 #include "irccore_p.h"
-#if QT_VERSION >= 0x050000
-#include <QRegularExpression>
-#endif
 #include <QStringList>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QUrl>
+#include <QDebug>
 #include "irc.h"
 
 IRC_BEGIN_NAMESPACE
@@ -113,15 +111,29 @@ static bool parseColors(const QString& message, int pos, int* len, int* fg = nul
         *fg = -1;
     if (bg)
         *bg = -1;
-    QRegExp rx(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
-    int idx = rx.indexIn(message, pos);
-    if (idx == pos) {
-        *len = rx.matchedLength();
+//    QRegExp rx(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
+//    int idx = rx.indexIn(message, pos);
+//    if (idx == pos) {
+//        *len = rx.matchedLength();
+//        if (fg)
+//            *fg = rx.cap(1).toInt();
+//        if (bg) {
+//            bool ok = false;
+//            int tmp = rx.cap(2).toInt(&ok);
+//            if (ok)
+//                *bg = tmp;
+//        }
+//    }
+    QRegularExpression re(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
+    auto match = re.match(message, pos);
+    qDebug() << match.lastCapturedIndex() << pos << match.hasMatch() << message;
+    if (match.lastCapturedIndex() == pos) {
+        *len = match.capturedTexts().size() - 1;
         if (fg)
-            *fg = rx.cap(1).toInt();
+            *fg = match.captured(1).toInt();
         if (bg) {
             bool ok = false;
-            int tmp = rx.cap(2).toInt(&ok);
+            int tmp = match.captured(2).toInt(&ok);
             if (ok)
                 *bg = tmp;
         }
@@ -139,7 +151,7 @@ static QString generateLink(const QString& protocol, const QString &raw, const Q
 static QString parseUrls(const QString& message, const QString& pattern, QList<QUrl>* urls)
 {
     QString processed = message;
-#if QT_VERSION >= 0x050000
+
     int offset = 0;
     QRegularExpression rx(pattern);
     QRegularExpressionMatchIterator it = rx.globalMatch(message);
@@ -167,32 +179,7 @@ static QString parseUrls(const QString& message, const QString& pattern, QList<Q
         if (urls)
             urls->append(QUrl(protocol + raw));
     }
-#else
-    int pos = 0;
-    QRegExp rx(pattern);
-    while ((pos = rx.indexIn(processed, pos)) >= 0) {
-        int len = rx.matchedLength();
-        QString href = processed.mid(pos, len);
-        QString raw = href;
-        raw.replace("&amp;", "&");
 
-        QString protocol;
-        if (rx.cap(2).isEmpty()) {
-            if (rx.cap(1).contains(QLatin1Char('@')))
-                protocol = QLatin1String("mailto:");
-            else if (rx.cap(1).startsWith(QLatin1String("ftp."), Qt::CaseInsensitive))
-                protocol = QLatin1String("ftp://");
-            else
-                protocol = QLatin1String("http://");
-        }
-
-        QString link = generateLink(protocol, raw, href);
-        processed.replace(pos, len, link);
-        pos += link.length();
-        if (urls)
-            urls->append(QUrl(protocol + raw));
-    }
-#endif
     return processed;
 }
 
