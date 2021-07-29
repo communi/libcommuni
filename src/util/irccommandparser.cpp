@@ -31,6 +31,7 @@
 #include "irctoken_p.h"
 #include "irccore_p.h"
 #include <climits>
+#include <QRegularExpression>
 
 IRC_BEGIN_NAMESPACE
 
@@ -374,7 +375,7 @@ QString IrcCommandParser::syntax(const QString& command, Details details) const
         QString str = info.fullSyntax();
         if (details != Full) {
             if (details & NoTarget)
-                str.remove(QRegExp("\\[[^\\]]+\\]"));
+                str.remove(QRegularExpression("\\[[^\\]]+\\]"));
             if (details & NoPrefix)
                 str.remove("#");
             if (details & NoEllipsis)
