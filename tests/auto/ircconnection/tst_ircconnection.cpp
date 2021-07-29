@@ -15,7 +15,7 @@
 #include "ircfilter.h"
 #include <QtTest/QtTest>
 #include <QtCore/QRegExp>
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 #include <QtCore/QScopedPointer>
 #ifndef QT_NO_SSL
 #include <QtNetwork/QSslSocket>

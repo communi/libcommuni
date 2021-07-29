@@ -9,7 +9,7 @@
 
 #include "ircmessagedecoder_p.h"
 #include <QtTest/QtTest>
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 #include <QtCore/QStringList>
 
 static const QByteArray MSG_32_5("Vestibulum eu libero eget metus.");
