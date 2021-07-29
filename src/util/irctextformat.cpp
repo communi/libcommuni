@@ -111,24 +111,11 @@ static bool parseColors(const QString& message, int pos, int* len, int* fg = nul
         *fg = -1;
     if (bg)
         *bg = -1;
-//    QRegExp rx(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
-//    int idx = rx.indexIn(message, pos);
-//    if (idx == pos) {
-//        *len = rx.matchedLength();
-//        if (fg)
-//            *fg = rx.cap(1).toInt();
-//        if (bg) {
-//            bool ok = false;
-//            int tmp = rx.cap(2).toInt(&ok);
-//            if (ok)
-//                *bg = tmp;
-//        }
-//    }
-    QRegularExpression re(QLatin1String("(\\d{1,2})(?:,(\\d{1,2}))?"));
+
+    QRegularExpression re("(\\d{1,2})(?:,(\\d{1,2}))?");
     auto match = re.match(message, pos);
-    qDebug() << match.lastCapturedIndex() << pos << match.hasMatch() << message;
-    if (match.lastCapturedIndex() == pos) {
-        *len = match.capturedTexts().size() - 1;
+    if (match.hasMatch()) {
+        *len = match.captured().length();
         if (fg)
             *fg = match.captured(1).toInt();
         if (bg) {
