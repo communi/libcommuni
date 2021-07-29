@@ -9,7 +9,6 @@
 
 #include "ircuser.h"
 #include <QtTest/QtTest>
-#include <QtCore/QRegExp>
 #ifdef Q_OS_LINUX
 #include "ircuser_p.h"
 #endif // Q_OS_LINUX
@@ -64,19 +63,19 @@ void tst_IrcUser::testDebug()
 
     IrcUser user;
     dbg << &user;
-    QVERIFY(QRegExp("IrcUser\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcUser\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
     user.setObjectName("obj");
     dbg << &user;
-    QVERIFY(QRegExp("IrcUser\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcUser\\(0x[0-9A-Fa-f]+, name=obj\\) ").match(str).hasMatch());
     str.clear();
 
 #ifdef Q_OS_LINUX
     // others have problems with symbols (win) or private headers (osx frameworks)
     IrcUserPrivate::get(&user)->setName("usr");
     dbg << &user;
-    QVERIFY(QRegExp("IrcUser\\(0x[0-9A-Fa-f]+, name=obj, user=usr\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcUser\\(0x[0-9A-Fa-f]+, name=obj, user=usr\\) ").match(str).hasMatch());
     str.clear();
 #endif // Q_OS_LINUX
 }

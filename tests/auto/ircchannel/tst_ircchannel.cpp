@@ -9,7 +9,6 @@
 
 #include "ircchannel.h"
 #include <QtTest/QtTest>
-#include <QtCore/QRegExp>
 
 class tst_IrcChannel : public QObject
 {
@@ -59,18 +58,18 @@ void tst_IrcChannel::testDebug()
 
     IrcChannel channel;
     dbg << &channel;
-    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcChannel\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
     channel.setObjectName("obj");
     dbg << &channel;
-    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj\\) ").match(str).hasMatch());
     str.clear();
 
     channel.setPrefix("#");
     channel.setName("communi");
     dbg << &channel;
-    QVERIFY(QRegExp("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj, title=#communi\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj, title=#communi\\) ").match(str).hasMatch());
     str.clear();
 }
 

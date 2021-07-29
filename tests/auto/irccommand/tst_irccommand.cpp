@@ -11,7 +11,6 @@
 #include "ircmessage.h"
 #include "ircconnection.h"
 #include <QtTest/QtTest>
-#include <QtCore/QRegExp>
 #include <QtCore/QTextCodec>
 #include <QtCore/QScopedPointer>
 
@@ -147,8 +146,8 @@ void tst_IrcCommand::testAdmin()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Admin);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bADMIN\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bADMIN\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testAway()
@@ -157,8 +156,8 @@ void tst_IrcCommand::testAway()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Away);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bAWAY\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\breason\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bAWAY\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\breason\\b")));
 }
 
 void tst_IrcCommand::testCapability()
@@ -167,18 +166,18 @@ void tst_IrcCommand::testCapability()
     QVERIFY(cmd1.data());
 
     QCOMPARE(cmd1->type(), IrcCommand::Capability);
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bCAP\\b")));
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bsub\\b")));
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bcap\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bCAP\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bsub\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bcap\\b")));
 
     QScopedPointer<IrcCommand> cmd2(IrcCommand::createCapability("sub", QStringList() << "cap1" << "cap2"));
     QVERIFY(cmd2.data());
 
     QCOMPARE(cmd2->type(), IrcCommand::Capability);
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bCAP\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bsub\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bcap1\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bcap2\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bCAP\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bsub\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bcap1\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bcap2\\b")));
 }
 
 void tst_IrcCommand::testCtcpAction()
@@ -187,9 +186,9 @@ void tst_IrcCommand::testCtcpAction()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::CtcpAction);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bPRIVMSG\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bact\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bPRIVMSG\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bact\\b")));
     QCOMPARE(cmd->toString().count("\01"), 2);
 }
 
@@ -199,9 +198,9 @@ void tst_IrcCommand::testCtcpReply()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::CtcpReply);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bNOTICE\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\brpl\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bNOTICE\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\brpl\\b")));
     QCOMPARE(cmd->toString().count("\01"), 2);
 }
 
@@ -211,9 +210,9 @@ void tst_IrcCommand::testCtcpRequest()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::CtcpRequest);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bPRIVMSG\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\breq\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bPRIVMSG\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\breq\\b")));
     QCOMPARE(cmd->toString().count("\01"), 2);
 }
 
@@ -223,8 +222,8 @@ void tst_IrcCommand::testInfo()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Info);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bINFO\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bINFO\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testInvite()
@@ -233,9 +232,9 @@ void tst_IrcCommand::testInvite()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Invite);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bINVITE\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\busr\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bchan\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bINVITE\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\busr\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bchan\\b")));
 }
 
 void tst_IrcCommand::testJoin()
@@ -244,24 +243,24 @@ void tst_IrcCommand::testJoin()
     QVERIFY(cmd1.data());
 
     QCOMPARE(cmd1->type(), IrcCommand::Join);
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bJOIN\\b")));
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bchan\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bJOIN\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bchan\\b")));
 
     QScopedPointer<IrcCommand> cmd2(IrcCommand::createJoin(QStringList() << "chan1" << "chan2"));
     QVERIFY(cmd2.data());
 
     QCOMPARE(cmd2->type(), IrcCommand::Join);
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bJOIN\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan1\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan2\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bJOIN\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bchan1\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bchan2\\b")));
 
     QScopedPointer<IrcCommand> cmd3(IrcCommand::createJoin(QStringList() << "chan1" << "chan2", QStringList() << "key1" << "key2"));
     QVERIFY(cmd3.data());
 
     QCOMPARE(cmd3->type(), IrcCommand::Join);
-    QVERIFY(cmd3->toString().contains(QRegExp("\\bJOIN\\b")));
-    QVERIFY(cmd3->toString().contains(QRegExp("\\bchan1,chan2\\b")));
-    QVERIFY(cmd3->toString().contains(QRegExp("\\bkey1,key2\\b")));
+    QVERIFY(cmd3->toString().contains(QRegularExpression("\\bJOIN\\b")));
+    QVERIFY(cmd3->toString().contains(QRegularExpression("\\bchan1,chan2\\b")));
+    QVERIFY(cmd3->toString().contains(QRegularExpression("\\bkey1,key2\\b")));
 }
 
 void tst_IrcCommand::testKick()
@@ -270,9 +269,9 @@ void tst_IrcCommand::testKick()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Kick);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bKICK\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bchan\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\busr\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bKICK\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bchan\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\busr\\b")));
 }
 
 void tst_IrcCommand::testKnock()
@@ -281,8 +280,8 @@ void tst_IrcCommand::testKnock()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Knock);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bKNOCK\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bchan\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bKNOCK\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bchan\\b")));
 }
 
 void tst_IrcCommand::testList()
@@ -291,10 +290,10 @@ void tst_IrcCommand::testList()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::List);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bLIST\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bchan1\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bchan2\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bLIST\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bchan1\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bchan2\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testMessage()
@@ -303,9 +302,9 @@ void tst_IrcCommand::testMessage()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Message);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bPRIVMSG\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bmsg\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bPRIVMSG\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bmsg\\b")));
 }
 
 void tst_IrcCommand::testMode()
@@ -314,9 +313,9 @@ void tst_IrcCommand::testMode()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Mode);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bMODE\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bmode\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bMODE\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bmode\\b")));
 }
 
 void tst_IrcCommand::testMonitor()
@@ -325,16 +324,16 @@ void tst_IrcCommand::testMonitor()
     QVERIFY(cmd1.data());
 
     QCOMPARE(cmd1->type(), IrcCommand::Monitor);
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bMONITOR\\b")));
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bfoo\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bMONITOR\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bfoo\\b")));
 
     QScopedPointer<IrcCommand> cmd2(IrcCommand::createMonitor("+", QStringList() << "foo" << "bar"));
     QVERIFY(cmd2.data());
 
     QCOMPARE(cmd2->type(), IrcCommand::Monitor);
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bMONITOR\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bfoo\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bbar\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bMONITOR\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bfoo\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bbar\\b")));
 }
 
 void tst_IrcCommand::testMotd()
@@ -343,8 +342,8 @@ void tst_IrcCommand::testMotd()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Motd);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bMOTD\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bMOTD\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testNames()
@@ -353,16 +352,16 @@ void tst_IrcCommand::testNames()
     QVERIFY(cmd1.data());
 
     QCOMPARE(cmd1->type(), IrcCommand::Names);
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bNAMES\\b")));
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bchan\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bNAMES\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bchan\\b")));
 
     QScopedPointer<IrcCommand> cmd2(IrcCommand::createNames(QStringList() << "chan1" << "chan2"));
     QVERIFY(cmd2.data());
 
     QCOMPARE(cmd2->type(), IrcCommand::Names);
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bNAMES\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan1\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan2\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bNAMES\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bchan1\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bchan2\\b")));
 }
 
 void tst_IrcCommand::testNick()
@@ -371,8 +370,8 @@ void tst_IrcCommand::testNick()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Nick);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bNICK\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bnick\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bNICK\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bnick\\b")));
 }
 
 void tst_IrcCommand::testNotice()
@@ -381,9 +380,9 @@ void tst_IrcCommand::testNotice()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Notice);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bNOTICE\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\btgt\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bmsg\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bNOTICE\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\btgt\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bmsg\\b")));
 }
 
 void tst_IrcCommand::testPart()
@@ -392,16 +391,16 @@ void tst_IrcCommand::testPart()
     QVERIFY(cmd1.data());
 
     QCOMPARE(cmd1->type(), IrcCommand::Part);
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bPART\\b")));
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bchan\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bPART\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bchan\\b")));
 
     QScopedPointer<IrcCommand> cmd2(IrcCommand::createPart(QStringList() << "chan1" << "chan2"));
     QVERIFY(cmd2.data());
 
     QCOMPARE(cmd2->type(), IrcCommand::Part);
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bPART\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan1\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bchan2\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bPART\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bchan1\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bchan2\\b")));
 }
 
 void tst_IrcCommand::testPing()
@@ -410,8 +409,8 @@ void tst_IrcCommand::testPing()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Ping);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bPING\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\barg\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bPING\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\barg\\b")));
 }
 
 void tst_IrcCommand::testPong()
@@ -420,8 +419,8 @@ void tst_IrcCommand::testPong()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Pong);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bPONG\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\barg\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bPONG\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\barg\\b")));
 }
 
 void tst_IrcCommand::testQuit()
@@ -430,8 +429,8 @@ void tst_IrcCommand::testQuit()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Quit);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bQUIT\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\breason\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bQUIT\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\breason\\b")));
 }
 
 void tst_IrcCommand::testQuote()
@@ -440,14 +439,14 @@ void tst_IrcCommand::testQuote()
     QVERIFY(cmd1.data());
 
     QCOMPARE(cmd1->type(), IrcCommand::Quote);
-    QVERIFY(cmd1->toString().contains(QRegExp("\\bCUSTOM\\b")));
+    QVERIFY(cmd1->toString().contains(QRegularExpression("\\bCUSTOM\\b")));
 
     QScopedPointer<IrcCommand> cmd2(IrcCommand::createQuote(QStringList() << "FOO" << "BAR"));
     QVERIFY(cmd2.data());
 
     QCOMPARE(cmd2->type(), IrcCommand::Quote);
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bFOO\\b")));
-    QVERIFY(cmd2->toString().contains(QRegExp("\\bBAR\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bFOO\\b")));
+    QVERIFY(cmd2->toString().contains(QRegularExpression("\\bBAR\\b")));
 }
 
 void tst_IrcCommand::testStats()
@@ -456,9 +455,9 @@ void tst_IrcCommand::testStats()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Stats);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bSTATS\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bquery\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bSTATS\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bquery\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testTime()
@@ -467,8 +466,8 @@ void tst_IrcCommand::testTime()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Time);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bTIME\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bTIME\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testTopic()
@@ -477,9 +476,9 @@ void tst_IrcCommand::testTopic()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Topic);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bTOPIC\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bchan\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\btopic\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bTOPIC\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bchan\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\btopic\\b")));
 }
 
 void tst_IrcCommand::testTrace()
@@ -488,8 +487,8 @@ void tst_IrcCommand::testTrace()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Trace);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bTRACE\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\btarget\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bTRACE\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\btarget\\b")));
 }
 
 void tst_IrcCommand::testUsers()
@@ -498,8 +497,8 @@ void tst_IrcCommand::testUsers()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Users);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bUSERS\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bserver\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bUSERS\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bserver\\b")));
 }
 
 void tst_IrcCommand::testVersion()
@@ -508,8 +507,8 @@ void tst_IrcCommand::testVersion()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Version);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bVERSION\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\buser\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bVERSION\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\buser\\b")));
 }
 
 void tst_IrcCommand::testWho()
@@ -518,8 +517,8 @@ void tst_IrcCommand::testWho()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Who);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bWHO\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bmask\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bWHO\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bmask\\b")));
 }
 
 void tst_IrcCommand::testWhois()
@@ -528,8 +527,8 @@ void tst_IrcCommand::testWhois()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Whois);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bWHOIS\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bmask\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bWHOIS\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bmask\\b")));
 }
 
 void tst_IrcCommand::testWhowas()
@@ -538,8 +537,8 @@ void tst_IrcCommand::testWhowas()
     QVERIFY(cmd.data());
 
     QCOMPARE(cmd->type(), IrcCommand::Whowas);
-    QVERIFY(cmd->toString().contains(QRegExp("\\bWHOWAS\\b")));
-    QVERIFY(cmd->toString().contains(QRegExp("\\bmask\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bWHOWAS\\b")));
+    QVERIFY(cmd->toString().contains(QRegularExpression("\\bmask\\b")));
 }
 
 void tst_IrcCommand::testDebug()
@@ -554,17 +553,17 @@ void tst_IrcCommand::testDebug()
     IrcCommand command;
     QTest::ignoreMessage(QtWarningMsg, "Reimplement IrcCommand::toString() for IrcCommand::Custom");
     dbg << &command;
-    QVERIFY(QRegExp("IrcCommand\\(0x[0-9A-Fa-f]+, type=Custom\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcCommand\\(0x[0-9A-Fa-f]+, type=Custom\\) ").match(str).hasMatch());
     str.clear();
 
     command.setType(IrcCommand::Quit);
     dbg << &command;
-    QVERIFY(QRegExp("IrcCommand\\(0x[0-9A-Fa-f]+, type=Quit, \"QUIT :\"\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcCommand\\(0x[0-9A-Fa-f]+, type=Quit, \"QUIT :\"\\) ").match(str).hasMatch());
     str.clear();
 
     command.setObjectName("foo");
     dbg << &command;
-    QVERIFY(QRegExp("IrcCommand\\(0x[0-9A-Fa-f]+, name=foo, type=Quit, \"QUIT :\"\\) ").exactMatch(str));
+    QVERIFY(QRegularExpression("IrcCommand\\(0x[0-9A-Fa-f]+, name=foo, type=Quit, \"QUIT :\"\\) ").match(str).hasMatch());
     str.clear();
 
     dbg << IrcCommand::Join;
