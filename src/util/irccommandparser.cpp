@@ -414,7 +414,7 @@ void IrcCommandParser::removeCommand(IrcCommand::Type type, const QString& synta
 {
     Q_D(IrcCommandParser);
     bool changed = false;
-    QMutableMapIterator<QString, IrcCommandInfo> it(d->commands);
+    QMutableMultiMapIterator<QString, IrcCommandInfo> it(d->commands);
     while (it.hasNext()) {
         IrcCommandInfo cmd = it.next().value();
         if (cmd.type == type && (syntax.isEmpty() || !syntax.compare(cmd.fullSyntax(), Qt::CaseInsensitive))) {

@@ -145,8 +145,8 @@ static QString parseUrls(const QString& message, const QString& pattern, QList<Q
     while (it.hasNext()) {
         QRegularExpressionMatch match = it.next();
         QString protocol;
-        if (match.capturedRef(2).isEmpty()) {
-            QStringRef link = match.capturedRef(1);
+        if (match.capturedView(2).isEmpty()) {
+            QStringView link = match.capturedView(1);
             if (link.startsWith(QStringLiteral("ftp."), Qt::CaseInsensitive))
                 protocol = QStringLiteral("ftp://");
             else if (link.contains(QStringLiteral("@")))
