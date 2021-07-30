@@ -2088,7 +2088,7 @@ QString IrcWhoisMessage::address() const
 QDateTime IrcWhoisMessage::since() const
 {
     Q_D(const IrcMessage);
-    return QDateTime::fromTime_t(d->param(5).toInt());
+    return QDateTime::fromSecsSinceEpoch(d->param(5).toInt());
 }
 
 /*!
