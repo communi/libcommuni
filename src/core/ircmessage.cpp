@@ -38,6 +38,7 @@
 #include <QMetaEnum>
 #include <QVariant>
 #include <QDebug>
+#include <functional>
 
 IRC_BEGIN_NAMESPACE
 
