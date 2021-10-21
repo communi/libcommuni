@@ -1398,7 +1398,6 @@ void IrcConnection::close()
         if (d->socket->state() == QAbstractSocket::UnconnectedState)
             d->setStatus(Closed);
         d->reconnecter.stop();
-        d->setConnectionCount(0);
     }
 }
 
@@ -1415,10 +1414,13 @@ void IrcConnection::close()
  */
 void IrcConnection::quit(const QString& reason)
 {
-    if (isConnected())
+    Q_D(IrcConnection);
+    if (isConnected()) {
+        d->setConnectionCount(0);
         sendCommand(IrcCommand::createQuit(reason));
-    else
+    } else {
         close();
+    }
 }
 
 /*!
