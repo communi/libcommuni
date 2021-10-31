@@ -61,13 +61,13 @@ void tst_IrcChannel::testDebug()
     QVERIFY(QRegularExpression("IrcChannel\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
-    channel.setObjectName("obj");
+    channel.setObjectName(QStringLiteral("obj"));
     dbg << &channel;
     QVERIFY(QRegularExpression("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj\\) ").match(str).hasMatch());
     str.clear();
 
-    channel.setPrefix("#");
-    channel.setName("communi");
+    channel.setPrefix(QStringLiteral("#"));
+    channel.setName(QStringLiteral("communi"));
     dbg << &channel;
     QVERIFY(QRegularExpression("IrcChannel\\(0x[0-9A-Fa-f]+, name=obj, title=#communi\\) ").match(str).hasMatch());
     str.clear();

@@ -96,9 +96,9 @@ void tst_IrcUserModel::testClear()
     waitForWritten(":irc.ser.ver 366 communi #channel :End of /NAMES list.");
     QCOMPARE(userModel.count(), 3);
 
-    QPointer<IrcUser> a = userModel.find("a");
-    QPointer<IrcUser> b = userModel.find("b");
-    QPointer<IrcUser> c = userModel.find("c");
+    QPointer<IrcUser> a = userModel.find(QStringLiteral("a"));
+    QPointer<IrcUser> b = userModel.find(QStringLiteral("b"));
+    QPointer<IrcUser> c = userModel.find(QStringLiteral("c"));
 
     QVERIFY(a);
     QVERIFY(b);
@@ -719,8 +719,8 @@ void tst_IrcUserModel::testChanges()
     QCOMPARE(modelAboutToBeResetSpy.count(), ++modelAboutToBeResetCount);
     QCOMPARE(modelResetSpy.count(), ++modelResetCount);
 
-    QStringList names = QStringList() << "communi" << "ChanServ" << "qtassistant" << "Guest1234" << "qout";
-    QStringList titles = QStringList() << "communi" << "@ChanServ" << "+qtassistant" << "Guest1234" << "+qout";
+    QStringList names = QStringList() << QStringLiteral("communi") << QStringLiteral("ChanServ") << QStringLiteral("qtassistant") << QStringLiteral("Guest1234") << QStringLiteral("qout");
+    QStringList titles = QStringList() << QStringLiteral("communi") << QStringLiteral("@ChanServ") << QStringLiteral("+qtassistant") << QStringLiteral("Guest1234") << QStringLiteral("+qout");
     QCOMPARE(userModel.count(), names.count());
     for (int i = 0; i < userModel.count(); ++i) {
         QCOMPARE(userModel.get(i)->name(), names.at(i));
@@ -774,8 +774,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByTitle
     users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi << Guest1234;
-    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "communi" << "Guest1234";
-    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "communi" << "Guest1234";
+    names = QStringList() << QStringLiteral("ChanServ") << QStringLiteral("qout") << QStringLiteral("qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest1234");
+    titles = QStringList() << QStringLiteral("@ChanServ") << QStringLiteral("+qout") << QStringLiteral("+qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest1234");
 
     QCOMPARE(userModel.count(), names.count());
     for (int i = 0; i < userModel.count(); ++i) {
@@ -791,8 +791,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByName
     users = QList<IrcUser*>() << ChanServ << communi << Guest1234 << qout << qtassistant;
-    names = QStringList() << "ChanServ" << "communi" << "Guest1234" << "qout" << "qtassistant";
-    titles = QStringList() << "@ChanServ" << "communi" << "Guest1234" << "+qout" << "+qtassistant";
+    names = QStringList() << QStringLiteral("ChanServ") << QStringLiteral("communi") << QStringLiteral("Guest1234") << QStringLiteral("qout") << QStringLiteral("qtassistant");
+    titles = QStringList() << QStringLiteral("@ChanServ") << QStringLiteral("communi") << QStringLiteral("Guest1234") << QStringLiteral("+qout") << QStringLiteral("+qtassistant");
 
     QCOMPARE(userModel.count(), names.count());
     for (int i = 0; i < userModel.count(); ++i) {
@@ -829,8 +829,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByActivity
     users = QList<IrcUser*>() << communi << ChanServ << qtassistant << Guest1234 << qout;
-    names = QStringList() << "communi" << "ChanServ" << "qtassistant" << "Guest1234" << "qout";
-    titles = QStringList() << "communi" << "@ChanServ" << "+qtassistant" << "Guest1234" << "+qout";
+    names = QStringList() << QStringLiteral("communi") << QStringLiteral("ChanServ") << QStringLiteral("qtassistant") << QStringLiteral("Guest1234") << QStringLiteral("qout");
+    titles = QStringList() << QStringLiteral("communi") << QStringLiteral("@ChanServ") << QStringLiteral("+qtassistant") << QStringLiteral("Guest1234") << QStringLiteral("+qout");
 
     QCOMPARE(userModel.count(), names.count());
     for (int i = 0; i < userModel.count(); ++i) {
@@ -881,8 +881,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByActivity
     users = QList<IrcUser*>() << Guest1234 << communi << ChanServ << qtassistant << qout;
-    names = QStringList() << "Guest5678" << "communi" << "ChanServ" << "qtassistant" << "qout";
-    titles = QStringList() << "Guest5678" << "communi" << "@ChanServ" << "+qtassistant" << "+qout";
+    names = QStringList() << QStringLiteral("Guest5678") << QStringLiteral("communi") << QStringLiteral("ChanServ") << QStringLiteral("qtassistant") << QStringLiteral("qout");
+    titles = QStringList() << QStringLiteral("Guest5678") << QStringLiteral("communi") << QStringLiteral("@ChanServ") << QStringLiteral("+qtassistant") << QStringLiteral("+qout");
 
     int nextIndex = users.indexOf(Guest1234);
 
@@ -944,8 +944,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByTitle
     users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi << Guest1234;
-    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "communi" << "Guest5678";
-    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "communi" << "Guest5678";
+    names = QStringList() << QStringLiteral("ChanServ") << QStringLiteral("qout") << QStringLiteral("qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest5678");
+    titles = QStringList() << QStringLiteral("@ChanServ") << QStringLiteral("+qout") << QStringLiteral("+qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest5678");
 
     QCOMPARE(userModel.count(), names.count());
     for (int i = 0; i < userModel.count(); ++i) {
@@ -973,8 +973,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByTitle
     users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi << Guest1234;
-    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "communi" << "Guest1234";
-    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "communi" << "Guest1234";
+    names = QStringList() << QStringLiteral("ChanServ") << QStringLiteral("qout") << QStringLiteral("qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest1234");
+    titles = QStringList() << QStringLiteral("@ChanServ") << QStringLiteral("+qout") << QStringLiteral("+qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest1234");
 
     nextIndex = users.indexOf(Guest1234);
 
@@ -1048,8 +1048,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByTitle
     users = QList<IrcUser*>() << ChanServ << Guest1234 << qout << qtassistant << communi;
-    names = QStringList() << "ChanServ" << "Guest1234" << "qout" << "qtassistant" << "communi";
-    titles = QStringList() << "@ChanServ" << "+Guest1234" << "+qout" << "+qtassistant" << "communi";
+    names = QStringList() << QStringLiteral("ChanServ") << QStringLiteral("Guest1234") << QStringLiteral("qout") << QStringLiteral("qtassistant") << QStringLiteral("communi");
+    titles = QStringList() << QStringLiteral("@ChanServ") << QStringLiteral("+Guest1234") << QStringLiteral("+qout") << QStringLiteral("+qtassistant") << QStringLiteral("communi");
 
     nextIndex = users.indexOf(Guest1234);
 
@@ -1119,8 +1119,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByTitle
     users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi << Guest1234;
-    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "communi" << "Guest1234";
-    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "communi" << "Guest1234";
+    names = QStringList() << QStringLiteral("ChanServ") << QStringLiteral("qout") << QStringLiteral("qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest1234");
+    titles = QStringList() << QStringLiteral("@ChanServ") << QStringLiteral("+qout") << QStringLiteral("+qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest1234");
 
     nextIndex = users.indexOf(Guest1234);
 
@@ -1185,8 +1185,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByTitle
     users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi;
-    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "communi";
-    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "communi";
+    names = QStringList() << QStringLiteral("ChanServ") << QStringLiteral("qout") << QStringLiteral("qtassistant") << QStringLiteral("communi");
+    titles = QStringList() << QStringLiteral("@ChanServ") << QStringLiteral("+qout") << QStringLiteral("+qtassistant") << QStringLiteral("communi");
 
     nextIndex = users.indexOf(Guest1234);
 
@@ -1225,7 +1225,7 @@ void tst_IrcUserModel::testChanges()
     // ### sorted by title -> trigger a change in count, users & names
     QVERIFY(waitForWritten(":Guest1234!~Guest1234@hidd.en JOIN #communi"));
 
-    Guest1234 = userModel.find("Guest1234");
+    Guest1234 = userModel.find(QStringLiteral("Guest1234"));
     QVERIFY(Guest1234);
 
     QCOMPARE(aboutToBeAddedSpy.count(), ++aboutToBeAddedCount);
@@ -1238,8 +1238,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByTitle
     users = QList<IrcUser*>() << ChanServ << qout << qtassistant << communi << Guest1234;
-    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "communi" << "Guest1234";
-    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "communi" << "Guest1234";
+    names = QStringList() << QStringLiteral("ChanServ") << QStringLiteral("qout") << QStringLiteral("qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest1234");
+    titles = QStringList() << QStringLiteral("@ChanServ") << QStringLiteral("+qout") << QStringLiteral("+qtassistant") << QStringLiteral("communi") << QStringLiteral("Guest1234");
 
     nextIndex = users.indexOf(Guest1234);
 
@@ -1310,8 +1310,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByTitle
     users = QList<IrcUser*>() << ChanServ << qout << qtassistant << Bot << communi;
-    names = QStringList() << "ChanServ" << "qout" << "qtassistant" << "Bot" <<  "communi";
-    titles = QStringList() << "@ChanServ" << "+qout" << "+qtassistant" << "Bot" << "communi";
+    names = QStringList() << QStringLiteral("ChanServ") << QStringLiteral("qout") << QStringLiteral("qtassistant") << QStringLiteral("Bot") <<  QStringLiteral("communi");
+    titles = QStringList() << QStringLiteral("@ChanServ") << QStringLiteral("+qout") << QStringLiteral("+qtassistant") << QStringLiteral("Bot") << QStringLiteral("communi");
 
     nextIndex = users.indexOf(Bot);
 
@@ -1364,7 +1364,7 @@ void tst_IrcUserModel::testChanges()
     userModel.setSortMethod(Irc::SortByName);
     QVERIFY(waitForWritten(":fake!fake@hidd.en JOIN #communi"));
 
-    QPointer<IrcUser> fake = userModel.find("fake");
+    QPointer<IrcUser> fake = userModel.find(QStringLiteral("fake"));
     QVERIFY(fake);
 
     QCOMPARE(aboutToBeAddedSpy.count(), ++aboutToBeAddedCount);
@@ -1377,8 +1377,8 @@ void tst_IrcUserModel::testChanges()
 
     // Irc::SortByName - descending
     users = QList<IrcUser*>() << qtassistant << qout << fake << communi << ChanServ << Bot;
-    names = QStringList() << "qtassistant" << "qout" << "fake" << "communi" << "ChanServ" << "Bot";
-    titles = QStringList() << "+qtassistant" << "+qout" << "fake" << "communi" << "@ChanServ" << "Bot";
+    names = QStringList() << QStringLiteral("qtassistant") << QStringLiteral("qout") << QStringLiteral("fake") << QStringLiteral("communi") << QStringLiteral("ChanServ") << QStringLiteral("Bot");
+    titles = QStringList() << QStringLiteral("+qtassistant") << QStringLiteral("+qout") << QStringLiteral("fake") << QStringLiteral("communi") << QStringLiteral("@ChanServ") << QStringLiteral("Bot");
 
     nextIndex = users.indexOf(fake);
 
@@ -1467,9 +1467,9 @@ void tst_IrcUserModel::testAIM()
     waitForWritten(":irc.ser.ver 366 communi #channel :End of /NAMES list.");
     QCOMPARE(userModel.count(), 3);
 
-    IrcUser* a = userModel.find("a");
-    IrcUser* b = userModel.find("b");
-    IrcUser* c = userModel.find("c");
+    IrcUser* a = userModel.find(QStringLiteral("a"));
+    IrcUser* b = userModel.find(QStringLiteral("b"));
+    IrcUser* c = userModel.find(QStringLiteral("c"));
     IrcUser* o = nullptr;
 
     QVERIFY(a);

@@ -92,7 +92,7 @@ void tst_IrcPalette::testProperties()
     QCOMPARE(palette->colorName(color), QString("dummy"));
     QCOMPARE(palette->property(prop.toUtf8()).toString(), QString("dummy"));
 
-    palette->setColorName(color, QString("dummier"));
+    palette->setColorName(color, QStringLiteral("dummier"));
     QCOMPARE(palette->colorName(color), QString("dummier"));
     QCOMPARE(palette->property(prop.toUtf8()).toString(), QString("dummier"));
 }

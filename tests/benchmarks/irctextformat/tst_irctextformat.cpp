@@ -23,10 +23,10 @@ void tst_IrcTextFormat::testToHtml_data()
 {
     QTest::addColumn<QString>("text");
 
-    QTest::newRow("info") << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://freenode.net/faq.shtml#gettinghelp");
-    QTest::newRow("topic") << QString("Communi 1.2.2 - IRC framework || Home: https://communi.github.io || Docs: https://communi.github.io/doc || MeeGo: http://store.ovi.com/content/219150");
-    QTest::newRow("commit") << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8");
-    QTest::newRow("welcome") << QString("Welcome to the Communi development lounge. Communi for MeeGo/Symbian users are kindly asked to submit a review in Nokia Store.");
+    QTest::newRow("info") << QStringLiteral("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://freenode.net/faq.shtml#gettinghelp");
+    QTest::newRow("topic") << QStringLiteral("Communi 1.2.2 - IRC framework || Home: https://communi.github.io || Docs: https://communi.github.io/doc || MeeGo: http://store.ovi.com/content/219150");
+    QTest::newRow("commit") << QStringLiteral("[communi-desktop] jpnurmi pushed 2 new commits to master: https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8");
+    QTest::newRow("welcome") << QStringLiteral("Welcome to the Communi development lounge. Communi for MeeGo/Symbian users are kindly asked to submit a review in Nokia Store.");
 }
 
 void tst_IrcTextFormat::testToHtml()
