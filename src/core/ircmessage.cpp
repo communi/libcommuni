@@ -531,7 +531,7 @@ QString IrcMessage::host() const
 QString IrcMessage::account() const
 {
     Q_D(const IrcMessage);
-    return d->tags().value(QLatin1String("account")).toString();
+    return d->tags().value(QStringLiteral("account")).toString();
 }
 
 /*!
@@ -832,7 +832,7 @@ bool IrcAwayMessage::isAway() const
     Q_D(const IrcMessage);
     int rpl = d->command().toInt();
     return rpl == Irc::RPL_AWAY || rpl == Irc::RPL_NOWAWAY
-            || (d->command() == "AWAY" && !d->param(0).isEmpty());
+            || (d->command() == QLatin1String("AWAY") && !d->param(0).isEmpty());
 }
 
 bool IrcAwayMessage::isValid() const
@@ -1407,7 +1407,7 @@ IrcMotdMessage::IrcMotdMessage(IrcConnection* connection) : IrcMessage(connectio
 {
     Q_D(IrcMessage);
     d->type = Motd;
-    setCommand(QLatin1String("MOTD"));
+    setCommand(QStringLiteral("MOTD"));
 }
 
 /*!
@@ -1441,7 +1441,7 @@ IrcNamesMessage::IrcNamesMessage(IrcConnection* connection) : IrcMessage(connect
 {
     Q_D(IrcMessage);
     d->type = Names;
-    setCommand(QLatin1String("NAMES"));
+    setCommand(QStringLiteral("NAMES"));
 }
 
 /*!
@@ -2016,7 +2016,7 @@ IrcWhoisMessage::IrcWhoisMessage(IrcConnection* connection) : IrcMessage(connect
 {
     Q_D(IrcMessage);
     d->type = Whois;
-    setCommand(QLatin1String("WHOIS"));
+    setCommand(QStringLiteral("WHOIS"));
 }
 
 /*!
@@ -2162,7 +2162,7 @@ IrcWhowasMessage::IrcWhowasMessage(IrcConnection* connection) : IrcMessage(conne
 {
     Q_D(IrcMessage);
     d->type = Whowas;
-    setCommand(QLatin1String("WHOWAS"));
+    setCommand(QStringLiteral("WHOWAS"));
 }
 
 /*!
@@ -2269,7 +2269,7 @@ QString IrcWhoReplyMessage::server() const
 bool IrcWhoReplyMessage::isAway() const
 {
     Q_D(const IrcMessage);
-    return d->param(2).contains("G");
+    return d->param(2).contains(QLatin1String("G"));
 }
 
 /*!
@@ -2282,7 +2282,7 @@ bool IrcWhoReplyMessage::isAway() const
 bool IrcWhoReplyMessage::isServOp() const
 {
     Q_D(const IrcMessage);
-    return d->param(2).contains("*");
+    return d->param(2).contains(QLatin1String("*"));
 }
 
 /*!
@@ -2325,13 +2325,13 @@ QDebug operator<<(QDebug debug, IrcMessage::Flags flags)
 {
     QStringList lst;
     if (flags == IrcMessage::None)
-        lst << "None";
+        lst << QStringLiteral("None");
     if (flags & IrcMessage::Own)
-        lst << "Own";
+        lst << QStringLiteral("Own");
     if (flags & IrcMessage::Playback)
-        lst << "Playback";
+        lst << QStringLiteral("Playback");
     if (flags & IrcMessage::Implicit)
-        lst << "Implicit";
+        lst << QStringLiteral("Implicit");
     debug.nospace() << '(' << qPrintable(lst.join("|")) << ')';
     return debug;
 }
