@@ -37,39 +37,39 @@ void tst_IrcCommandParser::testParse_data()
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("output");
 
-    QTest::newRow("msg") << QString("#communi") << QString("Hello all!") << QString("PRIVMSG #communi :Hello all!");
-    QTest::newRow("//msg") << QString("#communi") << QString("//msg test") << QString("PRIVMSG #communi :/msg test");
-    QTest::newRow("/ /msg") << QString("#communi") << QString("/ /msg test") << QString("PRIVMSG #communi :/msg test");
+    QTest::newRow("msg") << QStringLiteral("#communi") << QStringLiteral("Hello all!") << QStringLiteral("PRIVMSG #communi :Hello all!");
+    QTest::newRow("//msg") << QStringLiteral("#communi") << QStringLiteral("//msg test") << QStringLiteral("PRIVMSG #communi :/msg test");
+    QTest::newRow("/ /msg") << QStringLiteral("#communi") << QStringLiteral("/ /msg test") << QStringLiteral("PRIVMSG #communi :/msg test");
 
-    QTest::newRow("join1") << QString("#communi") << QString("/JOIN") << QString();
-    QTest::newRow("join2") << QString("#communi") << QString("/JOIN #chan") << QString("JOIN #chan");
-    QTest::newRow("join3") << QString("#communi") << QString("/JOIN #chan secret") << QString("JOIN #chan secret");
-    QTest::newRow("join4") << QString("#communi") << QString("/JOIN #chan too secret") << QString();
+    QTest::newRow("join1") << QStringLiteral("#communi") << QStringLiteral("/JOIN") << QString();
+    QTest::newRow("join2") << QStringLiteral("#communi") << QStringLiteral("/JOIN #chan") << QStringLiteral("JOIN #chan");
+    QTest::newRow("join3") << QStringLiteral("#communi") << QStringLiteral("/JOIN #chan secret") << QStringLiteral("JOIN #chan secret");
+    QTest::newRow("join4") << QStringLiteral("#communi") << QStringLiteral("/JOIN #chan too secret") << QString();
 
-    QTest::newRow("part1") << QString("#communi") << QString("/PART") << QString("PART #communi");
-    QTest::newRow("part2") << QString("#communi") << QString("/PART #communi") << QString("PART #communi");
-    QTest::newRow("part3") << QString("#communi") << QString("/PART #not-exist") << QString("PART #communi :#not-exist");
-    QTest::newRow("part4") << QString("#communi") << QString("/PART hasta la vista") << QString("PART #communi :hasta la vista");
-    QTest::newRow("part5") << QString("#communi") << QString("/PART #chan hasta la vista") << QString("PART #communi :#chan hasta la vista");
+    QTest::newRow("part1") << QStringLiteral("#communi") << QStringLiteral("/PART") << QStringLiteral("PART #communi");
+    QTest::newRow("part2") << QStringLiteral("#communi") << QStringLiteral("/PART #communi") << QStringLiteral("PART #communi");
+    QTest::newRow("part3") << QStringLiteral("#communi") << QStringLiteral("/PART #not-exist") << QStringLiteral("PART #communi :#not-exist");
+    QTest::newRow("part4") << QStringLiteral("#communi") << QStringLiteral("/PART hasta la vista") << QStringLiteral("PART #communi :hasta la vista");
+    QTest::newRow("part5") << QStringLiteral("#communi") << QStringLiteral("/PART #chan hasta la vista") << QStringLiteral("PART #communi :#chan hasta la vista");
 
-    QTest::newRow("kick1") << QString("#communi") << QString("/KICK") << QString();
-    QTest::newRow("kick2") << QString("#communi") << QString("/KICK #communi") << QString();
-    QTest::newRow("kick3") << QString("#communi") << QString("/KICK jpnurmi") << QString("KICK #communi jpnurmi");
-    QTest::newRow("kick4") << QString("jpnurmi")  << QString("/KICK jpnurmi") << QString();
-    QTest::newRow("kick5") << QString("#communi") << QString("/KICK #communi jpnurmi") << QString("KICK #communi jpnurmi");
-    QTest::newRow("kick6") << QString("jpnurmi")  << QString("/KICK jpnurmi jpnurmi") << QString();
-    QTest::newRow("kick7") << QString("#communi") << QString("/KICK #communi jpnurmi hasta la vista") << QString("KICK #communi jpnurmi :hasta la vista");
-    QTest::newRow("kick8") << QString("jpnurmi")  << QString("/KICK jpnurmi jpnurmi hasta la vista") << QString();
-    QTest::newRow("kick9") << QString("#communi") << QString("/KICK jpnurmi hasta la vista") << QString("KICK #communi jpnurmi :hasta la vista");
+    QTest::newRow("kick1") << QStringLiteral("#communi") << QStringLiteral("/KICK") << QString();
+    QTest::newRow("kick2") << QStringLiteral("#communi") << QStringLiteral("/KICK #communi") << QString();
+    QTest::newRow("kick3") << QStringLiteral("#communi") << QStringLiteral("/KICK jpnurmi") << QStringLiteral("KICK #communi jpnurmi");
+    QTest::newRow("kick4") << QStringLiteral("jpnurmi")  << QStringLiteral("/KICK jpnurmi") << QString();
+    QTest::newRow("kick5") << QStringLiteral("#communi") << QStringLiteral("/KICK #communi jpnurmi") << QStringLiteral("KICK #communi jpnurmi");
+    QTest::newRow("kick6") << QStringLiteral("jpnurmi")  << QStringLiteral("/KICK jpnurmi jpnurmi") << QString();
+    QTest::newRow("kick7") << QStringLiteral("#communi") << QStringLiteral("/KICK #communi jpnurmi hasta la vista") << QStringLiteral("KICK #communi jpnurmi :hasta la vista");
+    QTest::newRow("kick8") << QStringLiteral("jpnurmi")  << QStringLiteral("/KICK jpnurmi jpnurmi hasta la vista") << QString();
+    QTest::newRow("kick9") << QStringLiteral("#communi") << QStringLiteral("/KICK jpnurmi hasta la vista") << QStringLiteral("KICK #communi jpnurmi :hasta la vista");
 
-    QTest::newRow("me1") << QString("jpnurmi")  << QString("/ME") << QString();
-    QTest::newRow("me2") << QString("#communi") << QString("/ME loves communi") << QString("PRIVMSG #communi :\1ACTION loves communi\1");
-    QTest::newRow("me3") << QString("jpnurmi")  << QString("/ME loves communi") << QString("PRIVMSG jpnurmi :\1ACTION loves communi\1");
+    QTest::newRow("me1") << QStringLiteral("jpnurmi")  << QStringLiteral("/ME") << QString();
+    QTest::newRow("me2") << QStringLiteral("#communi") << QStringLiteral("/ME loves communi") << QString("PRIVMSG #communi :\1ACTION loves communi\1");
+    QTest::newRow("me3") << QStringLiteral("jpnurmi")  << QStringLiteral("/ME loves communi") << QString("PRIVMSG jpnurmi :\1ACTION loves communi\1");
 
-    QTest::newRow("action1") << QString("jpnurmi")  << QString("/ACTION") << QString();
-    QTest::newRow("action2") << QString("#communi") << QString("/ACTION #communi loves communi") << QString("PRIVMSG #communi :\1ACTION loves communi\1");
-    QTest::newRow("action3") << QString("jpnurmi")  << QString("/ACTION jpnurmi loves communi") << QString("PRIVMSG jpnurmi :\1ACTION loves communi\1");
-    QTest::newRow("action4") << QString("jpnurmi")  << QString("/ACTION #communi loves communi") << QString("PRIVMSG #communi :\1ACTION loves communi\1");
+    QTest::newRow("action1") << QStringLiteral("jpnurmi")  << QStringLiteral("/ACTION") << QString();
+    QTest::newRow("action2") << QStringLiteral("#communi") << QStringLiteral("/ACTION #communi loves communi") << QString("PRIVMSG #communi :\1ACTION loves communi\1");
+    QTest::newRow("action3") << QStringLiteral("jpnurmi")  << QStringLiteral("/ACTION jpnurmi loves communi") << QString("PRIVMSG jpnurmi :\1ACTION loves communi\1");
+    QTest::newRow("action4") << QStringLiteral("jpnurmi")  << QStringLiteral("/ACTION #communi loves communi") << QString("PRIVMSG #communi :\1ACTION loves communi\1");
 }
 
 void tst_IrcCommandParser::testParse()
@@ -83,14 +83,14 @@ void tst_IrcCommandParser::testParse()
     parser.setTriggers(QStringList("/"));
     QCOMPARE(parser.triggers(), QStringList("/"));
 
-    parser.addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
-    parser.addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
-    parser.addCommand(IrcCommand::Kick, "KICK (<#channel>) <nick> (<reason...>)");
-    parser.addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
-    parser.addCommand(IrcCommand::CtcpAction, "ACTION <target> <message...>");
+    parser.addCommand(IrcCommand::Join, QStringLiteral("JOIN <#channel> (<key>)"));
+    parser.addCommand(IrcCommand::Part, QStringLiteral("PART (<#channel>) (<message...>)"));
+    parser.addCommand(IrcCommand::Kick, QStringLiteral("KICK (<#channel>) <nick> (<reason...>)"));
+    parser.addCommand(IrcCommand::CtcpAction, QStringLiteral("ME [target] <message...>"));
+    parser.addCommand(IrcCommand::CtcpAction, QStringLiteral("ACTION <target> <message...>"));
 
     parser.setTarget(target);
-    parser.setChannels(QStringList() << "#freenode" << "#communi");
+    parser.setChannels(QStringList() << QStringLiteral("#freenode") << QStringLiteral("#communi"));
 
     IrcCommand* cmd = parser.parse(input);
     QCOMPARE(cmd ? cmd->toString() : QString(), output);
@@ -100,8 +100,8 @@ void tst_IrcCommandParser::testTriggers()
 {
     IrcCommandParser parser;
     parser.setTriggers(QStringList("/"));
-    parser.addCommand(IrcCommand::Join, "JOIN #channel");
-    parser.setTarget("#target");
+    parser.addCommand(IrcCommand::Join, QStringLiteral("JOIN #channel"));
+    parser.setTarget(QStringLiteral("#target"));
 
     QSignalSpy triggerSpy(&parser, SIGNAL(triggersChanged(QStringList)));
     QVERIFY(triggerSpy.isValid());
@@ -111,7 +111,7 @@ void tst_IrcCommandParser::testTriggers()
     QCOMPARE(triggerSpy.count(), 1);
     QCOMPARE(triggerSpy.last().at(0).toStringList(), QStringList("!"));
 
-    IrcCommand* cmd = parser.parse("!join #communi");
+    IrcCommand* cmd = parser.parse(QStringLiteral("!join #communi"));
     QVERIFY(cmd);
     QCOMPARE(cmd->type(), IrcCommand::Join);
     QCOMPARE(cmd->toString(), QString("JOIN #communi"));
@@ -122,11 +122,11 @@ void tst_IrcCommandParser::testTriggers()
     QCOMPARE(triggerSpy.count(), 2);
     QCOMPARE(triggerSpy.last().at(0).toStringList(), QStringList());
 
-    cmd = parser.parse("!join #communi");
+    cmd = parser.parse(QStringLiteral("!join #communi"));
     QVERIFY(!cmd);
 
     parser.setTolerant(true);
-    cmd = parser.parse("!join #communi");
+    cmd = parser.parse(QStringLiteral("!join #communi"));
     QCOMPARE(cmd->type(), IrcCommand::Message);
     QCOMPARE(cmd->toString(), QString("PRIVMSG #target :!join #communi"));
     delete cmd;
@@ -142,12 +142,12 @@ void tst_IrcCommandParser::testTarget()
     QSignalSpy targetSpy(&parser, SIGNAL(targetChanged(QString)));
     QVERIFY(targetSpy.isValid());
 
-    parser.setTarget("#tgt");
+    parser.setTarget(QStringLiteral("#tgt"));
     QCOMPARE(parser.target(), QString("#tgt"));
     QCOMPARE(targetSpy.count(), 1);
     QCOMPARE(targetSpy.last().at(0).toString(), QString("#tgt"));
 
-    parser.setTarget("#tgt");
+    parser.setTarget(QStringLiteral("#tgt"));
     QCOMPARE(targetSpy.count(), 1);
 
     parser.setTarget(QString());
@@ -164,12 +164,12 @@ void tst_IrcCommandParser::testChannels()
     QSignalSpy channelSpy(&parser, SIGNAL(channelsChanged(QStringList)));
     QVERIFY(channelSpy.isValid());
 
-    parser.setChannels(QStringList() << "#foo" << "#bar");
+    parser.setChannels(QStringList() << QStringLiteral("#foo") << QStringLiteral("#bar"));
     QCOMPARE(parser.channels(), QStringList() << "#foo" << "#bar");
     QCOMPARE(channelSpy.count(), 1);
     QCOMPARE(channelSpy.last().at(0).toStringList(), QStringList() << "#foo" << "#bar");
 
-    parser.setChannels(QStringList() << "#foo" << "#bar");
+    parser.setChannels(QStringList() << QStringLiteral("#foo") << QStringLiteral("#bar"));
     QCOMPARE(parser.channels(), QStringList() << "#foo" << "#bar");
     QCOMPARE(channelSpy.count(), 1);
 
@@ -186,11 +186,11 @@ void tst_IrcCommandParser::testCommands()
     QSignalSpy commandSpy(&parser, SIGNAL(commandsChanged(QStringList)));
     QVERIFY(commandSpy.isValid());
 
-    parser.addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
-    parser.addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
-    parser.addCommand(IrcCommand::Kick, "KICK (<#channel>) <nick> (<reason...>)");
-    parser.addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
-    parser.addCommand(IrcCommand::CtcpAction, "ACTION <target> <message...>");
+    parser.addCommand(IrcCommand::Join, QStringLiteral("JOIN <#channel> (<key>)"));
+    parser.addCommand(IrcCommand::Part, QStringLiteral("PART (<#channel>) (<message...>)"));
+    parser.addCommand(IrcCommand::Kick, QStringLiteral("KICK (<#channel>) <nick> (<reason...>)"));
+    parser.addCommand(IrcCommand::CtcpAction, QStringLiteral("ME [target] <message...>"));
+    parser.addCommand(IrcCommand::CtcpAction, QStringLiteral("ACTION <target> <message...>"));
 
     QCOMPARE(parser.commands().count(), 5);
     QCOMPARE(parser.commands(), QStringList() << "ACTION" << "JOIN" << "KICK" << "ME" << "PART");
@@ -206,11 +206,11 @@ void tst_IrcCommandParser::testCommands()
 void tst_IrcCommandParser::testClear()
 {
     IrcCommandParser parser;
-    parser.addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
-    parser.addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
-    parser.addCommand(IrcCommand::Kick, "KICK (<#channel>) <nick> (<reason...>)");
-    parser.addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
-    parser.addCommand(IrcCommand::CtcpAction, "ACTION <target> <message...>");
+    parser.addCommand(IrcCommand::Join, QStringLiteral("JOIN <#channel> (<key>)"));
+    parser.addCommand(IrcCommand::Part, QStringLiteral("PART (<#channel>) (<message...>)"));
+    parser.addCommand(IrcCommand::Kick, QStringLiteral("KICK (<#channel>) <nick> (<reason...>)"));
+    parser.addCommand(IrcCommand::CtcpAction, QStringLiteral("ME [target] <message...>"));
+    parser.addCommand(IrcCommand::CtcpAction, QStringLiteral("ACTION <target> <message...>"));
     QCOMPARE(parser.commands().count(), 5);
 
     QSignalSpy commandSpy(&parser, SIGNAL(commandsChanged(QStringList)));
@@ -236,11 +236,11 @@ void tst_IrcCommandParser::testReset()
     QSignalSpy channelSpy(&parser, SIGNAL(channelsChanged(QStringList)));
     QVERIFY(channelSpy.isValid());
 
-    parser.setTarget("#tgt");
+    parser.setTarget(QStringLiteral("#tgt"));
     QCOMPARE(targetSpy.count(), 1);
     QCOMPARE(targetSpy.last().at(0).toString(), QString("#tgt"));
 
-    parser.setChannels(QStringList() << "#foo" << "#bar");
+    parser.setChannels(QStringList() << QStringLiteral("#foo") << QStringLiteral("#bar"));
     QCOMPARE(channelSpy.count(), 1);
     QCOMPARE(channelSpy.last().at(0).toStringList(), QStringList() << "#foo" << "#bar");
 
@@ -265,22 +265,22 @@ void tst_IrcCommandParser::testAddRemove()
     QSignalSpy commandSpy(&parser, SIGNAL(commandsChanged(QStringList)));
     QVERIFY(commandSpy.isValid());
 
-    parser.addCommand(IrcCommand::Join, "join <#channel> (<key>)");
+    parser.addCommand(IrcCommand::Join, QStringLiteral("join <#channel> (<key>)"));
     QCOMPARE(parser.commands(), QStringList() << "JOIN");
     QCOMPARE(commandSpy.count(), 1);
     QCOMPARE(commandSpy.last().at(0).toStringList(), QStringList() << "JOIN");
 
-    parser.addCommand(IrcCommand::Join, "join <overload>");
+    parser.addCommand(IrcCommand::Join, QStringLiteral("join <overload>"));
     QCOMPARE(parser.commands(), QStringList() << "JOIN");
     QCOMPARE(commandSpy.count(), 1);
     QCOMPARE(commandSpy.last().at(0).toStringList(), QStringList() << "JOIN");
 
-    parser.addCommand(IrcCommand::Part, "Part (<#channel>) (<message...>)");
+    parser.addCommand(IrcCommand::Part, QStringLiteral("Part (<#channel>) (<message...>)"));
     QCOMPARE(parser.commands(), QStringList() << "JOIN" << "PART");
     QCOMPARE(commandSpy.count(), 2);
     QCOMPARE(commandSpy.last().at(0).toStringList(), QStringList() << "JOIN" << "PART");
 
-    parser.addCommand(IrcCommand::Part, "PART <overload>");
+    parser.addCommand(IrcCommand::Part, QStringLiteral("PART <overload>"));
     QCOMPARE(parser.commands(), QStringList() << "JOIN" << "PART");
     QCOMPARE(commandSpy.count(), 2);
     QCOMPARE(commandSpy.last().at(0).toStringList(), QStringList() << "JOIN" << "PART");
@@ -290,12 +290,12 @@ void tst_IrcCommandParser::testAddRemove()
     QCOMPARE(commandSpy.count(), 3);
     QCOMPARE(commandSpy.last().at(0).toStringList(), QStringList() << "PART");
 
-    parser.removeCommand(IrcCommand::Part, "PART <overload>");
+    parser.removeCommand(IrcCommand::Part, QStringLiteral("PART <overload>"));
     QCOMPARE(parser.commands(), QStringList() << "PART");
     QCOMPARE(commandSpy.count(), 3);
     QCOMPARE(commandSpy.last().at(0).toStringList(), QStringList() << "PART");
 
-    parser.removeCommand(IrcCommand::Part, "Part (<#channel>) (<message...>)");
+    parser.removeCommand(IrcCommand::Part, QStringLiteral("Part (<#channel>) (<message...>)"));
     QCOMPARE(parser.commands(), QStringList());
     QCOMPARE(commandSpy.count(), 4);
     QCOMPARE(commandSpy.last().at(0).toStringList(), QStringList());
@@ -310,52 +310,52 @@ void tst_IrcCommandParser::testSyntax_data()
     QTest::addColumn<QString>("expected");
 
     QTest::newRow("full")
-            << QString("foo")
-            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << QStringLiteral("foo")
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest...>)")
             << uint(IrcCommandParser::Full)
-            << QString("FOO [param] <#chan> (<arg>) (<rest...>)");
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest...>)");
 
     QTest::newRow("no target")
-            << QString("fOO")
-            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << QStringLiteral("fOO")
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest...>)")
             << uint(IrcCommandParser::NoTarget)
-            << QString("FOO <#chan> (<arg>) (<rest...>)");
+            << QStringLiteral("FOO <#chan> (<arg>) (<rest...>)");
 
     QTest::newRow("no ellipsis")
-            << QString("fOO")
-            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << QStringLiteral("fOO")
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest...>)")
             << uint(IrcCommandParser::NoEllipsis)
-            << QString("FOO [param] <#chan> (<arg>) (<rest>)");
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest>)");
 
     QTest::newRow("no prefix")
-            << QString("fOO")
-            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << QStringLiteral("fOO")
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest...>)")
             << uint(IrcCommandParser::NoPrefix)
-            << QString("FOO [param] <chan> (<arg>) (<rest...>)");
+            << QStringLiteral("FOO [param] <chan> (<arg>) (<rest...>)");
 
     QTest::newRow("no parentheses")
-            << QString("Foo")
-            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << QStringLiteral("Foo")
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest...>)")
             << uint(IrcCommandParser::NoParentheses)
-            << QString("FOO [param] <#chan> <arg> <rest...>");
+            << QStringLiteral("FOO [param] <#chan> <arg> <rest...>");
 
     QTest::newRow("no brackets")
-            << QString("FOO")
-            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << QStringLiteral("FOO")
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest...>)")
             << uint(IrcCommandParser::NoBrackets)
-            << QString("FOO param <#chan> (<arg>) (<rest...>)");
+            << QStringLiteral("FOO param <#chan> (<arg>) (<rest...>)");
 
     QTest::newRow("no angles")
-            << QString("FOO")
-            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << QStringLiteral("FOO")
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest...>)")
             << uint(IrcCommandParser::NoAngles)
-            << QString("FOO [param] #chan (arg) (rest...)");
+            << QStringLiteral("FOO [param] #chan (arg) (rest...)");
 
     QTest::newRow("visual")
-            << QString("FOO")
-            << QString("FOO [param] <#chan> (<arg>) (<rest...>)")
+            << QStringLiteral("FOO")
+            << QStringLiteral("FOO [param] <#chan> (<arg>) (<rest...>)")
             << uint(IrcCommandParser::Visual)
-            << QString("FOO <chan> (<arg>) (<rest>)");
+            << QStringLiteral("FOO <chan> (<arg>) (<rest>)");
 }
 
 void tst_IrcCommandParser::testSyntax()
@@ -377,7 +377,7 @@ void tst_IrcCommandParser::testTolerancy()
     parser.setTriggers(QStringList("/"));
     QVERIFY(!parser.isTolerant());
 
-    IrcCommand* cmd = parser.parse("/NS help");
+    IrcCommand* cmd = parser.parse(QStringLiteral("/NS help"));
     QVERIFY(!cmd);
 
     QSignalSpy tolerancySpy(&parser, SIGNAL(tolerancyChanged(bool)));
@@ -392,7 +392,7 @@ void tst_IrcCommandParser::testTolerancy()
     QVERIFY(parser.isTolerant());
     QCOMPARE(tolerancySpy.count(), 1);
 
-    cmd = parser.parse("/NS help");
+    cmd = parser.parse(QStringLiteral("/NS help"));
     QVERIFY(cmd);
     QCOMPARE(cmd->type(), IrcCommand::Quote);
     QCOMPARE(cmd->toString(), QString("NS help"));
@@ -408,7 +408,7 @@ void tst_IrcCommandParser::testCustom()
     IrcCommandParser parser;
     parser.setTriggers(QStringList("/"));
 
-    parser.addCommand(IrcCommand::Custom, "Hello <a> <b> <c>");
+    parser.addCommand(IrcCommand::Custom, QStringLiteral("Hello <a> <b> <c>"));
     QCOMPARE(parser.commands(), QStringList() << "HELLO");
     QCOMPARE(parser.syntax("HELLO"), QString("HELLO <a> <b> <c>"));
 
@@ -417,7 +417,7 @@ void tst_IrcCommandParser::testCustom()
     QVERIFY(!parser.parse("/hello foo bar"));
     QVERIFY(!parser.parse("/hello foo bar foo baz"));
 
-    IrcCommand* cmd = parser.parse("/hello foo bar baz");
+    IrcCommand* cmd = parser.parse(QStringLiteral("/hello foo bar baz"));
     QVERIFY(cmd);
     QCOMPARE(cmd->type(), IrcCommand::Custom);
     QCOMPARE(cmd->parameters(), QStringList() << "HELLO" << "foo" << "bar" << "baz");
@@ -428,9 +428,9 @@ void tst_IrcCommandParser::testWhitespace()
 {
     IrcCommandParser parser;
     parser.setTriggers(QStringList("/"));
-    parser.addCommand(IrcCommand::Custom, "TEST <arg...>");
+    parser.addCommand(IrcCommand::Custom, QStringLiteral("TEST <arg...>"));
 
-    IrcCommand* cmd = parser.parse("/test foo  bar  baz");
+    IrcCommand* cmd = parser.parse(QStringLiteral("/test foo  bar  baz"));
     QVERIFY(cmd);
     QCOMPARE(cmd->type(), IrcCommand::Custom);
     QCOMPARE(cmd->parameters(), QStringList() << "TEST" << "foo  bar  baz");

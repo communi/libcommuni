@@ -66,14 +66,14 @@ void tst_IrcUser::testDebug()
     QVERIFY(QRegularExpression("IrcUser\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
-    user.setObjectName("obj");
+    user.setObjectName(QStringLiteral("obj"));
     dbg << &user;
     QVERIFY(QRegularExpression("IrcUser\\(0x[0-9A-Fa-f]+, name=obj\\) ").match(str).hasMatch());
     str.clear();
 
 #ifdef Q_OS_LINUX
     // others have problems with symbols (win) or private headers (osx frameworks)
-    IrcUserPrivate::get(&user)->setName("usr");
+    IrcUserPrivate::get(&user)->setName(QStringLiteral("usr"));
     dbg << &user;
     QVERIFY(QRegularExpression("IrcUser\\(0x[0-9A-Fa-f]+, name=obj, user=usr\\) ").match(str).hasMatch());
     str.clear();

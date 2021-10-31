@@ -100,8 +100,8 @@ void tst_IrcTextFormat::testHtml_data()
     IrcPalette* palette = format.palette();
     for (int i = Irc::White; i <= Irc::LightGray; ++i) {
         QString color = palette->colorName(i);
-        QTest::newRow(QString("style=%1").arg(color).toUtf8()) << IrcTextFormat::SpanStyle << QString("foo \x03%1%2\x0f and \x03%1%2\x03 bar").arg(i).arg(color) << QString("foo <span style='color: %1'>%1</span> and <span style='color: %1'>%1</span> bar").arg(color);
-        QTest::newRow(QString("class=%1").arg(color).toUtf8()) << IrcTextFormat::SpanClass << QString("foo \x03%1%2\x0f and \x03%1%2\x03 bar").arg(i).arg(color) << QString("foo <span class='%1'>%1</span> and <span class='%1'>%1</span> bar").arg(color);
+        QTest::newRow(QStringLiteral("style=%1").arg(color).toUtf8()) << IrcTextFormat::SpanStyle << QString("foo \x03%1%2\x0f and \x03%1%2\x03 bar").arg(i).arg(color) << QStringLiteral("foo <span style='color: %1'>%1</span> and <span style='color: %1'>%1</span> bar").arg(color);
+        QTest::newRow(QStringLiteral("class=%1").arg(color).toUtf8()) << IrcTextFormat::SpanClass << QString("foo \x03%1%2\x0f and \x03%1%2\x03 bar").arg(i).arg(color) << QStringLiteral("foo <span class='%1'>%1</span> and <span class='%1'>%1</span> bar").arg(color);
     }
 
     QTest::newRow("extra \\x0f") << IrcTextFormat::SpanStyle << "foo\x0f \02bold\x0f bar\x0f" << "foo <span style='font-weight: bold'>bold</span> bar";
@@ -136,39 +136,39 @@ void tst_IrcTextFormat::testUrls_data()
 
     QString defaultPattern = IrcTextFormat().urlPattern();
 
-    QTest::newRow("www.fi") << defaultPattern << "www.fi" << "<a href='http://www.fi'>www.fi</a>" << (QList<QUrl>() << QUrl("http://www.fi"));
-    QTest::newRow("ftp.funet.fi") << defaultPattern << "ftp.funet.fi" << "<a href='ftp://ftp.funet.fi'>ftp.funet.fi</a>" << (QList<QUrl>() << QUrl("ftp://ftp.funet.fi"));
-    QTest::newRow("jpnurmi@gmail.com") << defaultPattern << "jpnurmi@gmail.com" << "<a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>" << (QList<QUrl>() << QUrl("mailto:jpnurmi@gmail.com"));
-    QTest::newRow("quote") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing</a>" << (QList<QUrl>() << QUrl("http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing"));
-    QTest::newRow("percent") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing</a>" << (QList<QUrl>() << QUrl("http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing"));
-    QTest::newRow("parentheses") << defaultPattern << "http://en.wikipedia.org/wiki/Qt_(software)" << "<a href='http://en.wikipedia.org/wiki/Qt_%28software%29'>http://en.wikipedia.org/wiki/Qt_(software)</a>" << (QList<QUrl>() << QUrl("http://en.wikipedia.org/wiki/Qt_(software)"));
-    QTest::newRow("hash & comma") << defaultPattern << "https://codereview.qt-project.org/#change,1" << "<a href='https://codereview.qt-project.org/#change,1'>https://codereview.qt-project.org/#change,1</a>" << (QList<QUrl>() << QUrl("https://codereview.qt-project.org/#change,1"));
-    QTest::newRow("equal & question & ampersand") << defaultPattern << "https://www.google.no/imghp?hl=en&tab=wi" << "<a href='https://www.google.no/imghp?hl=en&tab=wi'>https://www.google.no/imghp?hl=en&amp;tab=wi</a>" << (QList<QUrl>() << QUrl("https://www.google.no/imghp?hl=en&tab=wi"));
-    QTest::newRow("github commits") << defaultPattern << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>" << (QList<QUrl>() << QUrl("https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122"));
-    QTest::newRow("gerrit gitweb") << defaultPattern << "https://codereview.qt-project.org/gitweb?p=qt%2Fqtquickcontrols2.git;a=commit;h=f57f2d9e45b177232b76bde07ff96ef3e43fe5b1" << "<a href='https://codereview.qt-project.org/gitweb?p=qt%2Fqtquickcontrols2.git;a=commit;h=f57f2d9e45b177232b76bde07ff96ef3e43fe5b1'>https://codereview.qt-project.org/gitweb?p=qt%2Fqtquickcontrols2.git;a=commit;h=f57f2d9e45b177232b76bde07ff96ef3e43fe5b1</a>" << (QList<QUrl>() << QUrl("https://codereview.qt-project.org/gitweb?p=qt%2Fqtquickcontrols2.git;a=commit;h=f57f2d9e45b177232b76bde07ff96ef3e43fe5b1"));
-    QTest::newRow("multiple") << defaultPattern << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "<a href='http://www.fi'>www.fi</a> <a href='ftp://ftp.funet.fi'>ftp.funet.fi</a> <a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>" << (QList<QUrl>() << QUrl("http://www.fi") << QUrl("ftp://ftp.funet.fi") << QUrl("mailto:jpnurmi@gmail.com"));
+    QTest::newRow("www.fi") << defaultPattern << "www.fi" << "<a href='http://www.fi'>www.fi</a>" << (QList<QUrl>() << QUrl(QStringLiteral("http://www.fi")));
+    QTest::newRow("ftp.funet.fi") << defaultPattern << "ftp.funet.fi" << "<a href='ftp://ftp.funet.fi'>ftp.funet.fi</a>" << (QList<QUrl>() << QUrl(QStringLiteral("ftp://ftp.funet.fi")));
+    QTest::newRow("jpnurmi@gmail.com") << defaultPattern << "jpnurmi@gmail.com" << "<a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>" << (QList<QUrl>() << QUrl(QStringLiteral("mailto:jpnurmi@gmail.com")));
+    QTest::newRow("quote") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing</a>" << (QList<QUrl>() << QUrl(QStringLiteral("http://en.wikipedia.org/wiki/Shamir's_Secret_Sharing")));
+    QTest::newRow("percent") << defaultPattern << "http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing" << "<a href='http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing'>http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing</a>" << (QList<QUrl>() << QUrl(QStringLiteral("http://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing")));
+    QTest::newRow("parentheses") << defaultPattern << "http://en.wikipedia.org/wiki/Qt_(software)" << "<a href='http://en.wikipedia.org/wiki/Qt_%28software%29'>http://en.wikipedia.org/wiki/Qt_(software)</a>" << (QList<QUrl>() << QUrl(QStringLiteral("http://en.wikipedia.org/wiki/Qt_(software)")));
+    QTest::newRow("hash & comma") << defaultPattern << "https://codereview.qt-project.org/#change,1" << "<a href='https://codereview.qt-project.org/#change,1'>https://codereview.qt-project.org/#change,1</a>" << (QList<QUrl>() << QUrl(QStringLiteral("https://codereview.qt-project.org/#change,1")));
+    QTest::newRow("equal & question & ampersand") << defaultPattern << "https://www.google.no/imghp?hl=en&tab=wi" << "<a href='https://www.google.no/imghp?hl=en&tab=wi'>https://www.google.no/imghp?hl=en&amp;tab=wi</a>" << (QList<QUrl>() << QUrl(QStringLiteral("https://www.google.no/imghp?hl=en&tab=wi")));
+    QTest::newRow("github commits") << defaultPattern << "https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122" << "<a href='https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122'>https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122</a>" << (QList<QUrl>() << QUrl(QStringLiteral("https://github.com/communi/libcommuni/compare/ebf3c8ea47dc...19d66ddcb122")));
+    QTest::newRow("gerrit gitweb") << defaultPattern << "https://codereview.qt-project.org/gitweb?p=qt%2Fqtquickcontrols2.git;a=commit;h=f57f2d9e45b177232b76bde07ff96ef3e43fe5b1" << "<a href='https://codereview.qt-project.org/gitweb?p=qt%2Fqtquickcontrols2.git;a=commit;h=f57f2d9e45b177232b76bde07ff96ef3e43fe5b1'>https://codereview.qt-project.org/gitweb?p=qt%2Fqtquickcontrols2.git;a=commit;h=f57f2d9e45b177232b76bde07ff96ef3e43fe5b1</a>" << (QList<QUrl>() << QUrl(QStringLiteral("https://codereview.qt-project.org/gitweb?p=qt%2Fqtquickcontrols2.git;a=commit;h=f57f2d9e45b177232b76bde07ff96ef3e43fe5b1")));
+    QTest::newRow("multiple") << defaultPattern << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "<a href='http://www.fi'>www.fi</a> <a href='ftp://ftp.funet.fi'>ftp.funet.fi</a> <a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a>" << (QList<QUrl>() << QUrl(QStringLiteral("http://www.fi")) << QUrl(QStringLiteral("ftp://ftp.funet.fi")) << QUrl(QStringLiteral("mailto:jpnurmi@gmail.com")));
     QTest::newRow("empty pattern") << QString() << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "www.fi ftp.funet.fi jpnurmi@gmail.com" << QList<QUrl>();
 
     QTest::newRow("info") << defaultPattern
-                          << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://freenode.net/faq.shtml#gettinghelp")
-                          << QString("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: <a href='http://freenode.net/faq.shtml#gettinghelp'>http://freenode.net/faq.shtml#gettinghelp</a>")
-                          << (QList<QUrl>() << QUrl("http://freenode.net/faq.shtml#gettinghelp"));
+                          << QStringLiteral("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://freenode.net/faq.shtml#gettinghelp")
+                          << QStringLiteral("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: <a href='http://freenode.net/faq.shtml#gettinghelp'>http://freenode.net/faq.shtml#gettinghelp</a>")
+                          << (QList<QUrl>() << QUrl(QStringLiteral("http://freenode.net/faq.shtml#gettinghelp")));
     QTest::newRow("topic") << defaultPattern
-                           << QString("Communi 1.2.2 - IRC framework || Home: https://communi.github.io || Docs: https://communi.github.io/doc || MeeGo: http://store.ovi.com/content/219150")
-                           << QString("Communi 1.2.2 - IRC framework || Home: <a href='https://communi.github.io'>https://communi.github.io</a> || Docs: <a href='https://communi.github.io/doc'>https://communi.github.io/doc</a> || MeeGo: <a href='http://store.ovi.com/content/219150'>http://store.ovi.com/content/219150</a>")
-                           << (QList<QUrl>() << QUrl("https://communi.github.io") << QUrl("https://communi.github.io/doc") << QUrl("http://store.ovi.com/content/219150"));
+                           << QStringLiteral("Communi 1.2.2 - IRC framework || Home: https://communi.github.io || Docs: https://communi.github.io/doc || MeeGo: http://store.ovi.com/content/219150")
+                           << QStringLiteral("Communi 1.2.2 - IRC framework || Home: <a href='https://communi.github.io'>https://communi.github.io</a> || Docs: <a href='https://communi.github.io/doc'>https://communi.github.io/doc</a> || MeeGo: <a href='http://store.ovi.com/content/219150'>http://store.ovi.com/content/219150</a>")
+                           << (QList<QUrl>() << QUrl(QStringLiteral("https://communi.github.io")) << QUrl(QStringLiteral("https://communi.github.io/doc")) << QUrl(QStringLiteral("http://store.ovi.com/content/219150")));
     QTest::newRow("commit") << defaultPattern
-                            << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8")
-                            << QString("[communi-desktop] jpnurmi pushed 2 new commits to master: <a href='https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8'>https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8</a>")
-                            << (QList<QUrl>() << QUrl("https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8"));
+                            << QStringLiteral("[communi-desktop] jpnurmi pushed 2 new commits to master: https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8")
+                            << QStringLiteral("[communi-desktop] jpnurmi pushed 2 new commits to master: <a href='https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8'>https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8</a>")
+                            << (QList<QUrl>() << QUrl(QStringLiteral("https://github.com/communi/communi-desktop/compare/257ca915a490...8832bfe8d0b8")));
     QTest::newRow("with protocol") << defaultPattern
-                                   << QString("aa http://www.fi bb ftp://ftp.funet.fi cc")
-                                   << QString("aa <a href='http://www.fi'>http://www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp://ftp.funet.fi</a> cc")
-                                   << (QList<QUrl>() << QUrl("http://www.fi") << QUrl("ftp://ftp.funet.fi"));
+                                   << QStringLiteral("aa http://www.fi bb ftp://ftp.funet.fi cc")
+                                   << QStringLiteral("aa <a href='http://www.fi'>http://www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp://ftp.funet.fi</a> cc")
+                                   << (QList<QUrl>() << QUrl(QStringLiteral("http://www.fi")) << QUrl(QStringLiteral("ftp://ftp.funet.fi")));
     QTest::newRow("without protocol") << defaultPattern
-                                      << QString("aa www.fi bb ftp.funet.fi cc jpnurmi@gmail.com dd")
-                                      << QString("aa <a href='http://www.fi'>www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp.funet.fi</a> cc <a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a> dd")
-                                      << (QList<QUrl>() << QUrl("http://www.fi") << QUrl("ftp://ftp.funet.fi") << QUrl("mailto:jpnurmi@gmail.com"));
+                                      << QStringLiteral("aa www.fi bb ftp.funet.fi cc jpnurmi@gmail.com dd")
+                                      << QStringLiteral("aa <a href='http://www.fi'>www.fi</a> bb <a href='ftp://ftp.funet.fi'>ftp.funet.fi</a> cc <a href='mailto:jpnurmi@gmail.com'>jpnurmi@gmail.com</a> dd")
+                                      << (QList<QUrl>() << QUrl(QStringLiteral("http://www.fi")) << QUrl(QStringLiteral("ftp://ftp.funet.fi")) << QUrl(QStringLiteral("mailto:jpnurmi@gmail.com")));
 }
 
 void tst_IrcTextFormat::testUrls()

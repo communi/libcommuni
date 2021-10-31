@@ -59,7 +59,7 @@ void tst_IrcBuffer::testTitleNamePrefix()
     QVERIFY(nameSpy.isValid());
     QVERIFY(prefixSpy.isValid());
 
-    buffer.setName("name");
+    buffer.setName(QStringLiteral("name"));
     QCOMPARE(buffer.title(), QString("name"));
     QCOMPARE(buffer.name(), QString("name"));
     QCOMPARE(buffer.prefix(), QString());
@@ -69,7 +69,7 @@ void tst_IrcBuffer::testTitleNamePrefix()
     QCOMPARE(nameSpy.last().first().toString(), QString("name"));
     QCOMPARE(prefixSpy.count(), 0);
 
-    buffer.setPrefix("prefix");
+    buffer.setPrefix(QStringLiteral("prefix"));
     QCOMPARE(buffer.title(), QString("prefixname"));
     QCOMPARE(buffer.name(), QString("name"));
     QCOMPARE(buffer.prefix(), QString("prefix"));
@@ -150,12 +150,12 @@ void tst_IrcBuffer::testDebug()
     QVERIFY(QRegularExpression("IrcBuffer\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
-    buffer.setObjectName("obj");
+    buffer.setObjectName(QStringLiteral("obj"));
     dbg << &buffer;
     QVERIFY(QRegularExpression("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj\\) ").match(str).hasMatch());
     str.clear();
 
-    buffer.setName("buf");
+    buffer.setName(QStringLiteral("buf"));
     dbg << &buffer;
     QVERIFY(QRegularExpression("IrcBuffer\\(0x[0-9A-Fa-f]+, name=obj, title=buf\\) ").match(str).hasMatch());
     str.clear();
@@ -164,7 +164,7 @@ void tst_IrcBuffer::testDebug()
 void tst_IrcBuffer::testUserData()
 {
     QVariantMap ud;
-    ud.insert("foo", "bar");
+    ud.insert(QStringLiteral("foo"), "bar");
 
     IrcBuffer buffer;
     buffer.setUserData(ud);
@@ -177,7 +177,7 @@ void tst_IrcBuffer::testUserData()
 void tst_IrcBuffer::testClose()
 {
     IrcBufferModel model;
-    QPointer<IrcBuffer> buffer = model.add("foo");
+    QPointer<IrcBuffer> buffer = model.add(QStringLiteral("foo"));
     buffer->close();
     QVERIFY(!model.contains("foo"));
     QVERIFY(!buffer);
@@ -202,7 +202,7 @@ void tst_IrcBuffer::testSendCommand()
     IrcBufferModel model(&connection);
     QCOMPARE(model.connection(), &connection);
 
-    IrcBuffer* buffer = model.add("foo");
+    IrcBuffer* buffer = model.add(QStringLiteral("foo"));
     QCOMPARE(buffer->connection(), &connection);
 
     IrcCommand* cmd = IrcCommand::createAway();

@@ -171,7 +171,7 @@ void tst_IrcNetwork::testInfo()
         for (int i = IrcCommand::Admin; i <= IrcCommand::Whowas; ++i) {
             if (i != IrcCommand::Custom) {
                 command.setType(static_cast<IrcCommand::Type>(i));
-                QString cmd = command.toString().split(" ", Qt::SkipEmptyParts).value(0);
+                QString cmd = command.toString().split(QStringLiteral(" "), Qt::SkipEmptyParts).value(0);
                 if (network->targetLimit(cmd) != -1)
                     limited = true;
             }
@@ -217,69 +217,69 @@ void tst_IrcNetwork::testCapabilities_data()
                                << QString()
                                << QString();
 
-    QTest::newRow("sasl")      << QString("multi-prefix sasl identify-msg") // initial
-                               << QString("sasl") // requested
-                               << QString("sasl") // acked
+    QTest::newRow("sasl")      << QStringLiteral("multi-prefix sasl identify-msg") // initial
+                               << QStringLiteral("sasl") // requested
+                               << QStringLiteral("sasl") // acked
                                << QString() // naked
-                               << QString("sasl identify-msg multi-prefix") // listed
-                               << QString("sasl identify-msg multi-prefix") // available
-                               << QString("sasl"); // active
+                               << QStringLiteral("sasl identify-msg multi-prefix") // listed
+                               << QStringLiteral("sasl identify-msg multi-prefix") // available
+                               << QStringLiteral("sasl"); // active
 
-    QTest::newRow("sasl mech") << QString("multi-prefix sasl=PLAIN,EXTERNAL identify-msg") // initial
-                               << QString("sasl") // requested
-                               << QString("sasl") // acked
+    QTest::newRow("sasl mech") << QStringLiteral("multi-prefix sasl=PLAIN,EXTERNAL identify-msg") // initial
+                               << QStringLiteral("sasl") // requested
+                               << QStringLiteral("sasl") // acked
                                << QString() // naked
-                               << QString("sasl=PLAIN,EXTERNAL identify-msg multi-prefix") // listed
-                               << QString("sasl=PLAIN,EXTERNAL identify-msg multi-prefix") // available
-                               << QString("sasl"); // active
+                               << QStringLiteral("sasl=PLAIN,EXTERNAL identify-msg multi-prefix") // listed
+                               << QStringLiteral("sasl=PLAIN,EXTERNAL identify-msg multi-prefix") // available
+                               << QStringLiteral("sasl"); // active
 
-    QTest::newRow("saslnmech") << QString("multi-prefix sasl=EXTERNAL identify-msg") // initial
-                               << QString("") // requested
-                               << QString("") // acked
+    QTest::newRow("saslnmech") << QStringLiteral("multi-prefix sasl=EXTERNAL identify-msg") // initial
+                               << QStringLiteral("") // requested
+                               << QStringLiteral("") // acked
                                << QString() // naked
-                               << QString("sasl=EXTERNAL identify-msg multi-prefix") // listed
-                               << QString("sasl=EXTERNAL identify-msg multi-prefix") // available
-                               << QString(""); // active
+                               << QStringLiteral("sasl=EXTERNAL identify-msg multi-prefix") // listed
+                               << QStringLiteral("sasl=EXTERNAL identify-msg multi-prefix") // available
+                               << QStringLiteral(""); // active
 
-    QTest::newRow("unk")       << QString("multi-prefix sasl identify-msg") // initial
-                               << QString("unk") // requested
+    QTest::newRow("unk")       << QStringLiteral("multi-prefix sasl identify-msg") // initial
+                               << QStringLiteral("unk") // requested
                                << QString() // acked
-                               << QString("nak") // naked
-                               << QString("multi-prefix sasl identify-msg") // listed
-                               << QString("multi-prefix sasl identify-msg") // available
+                               << QStringLiteral("nak") // naked
+                               << QStringLiteral("multi-prefix sasl identify-msg") // listed
+                               << QStringLiteral("multi-prefix sasl identify-msg") // available
                                << QString(); // active
 
-    QTest::newRow("nak all")   << QString("multi-prefix sasl identify-msg") // initial
-                               << QString("sasl identify-msg multi-prefix") // requested
+    QTest::newRow("nak all")   << QStringLiteral("multi-prefix sasl identify-msg") // initial
+                               << QStringLiteral("sasl identify-msg multi-prefix") // requested
                                << QString() // acked
-                               << QString("sasl identify-msg multi-prefix") // naked
-                               << QString("sasl identify-msg multi-prefix") // listed
-                               << QString("sasl identify-msg multi-prefix") // available
+                               << QStringLiteral("sasl identify-msg multi-prefix") // naked
+                               << QStringLiteral("sasl identify-msg multi-prefix") // listed
+                               << QStringLiteral("sasl identify-msg multi-prefix") // available
                                << QString(); // active
 
-    QTest::newRow("sticky")    << QString("=sticky") // initial
-                               << QString("sticky") // requested
-                               << QString("=sticky") // acked
+    QTest::newRow("sticky")    << QStringLiteral("=sticky") // initial
+                               << QStringLiteral("sticky") // requested
+                               << QStringLiteral("=sticky") // acked
                                << QString() // naked
                                << QString() // listed
-                               << QString("sticky") // available
-                               << QString("sticky"); // active
+                               << QStringLiteral("sticky") // available
+                               << QStringLiteral("sticky"); // active
 
-    QTest::newRow("ackmod")    << QString("~ackmod") // initial
-                               << QString("ackmod") // requested
-                               << QString("~ackmod") // acked
+    QTest::newRow("ackmod")    << QStringLiteral("~ackmod") // initial
+                               << QStringLiteral("ackmod") // requested
+                               << QStringLiteral("~ackmod") // acked
                                << QString() // naked
                                << QString() // listed
-                               << QString("ackmod") // available
-                               << QString("ackmod"); // active
+                               << QStringLiteral("ackmod") // available
+                               << QStringLiteral("ackmod"); // active
 
-    QTest::newRow("acksticky") << QString("~=acksticky") // initial
-                               << QString("acksticky") // requested
-                               << QString("=~acksticky") // acked
+    QTest::newRow("acksticky") << QStringLiteral("~=acksticky") // initial
+                               << QStringLiteral("acksticky") // requested
+                               << QStringLiteral("=~acksticky") // acked
                                << QString() // naked
                                << QString() // listed
-                               << QString("acksticky") // available
-                               << QString("acksticky"); // active
+                               << QStringLiteral("acksticky") // available
+                               << QStringLiteral("acksticky"); // active
 }
 
 static QStringList sorted(QStringList lst)
@@ -290,7 +290,7 @@ static QStringList sorted(QStringList lst)
 
 static bool equalCaps(const QString& left, const QString& right)
 {
-    return sorted(left.split(" ", Qt::SkipEmptyParts)) == sorted(right.split(" ", Qt::SkipEmptyParts));
+    return sorted(left.split(QStringLiteral(" "), Qt::SkipEmptyParts)) == sorted(right.split(QStringLiteral(" "), Qt::SkipEmptyParts));
 }
 
 void tst_IrcNetwork::testCapabilities()
@@ -321,7 +321,7 @@ void tst_IrcNetwork::testCapabilities()
     int requestingCount = 0;
 
     if (!requestedCaps.isEmpty()) {
-        network->setRequestedCapabilities(requestedCaps.split(" ", Qt::SkipEmptyParts));
+        network->setRequestedCapabilities(requestedCaps.split(QStringLiteral(" "), Qt::SkipEmptyParts));
         ++requestedCount;
     }
     QCOMPARE(requestedSpy.count(), requestedCount);
@@ -388,7 +388,7 @@ void tst_IrcNetwork::testCapabilities()
     // -> CLEAR
     QString clearCaps;
     foreach (const QString& cap, activeCaps.split(" ", Qt::SkipEmptyParts))
-        clearCaps += QString("-") + cap;
+        clearCaps += QStringLiteral("-") + cap;
     QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi ACK :" + clearCaps.toUtf8()));
 
     if (!activeCaps.isEmpty())
@@ -402,7 +402,7 @@ void tst_IrcNetwork::testCapNotify()
     QVERIFY(waitForOpened());
 
     IrcNetwork* network = connection->network();
-    network->setRequestedCapabilities(QStringList() << "cap-notify" << "away-notify");
+    network->setRequestedCapabilities(QStringList() << QStringLiteral("cap-notify") << QStringLiteral("away-notify"));
 
     QVERIFY(waitForWritten(":irc.ser.ver CAP jpnurmi LS :cap-notify"));
 
@@ -442,14 +442,14 @@ void tst_IrcNetwork::testDebug()
     QVERIFY(QRegularExpression("IrcNetwork\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
-    connection.network()->setObjectName("obj");
+    connection.network()->setObjectName(QStringLiteral("obj"));
     dbg << connection.network();
     QVERIFY(QRegularExpression("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj\\) ").match(str).hasMatch());
     str.clear();
 
 #ifdef Q_OS_LINUX
     // others have problems with symbols (win) or private headers (osx frameworks)
-    IrcNetworkPrivate::get(connection.network())->name = "net";
+    IrcNetworkPrivate::get(connection.network())->name = QLatin1String("net");
     dbg << connection.network();
     QVERIFY(QRegularExpression("IrcNetwork\\(0x[0-9A-Fa-f]+, name=obj, network=net\\) ").match(str).hasMatch());
     str.clear();

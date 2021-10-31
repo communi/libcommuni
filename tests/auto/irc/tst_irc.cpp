@@ -123,7 +123,7 @@ void tst_Irc::testPrefix_data()
     QTest::addColumn<QString>("expectedHost");
 
     QTest::newRow("null") << false << QString() << QString() << QString() << QString();
-    QTest::newRow("empty") << false << QLatin1String("") << QLatin1String("") << QLatin1String("") << QLatin1String("");
+    QTest::newRow("empty") << false << QStringLiteral("") << QStringLiteral("") << QStringLiteral("") << QStringLiteral("");
     QTest::newRow("trimmed") << true << QStringLiteral(" n!u@h ") << QStringLiteral("n") << QStringLiteral("u") << QStringLiteral("h");
     QTest::newRow("n!u@h") << true << QStringLiteral("n!u@h") << QStringLiteral("n") << QStringLiteral("u") << QStringLiteral("h");
 

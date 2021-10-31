@@ -74,11 +74,11 @@ void tst_IrcLagTimer::testLag()
     QVERIFY(clientSocket->waitForBytesWritten(1000));
     QVERIFY(serverSocket->waitForReadyRead(1000));
 
-    QRegularExpression rx("PING communi/(\\d+)");
+    QRegularExpression rx(QStringLiteral("PING communi/(\\d+)"));
     QString written = QString::fromUtf8(serverSocket->readAll());
     QVERIFY(rx.match(written).hasMatch());
 
-    waitForWritten(QString(":irc.ser.ver PONG communi communi/%1").arg(QDateTime::currentMSecsSinceEpoch() - 1234ll).toUtf8());
+    waitForWritten(QStringLiteral(":irc.ser.ver PONG communi communi/%1").arg(QDateTime::currentMSecsSinceEpoch() - 1234ll).toUtf8());
     QVERIFY(timer.lag() >= 1234ll);
     QCOMPARE(lagSpy.count(), ++lagCount);
     QVERIFY(lagSpy.last().at(0).toLongLong() >= 1234ll);
@@ -92,7 +92,7 @@ void tst_IrcLagTimer::testLag()
     QCOMPARE(timer.lag(), -1ll);
     QCOMPARE(lagSpy.count(), lagCount);
 
-    waitForWritten(QString(":irc.ser.ver PONG communi communi/%1").arg(QDateTime::currentMSecsSinceEpoch() - 4321ll).toUtf8());
+    waitForWritten(QStringLiteral(":irc.ser.ver PONG communi communi/%1").arg(QDateTime::currentMSecsSinceEpoch() - 4321ll).toUtf8());
     QVERIFY(timer.lag() >= 4321ll);
     QCOMPARE(lagSpy.count(), ++lagCount);
     QVERIFY(lagSpy.last().at(0).toLongLong() >= 4321ll);

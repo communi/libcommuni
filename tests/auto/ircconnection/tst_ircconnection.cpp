@@ -141,10 +141,10 @@ void tst_IrcConnection::testHost_data()
     QTest::addColumn<QString>("host");
 
     QTest::newRow("null") << QString();
-    QTest::newRow("empty") << QString("");
-    QTest::newRow("space") << QString(" ");
-    QTest::newRow("invalid") << QString("invalid");
-    QTest::newRow("local") << QString("127.0.0.1");
+    QTest::newRow("empty") << QStringLiteral("");
+    QTest::newRow("space") << QStringLiteral(" ");
+    QTest::newRow("invalid") << QStringLiteral("invalid");
+    QTest::newRow("local") << QStringLiteral("127.0.0.1");
 }
 
 void tst_IrcConnection::testHost()
@@ -195,9 +195,9 @@ void tst_IrcConnection::testUserName_data()
     QTest::addColumn<QString>("result");
 
     QTest::newRow("null") << QString() << QString();
-    QTest::newRow("empty") << QString("") << QString("");
-    QTest::newRow("space") << QString(" ") << QString("");
-    QTest::newRow("spaces") << QString(" foo bar ") << QString("foo");
+    QTest::newRow("empty") << QStringLiteral("") << QStringLiteral("");
+    QTest::newRow("space") << QStringLiteral(" ") << QStringLiteral("");
+    QTest::newRow("spaces") << QStringLiteral(" foo bar ") << QStringLiteral("foo");
 }
 
 void tst_IrcConnection::testUserName()
@@ -221,9 +221,9 @@ void tst_IrcConnection::testNickName_data()
     QTest::addColumn<QString>("result");
 
     QTest::newRow("null") << QString() << QString();
-    QTest::newRow("empty") << QString("") << QString("");
-    QTest::newRow("space") << QString(" ") << QString("");
-    QTest::newRow("spaces") << QString(" foo bar ") << QString("foo");
+    QTest::newRow("empty") << QStringLiteral("") << QStringLiteral("");
+    QTest::newRow("space") << QStringLiteral(" ") << QStringLiteral("");
+    QTest::newRow("spaces") << QStringLiteral(" foo bar ") << QStringLiteral("foo");
 }
 
 void tst_IrcConnection::testNickName()
@@ -247,9 +247,9 @@ void tst_IrcConnection::testRealName_data()
     QTest::addColumn<QString>("result");
 
     QTest::newRow("null") << QString() << QString();
-    QTest::newRow("empty") << QString("") << QString("");
-    QTest::newRow("space") << QString(" ") << QString(" ");
-    QTest::newRow("spaces") << QString(" foo bar ") << QString(" foo bar ");
+    QTest::newRow("empty") << QStringLiteral("") << QStringLiteral("");
+    QTest::newRow("space") << QStringLiteral(" ") << QStringLiteral(" ");
+    QTest::newRow("spaces") << QStringLiteral(" foo bar ") << QStringLiteral(" foo bar ");
 }
 
 void tst_IrcConnection::testRealName()
@@ -273,9 +273,9 @@ void tst_IrcConnection::testPassword_data()
     QTest::addColumn<QString>("result");
 
     QTest::newRow("null") << QString() << QString();
-    QTest::newRow("empty") << QString("") << QString("");
-    QTest::newRow("space") << QString(" ") << QString(" ");
-    QTest::newRow("spaces") << QString(" foo bar ") << QString(" foo bar ");
+    QTest::newRow("empty") << QStringLiteral("") << QStringLiteral("");
+    QTest::newRow("space") << QStringLiteral(" ") << QStringLiteral(" ");
+    QTest::newRow("spaces") << QStringLiteral(" foo bar ") << QStringLiteral(" foo bar ");
 }
 
 void tst_IrcConnection::testPassword()
@@ -300,12 +300,12 @@ void tst_IrcConnection::testDisplayName_data()
     QTest::addColumn<QString>("result");
 
     QTest::newRow("null") << QString() << QString() << QString();
-    QTest::newRow("empty") << QString() << QString("") << QString("");
-    QTest::newRow("space") << QString() << QString(" ") << QString(" ");
+    QTest::newRow("empty") << QString() << QStringLiteral("") << QStringLiteral("");
+    QTest::newRow("space") << QString() << QStringLiteral(" ") << QStringLiteral(" ");
 
-    QTest::newRow("host") << QString("host") << QString() << QString("host");
-    QTest::newRow("name") << QString() << QString("name") << QString("name");
-    QTest::newRow("explicit") << QString("host") << QString("name") << QString("name");
+    QTest::newRow("host") << QStringLiteral("host") << QString() << QStringLiteral("host");
+    QTest::newRow("name") << QString() << QStringLiteral("name") << QStringLiteral("name");
+    QTest::newRow("explicit") << QStringLiteral("host") << QStringLiteral("name") << QStringLiteral("name");
 }
 
 void tst_IrcConnection::testDisplayName()
@@ -409,14 +409,14 @@ void tst_IrcConnection::testSasl()
 {
     QVERIFY(!IrcConnection::supportedSaslMechanisms().contains("UNKNOWN"));
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSaslMechanism(): unsupported mechanism: 'UNKNOWN'");
-    connection->setSaslMechanism("UNKNOWN");
+    connection->setSaslMechanism(QStringLiteral("UNKNOWN"));
     QVERIFY(connection->saslMechanism().isEmpty());
 
     IrcProtocol* protocol = static_cast<FriendlyConnection*>(connection.data())->protocol();
     QVERIFY(protocol);
 
     QVERIFY(IrcConnection::supportedSaslMechanisms().contains("PLAIN"));
-    connection->setSaslMechanism("PLAIN");
+    connection->setSaslMechanism(QStringLiteral("PLAIN"));
     QCOMPARE(connection->saslMechanism(), QString("PLAIN"));
 
     connection->open();
@@ -482,14 +482,14 @@ void tst_IrcConnection::testNoSasl()
 {
     QVERIFY(!IrcConnection::supportedSaslMechanisms().contains("UNKNOWN"));
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSaslMechanism(): unsupported mechanism: 'UNKNOWN'");
-    connection->setSaslMechanism("UNKNOWN");
+    connection->setSaslMechanism(QStringLiteral("UNKNOWN"));
     QVERIFY(connection->saslMechanism().isEmpty());
 
     IrcProtocol* protocol = static_cast<FriendlyConnection*>(connection.data())->protocol();
     QVERIFY(protocol);
 
     QVERIFY(IrcConnection::supportedSaslMechanisms().contains("PLAIN"));
-    connection->setSaslMechanism("PLAIN");
+    connection->setSaslMechanism(QStringLiteral("PLAIN"));
     QCOMPARE(connection->saslMechanism(), QString("PLAIN"));
 
     connection->open();
@@ -556,22 +556,22 @@ void tst_IrcConnection::testOpen()
     connection.open();
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
-    connection.setHost("irc.ser.ver");
+    connection.setHost(QStringLiteral("irc.ser.ver"));
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::open(): userName is empty!");
     connection.open();
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
-    connection.setUserName("user");
+    connection.setUserName(QStringLiteral("user"));
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::open(): nickNames is empty!");
     connection.open();
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
-    connection.setNickName("nick");
+    connection.setNickName(QStringLiteral("nick"));
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::open(): realName is empty!");
     connection.open();
     QCOMPARE(connection.status(), IrcConnection::Inactive);
 
-    connection.setRealName("real");
+    connection.setRealName(QStringLiteral("real"));
     connection.open();
     QVERIFY(connection.status() != IrcConnection::Inactive);
 
@@ -790,12 +790,12 @@ void tst_IrcConnection::testConnection()
     QVERIFY(waitForOpened());
 
     protocol->written.clear();
-    connection->network()->requestCapability("identify-msg");
+    connection->network()->requestCapability(QStringLiteral("identify-msg"));
     QVERIFY(protocol->written.contains("CAP REQ"));
     QVERIFY(protocol->written.contains("identify-msg"));
 
     protocol->written.clear();
-    connection->network()->requestCapabilities(QStringList() << "sasl" << "communi");
+    connection->network()->requestCapabilities(QStringList() << QStringLiteral("sasl") << QStringLiteral("communi"));
     QVERIFY(protocol->written.contains("CAP REQ"));
     QVERIFY(protocol->written.contains("sasl"));
     QVERIFY(protocol->written.contains("communi"));
@@ -806,7 +806,7 @@ void tst_IrcConnection::testConnection()
     QCOMPARE(connection->status(), IrcConnection::Connected);
 
     protocol->written.clear();
-    connection->setNickName("communi");
+    connection->setNickName(QStringLiteral("communi"));
     QVERIFY(protocol->written.contains("NICK"));
     QVERIFY(protocol->written.contains("communi"));
 
@@ -1012,7 +1012,7 @@ void tst_IrcConnection::testMessages()
     // nick in use
     QString prevNick = connection->nickName();
     NickChanger changer(connection);
-    changer.setAlternate = "communi_";
+    changer.setAlternate = QLatin1String("communi_");
     QSignalSpy nickNameReservedSpy(connection, SIGNAL(nickNameReserved(QString*)));
     QVERIFY(nickNameReservedSpy.isValid());
     QVERIFY(waitForWritten(":moorcock.freenode.net 433 * communi :Nickname is already in use."));
@@ -1662,7 +1662,7 @@ void tst_IrcConnection::testCommandFilter()
     connection->open();
     QVERIFY(waitForOpened());
 
-    connection->sendCommand(IrcCommand::createJoin("#freenode"));
+    connection->sendCommand(IrcCommand::createJoin(QStringLiteral("#freenode")));
     QCOMPARE(filter1.commandFiltered, 1);
     QCOMPARE(filter2->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
@@ -1672,7 +1672,7 @@ void tst_IrcConnection::testCommandFilter()
     filter1.clear(); filter2->clear(); filter3->clear();
     filter3->commandFilterEnabled = true;
 
-    connection->sendCommand(IrcCommand::createJoin("#communi"));
+    connection->sendCommand(IrcCommand::createJoin(QStringLiteral("#communi")));
     QCOMPARE(filter1.commandFiltered, 0);
     QCOMPARE(filter2->commandFiltered, 0);
     QCOMPARE(filter3->commandFiltered, 1);
@@ -1682,7 +1682,7 @@ void tst_IrcConnection::testCommandFilter()
     filter1.clear(); filter2->clear(); filter3->clear();
     filter2->commandFilterEnabled = true;
 
-    connection->sendCommand(IrcCommand::createJoin("#qt"));
+    connection->sendCommand(IrcCommand::createJoin(QStringLiteral("#qt")));
     QCOMPARE(filter1.commandFiltered, 0);
     QCOMPARE(filter2->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
@@ -1692,7 +1692,7 @@ void tst_IrcConnection::testCommandFilter()
     filter1.clear(); filter2->clear(); filter3->clear();
     filter1.commandFilterEnabled = true;
 
-    connection->sendCommand(IrcCommand::createPart("#freenode"));
+    connection->sendCommand(IrcCommand::createPart(QStringLiteral("#freenode")));
     QCOMPARE(filter1.commandFiltered, 1);
     QCOMPARE(filter2->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
@@ -1701,7 +1701,7 @@ void tst_IrcConnection::testCommandFilter()
     protocol->written.clear();
     filter1.clear(); filter2->clear(); filter3->clear();
 
-    connection->sendCommand(IrcCommand::createPart("#communi"));
+    connection->sendCommand(IrcCommand::createPart(QStringLiteral("#communi")));
     QCOMPARE(filter1.commandFiltered, 1);
     QCOMPARE(filter2->commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
@@ -1712,7 +1712,7 @@ void tst_IrcConnection::testCommandFilter()
     filter1.clear(); filter3->clear();
     protocol->written.clear();
 
-    connection->sendCommand(IrcCommand::createPart("#qt"));
+    connection->sendCommand(IrcCommand::createPart(QStringLiteral("#qt")));
     QCOMPARE(filter1.commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 1);
     QVERIFY(!protocol->written.isEmpty());
@@ -1723,7 +1723,7 @@ void tst_IrcConnection::testCommandFilter()
     filter1.clear(); filter3->clear();
     protocol->written.clear();
 
-    connection->sendCommand(IrcCommand::createJoin("#freenode"));
+    connection->sendCommand(IrcCommand::createJoin(QStringLiteral("#freenode")));
     QCOMPARE(filter1.commandFiltered, 2);
     QCOMPARE(filter3->commandFiltered, 2);
     QVERIFY(!protocol->written.isEmpty());
@@ -1734,7 +1734,7 @@ void tst_IrcConnection::testCommandFilter()
     connection->removeCommandFilter(filter3.data());
     protocol->written.clear();
 
-    connection->sendCommand(IrcCommand::createJoin("#communi"));
+    connection->sendCommand(IrcCommand::createJoin(QStringLiteral("#communi")));
     QCOMPARE(filter1.commandFiltered, 1);
     QCOMPARE(filter3->commandFiltered, 0);
     QVERIFY(protocol->written.isEmpty());
@@ -1745,7 +1745,7 @@ void tst_IrcConnection::testCommandFilter()
     connection->removeCommandFilter(&filter1);
     protocol->written.clear();
 
-    connection->sendCommand(IrcCommand::createJoin("#qt"));
+    connection->sendCommand(IrcCommand::createJoin(QStringLiteral("#qt")));
     QCOMPARE(filter1.commandFiltered, 0);
     QVERIFY(!protocol->written.isEmpty());
 
@@ -1754,7 +1754,7 @@ void tst_IrcConnection::testCommandFilter()
     connection->installCommandFilter(suicidal);
     suicidal->commitSuicide = true;
 
-    connection->sendCommand(IrcCommand::createPart("#qt"));
+    connection->sendCommand(IrcCommand::createPart(QStringLiteral("#qt")));
     QVERIFY(!suicidal);
 }
 
@@ -1764,7 +1764,7 @@ void tst_IrcConnection::testDebug()
     QDebug dbg(&str);
 
     dbg << static_cast<IrcConnection*>(nullptr);
-    QCOMPARE(str.trimmed(), QString::fromLatin1("IrcConnection(0x0)"));
+    QCOMPARE(str.trimmed(), QLatin1String("IrcConnection(0x0)"));
     str.clear();
 
     IrcConnection connection;
@@ -1772,12 +1772,12 @@ void tst_IrcConnection::testDebug()
     QVERIFY(QRegularExpression("IrcConnection\\(0x[0-9A-Fa-f]+\\) ").match(str).hasMatch());
     str.clear();
 
-    connection.setHost("irc.freenode.net");
+    connection.setHost(QStringLiteral("irc.freenode.net"));
     dbg << &connection;
     QVERIFY(QRegularExpression("IrcConnection\\(0x[0-9A-Fa-f]+, irc.freenode.net\\) ").match(str).hasMatch());
     str.clear();
 
-    connection.setDisplayName("Freenode");
+    connection.setDisplayName(QStringLiteral("Freenode"));
     dbg << &connection;
     QVERIFY(QRegularExpression("IrcConnection\\(0x[0-9A-Fa-f]+, Freenode\\) ").match(str).hasMatch());
     str.clear();
@@ -1795,22 +1795,22 @@ void tst_IrcConnection::testWarnings()
     QVERIFY(connection->isActive());
 
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setHost() has no effect until re-connect");
-    connection->setHost("foo");
+    connection->setHost(QStringLiteral("foo"));
 
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setPort() has no effect until re-connect");
     connection->setPort(1234);
 
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setUserName() has no effect until re-connect");
-    connection->setUserName("foo");
+    connection->setUserName(QStringLiteral("foo"));
 
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setRealName() has no effect until re-connect");
-    connection->setRealName("foo");
+    connection->setRealName(QStringLiteral("foo"));
 
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setPassword() has no effect until re-connect");
-    connection->setPassword("foo");
+    connection->setPassword(QStringLiteral("foo"));
 
     QTest::ignoreMessage(QtWarningMsg, "IrcConnection::setSaslMechanism() has no effect until re-connect");
-    connection->setSaslMechanism("PLAIN");
+    connection->setSaslMechanism(QStringLiteral("PLAIN"));
 }
 
 class FakeQmlConnection : public IrcConnection
@@ -1831,7 +1831,7 @@ void tst_IrcConnection::testCtcp()
     FriendlyConnection* friendly = static_cast<FriendlyConnection*>(connection.data());
 
     QVariantMap replies;
-    replies.insert("FOO", "bar");
+    replies.insert(QStringLiteral("FOO"), "bar");
     connection->setCtcpReplies(replies);
     QCOMPARE(connection->ctcpReplies(), replies);
 
@@ -1905,7 +1905,7 @@ void tst_IrcConnection::testCtcp()
     QCOMPARE(fooReply->toString(), QString("NOTICE nick :\1FOO bar\1"));
 
     // override
-    replies.insert("VERSION", "none");
+    replies.insert(QStringLiteral("VERSION"), "none");
     connection->setCtcpReplies(replies);
     QCOMPARE(connection->ctcpReplies(), replies);
 
@@ -1922,11 +1922,11 @@ void tst_IrcConnection::testCtcp()
 
     // QML compatibility
     FakeQmlConnection qmlConnection;
-    qmlConnection.setUserName("user");
-    qmlConnection.setNickName("nick");
-    qmlConnection.setRealName("real");
-    qmlConnection.setPassword("secret");
-    qmlConnection.setHost("127.0.0.1");
+    qmlConnection.setUserName(QStringLiteral("user"));
+    qmlConnection.setNickName(QStringLiteral("nick"));
+    qmlConnection.setRealName(QStringLiteral("real"));
+    qmlConnection.setPassword(QStringLiteral("secret"));
+    qmlConnection.setHost(QStringLiteral("127.0.0.1"));
     qmlConnection.setPort(server->serverPort());
 
     TestProtocol* qmlProtocol = new TestProtocol(&qmlConnection);
@@ -1993,24 +1993,24 @@ void tst_IrcConnection::testCtcp()
 void tst_IrcConnection::testClone()
 {
     QVariantMap ud;
-    ud.insert("foo", "bar");
+    ud.insert(QStringLiteral("foo"), "bar");
 
     IrcConnection c1;
-    c1.setHost("host");
+    c1.setHost(QStringLiteral("host"));
     c1.setPort(123);
-    c1.setServers(QStringList() << "s1" << "s2" << "s3");
-    c1.setUserName("user");
-    c1.setNickName("nick");
-    c1.setRealName("real");
-    c1.setPassword("pass");
-    c1.setNickNames(QStringList() << "n1" << "n2" << "n3");
-    c1.setDisplayName("display");
+    c1.setServers(QStringList() << QStringLiteral("s1") << QStringLiteral("s2") << QStringLiteral("s3"));
+    c1.setUserName(QStringLiteral("user"));
+    c1.setNickName(QStringLiteral("nick"));
+    c1.setRealName(QStringLiteral("real"));
+    c1.setPassword(QStringLiteral("pass"));
+    c1.setNickNames(QStringList() << QStringLiteral("n1") << QStringLiteral("n2") << QStringLiteral("n3"));
+    c1.setDisplayName(QStringLiteral("display"));
     c1.setUserData(ud);
     c1.setEncoding("UTF-8");
     c1.setEnabled(false);
     c1.setReconnectDelay(10);
     c1.setSecure(true);
-    c1.setSaslMechanism("PLAIN");
+    c1.setSaslMechanism(QStringLiteral("PLAIN"));
 
     IrcConnection* c2 = c1.clone(&c1);
     QCOMPARE(c2->parent(), &c1);
@@ -2035,24 +2035,24 @@ void tst_IrcConnection::testClone()
 void tst_IrcConnection::testSaveRestore()
 {
     QVariantMap ud;
-    ud.insert("foo", "bar");
+    ud.insert(QStringLiteral("foo"), "bar");
 
     IrcConnection c1;
-    c1.setHost("host");
+    c1.setHost(QStringLiteral("host"));
     c1.setPort(123);
-    c1.setServers(QStringList() << "s1" << "s2" << "s3");
-    c1.setUserName("user");
-    c1.setNickName("nick");
-    c1.setRealName("real");
-    c1.setPassword("pass");
-    c1.setNickNames(QStringList() << "n1" << "n2" << "n3");
-    c1.setDisplayName("display");
+    c1.setServers(QStringList() << QStringLiteral("s1") << QStringLiteral("s2") << QStringLiteral("s3"));
+    c1.setUserName(QStringLiteral("user"));
+    c1.setNickName(QStringLiteral("nick"));
+    c1.setRealName(QStringLiteral("real"));
+    c1.setPassword(QStringLiteral("pass"));
+    c1.setNickNames(QStringList() << QStringLiteral("n1") << QStringLiteral("n2") << QStringLiteral("n3"));
+    c1.setDisplayName(QStringLiteral("display"));
     c1.setUserData(ud);
     c1.setEncoding("UTF-8");
     c1.setEnabled(false);
     c1.setReconnectDelay(10);
     c1.setSecure(true);
-    c1.setSaslMechanism("PLAIN");
+    c1.setSaslMechanism(QStringLiteral("PLAIN"));
 
     IrcConnection c2;
     c2.restoreState(c1.saveState());
