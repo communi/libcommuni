@@ -24,17 +24,17 @@ int main(int argc, char* argv[])
     qputenv("IRC_DEBUG", "1");
 
 //! [minimal]
-    IrcConnection connection("irc.freenode.net");
-    connection.setUserName("communi");
+    IrcConnection connection(QStringLiteral("irc.freenode.net"));
+    connection.setUserName(QStringLiteral("communi"));
 #if (QT_VERSION) >= (QT_VERSION_CHECK(5, 10, 0))
-    connection.setNickName(QString("Minimal%1").arg(QRandomGenerator::global()->bounded(1, 10000)));
+    connection.setNickName(QStringLiteral("Minimal%1").arg(QRandomGenerator::global()->bounded(1, 10000)));
 #else
     qsrand(QTime::currentTime().msec());
     connection.setNickName(QString("Minimal%1").arg(qrand() % 9999));
 #endif
-    connection.setRealName(QString("Communi %1 minimal example").arg(Irc::version()));
-    connection.sendCommand(IrcCommand::createJoin("#botwar"));
-    connection.sendCommand(IrcCommand::createMessage("#botwar", "Hi, kthxbye!"));
+    connection.setRealName(QStringLiteral("Communi %1 minimal example").arg(Irc::version()));
+    connection.sendCommand(IrcCommand::createJoin(QStringLiteral("#botwar")));
+    connection.sendCommand(IrcCommand::createMessage(QStringLiteral("#botwar"), QStringLiteral("Hi, kthxbye!")));
     connection.sendCommand(IrcCommand::createQuit());
     connection.open();
 //! [minimal]

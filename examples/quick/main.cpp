@@ -18,8 +18,8 @@ Q_IMPORT_PLUGIN(CommuniPlugin)
 int main(int argc, char* argv[])
 {
     QGuiApplication app(argc, argv);
-    app.setOrganizationName("Commmuni");
-    app.setApplicationName("QtQuick Example");
-    QQmlApplicationEngine engine(QUrl("qrc:/main.qml"));
+    app.setOrganizationName(QStringLiteral("Commmuni"));
+    app.setApplicationName(QStringLiteral("QtQuick Example"));
+    QQmlApplicationEngine engine(QUrl(QStringLiteral("qrc:/main.qml")));
     return app.exec();
 }

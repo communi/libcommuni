@@ -52,16 +52,16 @@ void tst_Irc::testCodeToString_data()
     QTest::addColumn<int>("code");
     QTest::addColumn<QString>("str");
 
-    QTest::newRow("RPL_WELCOME") << 1 << QString("RPL_WELCOME");
-    QTest::newRow("RPL_ISUPPORT") << 5 << QString("RPL_ISUPPORT");
-    QTest::newRow("RPL_TOPIC") << 332 << QString("RPL_TOPIC");
-    QTest::newRow("RPL_NAMREPLY") << 353 << QString("RPL_NAMREPLY");
-    QTest::newRow("RPL_ENDOFNAMES") << 366 << QString("RPL_ENDOFNAMES");
+    QTest::newRow("RPL_WELCOME") << 1 << QStringLiteral("RPL_WELCOME");
+    QTest::newRow("RPL_ISUPPORT") << 5 << QStringLiteral("RPL_ISUPPORT");
+    QTest::newRow("RPL_TOPIC") << 332 << QStringLiteral("RPL_TOPIC");
+    QTest::newRow("RPL_NAMREPLY") << 353 << QStringLiteral("RPL_NAMREPLY");
+    QTest::newRow("RPL_ENDOFNAMES") << 366 << QStringLiteral("RPL_ENDOFNAMES");
 
-    QTest::newRow("ERR_NOSUCHNICK") << 401 << QString("ERR_NOSUCHNICK");
-    QTest::newRow("ERR_NOSUCHCHANNEL") << 403 << QString("ERR_NOSUCHCHANNEL");
-    QTest::newRow("ERR_NICKNAMEINUSE") << 433 << QString("ERR_NICKNAMEINUSE");
-    QTest::newRow("ERR_OPERONLY") << 520 << QString("ERR_OPERONLY");
+    QTest::newRow("ERR_NOSUCHNICK") << 401 << QStringLiteral("ERR_NOSUCHNICK");
+    QTest::newRow("ERR_NOSUCHCHANNEL") << 403 << QStringLiteral("ERR_NOSUCHCHANNEL");
+    QTest::newRow("ERR_NICKNAMEINUSE") << 433 << QStringLiteral("ERR_NICKNAMEINUSE");
+    QTest::newRow("ERR_OPERONLY") << 520 << QStringLiteral("ERR_OPERONLY");
 }
 
 void tst_Irc::testCodeToString()
@@ -123,21 +123,21 @@ void tst_Irc::testPrefix_data()
     QTest::addColumn<QString>("expectedHost");
 
     QTest::newRow("null") << false << QString() << QString() << QString() << QString();
-    QTest::newRow("empty") << false << QString("") << QString("") << QString("") << QString("");
-    QTest::newRow("trimmed") << true << QString(" n!u@h ") << QString("n") << QString("u") << QString("h");
-    QTest::newRow("n!u@h") << true << QString("n!u@h") << QString("n") << QString("u") << QString("h");
+    QTest::newRow("empty") << false << QLatin1String("") << QLatin1String("") << QLatin1String("") << QLatin1String("");
+    QTest::newRow("trimmed") << true << QStringLiteral(" n!u@h ") << QStringLiteral("n") << QStringLiteral("u") << QStringLiteral("h");
+    QTest::newRow("n!u@h") << true << QStringLiteral("n!u@h") << QStringLiteral("n") << QStringLiteral("u") << QStringLiteral("h");
 
-    QTest::newRow("n@h") << true << QString("n@h") << QString("n") << QString() << QString("h");
-    QTest::newRow("n!u") << true << QString("n!u") << QString("n") << QString("u") << QString();
-    QTest::newRow("!u@h") << false << QString("!u@h") << QString() << QString() << QString();
-    QTest::newRow("n!@h") << false << QString("n!@h") << QString() << QString() << QString();
-    QTest::newRow("n!u@") << false << QString("n!u@") << QString() << QString() << QString();
+    QTest::newRow("n@h") << true << QStringLiteral("n@h") << QStringLiteral("n") << QString() << QStringLiteral("h");
+    QTest::newRow("n!u") << true << QStringLiteral("n!u") << QStringLiteral("n") << QStringLiteral("u") << QString();
+    QTest::newRow("!u@h") << false << QStringLiteral("!u@h") << QString() << QString() << QString();
+    QTest::newRow("n!@h") << false << QStringLiteral("n!@h") << QString() << QString() << QString();
+    QTest::newRow("n!u@") << false << QStringLiteral("n!u@") << QString() << QString() << QString();
 
-    QTest::newRow("n !u@h") << false << QString("n !u@h") << QString() << QString() << QString();
-    QTest::newRow("n! u@h") << false << QString("n! u@h") << QString() << QString() << QString();
-    QTest::newRow("n!u @h") << false << QString("n!u @h") << QString() << QString() << QString();
-    QTest::newRow("n!u@ h") << false << QString("n!u@ h") << QString() << QString() << QString();
-    QTest::newRow("n ! u @ h") << false << QString("n ! u @ h") << QString() << QString() << QString();
+    QTest::newRow("n !u@h") << false << QStringLiteral("n !u@h") << QString() << QString() << QString();
+    QTest::newRow("n! u@h") << false << QStringLiteral("n! u@h") << QString() << QString() << QString();
+    QTest::newRow("n!u @h") << false << QStringLiteral("n!u @h") << QString() << QString() << QString();
+    QTest::newRow("n!u@ h") << false << QStringLiteral("n!u@ h") << QString() << QString() << QString();
+    QTest::newRow("n ! u @ h") << false << QStringLiteral("n ! u @ h") << QString() << QString() << QString();
 }
 
 void tst_Irc::testPrefix()
