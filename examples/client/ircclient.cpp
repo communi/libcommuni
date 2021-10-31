@@ -65,18 +65,18 @@ IrcClient::~IrcClient()
 
 void IrcClient::onConnected()
 {
-    textEdit->append(IrcMessageFormatter::formatMessage("! Connected to %1.").arg(SERVER));
-    textEdit->append(IrcMessageFormatter::formatMessage("! Joining %1...").arg(CHANNEL));
+    textEdit->append(IrcMessageFormatter::formatMessage(QStringLiteral("! Connected to %1.")).arg(SERVER));
+    textEdit->append(IrcMessageFormatter::formatMessage(QStringLiteral("! Joining %1...")).arg(CHANNEL));
 }
 
 void IrcClient::onConnecting()
 {
-    textEdit->append(IrcMessageFormatter::formatMessage("! Connecting %1...").arg(SERVER));
+    textEdit->append(IrcMessageFormatter::formatMessage(QStringLiteral("! Connecting %1...")).arg(SERVER));
 }
 
 void IrcClient::onDisconnected()
 {
-    textEdit->append(IrcMessageFormatter::formatMessage("! Disconnected from %1.").arg(SERVER));
+    textEdit->append(IrcMessageFormatter::formatMessage(QStringLiteral("! Disconnected from %1.")).arg(SERVER));
 }
 
 void IrcClient::onTextEdited()
@@ -103,16 +103,16 @@ void IrcClient::onTextEntered()
     } else if (input.length() > 1) {
         QString error;
 #if (QT_VERSION) >= (QT_VERSION_CHECK(5, 14, 0))
-        QString command = lineEdit->text().mid(1).split(" ", Qt::SkipEmptyParts).value(0).toUpper();
+        QString command = lineEdit->text().mid(1).split(QStringLiteral(" "), Qt::SkipEmptyParts).value(0).toUpper();
 #else
         QString command = lineEdit->text().mid(1).split(" ", QString::SkipEmptyParts).value(0).toUpper();
 #endif
         if (parser->commands().contains(command))
-            error = tr("[ERROR] Syntax: %1").arg(parser->syntax(command).replace("<", "&lt;").replace(">", "&gt;"));
+            error = tr("[ERROR] Syntax: %1").arg(parser->syntax(command).replace(QLatin1String("<"), QLatin1String("&lt;")).replace(QLatin1String(">"), QLatin1String("&gt;")));
         else
             error = tr("[ERROR] Unknown command: %1").arg(command);
         textEdit->append(IrcMessageFormatter::formatMessage(error));
-        lineEdit->setStyleSheet("background: salmon");
+        lineEdit->setStyleSheet(QStringLiteral("background: salmon"));
     }
 }
 
@@ -267,11 +267,11 @@ void IrcClient::createParser()
     parser = new IrcCommandParser(this);
     parser->setTolerant(true);
     parser->setTriggers(QStringList("/"));
-    parser->addCommand(IrcCommand::Join, "JOIN <#channel> (<key>)");
-    parser->addCommand(IrcCommand::CtcpAction, "ME [target] <message...>");
-    parser->addCommand(IrcCommand::Mode, "MODE (<channel/user>) (<mode>) (<arg>)");
-    parser->addCommand(IrcCommand::Nick, "NICK <nick>");
-    parser->addCommand(IrcCommand::Part, "PART (<#channel>) (<message...>)");
+    parser->addCommand(IrcCommand::Join, QStringLiteral("JOIN <#channel> (<key>)"));
+    parser->addCommand(IrcCommand::CtcpAction, QStringLiteral("ME [target] <message...>"));
+    parser->addCommand(IrcCommand::Mode, QStringLiteral("MODE (<channel/user>) (<mode>) (<arg>)"));
+    parser->addCommand(IrcCommand::Nick, QStringLiteral("NICK <nick>"));
+    parser->addCommand(IrcCommand::Part, QStringLiteral("PART (<#channel>) (<message...>)"));
 }
 
 void IrcClient::createUserList()
@@ -321,7 +321,7 @@ void IrcClient::createConnection()
 
 
     connection->setHost(SERVER);
-    connection->setUserName("communi");
+    connection->setUserName(QStringLiteral("communi"));
 #if (QT_VERSION) >= (QT_VERSION_CHECK(5, 10, 0))
     connection->setNickName(tr("Client%1").arg(QRandomGenerator::global()->bounded(1, 10000)));
 #else
