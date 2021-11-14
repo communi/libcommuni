@@ -38,6 +38,7 @@
 #include <QMetaEnum>
 #include <QVariant>
 #include <QDebug>
+#include <functional>
 
 IRC_BEGIN_NAMESPACE
 
@@ -2088,7 +2089,11 @@ QString IrcWhoisMessage::address() const
 QDateTime IrcWhoisMessage::since() const
 {
     Q_D(const IrcMessage);
+#if QT_VERSION < QT_VERSION_CHECK(5, 8, 0)
+    return QDateTime::fromTime_t(d->param(5).toInt());
+#else
     return QDateTime::fromSecsSinceEpoch(d->param(5).toInt());
+#endif
 }
 
 /*!
