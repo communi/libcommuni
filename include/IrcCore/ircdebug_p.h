@@ -34,8 +34,9 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qdatetime.h>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
 #include <QRegularExpression>
-#if QT_VERSION < QT_VERSION_CHECK(5, 12, 0)
+#else
 #include <QRegExp>
 #endif
 
