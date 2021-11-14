@@ -146,7 +146,7 @@ static bool irc_debug_enabled(IrcConnection* c, uint l)
 
         dbg_init = true;
     }
-    if (l <= dbg_level ) {
+    if (l <= dbg_level) {
         if (dbg_name.isEmpty())
             return true;
 
