@@ -1,4 +1,4 @@
-import QtQuick.tooling 1.1
+import QtQuick.tooling 1.2
 
 // This file describes the plugin-supplied types contained in the library.
 // It is used for QML tooling purposes only.
@@ -7,6 +7,7 @@ import QtQuick.tooling 1.1
 // 'qmlplugindump -nonrelocatable Communi 3.0'
 
 Module {
+    dependencies: ["QtQuick 2.0"]
     Component {
         name: "Irc"
         prototype: "QObject"
@@ -14,9 +15,11 @@ Module {
             "Communi/Irc 3.0",
             "Communi/Irc 3.2",
             "Communi/Irc 3.3",
-            "Communi/Irc 3.4"
+            "Communi/Irc 3.4",
+            "Communi/Irc 3.5",
+            "Communi/Irc 3.6"
         ]
-        exportMetaObjectRevisions: [0, 0, 0, 0]
+        exportMetaObjectRevisions: [0, 0, 0, 0, 0, 0]
         Enum {
             name: "Color"
             values: {
@@ -509,6 +512,9 @@ Module {
                 "ERR_NUMERIC_ERR": 999
             }
         }
+        Property { name: "secureSupported"; type: "bool"; isReadonly: true }
+        Property { name: "supportedSaslMechanisms"; type: "QStringList"; isReadonly: true }
+        Property { name: "supportedCapabilities"; type: "QStringList"; isReadonly: true }
         Method { name: "version"; type: "string" }
         Method {
             name: "codeToString"
@@ -537,6 +543,14 @@ Module {
         prototype: "QObject"
         exports: ["Communi/IrcBuffer 3.0"]
         exportMetaObjectRevisions: [0]
+        Enum {
+            name: "Type"
+            values: {
+                "Basic": 0,
+                "Channel": 1,
+                "Custom": 2
+            }
+        }
         Property { name: "title"; type: "string"; isReadonly: true }
         Property { name: "name"; type: "string" }
         Property { name: "prefix"; type: "string" }
@@ -860,6 +874,7 @@ Module {
             }
         }
         Property { name: "connection"; type: "IrcConnection"; isReadonly: true; isPointer: true }
+        Property { name: "network"; type: "IrcNetwork"; isReadonly: true; isPointer: true }
         Property { name: "parameters"; type: "QStringList" }
         Property { name: "encoding"; type: "QByteArray" }
         Property { name: "type"; type: "Type" }
@@ -1367,11 +1382,13 @@ Module {
         Property { name: "connected"; type: "bool"; isReadonly: true }
         Property { name: "enabled"; type: "bool" }
         Property { name: "reconnectDelay"; type: "int" }
+        Property { name: "connectionCount"; type: "int"; isReadonly: true }
         Property { name: "socket"; type: "QAbstractSocket"; isPointer: true }
         Property { name: "secure"; type: "bool" }
         Property { name: "secureSupported"; type: "bool"; isReadonly: true }
         Property { name: "saslMechanism"; type: "string" }
         Property { name: "supportedSaslMechanisms"; type: "QStringList"; isReadonly: true }
+        Property { name: "ctcpReplies"; type: "QVariantMap" }
         Property { name: "network"; type: "IrcNetwork"; isReadonly: true; isPointer: true }
         Property { name: "protocol"; type: "IrcProtocol"; isPointer: true }
         Signal { name: "connecting" }
@@ -1415,6 +1432,10 @@ Module {
         Signal {
             name: "awayMessageReceived"
             Parameter { name: "message"; type: "IrcAwayMessage"; isPointer: true }
+        }
+        Signal {
+            name: "batchMessageReceived"
+            Parameter { name: "message"; type: "IrcBatchMessage"; isPointer: true }
         }
         Signal {
             name: "capabilityMessageReceived"
@@ -1545,6 +1566,10 @@ Module {
             Parameter { name: "seconds"; type: "int" }
         }
         Signal {
+            name: "connectionCountChanged"
+            Parameter { name: "count"; type: "int" }
+        }
+        Signal {
             name: "enabledChanged"
             Parameter { name: "enabled"; type: "bool" }
         }
@@ -1555,6 +1580,10 @@ Module {
         Signal {
             name: "saslMechanismChanged"
             Parameter { name: "mechanism"; type: "string" }
+        }
+        Signal {
+            name: "ctcpRepliesChanged"
+            Parameter { name: "replies"; type: "QVariantMap" }
         }
         Signal {
             name: "destroyed"
@@ -1666,7 +1695,8 @@ Module {
                 "Away": 20,
                 "Whois": 21,
                 "Whowas": 22,
-                "HostChange": 23
+                "HostChange": 23,
+                "Batch": 24
             }
         }
         Enum {
@@ -1695,6 +1725,7 @@ Module {
         Property { name: "network"; type: "IrcNetwork"; isReadonly: true; isPointer: true }
         Property { name: "type"; type: "Type"; isReadonly: true }
         Property { name: "own"; type: "bool"; isReadonly: true }
+        Property { name: "implicit"; type: "bool"; isReadonly: true }
         Property { name: "flags"; type: "Flags"; isReadonly: true }
         Property { name: "valid"; type: "bool"; isReadonly: true }
         Property { name: "command"; type: "string"; isReadonly: true }
@@ -1706,6 +1737,20 @@ Module {
         Property { name: "parameters"; type: "QStringList" }
         Property { name: "timeStamp"; type: "QDateTime" }
         Property { name: "tags"; type: "QVariantMap" }
+        Method {
+            name: "testFlag"
+            type: "bool"
+            Parameter { name: "flag"; type: "Flag" }
+        }
+        Method {
+            name: "setFlag"
+            Parameter { name: "flag"; type: "Flag" }
+            Parameter { name: "on"; type: "bool" }
+        }
+        Method {
+            name: "setFlag"
+            Parameter { name: "flag"; type: "Flag" }
+        }
         Method { name: "toData"; type: "QByteArray" }
         Method {
             name: "fromData"
@@ -1721,6 +1766,12 @@ Module {
             Parameter { name: "parameters"; type: "QStringList" }
             Parameter { name: "connection"; type: "IrcConnection"; isPointer: true }
         }
+        Method {
+            name: "clone"
+            type: "IrcMessage*"
+            Parameter { name: "parent"; type: "QObject"; isPointer: true }
+        }
+        Method { name: "clone"; type: "IrcMessage*" }
     }
     Component {
         name: "IrcNetwork"
@@ -1770,6 +1821,7 @@ Module {
         Property { name: "availableCapabilities"; type: "QStringList"; isReadonly: true }
         Property { name: "requestedCapabilities"; type: "QStringList" }
         Property { name: "activeCapabilities"; type: "QStringList"; isReadonly: true }
+        Property { name: "skipCapabilityValidation"; type: "bool" }
         Signal { name: "initialized" }
         Signal {
             name: "nameChanged"
@@ -1803,6 +1855,10 @@ Module {
             name: "activeCapabilitiesChanged"
             Parameter { name: "capabilities"; type: "QStringList" }
         }
+        Signal {
+            name: "skipCapabilityValidationChanged"
+            Parameter { name: "skip"; type: "bool" }
+        }
         Signal { name: "requestingCapabilities" }
         Method {
             name: "requestCapability"
@@ -1817,6 +1873,10 @@ Module {
         Method {
             name: "setRequestedCapabilities"
             Parameter { name: "capabilities"; type: "QStringList" }
+        }
+        Method {
+            name: "setSkipCapabilityValidation"
+            Parameter { name: "skip"; type: "bool" }
         }
         Method {
             name: "modeToPrefix"
@@ -2067,4 +2127,278 @@ Module {
             Parameter { name: "user"; type: "IrcUser"; isPointer: true }
         }
     }
+    Component {
+        name: "QAbstractItemModel"
+        prototype: "QObject"
+        Enum {
+            name: "LayoutChangeHint"
+            values: {
+                "NoLayoutChangeHint": 0,
+                "VerticalSortHint": 1,
+                "HorizontalSortHint": 2
+            }
+        }
+        Enum {
+            name: "CheckIndexOption"
+            values: {
+                "NoOption": 0,
+                "IndexIsValid": 1,
+                "DoNotUseParent": 2,
+                "ParentIsInvalid": 4
+            }
+        }
+        Signal {
+            name: "dataChanged"
+            Parameter { name: "topLeft"; type: "QModelIndex" }
+            Parameter { name: "bottomRight"; type: "QModelIndex" }
+            Parameter { name: "roles"; type: "QVector<int>" }
+        }
+        Signal {
+            name: "dataChanged"
+            Parameter { name: "topLeft"; type: "QModelIndex" }
+            Parameter { name: "bottomRight"; type: "QModelIndex" }
+        }
+        Signal {
+            name: "headerDataChanged"
+            Parameter { name: "orientation"; type: "Qt::Orientation" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "layoutChanged"
+            Parameter { name: "parents"; type: "QList<QPersistentModelIndex>" }
+            Parameter { name: "hint"; type: "QAbstractItemModel::LayoutChangeHint" }
+        }
+        Signal {
+            name: "layoutChanged"
+            Parameter { name: "parents"; type: "QList<QPersistentModelIndex>" }
+        }
+        Signal { name: "layoutChanged" }
+        Signal {
+            name: "layoutAboutToBeChanged"
+            Parameter { name: "parents"; type: "QList<QPersistentModelIndex>" }
+            Parameter { name: "hint"; type: "QAbstractItemModel::LayoutChangeHint" }
+        }
+        Signal {
+            name: "layoutAboutToBeChanged"
+            Parameter { name: "parents"; type: "QList<QPersistentModelIndex>" }
+        }
+        Signal { name: "layoutAboutToBeChanged" }
+        Signal {
+            name: "rowsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "modelAboutToBeReset" }
+        Signal { name: "modelReset" }
+        Signal {
+            name: "rowsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationRow"; type: "int" }
+        }
+        Signal {
+            name: "rowsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "row"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationColumn"; type: "int" }
+        }
+        Signal {
+            name: "columnsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "column"; type: "int" }
+        }
+        Method { name: "submit"; type: "bool" }
+        Method { name: "revert" }
+        Method {
+            name: "hasIndex"
+            type: "bool"
+            Parameter { name: "row"; type: "int" }
+            Parameter { name: "column"; type: "int" }
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method {
+            name: "hasIndex"
+            type: "bool"
+            Parameter { name: "row"; type: "int" }
+            Parameter { name: "column"; type: "int" }
+        }
+        Method {
+            name: "index"
+            type: "QModelIndex"
+            Parameter { name: "row"; type: "int" }
+            Parameter { name: "column"; type: "int" }
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method {
+            name: "index"
+            type: "QModelIndex"
+            Parameter { name: "row"; type: "int" }
+            Parameter { name: "column"; type: "int" }
+        }
+        Method {
+            name: "parent"
+            type: "QModelIndex"
+            Parameter { name: "child"; type: "QModelIndex" }
+        }
+        Method {
+            name: "sibling"
+            type: "QModelIndex"
+            Parameter { name: "row"; type: "int" }
+            Parameter { name: "column"; type: "int" }
+            Parameter { name: "idx"; type: "QModelIndex" }
+        }
+        Method {
+            name: "rowCount"
+            type: "int"
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method { name: "rowCount"; type: "int" }
+        Method {
+            name: "columnCount"
+            type: "int"
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method { name: "columnCount"; type: "int" }
+        Method {
+            name: "hasChildren"
+            type: "bool"
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method { name: "hasChildren"; type: "bool" }
+        Method {
+            name: "data"
+            type: "QVariant"
+            Parameter { name: "index"; type: "QModelIndex" }
+            Parameter { name: "role"; type: "int" }
+        }
+        Method {
+            name: "data"
+            type: "QVariant"
+            Parameter { name: "index"; type: "QModelIndex" }
+        }
+        Method {
+            name: "setData"
+            type: "bool"
+            Parameter { name: "index"; type: "QModelIndex" }
+            Parameter { name: "value"; type: "QVariant" }
+            Parameter { name: "role"; type: "int" }
+        }
+        Method {
+            name: "setData"
+            type: "bool"
+            Parameter { name: "index"; type: "QModelIndex" }
+            Parameter { name: "value"; type: "QVariant" }
+        }
+        Method {
+            name: "headerData"
+            type: "QVariant"
+            Parameter { name: "section"; type: "int" }
+            Parameter { name: "orientation"; type: "Qt::Orientation" }
+            Parameter { name: "role"; type: "int" }
+        }
+        Method {
+            name: "headerData"
+            type: "QVariant"
+            Parameter { name: "section"; type: "int" }
+            Parameter { name: "orientation"; type: "Qt::Orientation" }
+        }
+        Method {
+            name: "fetchMore"
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method {
+            name: "canFetchMore"
+            type: "bool"
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method {
+            name: "flags"
+            type: "Qt::ItemFlags"
+            Parameter { name: "index"; type: "QModelIndex" }
+        }
+        Method {
+            name: "match"
+            type: "QModelIndexList"
+            Parameter { name: "start"; type: "QModelIndex" }
+            Parameter { name: "role"; type: "int" }
+            Parameter { name: "value"; type: "QVariant" }
+            Parameter { name: "hits"; type: "int" }
+            Parameter { name: "flags"; type: "Qt::MatchFlags" }
+        }
+        Method {
+            name: "match"
+            type: "QModelIndexList"
+            Parameter { name: "start"; type: "QModelIndex" }
+            Parameter { name: "role"; type: "int" }
+            Parameter { name: "value"; type: "QVariant" }
+            Parameter { name: "hits"; type: "int" }
+        }
+        Method {
+            name: "match"
+            type: "QModelIndexList"
+            Parameter { name: "start"; type: "QModelIndex" }
+            Parameter { name: "role"; type: "int" }
+            Parameter { name: "value"; type: "QVariant" }
+        }
+    }
+    Component { name: "QAbstractListModel"; prototype: "QAbstractItemModel" }
 }
