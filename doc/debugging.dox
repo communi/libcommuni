@@ -85,6 +85,6 @@
     connection.
 
     Examples:
-    \li \c \b IRC_DEBUG_NAME=Freenode matches connections that have a display name \c "Freenode"
-    \li \c \b IRC_DEBUG_NAME=*freenode* matches connections that have a display name \c "Freenode" or \c "irc.freenode.net"
+    \li \c \b IRC_DEBUG_NAME=Libera matches connections that have a display name \c "Libera"
+    \li \c \b IRC_DEBUG_NAME=*libera* matches connections that have a display name \c "Libera" or \c "irc.libera.chat"
  */
