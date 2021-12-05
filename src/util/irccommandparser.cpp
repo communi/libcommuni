@@ -90,7 +90,7 @@ IRC_BEGIN_NAMESPACE
     \code
     // currently in a query, and also present on some channels
     parser->setTarget("jpnurmi");
-    parser->setChannels(QStringList() << "#communi" << "#freenode");
+    parser->setChannels(QStringList() << "#communi" << "#libera");
     \endcode
 
     \section command-triggers Command triggers

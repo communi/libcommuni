@@ -972,8 +972,8 @@ void IrcBufferModel::setSortOrder(Qt::SortOrder order)
     Method              | Description                                                                      | Example
     --------------------|----------------------------------------------------------------------------------|-------------------------------------------------
     Irc::SortByHand     | Buffers are not sorted automatically, but only by calling sort().                | -
-    Irc::SortByName     | Buffers are sorted alphabetically, ignoring any channel prefix.                  | "bot", "#communi", "#freenode", "jpnurmi", "#qt"
-    Irc::SortByTitle    | Buffers are sorted alphabetically, and channels before queries.                  | "#communi", "#freenode", "#qt", "bot", "jpnurmi"
+    Irc::SortByName     | Buffers are sorted alphabetically, ignoring any channel prefix.                  | "bot", "#communi", "#libera", "jpnurmi", "#qt"
+    Irc::SortByTitle    | Buffers are sorted alphabetically, and channels before queries.                  | "#communi", "#libera", "#qt", "bot", "jpnurmi"
     Irc::SortByActivity | Buffers are sorted based on their messaging activity, last active buffers first. | -
 
     \note Irc::SortByActivity support was added in version \b 3.4.
