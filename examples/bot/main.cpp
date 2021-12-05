@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     qputenv("IRC_DEBUG", "1");
 
     IrcBot bot;
-    bot.setHost("irc.freenode.net");
+    bot.setHost("irc.libera.chat");
     bot.setUserName("communi");
 #if (QT_VERSION) >= (QT_VERSION_CHECK(5, 10, 0))
     bot.setNickName("Bot" + QString::number(QRandomGenerator::global()->bounded(1, 10000)));

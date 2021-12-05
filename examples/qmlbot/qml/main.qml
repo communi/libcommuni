@@ -25,7 +25,7 @@ QtObject {
         connection: IrcConnection {
             id: connection
 
-            host: "irc.freenode.net"
+            host: "irc.libera.chat"
             userName: "communi"
             nickName: "QmlBot" + Math.round(Math.random() * 9999)
             realName: qsTr("Communi %1 QML bot example").arg(irc.version())

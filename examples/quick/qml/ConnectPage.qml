@@ -61,7 +61,7 @@ Item {
             id: hostField
             focus: true
             Layout.fillWidth: true
-            placeholderText: "irc.freenode.net"
+            placeholderText: "irc.libera.chat"
         }
 
         Label { text: qsTr("Port:") }
@@ -115,7 +115,7 @@ Item {
         TextField {
             id: channelField
             Layout.fillWidth: true
-            placeholderText: "#freenode"
+            placeholderText: "#libera"
         }
     }
 
