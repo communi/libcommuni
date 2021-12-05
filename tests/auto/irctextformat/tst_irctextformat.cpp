@@ -150,9 +150,9 @@ void tst_IrcTextFormat::testUrls_data()
     QTest::newRow("empty pattern") << QString() << "www.fi ftp.funet.fi jpnurmi@gmail.com" << "www.fi ftp.funet.fi jpnurmi@gmail.com" << QList<QUrl>();
 
     QTest::newRow("info") << defaultPattern
-                          << QStringLiteral("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://freenode.net/faq.shtml#gettinghelp")
-                          << QStringLiteral("[freenode-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: <a href='http://freenode.net/faq.shtml#gettinghelp'>http://freenode.net/faq.shtml#gettinghelp</a>")
-                          << (QList<QUrl>() << QUrl(QStringLiteral("http://freenode.net/faq.shtml#gettinghelp")));
+                          << QStringLiteral("[libera-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: http://libera.chat/faq.shtml#gettinghelp")
+                          << QStringLiteral("[libera-info] if you're at a conference and other people are having trouble connecting, please mention it to staff: <a href='http://libera.chat/faq.shtml#gettinghelp'>http://libera.chat/faq.shtml#gettinghelp</a>")
+                          << (QList<QUrl>() << QUrl(QStringLiteral("http://libera.chat/faq.shtml#gettinghelp")));
     QTest::newRow("topic") << defaultPattern
                            << QStringLiteral("Communi 1.2.2 - IRC framework || Home: https://communi.github.io || Docs: https://communi.github.io/doc || MeeGo: http://store.ovi.com/content/219150")
                            << QStringLiteral("Communi 1.2.2 - IRC framework || Home: <a href='https://communi.github.io'>https://communi.github.io</a> || Docs: <a href='https://communi.github.io/doc'>https://communi.github.io/doc</a> || MeeGo: <a href='http://store.ovi.com/content/219150'>http://store.ovi.com/content/219150</a>")

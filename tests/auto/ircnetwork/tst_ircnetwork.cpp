@@ -63,7 +63,7 @@ void tst_IrcNetwork::testInfo_data()
     QTest::addColumn<QString>("prefixes");
     QTest::addColumn<QString>("channelTypes");
 
-    QTest::newRow("freenode") << tst_IrcData::welcome("freenode") << "freenode" << "ov" << "@+" << "#";
+    QTest::newRow("libera") << tst_IrcData::welcome("libera") << "libera" << "ov" << "@+" << "#";
     QTest::newRow("ircnet") << tst_IrcData::welcome("ircnet") << "IRCNet" << "ov" << "@+" << "#&!+";
     QTest::newRow("euirc") << tst_IrcData::welcome("euirc") << "euIRCnet" << "qaohv" << "*!@%+" << "#&+";
 }

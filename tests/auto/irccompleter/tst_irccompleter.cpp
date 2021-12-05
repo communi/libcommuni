@@ -121,9 +121,9 @@ void tst_IrcCompleter::testCompletion_data()
                        << (QStringList() << QStringLiteral("quackgyver ") << QStringLiteral("quelx "))
                        << (QList<int>() << QStringLiteral("quackgyver ").length() << QStringLiteral("quelx ").length());
 
-    QTest::newRow("repeat") << QString() << "#freenode " << QStringLiteral("#freenode ").length()
-                       << (QStringList() << QStringLiteral("#freenode ") << QStringLiteral("#freenode "))
-                       << (QList<int>() << QStringLiteral("#freenode ").length() << QStringLiteral("#freenode ").length());
+    QTest::newRow("repeat") << QString() << "#libera " << QStringLiteral("#libera ").length()
+                       << (QStringList() << QStringLiteral("#libera ") << QStringLiteral("#libera "))
+                       << (QList<int>() << QStringLiteral("#libera ").length() << QStringLiteral("#libera ").length());
 
     QStringList names1;
     QStringList names2;
@@ -149,9 +149,9 @@ void tst_IrcCompleter::testCompletion_data()
     }
     QTest::newRow("... sa") << QString() << "... sa" << QStringLiteral("... ").length() << names1 << positions;
 
-    QTest::newRow("spaces") << QString() << "/quit  foo  #free  rest... " << QStringLiteral("/quit  foo  #free ").length()
-                       << QStringList("/quit  foo  #freenode  rest... ")
-                       << (QList<int>() << QStringLiteral("/quit  foo  #freenode ").length());
+    QTest::newRow("spaces") << QString() << "/quit  foo  #libe  rest... " << QStringLiteral("/quit  foo  #libe ").length()
+                       << QStringList("/quit  foo  #libera  rest... ")
+                       << (QList<int>() << QStringLiteral("/quit  foo  #libera ").length());
 }
 
 void tst_IrcCompleter::testCompletion()
