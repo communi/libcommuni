@@ -56,8 +56,8 @@
 
     \code
     IrcConnection {
-        id: freenode
-        host: "irc.freenode.net"
+        id: libera
+        host: "irc.libera.chat"
         userName: "communi"
         nickName: "Communi" + Math.round(Math.random() * 9999)
         realName: "Communi QML example"
@@ -92,7 +92,7 @@
     \code
     IrcBufferModel {
         id: bufferModel
-        connection: freenode
+        connection: libera
     }
     \endcode
 
@@ -107,13 +107,13 @@
     \code
     IrcBuffer {
         id: serverBuffer
-        name: freenode.displayName
+        name: libera.displayName
         Component.onCompleted: bufferModel.add(serverBuffer)
     }
 
     IrcBufferModel {
         id: bufferModel
-        connection: freenode
+        connection: libera
         onMessageIgnored: serverBuffer.receiveMessage(message)
     }
     \endcode
