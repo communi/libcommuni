@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     qputenv("IRC_DEBUG", "1");
 
 //! [minimal]
-    IrcConnection connection(QStringLiteral("irc.freenode.net"));
+    IrcConnection connection(QStringLiteral("irc.libera.chat"));
     connection.setUserName(QStringLiteral("communi"));
 #if (QT_VERSION) >= (QT_VERSION_CHECK(5, 10, 0))
     connection.setNickName(QStringLiteral("Minimal%1").arg(QRandomGenerator::global()->bounded(1, 10000)));

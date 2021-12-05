@@ -34,8 +34,8 @@
 #include <IrcBufferModel>
 #include <IrcCommandParser>
 
-static const char* CHANNEL = "#freenode";
-static const char* SERVER = "irc.freenode.net";
+static const char* CHANNEL = "#libera";
+static const char* SERVER = "irc.libera.chat";
 
 IrcClient::IrcClient(QWidget* parent) : QSplitter(parent)
 {
