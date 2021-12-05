@@ -42,7 +42,7 @@ private slots:
     void testClear();
     void testSorting_data();
     void testSorting();
-    void testActivity_freenode();
+    void testActivity_libera();
     void testActivity_ircnet();
     void testActivity_euirc();
     void testChanges();
@@ -397,7 +397,7 @@ void tst_IrcUserModel::testSorting()
         QCOMPARE(dynamicModel.get(i)->name(), names.at(names.count() - 1 - i));
 }
 
-void tst_IrcUserModel::testActivity_freenode()
+void tst_IrcUserModel::testActivity_libera()
 {
     IrcBufferModel bufferModel;
     bufferModel.setConnection(connection);
@@ -405,23 +405,23 @@ void tst_IrcUserModel::testActivity_freenode()
     connection->open();
     QVERIFY(waitForOpened());
 
-    QVERIFY(waitForWritten(tst_IrcData::welcome("freenode")));
+    QVERIFY(waitForWritten(tst_IrcData::welcome("libera")));
     QCOMPARE(bufferModel.count(), 0);
 
-    QVERIFY(waitForWritten(tst_IrcData::join("freenode")));
+    QVERIFY(waitForWritten(tst_IrcData::join("libera")));
 
     QCOMPARE(bufferModel.count(), 1);
     IrcChannel* channel = bufferModel.get(0)->toChannel();
     QVERIFY(channel);
 
-    QStringList names = tst_IrcData::names("freenode");
+    QStringList names = tst_IrcData::names("libera");
 
     IrcUserModel activityModel(channel);
     activityModel.setSortMethod(Irc::SortByActivity);
 
     int count = names.count();
 
-    QVERIFY(waitForWritten(":smurfy!~smurfy@hidd.en PART #freenode"));
+    QVERIFY(waitForWritten(":smurfy!~smurfy@hidd.en PART #libera"));
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("smurfy"));
 
@@ -429,16 +429,16 @@ void tst_IrcUserModel::testActivity_freenode()
     QCOMPARE(activityModel.count(), --count);
     QVERIFY(!activityModel.contains("ToApolytoXaos"));
 
-    QVERIFY(waitForWritten(":agsrv!~guest@hidd.en JOIN #freenode"));
+    QVERIFY(waitForWritten(":agsrv!~guest@hidd.en JOIN #libera"));
     QCOMPARE(activityModel.count(), ++count);
     QCOMPARE(activityModel.indexOf(activityModel.find("agsrv")), 0);
 
-    QVERIFY(waitForWritten(":Hello71!~Hello71@hidd.en PRIVMSG #freenode :straterra: there are many users on it"));
+    QVERIFY(waitForWritten(":Hello71!~Hello71@hidd.en PRIVMSG #libera :straterra: there are many users on it"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.find("straterra")), 1);
 
-    QVERIFY(waitForWritten(":straterra!straterra@hidd.en PRIVMSG #freenode :what?"));
+    QVERIFY(waitForWritten(":straterra!straterra@hidd.en PRIVMSG #libera :what?"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("straterra")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 1);
@@ -450,12 +450,12 @@ void tst_IrcUserModel::testActivity_freenode()
     QCOMPARE(activityModel.indexOf(activityModel.find("straterra")), 1);
     QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 2);
 
-    QVERIFY(waitForWritten(":communi!communi@hidd.en PRIVMSG #freenode :+tomaw: ping"));
+    QVERIFY(waitForWritten(":communi!communi@hidd.en PRIVMSG #libera :+tomaw: ping"));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("communi")), 0);
     QCOMPARE(activityModel.indexOf(activityModel.find("tomaw")), 1);
 
-    QVERIFY(waitForWritten(":Hello71!~Hello71@hidd.en NOTICE #freenode :just testing..."));
+    QVERIFY(waitForWritten(":Hello71!~Hello71@hidd.en NOTICE #libera :just testing..."));
     QCOMPARE(activityModel.count(), count);
     QCOMPARE(activityModel.indexOf(activityModel.find("Hello71")), 0);
 }

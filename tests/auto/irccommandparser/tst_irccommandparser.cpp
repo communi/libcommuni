@@ -90,7 +90,7 @@ void tst_IrcCommandParser::testParse()
     parser.addCommand(IrcCommand::CtcpAction, QStringLiteral("ACTION <target> <message...>"));
 
     parser.setTarget(target);
-    parser.setChannels(QStringList() << QStringLiteral("#freenode") << QStringLiteral("#communi"));
+    parser.setChannels(QStringList() << QStringLiteral("#libera") << QStringLiteral("#communi"));
 
     IrcCommand* cmd = parser.parse(input);
     QCOMPARE(cmd ? cmd->toString() : QString(), output);
