@@ -17,9 +17,10 @@ Module {
             "Communi/Irc 3.3",
             "Communi/Irc 3.4",
             "Communi/Irc 3.5",
-            "Communi/Irc 3.6"
+            "Communi/Irc 3.6",
+            "Communi/Irc 3.7"
         ]
-        exportMetaObjectRevisions: [0, 0, 0, 0, 0, 0]
+        exportMetaObjectRevisions: [0, 0, 0, 0, 0, 0, 0]
         Enum {
             name: "Color"
             values: {
