@@ -1728,6 +1728,12 @@ void IrcConnection::setProtocol(IrcProtocol* proto)
     }
 }
 
+void IrcConnection::reconnect()
+{
+    Q_D(IrcConnection);
+    d->_irc_disconnected();
+}
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, IrcConnection::Status status)
 {

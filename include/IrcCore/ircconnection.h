@@ -169,6 +169,7 @@ public:
 public Q_SLOTS:
     void open();
     void close();
+    void reconnect();
     void quit(const QString& reason = QString());
     void setEnabled(bool enabled = true);
     void setDisabled(bool disabled = true);
