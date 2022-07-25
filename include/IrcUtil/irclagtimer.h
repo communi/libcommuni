@@ -51,7 +51,7 @@ public:
     ~IrcLagTimer() override;
 
     IrcConnection* connection() const;
-    void setConnection(IrcConnection* connection);
+    void setConnection(IrcConnection* connection, bool autoreconnect = false);
 
     qint64 lag() const;
 
@@ -60,6 +60,7 @@ public:
 
 Q_SIGNALS:
     void lagChanged(qint64 lag);
+    void pongMissed();
 
 private:
     QScopedPointer<IrcLagTimerPrivate> d_ptr;

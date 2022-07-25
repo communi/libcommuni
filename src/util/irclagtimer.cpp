@@ -98,13 +98,15 @@ void IrcLagTimerPrivate::_irc_connected()
 void IrcLagTimerPrivate::_irc_pingServer()
 {
 #if QT_VERSION >= 0x040700
+    Q_Q(IrcLagTimer);
     // TODO: configurable format?
     QString cmd = QStringLiteral("PING communi/%1").arg(QDateTime::currentMSecsSinceEpoch());
     connection->sendData(cmd.toUtf8());
     qint64 pingLag = pendingPings * interval * 1000ll;
     if (lag > -1 && pingLag > lag)
         updateLag(pingLag);
-    ++pendingPings;
+    if(pendingPings++)
+        emit q->pongMissed();
 #endif // QT_VERSION
 }
 
@@ -178,7 +180,7 @@ IrcConnection* IrcLagTimer::connection() const
     return d->connection;
 }
 
-void IrcLagTimer::setConnection(IrcConnection* connection)
+void IrcLagTimer::setConnection(IrcConnection* connection, bool autoreconnect)
 {
     Q_D(IrcLagTimer);
     if (d->connection != connection) {
@@ -186,12 +188,15 @@ void IrcLagTimer::setConnection(IrcConnection* connection)
             d->connection->removeMessageFilter(d);
             disconnect(d->connection, SIGNAL(connected()), this, SLOT(_irc_connected()));
             disconnect(d->connection, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
+            disconnect(this, SIGNAL(pongMissed()), d->connection, SLOT(reconnect()));
         }
         d->connection = connection;
         if (connection) {
             connection->installMessageFilter(d);
             connect(connection, SIGNAL(connected()), this, SLOT(_irc_connected()));
             connect(connection, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
+            if (autoreconnect)
+                connect(this, SIGNAL(pongMissed()), d->connection, SLOT(reconnect()));
         }
         d->updateLag(-1);
         d->updateTimer();
