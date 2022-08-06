@@ -922,6 +922,14 @@ QString IrcBatchMessage::batch() const
     return d->param(1);
 }
 
+QString IrcBatchMessage::target() const
+{
+    if (isHistory())
+        return parameters().value(2);
+    else
+        return "";
+}
+
 /*!
     This property holds the list of batched messages.
 
@@ -937,6 +945,11 @@ QList<IrcMessage*> IrcBatchMessage::messages() const
 bool IrcBatchMessage::isValid() const
 {
     return IrcMessage::isValid() && !batch().isEmpty();
+}
+
+bool IrcBatchMessage::isHistory() const
+{
+    return batch() == "znc.in/playback" || batch() == "chathistory";
 }
 
 /*!

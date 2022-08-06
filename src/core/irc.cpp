@@ -116,7 +116,8 @@ QStringList Irc::supportedCapabilities()
                          << QLatin1String("multi-prefix")
                          << QLatin1String("sasl")
                          << QLatin1String("server-time")
-                         << QLatin1String("userhost-in-names");
+                         << QLatin1String("userhost-in-names")
+                         << QLatin1String("draft/chathistory");
 }
 
 /*!

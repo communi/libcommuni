@@ -207,6 +207,7 @@ class IRC_CORE_EXPORT IrcBatchMessage : public IrcMessage
     Q_OBJECT
     Q_PROPERTY(QString tag READ tag)
     Q_PROPERTY(QString batch READ batch)
+    Q_PROPERTY(QString target READ target)
     Q_PROPERTY(QList<IrcMessage*> messages READ messages)
 
 public:
@@ -214,10 +215,12 @@ public:
 
     QString tag() const;
     QString batch() const;
+    QString target() const;
 
     QList<IrcMessage*> messages() const;
 
     bool isValid() const override;
+    bool isHistory() const;
 
 private:
     Q_DISABLE_COPY(IrcBatchMessage)

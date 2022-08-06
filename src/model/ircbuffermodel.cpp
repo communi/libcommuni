@@ -188,6 +188,14 @@ bool IrcBufferModelPrivate::messageFilter(IrcMessage* msg)
             processed = processMessage(static_cast<IrcModeMessage*>(msg)->target(), msg);
             break;
 
+        case IrcMessage::Batch:
+        {
+            IrcBatchMessage* batch = static_cast<IrcBatchMessage*>(msg);
+            if (batch->isHistory())
+                processed = processMessage(batch->target(), msg, true);
+            break;
+        }
+
         case IrcMessage::Numeric:
             // TODO: any other special cases besides RPL_NAMREPLY?
             if (static_cast<IrcNumericMessage*>(msg)->code() == Irc::RPL_NAMREPLY) {
