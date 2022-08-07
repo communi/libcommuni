@@ -177,6 +177,7 @@ public Q_SLOTS:
     bool sendCommand(IrcCommand* command);
     bool sendData(const QByteArray& data);
     bool sendRaw(const QString& message);
+    bool requestHistory(const QString& buffer, const QDateTime& since, int limit = 1000);
 
 Q_SIGNALS:
     void connecting();

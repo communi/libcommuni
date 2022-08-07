@@ -1507,6 +1507,19 @@ bool IrcConnection::sendRaw(const QString& message)
     return sendData(message.toUtf8());
 }
 
+bool IrcConnection::requestHistory(const QString& buffer, const QDateTime& since, int limit)
+{
+    Q_D(IrcConnection);
+
+    if (d->network->activeCapabilities().contains("draft/chathistory"))
+    {
+        sendCommand(IrcCommand::createChathistoryLatest(buffer, since, limit));
+        return true;
+    }
+
+    return false;
+}
+
 /*!
     Installs a message \a filter on the connection. The \a filter must implement the IrcMessageFilter interface.
 
