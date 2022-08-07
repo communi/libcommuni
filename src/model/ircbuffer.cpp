@@ -76,10 +76,17 @@ IrcBufferPrivate::IrcBufferPrivate()
 {
     qRegisterMetaType<IrcBuffer*>();
     qRegisterMetaType<QList<IrcBuffer*> >();
+    latest = QDateTime::fromTime_t(0);
 }
 
 IrcBufferPrivate::~IrcBufferPrivate()
 {
+}
+
+bool IrcBufferPrivate::requestHistory()
+{
+    Q_Q(IrcBuffer);
+    return q->connection()->requestHistory(q->title(), latest);
 }
 
 void IrcBufferPrivate::init(const QString& title, IrcBufferModel* m)
@@ -92,6 +99,8 @@ void IrcBufferPrivate::connected()
 {
     Q_Q(IrcBuffer);
     emit q->activeChanged(q->isActive());
+    if (!sticky) /* FIXME */
+        requestHistory(); /* non-channel buffers */
 }
 
 void IrcBufferPrivate::disconnected()
@@ -204,8 +213,14 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
     default:
         break;
     }
+
     if (processed)
+    {
         emit q->messageReceived(message);
+        if (message->timeStamp() > latest)
+            latest = message->timeStamp();
+    }
+
     return processed;
 }
 

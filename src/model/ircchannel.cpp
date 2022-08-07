@@ -371,6 +371,7 @@ bool IrcChannelPrivate::processJoinMessage(IrcJoinMessage* message)
         if (message->isOwn()) {
             setActive(true);
             enabled = true;
+            requestHistory();
         } else {
             addUser(message->nick());
         }

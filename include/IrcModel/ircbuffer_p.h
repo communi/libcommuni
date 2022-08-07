@@ -62,6 +62,7 @@ public:
     bool isMonitorable() const;
 
     bool processMessage(IrcMessage* message);
+    bool requestHistory();
 
     virtual bool processAwayMessage(IrcAwayMessage* message);
     virtual bool processJoinMessage(IrcJoinMessage* message);
@@ -89,7 +90,7 @@ public:
     bool persistent = false;
     bool sticky = false;
     QVariantMap userData;
-    QDateTime activity;
+    QDateTime activity, latest;
     MonitorStatus monitorStatus = MonitorUnknown;
     IrcBuffer::Type type = IrcBuffer::Basic;
 };
