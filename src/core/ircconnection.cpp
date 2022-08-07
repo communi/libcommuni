@@ -381,6 +381,7 @@ void IrcConnectionPrivate::open()
     if (q->isActive()) {
         pendingOpen = true;
     } else {
+        q->close();
         closed = false;
         if (!servers.isEmpty()) {
             QString h; int p; bool s;
