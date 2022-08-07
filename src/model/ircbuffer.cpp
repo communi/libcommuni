@@ -166,9 +166,13 @@ bool IrcBufferPrivate::processMessage(IrcMessage* message)
 {
     Q_Q(IrcBuffer);
     bool processed = false;
+
     switch (message->type()) {
     case IrcMessage::Away:
         processed = processAwayMessage(static_cast<IrcAwayMessage*>(message));
+        break;
+    case IrcMessage::Batch:
+        processed = static_cast<IrcBatchMessage*>(message)->isHistory();
         break;
     case IrcMessage::Join:
         processed = processJoinMessage(static_cast<IrcJoinMessage*>(message));
