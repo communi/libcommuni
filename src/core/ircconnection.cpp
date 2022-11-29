@@ -1162,7 +1162,11 @@ void IrcConnection::setSocket(QAbstractSocket* socket)
             connect(socket, SIGNAL(connected()), this, SLOT(_irc_connected()));
             connect(socket, SIGNAL(disconnected()), this, SLOT(_irc_disconnected()));
             connect(socket, SIGNAL(readyRead()), this, SLOT(_irc_readData()));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+            connect(socket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)), this, SLOT(_irc_error(QAbstractSocket::SocketError)));
+#else
             connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_irc_error(QAbstractSocket::SocketError)));
+#endif
             connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(_irc_state(QAbstractSocket::SocketState)));
             if (isSecure())
                 connect(socket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(_irc_sslErrors()));
