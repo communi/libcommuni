@@ -7,6 +7,9 @@ isEmpty(IRC_MODULE):error(IRC_MODULE must be set)
 TEMPLATE = lib
 TARGET = $$qtLibraryTarget($$IRC_MODULE)
 QT = core network
+
+greaterThan(QT_MAJOR_VERSION,5): QT += core5compat
+
 !verbose:CONFIG += silent
 contains(QT_CONFIG, debug_and_release) {
     win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
