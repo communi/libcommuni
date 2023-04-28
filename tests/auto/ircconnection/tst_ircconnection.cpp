@@ -1334,7 +1334,7 @@ void tst_IrcConnection::testMessageComposer()
     QCOMPARE(filter.values.value("account").toString(), QString("qtaccountant"));
     QEXPECT_FAIL("", "RPL_WHOISHOST :is connecting from *@88.95.51.136 88.95.51.136", Continue);
     QCOMPARE(filter.values.value("address").toString(), QString("88.95.51.136"));
-    QCOMPARE(filter.values.value("since").toDateTime(), QDateTime::fromTime_t(1440706032));
+    QCOMPARE(filter.values.value("since").toDateTime(), QDateTime::fromSecsSinceEpoch(1440706032));
     QCOMPARE(filter.values.value("idle").toInt(), 15);
     QCOMPARE(filter.values.value("secure").toBool(), true);
     QCOMPARE(filter.values.value("channels").toStringList(), QStringList() << "+#jpnurmi");
