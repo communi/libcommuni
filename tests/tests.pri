@@ -19,6 +19,8 @@ CONFIG(debug, debug|release) {
     MOC_DIR = release
 }
 
+greaterThan(QT_MAJOR_VERSION,5): QT += core5compat
+
 IRC_BUILDDIR = $$OUT_PWD/../../..
 
 IRC_MODULES = IrcCore IrcModel IrcUtil
