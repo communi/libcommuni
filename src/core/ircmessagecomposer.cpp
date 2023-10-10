@@ -89,11 +89,12 @@ void IrcMessageComposer::composeMessage(IrcNumericMessage* message)
         break;
 
     case Irc::RPL_NAMREPLY: {
-        if (d.messages.empty() || d.messages.top()->type() != IrcMessage::Names)
-            d.messages.push(new IrcNamesMessage(d.connection));
-        d.messages.top()->setPrefix(message->prefix());
         int count = message->parameters().count();
         QString channel = message->parameters().value(count - 2);
+    
+        if (d.messages.empty() || d.messages.top()->type() != IrcMessage::Names || d.messages.top()->parameter(0) != channel)
+            d.messages.push(new IrcNamesMessage(d.connection));
+        d.messages.top()->setPrefix(message->prefix());
         QStringList names = d.messages.top()->parameters().mid(1);
         names += message->parameters().value(count - 1).split(QLatin1Char(' '), Qt::SkipEmptyParts);
         d.messages.top()->setParameters(QStringList() << channel << names);
