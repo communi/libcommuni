@@ -17,20 +17,18 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-    - name: Cache Qt
-      id: cache-qt
-      uses: actions/cache@v1
-      with:
-        path: ../Qt
-        key: ${{runner.os}}-QtCache
-
     - name: Install Qt
-      uses: jurplel/install-qt-action@v2
+      uses: jurplel/install-qt-action@v3
       with:
-        cached: ${{steps.cache-qt.outputs.cache-hit}}
+        cache: true
+        cache-key-prefix: install-qt-action-${{runner.os}}
 
     - name: Git Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+
+    - name: Enable Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1.12.1
+      if: matrix.os == 'windows-latest'
 
     - name: Build
       run: |
@@ -41,7 +39,6 @@ jobs:
 
     - name: Build
       run: |
-        call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         qmake -v
         qmake -config verbose -config ${{matrix.config}}
         set CL=/MP
@@ -58,23 +55,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Cache Qt
-      id: cache-qt
-      uses: actions/cache@v1
-      with:
-        path: ../Qt
-        key: ${{runner.os}}-QtCache
-
     - name: Install Qt
-      uses: jurplel/install-qt-action@v2
+      uses: jurplel/install-qt-action@v3
       with:
-        cached: ${{steps.cache-qt.outputs.cache-hit}}
+        cache: true
+        cache-key-prefix: install-qt-action-${{runner.os}}
 
     - name: Install LCOV
       run: sudo apt install lcov
 
     - name: Git Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
 
     - name: Configure
       run: |
